@@ -1,0 +1,5 @@
+deny from all
+
+<FilesMatch "\.(gif|jpe?g|png|pdf)$">
+   allow from all
+</FilesMatch>

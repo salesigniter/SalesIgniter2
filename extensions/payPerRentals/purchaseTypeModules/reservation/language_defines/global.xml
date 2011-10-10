@@ -1,0 +1,8 @@
+<definitions>
+	<define key="MODULE_PURCHASE_TYPE_RESERVATION_TITLE"><![CDATA[Reservation]]></define>
+	<define key="MODULE_PURCHASE_TYPE_RESERVATION_DESCRIPTION"><![CDATA[Reservation products that are reserved by date]]></define>
+	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_DISABLED_DATES"><![CDATA[Disabled Dates]]></define>
+	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_GENERAL"><![CDATA[General]]></define>
+	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_SHIPPING"><![CDATA[Shipping]]></define>
+	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_PRICING"><![CDATA[Pricing]]></define>
+</definitions>

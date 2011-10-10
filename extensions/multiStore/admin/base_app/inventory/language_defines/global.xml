@@ -1,0 +1,27 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[Store Barcode Management]]></define>
+
+	<define key="TABLE_HEADING_BARCODE"><![CDATA[Barcode]]></define>
+	<define key="TABLE_HEADING_PRODUCT_NAME"><![CDATA[Product Name]]></define>
+	<define key="TABLE_HEADING_TRANSFER_STATUS"><![CDATA[Transfer Status]]></define>
+	<define key="TABLE_HEADING_CURRENT_STORE"><![CDATA[Current Store]]></define>
+	<define key="TABLE_HEADING_INFO"><![CDATA[Info]]></define>
+	<define key="TABLE_HEADING_DATE"><![CDATA[Date ]]></define>
+	<define key="TABLE_HEADING_ORIGIN_STORE"><![CDATA[From Store]]></define>
+	<define key="TABLE_HEADING_DESTINATION_STORE"><![CDATA[To Store]]></define>
+	<define key="TABLE_HEADING_TRACKING_NUMBER"><![CDATA[Tracking Number]]></define>
+
+	<define key="TEXT_INFO_STORE_STATUS"><![CDATA[Store Status]]></define>
+	<define key="TEXT_INFO_TRANSFER_HISTORY"><![CDATA[Transfer History]]></define>
+	<define key="TEXT_INFO_CLEAR_FILTER"><![CDATA[Clear Filter]]></define>
+
+	<define key="TEXT_ALL_STATUSES"><![CDATA[All Statuses]]></define>
+	<define key="TEXT_ALL_STORES"><![CDATA[All Stores]]></define>
+
+	<define key="TEXT_BUTTON_DOWNLOAD_CSV"><![CDATA[Download Csv]]></define>
+	<define key="TEXT_BUTTON_UPDATE_FROM_CSV"><![CDATA[Update From Csv]]></define>
+	<define key="TEXT_BUTTON_APPLY_FILTER"><![CDATA[Apply]]></define>
+	<define key="TEXT_BUTTON_CLEAR_FILTER"><![CDATA[Clear]]></define>
+	<define key="TEXT_BUTTON_RECEIVE_SHIPMENT"><![CDATA[Receive Shipment]]></define>
+	<define key="TEXT_BUTTON_CREATE_SHIPMENT"><![CDATA[Create Shipment]]></define>
+</definitions>

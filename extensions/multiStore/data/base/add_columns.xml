@@ -1,0 +1,27 @@
+<data>
+	<Admin>
+		<admins_main_store>
+			<type>integer</type>
+			<length>4</length>
+			<autoincrement>false</autoincrement>
+		</admins_main_store>
+		<admins_stores>
+			<type>string</type>
+			<length>999</length>
+		</admins_stores>
+	</Admin>
+	<ProductsPurchaseTypes>
+		<use_store_inventory>
+			<type>integer</type>
+			<length>1</length>
+			<autoincrement>false</autoincrement>
+		</use_store_inventory>
+	</ProductsPurchaseTypes>
+	<ProductsInventoryQuantity>
+		<inventory_store_id>
+			<type>integer</type>
+			<length>4</length>
+			<autoincrement>false</autoincrement>
+		</inventory_store_id>
+	</ProductsInventoryQuantity>
+</data>

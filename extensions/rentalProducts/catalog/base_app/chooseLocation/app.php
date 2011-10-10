@@ -1,0 +1,2 @@
+<?php
+	$appContent = $App->getAppContentFile();

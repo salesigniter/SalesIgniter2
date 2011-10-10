@@ -1,0 +1,15 @@
+<definitions>
+	<define key="TAB_LATE_FEES"><![CDATA[Late Fees]]></define>
+
+	<define key="TEXT_INFO_FEES_TOTAL"><![CDATA[Total Open Fees: ]]></define>
+
+	<define key="TABLE_HEADING_DATE_ADDED"><![CDATA[Date Added]]></define>
+	<define key="TABLE_HEADING_IS_PAID"><![CDATA[Is Paid]]></define>
+	<define key="TABLE_HEADING_ORDERED_PRODUCT"><![CDATA[Ordered Product]]></define>
+	<define key="TABLE_HEADING_FEE_AMOUNT"><![CDATA[Fee Amount]]></define>
+
+	<define key="TOOLTIP_TEXT_EDIT_FEES"><![CDATA[Edit Fee Balance]]></define>
+	<define key="TOOLTIP_TEXT_FEE_OPEN"><![CDATA[Fee Is Still Open]]></define>
+	<define key="TOOLTIP_TEXT_FEE_PAID"><![CDATA[Fee Has Been Paid]]></define>
+	<define key="TOOLTIP_TEXT_FEE_VOIDED"><![CDATA[Fee Has Been Voided]]></define>
+</definitions>

@@ -1,0 +1,6 @@
+<definitions>
+	<define key="MODULE_PURCHASE_TYPE_RENTAL_TITLE"><![CDATA[Rental]]></define>
+	<define key="MODULE_PURCHASE_TYPE_RENTAL_DESCRIPTION"><![CDATA[Rentals Which Mimic A Retail Rental Store]]></define>
+	<define key="TEXT_BUTTON_RENT"><![CDATA[Rent]]></define>
+	<define key="TEXT_RENTAL_LIMIT_REACHED"><![CDATA[Rental Limit Reached]]></define>
+</definitions>

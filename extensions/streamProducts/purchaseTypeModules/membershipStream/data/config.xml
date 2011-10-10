@@ -1,0 +1,50 @@
+<configurations>
+	<configuration>
+		<title><![CDATA[Enable Purchase Type]]></title>
+		<key><![CDATA[ENABLED]]></key>
+		<tab><![CDATA[General]]></tab>
+		<value><![CDATA[True]]></value>
+		<description><![CDATA[Do you want to enable this purchase type?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Enable Pricing]]></title>
+		<key><![CDATA[PRICING_ENABLED]]></key>
+		<tab><![CDATA[General]]></tab>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Do you want to enable pricing for this purchase type?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Enable Inventory Management]]></title>
+		<key><![CDATA[INVENTORY_ENABLED]]></key>
+		<tab><![CDATA[Inventory]]></tab>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Do you want to enable inventory management for this purchase type?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Select Inventory Track Methods]]></title>
+		<key><![CDATA[INVENTORY_TRACK_METHODS]]></key>
+		<tab><![CDATA[Inventory]]></tab>
+		<value><![CDATA[quantity,barcode]]></value>
+		<description><![CDATA[Select the inventory track methods you wish to use for this purchase type]]></description>
+		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'quantity', 'text' => 'Quantity'), array('id' => 'barcode', 'text' => 'Barcode')),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Select Quantity Statuses]]></title>
+		<key><![CDATA[INVENTORY_QUANTITY_STATUSES]]></key>
+		<tab><![CDATA[Inventory]]></tab>
+		<value><![CDATA[A,P]]></value>
+		<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
+		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Select Barcode Statuses]]></title>
+		<key><![CDATA[INVENTORY_BARCODE_STATUSES]]></key>
+		<tab><![CDATA[Inventory]]></tab>
+		<value><![CDATA[A,P]]></value>
+		<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
+		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
+	</configuration>
+</configurations>

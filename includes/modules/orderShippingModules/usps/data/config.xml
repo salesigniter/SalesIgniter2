@@ -1,0 +1,72 @@
+<configurations>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Installed Status]]></title>
+		<key><![CDATA[INSTALLED]]></key>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Tells if the module is installed or not]]></description>
+		<set_function><![CDATA[tep_cfg_show_installed_status(]]></set_function>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Enable USPS Shipping]]></title>
+		<key><![CDATA[STATUS]]></key>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Do you want to offer USPS shipping?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Tax Class]]></title>
+		<key><![CDATA[TAX_CLASS]]></key>
+		<value><![CDATA[0]]></value>
+		<description><![CDATA[Use the following tax class on the shipping fee.]]></description>
+		<use_function><![CDATA[tep_get_tax_class_title]]></use_function>
+		<set_function><![CDATA[tep_cfg_pull_down_tax_classes(]]></set_function>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Shipping Zone]]></title>
+		<key><![CDATA[ZONE]]></key>
+		<value><![CDATA[0]]></value>
+		<description><![CDATA[If a zone is selected, only enable this shipping method for that zone.]]></description>
+		<use_function><![CDATA[tep_get_zone_class_title]]></use_function>
+		<set_function><![CDATA[tep_cfg_pull_down_zone_classes(]]></set_function>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Display Order]]></title>
+		<key><![CDATA[DISPLAY_ORDER]]></key>
+		<value><![CDATA[0]]></value>
+		<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Enter the USPS User ID]]></title>
+		<key><![CDATA[MODULE_ORDER_SHIPPING_USPS_USERID]]></key>
+		<value><![CDATA[NONE]]></value>
+		<description><![CDATA[Enter the USPS USERID assigned to you.]]></description>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Enter the USPS Password]]></title>
+		<key><![CDATA[MODULE_ORDER_SHIPPING_USPS_PASSWORD]]></key>
+		<value><![CDATA[NONE]]></value>
+		<description><![CDATA[See USERID, above.]]></description>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Which server to use]]></title>
+		<key><![CDATA[MODULE_ORDER_SHIPPING_USPS_SERVER]]></key>
+		<value><![CDATA[Production]]></value>
+		<description><![CDATA[An account at USPS is needed to use the Production server]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('Test', 'Production'),]]></set_function>
+	</configuration>
+	<configuration>
+		<tab><![CDATA[General]]></tab>
+		<title><![CDATA[Handling Fee]]></title>
+		<key><![CDATA[MODULE_ORDER_SHIPPING_USPS_HANDLING]]></key>
+		<value><![CDATA[0]]></value>
+		<description><![CDATA[Handling fee for this shipping method.]]></description>
+	</configuration>
+</configurations>

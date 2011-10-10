@@ -1,0 +1,4 @@
+<definitions>
+	<define key="TAB_CUSTOM_FIELDS"><![CDATA[Custom Fields]]></define>
+	<define key="TEXT_ENTRY_CHOOSE_CUSTOM_FIELD_SET"><![CDATA[<span style="color:red">Choose Custom Field Set: </span>]]></define>
+</definitions>

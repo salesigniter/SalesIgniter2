@@ -1,0 +1,9 @@
+<definitions>
+	<define key="TAB_PURCHASE_TYPE_HEADING_LATE_FEES"><![CDATA[Late Fees]]></define>
+
+	<define key="ENTRY_LATE_FEES_CALCULATION"><![CDATA[Late Fee Calculation: ]]></define>
+	<define key="ENTRY_LATE_FEE"><![CDATA[Late Fee: ]]></define>
+
+	<define key="TEXT_FIXED"><![CDATA[Flat Fee]]></define>
+	<define key="TEXT_PERCENT"><![CDATA[Percentage]]></define>
+</definitions>

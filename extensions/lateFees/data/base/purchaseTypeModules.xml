@@ -1,0 +1,26 @@
+<configurations modules="rental,reservation">
+	<configuration>
+		<title><![CDATA[Enable Late Fees Integration]]></title>
+		<key><![CDATA[LATE_FEES_ENABLED]]></key>
+		<tab><![CDATA[Late Fees]]></tab>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Do you want to enable late fees integration for this purchase type?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Auto Calculate Late Fee]]></title>
+		<key><![CDATA[AUTO_CALCULATE]]></key>
+		<tab><![CDATA[Late Fees]]></tab>
+		<value><![CDATA[False]]></value>
+		<description><![CDATA[Do you want to auto calculate the late fees on product return?]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+	</configuration>
+	<configuration>
+		<title><![CDATA[Late Fee Calculation Method]]></title>
+		<key><![CDATA[CALCULATION_METHOD]]></key>
+		<tab><![CDATA[Late Fees]]></tab>
+		<value><![CDATA[Recurring]]></value>
+		<description><![CDATA[<b><u>One Time Vs Recurring</u></b><br> - <b>One Time</b> will charge the late fee only once when the product is late<br> - <b>Recurring</b> will charge the late fee every day the item is late]]></description>
+		<set_function><![CDATA[tep_cfg_select_option(array('One Time', 'Recurring'),]]></set_function>
+	</configuration>
+</configurations>

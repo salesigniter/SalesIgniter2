@@ -1,0 +1,9 @@
+<data>
+	<Products>
+		<addon_products>
+			<type>string</type>
+			<length>10000</length>
+			<notnull>false</notnull>
+		</addon_products>
+	</Products>
+</data>

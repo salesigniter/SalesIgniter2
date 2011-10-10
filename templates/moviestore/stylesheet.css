@@ -1,0 +1,242 @@
+/* Global Styles --BEGIN-- */
+html {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+a img {
+	border: none;
+}
+
+:focus {
+	outline: 0;
+}
+
+.container {
+}
+
+.column {
+	display: inline-block;
+	line-height: 1em;
+	vertical-align: top;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+	line-height: 1.3em;
+	font-family: Arial;
+}
+
+.demo-notice {
+	background: #D75F07;
+	color: #FFFFFF;
+	line-height: 1.15;
+	margin: 0;
+	padding: 6px 10px;
+	text-align: center;
+}
+
+.ui-tabs .ui-tabs-nav { line-height: 1.5em; }
+
+.ui-button {
+	<?php echo buildBorderRadius('6px', '6px', '6px', '6px');?>
+}
+
+.ui-button .ui-icon {
+	background-image: url(<?php echo jqueryIconsPath('ffffff' );?>);
+}
+
+.ui-button.ui-state-default {
+	border-color: transparent;
+	color: #ffffff;
+	font-size: 1.1em;
+	<?php echo buildSimpleGradient('#afb5ba', '#2b3a47');?>
+}
+
+.ui-button.ui-state-active, .ui-button.ui-state-selected {
+	<?php echo buildSimpleGradient('#2b3a47', '#afb5ba');?>
+}
+
+.ui-button.ui-state-hover {
+	<?php echo buildSimpleGradient('#2b3a47', '#afb5ba');?>
+}
+
+.ui-widget-header {
+	color: #ffffff;
+	line-height: 3em;
+	border: none;
+	background: #283641;
+	margin: .3em;
+	<?php echo buildBorderRadius('4px', '4px', '4px', '4px');?>
+}
+
+.ui-widget-header-text {
+	vertical-align: baseline;
+	color: #ffffff;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.ui-widget-content {
+	background: #dcdcdc;
+	color: #1a1a1a;
+}
+
+.ui-infobox {
+	border-color: transparent;
+	<?php echo buildBorderRadius('4px', '4px', '4px', '4px');?>
+}
+
+.ui-infobox-header-text {
+	vertical-align: baseline;
+	color: #ffffff;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+#searchBox {
+	font-size: 1.2em;
+}
+
+#searchBox input, #searchBox button {
+	line-height: 1.5em;
+	<?php echo buildBorderRadius('8px', '8px', '8px', '8px');?>
+}
+
+#searchBox button {
+	border: 1px solid black;
+}
+
+#searchBox button .ui-button-text {
+	font-size: 0.8em;
+	padding: .4em;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+#searchBox button.ui-state-default {
+	<?php echo buildSimpleGradient('#e42929', '#9a0b0b');?>
+}
+
+#searchBox button.ui-state-active {
+	<?php echo buildSimpleGradient('#9a0b0b', '#e42929');?>
+}
+
+#searchBox button.ui-state-hover {
+	<?php echo buildSimpleGradient('#9a0b0b', '#e42929');?>
+}
+
+#mainNavMenu {
+	line-height: 6.3em;
+}
+
+#mainNavMenu a {
+	font-weight: bold;
+	font-family: Tahoma, Arial;
+	font-size: 1.4em;
+}
+
+#mainNavMenu li.root {
+	border: 1px solid transparent;
+	border-left-color: #2b1616;
+	border-right-color: #284e8d;
+}
+
+#mainNavMenu li.root.first {
+	border-left-color: transparent;
+}
+
+#mainNavMenu li.root.last {
+	border-right-color: transparent;
+}
+
+#mainNavMenu li.root.ui-state-default a {
+	color: #ffffff;
+}
+
+#mainNavMenu li.root.ui-state-active a, #mainNavMenu li.root.ui-state-hover a {
+	color:#e51b24;
+}
+
+#siteNavMenu {
+	line-height: 3em;
+}
+
+#siteNavMenu a {
+	font-weight: bold;
+	font-family: Tahoma, Arial;
+	font-size: 1.4em;
+}
+
+#siteNavMenu a .menu_text {
+	margin-left:1em;
+	margin-right:1em;
+}
+
+#siteNavMenu li.root {
+	border: 1px solid transparent;
+	border-left-color: #890909;
+	border-right-color: #d30909;
+}
+
+#siteNavMenu li.root.first {
+	border-left-color: transparent;
+}
+
+#siteNavMenu li.root.last {
+	border-right-color: transparent;
+}
+
+#siteNavMenu li.root.ui-state-default a {
+	color: #ffffff;
+}
+
+#siteNavMenu li.root.ui-state-active a, #siteNavMenu li.root.ui-state-hover a {
+	color:#212121;
+}
+
+/* Global Styles --END-- */
+
+/* Index Page --BEGIN-- */
+.scrollerList {
+	margin-bottom: 30px;
+}
+/* Index Page --END-- */
+
+/* All Pages --BEGIN-- */
+.ui-dialog-titlebar {
+	color: #ffffff;
+}
+
+tr.ui-widget-header td, tr.ui-widget-header th, tr th.ui-widget-header {
+	color: #ffffff;
+	<?php echo buildBorderRadius('0px', '0px', '0px', '0px');?>
+}
+
+.productListingRowContents .ui-widget-header {
+	color: #ffffff;
+	<?php echo buildBorderRadius('0px', '0px', '0px', '0px');?>
+}
+
+.moduleRow.ui-state-default {
+	color: #010101;
+	border: 1px solid transparent;
+	background: none;
+}
+
+.moduleRow.ui-state-hover {
+	color: #010101;
+	background: #b5bbc0;
+	border-color: #1f2429;
+}
+
+.moduleRow.ui-state-active {
+	color: #010101;
+	background: #b5bbc0;
+	border-color: #1f2429;
+}
+
+/* All Pages --END-- */

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<config protected="true">
+		<key>HTTP_DOMAIN_NAME</key>
+		<value>itwebexperts.com</value>
+	</config>
+	<config protected="true">
+		<key>HTTPS_DOMAIN_NAME</key>
+		<value>itwebexperts.com</value>
+	</config>
+	<config protected="false">
+		<key>DIR_WS_CATALOG</key>
+		<value>/et_video/</value>
+	</config>
+	<config protected="true">
+		<key>DIR_FS_DOCUMENT_ROOT</key>
+		<value>/home/itweb1/public_html</value>
+	</config>
+	<config protected="true">
+		<key>DB_SERVER</key>
+		<value>localhost</value>
+	</config>
+	<config protected="true">
+		<key>DB_SERVER_USERNAME</key>
+		<value>itweb1_etvideo</value>
+	</config>
+	<config protected="true">
+		<key>DB_SERVER_PASSWORD</key>
+		<value>demo1</value>
+	</config>
+	<config protected="true">
+		<key>DB_DATABASE</key>
+		<value>itweb1_et_video</value>
+	</config>
+	<config protected="true">
+		<key>ENABLE_SSL</key>
+		<value>false</value>
+	</config>
+	<config protected="true">
+		<key>ENABLE_SSL_CATALOG</key>
+		<value>false</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_UPGRADE_SERVER</key>
+		<value>www.itwebexperts.com</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_VERSION</key>
+		<value>1</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_UPGRADE_USERNAME</key>
+		<value>itwebgit</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_UPGRADE_PASSWORD</key>
+		<value>a43761e2c25520fb133f8aa72a5f5231</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_FTP_SERVER</key>
+		<value>ftp.itwebexperts.com</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_FTP_USERNAME</key>
+		<value>itweb1</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_FTP_PASSWORD</key>
+		<value>21#az*52</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_INSTALL_DATE</key>
+		<value>6/6/2001</value>
+	</config>
+</configuration>

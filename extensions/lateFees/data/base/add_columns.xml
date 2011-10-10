@@ -1,0 +1,12 @@
+<data>
+	<ProductsPurchaseTypes>
+		<late_fee>
+			<type>decimal</type>
+			<length>15</length>
+		</late_fee>
+		<late_fee_calculation>
+			<type>string</type>
+			<length>32</length>
+		</late_fee_calculation>
+	</ProductsPurchaseTypes>
+</data>
