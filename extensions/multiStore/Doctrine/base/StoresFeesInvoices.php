@@ -28,15 +28,46 @@ class StoresFeesInvoices extends Doctrine_Record {
 		$this->hasColumn('paid', 'integer', 1);
 		$this->hasColumn('date_added', 'string', 255);
 		$this->hasColumn('date_paid', 'string', 255);
-		$this->hasColumn('fee_royalty', 'decimal', 15);
-		$this->hasColumn('fee_royalty_discount', 'decimal', 15);
-		$this->hasColumn('fee_management', 'decimal', 15);
-		$this->hasColumn('fee_management_discount', 'decimal', 15);
-		$this->hasColumn('fee_marketing', 'decimal', 15);
-		$this->hasColumn('fee_marketing_discount', 'decimal', 15);
-		$this->hasColumn('fee_labor', 'decimal', 15);
-		$this->hasColumn('fee_labor_discount', 'decimal', 15);
-		$this->hasColumn('fee_parts', 'decimal', 15);
-		$this->hasColumn('fee_parts_discount', 'decimal', 15);
+		
+		$this->hasColumn('fee_royalty', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_royalty_discount', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_management', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_management_discount', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_marketing', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_marketing_discount', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_labor', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_labor_discount', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_parts', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
+		$this->hasColumn('fee_parts_discount', 'decimal', 15, array(
+				'scale' => 4
+			));
+			
 	}
 }

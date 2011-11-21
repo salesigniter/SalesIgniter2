@@ -73,6 +73,7 @@ class LateFees extends Doctrine_Record {
 
 		$this->hasColumn('fee_amount', 'decimal', 15, array(
 				'type'          => 'decimal',
+				'scale'         => 4,
 				'length'        => 15,
 				'fixed'         => false,
 				'primary'       => false,

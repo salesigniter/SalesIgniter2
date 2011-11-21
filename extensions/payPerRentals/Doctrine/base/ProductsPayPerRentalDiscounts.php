@@ -60,7 +60,7 @@ class ProductsPayPerRentalDiscounts extends Doctrine_Record {
 				'default' => '0.0000',
 				'notnull' => true,
 				'autoincrement' => false,
-				'scale' => false,
+				'scale' => 4,
 			));
 
 		$this->hasColumn('discount_to', 'decimal', 15, array(
@@ -71,7 +71,7 @@ class ProductsPayPerRentalDiscounts extends Doctrine_Record {
 				'default' => '0.0000',
 				'notnull' => true,
 				'autoincrement' => false,
-				'scale' => false,
+				'scale' => 4,
 			));
 
 		$this->hasColumn('discount_percent', 'decimal', 15, array(
@@ -82,7 +82,7 @@ class ProductsPayPerRentalDiscounts extends Doctrine_Record {
 				'default' => '0.0000',
 				'notnull' => true,
 				'autoincrement' => false,
-				'scale' => false,
+				'scale' => 4,
 			));
 	}
 }

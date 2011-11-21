@@ -52,6 +52,7 @@ class ProductsInventoryCenters extends Doctrine_Record {
 
 		$this->hasColumn('inventory_center_comission', 'decimal', 15, array(
 			'type'          => 'decimal',
+			'scale' => 2,
 			'length'        => 15,
 			'unsigned' => 0,
 			'primary' => false,
