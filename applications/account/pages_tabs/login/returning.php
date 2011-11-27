@@ -9,7 +9,7 @@
 					<td class="main"><?php echo sysLanguage::get('ENTRY_EMAIL_ADDRESS');?></td>
 					<td><?php
 						echo htmlBase::newElement('input')
-							->addClass('useKeyboard')
+							//->addClass('useKeyboard')
 							->setType('email')
 							->setName('email_address')
 							->attr('required', '')
@@ -22,7 +22,7 @@
 					<td><?php
 						echo htmlBase::newElement('input')
 							->setType('password')
-							->addClass('useKeyboard')
+							//->addClass('useKeyboard')
 							->setName('password')
 							->attr('required', '')
 							->css('width', '200px')

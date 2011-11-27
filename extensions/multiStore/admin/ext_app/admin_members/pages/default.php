@@ -15,7 +15,7 @@ class MultiStore_admin_admin_members_default extends Extension_multiStore {
 
 	public function AdminMembersNewEditWindowBeforeDraw(htmlWidget_infobox &$infoBox, Admin $Admin){
 		$checkboxes = array();
-		foreach($this->getStoresArray() as $sInfo){
+		foreach($this->getStoresArray(false, true) as $sInfo){
 			$checkboxes[] = array(
 				'value' => $sInfo['stores_id'],
 				'label' => $sInfo['stores_name'],

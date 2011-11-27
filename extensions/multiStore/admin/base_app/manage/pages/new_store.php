@@ -156,31 +156,31 @@ $storeInfoTable->addBodyRow(array(
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => '<b>Royalty:</b>'),
-			array('addCls' => 'main', 'text' => $storeFeeRoyalty->draw() . '%')
+			array('addCls' => 'main', 'text' => $storeFeeRoyalty->draw() .sysLanguage::get('TEXT_FEES_PERCENT'))
 		)
 	));
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => '<b>Management:</b>'),
-			array('addCls' => 'main', 'text' => $storeFeeManagement->draw() . '%')
+			array('addCls' => 'main', 'text' => $storeFeeManagement->draw() .sysLanguage::get('TEXT_FEES_PERCENT'))
 		)
 	));
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => '<b>Marketing:</b>'),
-			array('addCls' => 'main', 'text' => $storeFeeMarketing->draw() . '%')
+			array('addCls' => 'main', 'text' => $storeFeeMarketing->draw() .sysLanguage::get('TEXT_FEES_PERCENT'))
 		)
 	));
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => '<b>Labor:</b>'),
-			array('addCls' => 'main', 'text' => $storeFeeLabor->draw() . '%')
+			array('addCls' => 'main', 'text' => $storeFeeLabor->draw() .sysLanguage::get('TEXT_FEES_PERCENT'))
 		)
 	));
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => '<b>Parts:</b>'),
-			array('addCls' => 'main', 'text' => $storeFeeParts->draw() . '%')
+			array('addCls' => 'main', 'text' => $storeFeeParts->draw() .sysLanguage::get('TEXT_FEES_PERCENT'))
 		)
 	));
 /* Build the store info table --END-- */

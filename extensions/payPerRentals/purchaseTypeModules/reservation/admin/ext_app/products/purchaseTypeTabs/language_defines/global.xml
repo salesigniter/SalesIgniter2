@@ -2,6 +2,9 @@
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_DISABLED_DATES"><![CDATA[Disabled Dates]]></define>
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_GENERAL"><![CDATA[General]]></define>
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_SHIPPING"><![CDATA[Shipping]]></define>
+	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_MAINTENANCE"><![CDATA[Maintenance]]></define>
+	<define key="TEXT_PAY_PER_RENTAL_MAINTENANCE"><![CDATA[Choose Maintenance for Product]]></define>
+
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_PRICING"><![CDATA[Pricing]]></define>
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_DISCOUNTS"><![CDATA[Discounts]]></define>
 </definitions>

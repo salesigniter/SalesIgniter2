@@ -78,7 +78,7 @@ class Extension_imageRot extends ExtensionBase {
 
 	public function showBannerGroup($group,$isnotName, $settings = null){
 
-		require_once(DIR_FS_CATALOG . 'includes/classes/template.php');
+		require_once(sysConfig::getDirFsCatalog() . 'includes/classes/template.php');
 		$templateFile = 'banner.tpl';
 		$templateDir = dirname(__FILE__) . '/catalog/ext_app/banners/template/';
 		if (is_null($settings) === false && isset($settings['template_file'])){

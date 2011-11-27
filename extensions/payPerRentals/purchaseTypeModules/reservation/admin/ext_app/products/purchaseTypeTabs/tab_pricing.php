@@ -199,7 +199,7 @@
 			)
 		));
 		$TabsObj->addTabHeader('productPricingTab_' . $typeName, array('text' => $typeText))
-		->addTabPage('productPricingTab_' . $typeName, array('text' => $pricingTable->draw()));
+		->addTabPage('productPricingTab_' . $typeName, array('text' => $pricingPeriods->draw() . $pricingTable->draw()));
 	}
 }
 

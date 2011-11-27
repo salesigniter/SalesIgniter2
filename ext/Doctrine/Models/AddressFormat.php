@@ -23,9 +23,9 @@ class AddressFormat extends Doctrine_Record {
 			'autoincrement' => true,
 		));
 		
-		$this->hasColumn('address_format', 'string', 999, array(
+		$this->hasColumn('address_format', 'string', null, array(
 			'type' => 'string',
-			'length' => 999,
+			'length' => null,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',
@@ -33,9 +33,9 @@ class AddressFormat extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('address_summary', 'string', 999, array(
+		$this->hasColumn('address_summary', 'string', null, array(
 			'type' => 'string',
-			'length' => 999,
+			'length' => null,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',

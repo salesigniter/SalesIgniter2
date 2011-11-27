@@ -308,8 +308,8 @@ function tep_get_category_tree($parent_id = '0', $spacing = '', $exclude = '', $
 }
 
 function tep_info_image($image, $alt, $width = '', $height = '') {
-	if (tep_not_null($image) && (file_exists(DIR_FS_CATALOG_IMAGES . $image)) ) {
-		$image = tep_image(DIR_WS_CATALOG_IMAGES . $image, $alt, $width, $height);
+	if (tep_not_null($image) && (file_exists(sysConfig::get('DIR_FS_CATALOG_IMAGES') . $image)) ) {
+		$image = tep_image(sysConfig::get('DIR_WS_CATALOG_IMAGES') . $image, $alt, $width, $height);
 	} else {
 		$image = sysLanguage::get('TEXT_IMAGE_NONEXISTENT');
 	}
@@ -939,7 +939,7 @@ function tep_display_tax_value($value, $padding = TAX_DECIMAL_PLACES) {
 	return $value;
 }
 
-function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $from_email_name, $from_email_address) {
+function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $from_email_name, $from_email_address, $attachments = '') {
 	if (sysConfig::get('SEND_EMAILS') != 'true') return false;
 
 	// Instantiate a new mail object
@@ -951,6 +951,17 @@ function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $fro
 		$message->add_html($email_text, $text);
 	} else {
 		$message->add_text($text);
+	}
+	if(!empty($attachments)){
+		if(!is_array($attachments)){
+			$attachment = fread(fopen(sysConfig::getDirFsCatalog().$attachments, "r"), filesize(sysConfig::getDirFsCatalog() . $attachments));
+			$message->add_attachment($attachment,basename($attachments));
+		}else{
+			foreach($attachments as $attach){
+				$attachment = fread(fopen(sysConfig::getDirFsCatalog().$attach, "r"), filesize(sysConfig::getDirFsCatalog() . $attach));
+				$message->add_attachment($attachment,basename($attach));
+			}
+		}
 	}
 
 	// Send message
@@ -1544,9 +1555,7 @@ function tep_cfg_pull_down_template_list($templateName){
 	->selectOptionByValue($templateName);
 	foreach($templatesArray as $dir){
 		$lowered = strtolower($dir);
-		if (file_exists(sysConfig::getDirFsCatalog().'templates/'.$lowered.'/templateData.tms')){
-			$switcher->addOption($lowered, $dir);
-		}
+		$switcher->addOption($lowered, $dir);
 	}
 	return $switcher->draw();
 }
@@ -2042,7 +2051,7 @@ function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
 				'clientPassword' => $password,
 				'username' => sysConfig::get('SYSTEM_UPGRADE_USERNAME'),
 				'password' => sysConfig::get('SYSTEM_UPGRADE_PASSWORD'),
-				'domain' => $_SERVER['HTTP_HOST']
+				'domain' => sysConfig::get('HTTP_HOST')
 			));
 
 		$ResponseObj = $RequestObj->execute();

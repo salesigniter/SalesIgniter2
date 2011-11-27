@@ -20,7 +20,7 @@ function tep_href_link($page = '', $parameters = '', $connection = 'NONSSL', $ad
 	}
 	if ( !is_object($seo_urls) ){
 		if ( !class_exists('SEO_URL') ){
-			include_once(DIR_WS_CLASSES . 'seo.class.php');
+			include_once(sysConfig::get('DIR_WS_CLASSES') . 'seo.class.php');
 		}
 		$seo_urls = new SEO_URL(Session::get('languages_id'));
 	}
@@ -110,6 +110,11 @@ function buildAppLink($o){
 function itw_app_link($params=null, $appName=null, $appPage=null, $connection='NONSSL'){
 	global $request_type;
 	$appExt = null;
+
+	if($appName == 'account' && sysConfig::get('ENABLE_SSL') == true && ($connection !== 'SSL')){
+		$connection = 'SSL';
+	}
+	
 	if (!is_null($params)){
 		parse_str($params, $vars);
 		$paramsParsed = true;
@@ -307,8 +312,8 @@ function tep_draw_selection_field($name, $type, $value = '', $checked = false, $
 
 	if (tep_not_null($value)) $selection .= ' value="' . tep_output_string($value) . '"';
 
-	if ( ($checked == true) || ( isset($GLOBALS[$name]) && is_string($GLOBALS[$name]) && ( ($GLOBALS[$name] == 'on') || (isset($value) && (stripslashes($GLOBALS[$name]) == $value)) ) ) ) {
-		$selection .= ' CHECKED';
+	if ( ($checked == true)  ) {
+		$selection .= ' checked="checked"';
 	}
 
 	if (tep_not_null($parameters)) $selection .= ' ' . $parameters;
@@ -447,6 +452,16 @@ function tep_get_source_list($name, $show_other = false, $selected = '', $parame
 
 function itw_template_button($text, $parameters = ''){
 	return '<button class="ui-button ui-state-default ui-corner-all" type="button"' . ($parameters != '' ? ' ' . $parameters : '') . '><span>' . $text . '</span></button>';
+}
+
+function create_hidden_fields($getArr, &$hiddenFields, $prependName = '', $appendName = ''){
+	foreach ($getArr as $k => $v) {
+		if(is_array($v)){
+			create_hidden_fields($v,&$hiddenFields,$k . '[', ']');
+		} else {
+			$hiddenFields .= '<input type="hidden" name="' . $prependName . $k . $appendName . '" value="' . $v . '" />' . "\n";
+		}
+	}
 }
 
 function itw_template_submit_button($text, $parameters = ''){

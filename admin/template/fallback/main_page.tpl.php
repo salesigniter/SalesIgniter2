@@ -1,4 +1,7 @@
 <?php
+if(Session::exists('tplDir') === false){
+	Session::set('tplDir', 'fallback');
+}
 $stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/stylesheet.php?' .
 	'&env=admin' .
 	'&' . Session::getSessionName() . '=' . Session::getSessionId() .

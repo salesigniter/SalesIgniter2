@@ -4,6 +4,10 @@ function updateTotals(){
                          $(this).click();
                         isShip = true;
     });
+	if($(':hidden[name="shipping_method"]')){
+		setOnlyShippingMethod();
+		isShip = true;
+	}
     if (isShip == false){
          $('.orderTotalsList').each(function (){
                     showAjaxLoader($(this), 'large');
@@ -25,6 +29,28 @@ function updateTotals(){
                 }
          });
     }
+}
+
+function setOnlyShippingMethod(){
+	if($(':radio[name="shipping_method"]')){}else {
+		$('.orderTotalsList').each(function (){
+			showAjaxLoader($(this).parent(), 'large');
+		});
+		var linkParams = js_get_all_get_params(['app', 'appPage', 'action']);
+		$.ajax({
+			url: js_app_link(linkParams + 'rType=ajax&app=checkout&appPage=default&action=setShippingMethod'),
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: 'shipping_method=' + $(':hidden[name="shipping_method"]').val(),
+			success: function (data){
+				$('.orderTotalsList').each(function (){
+					removeAjaxLoader($(this).parent(), 'large', 'append');
+				});
+				$('.orderTotalsList').html(data.orderTotalRows);
+			}
+		});
+	}
 }
 $(document).ready(function (){
 	$('.shippingAddressDiff').live('click',function (){
@@ -117,7 +143,8 @@ $(document).ready(function (){
 				if (data.errorMsg != ''){
 					alert(data.errorMsg);
 				}
-                $('.orderTotalsList').html(data.orderTotalRows);
+	            //$('.orderTotalsList').html(data.orderTotalRows);
+	            updateTotals();
             }
         });
         return false;
@@ -238,6 +265,9 @@ $(document).ready(function (){
                         return false;
                     }
                 }
+	        if($(':hidden[name="shipping_method"]:checked')){
+		        setOnlyShippingMethod();
+	        }
         }
         if ($('#currentPage').val() == 'success'){
             js_redirect(DIR_WS_CATALOG);
@@ -280,6 +310,7 @@ $(document).ready(function (){
                 if ($('#currentPage').val() != 'addresses'){	              
 
                      $('#voucherRedeem').button();
+                     $('#gcRedeem').button();
                      $('#agreeMessage').hide();
                      $('#bar_step1').hide();
                      $('#bar_step2').show();
@@ -295,14 +326,29 @@ $(document).ready(function (){
                         	 $(this).trigger('click');
                      	 });
 					 }
-					 $(':radio[name="payment_method"]:checked').each(function(){
-						 $(this).click();
-					 });
-					 if ($(':radio[name="payment_method"]').size() == 1){
-						$(':radio[name="payment_method"]').each(function(){
-							$(this).trigger('click');
-						});
-					 }
+			if($(':hidden[name="shipping_method"]:checked')){
+	                    setOnlyShippingMethod();
+	                }
+	                $('.shipInfo').css('cursor','pointer');
+	                 $('.shipInfo').click(function(){
+		                 link = js_app_link('appExt=payPerRentals&app=show_shipping&appPage=default_all&dialog=true');
+		                 popupWindow(link,'400','300');
+		                 return false;
+	                 });
+	                if($(':radio[name="payment_method"]:checked').size() == 0){
+		                var p=0;
+		                $(':radio[name="payment_method"]').each(function(){
+			                p++;
+			                if(p == 1){
+				                $(this).trigger('click');
+			                }
+		                });
+	                }else{
+		                $(':radio[name="payment_method"]:checked').each(function(){
+			                $(this).trigger('click');
+		                });
+	                }
+
                      $('.breadCrumb').html('<a class="headerNavigation" href="'+js_app_link('app=index&appPage=default')+'">You Are Here: Home</a> &raquo; Checkout &raquo; Payment & Shipping');
 					 $('#insure_button').button();
                       try{
@@ -317,9 +363,12 @@ $(document).ready(function (){
 						}
 	                }catch(err){
 	                }
-                	 if ($('.rentalPlans').length <= 0){
-                    	updateTotals();
-                	 }
+                	if ($('.rentalPlans').length <= 0){
+                        updateTotals();
+                	}
+                    if ($('.giftCertificates').length <= 0){
+                        updateTotals();
+                    }
                 }
                 $('#loginButton').button();
                 $('#changeBillingAddress').button();
@@ -366,7 +415,8 @@ $(document).ready(function (){
 				$('.orderTotalsList').each(function (){
 					removeAjaxLoader($(this).parent(), 'large', 'append');
 				});
-				$('.orderTotalsList').html(data.orderTotalRows);
+				//$('.orderTotalsList').html(data.orderTotalRows);
+				updateTotals();
 			}
 		});
 	});

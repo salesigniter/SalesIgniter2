@@ -21,7 +21,7 @@ class membershipUpdate_cron {
 
 	public function timeToBill($date){
 		$dateArr = $this->parseDate($date);
-		return (date('Y-m-d', mktime(0,0,0,$dateArr['month'],$dateArr['day'],$dateArr['year'])) == date('Y-m-d'));
+		return (date('Y-m-d', mktime(0,0,0,$dateArr['month'],$dateArr['day'],$dateArr['year'])) == date('Y-m-d'))  /*((date('Y-m-d', mktime(0,0,0,$dateArr['month'],$dateArr['day'],$dateArr['year'])) >= date('Y-m-d', mktime(0,0,0,10,19,2011))) && (date('Y-m-d', mktime(0,0,0,$dateArr['month'],$dateArr['day'],$dateArr['year'])) <= date('Y-m-d', mktime(0,0,0,10,24,2011))))*/;
 	}
 
 	public function needsRetry($cID){
@@ -145,7 +145,7 @@ class membershipUpdate_cron {
 					$endTime = strtotime('+' . (int)$streamViewTime . ' ' . $period, $now);
 				}else{
 					$membershipMonths = $membership->getMembershipMonths();
-					$membershipDays = $membership->getMembershipMonths();
+					$membershipDays = $membership->getMembershipDays();
 					$endTime = strtotime('+' . (int)$membershipMonths . ' month ' . (int)$membershipDays . ' day', $now);
 				}
 				$newStart = date('Y-m-d', $now);
@@ -158,7 +158,7 @@ class membershipUpdate_cron {
 	public function updateCustomersNextBillDate(){
 		$membership =& $this->userAccount->plugins['membership'];
 		$membershipMonths = $membership->getMembershipMonths();
-		$membershipDays = $membership->getMembershipMonths();
+		$membershipDays = $membership->getMembershipDays();
 		$nextTime = strtotime('+' . (int)$membershipMonths . ' month ' . (int)$membershipDays . ' day');
 		$nextBillDate = date('Y-m-d', $nextTime);
 
@@ -170,7 +170,7 @@ class membershipUpdate_cron {
 	public function addAdminEmailContent(){
 		$membership =& $this->userAccount->plugins['membership'];
 		$membershipMonths = $membership->getMembershipMonths();
-		$membershipDays = $membership->getMembershipMonths();
+		$membershipDays = $membership->getMembershipDays();
 		$currentNextBill = $membership->getNextBillDate();
 		$currentPlanName = $membership->getPlanName();
 		$currentPlanPrice = $membership->getPlanPrice();
@@ -232,9 +232,8 @@ class membershipUpdate_cron {
 
 			$return = false;
 
-			$this->order->updateBillAttempts();
 			$historyArray['customer_notified'] = 0;
-			if ($this->order->getBillingAttempts() < $this->retryMaxTimes){
+			if (!is_object($this->order) || $this->order->getBillingAttempts() < $this->retryMaxTimes){
 				$historyArray['customer_notified'] = 1;
 
 				$emailEvent = new emailEvent('membership_renewal_failed', $this->userAccount->getLanguageId());
@@ -259,12 +258,11 @@ class membershipUpdate_cron {
 
 	public function insertOrder(){
 		global $currencies;
-		if ($this->isRetry()){
-			$this->order->updateBillAttempts();
-			return true;
-		}
-
 		$order = new OrderProcessor;
+		if ($this->isRetry()){
+			$this->order->updateBillingAttempts();
+			return $this->order->orderId;
+		}
 		$OrderTotalModules = new OrderTotalModules;
 
 		$addressBook =& $this->userAccount->plugins['addressBook'];
@@ -285,7 +283,7 @@ class membershipUpdate_cron {
 
 		$order->createOrder();
 
-		if (CRON_BILL_METHOD == 'current'){
+		if (sysConfig::get('CRON_BILL_METHOD') == 'current'){
 			$planPrice = $membership->getPlanPrice();
 			$planName = $membership->getPlanName();
 			$taxRate = $membership->getPlanTaxRate($rentalAddress['entry_country_id'], $rentalAddress['entry_zone_id']);

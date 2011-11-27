@@ -66,7 +66,7 @@ class ProductsPurchaseTypes extends Doctrine_Record
 				'default' => '0.0000',
 				'notnull' => false,
 				'autoincrement' => false,
-				'scale' => 4
+				'scale' => false
 			));
 		$this->hasColumn('tax_class_id', 'integer', 4, array(
 				'type' => 'integer',

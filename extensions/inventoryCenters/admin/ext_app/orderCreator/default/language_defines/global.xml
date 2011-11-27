@@ -1,0 +1,5 @@
+<definitions>
+	<define key="ENTRY_CUSTOMERS_STORE"><![CDATA[Store: ]]></define>
+	<define key="ENTRY_CUSTOMERS_INVENTORY_CENTER"><![CDATA[Inventory Center: ]]></define>
+
+</definitions>

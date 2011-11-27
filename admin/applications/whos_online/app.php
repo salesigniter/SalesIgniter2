@@ -4,7 +4,7 @@
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
 	$currencies = new currencies();
 	
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/product.php');
+	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 	
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/shopping_cart.php');
 	//$ShoppingCart = new ShoppingCart;

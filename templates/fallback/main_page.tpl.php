@@ -1,103 +1,89 @@
-<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html <?php echo HTML_PARAMS; ?>>
-<head>
-<?php require(DIR_WS_INCLUDES . 'meta_tags.php'); ?>
-<title><?php echo META_TAG_TITLE; ?></title>
-<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>">
-<meta name="keywords" content="<?php echo META_TAG_KEYWORDS; ?>">
-<meta name="description" content="<?php echo META_TAG_DESCRIPTION; ?>">
-<base href="<?php echo (($request_type == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>">
-<link rel="stylesheet" type="text/css" href="<?php echo (bts_select('stylesheet','stylesheet.css')); // BTSv1.5 ?>">
-<link rel="stylesheet" type="text/css" href="<?php echo (bts_select('stylesheet','stylesheet-new.css')); // BTSv1.5 ?>">
-<link rel="stylesheet" type="text/css" href="<?php echo (bts_select('stylesheet','print.css')); // BTSv1.5 ?>" media="print">
-<script type="text/javascript" language="javascript" src="<?echo DIR_WS_JAVASCRIPT;?>behavior.js"></script>
-<script type="text/javascript" language="javascript" src="<?echo DIR_WS_JAVASCRIPT;?>rating.js"></script>
-<script type="text/javascript" language="javascript" src="ext/jQuery/jQuery.js"></script>
-
-<link rel="stylesheet" type="text/css" href="<?php echo (bts_select('stylesheet','rating.css'));?>" />
-<?php if (isset($javascript) && file_exists(DIR_WS_JAVASCRIPT . basename($javascript))) { require(DIR_WS_JAVASCRIPT . basename($javascript)); } ?>
-</head>
-<body>
-<!-- warnings //-->
-<?php require(DIR_WS_INCLUDES . 'warnings.php'); ?>
-<!-- warning_eof //-->
 <?php
-// include i.e. template switcher in every template
-if(bts_select('common', 'common_top.php')) include (bts_select('common', 'common_top.php')); // BTSv1.5
+//mail('sw45859@centurylink.net', 'Android Browser Agent', $_SERVER['HTTP_USER_AGENT']);
+
+//Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8L1 Safari/6533.18.5
+//Mozilla/5.0 (Linux; U; Android 2.2.1; en-gb; SAMSUNG-SGH-I897 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1
+
+require(sysConfig::getDirFsCatalog() . 'includes/classes/template.php');
+$thisTemplate = Session::get('tplDir');
+$thisApp = $App->getAppName();
+$thisAppPage = $App->getAppPage() . '.php';
+$thisDir = sysConfig::getDirFsCatalog() . 'templates/' . $thisTemplate;
+$thisFile = basename($_SERVER['PHP_SELF']);
+$thisExtension = (isset($_GET['appExt']) ? $_GET['appExt'] : '');
+
+$Template = new Template('layout.tpl', $thisDir);
+
+$Template->setVars(array(
+		'stylesheets' => $App->getStylesheetFiles(),
+		'javascriptFiles' => $App->getJavascriptFiles(),
+		'pageStackOutput' => ($messageStack->size('pageStack') > 0 ? $messageStack->output('pageStack') : '')
+	));
+
+if (isset($_GET['cPath']) && $thisApp == 'index'){
+	$thisAppPage = 'index.php';
+}
+
+$Qpages = mysql_query('select layout_id from template_pages');
+$Page = mysql_fetch_assoc($Qpages);
+$PageLayouts = (substr($Page['layout_id'], 0, 1) == ',' ? substr($Page['layout_id'], 1) : $Page['layout_id']);
+$PageLayouts = (substr($Page['layout_id'], -1) == ',' ? substr($PageLayouts, 0, -1) : $PageLayouts);
+
+$QtemplateId = mysql_query('select template_id from template_manager_templates_configuration');
+$TemplateId = mysql_fetch_assoc($QtemplateId);
+
+/* Determine Which Type Of Layout To Use --BEGIN-- */
+$layoutType = 'desktop';
+if (preg_match('/(ipad|xoom)/i', strtolower($_SERVER['HTTP_USER_AGENT']))){
+	$layoutType = 'tablet';
+}
+elseif (preg_match('/(smartphone|phone|iphone|ipod|android)/i', strtolower($_SERVER['HTTP_USER_AGENT']))){
+	$layoutType = 'smartphone';
+}
+
+$Qcheck = mysql_query('select layout_id from template_manager_layouts where template_id = "' . $TemplateId['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "' . $layoutType . '"');
+if (mysql_num_rows($Qcheck) > 0){
+	$PageLayoutId = mysql_fetch_assoc($Qcheck);
+}
+else{
+	$QpageLayout = mysql_query('select layout_id from template_manager_layouts where template_id = "' . $TemplateId['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "desktop"');
+	$PageLayoutId = mysql_fetch_assoc($QpageLayout);
+}
+/* Determine Which Type Of Layout To Use --END-- */
+
+$layout_id = $PageLayoutId['layout_id'];
+
+$Template->set('templateLayoutId', $layout_id);
+
+$templateDir = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir');
+
+$pageContent = new Template('pageContent.tpl', sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgetTemplates/');
+$checkFiles = array(
+	(isset($appContent) ? $appContent : false),
+	sysConfig::getDirFsCatalog() . 'applications/' . $appContent,
+	sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/applications/' . $App->getAppName() . '/' . $App->getPageName() . '.php',
+	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php'
+);
+
+$requireFile = false;
+foreach($checkFiles as $filePath){
+	if (file_exists($filePath)){
+		$requireFile = $filePath;
+		break;
+	}
+}
+
+if ($requireFile !== false){
+	require($requireFile);
+}
+
+;
+$Template->set('pageContent', $pageContent);
+
+$Construct = htmlBase::newElement('div')->attr('id', 'bodyContainer');
+$ExtTemplateManager = $appExtension->getExtension('templateManager');
+$ExtTemplateManager->buildLayout($Construct, $layout_id);
+$Template->set('templateLayoutContent', $Construct->draw());
+
+echo $Template->parse();
 ?>
-<!-- header //-->
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
-  <tr class="header">
-    <td valign="middle"><?php echo '<a href="' . itw_app_link(null, 'index', 'default') . '">' . tep_image(DIR_WS_IMAGES . 'oscommerce.gif', 'osCommerce') . '</a>'; ?></td>
-    <td align="right" valign="bottom"><?php echo '<a href="' . tep_href_link(FILENAME_ACCOUNT, '', 'SSL') . '">' . tep_image(DIR_WS_IMAGES . 'header_account.gif', HEADER_TITLE_MY_ACCOUNT) . '</a>&nbsp;&nbsp;<a href="' . tep_href_link(FILENAME_SHOPPING_CART) . '">' . tep_image(DIR_WS_IMAGES . 'header_cart.gif', HEADER_TITLE_CART_CONTENTS) . '</a>&nbsp;&nbsp;<a href="' . tep_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL') . '">' . tep_image(DIR_WS_IMAGES . 'header_checkout.gif', HEADER_TITLE_CHECKOUT) . '</a>'; ?>&nbsp;&nbsp;</td>
-  </tr>
-</table>
-<table border="0" width="100%" cellspacing="0" cellpadding="1">
-  <tr class="headerNavigation">
-    <td class="headerNavigation">vxvxcvcvcxvcxvxc&nbsp;&nbsp;<?php echo $breadcrumb->trail(' &raquo; '); ?></td>
-    <td align="right" class="headerNavigation"><a href="<?php echo tep_href_link(FILENAME_RENTAL_TOP); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_RENTAL_TOP'); ?></a> &nbsp;|&nbsp; <?php if (tep_session_is_registered('customer_id')) { ?><a href="<?php echo itw_app_link(null, 'account', 'logoff'); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_LOGOFF'); ?></a> &nbsp;|&nbsp; <?php } ?><a href="<?php echo tep_href_link(FILENAME_ACCOUNT, '', 'SSL'); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_MY_ACCOUNT'); ?></a> &nbsp;|&nbsp; <a href="<?php echo tep_href_link(FILENAME_RENTAL_QUEUE); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_QUEUE_CONTENTS'); ?></a> &nbsp;|&nbsp; <a href="<?php echo tep_href_link(FILENAME_SHOPPING_CART); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_CART_CONTENTS'); ?></a> &nbsp;|&nbsp; <a href="<?php echo tep_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'); ?>" class="headerNavigation"><?php echo sysLanguage::get('HEADER_TITLE_CHECKOUT'); ?></a> &nbsp;&nbsp;</td>
-  </tr>
-</table>
-<!-- header_eof //-->
-
-<!-- body //-->
-<table border="0" width="100%" cellspacing="3" cellpadding="3">
-  <tr>
-    <td width="<?php echo BOX_WIDTH; ?>" valign="top"><table border="0" width="<?php echo BOX_WIDTH; ?>" cellspacing="0" cellpadding="2">
-<!-- column_left //-->
-<?php require(bts_select('column', 'column_left.php')); // BTSv1.5 ?>
-<!-- column_left eof //-->
-    </table></td>
-    <td width="100%" valign="top"><!-- content //--><?php
-    
-     require (bts_select ('content')); // BTSv1.5 
-     
-     ?><!-- content_eof //--></td>    
-    <td width="<?php echo BOX_WIDTH; ?>" valign="top"><table border="0" width="<?php echo BOX_WIDTH; ?>" cellspacing="0" cellpadding="2">
-<!-- column_right //-->
-<?php require(bts_select('column', 'column_right.php')); // BTSv1.5 ?>
-<!-- column_right eof //-->
-    </table></td>
-  </tr>
-</table>
-<!-- body_eof //-->
-
-<!-- footer //-->
-<?php require(DIR_WS_INCLUDES . 'counter.php'); ?>
-<table border="0" width="100%" cellspacing="0" cellpadding="1">
-  <tr class="footer">
-    <td class="footer">&nbsp;&nbsp;<?php echo strftime(sysLanguage::getDateFormat('long')); ?>&nbsp;&nbsp;</td>
-    <td align="right" class="footer">&nbsp;&nbsp;<?php echo $counter_now . ' ' . FOOTER_TEXT_REQUESTS_SINCE . ' ' . $counter_startdate_formatted; ?>&nbsp;&nbsp;</td>
-  </tr>
-</table>
-<br>
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="center" class="smallText">
-<?php
-/*
-  The following copyright announcement can only be
-  appropriately modified or removed if the layout of
-  the site theme has been modified to distinguish
-  itself from the default osCommerce-copyrighted
-  theme.
-
-  For more information please read the following
-  Frequently Asked Questions entry on the osCommerce
-  support site:
-
-  http://www.oscommerce.com/community.php/faq,26/q,50
-
-  Please leave this comment intact together with the
-  following copyright announcement.
-*/
-
-  echo sysLanguage::get('FOOTER_TEXT_BODY')
-?>
-    </td>
-  </tr>
-</table>
-<!-- footer_eof //-->
-<br>
-</body>
-</html>

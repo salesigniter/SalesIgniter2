@@ -24,7 +24,7 @@ if ($App->getPageName() == 'infoboxes'){
 	$Infobox->save();
 }
 elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'orderShipping', 'productType'))) {
-	$Installer = new ModuleInstaller($_GET['moduleType'], $_GET['module'], (isset($_GET['extName']) ? $_GET['extName'] : null));
+	$Installer = new ModuleInstaller($_GET['moduleType'], $_GET['module'], (isset($_GET['extName']) ? $_GET['extName'] : null), (isset($_GET['modulePath']) ? $_GET['modulePath'] : null));
 	$Installer->install();
 }
 

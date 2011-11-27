@@ -5,8 +5,7 @@ $Qcustomers = Doctrine_Query::create()
 	->leftJoin('c.MembershipBillingReport mu on (mu.customers_id = c.customers_id and mu.date = "' . LAST_CRON_DATE . '")')
 	->leftJoin('c.CustomersInfo i')
 	->leftJoin('c.AddressBook a on (c.customers_id = a.customers_id and c.customers_default_address_id = a.address_book_id)')
-	->leftJoin('a.Countries co')
-	->orderBy('i.customers_info_date_account_created desc, c.customers_lastname, c.customers_firstname');
+	->leftJoin('a.Countries co');
 
 if (isset($_GET['search']) && !empty($_GET['search'])){
 	$Qcustomers->where('c.customers_lastname like ?', '%' . $_GET['search'] . '%')
@@ -14,19 +13,38 @@ if (isset($_GET['search']) && !empty($_GET['search'])){
 		->orWhere('c.customers_email_address like ?', '%' . $_GET['search'] . '%');
 }
 
-if (isset($_GET['filter']) && !empty($_GET['filter'])){
-	if ($_GET['filter'] != 'M'){
-		$Qcustomers->andWhere('cm.ismember = "' . $_GET['filter'] . '" OR cm.ismember is null');
-	}
-	else {
-		$Qcustomers->andWhere('cm.ismember = "' . $_GET['filter'] . '"');
+	if (isset($_GET['filter']) && !empty($_GET['filter'])) {
+		if ($_GET['filter'] != 'M'){
+			$Qcustomers->andWhere('cm.ismember = "' . $_GET['filter'] .'" OR cm.ismember is null');
+		}else{
+			$Qcustomers->andWhere('cm.ismember = "' . $_GET['filter'] .'"');
+		}
+
 	}
 
 	if(isset($_GET['select_newletter'])){
 		$Qcustomers->andWhere('customers_newsletter = ?', '1');
 	}
+        $f = false;
+if(isset($_GET['sortDate'])){
+	$Qcustomers->orderBy('i.customers_info_date_account_created '.$_GET['sortDate']);
+	$f = true;
+}
 
-EventManager::notify('CustomersListingQueryBeforeExecute', $Qcustomers);
+if(isset($_GET['sortLastname'])|| !is_array($_GET)){
+	$Qcustomers->orderBy('c.customers_lastname '.$_GET['sortLastname']);
+	$f = true;
+}
+
+if(isset($_GET['sortFirstname'])){
+	$Qcustomers->orderBy('c.customers_firstname '.$_GET['sortFirstname']);
+	$f = true;
+}
+if(!$f){
+	$Qcustomers->orderBy('i.customers_info_date_account_created desc, c.customers_lastname, c.customers_firstname');
+}
+
+	EventManager::notify('CustomersListingQueryBeforeExecute', &$Qcustomers);
 
 $tableGrid = htmlBase::newElement('newGrid')
 	->usePagination(true)
@@ -42,20 +60,20 @@ $tableGrid->addButtons(array(
 		htmlBase::newElement('button')->setText('Email')->addClass('emailButton')->disable()
 	));
 
-$tableGridHeader = array(
-	array('text' => sysLanguage::get('TABLE_HEADING_SELECT')),
-	array('text' => sysLanguage::get('TABLE_HEADING_CUSTOMERS_ID')),
-	array('text' => sysLanguage::get('TABLE_HEADING_LASTNAME')),
-	array('text' => sysLanguage::get('TABLE_HEADING_FIRSTNAME')),
-	array('text' => sysLanguage::get('TABLE_HEADING_MEMBER_OR_USER')),
-	array('text' => sysLanguage::get('TABLE_HEADING_MEMBERSHIP_STATUS')),
-	array('text' => sysLanguage::get('TABLE_HEADING_ACCOUNT_CREATED'))
-);
-
-EventManager::notify('AdminCustomerListingAddHeader', &$tableGridHeader);
-
-$tableGridHeader[] = array('text' => sysLanguage::get('TABLE_HEADING_INFO'));
-$tableGrid->addHeaderRow(array(
+	$tableGridHeader = array(
+		array('text' => sysLanguage::get('TABLE_HEADING_SELECT')),
+		array('text' => sysLanguage::get('TABLE_HEADING_CUSTOMERS_ID')),
+		array('text' => '<a href="'.itw_app_link('sortLastname='.(isset($_GET['sortLastname'])?($_GET['sortLastname'] == 'ASC'?'DESC':'ASC'):'ASC').'&'.tep_get_all_get_params(array('sortDate','sortFirstname','sortLastname')),null,null).'">'.sysLanguage::get('TABLE_HEADING_LASTNAME').'</a>'),
+		array('text' => '<a href="'.itw_app_link('sortFirstname='.(isset($_GET['sortFirstname'])?($_GET['sortFirstname'] == 'ASC'?'DESC':'ASC'):'ASC').'&'.tep_get_all_get_params(array('sortLastname','sortDate','sortFirstname')),null,null).'">'.sysLanguage::get('TABLE_HEADING_FIRSTNAME').'</a>'),
+		array('text' => sysLanguage::get('TABLE_HEADING_MEMBER_OR_USER')),
+		array('text' => sysLanguage::get('TABLE_HEADING_MEMBERSHIP_STATUS')),
+		array('text' => '<a href="'.itw_app_link('sortDate='.(isset($_GET['sortDate'])?($_GET['sortDate'] == 'ASC'?'DESC':'ASC'):'ASC').'&'.tep_get_all_get_params(array('sortFirstname','sortLastname','sortDate')),null,null).'">'.sysLanguage::get('TABLE_HEADING_ACCOUNT_CREATED').'</a>')
+	);
+	
+	EventManager::notify('AdminCustomerListingAddHeader', &$tableGridHeader);
+	
+	$tableGridHeader[] = array('text' => /*sysLanguage::get('TABLE_HEADING_INFO')*/'Info');
+	$tableGrid->addHeaderRow(array(
 		'columns' => $tableGridHeader
 	));
 
@@ -78,19 +96,18 @@ if ($customers){
 					->from('Reviews')
 					->where('customers_id = ?', (int)$customerId)
 					->execute()->toArray();
-				if (!$Qreviews){
-					$cInfo->number_of_reviews = 0;
-				}
-				else {
-					$cInfo->number_of_reviews = (int)$Qreviews[0]['number_of_reviews'];
+					if (!$Qreviews){
+						$cInfo->number_of_reviews = 0;
+					}else{
+						$cInfo->number_of_reviews = (int)$Qreviews[0]['number_of_reviews'];
+					}
 				}
 			}
-		}
 
 		$Qorders = Doctrine_Query::create()
 			->select('count(*) as total')
 			->from('Orders o')
-			->where('o.customers_id = ?', $customerId)
+			->where('o.customers_id = ?', $customerId);
 
 		EventManager::notify('OrdersListingBeforeExecute', &$Qorders);
 
@@ -98,34 +115,28 @@ if ($customers){
 
 		$arrowIcon = htmlBase::newElement('icon')->setType('info');
 
-		if (empty($customer['MembershipBillingReport'])){
-		}
-		elseif ($customer['MembershipBillingReport']['status'] == 'A') {
-			$addCls .= ' dataTableRowA';
-		}
-		elseif ($customer['MembershipBillingReport']['status'] == 'D') {
-			$addCls .= ' dataTableRowD';
-		}
+			if (empty($customer['MembershipBillingReport'])){
+			}elseif ($customer['MembershipBillingReport']['status'] == 'A'){
+				$addCls .= ' dataTableRowA';
+			}elseif ($customer['MembershipBillingReport']['status'] == 'D'){
+				$addCls .= ' dataTableRowD';
+			}
 
-		if (!isset($customer['CustomersMembership']) || $customer['CustomersMembership']['ismember'] == 'U'){
-			$member = 'User';
-		}
-		elseif ($customer['CustomersMembership']['ismember'] == 'M') {
-			$member = 'Member';
-		}
-		else {
-			$member = 'Unknown';
-		}
+			if (!isset($customer['CustomersMembership']) || $customer['CustomersMembership']['ismember'] == 'U'){
+				$member = 'User';
+			}elseif ($customer['CustomersMembership']['ismember'] == 'M'){
+				$member = 'Member';
+			}else{
+				$member = 'Unknown';
+			}
 
-		if (!isset($customer['CustomersMembership'])){
-			$activate = '';
-		}
-		elseif ($customer['CustomersMembership']['activate'] == 'Y') {
-			$activate = 'Active';
-		}
-		elseif ($customer['CustomersMembership']['activate'] == 'N') {
-			$activate = 'InActive';
-		}
+			if (!isset($customer['CustomersMembership'])){
+				$activate = '';
+			}elseif ($customer['CustomersMembership']['activate'] == 'Y'){
+				$activate = 'Active';
+			}elseif ($customer['CustomersMembership']['activate'] == 'N'){
+				$activate = 'InActive';
+			}
 
 		if (Session::exists('customer_login_allowed') && Session::get('customer_login_allowed') === true){
 			$loginAsCustomerLink = '<a href="' . itw_app_link('action=loginAs&cID=' . $customerId) . '"><b>' . sysLanguage::get('LOGIN_AS_CUSTOMER') . '</b></a>';
@@ -260,7 +271,7 @@ $array_limit = array(
 	     $selectNewsLetter = htmlBase::newElement('checkbox')
 		     ->setName('select_newletter')
 		     ->setId('selectNewsLetter')
-		     ->setLabel('Select NewsLetter')
+		     ->setLabel('Select NewsLetter&nbsp;&nbsp;&nbsp;&nbsp;')
 		     ->setLabelPosition('after');
 	     $searchForm->append($pageLimit);
 	     $searchForm->append($selectNewsLetter);

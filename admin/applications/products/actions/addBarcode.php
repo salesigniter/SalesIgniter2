@@ -1,6 +1,7 @@
 <?php
 	$pID = (int)$_GET['pID'];
 	$barcode = (isset($_POST['barcodeNumber']) ? $_POST['barcodeNumber'] : false);
+    $barcodeType = (isset($_POST['barcodeTypeSelect']) ? $_POST['barcodeTypeSelect'] : 'None');
 	$type = $_GET['purchaseType'];
 	$status = 'A';
 	if (array_key_exists('aID_string', $_GET)){
@@ -75,6 +76,7 @@
 			$endNumber++; 
 			
 			$Barcodes[$nextIndex]->barcode = $genBarcode;
+			$Barcodes[$nextIndex]->type = $barcodeType;
 			$Barcodes[$nextIndex]->status = $status;
 			
 			/* ????Put in extension???? */
@@ -129,6 +131,7 @@
 			}
 			if(!isset($json['errorMsg'])){
 				$Barcodes[$nextIndex]->barcode = $barcode;
+				$Barcodes[$nextIndex]->type = $barcodeType;
 				$Barcodes[$nextIndex]->status = $status;
 
 				/* ????Put in extension???? */
@@ -159,6 +162,10 @@
 			$tableRow[] = array(
 				'addCls' => 'ui-widget-content ui-grid-cell',
 				'text' => $barcode->barcode
+			);
+			$tableRow[] = array(
+				'addCls' => 'ui-widget-content ui-grid-cell',
+				'text' => $barcode->type
 			);
 			$tableRow[] = array(
 				'addCls' => 'ui-widget-content ui-grid-cell',

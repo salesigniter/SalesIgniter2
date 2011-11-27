@@ -132,8 +132,7 @@
 		$initLine = $line;
 
 		foreach($product['ProductsInventory'] as $piInfo){
-
-			if ($piInfo['type'] == 'reservation' && $piInfo['controller'] == $product['products_inventory_controller']){
+			if ($piInfo['type'] == 'reservation' && $piInfo['controller'] == $product['ProductsPurchaseTypes'][0]['inventory_controller']){
 				if ($piInfo['track_method'] == 'barcode'){
 					foreach($piInfo['ProductsInventoryBarcodes'] as $pibInfo){
 						if ($pibInfo['status'] != 'B'){
@@ -189,7 +188,6 @@
 
 									$stringStart = 'new Date('.$timeDateParseStart['year'].','.($timeDateParseStart['month']-1).','.$timeDateParseStart['day'].','.$timeDateParseStart['hour'].','.$timeDateParseStart['minute'].')';
 									$stringEnd = 'new Date('.$timeDateParseEnd['year'].','.($timeDateParseEnd['month']-1).','.$timeDateParseEnd['day'].','.$timeDateParseEnd['hour'].','.($timeDateParseEnd['minute']+1).')';
-
 									$timeBooked[] = "{title:'Not Available',start:".$stringStart.",end:".$stringEnd.", className:'".'b'.generateSlug($pibInfo['barcode'])."', rid:'".$oprInfo['orders_products_reservations_id']."', rsid:'".getColor($oprInfo['rental_status_id'])."',type:'".'reservation'."',barcode_id:'".$pibInfo['barcode_id']."',barcode_name:'".'b'.generateSlug($pibInfo['barcode'])."',product_id:'".$productId."', allDay:false}";
 
 							}
@@ -197,7 +195,7 @@
 					}
 
 				}
-			}else if ($piInfo['type'] == 'rental' && $piInfo['controller'] == $product['products_inventory_controller']){
+			}else if ($piInfo['type'] == 'rental' && $piInfo['controller'] == $product['ProductsPurchaseTypes'][0]['inventory_controller']){
 					if ($piInfo['track_method'] == 'barcode'){
 
 						foreach($piInfo['ProductsInventoryBarcodes'] as $pibInfo){
@@ -261,7 +259,8 @@
 
 	$Qproducts = Doctrine_Query::create()
 	->from('Products p')
-	->leftJoin('p.ProductsDescription pd')	
+	->leftJoin('p.ProductsDescription pd')
+	->leftJoin('p.ProductsPurchaseTypes pt')
 	->leftJoin('p.ProductsInventory pi')
 	->leftJoin('pi.ProductsInventoryBarcodes pib')
 	->leftJoin('pi.ProductsInventoryQuantity piq')
@@ -353,6 +352,7 @@
 	));
 
 	$line = 0;
+
 	if (count($products) > 0){
 		foreach($products as $product){
 

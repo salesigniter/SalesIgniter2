@@ -37,6 +37,10 @@
 	<define key="TEXT_INFO_LOGDATE"><![CDATA[Last Access: ]]></define>
 	<define key="TEXT_INFO_LOGNUM"><![CDATA[Log Number: ]]></define>
 	<define key="TEXT_INFO_GROUP"><![CDATA[Group Level: ]]></define>
+	<define key="TEXT_INFO_FAVORITES"><![CDATA[Load Favorites Set]]></define>
+	<define key="TEXT_STANDARD"><![CDATA[Standard]]></define>
+	<define key="TABLE_HEADING_INFO"><![CDATA[Info]]></define>
+
 	<define key="TEXT_INFO_ERROR"><![CDATA[<font color="red">Email address has already been used! Please try again.</font>]]></define>
 	<define key="JS_ALERT_FIRSTNAME"><![CDATA[- Required: Firstname]]></define>
 	<define key="JS_ALERT_LASTNAME"><![CDATA[- Required: Lastname]]></define>

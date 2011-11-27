@@ -11,7 +11,7 @@ foreach($_POST['addon_product'] as $addon => $val){
 	    $purchaseTypeCode = $_POST['addon_product_type'][$addon];
 	    $OrderProduct = new OrderCreatorProduct();
 	    $OrderProduct->setProductsId($addon);
-	    $OrderProduct->setQuantity(1);
+	    $OrderProduct->setQuantity($_POST['addon_product_qty'][$addon]);
 	    $Editor->ProductManager->add($OrderProduct);
 		if($purchaseTypeCode == 'reservation'){
 			if(isset($mainInfo['reservationInfo'])){

@@ -13,6 +13,14 @@ class productInventoryNormal_barcode {
 		);
 	}
 
+	public function setInvUnavailableStatus($val){
+		$this->invUnavailableStatus = $val;
+	}
+
+	public function getInvUnavailableStatus(){
+		return $this->invUnavailableStatus;
+	}
+
 	public function hasInventory(){
 		$Qcheck = Doctrine_Query::create()
 		->select('count(ib.barcode_id) as total')

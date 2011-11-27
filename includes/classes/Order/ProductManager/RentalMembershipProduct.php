@@ -16,15 +16,12 @@ class OrderRentalMembershipProduct implements Serializable {
 		if (is_null($pInfo) === false){
 			$this->pInfo = $pInfo;
 		}
+		$this->productClass = new Product((int)$this->pInfo['products_id']);
+		$this->products_weight = $this->productClass->getWeight();
 	}
 
 	public function regenerateId(){
 		$this->id = tep_rand(5555, 99999);
-	}
-
-	public function init(){
-		$this->productClass = new Product((int) $this->pInfo['products_id']);
-		$this->purchaseTypeClass = $this->productClass->getPurchaseType($this->pInfo['purchase_type']);
 	}
 
 	public function serialize(){
@@ -168,6 +165,20 @@ class OrderRentalMembershipProduct implements Serializable {
 		return $html;
 	}
 
+	/**
+	 * @return Product
+	 */
+	public function &getProductClass() {
+		return $this->productClass;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function &getProductTypeClass() {
+		return $this->getProductClass()->getProductTypeClass();
+	}
+
 	public function getQuantityEdit(){
 		return '<input type="text" size="3" class="ui-widget-content productQty" name="product[' . $this->id . '][qty]" value="' . $this->getQuantity() . '">&nbsp;x';
 	}
@@ -195,16 +206,15 @@ class OrderRentalMembershipProduct implements Serializable {
 			->draw();
 		}
 
+		$ProductType = $this->getProductClass()->getProductTypeClass();
+
 		$name = $nameHref->draw() .
 			'<br />' .
-			$purchaseTypeHtml;
-		if ($this->pInfo['purchase_type'] != 'membership'){
-			$name .= $this->purchaseTypeClass->orderAfterProductName($this);
+			$ProductType->showOrderedProductInfo($this, $showExtraInfo);
 
-			$Result = EventManager::notifyWithReturn('OrderProductAfterProductName', &$this);
-			foreach($Result as $html){
-				$name .= $html;
-			}
+		$Result = EventManager::notifyWithReturn('OrderProductAfterProductName', &$this, $showExtraInfo);
+		foreach($Result as $html){
+			$name .= $html;
 		}
 
 		return $name;

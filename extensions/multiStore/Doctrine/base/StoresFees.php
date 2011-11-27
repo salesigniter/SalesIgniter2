@@ -33,24 +33,10 @@ class StoresFees extends Doctrine_Record {
 				'autoincrement' => true,
 			));
 
-		$this->hasColumn('fee_royalty', 'decimal', 15, array(
-				'scale' => 4
-			));
-			
-		$this->hasColumn('fee_management', 'decimal', 15, array(
-				'scale' => 4
-			));
-			
-		$this->hasColumn('fee_marketing', 'decimal', 15, array(
-				'scale' => 4
-			));
-			
-		$this->hasColumn('fee_labor', 'decimal', 15, array(
-				'scale' => 4
-			));
-			
-		$this->hasColumn('fee_parts', 'decimal', 15, array(
-				'scale' => 4
-			));
+		$this->hasColumn('fee_royalty', 'decimal', 15);
+		$this->hasColumn('fee_management', 'decimal', 15);
+		$this->hasColumn('fee_marketing', 'decimal', 15);
+		$this->hasColumn('fee_labor', 'decimal', 15);
+		$this->hasColumn('fee_parts', 'decimal', 15);
 	}
 }

@@ -109,7 +109,9 @@ class OrderAddressManager {
 	}
 
 	public function showAddress($Address, $html = true){
-		$company = htmlspecialchars($Address->getCompany());
+		if(sysConfig::get('ACCOUNT_COMPANY') == 'true'){
+			$company = htmlspecialchars($Address->getCompany());
+		}
 		$firstname = htmlspecialchars($Address->getName());
 		$lastname = '';
 		$street_address = htmlspecialchars($Address->getStreetAddress());
@@ -121,7 +123,6 @@ class OrderAddressManager {
 		$abbrstate = htmlspecialchars($Address->getZoneCode());
 		$vat = htmlspecialchars($Address->getVAT());
 		$cif = htmlspecialchars($Address->getCIF());
-		$city_birth = htmlspecialchars($Address->getCityBirth());
 		$fmt = $Address->getFormat();
 		if($html){
 			$fmt = nl2br($fmt);

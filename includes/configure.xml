@@ -2,19 +2,19 @@
 <configuration>
 	<config protected="true">
 		<key>HTTP_DOMAIN_NAME</key>
-		<value>itwebexperts.com</value>
+		<value>localhost</value>
 	</config>
 	<config protected="true">
 		<key>HTTPS_DOMAIN_NAME</key>
-		<value>itwebexperts.com</value>
+		<value>localhost</value>
 	</config>
 	<config protected="false">
 		<key>DIR_WS_CATALOG</key>
-		<value>/et_video/</value>
+		<value>/SalesIgniter1/</value>
 	</config>
 	<config protected="true">
 		<key>DIR_FS_DOCUMENT_ROOT</key>
-		<value>/home/itweb1/public_html</value>
+		<value>D:/phpStormProjects</value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER</key>
@@ -22,15 +22,15 @@
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_USERNAME</key>
-		<value>itweb1_etvideo</value>
+		<value>root</value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_PASSWORD</key>
-		<value>demo1</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>DB_DATABASE</key>
-		<value>itweb1_et_video</value>
+		<value>salesigniter_1</value>
 	</config>
 	<config protected="true">
 		<key>ENABLE_SSL</key>
@@ -50,26 +50,26 @@
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_USERNAME</key>
-		<value>itwebgit</value>
+		<value>myusername</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_PASSWORD</key>
-		<value>a43761e2c25520fb133f8aa72a5f5231</value>
+		<value>mypassword</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_SERVER</key>
-		<value>ftp.itwebexperts.com</value>
+		<value>ftp.mydomain.com</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_USERNAME</key>
-		<value>itweb1</value>
+		<value>username</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_PASSWORD</key>
-		<value>21#az*52</value>
+		<value>password</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_INSTALL_DATE</key>
-		<value>6/6/2001</value>
+		<value></value>
 	</config>
 </configuration>

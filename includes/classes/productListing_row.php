@@ -12,7 +12,12 @@ class productListing_row extends productListing
 
 	private function getDoctrinePager($useQuery, $useLimit = null) {
 		$currentPage = (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-		$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : 25);
+		$limitsArray = explode(',',sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY'));
+		$limitResults = sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT');
+		if((isset($_GET['limit']) && (int)$_GET['limit'] > 0 && (int)$_GET['limit'] <= 25) || ((int)$_GET['limit'] >= 25 && in_array((int)$_GET['limit'],$limitsArray)) ){
+			$limitResults = (int)$_GET['limit'];
+		}
+		//$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : 10);
 
 		if (is_null($useLimit) === false){
 			$limitResults = $useLimit;
@@ -52,9 +57,7 @@ class productListing_row extends productListing
 			$getVars = tep_get_all_get_params(array('action', $this->sortKey));
 			parse_str($getVars, $getArr);
 			$hiddenFields = '';
-			foreach($getArr as $k => $v){
-				$hiddenFields .= '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
-			}
+			create_hidden_fields($getArr,&$hiddenFields);
 
 			$sortForm = htmlBase::newElement('form')
 				->attr('name', 'sorter')
@@ -87,8 +90,7 @@ class productListing_row extends productListing
 		}
 		$Result = $Pager->execute();
 
-		$this->templateData['pagerLinks'] = ($Pager->haveToPaginate() ? $PagerLayout->display(array(), true)
-			: '1 ' . sysLanguage::get('PRODUCT_LISTING_OF') . ' 1');
+		$this->templateData['pagerLinks'] = ($Pager->haveToPaginate() ? $PagerLayout->display(array(), true) : '1 '.sysLanguage::get('PRODUCT_LISTING_OF').' 1');
 
 		return array(
 			'Products' => $Result,
@@ -129,6 +131,8 @@ class productListing_row extends productListing
 			$pagerInfo = $this->buildPagerBar();
 			$Products = $pagerInfo['Products']->toArray(true);
 		}
+
+		EventManager::notify('ProductListingQueryAfterExecute', &$Products);
 
 		if (isset($pagerInfo['pagerLayout'])){
 			$PagerLayout = $pagerInfo['pagerLayout'];
@@ -232,11 +236,10 @@ class productListing_row extends productListing
 				$key = $header['key'];
 
 				$boxContents[0][$col] = array(
-					'align' => $header['align'],
-					'valign' => 'middle',
-					'addCls' => (isset($this->templateData['headerSettings']['addCls'])
-						? $this->templateData['headerSettings']['addCls'] : false),
-					'text' => $header['text']
+					'align'  => $header['align'],
+					'valign' => $header['valign'],
+					'addCls' => (isset($this->templateData['headerSettings']['addCls']) ? $this->templateData['headerSettings']['addCls'] : false),
+					'text'   => $header['text']
 				);
 
 				foreach($this->templateData['listingColumns'][$key] as $row => $rInfo){

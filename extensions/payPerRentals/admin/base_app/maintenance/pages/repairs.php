@@ -1,13 +1,9 @@
 <?php
 	$Qmaint = Doctrine_Query::create()
-	->from('PayPerRentalMaintenanceRepairs pmr')
-	->leftJoin('pmr.PayPerRentalMaintenance pm')
-	->leftJoin('pm.ProductsInventoryBarcodes');
-	if(!isset($_GET['old'])){
-		$Qmaint = $Qmaint->where('repair_date = ?','0000-00-00 00:00:00');
-	}else{
-		$Qmaint->orderBy('repair_date DESC');
-	}
+	->from('BarcodeHistoryRented bhr')
+	->leftJoin('bhr.ProductsInventoryBarcodes')
+	->where('bhr.current_maintenance_cond = ?','2');
+
 
 	$tableGrid = htmlBase::newElement('grid')
 	->usePagination(true)
@@ -25,7 +21,7 @@
 	$maintenance = &$tableGrid->getResults();
 	if ($maintenance){
 		foreach($maintenance as $maint){
-			$maintenanceId = $maint['pay_per_rental_maintenance_repairs_id'];
+			$maintenanceId = $maint['barcode_id'];
 
 			if ((!isset($_GET['mID']) || (isset($_GET['mID']) && ($_GET['mID'] == $maintenanceId))) && !isset($cInfo)){
 				$cInfo = new objectInfo($maint);
@@ -35,7 +31,7 @@
 			->setHref(itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'mID=' . $maintenanceId));
 
 			$onClickLink = itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'mID=' . $maintenanceId);
-			if (isset($cInfo) && $maintenanceId == $cInfo->pay_per_rental_maintenance_repairs_id){
+			if (isset($cInfo) && $maintenanceId == $cInfo->barcode_id){
 				$addCls = 'ui-state-default';
 				$onClickLink = itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'action=edit&mID=' . $maintenanceId);
 				$arrowIcon->setType('circleTriangleEast');
@@ -48,7 +44,7 @@
 				'addCls'  => $addCls,
 				'click'   => 'js_redirect(\'' . $onClickLink . '\');',
 				'columns' => array(
-					array('text' => $maint['PayPerRentalMaintenance']['ProductsInventoryBarcodes']['barcode']),
+					array('text' => $maint['ProductsInventoryBarcodes']['barcode']),
 					array('text' => $arrowIcon->draw(), 'align' => 'right')
 				)
 			));
@@ -69,8 +65,8 @@
 
 			if (isset($_GET['mID'])) {
 				$maintenanceRel = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairs')->find($_GET['mID']);
+
 				$infoBox->setHeader('<b>Repair</b>');
-				$maintenanceMain = Doctrine_Core::getTable('PayPerRentalMaintenance')->find($maintenanceRel->pay_per_rental_maintenance_id);
 			}
 
 			$commentsMaint = htmlBase::newElement('div');
@@ -120,13 +116,15 @@
 			$hiddenList = htmlBase::newElement('list')
 				->addClass('hiddenList');
 
-			if(isset($_GET['mID'])){
+			/*if(isset($_GET['mID'])){
 				$QParts = Doctrine_Query::create()
-					->from('PayPerRentalMaintenanceRepairParts')
-					->where('pay_per_rental_maintenance_repairs_id=?', $_GET['mID'])
+					->from('PayPerRentalMaintenanceRepairs ppmr')
+					->leftJoin('ppmr.PayPerRentalMaintenanceRepairParts ppmrp')
+					->where('ppmr.barcode_id=?', $_GET['mID'])
+					->orderBy('ppmr.pay_per_rental_maintenance_repairs_id DESC')
 					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-				foreach($QParts as $iprodev){
+				foreach($QParts[0]['PayPerRentalMaintenanceRepairParts'] as $iprodev){
 					$prodevid = $iprodev['pay_per_rental_maintenance_repairs_parts_id'];
 
 					$htmlPartName = htmlBase::newElement('input')
@@ -156,7 +154,7 @@
 						->html($divLi1.$divLi2.$divLi5.'<br style="clear:both;"/>');
 					$hiddenList->addItemObj($liObj);
 				}
-			}
+			}*/
 			$TableParts->addBodyRow(array(
 					'columns' => array(
 						array('align' => 'center', 'text' => $hiddenList->draw(),'addCls' => 'parts')
@@ -170,7 +168,7 @@
 				->usePreset('cancel')
 				->setHref(itw_app_link(tep_get_all_get_params(array('action', 'appPage')), null, 'repairs', 'SSL'));
 
-			$infoBox->addContentRow('Comments of maintenance: '.$maintenanceMain->comments);
+			//$infoBox->addContentRow('Comments of maintenance: '.$maintenanceMain->comments);
 			$infoBox->addContentRow($priceHtml->draw());
 			$infoBox->addContentRow($TableParts->draw());
 			$infoBox->addContentRow($infoMaint->draw());
@@ -182,10 +180,11 @@
 
 		default:
 			if (isset($cInfo) && is_object($cInfo)) {
-				$infoBox->setHeader('<b>' . $cInfo->PayPerRentalMaintenance['ProductsInventoryBarcodes']['barcode'] .'</b>');
-				$infoBox->addContentRow('Comments of maintenance: '.$cInfo->PayPerRentalMaintenance['comments']);
-				$editButton = htmlBase::newElement('button')->setType('submit')->usePreset('edit')
-				->setHref(itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'action=edit&mID=' . $cInfo->pay_per_rental_maintenance_id,'maintenance','repairs'));
+				$infoBox->setHeader('<b>' . $cInfo->ProductsInventoryBarcodes['barcode'] .'</b>');
+
+				$infoBox->addContentRow('Comments of maintenance: '.$cInfo->current_maintenance_comments);
+				$editButton = htmlBase::newElement('button')->usePreset('edit')
+				->setHref(itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'action=edit&mID=' . $cInfo->barcode_id,'maintenance','repairs'));
 
 				$infoBox->addButton($editButton);
 			}
@@ -194,14 +193,38 @@
 ?>
  <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE_REPAIRS');?></div>
  <br />
+	<div>
+<?php
+	  //here i show all the maintenance buttons for this admin
+
+	$QMaintenancePeriods = Doctrine_Query::create()
+		->from('PayPerRentalMaintenancePeriods');
+	if(Session::get('login_groups_id') != '1'){
+		$QMaintenancePeriods->where('FIND_IN_SET(?, assign_to)', Session::get('login_id'));
+	}
+	$QMaintenancePeriods = $QMaintenancePeriods->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	$qMaintenanceSelect = htmlBase::newElement('selectbox')
+		->setName('maintenance_selectbox')
+		->attr('id', 'maintenance_selectbox');
+
+
+	$qMaintenanceSelect->selectOptionByValue('-1');
+
+
+	foreach($QMaintenancePeriods as $qPeriod){
+		$qMaintenanceSelect->addOption($qPeriod['maintenance_period_id'], $qPeriod['maintenance_period_name']);
+	}
+	$qMaintenanceSelect->addOption('-1', sysLanguage::get('TEXT_BUTTON_REPAIRS'));
+
+	echo $qMaintenanceSelect->draw();
+
+	?>
+
+	</div>
  <div style="width:75%;float:left;">
   <div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
    <div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
   </div>
-  <div style="text-align:right;"><?php
-  echo htmlBase::newElement('button')->setText('Old Repairs')
-	  ->setHref(itw_app_link('appExt=payPerRentals&old=1', 'maintenance','repairs'))
-	  ->draw();
-  ?></div>
+
  </div>
  <div style="width:25%;float:right;"><?php echo $infoBox->draw();?></div>

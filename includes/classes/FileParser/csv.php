@@ -16,6 +16,7 @@ class FileParserCsv extends SplFileObject
 		}
 		$this->setCsvControl(',');
 		$this->setFlags(SplFileObject::READ_CSV);
+		$this->fwrite(pack("CCC",0xef,0xbb,0xbf)); /*patch for utf-8 files*/
 	}
 
 	public function parseHeaderLine(){

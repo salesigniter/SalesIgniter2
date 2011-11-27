@@ -1,14 +1,14 @@
 <input type="hidden" name="currentPage" id="currentPage" value="payment_shipping">
 
 <div class="ui-widget ui-widget-content ui-corner-all">
-<?php if (!$onePageCheckout->isMembershipCheckout()){
+<?php if ($onePageCheckout->isNormalCheckout()){
 
 	ob_start();
 	require(sysConfig::getDirFsCatalog() . 'applications/checkout/pages/cart.php');
 	$pageHtml = ob_get_contents();
 	ob_end_clean();
 	echo $pageHtml;
-}else{
+}else if ($onePageCheckout->isMembershipCheckout()){
 	?>
 <div id="rentalMembership"><?php
 	 /*This part needs revised*/
@@ -59,13 +59,18 @@
 		'columns' => $tableColumns
 	));
 
-	$Qcheck = dataAccess::setQuery('select plan_id from {membership} where default_plan = "1"')
-	->setTable('{membership}', TABLE_MEMBER)
-	->runQuery();
-	$hasDefault = false;
-	if ($Qcheck->numberOfRows() > 0){
+	if(!isset($_GET['selectedPlan'])){
+		$Qcheck = dataAccess::setQuery('select plan_id from {membership} where default_plan = "1"')
+		->setTable('{membership}', TABLE_MEMBER)
+		->runQuery();
+		$hasDefault = false;
+		if ($Qcheck->numberOfRows() > 0){
+			$hasDefault = true;
+			$default = $Qcheck->getVal('plan_id');
+		}
+	}else{
 		$hasDefault = true;
-		$default = $Qcheck->getVal('plan_id');
+		$default = $_GET['selectedPlan'];
 	}
 	$Qplan = dataAccess::setQuery('select tm.*,tmd.name as package_name, tt.tax_rate as tax from {membership} tm left join {membershipdescription} tmd on tmd.plan_id=tm.plan_id left join {tax_rates} tt on tt.tax_rates_id = tm.rent_tax_class_id where tmd.language_id = '.Session::get('languages_id').' order by tm.sort_order asc')
 	->setTable('{membership}', TABLE_MEMBER)
@@ -73,7 +78,9 @@
 	->setTable('{tax_rates}', TABLE_TAX_RATES);
 	$i=1;
 	while($Qplan->next() !== false) {
-		if(in_array($Qplan->getVal('plan_id'), $notEnabledMemberships)) continue;
+		if(in_array($Qplan->getVal('plan_id'), $notEnabledMemberships)){
+			continue;
+		}
 		if (($hasDefault === false && $i == 1) || ($hasDefault === true && $Qplan->getVal('plan_id') == $default)) {
 			$chk = true;
 		} else {
@@ -106,10 +113,20 @@
 		));
 		$i++;
 	}
+		if($i == 1){
+			$messageStack->addSession('pageStack','There is no membership enabled for the product you added to queue');
+			tep_redirect(itw_app_link(null,'products','all'));
+		}
 	echo $productTable->draw();
 ?></div>
 <?php
 }
+    $contents = EventManager::notifyWithReturn('CheckoutAddBlockBeforeOrderTotalsTop');
+	if (!empty($contents)){
+        foreach($contents as $content){
+                 echo $content;
+        }
+    }
 	?>
 	<div align="right"><table class="orderTotalsList" cellpadding="2" cellspacing="0" border="0" style="margin:.3em;"><?php
 		OrderTotalModules::process();
@@ -255,13 +272,14 @@
 						echo $content;
 					}
 				}
-				
-				echo '<div class="smallText">';
-				echo '<b>' . $quotes[$i]['module'] . '</b>';
-				if (isset($quotes[$i]['icon']) && tep_not_null($quotes[$i]['icon'])){
-					echo $quotes[$i]['icon'];
+				if(sizeof($quotes[$i]['methods']) > 0){
+					echo '<div class="smallText">';
+					echo '<b>' . $quotes[$i]['module'] . '</b>';
+					if (isset($quotes[$i]['icon']) && tep_not_null($quotes[$i]['icon'])){
+						echo $quotes[$i]['icon'];
+					}
+					echo '</div>';
 				}
-				echo '</div>';
 				
 				if (isset($quotes[$i]['error'])){
 					echo '<div>' . $quotes[$i]['error'] . '</div>';

@@ -21,12 +21,13 @@ class OrderShippingZonereservation extends OrderShippingModuleBase
 			$this->setEnabled(false);
 		}
 		if(class_exists('ModulesShippingZoneReservationMethods')){
+
 			$Qmethods = Doctrine_Query::create()
 				->from('ModulesShippingZoneReservationMethods m')
 				->leftJoin('m.ModulesShippingZoneReservationMethodsDescription md')
-				->orderBy('sort_order')
-				->execute()
-				->toArray(true);
+				->orderBy('sort_order');
+			try{
+			$Qmethods = $Qmethods->execute();
 			if ($Qmethods){
 				foreach($Qmethods as $mInfo){
 					$this->methods[$mInfo['method_id']] = array(
@@ -52,6 +53,9 @@ class OrderShippingZonereservation extends OrderShippingModuleBase
 						}
 					}
 				}
+			}
+			}catch(Doctrine_Connection_Exception $e){
+
 			}
 		}
 	}

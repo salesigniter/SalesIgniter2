@@ -8,7 +8,7 @@
 //change header to home(index), my accounbt(admin_account/default, logoff, and right add this page to my favorites... which will do an ajax action to add the page... so the function must be in general.js.
 
 /*Latest Orders*/
-
+   if(sysPermissions::isSimple() === false){
 	$Qorders = Doctrine_Query::create()
 	->select('o.orders_id, a.entry_name, o.date_purchased, o.customers_id, o.last_modified, o.currency, o.currency_value, s.orders_status_id, sd.orders_status_name, ot.text as order_total, o.payment_module')
 	->from('Orders o')
@@ -237,6 +237,7 @@
 		'ot_subtotal',
 		'ot_tax',
 		'ot_shipping',
+		'reservationshipping',
 		'total',
 		'tax',
 		'shipping',
@@ -248,6 +249,7 @@
 		'subtotal',
 		'loworderfee'
 	);
+	$shippingModules = array('ot_shipping','shipping','reservationshipping');
 	$QclassCheck = Doctrine_Query::create()
 	->select('value')
 	->from('OrdersTotal')
@@ -267,7 +269,7 @@
 	))
 	->addClass('ui-widget ui-widget-content');
 
-	$col2Text = ($sel_month == 0 ? TABLE_HEADING_YEAR : sysLanguage::get('TABLE_HEADING_DAY'));
+	$col2Text = ($sel_month == 0 ? sysLanguage::get('TABLE_HEADING_YEAR') : sysLanguage::get('TABLE_HEADING_DAY'));
 	$headerCols = array(
 		array('align' => 'left', 'valign' => 'bottom', 'width' => '45', 'text' => (sysLanguage::get('TABLE_HEADING_MONTH'))),
 		array('align' => 'left', 'valign' => 'bottom', 'width' => '35', 'text' => ($col2Text)),
@@ -415,7 +417,7 @@
 			->select('SUM(ot.value) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersTotal ot')
-			->whereIn('ot.module_type', array('ot_shipping','shipping'));
+			->whereIn('ot.module_type', $shippingModules);
 
 			if ($loworder) {
 				$Queries['lowOrderFees'] = Doctrine_Query::create()
@@ -630,7 +632,12 @@
 			));*/
 		}
 	}
- $favoritesTable->append($favoritesList);
+  $saveSetButton = htmlBase::newElement('button')
+  ->setName('saveSet')
+  ->setId('saveSet')
+  ->setText('Save Set');
+
+ $favoritesTable->append($favoritesList)->append($saveSetButton);
 
 /*End Favorites Links*/
 
@@ -707,5 +714,6 @@
         </ul>
 
     </div>
-<?php
+   <?php
+}
 ?>

@@ -20,7 +20,12 @@ class productListing_col extends productListing {
 		}
 
 		$currentPage = (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-		$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : 25);
+		$limitsArray = explode(',',sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY'));
+		$limitResults = sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT');
+		if((isset($_GET['limit']) && (int)$_GET['limit'] > 0 && (int)$_GET['limit'] <= 25) || ((int)$_GET['limit'] >= 25 && in_array((int)$_GET['limit'],$limitsArray)) ){
+			$limitResults = (int)$_GET['limit'];
+		}
+		//$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT'));
 
 		$listingPager = new Doctrine_Pager($this->query, $currentPage, $limitResults);
 		$pagerLink = itw_app_link(tep_get_all_get_params(array('page', 'action')) . 'page={%page_number}');
@@ -37,9 +42,7 @@ class productListing_col extends productListing {
 			$getVars = tep_get_all_get_params(array('action', 'sort'));
 			parse_str($getVars, $getArr);
 			$hiddenFields = '';
-			foreach($getArr as $k => $v){
-				$hiddenFields .= '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
-			}
+			create_hidden_fields($getArr,&$hiddenFields);
 
 			$sortForm = htmlBase::newElement('form')
 			->attr('name', 'sorter')

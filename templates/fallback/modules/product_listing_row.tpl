@@ -79,21 +79,24 @@
 			$getVars = tep_get_all_get_params(array('action', 'limit'));
 			parse_str($getVars, $getArr);
 			$hiddenFields = '';
-			foreach($getArr as $k => $v){
-				$hiddenFields .= '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
-			}
+			create_hidden_fields($getArr,&$hiddenFields);
 
 			$resultsPerPageMenu = htmlBase::newElement('selectbox')
 			->setName('limit')
 			->attr('onchange', 'this.form.submit()');
-
+			$limitsArray = explode(',',sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY'));
+			foreach($limitsArray as $resultLimitOption){
+				$resultsPerPageMenu->addOption($resultLimitOption, $resultLimitOption);
+			}
+			/*
 			$resultsPerPageMenu->addOption(10, 10);
 			$resultsPerPageMenu->addOption(25, 25);
 			$resultsPerPageMenu->addOption(50, 50);
 			$resultsPerPageMenu->addOption(75, 75);
 			$resultsPerPageMenu->addOption(100, 100);
+			*/
 
-			$resultsPerPageMenu->selectOptionByValue((isset($_GET['limit']) ? $_GET['limit'] : 25));
+			$resultsPerPageMenu->selectOptionByValue((isset($_GET['limit']) ? $_GET['limit'] : 10));
 
 			$perPageForm = htmlBase::newElement('form')
 			->attr('name', 'limit')

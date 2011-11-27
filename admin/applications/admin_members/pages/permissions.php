@@ -203,6 +203,8 @@
 	
 	$infoBox->addContentRow($BoxesTable->draw());
 
+	EventManager::notify('AdminExtraPermissions', &$infoBox, $_GET['gID']);
+
 	if ($groupId != 1){
 		$cancelButton = htmlBase::newElement('button')->usePreset('cancel')
 		->setHref(itw_app_link('gID=' . $groupId, 'admin_members', 'groups'));

@@ -157,7 +157,7 @@ class ProductTypeStandard extends ModuleBase
 			$allowed = ($PurchaseType->getCurrentStock() > $CartProductData['quantity']);
 		}
 
-		if ($allowed === true && method_exists($PurchaseType, 'allowAddToCart')){
+		if (method_exists($PurchaseType, 'allowAddToCart')){
 			$allowed = $PurchaseType->allowAddToCart(&$CartProductData);
 		}
 		return $allowed;
@@ -211,16 +211,27 @@ class ProductTypeStandard extends ModuleBase
 
 	public function showOrderedProductInfo($OrderedProduct, $showExtraInfo = true) {
 		$PurchaseTypeCls = $this->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
-		$purchaseTypeHtml = htmlBase::newElement('span')
-			->css(array(
-				'font-size' => '.8em',
-				'font-style' => 'italic'
-			))
-			->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
+		if(is_object($PurchaseTypeCls)){
+			$purchaseTypeHtml = htmlBase::newElement('span')
+				->css(array(
+					'font-size' => '.8em',
+					'font-style' => 'italic'
+				))
+				->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
 
-		$html = $purchaseTypeHtml->draw() . '<br>';
-		if (method_exists($PurchaseTypeCls, 'showOrderedProductInfo')){
-			$html .= $PurchaseTypeCls->showOrderedProductInfo($OrderedProduct, $showExtraInfo);
+			$html = $purchaseTypeHtml->draw() . '<br>';
+			if (method_exists($PurchaseTypeCls, 'showOrderedProductInfo')){
+				$html .= $PurchaseTypeCls->showOrderedProductInfo($OrderedProduct, $showExtraInfo);
+			}
+		}else{
+			$purchaseTypeHtml = htmlBase::newElement('span')
+				->css(array(
+					'font-size' => '.8em',
+					'font-style' => 'italic'
+				))
+				->html(' - Purchase Type: ' . $OrderedProduct->getInfo('purchase_type'));
+
+			$html = $purchaseTypeHtml->draw() . '<br>';
 		}
 
 		return $html;
@@ -305,12 +316,12 @@ class ProductTypeStandard extends ModuleBase
 							$tableRow[] = $purchaseTypeHtml;
 						}
 						else {
-							$tableRow[] = '<tr>
+							/*$tableRow[] = '<tr>
         	   	    <td class="main"></td>
         	   	    <td class="main">' . $pType->getTitle() . ':</td>
         	   	    <td class="main">' . $pType->displayPrice() . '</td>
         	   	    <td class="main" style="font-size:.8em;">' . $buyNowButton->draw() . '</td>
-        	   	   </tr>';
+        	   	   </tr>';*/
 						}
 					}
 				}
@@ -337,13 +348,13 @@ class ProductTypeStandard extends ModuleBase
 	public function getExcludedPurchaseTypes(OrderCreatorProduct $OrderedProduct) {
 		global $Editor;
 		$excludedTypes = array();
-		foreach($Editor->ProductManager->getContents() as $Product){
+		/*foreach($Editor->ProductManager->getContents() as $Product){
 			if ($OrderedProduct->getProductsId() == $Product->getProductsId() && $OrderedProduct->getId() != $Product->getId()){
 				if ($Product->getPurchaseType() == 'reservation'){
 					$excludedTypes[] = 'reservation';
 				}
 			}
-		}
+		} */
 		return $excludedTypes;
 	}
 
@@ -357,7 +368,8 @@ class ProductTypeStandard extends ModuleBase
 
 	public function OrderCreatorBarcodeEdit(OrderCreatorProduct $OrderedProduct) {
 		$return = '';
-		$PurchaseType = $this->getPurchaseType();
+		$PurchaseType = PurchaseTypeModules::getModule('reservation');
+		$PurchaseType->loadProduct($OrderedProduct->getProductsId());
 		if ($PurchaseType && $PurchaseType->getTrackMethod() == 'barcode' && $PurchaseType->hasInventory()){
 			$barcodeInput = htmlBase::newElement('selectbox')
 				->addClass('ui-widget-content barcode')
@@ -415,8 +427,8 @@ class ProductTypeStandard extends ModuleBase
 			$pInfo['purchase_type'] = $_GET['purchase_type'];
 
 			$this->cartPurchaseType = $pInfo['purchase_type'];
-			$PurchaseType = $this->getPurchaseType($pInfo['purchase_type']);
-
+			$PurchaseType = PurchaseTypeModules::getModule($pInfo['purchase_type']);
+			$PurchaseType->loadProduct($pInfo['products_id']);
 			$pInfo['products_price'] = $PurchaseType->getPrice();
 			$pInfo['final_price'] = $PurchaseType->getPrice();
 

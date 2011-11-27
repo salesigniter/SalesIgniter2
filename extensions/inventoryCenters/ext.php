@@ -35,7 +35,11 @@ class Extension_inventoryCenters extends ExtensionBase {
 			'ProductInventoryBarcodeUpdateStockQueryBeforeExecute',
 			'ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute',
 			'ProductInventoryBarcodeGetInventoryItemsArrayPopulate',
-			'ProductListingQueryBeforeExecute'
+			'ProductListingQueryBeforeExecute',
+			'ProductIsInInventory',
+			'MonthlySalesAddFilters',
+			'OrdersListingBeforeExecuteLeft',
+			'OrdersProductsReservationListingBeforeExecuteUtilities'
 		), null, $this);
 		
 		if ($appExtension->isEnabled('payPerRentals') === true){
@@ -79,6 +83,76 @@ class Extension_inventoryCenters extends ExtensionBase {
 		}
 		if (Session::exists('isppr_city') === true && Session::get('isppr_city') != ''){
 			$Qproducts->andWhere('ic.inventory_center_city = ?', Session::get('isppr_city'));
+		}
+	}
+
+	public function MonthlySalesAddFilters(){
+
+		$centerDrop = htmlBase::newElement('selectbox')
+			->setName('inventory_center_id')
+			->attr('onchange', 'this.form.submit();');
+
+		$centerDrop->addOption('0', 'Please Select');
+
+		$Qcenters = Doctrine_Query::create()
+			->from('ProductsInventoryCenters')
+			->orderBy('inventory_center_name asc')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+		if(isset($_GET['inventory_center_id'])){
+			$centerDrop->selectOptionByValue($_GET['inventory_center_id']);
+		}
+
+		foreach($Qcenters as $iCenter){
+			$centerDrop->addOption($iCenter['inventory_center_id'], $iCenter['inventory_center_name']);
+		}
+
+		echo sysLanguage::get('HEADING_TITLE_INVENTORY_CENTER') . ': ' . $centerDrop->draw();
+	}
+
+	public function OrdersListingBeforeExecuteLeft(&$Qsales){
+		if(isset($_GET['inventory_center_id']) && $_GET['inventory_center_id'] > 0){
+			$Qsales//->leftJoin('o.OrdersProducts op')
+			->leftJoin('op.Products p')
+			->leftJoin('p.ProductsInventory pi')
+			->leftJoin('pi.ProductsInventoryBarcodes pib')
+			->leftJoin('pib.ProductsInventoryBarcodesToInventoryCenters piq')
+			->leftJoin('piq.ProductsInventoryCenters pic')
+			->andWhere('pic.inventory_center_id = ?', $_GET['inventory_center_id'])
+			->andWhere('pi.use_center = ?', '1');
+		}
+
+	}
+
+	public function ProductIsInInventory(&$isInInventory, $products_id){
+		$Qproducts = Doctrine_Query::create()
+			->from('Products p')
+			->leftJoin('p.ProductsInventory i')
+			->leftJoin('i.ProductsInventoryBarcodes b')
+			->leftJoin('b.ProductsInventoryBarcodesToInventoryCenters b2c')
+			->leftJoin('b2c.ProductsInventoryCenters ic')
+			->where('p.products_id = ?', $products_id);
+		if (Session::exists('isppr_inventory_pickup') === true && Session::get('isppr_inventory_pickup') != ''){
+			$Qproducts->andWhere('ic.inventory_center_id = ?', Session::get('isppr_inventory_pickup'));
+		}
+		$Qproducts->andWhere('i.use_center = ?', '1');
+		if (Session::exists('isppr_continent') === true && Session::get('isppr_continent') != ''){
+			$Qproducts->andWhere('ic.inventory_center_continent = ?', Session::get('isppr_continent'));
+		}
+		if (Session::exists('isppr_country') === true && Session::get('isppr_country') != ''){
+			$Qproducts->andWhere('ic.inventory_center_country = ?', Session::get('isppr_country'));
+		}
+		if (Session::exists('isppr_state') === true && Session::get('isppr_state') != ''){
+			$Qproducts->andWhere('ic.inventory_center_state = ?', Session::get('isppr_state'));
+		}
+		if (Session::exists('isppr_city') === true && Session::get('isppr_city') != ''){
+			$Qproducts->andWhere('ic.inventory_center_city = ?', Session::get('isppr_city'));
+		}
+		$Qproducts = $Qproducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		if(isset($Qproducts[0])){
+			$isInInventory = true;
+		}else{
+			$isInInventory = false;
 		}
 	}
 
@@ -208,6 +282,24 @@ class Extension_inventoryCenters extends ExtensionBase {
 			$qty['center_id'] = $qInfo['inventory_center_id'];
 		}
 	}
+
+	public function OrdersProductsReservationListingBeforeExecuteUtilities(&$Qorders){
+		global $Editor, $appExtension;
+		$Qorders->leftJoin('ib.ProductsInventoryBarcodesToInventoryCenters b2c');
+
+		if ($appExtension->isAdmin()){
+			if (is_object($Editor) && $Editor->hasData('inventory_center_id')){
+				$Qorders->andWhere('b2c.inventory_center_id = ?', $Editor->getData('inventory_center_id'));
+			}else{
+				$Qorders->andWhereIn('b2c.inventory_center_id', Session::get('isppr_inventory_pickup'));
+			}
+		}else{
+			$Qorders->andWhere('b2c.inventory_center_id = ?', Session::get('isppr_inventory_pickup'));
+		}
+
+	}
+
+
 	
 	public function ProductInventoryQuantityHasInventoryQueryBeforeExecute($invData, &$Qcheck){
 		if ($this->stockMethod == 'Store'){
@@ -254,33 +346,42 @@ class Extension_inventoryCenters extends ExtensionBase {
 	}
 	
 	public function ProductInventoryBarcodeHasInventoryQueryBeforeExecute($invData, &$Qcheck){
-		
-		if ($invData['use_center'] == '1'){
-			$invCenterID = 0;
-			
-			if (isset($invData['useCenterId'])){
-				$invCenterID = $invData['useCenterId'];
-			}elseif (Session::exists('isppr_inventory_pickup')){
-				$invCenterID = Session::get('isppr_inventory_pickup');
+		global $Editor, $appExtension;
+		if ($this->stockMethod == 'Zone' && $appExtension->isAdmin()){
+			$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToInventoryCenters ib2c');
+			if (is_object($Editor)&& $Editor->hasData('inventory_center_id')){
+				$Qcheck->andWhere('ib2c.inventory_center_id = ?', $Editor->getData('inventory_center_id'));
 			}else{
-				if ($this->stockMethod == 'Store'){
-					$invCenterID = Session::get('current_store_id');
-				}else{
-					$invCenterID = $this->getSelectedInventoryCenter();
-				}
+				$Qcheck->andWhereIn('ib2c.inventory_center_id', Session::get('isppr_inventory_pickup'));
 			}
-			if ($this->stockMethod == 'Store'){
-				if ($invCenterID > 0){
-					$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToStores b2s')
-							->leftJoin('b2s.Stores');
-					$Qcheck->andWhere('b2s.inventory_store_id = ?', $invCenterID);
-				}
-			}else{
+		}else{
+			if ($invData['use_center'] == '1'){
+				$invCenterID = 0;
 
-				if ($invCenterID > 0){
-					$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToInventoryCenters b2c')
-							->leftJoin('b2c.ProductsInventoryCenters');
-					$Qcheck->andWhere('b2c.inventory_center_id = ?', $invCenterID);
+				if (isset($invData['useCenterId'])){
+					$invCenterID = $invData['useCenterId'];
+				}elseif (Session::exists('isppr_inventory_pickup')){
+					$invCenterID = Session::get('isppr_inventory_pickup');
+				}else{
+					if ($this->stockMethod == 'Store'){
+						$invCenterID = Session::get('current_store_id');
+					}else{
+						$invCenterID = $this->getSelectedInventoryCenter();
+					}
+				}
+				if ($this->stockMethod == 'Store'){
+					if ($invCenterID > 0){
+						$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToStores b2s')
+								->leftJoin('b2s.Stores');
+						$Qcheck->andWhere('b2s.inventory_store_id = ?', $invCenterID);
+					}
+				}else{
+
+					if ($invCenterID > 0){
+						$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToInventoryCenters b2c')
+								->leftJoin('b2c.ProductsInventoryCenters');
+						$Qcheck->andWhere('b2c.inventory_center_id = ?', $invCenterID);
+					}
 				}
 			}
 		}

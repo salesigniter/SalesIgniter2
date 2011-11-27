@@ -99,7 +99,7 @@
 					<td class="main"><?php
 						$PaymentMethodBox = htmlBase::newElement('selectbox')
 						->setName('payment_method')
-						->selectOptionByValue($CustomersMembership->payment_method)
+
 						->attr('onchange', 'fnPaymentChange(this.value);')
 						->addOption('authorizenet', 'Authorize.Net')
 						->addOption('paypalipn', 'Paypal')
@@ -108,41 +108,60 @@
 						->addOption('cashondelivery', 'Cash On Delivery')
 						->addOption('moneyorder', 'Money Order');
 						
-						echo $PaymentMethodBox->draw();
-						
+
+
 						$nextBillDate = date_parse($CustomersMembership->next_bill_date);
-						
+
 						$NextBillDayBox = htmlBase::newElement('selectbox')
-						->setName('next_billing_day')
-						->selectOptionByValue($nextBillDate['day']);
+						->setName('next_billing_day');
+
 						for($i=1; $i<=31; $i++){
 							$NextBillDayBox->addOption(sprintf('%02d', $i), sprintf('%02d', $i));
 						}
-						
+
+
 						$NextBillMonthBox = htmlBase::newElement('selectbox')
-						->setName('next_billing_month')
-						->selectOptionByValue($nextBillDate['month']);
+						->setName('next_billing_month');
+                        $CCExpiresMonth = htmlBase::newElement('selectbox')
+						->setName('cc_expires_month');
+                            
 						for ($i=1; $i<13; $i++) {
 							$NextBillMonthBox->addOption(sprintf('%02d', $i), strftime('%B',mktime(0,0,0,$i,1,2000)));
+                            $CCExpiresMonth->addOption(sprintf('%02d', $i), strftime('%B',mktime(0,0,0,$i,1,2000)));
 						}
-						
+
+
+
 						$NextBillYearBox = htmlBase::newElement('selectbox')
-						->setName('next_billing_year')
-						->selectOptionByValue($nextBillDate['year']);
-						$today = getdate();
+						->setName('next_billing_year');
+
+                        $CCExpiresYear = htmlBase::newElement('selectbox')
+						->setName('cc_expires_year');
+                            
+						$today['year'] = date('Y');
+
 						for ($i=$today['year']; $i < $today['year']+10; $i++) {
 							$NextBillYearBox->addOption(
-								strftime('%y',mktime(0,0,0,1,1,$i)),
+								strftime('%Y',mktime(0,0,0,1,1,$i)),
+								strftime('%Y',mktime(0,0,0,1,1,$i))
+							);
+                            $CCExpiresYear->addOption(
+								strftime('%Y',mktime(0,0,0,1,1,$i)),
 								strftime('%Y',mktime(0,0,0,1,1,$i))
 							);
 						}
+						$NextBillDayBox->selectOptionByValue($nextBillDate['day']);
+						$NextBillMonthBox->selectOptionByValue($nextBillDate['month']);
+                        $NextBillYearBox->selectOptionByValue($nextBillDate['year']);
+						$PaymentMethodBox->selectOptionByValue($CustomersMembership->payment_method);
+						echo $PaymentMethodBox->draw();
 					?></td>
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_NEXT_BILL_DATE');?></td>
 					<td class="main"><?php
-						echo $NextBillDayBox->draw() . '&nbsp;' . 
-							$NextBillMonthBox->draw() . '&nbsp;' . 
+						echo $NextBillDayBox->draw() . '&nbsp;' .
+							$NextBillMonthBox->draw() . '&nbsp;' .
 							$NextBillYearBox->draw();
 					?></td>
 				</tr>
@@ -160,15 +179,10 @@
 						if (tep_not_null($CustomersMembership->exp_date)){
 							$exp_date = cc_decrypt($CustomersMembership->exp_date);
 							$expMonth = substr($exp_date, 0, 2);
-							$expYear = substr($exp_date, -2);
+							$expYear = substr($exp_date, -4);
 						}
 						
-						$CCExpiresMonth = clone $NextBillMonthBox;
-						$CCExpiresMonth->setName('cc_expires_month');
-						$CCExpiresMonth->selectOptionByValue((isset($expMonth) ? $expMonth : ''));
-						
-						$CCExpiresYear = clone $NextBillYearBox;
-						$CCExpiresYear->setName('cc_expires_year');
+                        $CCExpiresMonth->selectOptionByValue((isset($expMonth) ? $expMonth : ''));
 						$CCExpiresYear->selectOptionByValue((isset($expYear) ? $expYear : ''));
 						
 						echo $CCExpiresMonth->draw() . '&nbsp;' . $CCExpiresYear->draw();
@@ -178,6 +192,7 @@
   if ($CustomersMembership['payment_method'] == 'paypal_ipn' || $CustomersMembership['payment_method'] == 'cod' || $CustomersMembership['payment_method'] == 'moneyorder' || $CustomersMembership['payment_method'] == 'dotpay'){
       echo "<script language='javascript'>
              document.customers.cc_number.disabled=true;
+             document.customers.cc_cvv.disabled=true;
              document.customers.cc_expires_month.disabled=true;
              document.customers.cc_expires_year.disabled=true;
             </script>";
@@ -196,7 +211,7 @@
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_MAKE_MEMBER');?></td>
-					<td class="main"><?php echo tep_draw_selection_field('make_member','checkbox','1',false,'','onclick=fnClicked();');?></td>
+					<td class="main"><?php echo tep_draw_selection_field('make_member','checkbox','1',false,'');?></td>
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_CHOOSE_PLAN');?></td>
@@ -206,7 +221,7 @@
 						->leftJoin('m.MembershipPlanDescription md')
 						->where('md.language_id = ?', Session::get('languages_id'))
 						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-						
+
 						$i = 0;
 						$jsMBM = '';
 						foreach($Qmembership as $row_plans){
@@ -240,109 +255,115 @@
 		<tr>
 			<td class="formAreaTitle"><?php echo sysLanguage::get('TEXT_PAYMENT_DETAILS'); ?></td>
 		</tr>
-<?php
-	$nextBillDate = date_parse($CustomersMembership->next_bill_date);
-						
-	$NextBillDayBox = htmlBase::newElement('selectbox')
-	->setName('next_billing_day')
-	->selectOptionByValue($nextBillDate['day'])
-	->disable();
-	for($i=1; $i<=31; $i++){
-		$NextBillDayBox->addOption(sprintf('%02d', $i), sprintf('%02d', $i));
-	}
-						
-	$NextBillMonthBox = htmlBase::newElement('selectbox')
-	->setName('next_billing_month')
-	->selectOptionByValue($nextBillDate['month'])
-	->disable();
-	for ($i=1; $i<13; $i++) {
-		$NextBillMonthBox->addOption(sprintf('%02d', $i), strftime('%B',mktime(0,0,0,$i,1,2000)));
-	}
-						
-	$NextBillYearBox = htmlBase::newElement('selectbox')
-	->setName('next_billing_year')
-	->selectOptionByValue($nextBillDate['year'])
-	->disable();
-	$today = getdate();
-	for ($i=$today['year']; $i < $today['year']+10; $i++) {
-		$NextBillYearBox->addOption(
-			strftime('%y',mktime(0,0,0,1,1,$i)),
-			strftime('%Y',mktime(0,0,0,1,1,$i))
-		);
-	}
-
-	$AuthNetExpiresMonth = clone $NextBillMonthBox;
-	$AuthNetExpiresMonth->setName('authorizenet_cc_expires_month')->disable();
-						
-	$AuthNetExpiresYear = clone $NextBillYearBox;
-	$AuthNetExpiresYear->setName('authorizenet_cc_expires_year')->disable();
-
-	$UsaEpayExpiresMonth = clone $NextBillMonthBox;
-	$UsaEpayExpiresMonth->setName('usaepay_cc_expires_month')->disable();
-						
-	$UsaEpayExpiresYear = clone $NextBillYearBox;
-	$UsaEpayExpiresYear->setName('usaepay_cc_expires_year')->disable();
-
-	$CCExpiresMonth = clone $NextBillMonthBox;
-	$CCExpiresMonth->setName('cc_expires_month')->disable();
-						
-	$CCExpiresYear = clone $NextBillYearBox;
-	$CCExpiresYear->setName('cc_expires_year')->disable();
-?>
 		<tr>
 			<td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
 				<tr>
-					<td class="main"><?php echo '<b>'.sysLanguage::get('TEXT_PAYMENT_METHOD').'</b>';?></td>
-					<td class="main">&nbsp;</td>
+					<td class="main"><?php echo sysLanguage::get('TEXT_PAYMENT_METHOD');?></td>
+					<td class="main"><?php
+						$PaymentMethodBox = htmlBase::newElement('selectbox')
+						->setName('payment_method')
+
+						->attr('onchange', 'fnPaymentChange(this.value);')
+						->addOption('authorizenet', 'Authorize.Net')
+						->addOption('paypalipn', 'Paypal')
+						->addOption('usaepay', 'USAePay')
+						->addOption('cc', 'Credit Card')
+						->addOption('cashondelivery', 'Cash On Delivery')
+						->addOption('moneyorder', 'Money Order');
+
+
+
+
+
+
+						$NextBillDayBox = htmlBase::newElement('selectbox')
+							->setName('next_billing_day');
+
+						for($i=1; $i<=31; $i++){
+							$NextBillDayBox->addOption(sprintf('%02d', $i), sprintf('%02d', $i));
+						}
+
+
+						$NextBillMonthBox = htmlBase::newElement('selectbox')
+							->setName('next_billing_month');
+						$CCExpiresMonth = htmlBase::newElement('selectbox')
+							->setName('cc_expires_month');
+
+						for ($i=1; $i<13; $i++) {
+							$NextBillMonthBox->addOption(sprintf('%02d', $i), strftime('%B',mktime(0,0,0,$i,1,2000)));
+							$CCExpiresMonth->addOption(sprintf('%02d', $i), strftime('%B',mktime(0,0,0,$i,1,2000)));
+						}
+
+
+
+						$NextBillYearBox = htmlBase::newElement('selectbox')
+							->setName('next_billing_year');
+
+						$CCExpiresYear = htmlBase::newElement('selectbox')
+							->setName('cc_expires_year');
+
+						$today['year'] = date('Y');
+
+						for ($i=$today['year']; $i < $today['year']+10; $i++) {
+							$NextBillYearBox->addOption(
+								strftime('%Y',mktime(0,0,0,1,1,$i)),
+								strftime('%Y',mktime(0,0,0,1,1,$i))
+							);
+							$CCExpiresYear->addOption(
+								strftime('%Y',mktime(0,0,0,1,1,$i)),
+								strftime('%Y',mktime(0,0,0,1,1,$i))
+							);
+						}
+						if($CustomersMembership){
+							$PaymentMethodBox->selectOptionByValue($CustomersMembership->payment_method);
+							$NextBillYearBox->selectOptionByValue($nextBillDate['year']);
+							$NextBillMonthBox->selectOptionByValue($nextBillDate['month']);
+							$NextBillDayBox->selectOptionByValue($nextBillDate['day']);
+							$nextBillDate = date_parse($CustomersMembership->next_bill_date);
+						}
+
+						echo $PaymentMethodBox->draw();
+						?></td>
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_NEXT_BILL_DATE');?></td>
 					<td class="main"><?php
-						echo $NextBillDayBox->draw() . '&nbsp;' . 
-							$NextBillMonthBox->draw() . '&nbsp;' . 
-							$NextBillYearBox->draw();
-					?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo tep_draw_radio_field('payment_method','paypal_ipn',true,'',' disabled ');?></td>
-					<td class="main"><?php echo sysLanguage::get('TEXT_PAYPAL');?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo tep_draw_radio_field('payment_method','authorizenet_aim',true,'',' disabled ');?></td>
-					<td class="main"><?php echo sysLanguage::get('TEXT_AUTHORIZE');?></td>
+						echo $NextBillDayBox->draw() . '&nbsp;' .
+					         $NextBillMonthBox->draw() . '&nbsp;' .
+					         $NextBillYearBox->draw();
+						?></td>
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_CARD_NUM');?></td>
-					<td class="main"><?php echo tep_draw_input_field('authorizenet_cc_number','',' disabled ');?></td>
+					<td class="main"><?php echo tep_draw_input_field('cc_number',(tep_not_null($CustomersMembership->card_num) ? cc_decrypt($CustomersMembership->card_num) : '')); ?></td>
+				</tr>
+				<tr id="card_cvv">
+					<td class="main"><?php echo sysLanguage::get('TEXT_CVV');?></td>
+					<td class="main"><?php echo tep_draw_input_field('cc_cvv',(tep_not_null($CustomersMembership->card_cvv) ? cc_decrypt($CustomersMembership->card_cvv) : ''), 'size="5"'); ?></td>
 				</tr>
 				<tr>
 					<td class="main"><?php echo sysLanguage::get('TEXT_EXP_DATE');?></td>
-					<td class="main"><?php echo $AuthNetExpiresMonth->draw() . '&nbsp;' . $AuthNetExpiresYear->draw();?></td>
+					<td class="main"><?php
+						if (tep_not_null($CustomersMembership->exp_date)){
+						$exp_date = cc_decrypt($CustomersMembership->exp_date);
+						$expMonth = substr($exp_date, 0, 2);
+						$expYear = substr($exp_date, -4);
+					}
+
+						$CCExpiresMonth->selectOptionByValue((isset($expMonth) ? $expMonth : ''));
+						$CCExpiresYear->selectOptionByValue((isset($expYear) ? $expYear : ''));
+
+						echo $CCExpiresMonth->draw() . '&nbsp;' . $CCExpiresYear->draw();
+						?></td>
 				</tr>
-				<tr>
-					<td class="main"><?php echo tep_draw_radio_field('payment_method','usaepay',true,'',' disabled ');?></td>
-					<td class="main"><?php echo sysLanguage::get('TEXT_USAEPAY');?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo sysLanguage::get('TEXT_CARD_NUM');?></td>
-					<td class="main"><?php echo tep_draw_input_field('usaepay_cc_number','',' disabled ');?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo sysLanguage::get('TEXT_EXP_DATE');?></td>
-					<td class="main"><?php echo $UsaEpayExpiresMonth->draw() . '&nbsp;' . $UsaEpayExpiresYear->draw();?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo tep_draw_radio_field('payment_method','cc',true,'',' disabled ');?></td>
-					<td class="main"><?php echo sysLanguage::get('TEXT_CREDIT_CARD');?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo sysLanguage::get('TEXT_CARD_NUM');?></td>
-					<td class="main"><?php echo tep_draw_input_field('cc_number','',' disabled ');?></td>
-				</tr>
-				<tr>
-					<td class="main"><?php echo sysLanguage::get('TEXT_EXP_DATE');?></td>
-					<td class="main"><?php echo $CCExpiresMonth->draw() . '&nbsp;' . $CCExpiresYear->draw();?></td>
-				</tr>
+				<script language='javascript'>
+					$('select[name="payment_method"], input[name="cc_number"], input[name="cc_cvv"],  select[name="cc_expires_month"], select[name="cc_expires_year"], select[name="next_billing_day"], select[name="next_billing_month"], select[name="next_billing_year"]').each( function (){
+						$(this).attr('disabled','true');
+						$(this).addClass('ui-state-disabled');
+					});
+					document.customers.planid.disabled = true;
+				</script>
+
 			</table></td>
 		</tr>
   <?php

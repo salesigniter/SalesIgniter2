@@ -112,19 +112,12 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 			$addCls .= ' middle';
 		}
 
-		if (isset($_GET['cPath']) && $item->link->type == 'category'){
-			$path = str_replace('cPath=', '', $item->link->get_vars);
-			if ($_GET['cPath'] == $path){
-				$addCls .= ' ui-state-active';
-			}
-		}
-		elseif (isset($application) && $App->getAppName() == $application && $App->getPageName() == $item->link->page){
+		if (isset($application) && $App->getAppName() == $application && $App->getPageName() == $item->link->page && !isset($_GET['cPath'])){
 			$addCls .= ' ui-state-active';
-		}
-		elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $item->link->page){
-			if ($application != 'index' || ($application == 'index' && !isset($_GET['cPath']))){
-				$addCls .= ' ui-state-active';
-			}
+		}elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $item->link->page && !isset($_GET['cPath'])){
+			$addCls .= ' ui-state-active';
+		}elseif (isset($_GET['cPath']) && $item->link->get_vars == 'cPath='. $_GET['cPath']){
+			$addCls .= ' ui-state-active';
 		}
 
 		$itemTemplate = '<li class="' . $addCls . '">';
@@ -132,7 +125,7 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 			$itemTemplate .= $itemLink->draw() . '<span class="ui-icon ui-icon-triangle-1-e"></span>';
 			$itemTemplate .= '<ol>';
 			foreach($item->children as $k => $childItem){
-				$itemTemplate .= parseMenuItem($childItem, false, (!isset($item->children->{$k + 1}) || empty($item->children->{$k + 1})));
+				$itemTemplate .= $this->parseMenuItem($childItem, false, (!isset($item->children->{$k + 1}) || empty($item->children->{$k + 1})));
 			}
 			$itemTemplate .= '</ol>';
 		}

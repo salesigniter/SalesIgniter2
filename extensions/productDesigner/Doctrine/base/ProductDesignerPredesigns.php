@@ -43,7 +43,7 @@ class ProductDesignerPredesigns extends Doctrine_Record {
 			'default'       => '0.0000',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => 4
+			'scale'         => false
 		));
 		$this->hasColumn('predesign_location', 'string', 12, array(
 		'type' => 'string',

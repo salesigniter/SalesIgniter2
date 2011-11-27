@@ -1,0 +1,8 @@
+<definitions>
+	<define key="HEADING_TITLE_SALES_REPORT"><![CDATA[Fees Report]]></define>
+	<define key="TEXT_ENTRY_DATE_FROM"><![CDATA[From]]></define>
+	<define key="TEXT_ENTRY_DATE_TO"><![CDATA[To]]></define>
+	<define key="TEXT_BUTTON_GENERATE"><![CDATA[Generate Report]]></define>
+	<define key="TEXT_BUTTON_GENERATE_CSV"><![CDATA[Generate CSV]]></define>
+
+</definitions>

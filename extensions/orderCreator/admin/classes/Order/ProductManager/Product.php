@@ -60,8 +60,8 @@ class OrderCreatorProduct extends OrderProduct implements Serializable {
 		$taxAddress = $Editor->AddressManager->getAddress('billing');
 		$this->setTaxRate(tep_get_tax_rate(
 				$this->getProductClass()->getProductTypeClass()->getTaxClassId(),
-			$taxAddress->getCountryId(),
-			$taxAddress->getZoneId()
+			(is_object($taxAddress) ? $taxAddress->getCountryId() : -1),
+				(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
 		));
 	}
 
@@ -174,8 +174,8 @@ class OrderCreatorProduct extends OrderProduct implements Serializable {
 		if (method_exists($ProductType, 'addToOrdersProductCollection')){
 			$ProductType->addToOrdersProductCollection($this, $OrderedProduct);
 		}
-		
-		EventManager::notify('OrderCreatorProductAddToCollection', $this, $OrderedProduct);
+		//print_r($this);
+		EventManager::notify('OrderCreatorProductAddToCollection', $this, &$OrderedProduct);
 	}
 }
 ?>

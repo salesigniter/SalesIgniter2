@@ -57,9 +57,11 @@
           $index = 0;
           foreach($sortOrder as $products_id => $priority) {
               $pID = tep_get_prid($products_id);
-              $product = new product($pID);
+              $product = new Product($pID);
               if ($product->isValid()){
-              	$purchaseTypeCls = $product->getPurchaseType('rental');
+              	  //$purchaseTypeCls = $product->getPurchaseType('rental');
+	              $purchaseTypeCls = PurchaseTypeModules::getModule('membershipRental');
+	              $purchaseTypeCls->loadProduct($pID);
                   $products_array[$index] = array(
                       'productClass' => $product,
                       'id'       => $products_id,

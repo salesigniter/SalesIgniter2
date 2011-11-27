@@ -77,7 +77,7 @@ class TaxRates extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('tax_description', 'string', 255, array(
 		'type' => 'string',

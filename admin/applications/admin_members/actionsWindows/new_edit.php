@@ -43,6 +43,33 @@ $overridePasswordInput = htmlBase::newElement('input')
 	->setLabelPosition('before')
 	->val($Admin->admin_override_password);
 
+$htmlSimpleAdmin = htmlBase::newElement('checkbox')
+	->setName('simple_admin')
+	->setId('simpleAdmin')
+	->setLabel('Use Simple Admin')
+	->setLabelPosition('before')
+	->setChecked((($Admin->admin_simple_admin == 1)?true:false));
+
+$favoritesInput = htmlBase::newElement('selectbox')
+	->setName('admin_favorites_id')
+	->setLabel(sysLanguage::get('TEXT_INFO_FAVORITES'))
+	->setLabelSeparator('<br />')
+	->setLabelPosition('before');
+
+$favoritesInput->addOption('-1', sysLanguage::get('TEXT_NONE'));
+$favoritesInput->addOption('0', sysLanguage::get('TEXT_STANDARD'));
+
+$favoritesInput->selectOptionByValue($Admin->admin_favs_id);
+
+$Qfavs = Doctrine_Query::create()
+	->from('AdminFavorites')
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+if ($Qfavs){
+	foreach($Qfavs as $gInfo){
+		$favoritesInput->addOption($gInfo['admin_favs_id'], $gInfo['admin_favs_name']);
+	}
+}
+
 if ($Admin->admin_id == 1){
 	$groupInput = htmlBase::newElement('input')
 		->setType('hidden')
@@ -76,6 +103,8 @@ $infoBox->addContentRow($lastNameInput->draw());
 $infoBox->addContentRow($emailInput->draw());
 $infoBox->addContentRow($overridePasswordInput->draw());
 $infoBox->addContentRow($groupInput->draw());
+$infoBox->addContentRow($htmlSimpleAdmin->draw());
+$infoBox->addContentRow($favoritesInput->draw());
 
 EventManager::notify('AdminMembersNewEditWindowBeforeDraw', $infoBox, $Admin);
 

@@ -27,12 +27,27 @@ $Qreservations = Doctrine_Query::create()
 	->andWhere('oa.address_type = ?', 'customer')
 	->andWhere('opr.parent_id IS NULL')
 	->execute();
-
+    $Arr = array();
 	if ($Qreservations->count() > 0){
 		foreach($Qreservations as $oInfo){
 
 			foreach($oInfo->OrdersProducts as $opInfo){
 				foreach($opInfo->OrdersProductsReservation as $oprInfo){
+
+					if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'True'){
+						//check if it has prehire maintenance. if yes then check current_maintenance_type to be 0 if not then cannot be sended
+						$QMaintenancePeriod = Doctrine_Query::create()
+							->from('PayPerRentalMaintenancePeriods ppmp')
+							->where('before_send = ?', '1')
+							->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+						if(count($QMaintenancePeriod) > 0){
+							$BarcodeHistoryRented = Doctrine_Core::getTable('BarcodeHistoryRented')->findOneByBarcodeId($oprInfo->barcode_id);
+
+							if(!$BarcodeHistoryRented || $BarcodeHistoryRented->current_maintenance_type != 0){
+								continue;
+							}
+						}
+					}
 
 					if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True'){
 						$payedAmount = (isset($_POST['amount_payed'][$oprInfo->orders_products_reservations_id])?$_POST['amount_payed'][$oprInfo->orders_products_reservations_id]:'');
@@ -43,6 +58,8 @@ $Qreservations = Doctrine_Query::create()
 							continue;
 						}
 					}
+
+					$Arr[] = $oprInfo->orders_products_reservations_id;
 
 					$shippingNumber = (isset($_POST['shipping_number'][$oprInfo->orders_products_reservations_id])?$_POST['shipping_number'][$oprInfo->orders_products_reservations_id]:'');
 					if(!empty($shippingNumber)){
@@ -94,6 +111,7 @@ $Qreservations = Doctrine_Query::create()
 							'name' => $oInfo->OrdersAddresses['customer']->entry_name
 						));
 					}
+					$oprInfo->save();
 				}
 
 			}
@@ -104,6 +122,7 @@ $Qreservations = Doctrine_Query::create()
 
 
 	EventManager::attachActionResponse(array(
-		'success' => true
+		'success' => true,
+		'Arr' => $Arr
 	), 'json');
 ?>

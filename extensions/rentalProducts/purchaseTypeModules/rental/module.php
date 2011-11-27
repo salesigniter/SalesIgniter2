@@ -228,6 +228,17 @@ class PurchaseType_Rental extends PurchaseTypeBase
 								->addClass('outOfStockText')
 								->html(sysLanguage::get('TEXT_OUT_OF_STOCK'));
 							break;
+						case 'Show Notify (Requires SMS Notify Extension)':
+							if ($userAccount->isLoggedIn()){
+								$button = htmlBase::newElement('button')
+									->setText('Text Message Me When In Stock')
+									->setHref(itw_app_link('appExt=smsNotify&type=product&pID=' . $this->getProductId(), 'addNotify', 'default'));
+							}else{
+								$button = htmlBase::newElement('button')
+									->setText('Text Message Me When In Stock')
+									->setHref(itw_app_link('appExt=smsNotify&type=product&pID=' . $this->getProductId(), 'addNotify', 'default'));
+							}
+							break;
 						case 'Hide Box':
 							return null;
 							break;
@@ -283,6 +294,17 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		if ($this->rentalLimitReached($Editor->getCustomerId()) === true){
 			$return = false;
 			$Editor->addErrorMessage('Rental Limit Reached For This Customer');
+		}
+		return $return;
+	}
+	public function showProductListing($col){
+		global $rentalQueue;
+		$return = false;
+		if ($col == 'rental'){
+			if ($this->hasInventory()){
+
+				$return = $this->getTitle().': '. $this->displayPrice() . ' / ' . $this->getConfigData('RENTAL_PERIOD') . ' Day(s)';
+			}
 		}
 		return $return;
 	}

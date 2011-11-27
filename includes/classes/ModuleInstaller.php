@@ -11,12 +11,21 @@ class ModuleInstaller {
 
 	private $configData;
 
-	public function __construct($moduleType, $moduleCode, $extName = null){
+	public function __construct($moduleType, $moduleCode, $extName = null, $modulePath = null){
 		$this->moduleType = $moduleType;
 		$this->moduleDir = sysConfig::getDirFsCatalog();
-		if (is_null($extName) === false){
+		if (is_null($modulePath) === false){
+			if (is_dir($modulePath)){
+				$this->moduleDir = $modulePath;
+			}
+			else{
+				$this->moduleDir .= $modulePath;
+			}
+		}
+		elseif (is_null($extName) === false){
 			$this->moduleDir .= 'extensions/' . $extName . '/' . $moduleType . 'Modules/' . $moduleCode . '/';
-		}else{
+		}
+		else{
 			$this->moduleDir .= 'includes/modules/' . $moduleType . 'Modules/' . $moduleCode . '/';
 		}
 		$dataDir = $this->moduleDir . 'data/';
@@ -67,6 +76,34 @@ class ModuleInstaller {
 							 */
 
 			$this->moduleCls->onInstall(&$this, &$moduleConfig);
+		}
+	}
+
+	public function enable(){
+		if ($this->moduleCls->isEnabled() === false){
+			$Module = Doctrine_Core::getTable('Modules')
+				->findOneByModulesCodeAndModulesType($this->moduleCls->getCode(), $this->moduleType);
+			Doctrine_Query::create()
+				->update('ModulesConfiguration')
+				->set('configuration_value', '?', 'True')
+				->where('configuration_key = ?', (string) $this->moduleInfo->status_key)
+				->andWhere('modules_id = ?', $Module->module_id)
+				->execute();
+		}
+	}
+
+	public function disable(){
+		if ($this->moduleCls->isEnabled() === true){
+			echo '->findOneByModulesCodeAndModulesType(' . $this->moduleCls->getCode() . ', ' . $this->moduleType . ')' . "\n";
+			$Module = Doctrine_Core::getTable('Modules')
+				->findOneByModulesCodeAndModulesType($this->moduleCls->getCode(), $this->moduleType);
+			print_r($Module->toArray());
+			Doctrine_Query::create()
+				->update('Modules')
+				->set('configuration_value', '?', 'False')
+				->where('configuration_key = ?', (string) $this->moduleInfo->status_key)
+				->andWhere('modules_id = ?', $Module->module_id)
+				->execute();
 		}
 	}
 

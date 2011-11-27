@@ -1,14 +1,47 @@
 <script language="javascript" type="text/javascript">
 	$(document).ready(function (){
+		var indexKey = 1;
 		$('select[name="option_type"]').change(function (){
 			var Option = $(this).val();
 			if (Option == ''){
 				$('.noSelection').show();
 				$('.optionBox').hide();
-			}else{
+			}else if(Option == 'price'){
+				$('.optionBox, .noSelection').hide();
+				$('#priceContainer').show();
+				$('input[name="option_id[' + Option + '][start]"]').val('');
+				$('input[name="option_id[' + Option + '][stop]"]').val('');
+				//indexKey++;
+			}else if(Option == 'priceppr'){
+				$('.optionBox, .noSelection').hide();
+				$('#pricePPRContainer').show();
+				$('input[name="option_id[' + Option + '][start]"]').val('');
+				$('input[name="option_id[' + Option + '][stop]"]').val('');
+				//indexKey++;
+			} else{
 				$('.optionBox, .noSelection').hide();
 				$('select[name="option_id[' + Option + ']"]').val('').show();
 			}
+		});
+
+		$('.addPriceOptionButton').click(function (){
+			$('#priceContainer').append(
+				'<br /><label>Start:</label>' +
+				'<input name="option_id[price][start][' + indexKey + ']">' +
+				'<label>End:</label>' +
+				'<input name="option_id[price][stop][' + indexKey + ']"><br />'
+			);
+			indexKey++;
+		});
+
+		$('.addPricePPROptionButton').click(function (){
+			$('#pricePPRContainer').append(
+				'<br /><label>Start:</label>' +
+				'<input name="option_id[priceppr][start][' + indexKey + ']">' +
+				'<label>End:</label>' +
+				'<input name="option_id[priceppr][stop][' + indexKey + ']"><br />'
+			);
+			indexKey++;
 		});
 
 		$('.addOptionButton').click(function (){
@@ -25,6 +58,8 @@
 					var heading = 'Purchase Type';
 				}else if (optionType == 'price'){
 					var heading = 'Price';
+				}else if (optionType == 'priceppr'){
+					var heading = 'Price PPR';
 				}
 				optionId = optionType;
 				addToList = true;
@@ -32,7 +67,61 @@
 
 			if (addToList === true){
 				var idx = $('.searchOptions li').size();
-				var liHtml = '<li id="options_' + optionType + '_' + optionId + '" data-option_type="' + optionType + '" data-option_id="' + optionId + '">' +
+				var filters = '';
+				var filtersppr = '';
+
+				if(optionType == 'price'){
+					optionId = $('.priceOptions').size() + 1;
+					$('input',$('#priceContainer')).each(function (){
+						filters += '<input type="hidden" class="sortBox" name="' +$(this).attr('name') + '" value="'+$(this).val()+'"';
+					});
+					var filter_start = $('input[name="option_id[' + optionType + '][start]"]').val();
+					var filter_stop = $('input[name="option_id[' + optionType + '][stop]"]').val();
+					var liHtml = '<li class="priceOptions" id="options_' + optionType + '_' + optionId + '" data-option_type="' + optionType + '" data-option_id="' + optionId + '" data-start="' + filter_start + '" data-stop="' + filter_stop + '">' +
+						'<div class="ui-widget ui-widget-content ui-corner-all">' +
+						'<table cellpadding="2" cellspacing="0" border="0">' +
+						'<tr>' +
+						'<td valign="top">' +
+						'<b>Heading</b><br/><textarea name="option_heading[' + optionType + '][' + optionId + ']" rows="1" cols="50">' +
+						heading +
+						'</textarea>' +
+						'Price filter from: ' + filter_start + ' to: ' + filter_stop +
+						'<input type="hidden" name="option[' + optionType + '][]" value="' + optionId + '">' +
+						'<input type="hidden" class="sortBox" name="option_sort[' + optionType + '][start][' + optionId + ']" value="' + filter_start + '">' +
+						'<input type="hidden" class="sortBox" name="option_sort[' + optionType + '][stop][' + optionId + ']" value="' + filter_stop + '">' +
+						'</td>' +
+						'</tr>' +
+						'</table>' +
+						'</div>' +
+						'</li>';
+					indexKey = 1;
+				}else if(optionType == 'priceppr'){
+					optionId = $('.pricePPROptions').size() + 1;
+					$('input',$('#pricePPRContainer')).each(function (){
+						filtersppr += '<input type="hidden" class="sortBox" name="' +$(this).attr('name') + '" value="'+$(this).val()+'"';
+					});
+					var filter_pprstart = $('input[name="option_id[' + optionType + '][start]"]').val();
+					var filter_pprstop = $('input[name="option_id[' + optionType + '][stop]"]').val();
+					var liHtml = '<li class="pricePPROptions" id="options_' + optionType + '_' + optionId + '" data-option_type="' + optionType + '" data-option_id="' + optionId + '" data-pprstart="' + filter_pprstart + '" data-pprstop="' + filter_pprstop + '">' +
+						'<div class="ui-widget ui-widget-content ui-corner-all">' +
+						'<table cellpadding="2" cellspacing="0" border="0">' +
+						'<tr>' +
+						'<td valign="top">' +
+						'<b>Heading</b><br/><textarea name="option_heading[' + optionType + '][' + optionId + ']" rows="1" cols="50">' +
+						heading +
+						'</textarea>' +
+						'PPR Price filter from: ' + filter_pprstart + ' to: ' + filter_pprstop +
+						'<input type="hidden" name="option[' + optionType + '][]" value="' + optionId + '">' +
+						'<input type="hidden" class="sortBox" name="option_sort[' + optionType + '][start][' + optionId + ']" value="' + filter_pprstart + '">' +
+						'<input type="hidden" class="sortBox" name="option_sort[' + optionType + '][stop][' + optionId + ']" value="' + filter_pprstop + '">' +
+						'</td>' +
+						'</tr>' +
+						'</table>' +
+						'</div>' +
+						'</li>';
+					indexKey = 1;
+				}else  {
+					var liHtml = '<li id="options_' + optionType + '_' + optionId + '" data-option_type="' + optionType + '" data-option_id="' + optionId + '">' +
 						'<div class="ui-widget ui-widget-content ui-corner-all">' +
 						'<table cellpadding="2" cellspacing="0" border="0">' +
 						'<tr>' +
@@ -47,6 +136,7 @@
 						'</table>' +
 						'</div>' +
 						'</li>';
+				}
 
 				$('.searchOptions').append(liHtml);
 				$('.searchOptions').sortable('refresh');
@@ -91,17 +181,66 @@
 	));
 	
 	$PleaseSelectText = htmlBase::newElement('span')
-	->addClass('noSelection')
-	->html('Please Select An Option Type');
+		->addClass('noSelection')
+		->html('Please Select An Option Type');
 	
 	$OptionTypeBox = htmlBase::newElement('selectbox')
-	->setName('option_type')
-	->addOption('', 'Please Select')
-	->addOption('purchase_type', 'Purchase Type')
-	->addOption('price', 'Product Price')
-	->addOption('custom_field', 'Custom Field')
-	->addOption('attribute', 'Attribute');
-	
+		->setName('option_type')
+		->addOption('', 'Please Select')
+		->addOption('purchase_type', 'Purchase Type')
+		->addOption('price', 'Product Price')
+		->addOption('priceppr', 'Product PPR Price')
+		->addOption('custom_field', 'Custom Field')
+		->addOption('attribute', 'Attribute');
+
+	$DropDownSelectionContainer = htmlBase::newElement('span');
+
+	$PurchaseTypeIsDropDownCheckBox = htmlBase::newElement('checkbox')
+		->setName('dropdown[purchase_type]')
+		->val('1')
+		->setChecked(isset($WidgetSettings->dropdown->purchase_type))
+		->setLabelPosition('after')
+		->setLabel('Purchase Type');
+	$DropDownSelectionContainer->append($PurchaseTypeIsDropDownCheckBox);
+
+	$PriceIsDropDownCheckBox = htmlBase::newElement('checkbox')
+		->setName('dropdown[price]')
+		->val('1')
+		->setChecked(isset($WidgetSettings->dropdown->price))
+		->setLabelPosition('after')
+		->setLabel('Price');
+	$DropDownSelectionContainer->append($PriceIsDropDownCheckBox);
+
+	$PricePPRIsDropDownCheckBox = htmlBase::newElement('checkbox')
+		->setName('dropdown[priceppr]')
+		->val('1')
+		->setChecked(isset($WidgetSettings->dropdown->priceppr))
+		->setLabelPosition('after')
+		->setLabel('Price PPR');
+	$DropDownSelectionContainer->append($PricePPRIsDropDownCheckBox);
+
+	$CustomFieldIsDropDownCheckBox = htmlBase::newElement('checkbox')
+		->setName('dropdown[custom_field]')
+		->val('1')
+		->setChecked(isset($WidgetSettings->dropdown->custom_field))
+		->setLabelPosition('after')
+		->setLabel('Custom Field');
+	$DropDownSelectionContainer->append($CustomFieldIsDropDownCheckBox);
+
+	$AttributeIsDropDownCheckBox = htmlBase::newElement('checkbox')
+		->setName('dropdown[attribute]')
+		->val('1')
+		->setChecked(isset($WidgetSettings->dropdown->attribute))
+		->setLabelPosition('after')
+		->setLabel('Attribute');
+	$DropDownSelectionContainer->append($AttributeIsDropDownCheckBox);
+
+	$editTable->addBodyRow(array(
+                            'columns' => array(
+	                            array('text' => 'Select the option types to display as a drop down: '),
+	                            array('text' => $DropDownSelectionContainer)
+                            )
+                       ));
 	$editTable->addBodyRow(array(
 		'columns' => array(
 			array('text' => 'Option Type: '),
@@ -142,17 +281,66 @@
 			$CustomFieldOptionBox->addOption($fInfo['field_id'], $fInfo['ProductsCustomFieldsDescription'][0]['field_name']);
 		}
 	}
+
+	$PriceStartOptionBox = htmlBase::newElement('input')
+	->setName('option_id[price][start]')
+	->setLabelPosition('before')
+	->setLabel('Start:');
+
+	$PriceStopOptionBox = htmlBase::newElement('input')
+	->setLabelPosition('before')
+	->setLabel('End:')
+	->setName('option_id[price][stop]');
+
+	$addPriceOptionButton = htmlBase::newElement('button')
+	->addClass('addPriceOptionButton')
+	->usePreset('install')
+	->setText('Add Price Slab');
+
+	$priceOptionsContainer = htmlBase::newElement('div')
+		->setId('priceContainer')
+		->addClass('optionBox')
+		->append($PriceStartOptionBox)
+		->append($PriceStopOptionBox)
+		->hide();
+
+	$PricePPRStartOptionBox = htmlBase::newElement('input')
+	->setName('option_id[priceppr][start]')
+	->setLabelPosition('before')
+	->setLabel('Start:');
+
+	$PricePPRStopOptionBox = htmlBase::newElement('input')
+	->setLabelPosition('before')
+	->setLabel('End:')
+	->setName('option_id[priceppr][stop]');
+
+	$addPricePPROptionButton = htmlBase::newElement('button')
+	->addClass('addPricePPROptionButton')
+	->usePreset('install')
+	->setText('Add PPR Price Slab');
+
+	$pricePPROptionsContainer = htmlBase::newElement('div')
+		->setId('pricePPRContainer')
+		->addClass('optionBox')
+		->append($PricePPRStartOptionBox)
+		->append($PricePPRStopOptionBox)
+		->hide();
+
 	$editTable->addBodyRow(array(
 		'columns' => array(
 			array('text' => 'Option: '),
-			array('text' => $PleaseSelectText->draw() . $AttributeOptionBox->draw() . $CustomFieldOptionBox->draw())
+			array('text' => $PleaseSelectText->draw() . $AttributeOptionBox->draw() . $CustomFieldOptionBox->draw() . $priceOptionsContainer->draw() . $pricePPROptionsContainer->draw())
 		)
 	));
-	
+
+######################################
+
+######################################
+
 	$addOptionButton = htmlBase::newElement('button')
-	->addClass('addOptionButton')
-	->usePreset('install')
-	->setText('Add Search Option');
+		->addClass('addOptionButton')
+		->usePreset('install')
+		->setText('Add Search Option');
 	
 	$editTable->addBodyRow(array(
 		'columns' => array(
@@ -188,12 +376,37 @@
 			$type = (array)$type;
 			foreach($type as $iInfo){
 				$iInfo = (array)$iInfo;
-				$iInfo['search_title'] = (array)$iInfo['search_title'];
+				foreach($iInfo['search_title'] as $key => $search_title ){
+					if((int)$key == (int)Session::get('languages_id')){
+						$heading = $search_title;
+						break;
+					}
+				}
 				$optionId = $iInfo['option_id'];
 				$optionType = $iInfo['option_type'];
 				$optionSort = $iInfo['option_sort'];
-				$heading = $iInfo['search_title'][Session::get('languages_id')];
-
+				if($optionType == 'price'){
+					$priceStart = $iInfo['price_start'];
+					$priceStop = $iInfo['price_stop'];
+					$liItems .= '<li id="options_' . $optionType . '_' . $optionId . '" data-option_type="' . $optionType . '" data-option_id="' . $optionId . '">' .
+					            '<div class="ui-widget ui-widget-content ui-corner-all">' .
+					            '<table cellpadding="2" cellspacing="0" border="0">' .
+					            '<tr>' .
+					            '<td valign="top">' .
+					            '<b>Heading</b><br />' .
+					            '<textarea name="option_heading[' . $optionType . '][' . $optionId . ']" rows="3" cols="50">' .
+					            $heading .
+					            '</textarea>' .
+					            'Price filter from: ' . $priceStart . ' to: ' . $priceStop .
+					            '<input type="hidden" name="option[' . $optionType . '][]" value="' . $optionId . '">' .
+					            '<input type="hidden" class="sortBox" name="option_sort[' . $optionType . '][start][' . $optionId . ']" value="' . $priceStart . '">' .
+					            '<input type="hidden" class="sortBox" name="option_sort[' . $optionType . '][stop][' . $optionId . ']" value="' . $priceStop . '">' .
+					            '</td>' .
+					            '</tr>' .
+					            '</table>' .
+					            '</div>' .
+					            '</li>';
+				}
 				$liItems .= '<li id="options_' . $optionType . '_' . $optionId . '" data-option_type="' . $optionType . '" data-option_id="' . $optionId . '">' .
 					'<div class="ui-widget ui-widget-content ui-corner-all">' .
 						'<table cellpadding="2" cellspacing="0" border="0">' .

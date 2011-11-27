@@ -2,7 +2,9 @@
 if ($session_started == false) {
 		tep_redirect(itw_app_link('appExt=infoPages', 'show_page', 'cookie_usage'));
 	}
-	
+	if($App->getPageName() === 'logoff' || $App->getPageName() === 'login' || $App->getPageName() === 'create' || $App->getPageName() === 'password_forgotten'){
+		$navigation->remove_current_page();
+	}
 	if ($App->getPageName() != 'login' && $App->getPageName() != 'password_forgotten' && $App->getPageName() != 'create' && $userAccount->isLoggedIn() === false){
 		$navigation->set_snapshot();
 		tep_redirect(itw_app_link(null, 'account', 'login', 'SSL'));
@@ -109,5 +111,7 @@ if ($session_started == false) {
 			array_unshift($eInfo, $text);
 			return call_user_func_array('sprintf', $eInfo);
 		}
+	}elseif($App->getPageName() == 'default'){
+		require(sysConfig::getDirFsCatalog() . 'includes/classes/order.php');
 	}
 ?>

@@ -15,7 +15,6 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 
 		$this->init('upsreservation');
 
-		if ($this->isEnabled() === true){
 			/*$this->types = array(
 				'1DM'    => 'Next Day Air Early AM',
 				'1DML'   => 'Next Day Air Early AM Letter',
@@ -40,7 +39,7 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 				'XPD'    => 'Worldwide Expedited'
 			);*/
 
-			if ($this->isEnabled() === true){
+			if (class_exists('ModulesShippingUpsReservationMethods')){
 				$Qmethods = Doctrine_Query::create()
 					->from('ModulesShippingUpsReservationMethods m')
 					->leftJoin('m.ModulesShippingUpsReservationMethodsDescription md')
@@ -92,8 +91,32 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 		return 'none';
 	}
 
-	public function quote($method = '') {
-		global $order, $shipping_weight, $shipping_num_boxes, $userAccount;
+	public function getType(){
+		return $this->type;
+	}
+
+	public function getNumBoxes(&$shipping_weight, &$shipping_num_boxes){
+		$boxWeight = sysConfig::get('SHIPPING_BOX_WEIGHT');
+		$boxPadding = sysConfig::get('SHIPPING_BOX_PADDING');
+		$boxMaxWeight = sysConfig::get('SHIPPING_MAX_WEIGHT');
+
+
+		if ($boxWeight >= $shipping_weight * $boxPadding / 100) {
+			$shipping_weight = $shipping_weight + $boxWeight;
+		} else {
+			$shipping_weight = $shipping_weight + ($shipping_weight * $boxPadding / 100);
+		}
+
+		if ($shipping_weight > $boxMaxWeight) { // Split into many boxes
+			$shipping_num_boxes = ceil($shipping_weight / $boxMaxWeight);
+			$shipping_weight = $shipping_weight / $shipping_num_boxes;
+		}
+	}
+	
+	public function quote($method = '', $shipping_weight = -1){
+		global $order,  $userAccount, $App;
+		$shipping_num_boxes = 1;
+		$this->getNumBoxes($shipping_weight, $shipping_num_boxes);
 
 		if (isset($method) && !empty($method)){
 			$prod = $method;
@@ -102,13 +125,17 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 			$prod = 'GND';
 		}
 
-		//if ($method) $this->_upsAction($method); // return a single quote
-
 		$this->_upsProduct($prod);
-		$deliveryAddress = $this->getDeliveryAddress();
-		$addressBook =& $userAccount->plugins['addressBook'];
-		if (is_object($addressBook) && $method != 'all'){
-			$deliveryCountry = $addressBook->getCountryInfo($deliveryAddress['entry_country_id']);
+		if($App->getEnv() == 'catalog'){
+			$deliveryAddress = $this->getDeliveryAddress();
+		}else{
+			global $Editor;
+			if(isset($Editor)){
+				$deliveryAddress = $Editor->AddressManager->getAddress('delivery')->toArray();
+			}
+		}
+		if (isset($deliveryAddress) && $method != 'all'){
+			$deliveryCountry = OrderShippingModules::getCountryInfo($deliveryAddress['entry_country_id']);
 			$country_name = tep_get_countries(sysConfig::get('SHIPPING_ORIGIN_COUNTRY'), true);
 			$this->_upsOrigin(sysConfig::get('SHIPPING_ORIGIN_ZIP'), $deliveryCountry['countries_iso_code_2']);
 			$this->_upsDest($deliveryAddress['entry_postcode'], $deliveryCountry['countries_iso_code_2']);
@@ -152,9 +179,10 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 										'id' => 'method' . $methodId,
 										'title' => $mInfo['text'],
 										'default' => $mInfo['default'],
-										'cost' => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
-										'days_before' => $mInfo['days_before'],
-										'days_after' => $mInfo['days_after']
+										'cost'    => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
+										'showCost'    => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
+										'days_before'    => $mInfo['days_before'],
+										'days_after'    => $mInfo['days_after']
 									);
 								}
 							}
@@ -181,11 +209,12 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 			foreach($this->methods as $methodId => $mInfo){
 				if ($mInfo['status'] == 'True' && ($method == 'method' . $methodId || $method == '')){
 					$this->quotes['methods'][] = array(
-						'id' => 'method' . $methodId,
-						'title' => $mInfo['text'],
-						'cost' => 0,
-						'days_before' => $mInfo['days_before'],
-						'days_after' => $mInfo['days_after']
+						'id'      => 'method' . $methodId,
+						'title'   => $mInfo['text'],
+						'cost'	  =>0,
+						'showCost'	  =>0,
+						'days_before'    => $mInfo['days_before'],
+						'days_after'    => $mInfo['days_after']
 					);
 				}
 			}

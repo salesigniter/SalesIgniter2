@@ -5056,8 +5056,13 @@ abstract class phpQuery {
 			));
 //			'maxredirects' => 0,
 		foreach(self::$ajaxAllowedHosts as $k => $host)
-			if ($host == '.' && isset($_SERVER['HTTP_HOST']))
-				self::$ajaxAllowedHosts[$k] = $_SERVER['HTTP_HOST'];
+			if(isset($_SERVER['HTTP_X_FORWARDED_HOST'])){
+				$thisHttpHost = $_SERVER['HTTP_X_FORWARDED_HOST'];
+			} else if(isset($_SERVER['HTTP_HOST'])){
+				$thisHttpHost = $_SERVER['HTTP_HOST'];
+			}
+			if ($host == '.' && isset($thisHttpHost))
+				self::$ajaxAllowedHosts[$k] = $thisHttpHost;
 		$host = parse_url($options['url'], PHP_URL_HOST);
 		if (! in_array($host, self::$ajaxAllowedHosts)) {
 			throw new Exception("Request not permitted, host '$host' not present in "

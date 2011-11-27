@@ -18,6 +18,10 @@ class BarcodeHistoryRented extends Doctrine_Record {
 				'local'   => 'barcode_id',
 				'foreign' => 'barcode_id'
 		));
+		$this->hasOne('PayPerRentalMaintenancePeriods', array(
+				'local'   => 'last_maintenance_type',
+				'foreign' => 'maintenance_period_id'
+		));
 
 	}
 
@@ -25,10 +29,17 @@ class BarcodeHistoryRented extends Doctrine_Record {
 
 		$ProductsInventoryBarcodes = Doctrine_Core::getTable('ProductsInventoryBarcodes')->getRecordInstance();
 
+		$PayPerRentalMaintenancePeriods = Doctrine_Core::getTable('PayPerRentalMaintenancePeriods')->getRecordInstance();
+
 		$ProductsInventoryBarcodes->hasMany('BarcodeHistoryRented', array(
 				'local'   => 'barcode_id',
 				'foreign' => 'barcode_id'
-			));
+		));
+
+		$PayPerRentalMaintenancePeriods->hasMany('BarcodeHistoryRented', array(
+				'local'   => 'maintenance_period_id',
+				'foreign' => 'last_maintenance_type'
+		));
 	}
 
 	
@@ -60,24 +71,56 @@ class BarcodeHistoryRented extends Doctrine_Record {
 		        'notnull'       => true,
 		        'autoincrement' => false
 	    ));
-        $this->hasColumn('last_biweekly_date', 'datetime', null, array(
-		        'type'          => 'datetime',
-		        'primary'       => false,
-		        'notnull'       => true,
-		        'autoincrement' => false
+
+        $this->hasColumn('last_maintenance_type', 'integer', 4, array(
+		        'type' => 'integer',
+		        'length' => 4,
+		        'unsigned' => 0,
+		        'primary' => false,
+		        'default' => 0,
+		        'notnull' => false,
+		        'autoincrement' => false,
 	    ));
-        $this->hasColumn('last_monthly_date', 'datetime', null, array(
-		        'type'          => 'datetime',
-		        'primary'       => false,
-		        'notnull'       => true,
-		        'autoincrement' => false
+
+        $this->hasColumn('current_maintenance_type', 'integer', 4, array(
+		        'type' => 'integer',
+		        'length' => 4,
+		        'unsigned' => 0,
+		        'primary' => false,
+		        'default' => 0,
+		        'notnull' => false,
+		        'autoincrement' => false,
+	     ));
+
+        $this->hasColumn('current_maintenance_cond', 'integer', 1, array(
+		        'type' => 'integer',
+		        'length' => 1,
+		        'unsigned' => 0,
+		        'primary' => false,
+		        'default' => 0,
+		        'notnull' => false,
+		        'autoincrement' => false,
 	    ));
-        $this->hasColumn('last_quarantine_date', 'datetime', null, array(
-		        'type'          => 'datetime',
-		        'primary'       => false,
-		        'notnull'       => true,
-		        'autoincrement' => false
+
+        $this->hasColumn('last_maintenance_cond', 'integer', 1, array(
+		        'type' => 'integer',
+		        'length' => 1,
+		        'unsigned' => 0,
+		        'primary' => false,
+		        'default' => 0,
+		        'notnull' => false,
+		        'autoincrement' => false,
+	        ));
+        $this->hasColumn('current_maintenance_comments', 'string', null, array(
+		        'type' => 'string',
+		        'length' => null,
+		        'fixed' => false,
+		        'primary' => false,
+		        'default' => '',
+		        'notnull' => true,
+		        'autoincrement' => false,
 	    ));
+
 
 	}
 }

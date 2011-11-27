@@ -1,5 +1,5 @@
 <?php
-    $error = false;
+$error = false;
 	foreach($_POST['product'] as $id => $pInfo){
 		if (isset($pInfo['reservation']['dates']) && empty($pInfo['reservation']['dates'])){
 				$Editor->addErrorMessage('Please check dates');

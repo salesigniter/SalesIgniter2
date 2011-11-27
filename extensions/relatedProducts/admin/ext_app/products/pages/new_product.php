@@ -116,6 +116,21 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
                 $relatedProducts .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . $RelatedProduct->getName() . '</span>' . tep_draw_hidden_field('related_products[]', $RelatedProduct->getId()) . '</div>';
             }
         }
+	
+	$QrelatedGlobal = Doctrine_Query::create()			
+			->from('ProductsRelatedGlobal ')
+			->where('type = "P"')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	
+		if (!empty($QrelatedGlobal)){  
+            $relatedG = explode(',', $QrelatedGlobal[0]['related_global']);
+			//if($relatedG == '') 
+			//$relatedG = $QrelatedGlobal['related_global'];
+
+            foreach($relatedG as $pID){
+                $relatedProductsGlobal .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . tep_get_products_name($pID) . '</span>' . tep_draw_hidden_field('related_productsGlobal[]', $pID) . '</div>';
+            }
+        }
 		
 		$table->addBodyRow(array(
 			'columns' => array(
@@ -128,7 +143,8 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 				),
 				array(
 					'addCls' => 'main',
-					'text' => '<button type="button" id="moveRight"><span>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;</span></button>'
+					'text' => '<button type="button" id="moveRight"><span>&nbsp;&nbsp;>>&nbsp;&nbsp;</span></button>'.
+								'<button type="button" id="moveRightGlobal"><span>&nbsp;&nbsp;Global >>&nbsp;&nbsp;</span></button>'
 				),
 				array(
 					'addCls' => 'main',
@@ -137,6 +153,14 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 						'valign' => 'top'
 					), 
 					'text' => $relatedProducts
+				),
+				array(
+					'addCls' => 'main',
+					'attr' => array(
+						'id' => 'relatedGlobal',
+						'valign' => 'top'
+					), 
+					'text' => $relatedProductsGlobal
 				)
 			)
 		));

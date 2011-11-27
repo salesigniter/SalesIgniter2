@@ -31,7 +31,7 @@ class CouponGvCustomer extends Doctrine_Record {
 			'default' => '0.0000',
 			'notnull' => true,
 			'autoincrement' => false,
-			'scale' => 4,
+			'scale' => false,
 		));
 	}
 }

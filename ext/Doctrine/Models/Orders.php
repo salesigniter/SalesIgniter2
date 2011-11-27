@@ -207,7 +207,7 @@ class Orders extends Doctrine_Record {
 		'primary' => false,
 		'notnull' => false,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('preorder_status', 'integer', 4, array(
 		'type' => 'integer',
@@ -242,6 +242,9 @@ class Orders extends Doctrine_Record {
 				'notnull' => true,
 				'autoincrement' => false,
 			));
+		$this->hasColumn('customers_drivers_license', 'string', 128);
+		$this->hasColumn('customers_passport', 'string', 128);
+		$this->hasColumn('customers_room_number', 'string', 128);
 		$this->hasColumn('bill_attempts', 'integer', 1, array(
 		'type' => 'integer',
 		'length' => 1,

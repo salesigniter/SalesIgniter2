@@ -59,6 +59,10 @@
 					$productName = $opInfo['products_name'];
 
 					$customersName = $orderAddress['entry_name'];
+					if(empty($customersName)){
+						$customerTable = Doctrine_Core::getTable('Customers')->find($oInfo['customers_id']);
+						$customersName = $customerTable->customers_firstname. ' '.$customerTable->customers_lastname;
+					}
 					$trackMethod = $rInfo['track_method'];
 					$useCenter = 0;
 
@@ -247,9 +251,15 @@
 					->attr('resid', $rInfo['orders_products_reservations_id'])
 					//->attr('readonly','readonly')
 					->addClass('barcodeReplacement');
+					$style = '';
+					$selVal = '';
+					if(isset($_GET['highlightOID']) && $_GET['highlightOID'] == $orderId){
+						$style = 'style="background-color:red;color:white"';
+						$selVal = 'checked="checked"';
+					}
 
-					$html .= '<tr class="dataTableRow">' .
-						'<td><input type="checkbox" name="sendRes[]" class="reservations" value="' . $rInfo['orders_products_reservations_id'] . '"></td>' .
+					$html .= '<tr class="dataTableRow" '.$style.'>' .
+						'<td><input type="checkbox" name="sendRes[]" class="reservations"'.$selVal.' value="' . $rInfo['orders_products_reservations_id'] . '"></td>' .
 						'<td class="dataTableContent">' . $customersName . '</td>' .
 						'<td class="dataTableContent">' . $productName . '</td>' .
 						'<td class="dataTableContent">' . $barcodeNum . '</td>' .
@@ -279,9 +289,13 @@
 							'</tr>' .
 
 						'</table></td>' .
-						'<td class="dataTableContent">' . $inventoryCenterName . '</td>' .
-						'<td class="dataTableContent">' . $shippingTrackingNumber->draw() . '</td>'.
-						'<td class="dataTableContent">' . $statusSelect . '</td>';
+						'<td class="dataTableContent">' . $inventoryCenterName . '</td>';
+						if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_NUMBER_COLUMN') == 'True'){
+							$html .= '<td class="dataTableContent">' . $shippingTrackingNumber->draw() . '</td>';
+						}
+						if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_RESERVATION_STATUS_COLUMN') == 'True'){
+							$html .= '<td class="dataTableContent">' . $statusSelect . '</td>';
+						}
 						if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True'){
 							$html .= '<td class="dataTableContent">' . $payAmount->draw() . '</td>' ;
 						}

@@ -2,7 +2,7 @@
 	echo sysLanguage::get('HEADING_TITLE');
 ?></div>
 <br />
-<form name="return_reservations" action="<?php echo itw_app_link('appExt=payPerRentals&action=return');?>" method="post">
+<form name="return_reservations" id="returnReservation" action="<?php echo itw_app_link('appExt=payPerRentals&action=return');?>" method="post">
 <?php
 	$table = htmlBase::newElement('table')
 	->setCellPadding(3)
@@ -20,7 +20,7 @@
 		)
 	));
 
-	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE') == 'False'){
+	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
 		$table->addHeaderRow(array(
 				'columns' => array(
 					array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_BROKEN'))
@@ -36,7 +36,7 @@
 				array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-right' => 'none'), 'align' => 'center', 'text' => tep_draw_textarea_field('comment[]',true,30,2))
 			)
 		));
-		if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE') == 'False'){
+		if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
 			$table->addBodyRow(array(
 					'columns' => array(
 						array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none'), 'align' => 'center', 'text' => tep_draw_checkbox_field('broken[]','1'))
@@ -47,7 +47,7 @@
 	}
 	
 	$returnButton = htmlBase::newElement('button')
-	->setType('submit')
+	->addClass('returnButton')
 	->usePreset('save')
 	->setText(sysLanguage::get('TEXT_BUTTON_RETURN'))
 	->draw();

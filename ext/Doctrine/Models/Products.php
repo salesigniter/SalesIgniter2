@@ -84,44 +84,15 @@ class Products extends Doctrine_Record {
 			'notnull'       => false,
 			'autoincrement' => false
 		));
-		$this->hasColumn('products_price', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_used', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_stream', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_download', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
+		$this->hasColumn('products_keepit_price', 'decimal', 15, array(
+				'type'          => 'decimal',
+				'length'        => 15,
+				'unsigned'      => 0,
+				'primary'       => false,
+				'default'       => '0.0000',
+				'notnull'       => true,
+				'autoincrement' => false,
+				'scale'         => false
 		));
 		$this->hasColumn('products_date_added', 'timestamp', null, array(
 			'type'          => 'timestamp',
@@ -152,7 +123,7 @@ class Products extends Doctrine_Record {
 			'default'       => '0.00',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => 2
+			'scale'         => false
 		));
 		$this->hasColumn('products_status', 'integer', 1, array(
 			'type'          => 'integer',
@@ -245,22 +216,7 @@ class Products extends Doctrine_Record {
 			'default'       => '0.00',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => 2
-		));
-		$this->hasColumn('movie_preview', 'string', 255, array(
-			'type'          => 'string',
-			'length'        => 255,
-			'fixed'         => false,
-			'primary'       => false,
-			'notnull'       => true,
-			'autoincrement' => false
-		));
-		$this->hasColumn('products_inventory_controller', 'string', 32, array(
-			'type'    => 'string',
-			'length'  => 32,
-			'primary' => false,
-			'notnull' => true,
-			'default' => 'normal'
+			'scale'         => false
 		));
 
 		$this->hasColumn('membership_enabled', 'string', null, array(

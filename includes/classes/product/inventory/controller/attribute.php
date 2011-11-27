@@ -40,5 +40,13 @@
 		public function getInventoryItems(){
 			return $this->trackMethod->getInventoryItems();
 		}
+
+		public function getInvUnavailableStatus(){
+			return $this->trackMethod->getInvUnavailableStatus();
+		}
+
+		public function setInvUnavailableStatus($val){
+			return $this->trackMethod->setInvUnavailableStatus($val);
+		}
 	}
 ?>

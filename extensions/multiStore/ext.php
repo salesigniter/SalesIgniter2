@@ -36,7 +36,8 @@ class Extension_multiStore extends ExtensionBase
 				'PurchaseTypeLoadData',
 				'ProductInventoryBarcodeHasInventoryQueryBeforeExecute',
 				'ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute',
-				'ProductInventoryBarcodeGetInventoryItemsArrayPopulate'
+				'ProductInventoryBarcodeGetInventoryItemsArrayPopulate',
+				'OrdersProductsReservationListingBeforeExecuteUtilities'
 			), null, $this);
 
 		if ($appExtension->isCatalog()){
@@ -121,14 +122,12 @@ class Extension_multiStore extends ExtensionBase
 
 			$Qstore = Doctrine_Query::create()
 				->from('Stores')
-				->where('stores_id = ?', $Qadmin[0]['admins_main_stores'])
 				->execute(array(), Doctrine::HYDRATE_ARRAY);
 			$this->storeInfo = $Qstore[0];
 
 			Session::set('admin_allowed_stores', explode(',', $Qadmin[0]['admins_stores']));
-
-			if (Session::exists('admin_showing_stores') === false){
-				Session::set('admin_showing_stores', array($Qadmin[0]['admins_main_store']));
+			if (Session::exists('admin_showing_stores') === false || Session::get('admin_showing_stores') == '' || sizeof(Session::get('admin_showing_stores')) == 0){
+				Session::set('admin_showing_stores',  explode(',', $Qadmin[0]['admins_stores']));
 			}
 
 			if (isset($_GET['stores_id'])){
@@ -256,7 +255,7 @@ class Extension_multiStore extends ExtensionBase
 		$seoUrl->base_url_ssl = 'https://' . $this->storeInfo['stores_ssl_domain'] . sysConfig::getDirWsCatalog('SSL');
 	}
 
-	public function getStoresArray($storesId = false) {
+	public function getStoresArray($storesId = false, $nofilter = false) {
 		global $appExtension;
 		if ($storesId !== false){
 			if (!isset($this->storeInfoCache[$storesId])){
@@ -273,7 +272,7 @@ class Extension_multiStore extends ExtensionBase
 					->from('Stores')
 					->orderBy('stores_name');
 
-				if ($appExtension->isAdmin() === true){
+				if ($appExtension->isAdmin() === true && $nofilter === false){
 					$Qstores->whereIn('stores_id', Session::get('admin_allowed_stores'));
 				}
 
@@ -424,12 +423,18 @@ class Extension_multiStore extends ExtensionBase
 		$isInventory = $appExtension->isInstalled('inventoryCenters') && $appExtension->isEnabled('inventoryCenters');
 		$extInventoryCenters = $appExtension->getExtension('inventoryCenters');
 		if ($isInventory && $extInventoryCenters->stockMethod == 'Store'){
-			if (!Session::exists('all_stores')){
+			if (!Session::exists('admin_showing_stores')){
 				$Qproducts->leftJoin('pib.ProductsInventoryBarcodesToStores b2s')
 					->leftJoin('b2s.Stores s')
-					->andWhere('s.stores_id = ?', (int)Session::get('current_store_id'));
+					->andWhereIn('s.stores_id', Session::get('admin_showing_stores'));
 			}
+		}elseif (Session::exists('admin_showing_stores')){
+				$Qproducts->leftJoin('pib.ProductsInventoryBarcodesToStores b2s')
+					->leftJoin('b2s.Stores s')
+					->andWhereIn('s.stores_id', Session::get('admin_showing_stores'));
 		}
+
+
 	}
 
 	public function ModuleConfigReaderModuleConfigLoad(&$configData, $moduleCode, $moduleType) {
@@ -485,11 +490,23 @@ class Extension_multiStore extends ExtensionBase
 	}
 
 	public function ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute($invData, &$Qcheck){
-		$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToStores ib2s');
+		global $Editor, $appExtension;
+		$Qcheck->leftJoin('ib.ProductsInventoryBarcodesToStores ib2s')
+			->leftJoin('ib2s.Stores');
+		if ($appExtension->isAdmin()){
+			if (is_object($Editor)){
+				$Qcheck->andWhere('ib2s.inventory_store_id = ?', $Editor->getData('store_id'));
+			}else{
+				$Qcheck->andWhereIn('ib2s.inventory_store_id', Session::get('admin_showing_stores'));
+			}
+		}else{
+			$Qcheck->andWhere('ib2s.inventory_store_id = ?', Session::get('current_store_id'));
+		}
+
 	}
 
 	public function ProductInventoryBarcodeGetInventoryItemsArrayPopulate($bInfo, &$barcodeArr){
-		$barcodeArr['store_id'] = $bInfo['ProductsInventoryBarcodesToStores']['stores_id'];
+		$barcodeArr['store_id'] = $bInfo['ProductsInventoryBarcodesToStores']['inventory_store_id'];
 	}
 
 	public function InsertOrderedProductBeforeSave(&$newOrdersProduct, ShoppingCartProduct $cartProduct){
@@ -532,6 +549,22 @@ class Extension_multiStore extends ExtensionBase
 		}
 
 		return '<div class="main" style="margin-top:.5em;font-weight:bold;">Customers Store</div><div class="ui-widget ui-widget-content ui-corner-all" style="padding:.5em;">'.$storeDrop->draw().'</div>';
+	}
+
+	public function OrdersProductsReservationListingBeforeExecuteUtilities(&$Qorders){
+		global $Editor, $appExtension;
+		$Qorders->leftJoin('ib.ProductsInventoryBarcodesToStores b2s')
+			->leftJoin('b2s.Stores');
+		if ($appExtension->isAdmin()){
+			if (is_object($Editor)){
+				$Qorders->andWhere('b2s.inventory_store_id = ?', $Editor->getData('store_id'));
+			}else{
+				$Qorders->andWhereIn('b2s.inventory_store_id', Session::get('admin_showing_stores'));
+			}
+		}else{
+			$Qorders->andWhere('b2s.inventory_store_id = ?', Session::get('current_store_id'));
+		}
+
 	}
 
 	public function NewCustomerAccountBeforeExecute(&$newUser){

@@ -36,12 +36,13 @@
 				'entry_city'           => $_POST['billing_city'],
 				'entry_country_id'     => $_POST['billing_country'],
 			);
-
-			if (array_key_exists('terms', $_POST)){
-				$accountValidation['terms'] = $_POST['terms'];
-			}else{
-				$accountValidation['terms'] = 0;
-			}
+	            	if (sysConfig::get('TERMS_CONDITIONS_CHECKOUT') !== 'false'){
+	                	if (array_key_exists('terms', $_POST)){
+	                    		$accountValidation['terms'] = $_POST['terms'];
+	                	}else{
+	                    		$accountValidation['terms'] = 0;
+	                	}
+	            	}
 			if (array_key_exists('billing_suburb', $_POST)) $accountValidation['entry_suburb'] = $_POST['billing_suburb'];
 			if (array_key_exists('billing_state', $_POST)) $accountValidation['entry_state'] = $_POST['billing_state'];
 			if (array_key_exists('billing_gender', $_POST)) $accountValidation['entry_gender'] = $_POST['billing_gender'];
@@ -185,6 +186,11 @@
 					$userAccount->setTelephoneNumber($onePageCheckout->onePage['info']['telephone']);
 				}
 
+				if (!empty($_POST['billing_city_birth'])) {
+					$onePageCheckout->onePage['info']['city_birth'] = $_POST['billing_city_birth'];
+					$userAccount->setCityBirth($onePageCheckout->onePage['info']['city_birth']);
+				}
+
 				if (!empty($_POST['billing_email_address'])) {
 					$onePageCheckout->onePage['info']['email_address'] = $_POST['billing_email_address'];
 					$userAccount->setEmailAddress($onePageCheckout->onePage['info']['email_address']);
@@ -199,7 +205,7 @@
 				if ($error == false) {
 					if ($userAccount->isLoggedIn() === false){
 						$onePageCheckout->onePage['info']['newsletter'] = (isset($_POST['newsletter']) ? '1' : '0');
-						if (isset($_POST['create_account']) || $onePageCheckout->isMembershipCheckout() || (sysConfig::get('ONEPAGE_ACCOUNT_CREATE') == 'required')) {
+						if (isset($_POST['create_account']) || $onePageCheckout->isMembershipCheckout() || $onePageCheckout->isGiftCertificateCheckout() || (sysConfig::get('ONEPAGE_ACCOUNT_CREATE') == 'required')) {
 							$onePageCheckout->onePage['createAccount'] = true;
 							if (isset($_POST['password']) && isset($_POST['confirmation']) && $_POST['password'] == $_POST['confirmation'] && strlen($_POST['password']) >= sysConfig::get('ENTRY_PASSWORD_MIN_LENGTH')){
 								$onePageCheckout->onePage['info']['password'] = $_POST['password'];
@@ -265,7 +271,7 @@
 					'title' => $PaymentModule->getTitle()
 				);
 
-				if ($onePageCheckout->isMembershipCheckout() === false) {
+				if ($onePageCheckout->isNormalCheckout() === true) {
 					if (Session::exists('credit_covers') === true && Session::get('credit_covers') === true) {
 						$PaymentModule = null;
 					}
@@ -344,9 +350,14 @@
 						'</script>' .
 						'';
 				} else {
-					if (!$onePageCheckout->isMembershipCheckout()){
+					if ($onePageCheckout->isNormalCheckout()){
+						$cartProducts = $ShoppingCart->getProducts();
 						$order->createOrder();
 						if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True'){
+							$temp = $order->info['total'];
+							$order->info['total'] = 0;
+							$PaymentModule->processPayment();
+							$order->info['total'] = $temp;
 						}else{
 							$PaymentModule->processPayment();
 						}
@@ -367,9 +378,13 @@
 
 							// initialized for the email confirmation
 							$products_ordered = '';
+							$order_has_streaming_or_download = false;
+
 							foreach ($ShoppingCart->getProducts() as $cartProduct) {
 								$order->insertOrderedProduct($cartProduct, &$products_ordered);
-
+								if($cartProduct->getPurchaseType() == 'download' || $cartProduct->getPurchaseType() == 'stream'  || $cartProduct->getPurchaseType() == 'new'){
+									$order_has_streaming_or_download = true;
+								}
 								EventManager::notify('CheckoutProcessInsertOrderedProduct', $cartProduct, &$products_ordered);
 
 								// #################### Added CCGV ######################
@@ -396,7 +411,7 @@
 								Session::remove('credit_covers');
 							}
 						}
-					} else {
+					} else if($onePageCheckout->isMembershipCheckout() === true) {
 						$order->info['is_rental'] = '1';
 						$order->info['bill_attempts'] = '1';
 						$planID = $onePageCheckout->onePage['rentalPlan']['id'];
@@ -489,7 +504,32 @@
 						}
 
 						//$ShoppingCart->emptyCart(true);
-					}
+					} else if($onePageCheckout->isGiftCertificateCheckout() === true) {
+		                        	$order->createOrder();
+			                        $PaymentModule->processPayment();
+
+			                        if ($messageStack->size('pageStack') > 0){
+							$error = true;
+							ob_start();
+							require(sysConfig::getDirFsCatalog() . 'applications/checkout/pages/shipping_payment.php');
+							$pageHtml = ob_get_contents();
+							ob_end_clean();
+			                        }else{
+				                        $order->insertOrderTotals();
+				                        $order->insertStatusHistory();
+
+				                        $products_ordered = '';
+				                        $subtotal = 0;
+				                        $total_tax = 0;
+				                        EventManager::notify('CheckoutProcessPostProcess', &$order, &$products_ordered);
+
+				                        $order->sendNewOrderEmail();
+
+				                        $PaymentModule->afterOrderProcess();
+			                        }
+
+		                	//$ShoppingCart->emptyCart(true);
+			                }
 					if ($messageStack->size('pageStack') == 0){
 						ob_start();
 						require(sysConfig::getDirFsCatalog() . 'applications/checkout/pages/success.php');

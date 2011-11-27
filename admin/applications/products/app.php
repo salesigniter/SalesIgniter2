@@ -1,4 +1,5 @@
 <?php
+	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 
 	//PurchaseTypeModules::loadModules();
@@ -44,10 +45,10 @@
 			array('id' => 'quantity', 'text' => 'Use Quantity Tracking'),
 			array('id' => 'barcode', 'text' => 'Use Barcode Tracking')
 		);
-	
-		// check if the catalog image directory exists
-		if (is_dir(DIR_FS_CATALOG_IMAGES)){
-			if (!is_writeable(DIR_FS_CATALOG_IMAGES)){
+
+		$dir = sysConfig::getDirFsCatalog().'images';
+		if (is_dir($dir)){
+			if (!is_writeable($dir)){
 				$messageStack->add('footerStack', sysLanguage::get('ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE'), 'error');
 			}
 		}else{

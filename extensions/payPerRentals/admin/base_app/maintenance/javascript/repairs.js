@@ -1,5 +1,12 @@
 
 $(document).ready(function (){
+	$('#maintenance_selectbox').change(function(){
+		if($(this).val() != '-1'){
+			window.location = js_app_link('appExt=payPerRentals&app=maintenance&appPage=default&type='+$(this).val());
+		}else{
+			window.location = js_app_link('appExt=payPerRentals&app=maintenance&appPage=repairs');
+		}
+	});
 
 	$('.makeFCK').each(function (){
 		CKEDITOR.replace(this, {

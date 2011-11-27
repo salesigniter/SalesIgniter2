@@ -29,7 +29,10 @@ function getCategoryTree($parentId, $namePrefix = '', &$categoriesTree){
 	}
 }
 
-$categoryTreeList = false;
+$categoryTreeList[] = array(
+	'categoryId'           => '0',
+	'categoryName'         => 'Root'
+);
 getCategoryTree(0,'',&$categoryTreeList);
 $selectedCategory = isset($WidgetSettings->selected_category)?$WidgetSettings->selected_category:'';
 
@@ -38,6 +41,7 @@ $categoryTree = htmlBase::newElement('selectbox')
 		->setId('selectedCategory')
 		->setLabel(sysLanguage::get('TEXT_SELECT_PARENT_CATEGORY'))
 		->setLabelPosition('before');
+$categoryTree->addOption('', sysLanguage::get('--select--'));
 foreach($categoryTreeList as $category){
 	$categoryTree->addOption($category['categoryId'], $category['categoryName']);
 }

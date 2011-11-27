@@ -342,7 +342,7 @@ class OrderProcessor {
 		$this->info['bill_attempts'] += 1;
 		$Qupdate = Doctrine_Query::create()
 			->update('Orders')
-			->set('bill_attempts', 'bill_attempts+1')
+			->set('bill_attempts', '?', $this->info['bill_attempts'])
 			->where('orders_id = ?', $this->orderId)
 			->execute();
 	}
@@ -588,7 +588,7 @@ class OrderProcessor {
 	}
 
 	public function sendNewOrderEmail(){
-		global $appExtension, $paymentModules, $products_ordered;
+		global $appExtension, $paymentModules, $products_ordered, $order_has_streaming_or_download;
 		$userAccount = &$this->getUserAccount();
 		$addressBook =& $userAccount->plugins['addressBook'];
 		$sendToFormatted = $addressBook->formatAddress('delivery', false);
@@ -601,6 +601,9 @@ class OrderProcessor {
 		$emailEvent->setVar('ordered_products', (isset($this->newOrder['productsOrdered']) ? $this->newOrder['productsOrdered'] : ((isset($products_ordered)&&(!empty($products_ordered)))?$products_ordered:$this->products_ordered) ));
 		$emailEvent->setVar('billing_address', $billToFormatted);
 		$emailEvent->setVar('shipping_address', $sendToFormatted);
+		if($order_has_streaming_or_download){
+			$emailEvent->setVar('order_has_streaming_or_download', sysLanguage::get('TEXT_ORDER_SUCCESS_EMAIL_STREAM_OR_DOWNLOAD'));
+		}
 		if (sysConfig::get('ONEPAGE_CHECKOUT_PICKUP_ADDRESS') == 'true'){
 			$pickUpFormatted = $addressBook->formatAddress('pickup');
 			$emailEvent->setVar('pickup_address', $pickUpFormatted);
@@ -652,13 +655,13 @@ class OrderProcessor {
 			$currentOrder['productsOrdered'] = (isset($this->newOrder['productsOrdered']) ? $this->newOrder['productsOrdered'] : ((isset($products_ordered)&&(!empty($products_ordered)))?$products_ordered:$this->products_ordered) );
 		}
 
-		EventManager::notify('OrderBeforeSendEmail', &$currentOrder, &$emailEvent, &$products_ordered);
+		$sendVariables = array();
+		EventManager::notify('OrderBeforeSendEmail', &$currentOrder, &$emailEvent, &$products_ordered, &$sendVariables);
 
+		$sendVariables['email'] = $userAccount->getEmailAddress();
+		$sendVariables['name'] = $userAccount->getFullName();
 
-		$emailEvent->sendEmail(array(
-				'email' => $userAccount->getEmailAddress(),
-				'name'  => $userAccount->getFullName()
-			));
+		$emailEvent->sendEmail($sendVariables);
 
 		// send emails to other people
 		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != '') {

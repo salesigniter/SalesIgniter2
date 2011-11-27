@@ -26,6 +26,8 @@ class PaymentModuleBase extends ModuleBase
 	private $errorMessage = null;
 
 	public function init($code, $forceEnable = false, $moduleDir = false) {
+		global $onePageCheckout;
+
 		$this->import(new Installable);
 		$this->import(new SortedDisplay);
 
@@ -37,11 +39,23 @@ class PaymentModuleBase extends ModuleBase
 		}
 
 		if ($this->configExists($this->getModuleInfo('checkout_method_key'))){
-			$this->checkoutMethod = (int)$this->getConfigData($this->getModuleInfo('checkout_method_key'));
+			$this->checkoutMethod = $this->getConfigData($this->getModuleInfo('checkout_method_key'));
 		}
 
 		if ($this->configExists($this->getModuleInfo('order_status_key'))){
 			$this->orderStatus = (int)$this->getConfigData($this->getModuleInfo('order_status_key'));
+		}
+
+		if (isset($onePageCheckout) && is_object($onePageCheckout)){
+			if ($this->isEnabled() === true && $this->checkoutMethod != 'All'){
+				if ($onePageCheckout->isMembershipCheckout() === true && $this->checkoutMethod == 'Normal'){
+					$this->setEnabled(false);
+				}
+
+				if ($onePageCheckout->isMembershipCheckout() === false && $this->checkoutMethod == 'Membership'){
+					$this->setEnabled(false);
+				}
+			}
 		}
 	}
 
@@ -96,18 +110,6 @@ class PaymentModuleBase extends ModuleBase
 
 			if ($check_flag == false){
 				$this->setEnabled(false);
-			}
-		}
-
-		if (isset($onePageCheckout) && is_object($onePageCheckout)){
-			if ($this->isEnabled() === true && $this->checkoutMethod != 'Both'){
-				if ($onePageCheckout->isMembershipCheckout() === true && $this->checkoutMethod == 'Normal'){
-					$this->setEnabled(false);
-				}
-
-				if ($onePageCheckout->isMembershipCheckout() === false && $this->checkoutMethod == 'Membership'){
-					$this->setEnabled(false);
-				}
 			}
 		}
 	}

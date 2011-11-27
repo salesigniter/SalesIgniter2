@@ -32,6 +32,10 @@
 	->attr('size', 96)
 	->attr('maxlength', 96)
 	->val($Customer->customers_email_address);
+
+	$passInput = htmlBase::newElement('input')
+	->setName('customers_password')
+	->setRequired(false);
 	
 	$streetAddressInput = htmlBase::newElement('input')
 	->setName('entry_street_address')
@@ -105,8 +109,15 @@
 		$dobInput = htmlBase::newElement('input')
 		->setName('customers_dob')
 		->setId('customers_dob')
-		->val($Customer->customers_dob);
+		->val(strftime(sysLanguage::getDateFormat('short'),strtotime($Customer->customers_dob)));
 	}
+
+if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
+	$cityBirthInput = htmlBase::newElement('input')
+		->setName('customers_city_birth')
+		->setId('customers_city_birth')
+		->val($Customer->customers_city_birth);
+}
 	
 	if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 		$companyInput = htmlBase::newElement('input')
@@ -114,22 +125,16 @@
 		->val($Customer->AddressBook[0]->entry_company);
 	}
 
-if (sysConfig::get('ACCOUNT_VAT_REQUIRED') == 'true'){
+if (sysConfig::get('ACCOUNT_VAT_NUMBER') == 'true'){
 	$vatInput = htmlBase::newElement('input')
 		->setName('entry_vat')
 		->val($Customer->AddressBook[0]->entry_vat);
 }
 
-if (sysConfig::get('ACCOUNT_CIF_REQUIRED') == 'true'){
+if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
 	$cifInput = htmlBase::newElement('input')
 		->setName('entry_cif')
 		->val($Customer->AddressBook[0]->entry_cif);
-}
-
-if (sysConfig::get('ACCOUNT_CITY_BIRTH_REQUIRED') == 'true'){
-	$cityBirthInput = htmlBase::newElement('input')
-		->setName('entry_city_birth')
-		->val($Customer->AddressBook[0]->entry_city_birth);
 }
 	
 	if (sysConfig::get('ACCOUNT_SUBURB') == 'true'){
@@ -144,7 +149,8 @@ if (sysConfig::get('ACCOUNT_CITY_BIRTH_REQUIRED') == 'true'){
 	$personalTableRows = array(
 		1 => array(sysLanguage::get('ENTRY_FIRST_NAME') => $firstNameInput),
 		2 => array(sysLanguage::get('ENTRY_LAST_NAME') => $lastNameInput),
-		4 => array(sysLanguage::get('ENTRY_EMAIL_ADDRESS') => $emailAddressInput)
+		4 => array(sysLanguage::get('ENTRY_EMAIL_ADDRESS') => $emailAddressInput),
+		5 => array(sysLanguage::get('PASSWORD') => $passInput)
 	);
 	if (isset($genderSet)){
 		$personalTableRows[0] = array(sysLanguage::get('ENTRY_GENDER') => $genderSet);
@@ -153,13 +159,18 @@ if (sysConfig::get('ACCOUNT_CITY_BIRTH_REQUIRED') == 'true'){
 	if (isset($dobInput)){
 		$personalTableRows[3] = array(sysLanguage::get('ENTRY_DATE_OF_BIRTH') => $dobInput);
 	}
+	
+	if (isset($cityBirthInput)){
+		$personalTableRows[8] = array(sysLanguage::get('ENTRY_CITY_BIRTH') => $cityBirthInput);
+	}
+	
 
 	if (isset($numberInput)){
-		$personalTableRows[5] = array(sysLanguage::get('ENTRY_NUMBER') => $numberInput);
+		$personalTableRows[6] = array(sysLanguage::get('ENTRY_NUMBER') => $numberInput);
 	}
 
 	if (isset($frozenInput)){
-		$personalTableRows[6] = array(sysLanguage::get('ENTRY_FROZEN') => $frozenInput);
+		$personalTableRows[7] = array(sysLanguage::get('ENTRY_FROZEN') => $frozenInput);
 	}
 
 	$personalTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
@@ -227,9 +238,7 @@ if (isset($cifInput)){
 if (isset($vatInput)){
 	$addressTableRows[7] = array(sysLanguage::get('ENTRY_VAT') => $vatInput);
 }
-if (isset($cityBirthInput)){
-	$addressTableRows[8] = array(sysLanguage::get('ENTRY_CITY_BIRTH') => $cityBirthInput);
-}
+
 	
 	$addressTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
 	foreach($addressTableRows as $key => $rInfo){

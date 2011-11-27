@@ -65,6 +65,13 @@
 		);
 	}
 
+	if (sysPermissions::adminAccessAllowed('index', 'manageFavorites') === true){
+		$contents['children'][] = array(
+			'link' => itw_app_link(null, 'index', 'manageFavorites'),
+			'text' => 'Manage Favorites'
+		);
+	}
+
 	if (sysPermissions::adminAccessAllowed('cleardb', 'default') === true){
 		$contents['children'][] = array(
 			'link' => itw_app_link(null, 'cleardb', 'default'),

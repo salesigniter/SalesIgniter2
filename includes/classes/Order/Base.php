@@ -44,7 +44,7 @@ class Order {
 			$this->AddressManager = new OrderAddressManager($this->Order['OrdersAddresses']);
 			$this->AddressManager->setOrderId($this->Order['orders_id']);
 
-			$this->ProductManager = new OrderProductManager($this->Order['OrdersProducts']);
+			$this->ProductManager = new OrderProductManager($this->Order['OrdersProducts'], $this->Order);
 			$this->ProductManager->setOrderId($this->Order['orders_id']);
 
 			$this->TotalManager = new OrderTotalManager($this->Order['OrdersTotal']);
@@ -169,6 +169,30 @@ class Order {
 			$email = $this->Order['customers_email_address'];
 		}
 		return $email;
+	}
+
+	public function getDriversLicense(){
+		$num = '';
+		if (isset($this->Order['customers_drivers_license'])){
+			$num = $this->Order['customers_drivers_license'];
+		}
+		return $num;
+	}
+
+	public function getPassPort(){
+		$passport = '';
+		if (isset($this->Order['customers_passport'])){
+			$passport = $this->Order['customers_passport'];
+		}
+		return $passport;
+	}
+
+	public function getRoomNumber(){
+		$room_number = '';
+		if (isset($this->Order['customers_room_number'])){
+			$room_number = $this->Order['customers_room_number'];
+		}
+		return $room_number;
 	}
 }
 ?>

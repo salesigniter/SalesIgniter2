@@ -20,8 +20,14 @@
 	if (array_key_exists('entry_company', $_POST)) $accountValidation['entry_company'] = $_POST['entry_company'];
 
 	if (array_key_exists('entry_cif', $_POST)) $accountValidation['entry_cif'] = $_POST['entry_cif'];
+
+	if (array_key_exists('customers_password', $_POST) && !empty($_POST['customers_password'])){
+		$accountValidation['password'] = $_POST['customers_password'];
+		$accountValidation['confirmation'] = $_POST['customers_password'];
+	}
+
 	if (array_key_exists('entry_vat', $_POST)) $accountValidation['entry_vat'] = $_POST['entry_vat'];
-	if (array_key_exists('entry_city_birth', $_POST)) $accountValidation['entry_city_birth'] = $_POST['entry_city_birth'];
+	if (array_key_exists('customers_city_birth', $_POST)) $accountValidation['city_birth'] = $_POST['customers_city_birth'];
 
 	if (array_key_exists('customers_gender', $_POST)) $accountValidation['entry_gender'] = $_POST['customers_gender'];
 	if (array_key_exists('customers_newsletter', $_POST)) $accountValidation['newsletter'] = $_POST['customers_newsletter'];
@@ -31,9 +37,12 @@
 	
 	$hasError = $userAccount->validate($accountValidation);
 	if ($hasError === false){
+		$addressBook->updateAddress((int)$_POST['default_address_id'], $accountValidation);
+
 		$userAccount->setFirstName($accountValidation['entry_firstname']);
 		$userAccount->setLastName($accountValidation['entry_lastname']);
 		$userAccount->setEmailAddress($accountValidation['email_address']);
+		$userAccount->setPassword($accountValidation['password']);
 		$userAccount->setTelephoneNumber($accountValidation['telephone']);
 		$userAccount->setFaxNumber($accountValidation['fax']);
 		$userAccount->setNewsLetter($accountValidation['newsletter']);
@@ -41,53 +50,47 @@
 			$userAccount->setGender($accountValidation['entry_gender']);
 		}
 		if (isset($accountValidation['dob'])){
-			$userAccount->setDateOfBirth($accountValidation['dob']);
+			$userAccount->setDateOfBirth(strftime(sysLanguage::getDateFormat('short'),strtotime($accountValidation['dob'])));
 		}
 		$userAccount->setMemberNumber((!empty($_POST['customers_number']) ? $_POST['customers_number'] : tep_create_random_value(8)));
 		$userAccount->setAccountFrozen((isset($_POST['customers_account_frozen'])));
 
-		if (isset($_GET['cID'])){
-			$userAccount->updateCustomerAccount();
-			$addressBook->updateAddress((int)$_POST['default_address_id'], $accountValidation);
-		}else{
-			$userAccount->createNewAccount();
-			$addressBook->insertAddress($accountValidation, true);
+		if (isset($accountValidation['city_birth'])){
+			$userAccount->setCityBirth($accountValidation['city_birth']);
 		}
+		$userAccount->updateCustomerAccount();
 
-		if (array_key_exists('planid', $_POST)){
-			if (array_key_exists('activate', $_POST)) $membership->setActivationStatus($_POST['activate']);
-			$membership->setPlanId($_POST['planid']);
-			$membership->setPaymentMethod($_POST['payment_method']);
-			
+		if (array_key_exists('planid', $_POST) || array_key_exists('activate', $_POST) || array_key_exists('make_member', $_POST)){
+			if (array_key_exists('activate', $_POST)){
+				$membership->setActivationStatus($_POST['activate']);
+			}
+			if(isset($_POST['planid'])){
+				$membership->setPlanId($_POST['planid']);
+			}
+			if(isset($_POST['payment_method'])){
+				$membership->setPaymentMethod($_POST['payment_method']);
+			}
+
 			if (array_key_exists('cc_number', $_POST)){
 				$membership->setCreditCardNumber($_POST['cc_number']);
 				$membership->setCreditCardExpirationDate($_POST['cc_expires_month'] . $_POST['cc_expires_year']);
 				$membership->setCreditCardCvvNumber($_POST['cc_cvv']);
 			}
 
-			$planInfo = $membership->getPlanInfo($_POST['planid']);
-			
-			if (isset($_POST['member']) && $_POST['member'] == 'Y' && $_POST['payment_method'] != 'paypal_ipn'){
-				$next_bill_date = mktime(0,0,0,
-				$_POST['next_billing_month'],
-				$_POST['next_billing_day'],
-				$_POST['next_billing_year']
-				);
-			}else{
-				$next_bill_date = mktime(0,0,0,
-				date('m'),
-				date('d') + $planInfo['membership_days'],
-				date('Y')
-				);
+			if(isset($_POST['planid'])){
+				$planInfo = $membership->getPlanInfo($_POST['planid']);
 			}
-			$membership->setNextBillDate($next_bill_date);
 			
-			if ($_POST['activate'] == 'N'){
-				$membership->setMembershipStatus('U');
-			}else{
-				$membership->setMembershipStatus('M');
+			if (isset($_POST['member']) && $_POST['member'] == 'Y'){
+				if(isset($_POST['next_billing_month']) && isset($_POST['next_billing_day']) && isset($_POST['next_billing_year'])){
+					$next_bill_date = mktime(0,0,0,
+						$_POST['next_billing_month'],
+						$_POST['next_billing_day'],
+						$_POST['next_billing_year']
+					);
+					$membership->setNextBillDate($next_bill_date);
+				}
 			}
-
 			if (array_key_exists('make_member', $_POST)){
 				$membership->createNewMembership();
 			}else{
@@ -116,7 +119,7 @@
 
 				$emailEvent->setVars(array(
 					'customerFirstName' => $userAccount->getFirstName(),
-					'customerLastNameName' => $userAccount->getLastName(),
+					'customerLastName' => $userAccount->getLastName(),
 					'currentPlanPackageName' => $currentPlan['MembershipPlanDescription'][0]['name'],
 					'currentPlanMembershipDays' => $currentPlan['membership_days'],
 					'currentPlanNumberOfTitles' => $currentPlan['no_of_titles'],

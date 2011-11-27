@@ -80,19 +80,22 @@ if (is_array($listingData)) {
 		$getVars = tep_get_all_get_params(array('action', 'limit'));
 		parse_str($getVars, $getArr);
 		$hiddenFields = '';
-		foreach ($getArr as $k => $v) {
-			$hiddenFields .= '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
-		}
+		create_hidden_fields($getArr,&$hiddenFields);
 
 		$resultsPerPageMenu = htmlBase::newElement('selectbox')
 				->setName('limit')
 				->attr('onchange', 'this.form.submit()');
-
+		$limitsArray = explode(',',sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY'));
+		foreach($limitsArray as $resultLimitOption){
+			$resultsPerPageMenu->addOption($resultLimitOption, $resultLimitOption);
+		}
+		/*
 		$resultsPerPageMenu->addOption(10, 10);
 		$resultsPerPageMenu->addOption(25, 25);
 		$resultsPerPageMenu->addOption(50, 50);
 		$resultsPerPageMenu->addOption(75, 75);
 		$resultsPerPageMenu->addOption(100, 100);
+		*/
 
 		$resultsPerPageMenu->selectOptionByValue((isset($_GET['limit']) ? $_GET['limit'] : 10));
 
@@ -103,38 +106,68 @@ if (is_array($listingData)) {
 				->html($hiddenFields)
 				->append($resultsPerPageMenu);
 	}
+    $topFilterBar = $productListingColPager = htmlBase::newElement('div')
+            ->addClass('productListingColPager ui-corner-all');
+    $topFilterBarTable = htmlBase::newElement('table')
+            ->setCellPadding(3)
+            ->setCellSpacing(0)
+            ->attr('width', '100%');
+    if (sysConfig::get('PRODUCT_LISTING_SHOW_PRODUCT_NAME_FILTER') == 'True') {
+        $topFilterBarTable->addBodyRow(array(
+                                            'columns' => array(
+                                                array(
+                                                    'text' => $allLink->draw() . ' | ' . $numLink->draw() . ' | ' . implode(' ', $letterLinks)
+                                                )
+                                            )
+                                       ));
+    }
+
+    $topFilterBarTableTable = htmlBase::newElement('table')
+            ->setCellPadding(3)
+            ->setCellSpacing(0)
+            ->attr('width', '100%');
+    $topFilterBarTableTableColumns[] =
+            array(
+                'text' => '<b>' . sysLanguage::get('PRODUCT_LISTING_SORT_BY') . ':</b>'
+            );
+    $topFilterBarTableTableColumns[] =
+            array(
+                'align' => 'right',
+                'text' => $sorter
+            );
+
+    if (sysConfig::get('PRODUCT_LISTING_ALLOW_RESULT_LIMIT') == 'True') {
+        $topFilterBarTableTableColumns[] = array(
+            'text' => '<b>' . sysLanguage::get('PRODUCT_LISTING_RESULTS_PER_PAGE') . ':</b>'
+        );
+        $topFilterBarTableTableColumns[] =
+                array(
+                    'align' => 'right',
+                    'text' => $perPageForm->draw()
+                );
+    }
+    $topFilterBarTableTable->addBodyRow(array(
+                                             'columns' => $topFilterBarTableTableColumns
+                                        ));
+    $topFilterBarTable->addBodyRow(array(
+                                        'align' => 'right',
+                                        'columns' => array(
+                                            array('text' => $topFilterBarTableTable->draw())
+                                         )
+                                   ));
+    EventManager::notify('ProductListingFilterBarDraw', &$topFilterBarTable, &$listingData);
+    $topFilterBar->append($topFilterBarTable);
+    echo $topFilterBar->draw();
 	?>
-	<div class="productListingColPager ui-corner-all">
-		<table cellpadding="3" cellspacing="0" border="0" width="100%">
-			<?php if (sysConfig::get('PRODUCT_LISTING_SHOW_PRODUCT_NAME_FILTER') == 'True') { ?>
-			<tr>
-				<td align="center"><?php echo $allLink->draw() . ' | ' . $numLink->draw() . ' | ' . implode(' ', $letterLinks);?></td>
-			</tr>
-			<?php } ?>
-			<tr>
-				<td align="right">
-					<table cellpadding="3" cellspacing="0" border="0">
-						<tr>
-							<td><b><?php echo sysLanguage::get('PRODUCT_LISTING_SORT_BY'); ?>:</b></td>
-							<td align="right"><?php echo $sorter;?></td>
-							<?php if (sysConfig::get('PRODUCT_LISTING_ALLOW_RESULT_LIMIT') == 'True') { ?>
-							<td><b><?php echo sysLanguage::get('PRODUCT_LISTING_RESULTS_PER_PAGE'); ?>:</b></td>
-							<td align="right"><?php echo $perPageForm->draw();?></td>
-							<?php } ?>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</div>
+	
 	<br/>
 	<div class="productListingColContents"><?php echo $listingTable->draw();?></div>
 	<?php
 	}
 	$totalWidth = sysConfig::get('PRODUCT_LISTING_TOTAL_WIDTH');
 	$productsPerRow = sysConfig::get('PRODUCT_LISTING_PRODUCTS_COLUMNS');
-	$imageWidth = ($totalWidth / $productsPerRow);
-	$imageContainerWidth = ($totalWidth / $productsPerRow) + 2;
+	$imageWidth = ($totalWidth / $productsPerRow) - 3;
+	$imageContainerWidth = ($totalWidth / $productsPerRow);
 	if(isset($pager)) {
 
 		$productListingColPager = htmlBase::newElement('div')
@@ -223,7 +256,7 @@ if (is_array($listingData)) {
 		                        ));
 		$productListingColBoxInner = htmlBase::newElement('div')
 				->addClass('productListingColBoxInner')
-		//->css(array('min-height' => '210px'))
+				->css(array('min-height' => '240px'))
 				->append($productListingColBoxTitle)
 				->append($productListingColBoxContent)
 				->html($contentsText);

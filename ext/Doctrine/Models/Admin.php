@@ -127,6 +127,27 @@ class Admin extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false
 		));
+
+		$this->hasColumn('admin_favs_id', 'integer', 4, array(
+				'type' => 'integer',
+				'length' => 4,
+				'unsigned' => 0,
+				'primary' => false,
+				'default' => '0',
+				'notnull' => true,
+				'autoincrement' => false
+		));
+
+		$this->hasColumn('admin_simple_admin', 'integer', 1, array(
+				'type' => 'integer',
+				'length' => 1,
+				'unsigned' => 0,
+				'primary' => false,
+				'default' => '0',
+				'notnull' => true,
+				'autoincrement' => false
+		));
+
 		$this->hasColumn('config_home', 'string', null, array(
 			'type' => 'string',
 			'length' => null,
@@ -136,6 +157,7 @@ class Admin extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false
 		));
+
 		$this->hasColumn('favorites_links', 'string', null, array(
 			'type' => 'string',
 			'length' => null,

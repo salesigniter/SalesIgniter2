@@ -11,6 +11,11 @@
 	    $purchaseTypeClass->loadProduct($pElem);
 	    OrderShippingModules::calculateWeight();
 	    $rInfo = '';
+	    if ($Editor->hasData('store_id')){
+		    $rInfo = array(
+			    'store_id' => $Editor->getData('store_id')
+		    );
+	    }
 
 	    $onlyShow = true;
 	    if(sysconfig::get('EXTENSION_PAY_PER_RENTALS_SHORT_PRICE') == 'True'){

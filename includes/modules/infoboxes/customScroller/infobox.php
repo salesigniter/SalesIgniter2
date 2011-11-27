@@ -98,7 +98,7 @@ abstract class InfoBoxCustomScrollerAbstract
 		return $ListContainer;
 	}
 
-	public function getQueryResults($queryType, $queryLimit) {				
+	public function getQueryResults($queryType, $queryLimit, $selectedCategory = 0) {
 		$Query = Doctrine_Query::create()
 			->select('p.products_id, p.products_image, pd.products_name')
 			->from('Products p')
@@ -119,9 +119,17 @@ abstract class InfoBoxCustomScrollerAbstract
 				break;
 			case 'featured':
 				$Query->andWhere('p.products_featured = ?', '1');
-
 				EventManager::notify('ScrollerFeaturedQueryBeforeExecute', &$Query);
 				break;
+            case 'category_featured':
+                $Query->andWhere('p.products_featured = ?', '1')
+                        ->leftJoin('p.ProductsToCategories p2c')
+                        ->leftJoin('p2c.Categories c')
+                        ->andWhere('c.parent_id = ? OR p2c.categories_id= ?', array($selectedCategory, $selectedCategory));
+
+
+                EventManager::notify('ScrollerFeaturedQueryBeforeExecute', &$Query);
+                break;
 			case 'new_products':
 				$Query->orderBy('p.products_date_added desc, pd.products_name asc');
 
@@ -138,10 +146,12 @@ abstract class InfoBoxCustomScrollerAbstract
 				EventManager::notify('ScrollerRelatedQueryBeforeExecute', &$Query);
 				break;
 			case 'category':
-				if (Session::exists('current_category_id')){
+				global $current_category_id;
+				
+				if ($current_category_id>0){
 					$Query->leftJoin('p.ProductsToCategories p2c')
 						->leftJoin('p2c.Categories c')
-						->andWhere('c.categories_id = ?', Session::get('current_category_id'));
+						->andWhere('c.parent_id = ? OR p2c.categories_id= ?', array($current_category_id, $current_category_id));
 				}
 
 				EventManager::notify('ScrollerCategoryQueryBeforeExecute', &$Query);
@@ -166,7 +176,7 @@ class InfoBoxCustomScrollerStack extends InfoBoxCustomScrollerAbstract
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit);
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category)?$cInfo->selected_category:''));
 			
 			if (!empty($Results)) {
 				$ProductsList = $this->buildList($Results, $cInfo);
@@ -201,7 +211,7 @@ class InfoBoxCustomScrollerTabs extends InfoBoxCustomScrollerAbstract
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit);
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category)?$cInfo->selected_category:''));
 			$ProductsList = $this->buildList($Results, $cInfo);
 
 			$Scoller = htmlBase::newElement('div')
@@ -237,7 +247,7 @@ class InfoBoxCustomScrollerButtons extends InfoBoxCustomScrollerAbstract
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit);
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, isset($cInfo->selected_category)?$cInfo->selected_category:'');
 			$ProductsList = $this->buildList($Results, $cInfo);
 
 			$uniquePageNum = floor(time() / ($i + 1));

@@ -43,13 +43,15 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 		switch($key){
 			case 'product_info':
 				$button = htmlBase::newElement('button')->setType('submit');
-				if ($this->productInfo['isBox'] === false){
+					//print_r($this->getProduct);
+					$Product = new Product($this->productInfo['id']);
+				if ($Product->isBox() === false){
 					$button->setText(sysLanguage::get('TEXT_BUTTON_IN_QUEUE'))->setName('add_queue');
 					if ($rentalQueue->in_queue($this->productInfo['id']) === true){
 						$button->disable();
 					}
 				}
-				elseif ($this->productInfo['isBox'] === true) {
+				elseif ($Product->isBox() === true) {
 					$button->setText(sysLanguage::get('TEXT_BUTTON_IN_QUEUE_SERIES'))->setName('add_queue_all');
 				}
 				$content = '';
@@ -72,6 +74,57 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 		}
 		return $return;
 	}
+
+	/**
+	 * @param array $CartProductData
+	 * @return bool
+	 */
+	public function allowAddToCart($CartProductData){
+		global $messageStack, $userAccount;
+		return true;
+	}
+
+	public function addToCartPrepare(&$pInfo){
+		$ProdClass = new Product($this->getProductId());
+		$pInfo['price'] = $ProdClass->getKeepPrice();
+		$pInfo['final_price'] = $ProdClass->getKeepPrice();
+		$pInfo['queue_id'] = $_POST['queue_id'];
+	}
+
+	public function processAddToCart(&$pInfo) {
+		EventManager::notify('PurchaseTypeAddToCart', $this->getCode(), &$pInfo, $this->productInfo);
+	}
+
+	public function updateStock($orderId, $orderProductId, &$cartProduct) {
+		return false;
+	}
+
+	public function onInsertOrderedProduct($cartProduct, $orderId, &$orderedProduct, &$products_ordered) {
+		$pID = (int)$cartProduct->getIdString();
+		$pInfo = $cartProduct->getInfo();
+		$queueID = $pInfo['queue_id'];
+		$InventoryCls =& $this->getInventoryClass();
+
+		$Qrented = Doctrine_Query::create()
+		->from('RentedQueue')
+		->where('customers_queue_id = ?', $queueID)
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+		$Barcode = Doctrine_Core::getTable('ProductsInventoryBarcodes')->find($Qrented[0]['products_barcode']);
+		if ($Barcode){
+			$Barcode->status = 'P';
+			$Barcode->save();
+		}
+
+		Doctrine_Query::create()
+		->delete('RentedQueue')
+		->where('customers_queue_id = ?', $queueID)
+		->execute();
+		$orderedProduct->purchase_type = $this->getCode();
+		$orderedProduct->save();
+
+	}
+
 
 	function showRentalAvailability() {
 		if (sysConfig::get('ALLOW_RENTALS') == 'false' || sysConfig::get('RENTAL_AVAILABILITY_PRODUCT_INFO') == 'false'){

@@ -13,6 +13,7 @@
 	<define key="TEXT_STORES_POSTCODE"><![CDATA[<b>Postcode:</b>]]></define>
 	<define key="BOX_HEADING_NEW_STORE"><![CDATA[Create A New Store]]></define>
 	<define key="TEXT_BUTTON_NEW_STORE"><![CDATA[New Store]]></define>
+	<define key="TEXT_FEES_PERCENT"><![CDATA[% or fixed amount per month]]></define>
 
 <!-- Auto Upgrade ( Version 1.0 to 1.1 ) -BEGIN- -->
 	<define key="TEXT_STORES_OWNER"><![CDATA[<b>Store Owner:</b>]]></define>

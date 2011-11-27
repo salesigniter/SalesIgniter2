@@ -13,12 +13,19 @@
       <td width="50%" class="main" valign="top"><fieldset>
        <legend><?php echo sysLanguage::get('LEGEND_FROM_DATE');?></legend>
        <div type="text" id="DP_startDate"></div><br>
-       <input type="text" name="start_date" id="start_date" value="<?php echo date('Y-m-d');?>">
+       <input type="text" name="start_date" id="start_date" value="<?php echo (isset($_GET['start_date']))?$_GET['start_date']:date('Y-m-d');?>">
+	      <?php
+	      if(isset($_GET['highlightOID'])){
+	      ?>
+	      <input type="hidden" name="highlight" id="highlight" value="<?php echo $_GET['highlightOID'];?>">
+	  <?php
+          }
+	      ?>
       </fieldset></td>
       <td width="50%" class="main" valign="top"><fieldset>
        <legend><?php echo sysLanguage::get('LEGEND_TO_DATE');?></legend>
        <div type="text" id="DP_endDate"></div><br>
-       <input type="text" name="end_date" id="end_date" value="<?php echo date('Y-m-d');?>">
+       <input type="text" name="end_date" id="end_date" value="<?php echo (isset($_GET['end_date']))?$_GET['end_date']:date('Y-m-d');?>">
        </fieldset></td>
      </tr>
     </table></td>
@@ -85,8 +92,20 @@
 	      ?>
 	   <td class="dataTableHeadingContent"><?php echo 'Dates';?></td>
 	   <td class="dataTableHeadingContent" style="text-align:left;"><?php echo "Location";?></td>
+	      <?php
+	    if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_NUMBER_COLUMN') == 'True'){
+		?>
 	   <td class="dataTableHeadingContent"><?php echo 'Tracking Number';?></td>
+		    <?php
+	    }
+?>
+	      <?php
+	      if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_RESERVATION_STATUS_COLUMN') == 'True'){
+	      ?>
 	   <td class="dataTableHeadingContent"><?php echo 'Reservation Status';?></td>
+	  <?php
+		}
+	  ?>
 	      <?php
 		  if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True'){
 	  ?>

@@ -1,33 +1,38 @@
 <?php
 	$Barcode = Doctrine_Core::getTable('ProductsInventoryBarcodes')->findOneByBarcodeId((int)$_GET['bID']);
 	if ($Barcode){
+		$error = false;
 		if ($Barcode->status == 'O'){
+			$error = true;
 			$response = array(
 				'success' => true,
 				'errorMsg' => sysLanguage::get('TEXT_BARCODE_OUT')
 			);
 		}elseif ($Barcode->status == 'P'){
+			$error = true;
 			$response = array(
 				'success' => true,
 				'errorMsg' => sysLanguage::get('TEXT_BARCODE_PURCHASED')
 			);
-		}else{
+		}elseif (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_ENABLED')){
 			$Qproducts = Doctrine_Query::create()
-			->from('ProductsInventoryBarcodes pib')
-			->leftJoin('pib.OrdersProductsReservation opr')
-			->where('pib.barcode_id=?', $_GET['bID'])
-			->andWhere('opr.start_date >= ?', date('Y-m-d'))
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-			if(count($Qproducts) > 0){
+				->from('ProductsInventoryBarcodes pib')
+				->leftJoin('pib.OrdersProductsReservation opr')
+				->where('pib.barcode_id=?', $_GET['bID'])
+				->andWhere('opr.start_date >= ?', date('Y-m-d'))
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			if (count($Qproducts) > 0){
+				$error = true;
 				$response = array(
 					'success' => true,
 					'errorMsg' => sysLanguage::get('TEXT_FUTURE_RESERVATION')
 				);
-			}else{
-				$Barcode->delete();
-				$response = array('success' => true);
 			}
+		}
+
+		if ($error === false){
+			$Barcode->delete();
+			$response = array('success' => true);
 		}
 	}else{
 		$response = array('success' => false);
