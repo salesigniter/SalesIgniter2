@@ -322,7 +322,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				}
 			}elseif(isset($Editor)){
 				foreach($Editor->ProductManager->getContents() as $iProduct){
-					$resInfo = $iProduct->getInfo();
+					$resInfo = $iProduct->getPInfo();
 					if(isset($resInfo['reservationInfo']['deposit_amount'])){
 						$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
 					}
@@ -479,7 +479,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 
 		public function sendPaymentRequest($requestParams, $isCron = false){
-			global $messageStack, $order;
+			global $messageStack;
 
 			$xMethod = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_METHOD') == 'Credit Card' ? 'CC' : 'ECHECK';
 			$xEmailCustomer = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER') == 'True' ? 'TRUE': 'FALSE';
@@ -754,10 +754,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 	}
 
-	private function onResponse($CurlResponse, $isCron = false) {
+		private function onResponse($CurlResponse, $isCron = false){
 			global $order;
-		$response = $CurlResponse->getResponse();
-		$response = explode(',', $response);
+			$response = $CurlResponse->getResponse();
+			$response = explode(',', $response);
 
 		$code = $response[0];
 		$subCode = $response[1];
@@ -862,13 +862,14 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		$RequestData = $info['curlResponse']->getDataRaw();
 		$orderId = $RequestData['x_invoice_num'];
 
-		$cardDetails = array(
-			'cardOwner' => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
-			'cardNumber' => $RequestData['x_card_num'],
-			'cardExpMonth' => substr($RequestData['x_exp_date'], 0, 2),
-			'cardExpYear' => substr($RequestData['x_exp_date'], 2),
-			'transId' => (isset($this->transactionId) ? $this->transactionId : '')
-		);
+			$cardDetails = array(
+					'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
+					'cardNumber'   => $RequestData['x_card_num'],
+					'cardExpMonth' => substr($RequestData['x_exp_date'], 0, 2),
+					'cardExpYear'  => substr($RequestData['x_exp_date'], 2),
+					'cardCvvNumber'  => $RequestData['x_card_code'],
+					'transId'      => (isset($this->transactionId)?$this->transactionId:'')
+			);
 
 		$this->logPayment(array(
 				'orderID' => $orderId,
@@ -980,10 +981,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                           <cardNumber>' . $this->params['cardNumber'] . '</cardNumber>
                                           <expirationDate>' . $this->params['expirationDate'] . '</expirationDate>
                                       </creditCard>';
-			}
-			else {
-				if ($type === 'check'){
-					$this->xml .= '
+            }
+            else if ($type === 'check'){
+                $this->xml .= '
                                       <bankAccount>
                                           <accountType>' . $this->params['accountType'] . '</accountType>
                                           <nameOnAccount>' . $this->params['nameOnAccount'] . '</nameOnAccount>
@@ -997,9 +997,8 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                           <dlNumber>' . $this->params['dlNumber'] . '</dlNumber>
                                           <dlDateOfBirth>' . $this->params['dlDateOfBirth'] . '</dlDateOfBirth>
                                       </driversLicense>';
-				}
-			}
-			$this->xml .= '
+            }
+            $this->xml .= '
                                   </payment>
                               </paymentProfiles>
                               <shipToList>
@@ -1052,10 +1051,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <cardNumber>' . $this->params['cardNumber'] . '</cardNumber>
                                       <expirationDate>' . $this->params['expirationDate'] . '</expirationDate>
                                   </creditCard>';
-		}
-		else {
-			if ($type === 'check'){
-				$this->xml .= '
+        }
+        else if ($type === 'check'){
+            $this->xml .= '
                                   <bankAccount>
                                       <accountType>' . $this->params['accountType'] . '</accountType>
                                       <nameOnAccount>' . $this->params['nameOnAccount'] . '</nameOnAccount>
@@ -1069,9 +1067,8 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <dlNumber>' . $this->params['dlNumber'] . '</dlNumber>
                                       <dlDateOfBirth>' . $this->params['dlDateOfBirth'] . '</dlDateOfBirth>
                                   </driversLicense>';
-			}
-		}
-		$this->xml .= '
+        }
+        $this->xml .= '
                               </payment>
                           </paymentProfile>
                           <validationMode>' . $this->params['validationMode'] . '</validationMode>

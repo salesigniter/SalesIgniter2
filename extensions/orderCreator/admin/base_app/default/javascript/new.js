@@ -6,7 +6,7 @@ function number_format(number){
 
 $(document).ready(function (){
 
-	$('select[name=payment_method]').live('change', function(){
+	/*$('select[name="payment_method"]').live('change', function(){
 		var $self = $(this);
 		showAjaxLoader($self, 'small');
 
@@ -28,8 +28,12 @@ $(document).ready(function (){
 				//removeAjaxLoader($self);
 			}
 		});
+	}); */
+	$('.resReports').click(function(){
+		var newwindow=window.open(js_app_link('appExt=payPerRentals&app=reservations_reports&appPage=default'),'name','height=700,width=960');
+		if (window.focus) {newwindow.focus()}
+		return false;
 	});
-
 	$('#emailEstimate').click(function(){
 		$.ajax({
 			url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=sendEstimateEmail'),
@@ -90,7 +94,7 @@ $(document).ready(function (){
 						$('.paymentsTable').replaceWith(data.paymentsTable);
 					}
 
-					$('select[name=payment_method]').change(function(){
+					$('select[name="payment_method"]').change(function(){
 						var $self = $(this);
 						showAjaxLoader($self, 'small');
 
@@ -106,15 +110,11 @@ $(document).ready(function (){
 									$('.paymentProcessButton').button();
 								}else if (typeof data.success == 'object'){
 									alert(data.success.error_message);
-								}else{
-									//alert('Payment Failed');
 								}
-								//removeAjaxLoader($self);
 							}
 						});
 					});
-					$('select[name=payment_method]').trigger('change');
-					//$('.purchaseType').trigger('change');
+					$('select[name="payment_method"]').trigger('change');
 				}
 			});
 			$('input[name=customer_search]').val('');
@@ -149,10 +149,45 @@ $(document).ready(function (){
 					$(self).val('');
 				}else{
 					$Row.find('td:eq(1)').html(data.name);
-					$Row.find('td:eq(2)').each(function (){
-						$(this).html(data.barcodes);
-						$(this).find('select').combobox();
-					});
+					$Row.find('td:eq(2)').html(data.barcodes);
+					$Row.find('td:eq(2)').find('select').combobox();
+
+					$Row.find('.priceEx').val(data.price).trigger('keyup');
+					var isEvent = false;
+					if($('.eventf').size() > 0){
+						isEvent = true;
+					}
+					if(prType == 'reservation' && isEvent == false){
+						$('.productQty').attr('readonly','readonly');
+					}
+					if(isEvent && $Row.find('.eventf').val() != '0'){
+						$('.reservationShipping').trigger('change');
+					}
+				}
+				removeAjaxLoader($Row);
+			}
+		})
+	});
+
+	$('.purchaseType').live('updateInfo', function (){
+		var self = this;
+		var $Row = $(self).parentsUntil('tbody').last();
+		var prType = $(self).val();
+
+		showAjaxLoader($Row, 'normal');
+		$.ajax({
+			url: js_app_link('rType=ajax&appExt=orderCreator&app=default&appPage=new&action=updateInfoOrderProduct&id=' + $Row.attr('data-id') + '&purchase_type=' + $(this).val()),
+			cache: false,
+			dataType: 'json',
+			success: function (data){
+				if (data.hasError == true){
+					alert(data.errorMessage);
+					$(self).val('');
+				}else{
+					$Row.find('td:eq(1)').html(data.name);
+					$Row.find('td:eq(2)').html(data.barcodes);
+					$Row.find('td:eq(2)').find('select').combobox();
+
 					$Row.find('.priceEx').val(data.price).trigger('keyup');
 					var isEvent = false;
 					if($('.eventf').size() > 0){
@@ -279,10 +314,55 @@ $(document).ready(function (){
 
 	$('.insertProductIcon').live('click', function (){
 		var $TableBody = $(this).parent().parent().parent().parent().find('tbody');
+		var productInput = '';
 
-		var $Row = $('<tr></tr>')
+		var loadProductRow = function (pID){
+			showAjaxLoader($Row, 'normal');
+			$.ajax({
+				cache: false,
+				dataType: 'json',
+				url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=loadProductRow&pID=' + pID),
+				success: function (data) {
+					removeAjaxLoader($Row);
+					if (data.hasError == true){
+						alert(data.errorMessage);
+					}
+					else {
+						var html = data.html;
+						var $myRow = $(html).insertAfter($Row);
+						$Row.remove();
+						var va = $myRow.find('.purchaseType option:nth-child(2)').val();
+						if($myRow.find('.purchaseType option').size() == 2){
+							$myRow.parent().find('.purchaseType').first().val(va);
+							$myRow.parent().find('.purchaseType').first().trigger('change');
+						}
+
+					}
+				}
+			});
+		};
+
+		var $Row;
+		if ($(this).data('product_entry_method') == 'autosuggest'){
+			productInput = '<input class="productSearch" name="product_search" style="width:95%">';
+		}else if ($(this).data('product_entry_method') == 'dropmenu'){
+			showAjaxLoader($('.productSection'), 'xlarge');
+			$.ajax({
+				cache: false,
+				url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=getProductsDropBox'),
+				dataType: 'html',
+				success: function (data){
+					$Row.find('.productInput').html(data);
+					$Row.find('.productSelectBox').change(function (){
+						loadProductRow($(this).val());
+					});
+					removeAjaxLoader($('.productSection'));
+				}
+			});
+		}
+		$Row = $('<tr></tr>')
 			.append('<td class="ui-widget-content" align="right" valign="top" style="border-top:none"></td>')
-			.append('<td class="ui-widget-content" valign="top" style="border-top:none;border-left:none"><input class="productSearch" name="product_search" style="width:95%"></td>')
+			.append('<td class="ui-widget-content productInput" valign="top" style="border-top:none;border-left:none">' + productInput + '</td>')
 			.append('<td class="ui-widget-content" valign="top" style="border-top:none;border-left:none"></td>')
 			.append('<td class="ui-widget-content" valign="top" style="border-top:none;border-left:none"></td>')
 			.append('<td class="ui-widget-content" align="right" valign="top" style="border-top:none;border-left:none"></td>')
@@ -293,31 +373,15 @@ $(document).ready(function (){
 			.append('<td class="ui-widget-content" align="right" valign="top" style="border-top:none;border-left:none"><span class="ui-icon ui-icon-closethick deleteIcon"></span></td>');
 
 		$TableBody.prepend($Row);
-	
-		$TableBody.find('.productSearch').autocomplete({
-			source: js_app_link('appExt=orderCreator&app=default&appPage=new&action=findProduct'),
-			select: function (e, ui){
-				showAjaxLoader($Row, 'normal');
-				$.ajax({
-					cache: false,
-					dataType: 'json',
-					url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=loadProductRow&pID=' + ui.item.value),
-					success: function (data){
-						removeAjaxLoader($Row);
-						if (data.hasError == true){
-							alert(data.errorMessage);
-						}else{
-							var html = data.html;
-							$(html).insertAfter($Row);
-							/*change for single purchaseType*/
-							$(html).find('.priceEx').trigger('keyup');
-							$Row.remove();
-							$('.purchaseType').first().trigger('change');
-						}
-					}
-				});
-			}
-		});
+
+		if ($(this).data('product_entry_method') == 'autosuggest'){
+			$Row.find('.productSearch').autocomplete({
+				source: js_app_link('appExt=orderCreator&app=default&appPage=new&action=findProduct'),
+				select: function (e, ui) {
+					loadProductRow(ui.item.value);
+				}
+			});
+		}
 	});
 
 	$('.deleteProductIcon').live('click', function (){
@@ -330,7 +394,7 @@ $(document).ready(function (){
 			success: function (data){
 				removeAjaxLoader($Row);
 				$Row.remove();
-				$('.priceEx:eq(0)').trigger('keyup');
+				$('.priceEx').trigger('keyup');
 			}
 		});
 	});
@@ -379,7 +443,28 @@ $(document).ready(function (){
 		});
 	});
 
-	$('select[name=payment_method]').trigger('change');
+	$('select[name="payment_method"]').change(function(){
+		var $self = $(this);
+		showAjaxLoader($self, 'small');
+
+		$.ajax({
+			url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=changePaymentMethod'),
+			cache: false,
+			dataType: 'json',
+			data: 'payment_method=' + $self.val(),
+			type: 'post',
+			success: function (data){
+				if (data.success == true){
+					$self.parent().parent().replaceWith(data.tableRow);
+					$('.paymentProcessButton').button();
+				}else if (typeof data.success == 'object'){
+					alert(data.success.error_message);
+				}
+			}
+		});
+	});
+	$('select[name="payment_method"]').trigger('change');
+
 	$('.purchaseType').trigger('change');
 	$('.paymentRefundButton').click(function (){
 		var $self = $(this);
@@ -491,6 +576,30 @@ $(document).ready(function (){
 			type: 'post',
 			success: function (data){
 				$('.productSection, .totalSection, .paymentSection, .commentSection').show();
+				$('select[name=payment_method]').change(function(){
+					var $self = $(this);
+					showAjaxLoader($self, 'small');
+
+					$.ajax({
+						url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=changePaymentMethod'),
+						cache: false,
+						dataType: 'json',
+						data: 'payment_method=' + $self.val(),
+						type: 'post',
+						success: function (data){
+							if (data.success == true){
+								$self.parent().parent().replaceWith(data.tableRow);
+								$('.paymentProcessButton').button();
+							}else if (typeof data.success == 'object'){
+								alert(data.success.error_message);
+							}else{
+								//alert('Payment Failed');
+							}
+							//removeAjaxLoader($self);
+						}
+					});
+				});
+				$('select[name=payment_method]').trigger('change');
 				removeAjaxLoader($('.customerSection'));
 			}
 		});

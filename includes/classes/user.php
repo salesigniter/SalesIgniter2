@@ -137,6 +137,7 @@ class RentalStoreUser implements Serializable {
 				'firstName'          => $customer['customers_firstname'],
 				'lastName'           => $customer['customers_lastname'],
 				'dob'                => $customer['customers_dob'],
+				'city_birth'         => $customer['customers_city_birth'],
 				'countryId'          => $country[0]['entry_country_id'],
 				'zoneId'             => $country[0]['entry_zone_id'],
 				'fullName'           => $customer['customers_firstname'] . ' ' . $customer['customers_lastname'],
@@ -337,6 +338,7 @@ class RentalStoreUser implements Serializable {
 		$newUser->customers_fax = $this->customerInfo['fax'];
 		$newUser->customers_password = $this->encryptPassword($this->customerInfo['password']);
 		$newUser->customers_dob = $this->customerInfo['dob'];
+		$newUser->customers_city_birth = $this->customerInfo['city_birth'];
 		$newUser->customers_newsletter = $this->customerInfo['newsletter'];
 		$newUser->language_id = $this->customerInfo['languageId'];
 		//$newUser->customers_referral = $this->customerInfo['referral'];
@@ -450,6 +452,14 @@ class RentalStoreUser implements Serializable {
 		if (sysConfig::get('ACCOUNT_DOB') == 'true'){
 			$Customer->customers_dob = $this->customerInfo['dob'];
 		}
+
+		if(isset($this->customerInfo['password']) && !empty($this->customerInfo['password'])){
+			$Customer->customers_password = $this->encryptPassword($this->customerInfo['password']);
+		}
+		
+		if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
+			$Customer->customers_city_birth = $this->customerInfo['city_birth'];
+		}
 		
 		if (sysConfig::get('ACCOUNT_GENDER') == 'true'){
 			$Customer->customers_gender = $this->customerInfo['gender'];
@@ -538,7 +548,7 @@ class RentalStoreUser implements Serializable {
 		$name = $this->getFullName();
 		$email_address = $this->getEmailAddress();
 		$request = 'The customer, ' . $name . ' has requested to reactivate his membership account.';
-		tep_mail(STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, sysLanguage::get('EMAIL_SUBJECT'), $request, $name, $email_address);
+		tep_mail(sysConfig::get('STORE_OWNER'), sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'), sysLanguage::get('EMAIL_SUBJECT'), $request, $name, $email_address);
 
 		$messageStack->addSession('pageStack', 'Your reactivation request has been sent', 'success');
 	}
@@ -553,6 +563,10 @@ class RentalStoreUser implements Serializable {
 
 	public function setEmailAddress($val){
 		$this->customerInfo['emailAddress'] = $val;
+	}
+
+	public function setCityBirth($val){
+		$this->customerInfo['city_birth'] = $val;
 	}
 
 	public function setFaxNumber($val){
@@ -572,8 +586,11 @@ class RentalStoreUser implements Serializable {
 	}
 
 	public function setDateOfBirth($val){
-		$date = date_parse($val);
-		$this->customerInfo['dob'] = date('m/d/Y', mktime(0,0,0,$date['month'],$date['day'],$date['year'])); 
+		$date = strptime($val, sysLanguage::getDateFormat('short'));
+		$mm = $date['tm_mon']+1;
+		$dd = $date['tm_mday'];
+		$yy = 1900 + $date['tm_year'];
+		$this->customerInfo['dob'] = date('Y-m-d', mktime(0,0,0,$mm, $dd, $yy));
 	}
 
 	public function setNewsletter($val){
@@ -627,6 +644,7 @@ class RentalStoreUser implements Serializable {
 	public function getFaxNumber(){ return $this->customerInfo['fax']; }
 	public function getCustomerId(){ return $this->customerInfo['id']; }
 	public function getDateOfBirth(){ return $this->customerInfo['dob']; }
+	public function getCityBirth(){ return $this->customerInfo['city_birth']; }
 	public function getGender(){ return $this->customerInfo['gender']; }
 	public function isLoggedIn(){ return ($this->customerInfo['id'] > 0 ? true : false); }
 	public function getCustomerInfo(){ return $this->customerInfo; }

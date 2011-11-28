@@ -5,7 +5,7 @@
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/box.php');
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/split_page_results.php');
 	if (isset($_GET['cID'])){
-		require(sysConfig::getDirFsCatalog() . 'includes/classes/product.php');
+		require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 
 		$userAccount = new rentalStoreUser($_GET['cID']);
 		$userAccount->loadPlugins();

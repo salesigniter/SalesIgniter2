@@ -6,7 +6,8 @@ $(document).ready(function (){
 
 		var addCartData = {
 			id: $Row.attr('data-id'),
-			pID: $Row.attr('data-product_id')
+			pID: $Row.attr('data-product_id'),
+			qty: $Row.find('.productQty').val()
 		};
 		$.ajax({
 			cache: false,

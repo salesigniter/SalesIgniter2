@@ -10,7 +10,7 @@
 	var inv = new Array();
 	var inv2 = new Object();
 	function initialize() {
-		map = new GMap2(document.getElementById("gMap"));
+		map = new GMap2(document.getElementById("gMapList"));
 		map.setCenter(new GLatLng(34, 0), 1);
 		map.addControl(new GLargeMapControl());
 		geocoder = new GClientGeocoder();
@@ -92,15 +92,30 @@ $(document).ready(function (){
 	var inv = [];
 <?php
 		$Inventory_centers = Doctrine_Query::create()
-		->from('ProductsInventoryCenters')
-		->where('inventory_center_stores=?', Session::get('current_store_id'))
-		->execute(array(), Doctrine::HYDRATE_ARRAY);
+		->from('ProductsInventoryCenters');
+
+		$multiStore = $appExtension->getExtension('multiStore');
+		if ($multiStore !== false && $multiStore->isEnabled() === true){
+			$Inventory_centers->where('inventory_center_stores=?', Session::get('current_store_id'));
+		}
+
+		$Inventory_centers = $Inventory_centers->execute(array(), Doctrine::HYDRATE_ARRAY);
+
 		if($Inventory_centers){
 			$i = 0;
 			foreach($Inventory_centers as $inv){
-				$storeArr = explode(';', $inv['inventory_center_stores']);
+				$f = true;
+				$multiStore = $appExtension->getExtension('multiStore');
+				if ($multiStore !== false && $multiStore->isEnabled() === true){
+					$storeArr = explode(';', $inv['inventory_center_stores']);
 
-				if(in_array(Session::get('current_store_id'), $storeArr)){
+					if(in_array(Session::get('current_store_id'), $storeArr)){
+						$f = true;
+					}else{
+						$f = false;
+					}
+				}
+				if($f){
 					$invent = stripslashes (htmlspecialchars ($inv['inventory_center_address']));
 					$invent = str_replace("\r\n", " ", $invent);
 					$pointC = unserialize($inv['inventory_center_address_point']);
@@ -137,3 +152,9 @@ $(document).ready(function (){
 
 });
 </script>
+	<style type="text/css">
+		#gMapList{
+			width:600px;
+			height:500px;
+		}
+	</style>

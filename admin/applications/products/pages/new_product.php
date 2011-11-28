@@ -1,5 +1,4 @@
 <?php
-require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 $Product = new Product(
 	(isset($_GET['pID']) && empty($_POST) ? $_GET['pID'] : ''),
 	true

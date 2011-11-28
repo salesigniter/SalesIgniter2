@@ -72,7 +72,7 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 	}
 
 	public function getPprForm($hasUpdateButton = true, $hasHeaders = false, $hasGeographic = true, $showCategories = false, $showSubmit = false, $showShipping = false, $showTimes = false, $showQty = false, $showPickup = false, $showDropoff = false){
-		global $appExtension, $currencies, $cPath, $cPath_array, $tree, $categoriesString, $current_category_id, $App;
+		global $appExtension, $userAccount, $currencies, $cPath, $cPath_array, $tree, $categoriesString, $current_category_id, $App;
 
 		$getv = '';
 		if (isset($_GET['cPath'])){
@@ -389,12 +389,29 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		->addClass('shipp');
 
 		$br = htmlBase::newElement('br');
+
+		$shipUps = htmlBase::newElement('input')
+		->setName('zipCode')
+		->addClass('zipf');
+
+
+
+		$shipUpsBut = htmlBase::newElement('button')
+		->setName('changeZip')
+		->setText('Get Quote')
+		->addClass('changeZip');
+		$shipUpsMethods = htmlBase::newElement('selectbox')
+		->setName('ship_method')
+		->addClass('shipf shipz shipups');
+
+
+
 		$shipb = htmlBase::newElement('selectbox')
 		->setName('ship_method')
 		->addClass('shipf shipz');
 
 		$firstShippingMethod = 0;
-		if (Session::exists('isppr_shipping_method') && tep_not_null(Session::get('isppr_shipping_method')) && Session::get('isppr_selected') == true){
+		if (Session::exists('isppr_shipping_method') && (Session::get('isppr_shipping_method') != '') && Session::get('isppr_selected') == true){
 			$shipb->selectOptionByValue(Session::get('isppr_shipping_method'));
 			$firstShippingMethod = Session::get('isppr_shipping_method');
 		}
@@ -402,6 +419,24 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
 			$Module = OrderShippingModules::getModule('zonereservation');
 		} else{
+			if(Session::exists('isppr_shipping_zip') && Session::get('isppr_shipping_zip') != ''){
+				$postcode = Session::get('isppr_shipping_zip');
+				$shipUps->setValue(Session::get('isppr_shipping_zip'));
+				/*$shippingAddressArray = array(
+					'entry_street_address' => (isset($_POST['street_address']) && !empty($_POST['street_address']))
+						? $_POST['street_address'] : '',
+					'entry_postcode' => $postcode,
+					'entry_city' => (isset($_POST['city']) && !empty($_POST['city'])) ? $_POST['city'] : '',
+					'entry_state' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
+						: '',
+					'entry_country_id' => (isset($_POST['country']) && !empty($_POST['country'])) ? $_POST['country']
+						: sysConfig::get('STORE_COUNTRY'),
+					'entry_zone_id' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
+						: ''
+				);
+				$addressBook =& $userAccount->plugins['addressBook'];
+				$addressBook->addAddressEntry('delivery', $shippingAddressArray);*/
+			}
 			$Module = OrderShippingModules::getModule('upsreservation');
 		}
 		$quotes = $Module->quote();
@@ -449,9 +484,9 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		$min_date =  date("Y-m-d h:i:s", mktime(date("h"),date("i"),date("s"),date("m"),date("d")/*+$min_days*/,date("Y")));
 		$Qevent = Doctrine_Query::create()
 		->from('PayPerRentalEvents');
-		if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'False'){
-			$Qevent = $Qevent->where('events_date > ?', $min_date);
-		}
+		//if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'False'){
+			$Qevent = $Qevent->where('DATE_ADD(events_date,INTERVAL events_days DAY) > ?', $min_date);
+		//}
 		$Qevent = $Qevent->orderBy('events_date')
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
@@ -481,7 +516,10 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 					if($firstEvent == $eInfo['events_id'] || $firstEvent == 0){
 						$gatesArr = explode(',', $eInfo['gates']);
 					}
-					$eventb->addOption($eInfo['events_id'],$eInfo['events_name']);
+
+					$myDate = date('M d',strtotime($eInfo['events_date'])).'-'.date('M d Y', strtotime('+'.$eInfo['events_days'].' DAY', strtotime($eInfo['events_date'])));
+
+					$eventb->addOption($eInfo['events_id'],$eInfo['events_name'].'_'.$myDate);
 				}
 			}
 		}
@@ -519,6 +557,16 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		->addClass('myev1')
 		->attr('href',(($firstEvent != 0)?itw_app_link('appExt=payPerRentals&ev_id='.$firstEvent,'show_event','default'):itw_app_link('appExt=payPerRentals','show_event','list')));
 
+		$ev2Text = htmlBase::newElement('a')
+		->text('Click for info')
+		->addClass('myev2')
+		->attr('href',(($firstEvent != 0)?itw_app_link('appExt=payPerRentals&dialog=true&ev_id='.$firstEvent,'show_event','default'):itw_app_link('appExt=infoPages','show_page','event_info')));
+
+		$gateText = htmlBase::newElement('a')
+		->text('Click for info')
+		->addClass('myga1')
+		->attr('href',(($firstEvent != 0)?itw_app_link('appExt=payPerRentals&isgate=1&dialog=true&ev_id='.$firstEvent,'show_event','default'):itw_app_link('appExt=infoPages','show_page','gate_info')));
+
 		$separator1sh = htmlBase::newElement('div');
 		$separatortsh = htmlBase::newElement('div');
 		$container_destsh = htmlBase::newElement('div');
@@ -532,13 +580,14 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
 			$container_destev->append($eventt)
 			->append($eventb)
-			->append($evText);
+			->append($evText)
+			->append($ev2Text);
 			$pprform->append($separator1ev)
 			->append($container_destev);
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 				$container_destgate->append($gatet)
-				->append($gateb);
-				//->append($gateText);
+				->append($gateb)
+				->append($gateText);
 				$pprform->append($separator1ev)
 				->append($container_destgate);
 			}
@@ -623,7 +672,11 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 
 		//here is for the level of service or reservation shipping methods
 		if ($showShipping){
-			$container_destsh->append($shipt)->append($shipb)->append($shText);
+			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
+				$container_destsh->append($shipt)->append($shipb)->append($shText);
+			}else{
+				$container_destsh->append($shipt)->append($shipUps)->append($shipUpsMethods)->append($shText)->append($shipUpsBut);
+			}
 			$pprform->append($separator1sh)->append($container_destsh);
 		}
 		if ($showSubmit){
@@ -871,21 +924,94 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		}
 	}
 
-	$(document).ready(function (){
-     var minRentalDays = <?php
+	function makeDatePicker(pickerID){
+	var minRentalDays = <?php
         if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GLOBAL_MIN_RENTAL_DAYS') == 'True'){
-            echo (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
-            $minDays = (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
-        }else{
-            $minDays = 0;
-            echo '0';
-        }
+			echo (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
+			$minDays = (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
+		}else{
+			$minDays = 0;
+			echo '0';
+		}
 		if(Session::exists('button_text')){
 			$butText = Session::get('button_text');
 		}else{
 			$butText = '';
 		}
-      ?>;
+		?>;
+		var selectedDateId = null;
+		var startSelectedDate;
+
+		var dates = $(pickerID+' .dstart,'+pickerID+' .dend').datepicker({
+		dateFormat: '<?php echo getJsDateFormat(); ?>',
+		changeMonth: true,
+		beforeShowDay: nobeforeDays,
+		onSelect: function(selectedDate) {
+
+		var option = this.id == "dstart" ? "minDate" : "maxDate";
+		if($(this).hasClass('dstart')){
+		myid = "dstart";
+		option = "minDate";
+		}else{
+		myid = "dend";
+		option = "maxDate";
+		}
+		var instance = $(this).data("datepicker");
+		var date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat, selectedDate, instance.settings);
+
+		var dateC = new Date('<?php echo Session::get('isppr_curDate');?>');
+		if(date.getTime() == dateC.getTime()){
+		if(myid == "dstart"){
+		$(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionscurdays');?>');
+		}else{
+		$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionscurdaye');?>');
+		}
+		}else{
+		if(myid == "dstart"){
+		$(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionsnormaldays');?>');
+		}else{
+		$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionsnormaldaye');?>');
+		}
+		}
+
+
+		if(myid == "dstart"){
+		var days = "0";
+		if ($(this).closest('form').find('select.pickupz option:selected').attr('days')){
+		days = $(this).closest('form').find('select.pickupz option:selected').attr('days');
+		}
+		//startSelectedDate = new Date(selectedDate);
+		dateFut = new Date(date.setDate(date.getDate() + parseInt(days)));
+		dates.not(this).datepicker("option", option, dateFut);
+		}
+		f = true;
+		if(myid == "dend"){
+		datest = new Date(selectedDate);
+		if ($(this).closest('form').find('.dstart').val() != ''){
+		startSelectedDate = new Date($(this).closest('form').find('.dstart').val());
+		if (datest.getTime() - startSelectedDate.getTime() < minRentalDays *24*60*60*1000){
+		alert('<?php echo sprintf(sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_MIN_DAYS'), $minDays);?>');
+		$(this).val('');
+		f = false;
+		}
+		}else{
+		f = false;
+		}
+		}
+
+		if (selectedDateId != this.id && selectedDateId != null && f){
+		selectedDateId = null;
+		}
+		if (f){
+		selectedDateId = this.id;
+		}
+
+		}
+		});
+	}
+
+	$(document).ready(function (){
+
      var butText = '<?php echo $butText;?>';
      $('<?php echo '#'.$WidgetProperties->boxID;?> .rentbbut').text(butText);
     if ($.browser.msie) $('.eventf')
@@ -941,79 +1067,61 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 	});
 
 
-	$('button[name="no_dates_selected"]').each(function(){$(this).click(function(){alert('<?php echo sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_RESERVE');?>');return false;})});
-	$('button[name="no_inventory"]').each(function(){$(this).click(function(){alert('<?php echo sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_NO_INVENTORY_FOR_SELECTED_DATES');?>');return false;})});
-	$('button[name="double_dates_selected"]').each(function(){$(this).click(function(){alert('<?php echo sysLanguage::get('TEXT_CHOOSE_INVENTORY');?>');return false;})});
-		var selectedDateId = null;
-        var startSelectedDate;
+	$('button[name="no_dates_selected"]').each(function(){$(this).click(function(){
+		/*$( '<div id="dialog-mesage" title="No Inventory"><span style="color:red;font-size:18px;"><?php echo sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_RESERVE');?></span></div>' ).dialog({
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});*/
 
-		var dates = $('<?php echo '#'.$WidgetProperties->boxID;?> .dstart, <?php echo '#'.$WidgetProperties->boxID;?> .dend').datepicker({
-                    dateFormat: '<?php echo getJsDateFormat(); ?>',
-        			changeMonth: true,
-        			beforeShowDay: nobeforeDays,
-        			onSelect: function(selectedDate) {
+	    $( '<div id="dialog-mesage" title="Choose Dates"><input class="tField" name="tField" ><div class="destBD"><span class="start_text">Start: </span><input class="picker dstart" name="dstart" ></div><div class="destBD"><span class="end_text">End: </span><input class="picker dend" name="dend" ></div></div>' ).dialog({
+			modal: false,
+			autoOpen: true,
+			open: function (e, ui){
+				makeDatePicker('#dialog-mesage');
+				$(this).find('.tField').hide();
+			},
+			buttons: {
+				Submit: function() {
 
-        				var option = this.id == "dstart" ? "minDate" : "maxDate";
-	                    if($(this).hasClass('dstart')){
-	                    	myid = "dstart";
-							option = "minDate";
-						}else{
-							myid = "dend";
-							option = "maxDate";
-						}
-        				var instance = $(this).data("datepicker");
-        				var date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat, selectedDate, instance.settings);
-
-						var dateC = new Date('<?php echo Session::get('isppr_curDate');?>');
-						if(date.getTime() == dateC.getTime()){
-							if(myid == "dstart"){
-	                    	    $(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionscurdays');?>');
-							}else{
-								$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionscurdaye');?>');
-							}
-						}else{
-							if(myid == "dstart"){
-	                    	    $(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionsnormaldays');?>');
-							}else{
-								$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionsnormaldaye');?>');
-							}
-						}
-
-
-        				if(myid == "dstart"){
-        				    var days = "0";
-        				    if ($(this).closest('form').find('select.pickupz option:selected').attr('days')){
-        				        days = $(this).closest('form').find('select.pickupz option:selected').attr('days');
-        				    }
-                            //startSelectedDate = new Date(selectedDate);
-							dateFut = new Date(date.setDate(date.getDate() + parseInt(days)));
-        				    dates.not(this).datepicker("option", option, dateFut);
-        				}
-        				f = true;
-        				if(myid == "dend"){
-                            datest = new Date(selectedDate);
-							if ($(this).closest('form').find('.dstart').val() != ''){
-								startSelectedDate = new Date($(this).closest('form').find('.dstart').val());
-								if (datest.getTime() - startSelectedDate.getTime() < minRentalDays *24*60*60*1000){
-									alert('<?php echo sprintf(sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_MIN_DAYS'), $minDays);?>');
-									$(this).val('');
-									f = false;
-								}
-							}else{
-								f = false;
-							}
-        				}
-
-			    	    if (selectedDateId != this.id && selectedDateId != null && f){
-                            selectedDateId = null;
-                      	}
-                        if (f){
-							selectedDateId = this.id;
-						}
-
-        			}
+		            $('<?php echo '#'.$WidgetProperties->boxID;?> .dstart').val($(this).find('.dstart').val());
+					$('<?php echo '#'.$WidgetProperties->boxID;?> .dend').val($(this).find('.dend').val());
+					$('<?php echo '#'.$WidgetProperties->boxID;?> .rentbbut').trigger('click');
+					$(this).dialog( "close" );
+				}
+			}
 		});
 
+		return false;
+	})});
+	$('button[name="no_inventory"]').each(function(){$(this).click(function(){
+
+		$( '<div id="dialog-mesage" title="No Inventory"><span style="color:red;font-size:18px;"><?php echo sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_NO_INVENTORY_FOR_SELECTED_DATES');?></span></div>' ).dialog({
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+
+		return false;
+	})});
+	$('button[name="double_dates_selected"]').each(function(){$(this).click(function(){alert('<?php echo sysLanguage::get('TEXT_CHOOSE_INVENTORY');?>');return false;})});
+		makeDatePicker('<?php echo '#'.$WidgetProperties->boxID;?>');
+		$('<?php echo '#'.$WidgetProperties->boxID;?> .myev2').attr('href',"#");
+		$('<?php echo '#'.$WidgetProperties->boxID;?> .myev2').click(function(){
+								if($('.eventf').val() != '0'){
+									link = js_app_link('appExt=payPerRentals&app=show_event&appPage=default&dialog=true&ev_id='+$('.eventf').val());
+								}else{
+									link = js_app_link('appExt=infoPages&app=show_page&appPage=event_info&dialog=true');
+								}
+								popupWindow(link,'400','300');
+								return false;
+		});
         $('.eventf').change(function(){
 						if($(this).val() != '0'){
 							link = js_app_link('appExt=payPerRentals&app=show_event&appPage=default&ev_id='+$(this).val());
@@ -1032,30 +1140,75 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 		                        hideAjaxLoader(myel);
 								if(typeof data.calendar != ''){
 									$('.myCalendar').remove();
+									$('.myTextCalendar').remove();
 									$('.calDone').remove();
+									$('.closeCal').remove();
+
 									self.parent().append(data.calendar);
 									$('.calDone').css('color','#ffffff');
 									$('.calDone').css('cursor','pointer');
 									$('.calDone').click(function(){
 										if($('.myCalendar').is(':visible')){
 											$('.myCalendar').hide();
-											$(this).html('Show Calendar');
+											$(this).html('Choose Dates');
+											$(this).css('position','relative');
+											$(this).css('top', '-14px');
+											$(this).css('z-index', '10005');
+											$(this).css('left', '110px');
+											$(this).css('color', '#ffffff');
+											$('.myTextCalendar').hide();
+											$('.allCalendar').hide();
+											$('.closeCal').hide();
+											if(myInitialDates != $('.mydates').html() && myInitialDates != null){
+												$( '<div id="dialog-mesage1" title="Date Selection Changed"><span style="color:red;font-size:16px;">Date selection changed. Do you want us to update this page with your new dates?</span></div>' ).dialog({
+													modal: true,
+													buttons: {
+														No: function() {
+															$( this ).dialog( "close" );
+														},
+														Yes: function() {
+															$('.rentbbut').trigger('click');
+														}
+													}
+												});
+											}
 										}else{
+											$('.myTextCalendar').show();
 											$('.myCalendar').show();
-											$(this).html('Hide Calendar');
+											$(this).css('position','relative');
+											$(this).css('top', '290px');
+											$(this).css('color', '#000000');
+											$(this).css('z-index', '10005');
+											$(this).css('left', '30px');
+											$('.closeCal').css('position','relative');
+											$('.closeCal').css('top', '-30px');
+											$('.closeCal').css('z-index', '10005');
+											$('.closeCal').css('left', '230px');
+											$('.closeCal').css('cursor', 'pointer');
+											$('.closeCal').css('width', '15px');
+											$('.allCalendar').show();
+											$('.closeCal').show();
+											$(this).html('<div class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary"><span class="ui-button-text">Done Selecting Dates</span></div>');
 										}
 									});
-									$('.myCalendar').css('position','absolute');
-									$('.myCalendar').css('top', '30px');
-									$('.myCalendar').css('z-index', '1005');
-									$('.myCalendar').css('left', '50px');
-
+									$('.closeCal').click(function(){
+										$('.calDone').trigger('click');
+									});
+									$('.allCalendar').css('position','absolute');
+									$('.allCalendar').css('top', '0px');
+									$('.allCalendar').css('padding', '10px');
+									$('.allCalendar').css('padding-bottom', '55px');
+									$('.allCalendar').css('background-color','#ffffff');
+									$('.allCalendar').css('z-index', '1005');
+									$('.allCalendar').css('left', '10px');
+		                            var myInitialDates = $('.mydates').html();
 									var goodDates = jQuery.makeArray(data.goodDates);
 		                            $('.myCalendar').datepick({
 										useThemeRoller: true,
 										dateFormat: '<?php echo getJsDateFormat();?>',
 										multiSelect: 999,
 										multiSeparator: ',',
+										defaultDate: data.events_date,
 										changeMonth: false,
 										firstDay:0,
 										changeYear: false,
@@ -1074,18 +1227,27 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 										beforeShowDay: function (dateObj) {
 											dateObj.setHours(0, 0, 0, 0);
 											var dateFormatted = $.datepick.formatDate('yy-m-d', dateObj);
-		                                    if ($.inArray(dateFormatted, goodDates) > -1) {
+											today = new Date();
+		                                    if ($.inArray(dateFormatted, goodDates) > -1 && (today.getTime() <= dateObj.getTime() - (1000 * 60 * 60 * 24 - (24 - dateObj.getHours()) * 1000 * 60 * 60))){
 												return [true, '', 'Available'];
 											}
 
 											return [false, '', 'Outside event days'];
 										}
 									});
-									$('.myCalendar').show();
+									$('.myCalendar').hide();
+									$('.myTextCalendar').hide();
+
 									if(data.selectedDates != ''){
 										var selDates =  jQuery.makeArray(data.selectedDates);
 										//var selDates = '08/21/2011,08/23/2011'.split(',');
 										$('.myCalendar').datepick('setDate', selDates);
+										$('.calDone').trigger('click');
+										$('.calDone').trigger('click');
+									}else{
+
+										$('.calDone').trigger('click');
+										//$('.calDone').trigger('click');
 									}
 								}
 
@@ -1114,6 +1276,37 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
 							}});
 
         });
+		$('.shipups').hide();
+		$('.changeZip').click(function(){
+		    if($(this).find('.ui-button-text').html() == 'Get Quote'){
+				var myel = $(this).parent();
+				$ellem = $(this).closest('form');
+				showAjaxLoader(myel,'xlarge');
+							var self = $(this);
+							$.ajax({
+								 type: "post",
+								 url: js_app_link('appExt=payPerRentals&app=build_reservation&appPage=default&action=setBefore'),
+								 data: "rType=ajax&isZip=true&zipCode="+$(this).closest('form').find('.zipf').val()+'&ship_method='+$(this).closest('form').find('.shipz').val(),
+								 success: function(data) {
+									hideAjaxLoader(myel);
+									if(data.nr != 0){
+										$('.shipups').html(data.data);
+										$('.shipups').show();
+										$('.zipf').hide();
+										$('.changeZip').find('.ui-button-text').html('Change Zip');
+									}
+								}
+							});
+			}else{
+				$('.zipf').show();
+				$('.changeZip').find('.ui-button-text').html('Get Quote');
+				$('.shipups').hide();
+			}
+		});
+
+		if($('.zipf').val() != ''){
+			$('.changeZip').trigger('click');
+		}
 
 		$('.gatef').change(function(){
 
@@ -1135,15 +1328,20 @@ class InfoBoxPayPerRental extends InfoBoxAbstract {
         });
 
 		$('<?php echo '#'.$WidgetProperties->boxID;?> .mysh1').attr('href',"#");
-		$('<?php echo '#'.$WidgetProperties->boxID;?> .mysh1').live('click', function(){
+		$('<?php echo '#'.$WidgetProperties->boxID;?> .mysh1').click(function(){
 				link = js_app_link('appExt=payPerRentals&app=show_shipping&appPage=default&dialog=true&sh_id='+$(this).prev('.shipz').val());
 				popupWindow(link,'400','300');
 				return false;
 		});
 
 		$('<?php echo '#'.$WidgetProperties->boxID;?> .myga1').attr('href',"#");
-		$('<?php echo '#'.$WidgetProperties->boxID;?> .myga1').live('click', function(){
+		$('<?php echo '#'.$WidgetProperties->boxID;?> .myga1').click(function(){
 				link = js_app_link('appExt=infoPages&app=show_page&appPage=gate_info&dialog=true');
+				if($('.eventf').val() != '0'){
+					link = js_app_link('appExt=payPerRentals&app=show_event&isgate=1&appPage=default&dialog=true&ev_id='+$('.eventf').val());
+				}else{
+					link = js_app_link('appExt=infoPages&app=show_page&appPage=gate_info&dialog=true');
+				}
 				popupWindow(link,'400','300');
 				return false;
 		});

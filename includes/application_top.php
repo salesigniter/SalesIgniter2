@@ -74,8 +74,11 @@ if (isset($_GET['runProfile'])){
 	$conn->setAttribute(Doctrine_Core::ATTR_QUERY_CACHE, $cacheDriver);
 	$conn->setAttribute(Doctrine_Core::ATTR_RESULT_CACHE, $cacheDriver);
 	$conn->setAttribute(Doctrine_Core::ATTR_RESULT_CACHE_LIFESPAN, 3600);*/
-
+	$conn->setCharset('utf8');
+	$conn->setCollate('utf8_general_ci');
 	$manager->setCurrentConnection('mainConnection');
+	$manager->setCollate('utf8_general_ci');
+	$manager->setCharset('utf8');
 
 	// include the list of project filenames
 	require(sysConfig::getDirFsCatalog() . 'includes/filenames.php');
@@ -168,6 +171,16 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/htmlBase.php');
 	// define how the session functions will be used
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/session.php');
 	Session::init(); /* Initialize the session */
+
+    /*This position might not be the best since it might throw some errors on update*/
+
+	if(sysConfig::get('SITE_MAINTENANCE_MODE') == 'true' && $App->getEnv() == 'catalog'){
+		$ipList = explode(';', sysConfig::get('IP_LIST_MAINTENANCE_ENABLED'));
+		if(!in_array($_SERVER['REMOTE_ADDR'], $ipList)){
+			echo '<div style="margin:0 auto;text-align:center;"><img src="'.sysConfig::getDirWsCatalog().'images/logo.png" /> <p style="font-size:30px;">This Site Is Under Maintenance</p> </div>';
+			die();
+		}
+	}
 
 	// start the session
 	$session_started = false;
@@ -317,9 +330,9 @@ if (!class_exists('PurchaseTypeModules')){
 	//$seo_urls = new SEO_URL(Session::get('languages_id'));
 
 	// currency
-	if (Session::exists('currency') === false || isset($_GET['currency']) || ( (sysConfig::get('USE_DEFAULT_LANGUAGE_CURRENCY') == 'true') && (LANGUAGE_CURRENCY != Session::get('currency')) ) ) {
+	if (Session::exists('currency') === false || isset($_GET['currency']) || ( (sysConfig::get('USE_DEFAULT_LANGUAGE_CURRENCY') == 'true') && (sysConfig::get('LANGUAGE_CURRENCY') != Session::get('currency')) ) ) {
 		if (isset($_GET['currency'])) {
-			if (!$currency = tep_currency_exists($_GET['currency'])) $currency = (sysConfig::get('USE_DEFAULT_LANGUAGE_CURRENCY') == 'true') ? LANGUAGE_CURRENCY : sysConfig::get('DEFAULT_CURRENCY');
+			if (!$currency = tep_currency_exists($_GET['currency'])) $currency = (sysConfig::get('USE_DEFAULT_LANGUAGE_CURRENCY') == 'true') ? sysConfig::get('LANGUAGE_CURRENCY') : sysConfig::get('DEFAULT_CURRENCY');
 		} else {
 			$currency = sysConfig::get('DEFAULT_CURRENCY');
 		}
@@ -332,6 +345,7 @@ if (!class_exists('PurchaseTypeModules')){
 	}
 	$navigation = &Session::getReference('navigation');
 	$navigation->add_current_page();
+	$navigation->set_snapshot();
 
 	EventManager::notify('ApplicationTopBeforeCartAction');
 

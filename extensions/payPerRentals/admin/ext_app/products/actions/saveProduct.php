@@ -11,21 +11,25 @@
 
 		if (isset($_POST['ppr_discounts'])){
 			$Discounts = $PayPerRental->ProductsPayPerRentalDiscounts;
-			foreach($_POST['ppr_discounts'] as $typeId => $typeInfo){
-				foreach($typeInfo as $discountId => $discInfo){
-					if (
-						($discInfo['from'] == '' || $discInfo['from'] <= 0) &&
-						($discInfo['to'] == '' || $discInfo['to'] <= 0) &&
-						($discInfo['percent'] == '' || $discInfo['percent'] <= 0)
-					){
-						continue;
-					}
+			foreach($_POST['ppr_discounts'] as $storeId => $sInfo){
+				foreach($sInfo as $typeId => $typeInfo){
+					foreach($typeInfo as $discountId => $discInfo){
+						if (
+							($discInfo['from'] == '' || $discInfo['from'] <= 0) &&
+							($discInfo['to'] == '' || $discInfo['to'] <= 0) &&
+							($discInfo['percent'] == '' || $discInfo['percent'] <= 0)
+						){
+							continue;
+						}
 
-					$Discounts[$discountId]->ppr_type = $typeId;
-					$Discounts[$discountId]->discount_stage = $discountId;
-					$Discounts[$discountId]->discount_from = $discInfo['from'];
-					$Discounts[$discountId]->discount_to = $discInfo['to'];
-					$Discounts[$discountId]->discount_percent = $discInfo['percent'];
+						$Discounts[$discountId]->ppr_type = $typeId;
+						$Discounts[$discountId]->store_id = $storeId;
+						$Discounts[$discountId]->discount_stage = $discountId;
+						$Discounts[$discountId]->discount_from = $discInfo['from'];
+						$Discounts[$discountId]->discount_to = $discInfo['to'];
+						$Discounts[$discountId]->discount_amount = $discInfo['amount'];
+						$Discounts[$discountId]->discount_type = $discInfo['type'];
+					}
 				}
 			}
 		}
@@ -53,6 +57,14 @@
 				$PayPerRental->shipping = implode(',', $_POST['reservation_shipping']);
 			}else{
 				$PayPerRental->shipping = $_POST['reservation_shipping'];
+			}
+		}
+
+		if (isset($_POST['maintenance'])){
+			if (is_array($_POST['maintenance'])){
+				$PayPerRental->maintenance = implode(',', $_POST['maintenance']);
+			}else{
+				$PayPerRental->maintenance = $_POST['maintenance'];
 			}
 		}
 		

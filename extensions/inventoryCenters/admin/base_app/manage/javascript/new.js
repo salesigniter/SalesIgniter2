@@ -133,9 +133,11 @@ $(document).ready(function (){
 
 	$('#countryDrop').trigger('change');
 	map = new GMap2(document.getElementById('googleMap'));
-	//     map.setCenter(new GLatLng(37.4419, -122.1419), 13);
 	map.setUIToDefault();
 	GEvent.addListener(map, "click", leftClick);
+	$('textarea[name="inventory_center_address"]').blur(function(){
+		recenterMap();
+	});
 	recenterMap();
 
 });

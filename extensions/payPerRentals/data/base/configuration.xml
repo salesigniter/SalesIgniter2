@@ -106,6 +106,22 @@
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_SHOW_STOCK>
 
+		<EXTENSION_PAY_PER_RENTALS_SHOW_QTY_LISTING>
+			<value>False</value>
+			<title>Show Qty field on product listing?</title>
+			<description>Show Qty field on product listing. </description>
+			<sort_order>16</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_SHOW_QTY_LISTING>
+
+		<EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_HISTORY_INFO>
+			<value>True</value>
+			<title>Show tracking on history info?</title>
+			<description>Show Tracking on history info. </description>
+			<sort_order>16</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_HISTORY_INFO>
+
 		<EXTENSION_PAY_PER_RENTALS_AUTO_SEND>
 			<value>True</value>
 			<title>Auto send reservations on date they should be sent instead of using send reservations page </title>
@@ -130,6 +146,15 @@
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_USE_EVENTS>
 
+		<EXTENSION_PAY_PER_RENTALS_USE_EVENTS_QTY>
+			<value>True</value>
+			<title>If false it will not take into account the qtys declared in the edit event </title>
+			<description>If false it will not take into account the qtys declared in the edit event</description>
+			<sort_order>20</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_USE_EVENTS_QTY>
+
+
 		<EXTENSION_PAY_PER_RENTALS_USE_SHIP>
 			<value>True</value>
 			<title>Use ship methods</title>
@@ -137,6 +162,22 @@
 			<sort_order>21</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_USE_SHIP>
+
+		<EXTENSION_PAY_PER_RENTALS_CHANGE_DATES_BUTTON>
+			<value>False</value>
+			<title>Has Change Dates Button on shopping cart</title>
+			<description>Has Change Dates Button on shopping cart</description>
+			<sort_order>21</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_CHANGE_DATES_BUTTON>
+		
+		<EXTENSION_PAY_PER_RENTALS_PRODUCT_INFO_DATES>
+			<value>False</value>
+			<title>Has Change Dates Button on product info</title>
+			<description>Has Change Dates Button on product info</description>
+			<sort_order>21</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_PRODUCT_INFO_DATES>
 
 		<EXTENSION_PAY_PER_RENTALS_SHOW_VIEW_ALL_BUTTON>
 			<value>False</value>
@@ -278,6 +319,14 @@
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE>
 
+		<EXTENSION_PAY_PER_RENTALS_ENABLED_RESERVATION_SHIPPING_NEW_PRODUCTS>
+			<value>False</value>
+			<title>Enable Reservation shipping for new products</title>
+			<description>Enable Reservation shipping for new products</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_ENABLED_RESERVATION_SHIPPING_NEW_PRODUCTS>
+
         <EXTENSION_PAY_PER_RENTALS_ALLOW_HOURLY>
 			<value>False</value>
 			<title>Allow Hourly selection and display of dates on the store</title>
@@ -340,6 +389,20 @@
 			<sort_order>31</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_USE_GATES>
+		<EXTENSION_PAY_PER_RENTALS_SHOW_RATES_PPR_BEFORE>
+			<value>False</value>
+			<title>Show rates with total price for ppr before</title>
+			<description>Show rates with total price for ppr before</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_SHOW_RATES_PPR_BEFORE>
+		<EXTENSION_PAY_PER_RENTALS_CALCULATE_DISABLED_DAYS>
+			<value>True</value>
+			<title>Add disabled days to ppr price calculation</title>
+			<description>Add disabled days to ppr price calculation</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_CALCULATE_DISABLED_DAYS>
 		<EXTENSION_PAY_PER_RENTALS_PROCESS_SEND>
 			<value>False</value>
 			<title>Process payment on send item</title>
@@ -347,13 +410,13 @@
 			<sort_order>31</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_PROCESS_SEND>
-		<EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE>
+		<EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE>
 			<value>False</value>
-			<title>Add item to maintenance state on return</title>
-			<description>Add item to maintenance state on return</description>
+			<title>Do you want to use maintenance periods?</title>
+			<description>Use maintenance Periods</description>
 			<sort_order>31</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
-		</EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE>
+		</EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE>
 		<EXTENSION_PAY_PER_RENTALS_ALLOW_PRO_RATED_DISCOUNTS>
 			<value>False</value>
 			<title>Do you want to allow pro rated discounts?</title>
@@ -361,30 +424,37 @@
 			<sort_order>31</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_PAY_PER_RENTALS_ALLOW_PRO_RATED_DISCOUNTS>
-		<EXTENSION_PAY_PER_RENTALS_START_MAINTENANCE>
-			<title>Start date when bi-weekly and 6-months maintenance will be calculated</title>
-			<value>2011-10-04</value>
-			<description>Start date when bi-weekly and 6-months maintenance will be calculated. Date format is Y-m-d</description>
-			<sort_order>29</sort_order>
-		</EXTENSION_PAY_PER_RENTALS_START_MAINTENANCE>
-		<EXTENSION_PAY_PER_RENTALS_HOW_MANY_RENTS_SERVICE>
-			<title>After how many rents the item starts appearing in the service report?</title>
-			<value>50</value>
-			<description>After how many rents the item starts appearing in the service report?</description>
-			<sort_order>29</sort_order>
-		</EXTENSION_PAY_PER_RENTALS_HOW_MANY_RENTS_SERVICE>
-		<EXTENSION_PAY_PER_RENTALS_HOW_MANY_MONTHS_SERVICE>
-			<title>After how many months the item starts appearing in the service report?</title>
-			<value>6</value>
-			<description>After how many months the item starts appearing in the service report?</description>
-			<sort_order>29</sort_order>
-		</EXTENSION_PAY_PER_RENTALS_HOW_MANY_MONTHS_SERVICE>
-		<EXTENSION_PAY_PER_RENTALS_HOW_MANY_RENTS_QUARANTINE>
-			<title>After how many rents the item is quarantined?</title>
-			<value>60</value>
-			<description>After how many rents the item is quarantined?</description>
-			<sort_order>29</sort_order>
-		</EXTENSION_PAY_PER_RENTALS_HOW_MANY_RENTS_QUARANTINE>
+		<EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS>
+			<value>False</value>
+			<title>Do you want to use only full days into price calculations?</title>
+			<description>Use only full days into price calculations</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS>
+
+		<EXTENSION_PAY_PER_RENTALS_MORE_HOURS_ONE_DAY>
+			<value>False</value>
+			<title>If using only full days into price calculations more than one hour is considered a day</title>
+			<description>If using only full days into price calculations more than one hour is considered a day</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_MORE_HOURS_ONE_DAY>
+
+		<EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_NUMBER_COLUMN>
+			<value>True</value>
+			<title>Do you want to show the tracking number column?</title>
+			<description>Show the tracking number column</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_SHOW_TRACKING_NUMBER_COLUMN>
+
+		<EXTENSION_PAY_PER_RENTALS_SHOW_RESERVATION_STATUS_COLUMN>
+			<value>True</value>
+			<title>Do you want to show the reservation status column?</title>
+			<description>Show the reservation status column</description>
+			<sort_order>31</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_PAY_PER_RENTALS_SHOW_RESERVATION_STATUS_COLUMN>
 
 		<EXTENSION_PAY_PER_RENTALS_GOOGLE_MAPS_API_KEY>
 			<value>ABQIAAAAJfeNSDfdlXtgf6gjHMTzDBT0_i__oM-cAYP-svDeQzBBv_RytBShCDbtJySULQi-i9FDwsHX8pK4aQ</value>

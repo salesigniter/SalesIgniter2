@@ -9,7 +9,8 @@ $(document).ready(function (){
 			dataType: 'html',
 			success: function (htmlData){
 				var $html = $(htmlData);
-				$html.find('.ui-button').button();
+				$html.find('a[type="button"], button').button();
+
 				$('.gridHolder').html($html);
 				
 				removeAjaxLoader($('.gridHolder'));

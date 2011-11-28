@@ -31,7 +31,8 @@ if (!isset($WidgetSettings->linked_to)){
 			continue;
 		}
 
-		if (is_dir($Extension->getPathName() . '/catalog/base_app/')){
+		$ExtCls = $appExtension->getExtension($Extension->getBasename());
+		if ($ExtCls && $ExtCls->isEnabled() && is_dir($Extension->getPathName() . '/catalog/base_app/')){
 			$extName = $Extension->getBasename();
 
 			$AppArray['ext'][$extName] = array();
@@ -231,9 +232,17 @@ if (!isset($WidgetSettings->linked_to)){
 
 		$('#navMenuTable').find('.addMainBlock').click(function () {
 			var inputKey = 0;
-			while($('#navMenuTable').find('ol.sortable > li[data-input_key=' + inputKey + ']').size() > 0){
-				inputKey++;
-			}
+			var max = -1;
+			$('#navMenuTable li[id^="menu_item_"]').each(function() {
+				var vidArr = $(this).attr('id').split('_');
+				var vid = vidArr[2];
+				if(parseInt(vid) > max ){
+					max = parseInt(vid);
+				}
+			});
+
+			inputKey = max + 1;
+
 
 			var menuIconOptions = '';
 			$.each(menuIcons, function (k, v) {
@@ -522,6 +531,7 @@ if ($NavMenus && $NavMenus->count() > 0){
 			$Container->Layout->Template->Configuration['NAME']->configuration_value .
 				' >> ' .
 			$Container->Layout->layout_name .
+			' (' . $Container->Layout->layout_type . ')' .
 				' >> ' .
 			$settings->menuId
 		);
@@ -772,7 +782,7 @@ if (!isset($WidgetSettings->linked_to)){
 echo $editTable->draw();
 echo '<input type="hidden" name="navMenuSortable" value="">';
 if (isset($WidgetSettings->linked_to)){
-	echo '<input type="hidden" name="linked_to" value="' . $WidgetSettings->linked_to . '">';
+	//echo '<input type="hidden" name="linked_to" value="' . $WidgetSettings->linked_to . '">';
 }
 $fileContent = ob_get_contents();
 ob_end_clean();

@@ -3,9 +3,12 @@
 //echo 'FILES::<pre>';print_r($_FILES);echo '</pre>';
 //echo '{ success:true }';
 //itwExit();
-
-	$products_date_available = tep_db_prepare_input($_POST['products_date_available']);
-	$products_date_available = (date('Y-m-d') < $products_date_available) ? $products_date_available : 'null';
+	if(!empty($_POST['products_date_available'])){
+		$products_date_available = $_POST['products_date_available'];
+		$products_date_available = (time() < strtotime($products_date_available)) ? $products_date_available : 'NULL';
+	}else{
+		$products_date_available = 'NULL';
+	}
 
 	$Products = Doctrine_Core::getTable('Products');
 	if (isset($_GET['pID'])){
@@ -20,16 +23,16 @@
 
 	$Product->products_on_order = (isset($_POST['products_on_order']) ? (int)$_POST['products_on_order'] : '0');
 	$Product->products_date_ordered = (!empty($_POST['products_date_ordered']) ? $_POST['products_date_ordered'] : 'null');
-	$Product->products_model = str_replace(array("'", '"', ' '), '_', $_POST['products_model']);
+	$Product->products_model = (empty($_POST['products_model']) ? tep_create_random_value(8) : (str_replace(array("'", '"', ' '), '_', $_POST['products_model'])));
 	//$Product->products_price = (float)$_POST['products_price_new'];
 	//$Product->products_price_used = (float)$_POST['products_price_used'];
 	$Product->products_date_available = $products_date_available;
-	$Product->products_weight = (float)$_POST['products_weight'];
+	$Product->products_weight = ((float)$_POST['products_weight'] <= 0) ? '1' : (float)$_POST['products_weight'];
 	$Product->products_status = $_POST['products_status'];
 	$Product->products_featured = $_POST['products_featured'];
 	$Product->products_tax_class_id = $_POST['products_tax_class_id'];
 	$Product->manufacturers_id = (isset($_POST['manufacturers_id']))?(int)$_POST['manufacturers_id']:0;
-	$Product->products_inventory_controller = $_POST['products_inventory_controller'];
+	//$Product->products_inventory_controller = $_POST['products_inventory_controller'];
 	if (isset($_POST['products_type'])){
 		foreach($Product->ProductsPurchaseTypes as $pTypeObj){
 			$pTypeObj->status = 0;
@@ -77,6 +80,10 @@
 		$Product->membership_enabled = implode(';',$_POST['rental_membership_enabled']);
 	} else {
 		$Product->membership_enabled = '';
+	}
+
+	if(isset($_POST['products_keepit_price'])){
+		$Product->products_keepit_price = $_POST['products_keepit_price'];
 	}
 
 	/*

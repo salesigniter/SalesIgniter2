@@ -7,6 +7,7 @@ $(document).ready(function (){
 			url: js_app_link('rType=ajax&appExt=orderCreator&app=default&appPage=new&action=setOrdersStore&id=' + $(this).val()),
 			dataType: 'json',
 			success: function (){
+				$('.purchaseType').trigger('updateInfo');
 				removeAjaxLoader($self);
 			}
 		});

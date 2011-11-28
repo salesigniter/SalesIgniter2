@@ -8,10 +8,10 @@ if ($ShoppingCart->hasContents()) {
 	->attr('width', '100%');
 	
 	$shoppingCartHeader = array(
-		array('addCls' => '', 'text' => sysLanguage::get('TABLE_HEADING_REMOVE'), 'align' => 'center'),
-		array('addCls' => '', 'text' => sysLanguage::get('TABLE_HEADING_PRODUCTS'), 'align' => 'left'),
-		array('addCls' => '', 'text' => sysLanguage::get('TABLE_HEADING_QUANTITY'), 'align' => 'center'),
-		array('addCls' => '', 'text' => sysLanguage::get('TABLE_HEADING_TOTAL'), 'align' => 'right'),
+		array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_REMOVE'), 'align' => 'center'),
+		array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_PRODUCTS'), 'align' => 'center'),
+		array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_QUANTITY'), 'align' => 'center'),
+		array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_TOTAL'), 'align' => 'center'),
 	);
 
 	EventManager::notify('ShoppingCartListingAddHeaderColumn', &$shoppingCartHeader);
@@ -22,7 +22,7 @@ if ($ShoppingCart->hasContents()) {
 	));
 
 	$any_out_of_stock = 0;
-	foreach($ShoppingCart->getProducts() as $cartProduct) {
+	foreach($ShoppingCart->getContents() as $cartProduct) {
 		$hashId = $cartProduct->getId();
 		$purchaseQuantity = $cartProduct->getQuantity();
 
@@ -75,6 +75,10 @@ if ($ShoppingCart->hasContents()) {
 	->addClass('ui-widget ui-widget-content ui-corner-all');
 
 	EventManager::notify('ShoppingCartListingBeforeListing', &$div);
+
+	$divShipInfo = htmlBase::newElement('a')
+	->html('Shipping Information?')
+	->addClass('shipInfo');
 	
 	$div->append($tableListing);
 
@@ -85,11 +89,173 @@ if ($ShoppingCart->hasContents()) {
 		'text-align' => 'center',
 		'padding' => '.5em'
 	));
-	
-	echo $div->draw();
+
+	$PageForm = htmlBase::newElement('form')
+	->attr('name','cart_quantity')
+	->attr('action', itw_app_link(null, 'shoppingCart', 'default'))
+	->attr('method','post');
+
+	$pageButtonsHtml = htmlBase::newElement('button')
+     ->setName('update_product')
+	 ->addClass('updateProductButton')
+     ->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_CART'))
+     ->setType('submit');
+
+	$link = itw_app_link(null,'products','all');
+	if (isset($navigation->snapshot['get']) && sizeof($navigation->snapshot['get']) > 0) {
+		if(isset($navigation->snapshot['get']['cPath'])){
+			$link = itw_app_link('cPath='.$navigation->snapshot['get']['cPath'],'index','default');
+		}
+	}
+
+	$continueButtonHtml = htmlBase::newElement('button')
+		->setName('continue')
+		->setText(sysLanguage::get('TEXT_BUTTON_CONTINUE_CART'))
+		->setHref($link);
+
+	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHANGE_DATES_BUTTON') == 'True'){
+		$changeDatesButtonHtml = htmlBase::newElement('button')
+		->setName('changeDates')
+		->setText(sysLanguage::get('TEXT_BUTTON_CHANGE_DATES'))
+		->addClass('changeDatesButton');
+		ob_start();
+		?>
+	<script type="text/javascript">
+		function nobeforeDays(date){
+			today = new Date();
+			if(today.getTime() <= date.getTime() - (1000 * 60 * 60 * 24 * <?php echo $datePadding;?> - (24 - date.getHours()) * 1000 * 60 * 60)){
+				return [true,''];
+			}else{
+				return [false,''];
+			}
+		}
+		function makeDatePicker(pickerID){
+			var minRentalDays = <?php
+                                if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GLOBAL_MIN_RENTAL_DAYS') == 'True'){
+				echo (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
+				$minDays = (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS');
+			}else{
+				$minDays = 0;
+				echo '0';
+			}
+				if(Session::exists('button_text')){
+					$butText = Session::get('button_text');
+				}else{
+					$butText = '';
+				}
+				?>;
+			var selectedDateId = null;
+			var startSelectedDate;
+
+			var dates = $(pickerID+' .dstart,'+pickerID+' .dend').datepicker({
+				dateFormat: '<?php echo getJsDateFormat(); ?>',
+				changeMonth: true,
+				beforeShowDay: nobeforeDays,
+				onSelect: function(selectedDate) {
+
+					var option = this.id == "dstart" ? "minDate" : "maxDate";
+					if($(this).hasClass('dstart')){
+						myid = "dstart";
+						option = "minDate";
+					}else{
+						myid = "dend";
+						option = "maxDate";
+					}
+					var instance = $(this).data("datepicker");
+					var date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat, selectedDate, instance.settings);
+
+					var dateC = new Date('<?php echo Session::get('isppr_curDate');?>');
+					if(date.getTime() == dateC.getTime()){
+						if(myid == "dstart"){
+							$(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionscurdays');?>');
+						}else{
+							$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionscurdaye');?>');
+						}
+					}else{
+						if(myid == "dstart"){
+							$(this).closest('form').find('.hstart').html('<?php echo Session::get('isppr_selectOptionsnormaldays');?>');
+						}else{
+							$(this).closest('form').find('.hend').html('<?php echo Session::get('isppr_selectOptionsnormaldaye');?>');
+						}
+					}
+
+
+					if(myid == "dstart"){
+						var days = "0";
+						if ($(this).closest('form').find('select.pickupz option:selected').attr('days')){
+							days = $(this).closest('form').find('select.pickupz option:selected').attr('days');
+						}
+						//startSelectedDate = new Date(selectedDate);
+						dateFut = new Date(date.setDate(date.getDate() + parseInt(days)));
+						dates.not(this).datepicker("option", option, dateFut);
+					}
+					f = true;
+					if(myid == "dend"){
+						datest = new Date(selectedDate);
+						if ($(this).closest('form').find('.dstart').val() != ''){
+							startSelectedDate = new Date($(this).closest('form').find('.dstart').val());
+							if (datest.getTime() - startSelectedDate.getTime() < minRentalDays *24*60*60*1000){
+								alert('<?php echo sprintf(sysLanguage::get('EXTENSION_PAY_PER_RENTALS_ERROR_MIN_DAYS'), $minDays);?>');
+								$(this).val('');
+								f = false;
+							}
+						}else{
+							f = false;
+						}
+					}
+
+					if (selectedDateId != this.id && selectedDateId != null && f){
+						selectedDateId = null;
+					}
+					if (f){
+						selectedDateId = this.id;
+					}
+
+				}
+			});
+		}
+		$(document).ready(function (){
+			$('.changeDatesButton').click(function(){
+
+				$( '<div id="dialog-mesage" title="Choose Dates"><input class="tField" name="tField" ><div class="destBD"><span class="start_text">Start: </span><input class="picker dstart" name="dstart" ></div><div class="destBD"><span class="end_text">End: </span><input class="picker dend" name="dend" ></div></div>' ).dialog({
+					modal: false,
+					autoOpen: true,
+					open: function (e, ui){
+						makeDatePicker('#dialog-mesage');
+						$(this).find('.tField').hide();
+					},
+					buttons: {
+						Submit: function() {
+
+							$('.start_date_shop').val($(this).find('.dstart').val());
+							$('.end_date_shop').val($(this).find('.dend').val());
+							$('.updateProductButton').trigger('click');
+							$(this).dialog( "close" );
+						}
+					}
+				});
+
+				return false;
+			});
+
+		});
+	</script>
+	                            <?php
+ 	  					$script = ob_get_contents();
+		ob_end_clean();
+		$divScript = htmlBase::newElement('div')
+		->html($script);
+	}
+
+     $checkoutFormButton = htmlBase::newElement('button')
+     ->setText(sysLanguage::get('TEXT_BUTTON_CHECKOUT'))
+     ->setHref(itw_app_link(null, 'checkout','default','SSL'));
+	 if (sysConfig::get('TERMS_CONDITIONS_SHOPPING_CART') == 'true'){
+		 $checkoutFormButton->addClass('checkoutFormButton');
+	 }
+	$div3 = htmlBase::newElement('div');
+	$div3->html('<div class="main" style="text-align:right;"><span class="smallText" style="float:left;"></span><b>'. sysLanguage::get('SUB_TITLE_SUB_TOTAL'). $currencies->format($ShoppingCart->showTotal()).'</b></div><div style="clear:both;"></div>');
 ?>
-<div class="main" style="text-align:right;"><span class="smallText" style="float:left;"></span><b><?php echo sysLanguage::get('SUB_TITLE_SUB_TOTAL'); ?> <?php echo $currencies->format($ShoppingCart->showTotal()); ?></b></div>
-<div style="clear:both;"></div>
 <?php
 if (sysConfig::exists('MODULE_SHIPPING_FREE_SHOW_TEXT')){
 	 /*Free shipping add*/
@@ -135,20 +301,23 @@ if (sysConfig::exists('MODULE_SHIPPING_FREE_SHOW_TEXT')){
 			</script>
 <?php
 	}
+	$div2 = htmlBase::newElement('div')
+	->addClass('ui-widget-header ui-infobox-header ui-corner-all')
+	->css(array(
+		'margin-top' => '15px'
+    ));
+	$div2->append($pageButtonsHtml)->append($checkoutFormButton)->append($continueButtonHtml);
+	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHANGE_DATES_BUTTON') == 'True'){
+		$div2->append($changeDatesButtonHtml)->append($divScript);
+	}
+	$div4 = htmlBase::newElement('div')
+    ->css(array(
+		'margin-bottom' => '10px'
+    ));
+	$PageForm->append($div)->append($div3)->append($div2)->append($div4);
+	echo $PageForm->draw();
 	
-	$pageButtons = htmlBase::newElement('button')
-     ->setName('update_product')
-     ->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_CART'))
-     ->setType('submit')
-     ->draw();
-
-     $checkoutFormButton = htmlBase::newElement('button')
-     ->setText(sysLanguage::get('TEXT_BUTTON_CHECKOUT'))
-     ->setHref(itw_app_link(null, 'checkout','default'));
-	 if (sysConfig::get('TERMS_CONDITIONS_SHOPPING_CART') == 'true'){    
-		 $checkoutFormButton->addClass('checkoutFormButton');
-	 }
-     $pageButtons .= $checkoutFormButton->draw();
+	$pageButtons = '';
 } else {
 	$div = htmlBase::newElement('div')
 	->addClass('ui-widget ui-widget-content ui-corner-all')
@@ -177,10 +346,5 @@ if (sysConfig::exists('MODULE_SHIPPING_FREE_SHOW_TEXT')){
 	ob_end_clean();
 
 	$pageContent->set('pageTitle', sysLanguage::get('HEADING_TITLE'));
-	$pageContent->set('pageForm', array(
-		'name' => 'cart_quantity',
-		'action' => itw_app_link('action=update_product', 'shoppingCart', 'default'),
-		'method' => 'post'
-	));
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

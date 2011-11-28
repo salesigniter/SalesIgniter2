@@ -1,4 +1,5 @@
 <?php
+
 $Qadmin = Doctrine_Query::create()
 	->from('Admin a')
 	->leftJoin('a.AdminGroups ag.')

@@ -8,17 +8,20 @@
 			
 			EventManager::attachEvents(array(
 				'AddToCartAfterAction',
+				'AddToCartAllow'
 			), 'ShoppingCart', $this);
 		}
 
-
-		
+		public function AddToCartAllow($cartData, $Product){
+			return true;
+		}
 
 		public function AddToCartAfterAction(ShoppingCartProduct &$cartProduct){
 			global $messageStack, $ShoppingCart;
-			foreach($_POST['addon_product'] as $addon => $val){
+			$v = $_POST['addon_product'];
+			unset($_POST['addon_product']);
+			foreach($v as $addon => $val){
 				$purchaseTypeCode = $_POST['addon_product_type'][$addon];
-				unset($_POST['addon_product'][$addon]);
 				$ShoppingCart->add($addon);
 
 			}

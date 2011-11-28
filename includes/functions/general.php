@@ -1113,14 +1113,14 @@ function tep_get_prid($uprid) {
 //                    e.g. info@mytepshop.com
 
   function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $from_email_name, $from_email_address, $attachments = '') {
-    if (SEND_EMAILS != 'true') return false;
+    if (sysConfig::get('SEND_EMAILS') != 'true') return false;
 
     // Instantiate a new mail object
     $message = new email(array('X-Mailer: osCommerce Mailer'));
 
     // Build the text version
     $text = strip_tags($email_text);
-    if (EMAIL_USE_HTML == 'true') {
+    if (sysConfig::get('EMAIL_USE_HTML') == 'true') {
       $message->add_html($email_text, $text);
     } else {
       $message->add_text($text);

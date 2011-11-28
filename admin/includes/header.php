@@ -26,11 +26,49 @@ if (!empty($contents)){
 		'</div>';
 	}
 }
+	if(sysPermissions::isSimple()){
+		$contents = EventManager::notifyWithReturn('AdminHeaderRightAddContent');
+		if (!empty($contents)){
+			foreach($contents as $content){
+				echo '<div class="headerBlock" style="display:none;">' .
+					$content .
+					'</div>';
+			}
+		}
+		$Admin = Doctrine_Core::getTable('Admin')->findOneByAdminId((int)Session::get('login_id'));
+		$AdminFavs = Doctrine_Core::getTable('AdminFavorites')->find($Admin->admin_favs_id);
+		if($AdminFavs){
+			$favorites_links = explode(';', $AdminFavs->favorites_links);
+			$favorites_names = explode(';', $AdminFavs->favorites_names);
+		}else{
+			$favorites_links = explode(';', $Admin->favorites_links);
+			$favorites_names = explode(';', $Admin->favorites_names);
+		}
+
+		for($i = 0;$i < sizeof($favorites_links); $i++){
+			if(!empty($favorites_links[$i])){
+				$myItem = $favorites_links[$i];
+
+				$htmlButton = htmlBase::newElement('button')
+				->setName('myfavbutton'.$i)
+				->setHref($myItem)
+				->setText($favorites_names[$i]);
+				echo $htmlButton->draw().'&nbsp;&nbsp;&nbsp;';
+
+			}
+		}
+		$htmlButton = htmlBase::newElement('button')
+			->setName('logoff')
+			->setHref(itw_app_link('action=logoff', 'login', 'default'))
+			->setText('Logoff');
+		echo $htmlButton->draw().'&nbsp;&nbsp;&nbsp;'.'</div><div style="clear:both;"></div>';
+	}else{
 ?>
+
 <div class="headerBlock" style="float:left;"><span><a href="<?php echo itw_app_link(null, 'index', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>Home</b></a></span></div>
 <div class="headerBlock" style="float:left;"><span><a href="<?php echo itw_app_link(null, 'admin_account', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>My Account</b></a></span></div>
-	<div class="headerBlock" style="float:left;"><span><a id="addToFavorites" href="<?php echo itw_app_link('action=addToFavorites', 'index', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>Add To Favorites</b></a></span></div>
-	<div class="headerBlock" style="float:left;"><span><a id="addToShortcuts" href="<?php echo itw_app_link('action=addToShortcuts', 'index', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;" tooltip="Add Current Page To My Shortcuts"><b>Add To Shortcuts</b></a></span></div>
+<div class="headerBlock" style="float:left;"><span><a id="addToFavorites" href="<?php echo itw_app_link('action=addToFavorites', 'index', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>Add To Favorites</b></a></span></div>
+<div class="headerMenuHeadingBlock" style="float:left;"><span><a href="<?php echo itw_app_link('action=clearCache', 'index', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>Clear Cache</b></a></span></div>
 <div class="headerBlock" style="float:left;"><span><a href="<?php echo itw_app_link('action=logoff', 'login', 'default');?>" class="ui-corner-all" style="text-decoration:none;padding:.75em;"><b>Logoff</b></a></span></div>
 </div>
 <div style="float:right;height:36px;padding-right:10px;padding-top:5px;">
@@ -129,6 +167,8 @@ if (!empty($contents)){
 	}
 	echo '</ol></div>';
 ?></div>
-<?php
+	<?php
+	}
+
 }
 ?>

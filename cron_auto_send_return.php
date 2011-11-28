@@ -167,21 +167,44 @@ if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_AUTO_RETURN') == 'True'){
 					}else{
 
 						if ($trackMethod == 'barcode'){
-							if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE') == 'False'){
+							if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
 								$oprInfo->ProductsInventoryBarcodes->status = $status;
 							}else{
-								$oprInfo->ProductsInventoryBarcodes->status = 'M';
-								$maintenanceItem = new PayPerRentalMaintenance;
-								$maintenanceItem->barcode_id = $oprInfo->ProductsInventoryBarcodes->barcode_id;
-								$barcodeHistory = Doctrine_Core::getTable('PayPerRentalMaintenance')->find($oprInfo->ProductsInventoryBarcodes->barcode_id);
-								if(!$barcodeHistory){
-									$barcodeHistory = new BarcodeHistoryRented();
-									$barcodeHistory->barcode_id = $oprInfo->ProductsInventoryBarcodes->barcode_id;
+
+								$QMaintenancePeriod = Doctrine_Query::create()
+									->from('PayPerRentalMaintenancePeriods')
+									->where('after_return = ?','1')
+									->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+								foreach($QMaintenancePeriod as $mPeriod){
+									if($mPeriod['quarantine_until_completed'] == '1'){
+										$oprInfo->ProductsInventoryBarcodes->status = 'M';
+									}
+
+									$barcodeHistory = Doctrine_Core::getTable('BarcodeHistoryRented')->find($oprInfo->ProductsInventoryBarcodes->barcode_id);
+									if(!$barcodeHistory){
+										$barcodeHistory = new BarcodeHistoryRented();
+										$barcodeHistory->barcode_id = $oprInfo->ProductsInventoryBarcodes->barcode_id;
+										$barcodeHistory->save();
+									}
+									$barcodeHistory->number_rents = $barcodeHistory->number_rents + 1;
+									$barcodeHistory->current_maintenance_type = $mPeriod['maintenance_period_id'];
 									$barcodeHistory->save();
+									$mAdmins = explode(',',$mPeriod['assign_to']);
+									foreach($mAdmins as $admin_id){
+										$Admin = Doctrine_Core::getTable('Admin')->find($admin_id);
+										$emailEvent = new emailEvent('maintenance_item', Session::get('languages_id'));
+										$emailEvent->setVar('admin_name', $Admin->admin_firstname . ' ' .$Admin->admin_lastname);
+										$emailEvent->setVar('url', itw_app_link('appExt=payPerRentals&type='.$mPeriod['maintenance_period_id'],'maintenance','default'));
+										$emailEvent->sendEmail(array(
+												'email' => $Admin->admin_email_address,
+												'name'  => $Admin->admin_firstname
+										));
+									}
 								}
-								$barcodeHistory->number_rents = $barcodeHistory->number_rents + 1;
-								$barcodeHistory->save();
-								$maintenanceItem->save();
+
+
+
 							}
 
 						}elseif ($trackMethod == 'quantity'){

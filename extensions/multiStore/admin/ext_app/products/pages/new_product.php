@@ -281,10 +281,11 @@ class multiStore_admin_products_new_product extends Extension_multiStore
 		}
 		else {
 			$box = $this->selectBox;
+
 			if ($Result){
 				$box->selectOptionByValue($Result[0]['id']);
 			}
-			$colText = $box;
+			$colText = $box->draw();
 		}
 
 		$currentBarcodesTableBody[] = array(

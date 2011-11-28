@@ -15,6 +15,7 @@ class multiStore_admin_orderCreator_default_new extends Extension_multiStore
 		EventManager::attachEvents(array(
 				'OrderCreatorAddToInfoTable',
 				'OrderCreatorLoadCustomerInfoResponse',
+				'OrderCreatorSaveCustomerInfoResponse',
 				'OrderCreatorFindCustomerQueryBeforeExecute'
 			), null, $this);
 	}
@@ -29,6 +30,10 @@ class multiStore_admin_orderCreator_default_new extends Extension_multiStore
 		$customersStore = htmlBase::newElement('selectbox')
 			->setName('customers_store');
 		$customersStore->addOption('', sysLanguage::get('TEXT_PLEASE_SELECT'));
+		$allowedStores = Session::get('admin_allowed_stores');
+		//if (sizeof($allowedStores) == 1){
+			$customersStore->selectOptionByValue($allowedStores[0]);
+		//}
 		foreach($this->getStoresArray() as $sInfo){
 			if (in_array($sInfo['stores_id'], Session::get('admin_allowed_stores')) === false) continue;
 			
@@ -59,5 +64,9 @@ class multiStore_admin_orderCreator_default_new extends Extension_multiStore
 
 		$Editor->setData('store_id', $ToStores->stores_id);
 		$response['field_values']['customers_store'] = $ToStores->stores_id;
+	}
+	public function OrderCreatorSaveCustomerInfoResponse(){
+		global $Editor;
+		$Editor->setData('store_id', $_POST['customers_store']);
 	}
 }

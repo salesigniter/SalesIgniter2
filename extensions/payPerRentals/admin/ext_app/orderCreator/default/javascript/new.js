@@ -41,10 +41,21 @@ $(document).ready(function (){
 							var self = this;
 							if($(self).find('.start_date').val() != '' && $(self).find('.start_date').val() != ''){
 								showAjaxLoader($(self).parent(), 'large');
+								var myStartDate = $(self).find('.start_date').val();
+
+								if($(self).find('.start_time')){
+									myStartDate = myStartDate+' '+$(self).find('.start_time').val();
+								}
+
+								var myEndDate = $(self).find('.end_date').val();
+
+								if($(self).find('.end_time')){
+									myEndDate = myEndDate+' '+$(self).find('.end_time').val();
+								}
 
 								var postData = $.extend(addCartData, {
-									start_date : $(self).find('.start_date').val(),
-									end_date   : $(self).find('.end_date').val(),
+									start_date : myStartDate,
+									end_date   : myEndDate,
 									days_before   : $(self).find('input[name="rental_shipping"]:checked').attr('days_before'),
 									days_after   : $(self).find('input[name="rental_shipping"]:checked').attr('days_after'),
 									shipping   : $(self).find('input[name="rental_shipping"]:checked').val(),
@@ -63,7 +74,9 @@ $(document).ready(function (){
 									success: function (postResp) {
 										//update priceEx
 
-										$(mainField).val(postData.start_date + ',' + postData.end_date);
+										$Row.find('.resDateHidden').val(postData.start_date + ',' + postData.end_date);
+										$Row.find('.res_start_date').html(postData.start_date);
+										$Row.find('.res_end_date').html(postData.end_date);
 										$Row.find('.productQty').val(postData.qty);
 										$Row.find('.priceEx').val(postResp.price).trigger('keyup');
 

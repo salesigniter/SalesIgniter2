@@ -62,8 +62,8 @@
 	<define key="TEXT_PRODUCTS_ENABLED"><![CDATA[Enabled:]]></define>
 	<define key="TEXT_PRODUCTS_RECURRING_DAYS"><![CDATA[No of Installments:]]></define>
 	<define key="TEXT_PRODUCTS_RECURRING_TIME"><![CDATA[Recurring Period:]]></define>
-	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE"><![CDATA[Error: Catalog images directory is not writeable: %s.]]></define>
-	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST"><![CDATA[Error: Catalog images directory does not exist: %s.]]></define>
+	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE"><![CDATA[Error: Catalog images directory is not writeable]]></define>
+	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST"><![CDATA[Error: Catalog images directory does not exist ]]></define>
 	<define key="TEXT_PRODUCT_METTA_INFO"><![CDATA[<b>Meta Tag Information</b>]]></define>
 	<define key="TEXT_PRODUCTS_PAGE_TITLE"><![CDATA[Product Title Tag:]]></define>
 	<define key="TEXT_PRODUCTS_HEADER_DESCRIPTION"><![CDATA[Product Description Tag:]]></define>

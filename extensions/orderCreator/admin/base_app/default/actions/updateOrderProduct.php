@@ -2,7 +2,9 @@
 $OrderedProduct = $Editor->ProductManager->get($_GET['id']);
 $mainPurchaseType = $_GET['purchase_type'];
 $mainInfo = $OrderedProduct->getInfo();
+
 $OrderedProduct->updateProductInfo();
+
 if($mainPurchaseType == 'reservation'){
 	if(isset($mainInfo['reservationInfo'])){
 		$pInfo = $OrderedProduct->getInfo();
@@ -10,7 +12,6 @@ if($mainPurchaseType == 'reservation'){
 		$OrderedProduct->setInfo($pInfo);
 	}
 }
-
 if ($Editor->hasErrors() === false){
 	$response = array(
 		'success' => true,

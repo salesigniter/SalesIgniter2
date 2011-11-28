@@ -431,8 +431,42 @@ class Extension_payPerRentals extends ExtensionBase {
 	}
 
 	public function ProductSearchQueryBeforeExecute(&$Qproducts){
-		$Qproducts->leftJoin('p.ProductsPayPerRental pppr');
-		$Qproducts->leftJoin('pppr.PricePerRentalPerProducts ppprp');
+		$Qproducts->leftJoin('p.ProductsPayPerRental pppr')
+			->leftJoin('pppr.PricePerRentalPerProducts ppprp');
+		global $currencies;
+		if (isset($_GET['pprfrom']) && is_array($_GET['pprfrom'])){
+			//if (isset($_GET['pfrom']) && is_array($_GET['pfrom']) && $_GET['debug'] == 1){
+			if ($currencies->is_set(Session::get('currency'))){
+				$rate = $currencies->get_value(Session::get('currency'));
+			}
+			foreach($_GET['pprfrom'] as $k => $v){
+				if (isset($rate)){
+					$v = $v / $rate;
+					if (isset($_GET['pprto'][$k])){
+						$_GET['pprto'][$k] = $_GET['pprto'][$k] / $rate;
+					}
+				}
+				$queryAddString = '(ppprp.price > ' . (double)$v;
+				if (isset($_GET['pprto'][$k])){
+					$queryAddString .= ' AND ppprp.price <= ' . (double)$_GET['pprto'][$k];
+				}
+				$queryAddString .= ')';
+
+				$queryAdd[] = $queryAddString;
+			}
+			$priceFiltersCheck = Doctrine_Query::create()
+				->select('pppr.products_id')
+				->from('ProductsPayPerRental pppr')
+				->leftJoin('pppr.PricePerRentalPerProducts ppprp')
+				->where('(' . implode(' or ', $queryAdd) . ')')
+				->fetchArray();
+			if(count($priceFiltersCheck) > 0) {
+				foreach($priceFiltersCheck as $priceFilterProductID){
+					$priceFilters[$priceFilterProductID['products_id']] = $priceFilterProductID['products_id'];
+				}
+				$Qproducts->andWhere('p.products_id in (' . implode(', ', $priceFilters) . ')');
+			}
+		}
 	}
 
 	public function NewProductAddBarcodeListingBody(&$bInfo, &$currentBarcodesTableBody){

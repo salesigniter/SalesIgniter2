@@ -1,14 +1,16 @@
 <?php
 $OrderProduct = $Editor->ProductManager->get((int) $_POST['id']);
 	//$OrderProduct->setPurchaseType($_GET['purchase_type']);
+	//$myStartTime = isset($_POST['start_time'])?' '.$_POST['start_time']:'';
+	//$myEndTime = isset($_POST['end_time'])?' '.$_POST['end_time']:'';
 
 
 	$PurchaseType = $OrderProduct->getProductTypeClass()->getPurchaseType();
  	$reservationInfo = $OrderProduct->getInfo();
     if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
 		if ((isset($_POST['start_date']) && $_POST['start_date'] != 'undefined')&&(isset($_POST['end_date']) && $_GET['end_date'] != 'undefined')){
-			$resInfo['start_date'] = $_POST['start_date'];
-			$resInfo['end_date'] = $_POST['end_date'];
+			$resInfo['start_date'] = $_POST['start_date']; //. $myStartTime;
+			$resInfo['end_date'] = $_POST['end_date'];//.$myEndTime;
 			$starting_date = date('Y-m-d H:i:s', strtotime($_GET['start_date']));
 			$ending_date = date('Y-m-d H:i:s', strtotime($_GET['end_date']));
 		}

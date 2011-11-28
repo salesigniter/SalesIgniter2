@@ -12,7 +12,7 @@
 			EventManager::attachEvent('ProductInfoPurchaseBoxOnLoad', null, $this);
 		}
 		public function ProductInfoPurchaseBoxOnLoad(&$settings, $typeName, $purchaseTypes){
-			$content = '<div class="myAddons">';
+			$content = '<div class="myAddons"><b>Recommended Add-ons:</b><br/><div class="myAddonsInner"> ';
 
 			$pID = $_GET['products_id'];
 			$Qdata = Doctrine_Query::create()
@@ -33,25 +33,31 @@
 
 					PurchaseTypeModules::loadModules();
 					$f = false;
+					$dataOptions = '';
+
 					foreach(PurchaseTypeModules::getModules() as $purchaseType){
 						$code = $purchaseType->getCode();
 
-							$purchaseType->loadProduct($addon);
-						if($code == $typeName && $purchaseType->getData('status') == 1 && $purchaseType->hasInventory()){
+						$purchaseType->loadProduct($addon);
+						$isInInventory = true;
+
+						EventManager::notify('ProductIsInInventory', &$isInInventory, $addon);
+						if($code == $typeName && $purchaseType->getData('status') == 1 && $purchaseType->hasInventory() && $isInInventory){
 							//&& $purchaseType->hasInventory() === true
 								//$htmlSelectType->addOption($code,$purchaseType->getTitle());
 								$htmlSelectType->setValue($code);
 								$f = true;
-
+								$dataOptions = $purchaseType->getPurchaseHtml('product_info');
+							break;
 						}
 						//if($purchaseType->)
 					}
 					if($f){
-						$content .= '<input type="checkbox" name="addon_product['.$addon.']" value="1">'.$ProductName[0]['products_name'].'&nbsp;'.$htmlSelectType->draw().'<br/>';
+						$content .= '<div><input type="checkbox" name="addon_product['.$addon.']" value="1">'.$ProductName[0]['products_name'].'</div><div>'. $dataOptions['content'] . '</div>'. $htmlSelectType->draw().'<br/>';
 					}
 			   }
 			}
-			$content .= '</div>';
+			$content .= '</div></div>';
 		 	$settings['content'] .= $content;
 		}
 

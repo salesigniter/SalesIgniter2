@@ -33,7 +33,8 @@ class InfoBoxSearch extends InfoBoxAbstract {
 		              sysLanguage::get('INFOBOX_SEARCH_TEXT') .
 		              '<br><a href="' . itw_app_link(null, 'products', 'search') . '"><b>' . sysLanguage::get('INFOBOX_SEARCH_ADVANCED_SEARCH') . '</b></a>' .
 		              '</form><br />';
-		$boxContent = '';
+		$boxContent = tep_draw_form('quick_find', itw_app_link(null, 'products', 'search_result'), 'get') .
+		              tep_hide_session_id();
 
 		$boxWidgetProperties = $this->getWidgetProperties();
 		if(isset($boxWidgetProperties->searchOptions)){
@@ -42,9 +43,10 @@ class InfoBoxSearch extends InfoBoxAbstract {
 		}
 
 		if (isset($Qitems) && count($Qitems) > 0){
-			$boxContent .= '<div class="ui-widget ui-widget-content ui-infobox ui-corner-all-medium"><div class="ui-widget-header ui-infobox-header guidedHeader" ><div class="ui-infobox-header-text">'.sysLanguage::get('INFOBOX_SEARCH_GUIDED_SEARCH').'</div></div><form name="guided_search" action="' . itw_app_link(null, 'products', 'search_result') . '" method="get">';
+			$boxContent .= '<div class="ui-widget ui-widget-content ui-corner-all-medium"><div class="ui-widget-header ui-infobox-header guidedHeader" ><div class="ui-infobox-header-text">'.sysLanguage::get('INFOBOX_SEARCH_GUIDED_SEARCH').'</div></div><form name="guided_search" action="' . itw_app_link(null, 'products', 'search_result') . '" method="get">';
 			$this->searchItemDisplay = 4;
 			$prices = false;
+			$pricesPPR = false;
 			$boxContents = array();
 			foreach($Qitems as $type){
 				$type = (array)$type;
@@ -59,41 +61,79 @@ class InfoBoxSearch extends InfoBoxAbstract {
 						}
 					}
 
-					$boxContents[$sInfo['option_type']]['heading'] = $heading;
+					//$boxContents[$sInfo['option_type']]['heading'] = $heading;
 					//$boxContents[$sInfo['option_type']]['heading'] = $sInfo['search_title'][(int)Session::get('languages_id')];
 
 					switch($sInfo['option_type']){
 						case 'attribute':
-
-							$this->guidedSearchAttribute(&$boxContents['attribute']['content'], $sInfo['option_id']);
+							$boxContents[$sInfo['option_type']][$sInfo['option_id']]['heading'] = $heading;
+							$this->guidedSearchAttribute(&$boxContents['attribute'][$sInfo['option_id']]['content'], &$sInfo['option_id'], &$boxContents['attribute'][$sInfo['option_id']]['count'], isset($boxWidgetProperties->dropdown->attribute));
 							break;
 						case 'custom_field':
-							$this->guidedSearchCustomField(&$boxContents['custom_field']['content'], $sInfo['option_id']);
+							$boxContents[$sInfo['option_type']][$sInfo['option_id']]['heading'] = $heading;
+							$this->guidedSearchCustomField(&$boxContents['custom_field'][$sInfo['option_id']]['content'], &$sInfo['option_id'], &$boxContents['custom_field'][$sInfo['option_id']]['count'], isset($boxWidgetProperties->dropdown->custom_field));
 							break;
 						case 'purchase_type':
-							$this->guidedSearchPurchaseType(&$boxContents['purchase_type']['content']);
+							$boxContents[$sInfo['option_type']]['heading'] = $heading;
+							$this->guidedSearchPurchaseType(&$boxContents['purchase_type']['content'], isset($boxWidgetProperties->dropdown->purchase_type));
 							break;
 						case 'price':
+							$boxContents[$sInfo['option_type']]['heading'] = $heading;
 							$prices[] = array(
 								'price_start' => $sInfo['price_start'],
 								'price_stop' => $sInfo['price_stop']
 							);
 							break;
+						case 'priceppr':
+							$boxContents[$sInfo['option_type']]['heading'] = $heading;
+							$pricesPPR[] = array(
+								'price_start' => $sInfo['price_start'],
+								'price_stop' => $sInfo['price_stop']
+							);
+							break;
 						case 'manufacturer':
-							$this->guidedSearchManufacturer(&$boxContents['manufacturer']['content']);
+							$boxContents[$sInfo['option_type']]['heading'] = $heading;
+							$this->guidedSearchManufacturer(&$boxContents['manufacturer']['content'], isset($boxWidgetProperties->dropdown->manufacturer));
 							break;
 					}
 				}
 			}
 			if($prices && count($prices)){
-				$this->guidedSearchPrice(&$boxContents['price']['content'], $prices);
+				$this->guidedSearchPrice(&$boxContents['price']['content'], $prices, isset($boxWidgetProperties->dropdown->price));
 			}
-			foreach($boxContents as $content){
-				$boxContent .= '<br /><b>' . $content['heading'] . '</b><ul style="list-style:none;margin:.5em;padding:0;">';
-				$boxContent .= $content['content'];
-				$boxContent .= '</ul>';
+			if($pricesPPR && count($pricesPPR)){
+				$this->guidedSearchPricePPR(&$boxContents['priceppr']['content'], $pricesPPR, isset($boxWidgetProperties->dropdown->priceppr));
 			}
 
+			foreach($boxContents as $type => $content){
+				if(is_array($content)){
+					foreach($content as $optionID => $optionContent){
+						$boxContent .= '<br /><b '.(isset($boxWidgetProperties->dropdown->{$type}) ? 'style="margin:.5em"' : '').'>' . $optionContent['heading'] . '</b><ul style="list-style:none;margin:.5em;padding:0px">';
+						$boxContent .= $optionContent['content'];
+						if($optionContent['count'] > $this->searchItemDisplay && !isset($boxWidgetProperties->dropdown->{$type})){
+							$boxContent .= '<li class="searchShowMoreLink"><a href="#"><b>More</b></a></li>';
+						}
+						$boxContent .= '</ul>';
+					}
+				} else {
+					$boxContent .= '<br /><b '.(isset($boxWidgetProperties->dropdown->{$type}) ? 'style="margin:.5em"' : '').'>' . $content['heading'] . '</b><ul style="list-style:none;margin:.5em;padding:0px">';
+					$boxContent .= $content['content'];
+					if($content['count'] > $this->searchItemDisplay && !isset($boxWidgetProperties->dropdown->{$type})){
+						$boxContent .= '<li class="searchShowMoreLink"><a href="#"><b>More</b></a></li>';
+					}
+					$boxContent .= '</ul>';
+				}
+			}
+			if(isset($boxWidgetProperties->dropdown)){
+				$boxContent .= htmlBase::newElement('div')
+					->css(
+					array('padding-left' => '8px'))
+					->append(htmlBase::newElement('button')
+						         ->css(array('font-size' => '.8em'))
+						         ->setType('submit')
+						         ->setText(' Submit '))
+					->draw();
+			}
 			$boxContent .= '</form></div>';
 		}
 
@@ -103,20 +143,20 @@ class InfoBoxSearch extends InfoBoxAbstract {
 
 		return $this->draw();
 	}
-
-	private function guidedSearchAttribute(&$boxContent, $optionId){
+	
+	private function guidedSearchAttribute(&$boxContent, $optionId, &$count, $dropdown){
 		global $appExtension;
 		$extAttributes = $appExtension->getExtension('attributes');
 		if ($extAttributes){
-			$extAttributes->SearchBoxAddGuidedOptions(&$boxContent, $optionId);
+			$extAttributes->SearchBoxAddGuidedOptions(&$boxContent, $optionId, &$count, $dropdown);
 		}
 	}
-
-	private function guidedSearchCustomField(&$boxContent, $fieldId){
+	
+	private function guidedSearchCustomField(&$boxContent, $fieldId, &$count, $dropdown){
 		global $appExtension;
 		$extCustomFields = $appExtension->getExtension('customFields');
 		if ($extCustomFields){
-			$extCustomFields->SearchBoxAddGuidedOptions(&$boxContent, $fieldId);
+			$extCustomFields->SearchBoxAddGuidedOptions(&$boxContent, $fieldId, &$count, $dropdown);
 		}
 	}
 
@@ -143,13 +183,13 @@ class InfoBoxSearch extends InfoBoxAbstract {
 				$checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;"></span>';
 				$link = itw_app_link(tep_get_all_get_params(array('ptype')), 'products', 'search_result');
 			}
-			$icon = '<span class="ui-widget ui-widget-content ui-corner-all">' .
+			$icon = '<span class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;">' .
 			        $checkIcon .
 			        '</span>';
 
 			$boxContent .= '<li style="padding-bottom:.3em;' . ($count > $this->searchItemDisplay ? 'display:none;' : '') . '">' .
-			               $icon .
 			               ' <a href="' . $link . '" data-url_param="ptype=' . $k . '">' .
+			               $icon .
 			               $v .
 			               '</a> (' . $QproductCount[0]['total'] . ')' .
 			               '</li>';
@@ -163,31 +203,6 @@ class InfoBoxSearch extends InfoBoxAbstract {
 
 	private function guidedSearchPrice(&$boxContent, $prices){
 		global $currencies;
-		/*
-		$priceHigh = 5950.85;
-		$priceLow = 5;
-		$curPrice = round($priceLow, 0);
-		while($curPrice < $priceHigh){
-			if ($curPrice < 25){
-				$factor = 20;
-			}elseif ($curPrice < 100){
-				$factor = 25;
-			}elseif ($curPrice < 1000){
-				$factor = 100;
-			}elseif ($curPrice < 10000){
-				$factor = 250;
-			}else{
-				$factor = 500;
-			}
-			
-			$prices[] = array(
-				'from' => $curPrice,
-				'to' => $curPrice + $factor
-			);
-			$curPrice += $factor;
-		}
-		$count = 0;
-		*/
 		$count = 0;
 		foreach($prices as $pInfo){
 			$QproductCount = Doctrine_Query::create()
@@ -203,13 +218,13 @@ class InfoBoxSearch extends InfoBoxAbstract {
 				$checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;"></span>';
 				$link = itw_app_link(tep_get_all_get_params(array('pfrom[' . $count . ']', 'pto[' . $count . ']')), 'products', 'search_result');
 			}
-			$icon = '<span class="ui-widget ui-widget-content ui-corner-all">' .
+			$icon = '<span class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;">' .
 			        $checkIcon .
 			        '</span>';
 
 			$boxContent .= '<li style="padding-bottom:.3em;' . ($count > $this->searchItemDisplay ? 'display:none;' : '') . '">' .
-			               $icon .
 			               ' <a href="' . $link . '" data-url_param="pfrom[' . $count . ']=' . $pInfo['price_start'] . '&pto[' . $count . ']=' . $pInfo['price_stop'] . '">' .
+			               $icon .
 			               $currencies->format($pInfo['price_start']) . ' - ' . $currencies->format($pInfo['price_stop']) .
 			               '</a>' . //' (' . $QproductCount[0]['total'] . ')' .
 			               '</li>';
@@ -220,6 +235,40 @@ class InfoBoxSearch extends InfoBoxAbstract {
 		}
 	}
 
+	private function guidedSearchPricePPR(&$boxContent, $prices){
+		global $currencies;
+		$count = 0;
+		foreach($prices as $pInfo){
+			$QproductCount = Doctrine_Query::create()
+			->select('count(*) as total')
+			->from('Products')
+			->where('products_price >= ?', $pInfo['price_start'])
+			->andWhere('products_price <= ?', $pInfo['price_stop'])
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+			$checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;background:none;"></span>';
+			$link = itw_app_link(tep_get_all_get_params(array('pprfrom[' . $count . ']', 'pprto[' . $count . ']')) . 'pprfrom[' . $count . ']=' . $pInfo['price_start'] . '&pprto[' . $count . ']=' . $pInfo['price_stop'], 'products', 'search_result');
+			if (isset($_GET['pprfrom'][$count])){
+				$checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;"></span>';
+				$link = itw_app_link(tep_get_all_get_params(array('pprfrom[' . $count . ']', 'pprto[' . $count . ']')), 'products', 'search_result');
+			}
+			$icon = '<span class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;">' .
+				$checkIcon .
+			'</span>';
+
+			$boxContent .= '<li style="padding-bottom:.3em;' . ($count > $this->searchItemDisplay ? 'display:none;' : '') . '">' .
+				' <a href="' . $link . '" data-url_param="pprfrom[' . $count . ']=' . $pInfo['price_start'] . '&pprto[' . $count . ']=' . $pInfo['price_stop'] . '">' .
+			    $icon .
+				$currencies->format($pInfo['price_start']) . ' - ' . $currencies->format($pInfo['price_stop']) .
+				'</a>' . //' (' . $QproductCount[0]['total'] . ')' .
+			'</li>';
+			$count++;
+		}
+		if ($count > $this->searchItemDisplay){
+			$boxContent .= '<li class="searchShowMoreLink"><a href="#"><b>More</b></a></li>';
+		}
+	}
+	
 	private function guidedSearchManufacturer(&$boxContent){
 		$Qmanufacturers = Doctrine_Query::create()
 			->from('Manufacturers')
@@ -239,13 +288,13 @@ class InfoBoxSearch extends InfoBoxAbstract {
 					$checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;"></span>';
 					$link = itw_app_link(tep_get_all_get_params(array('manufacturers_id[' . $count . ']')), 'products', 'search_result');
 				}
-				$icon = '<span class="ui-widget ui-widget-content ui-corner-all">' .
+				$icon = '<span class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;">' .
 				        $checkIcon .
 				        '</span>';
 
 				$boxContent .= '<li style="padding-bottom:.3em;' . ($count > $this->searchItemDisplay ? 'display:none;' : '') . '">' .
-				               $icon .
 				               ' <a href="' . $link . '" data-url_param="manufacturers_id[' . $count . ']=' . $mInfo['manufacturers_id'] . '">' .
+				               $icon .
 				               $mInfo['manufacturers_name'] .
 				               '</a> (' . $QproductCount[0]['total'] . ')' .
 				               '</li>';

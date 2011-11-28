@@ -47,12 +47,9 @@ class htmlElement_selectbox implements htmlElementPlugin {
 		
 		foreach($options as $index => $optionObj){
 			if ($this->selectElement->hasAttr('multiple') === false){
+				$optionObj->removeAttr('selected');
 				if ($optionObj->val() == $this->selectedOptionValue){
 					$optionObj->attr('selected', 'selected');
-				}elseif ($index == $this->selectedOptionIndex){
-					$optionObj->attr('selected', 'selected');
-				}else{
-						$optionObj->removeAttr('selected');
 				}
 			}
 

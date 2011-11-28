@@ -97,7 +97,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('final_price', 'decimal', 15, array(
 		'type' => 'decimal',
@@ -107,7 +107,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('products_tax', 'decimal', 7, array(
 		'type' => 'decimal',
@@ -117,7 +117,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('products_quantity', 'integer', 4, array(
 		'type' => 'integer',
@@ -135,9 +135,9 @@ class OrdersProducts extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('purchase_type', 'string', 12, array(
+		$this->hasColumn('purchase_type', 'string', 30, array(
 		'type' => 'string',
-		'length' => 12,
+		'length' => 30,
 		'fixed' => false,
 		'primary' => false,
 		'notnull' => true,

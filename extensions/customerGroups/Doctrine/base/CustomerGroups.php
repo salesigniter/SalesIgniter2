@@ -41,7 +41,7 @@ class CustomerGroups extends Doctrine_Record {
 			'default' => '0.0000',
 			'notnull' => true,
 			'autoincrement' => false,
-			'scale' => 4,
+			'scale' => false,
 		));
 
 		$this->hasColumn('customer_groups_discount', 'decimal', 15, array(
@@ -52,7 +52,7 @@ class CustomerGroups extends Doctrine_Record {
 			'default' => '0.0000',
 			'notnull' => true,
 			'autoincrement' => false,
-			'scale' => 4,
+			'scale' => false,
 		));
 
 		$this->hasColumn('customer_groups_name', 'string', 64, array(

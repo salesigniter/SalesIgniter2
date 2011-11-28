@@ -28,12 +28,16 @@
 	$pg_limit  = (int) sysConfig::get('EXTENSION_BLOG_POST_PER_PAGE');
 
 	$pagerBar = '';
+    if(!is_null($app_pg)){
+		$month_year = explode('-', $app_pg );
 
-	$month_year = explode('-', $app_pg );
-
-	$time = strptime($month_year[0], '%B');
-	$month = $time['tm_mon']+1;
-	$year = $month_year[1];
+		$time = strptime($month_year[0], '%B');
+		$month = $time['tm_mon']+1;
+		$year = $month_year[1];
+    }else{
+	    $month = null;
+	    $year = null;
+    }
 	$posts = $blog->getArchivesPosts(null, $month, $year, $pg_limit, $pg, &$pagerBar);
 
 	$contentHtml = '';
@@ -45,9 +49,9 @@
 		$categ = substr($categ, 0, strlen($categ) - 2);
 
 
-		$contentHtml .= "<h2 id='blog_post_title'><a href='". itw_app_link('appExt=blog', 'show_post', $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_seo_url']) . "'>" . $post['BlogPostsDescription'][1]['blog_post_title'] . "</a></h2>";
-		$contentHtml .= "<div id='blog_post_text'>" . $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_text'] . "</div>";
-		$contentHtml .= "<p id='blog_post_foot'>" . "Date: " . tep_date_short($post['post_date']) . "<br/>Categories: " . $categ . "</p>";
+		$contentHtml .= "<h2 class='blog_post_title'><a href='". itw_app_link('appExt=blog', 'show_post', $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_seo_url']) . "'>" . $post['BlogPostsDescription'][1]['blog_post_title'] . "</a></h2>";
+		$contentHtml .= "<div class='blog_post_text'>" . $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_text'] . "</div>";
+		$contentHtml .= "<p class='blog_post_foot'>" . "Date: " . tep_date_short($post['post_date']) . "<br/>Categories: " . $categ . "</p>";
 	}
 
 	if ($app_pg == null){

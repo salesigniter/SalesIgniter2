@@ -139,23 +139,22 @@ class Extension_customFields extends ExtensionBase {
                                   ));
     }
 
-    public function SearchBoxAddGuidedOptions(&$boxContent, $fieldId){
+    public function SearchBoxAddGuidedOptions(&$boxContent, $fieldId, &$count, $dropdown = false){
         $searchItemDisplay = 4;
         $Qfields = Doctrine_Query::create()
                 ->select('f.search_key, f.field_id, fd.field_name, f2p.value')
                 ->from('ProductsCustomFields f')
                 ->leftJoin('f.ProductsCustomFieldsDescription fd')
                 ->leftJoin('f.ProductsCustomFieldsToProducts f2p')
-                ->where('fd.language_id = ?', Session::get('languages_id'))
-        //->andWhere('f.input_type = ?', 'search')
+                ->where('fd.language_id = ?', (int)Session::get('languages_id'))
+                ->andWhere('f.input_type = ?', 'search')
                 ->andWhere('f.field_id = ?', $fieldId)
+                ->andWhere('f.search_key <> ?', '')
                 ->orderBy('fd.field_name')
                 ->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
         if ($Qfields){
             $fieldHtml = '';
             foreach($Qfields as $fInfo){
-                if ($fInfo['search_key'] == '') continue;
-
                 $added = array();
                 $dropArray = array();
                 if (!empty($fInfo['ProductsCustomFieldsToProducts'])){
@@ -174,8 +173,12 @@ class Extension_customFields extends ExtensionBase {
                             }
                         }
                     }
+                    if($dropdown){
+	                    $boxDropDown = htmlBase::newElement('selectbox')
+		                    ->setName($fInfo['search_key'] . '['.$count.']')
+		                    ->addOption('', 'Please Select');
+                    }
 
-                    $count = 0;
                     foreach($dropArray as $fieldInfo){
                         $QproductCount = Doctrine_Query::create()
                                 ->select('count(*) as total')
@@ -189,6 +192,13 @@ class Extension_customFields extends ExtensionBase {
                         $searchKey = $fInfo['search_key'];
                         $getIdx = $count;
                         $checked = false;
+                        if($dropdown){
+	                        $boxDropDown->addOption($searchVal, $fieldInfo['text']);
+	                        if (isset($_GET[$searchKey]) && in_array($searchVal, $_GET[$searchKey])){
+		                        $boxDropDown->selectOptionByValue($searchVal);
+	                        }
+	                        continue;
+                        }
                         if (isset($_GET[$searchKey]) && in_array($searchVal, $_GET[$searchKey])){
                             $arrayKeys = array_keys($_GET[$searchKey], $searchVal);
                             $getIdx = $arrayKeys[0];
@@ -201,21 +211,24 @@ class Extension_customFields extends ExtensionBase {
                             $checkIcon = '<span class="ui-icon ui-icon-check" style="display:inline-block;height:14px;"></span>';
                             $link = itw_app_link(tep_get_all_get_params(array($searchKey . '[' . $getIdx . ']')), 'products', 'search_result');
                         }
-                        $icon = '<span class="ui-widget ui-widget-content ui-corner-all">' .
+                        $icon = '<span class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;">' .
                                 $checkIcon .
                                 '</span>';
 
                         $boxContent .= '<li style="padding-bottom:.3em;' . ($count > $searchItemDisplay ? 'display:none;' : '') . '">' .
-                                       $icon .
                                        ' <a href="' . $link . '" data-url_param="' . $searchKey . '[' . $count . ']=' . $searchVal . '">' .
+                                       $icon .
                                        $searchText .
                                        '</a> (' . $QproductCount[0]['total'] . ')' .
                                        '</li>';
 
                         $count++;
                     }
+                    if($dropdown){
+	                    $boxContent = $boxDropDown->draw();
+                    }
                     if ($count > $searchItemDisplay){
-                        $boxContent .= '<li class="searchShowMoreLink"><a href="#"><b>More</b></a></li>';
+                        //$boxContent .= '<li class="searchShowMoreLink"><a href="#"><b>More</b></a></li>';
                     }
                 }
             }
@@ -342,19 +355,21 @@ class Extension_customFields extends ExtensionBase {
         }
     }
 
-    public function BoxCatalogAddLink(&$contents){
-        $contents['children'][] = array(
-            'link'       => itw_app_link('appExt=customFields','manage','default','SSL'),
-            'text'       => 'Custom Fields'
-        );
-    }
+	public function BoxCatalogAddLink(&$contents){
+		if (sysPermissions::adminAccessAllowed('manage', 'default','customFields') === true){
+			$contents['children'][] = array(
+				'link'       => itw_app_link('appExt=customFields','manage','default','SSL'),
+				'text'       => 'Custom Fields'
+			);
+		}
+	}
+	
+	public function ProductQueryBeforeExecute(&$productQuery){
+		$productQuery->addSelect('f2p.field_id')
+		->leftJoin('p.ProductsCustomFieldsToProducts f2p');
+	}
 
-    public function ProductQueryBeforeExecute(&$productQuery){
-        $productQuery->addSelect('f2p.field_id')
-                ->leftJoin('p.ProductsCustomFieldsToProducts f2p');
-    }
-
-    public function ProductListingQueryBeforeExecute(&$Qproducts){
+	public function ProductListingQueryBeforeExecute(&$Qproducts){
 
         if(Session::exists('childrenAccount')){
             $QChecked = Doctrine_Query::create()
@@ -421,166 +436,167 @@ class Extension_customFields extends ExtensionBase {
             $Query->andWhere('fd.language_id = ?', (int)$settings['language_id']);
         }
 
-        return $Query;
-    }
+		return $Query;
+	}
+	
+	public function getFields($pId = null, $languageId = null, $shownOnProductInfo = false, $shownOnLabels = false, $shownOnListing = false, $groupId=null){
+	    
+		$Query = $this->_getFieldsQuery(array(
+		    'product_id' => $pId,
+		    'group_id' => $groupId,
+		    'language_id' => $languageId,
+		    'show_on_site' => $shownOnProductInfo,
+		    'show_on_labels' => $shownOnLabels,
+		    'show_on_listing' => $shownOnListing
+		));
+		
+		$Result = $Query->execute()->toArray(true);
+		
+		return $Result;
+	}
+	
+	public function ProductInfoBeforeDescription(&$product){
+		$productInfo = $product->productInfo;
 
-    public function getFields($pId = null, $languageId = null, $shownOnProductInfo = false, $shownOnLabels = false, $shownOnListing = false, $groupId=null){
-        $Query = $this->_getFieldsQuery(array(
-                                             'product_id' => $pId,
-                                             'group_id' => $groupId,
-                                             'language_id' => $languageId,
-                                             'show_on_site' => $shownOnProductInfo,
-                                             'show_on_labels' => $shownOnLabels,
-                                             'show_on_listing' => $shownOnListing
-                                        ));
+		if (!isset($productInfo['ProductsCustomFieldsToProducts']) || empty($productInfo['ProductsCustomFieldsToProducts']) || sizeof($productInfo['ProductsCustomFieldsToProducts']) <= 0) return;
+			
+		$table = htmlBase::newElement('table')
+		->setCellPadding(3)
+		->setCellSpacing(0);
 
-        $Result = $Query->execute()->toArray(true);
+		$Query = $this->_getFieldsQuery(array(
+			'product_id' => $productInfo['products_id'],
+			'language_id' => Session::get('languages_id'),
+			'show_on_site' => true,
+		));
+		$groups = $Query->execute()->toArray(true);
+		
+		foreach($groups as $groupInfo){
+			$fieldsToGroups = $groupInfo['ProductsCustomFieldsToGroups'];
+			foreach($fieldsToGroups as $fieldToGroup){
 
-        return $Result;
-    }
+				if ($fieldToGroup['ProductsCustomFields']['show_name_on_listing'] == '1'){
+					$name = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
+				}else{
+					$name = '';
+				}
+				$value = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsToProducts'][0]['value'];
+				$inputType = $fieldToGroup['ProductsCustomFields']['input_type'];
+				$searchKey = $fieldToGroup['ProductsCustomFields']['search_key'];
+			
+				$fieldValue = $value;
+				if ($inputType == 'upload'){
+					$fieldValue = htmlBase::newElement('a')
+					->attr('href', itw_app_link('appExt=customFields&filename=' . $value, 'simpleDownload', 'default'))
+					->attr('target', '_blank')
+					->text('<u>' . $value . '</u>')
+					->draw();
+				}elseif ($inputType == 'search'){
+					$values = explode(';', $value);
+					if (sizeof($values) > 0){
+						$fieldValues = array();
+						foreach($values as $val){
+							$searchLink = htmlBase::newElement('a')
+							->attr('href', itw_app_link($searchKey . '[]=' . trim($val), 'products', 'search_result'))
+							->text('<u>' . $val . '</u>');
+						
+							$fieldValues[] = $searchLink->draw();
+						}
+						$fieldValue = implode(', ', $fieldValues);
+					}
+				}
+			
+				$table->addBodyRow(array(
+					'columns' => array(
+						array('addCls' => 'main', 'text' => '<b>' . $name . ':</b>'),
+						array('addCls' => 'main', 'text' => $fieldValue)
+					)
+				));
+			}
+		}
+		return $table->draw();
+	}
 
-    public function ProductInfoBeforeDescription(&$product){
-        $productInfo = $product->productInfo;
+	public function CustomProductInfoGetFields(&$product){
+		$productInfo = $product->productInfo;
 
-        if (!isset($productInfo['ProductsCustomFieldsToProducts']) || empty($productInfo['ProductsCustomFieldsToProducts']) || sizeof($productInfo['ProductsCustomFieldsToProducts']) <= 0) return;
+		if ($productInfo['ProductsCustomFieldsToProducts'][0]['customFieldTotal'] <= 0) return;
+			
+		$output = '';
+		$output .= htmlBase::newElement('button')
+		->addClass('customFieldsButton ui-state-selected ui-corner-all-big')
+		->attr('img_name', DIR_WS_IMAGES . $productInfo['products_image'])
+		->setText('Front View')
+		->draw() . '<br />';
+		
+		$groups = $this->getFields($productInfo['products_id'], Session::get('languages_id'));
+		foreach($groups as $groupInfo){
+			$fieldsToGroups = $groupInfo['ProductsCustomFieldsToGroups'];
+			foreach($fieldsToGroups as $fieldToGroup){
+				$name = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
+				$value = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsToProducts'][0]['value'];
+				$inputType = $fieldToGroup['ProductsCustomFields']['input_type'];
+				$searchKey = $fieldToGroup['ProductsCustomFields']['search_key'];
+			
+				$fieldValue = $value;
+				if ($inputType == 'upload'){
+					$output .= htmlBase::newElement('button')
+					->addClass('customFieldsButton ui-corner-all-big')
+					->attr('img_name', DIR_WS_IMAGES . $value)
+					->setText($name)
+					->draw() . '<br />';
+				}
+			}
+		}
+		return $output;
+	}
+	
+	public function AdvancedSearchAddSearchFields(&$AdvancedTable){
+		$Qfields = Doctrine_Query::create()
+		->select('f.search_key, f.field_id, fd.field_name, f2p.value')
+		->from('ProductsCustomFields f')
+		->leftJoin('f.ProductsCustomFieldsDescription fd')
+		->leftJoin('f.ProductsCustomFieldsToProducts f2p')
+		->where('fd.language_id = ?', Session::get('languages_id'))
+		->andWhere('f.input_type = ?', 'search')
+		->orderBy('fd.field_name')
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		if ($Qfields){
+			foreach($Qfields as $fInfo){
+				if ($fInfo['search_key'] == '') continue ;
+			
+				$added = array();
+				if (!empty($fInfo['ProductsCustomFieldsToProducts'])){
+					foreach($fInfo['ProductsCustomFieldsToProducts'] as $vInfo){
+						$values = explode(';', $vInfo['value']);
+						if (sizeof($values) > 0){
+							foreach($values as $val){
+								if (!in_array($val, $added) && !empty($val)){
+									$added[] = $val;
+								}
+							}
+						}
+					}
 
-        $table = htmlBase::newElement('table')
-                ->setCellPadding(3)
-                ->setCellSpacing(0);
+					natsort($added);
 
-        $Query = $this->_getFieldsQuery(array(
-                                             'product_id' => $productInfo['products_id'],
-                                             'language_id' => Session::get('languages_id'),
-                                             'show_on_site' => true,
-                                        ));
-        $groups = $Query->execute()->toArray(true);
-
-        foreach($groups as $groupInfo){
-            $fieldsToGroups = $groupInfo['ProductsCustomFieldsToGroups'];
-            foreach($fieldsToGroups as $fieldToGroup){
-
-                if ($fieldToGroup['ProductsCustomFields']['show_name_on_listing'] == '1'){
-                    $name = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
-                }else{
-                    $name = '';
-                }
-                $value = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsToProducts'][0]['value'];
-                $inputType = $fieldToGroup['ProductsCustomFields']['input_type'];
-                $searchKey = $fieldToGroup['ProductsCustomFields']['search_key'];
-
-                $fieldValue = $value;
-                if ($inputType == 'upload'){
-                    $fieldValue = htmlBase::newElement('a')
-                            ->attr('href', itw_app_link('appExt=customFields&filename=' . $value, 'simpleDownload', 'default'))
-                            ->attr('target', '_blank')
-                            ->text('<u>' . $value . '</u>')
-                            ->draw();
-                }elseif ($inputType == 'search'){
-                    $values = explode(';', $value);
-                    if (sizeof($values) > 0){
-                        $fieldValues = array();
-                        foreach($values as $val){
-                            $searchLink = htmlBase::newElement('a')
-                                    ->attr('href', itw_app_link($searchKey . '[]=' . trim($val), 'products', 'search_result'))
-                                    ->text('<u>' . $val . '</u>');
-
-                            $fieldValues[] = $searchLink->draw();
-                        }
-                        $fieldValue = implode(', ', $fieldValues);
-                    }
-                }
-
-                $table->addBodyRow(array(
-                                        'columns' => array(
-                                            array('addCls' => 'main', 'text' => '<b>' . $name . ':</b>'),
-                                            array('addCls' => 'main', 'text' => $fieldValue)
-                                        )
-                                   ));
-            }
-        }
-        return $table->draw();
-    }
-
-    public function CustomProductInfoGetFields(&$product){
-        $productInfo = $product->productInfo;
-
-        if ($productInfo['ProductsCustomFieldsToProducts'][0]['customFieldTotal'] <= 0) return;
-
-        $output = '';
-        $output .= htmlBase::newElement('button')
-                           ->addClass('customFieldsButton ui-state-selected ui-corner-all-big')
-                           ->attr('img_name', DIR_WS_IMAGES . $productInfo['products_image'])
-                           ->setText('Front View')
-                           ->draw() . '<br />';
-
-        $groups = $this->getFields($productInfo['products_id'], Session::get('languages_id'));
-        foreach($groups as $groupInfo){
-            $fieldsToGroups = $groupInfo['ProductsCustomFieldsToGroups'];
-            foreach($fieldsToGroups as $fieldToGroup){
-                $name = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
-                $value = $fieldToGroup['ProductsCustomFields']['ProductsCustomFieldsToProducts'][0]['value'];
-                $inputType = $fieldToGroup['ProductsCustomFields']['input_type'];
-                $searchKey = $fieldToGroup['ProductsCustomFields']['search_key'];
-
-                $fieldValue = $value;
-                if ($inputType == 'upload'){
-                    $output .= htmlBase::newElement('button')
-                                       ->addClass('customFieldsButton ui-corner-all-big')
-                                       ->attr('img_name', DIR_WS_IMAGES . $value)
-                                       ->setText($name)
-                                       ->draw() . '<br />';
-                }
-            }
-        }
-        return $output;
-    }
-
-    public function AdvancedSearchAddSearchFields(&$AdvancedTable){
-        $Qfields = Doctrine_Query::create()
-                ->select('f.search_key, f.field_id, fd.field_name, f2p.value')
-                ->from('ProductsCustomFields f')
-                ->leftJoin('f.ProductsCustomFieldsDescription fd')
-                ->leftJoin('f.ProductsCustomFieldsToProducts f2p')
-                ->where('fd.language_id = ?', Session::get('languages_id'))
-                ->andWhere('f.input_type = ?', 'search')
-                ->orderBy('fd.field_name')
-                ->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-        if ($Qfields){
-            foreach($Qfields as $fInfo){
-                if ($fInfo['search_key'] == '') continue ;
-
-                $added = array();
-                if (!empty($fInfo['ProductsCustomFieldsToProducts'])){
-                    foreach($fInfo['ProductsCustomFieldsToProducts'] as $vInfo){
-                        $values = explode(';', $vInfo['value']);
-                        if (sizeof($values) > 0){
-                            foreach($values as $val){
-                                if (!in_array($val, $added) && !empty($val)){
-                                    $added[] = $val;
-                                }
-                            }
-                        }
-                    }
-
-                    natsort($added);
-
-                    $dropArray = array(array('id' => '', 'text' => sysLanguage::get('TEXT_PLEASE_SELECT')));
-                    foreach($added as $value){
-                        $dropArray[] = array(
-                            'id'   => addslashes($value),
-                            'text' => $value
-                        );
-                    }
-                    $AdvancedTable->addBodyRow(array(
-                                                    'columns' => array(
-                                                        array('addCls' => 'fieldKey', 'text' => $fInfo['ProductsCustomFieldsDescription'][0]['field_name']),
-                                                        array('addCls' => 'fieldValue', 'text' => tep_draw_pull_down_menu($fInfo['search_key'], $dropArray))
-                                                    )
-                                               ));
-                    unset($dropArray);
-                }
-            }
-        }
-    }
+					$dropArray = array(array('id' => '', 'text' => sysLanguage::get('TEXT_PLEASE_SELECT')));
+					foreach($added as $value){
+						$dropArray[] = array(
+										'id'   => addslashes($value),
+										'text' => $value
+						);
+					}
+					$AdvancedTable->addBodyRow(array(
+							'columns' => array(
+								array('addCls' => 'fieldKey', 'text' => $fInfo['ProductsCustomFieldsDescription'][0]['field_name']),
+								array('addCls' => 'fieldValue', 'text' => tep_draw_pull_down_menu($fInfo['search_key'], $dropArray))
+							)
+						));
+					unset($dropArray);
+				}
+			}
+		}
+	}
 }
 ?>

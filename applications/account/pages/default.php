@@ -55,8 +55,8 @@
 	if (sysConfig::get('ALLOW_RENTALS') == 'true'){
 		if ($userAccount->isRentalMember()){
 			$links = array();
+			$membership =& $userAccount->plugins['membership'];
 			if ($userAccount->membershipIsActivated()){
-				$membership =& $userAccount->plugins['membership'];
 				$Qcheck = Doctrine_Query::create()
 				->from('MembershipUpdate mu')
 				->leftJoin('mu.Membership m')

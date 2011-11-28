@@ -24,6 +24,40 @@ $(document).ready(function () {
 		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
 		js_redirect(js_app_link('app=customers&appPage=edit&cID=' + customerId));
 	});
+	$('#saveSet').click(function(){
+		$('<div id="favoritesSetDialog"></div>').dialog({
+			autoOpen: true,
+			width: 400,
+			height:300,
+			close: function (e, ui){
+				$(this).dialog('destroy').remove();
+			},
+			open: function (e, ui){
+				$(e.target).html('Set name: <input type="text" name="set_name" id="set_name" />');
+			},
+			buttons: {
+				'Save': function() {
+					//ajax call to save comment on success
+					dialog = $(this);
+					showAjaxLoader($('#favoritesSetDialog'), 'xlarge');
+					$.ajax({
+						cache: false,
+						url: js_app_link('app=index&appPage=default&action=saveSet'),
+						data: "set_name=" + $('#set_name').val(),
+						type: 'post',
+						dataType: 'json',
+						success: function (data){
+							hideAjaxLoader($('#favoritesSetDialog'));
+							dialog.dialog('close');
+						}
+					});
+				},
+				Cancel: function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+	});
 	$('.favoritesLinks').sortable({
 		update: function(event, ui) {
 			myFav = $('.favoritesLinks').html();

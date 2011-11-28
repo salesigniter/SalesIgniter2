@@ -10,8 +10,10 @@
 	<define key="TEXT_EVENTS_GATES"><![CDATA[Event Gates: ]]></define>
 
 	<define key="TABLE_HEADING_MANUFACTURER"><![CDATA[Manufacturer]]></define>
+	<define key="TABLE_HEADING_BARCODE_TYPE"><![CDATA[Barcode Type]]></define>
 	<define key="TABLE_HEADING_MODEL"><![CDATA[Model]]></define>
-	<define key="TABLE_HEADING_LAST_MAINTENANCE"><![CDATA[Last Maintenance]]></define>
+	<define key="TABLE_HEADING_LAST_MAINTENANCE_DATE"><![CDATA[Last Maintenance]]></define>
+	<define key="TABLE_HEADING_LAST_MAINTENANCE_TYPE"><![CDATA[Last Maintenance Type]]></define>
 	<define key="TABLE_HEADING_MAINTENANCE"><![CDATA[Maintenance]]></define>
 	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
 	<define key="TABLE_HEADING_BARCODE"><![CDATA[Barcode]]></define>
@@ -24,5 +26,7 @@
 	<define key="TABLE_HEADING_PRICE"><![CDATA[Labour Price]]></define>
 	<define key="TABLE_HEADING_QTY"><![CDATA[Qty]]></define>
 	<define key="TEXT_EVENTS_QTY"><![CDATA[Qty per product: ]]></define>
+	<define key="TEXT_BUTTON_GENERATE_CSV"><![CDATA[Generate CSV ]]></define>
+
 
 </definitions>

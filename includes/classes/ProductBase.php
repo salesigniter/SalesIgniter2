@@ -40,26 +40,30 @@ class Product extends MI_Base
 		}else{
 			$this->setLastModified('0000-00-00');
 		}
-		if ($Product->products_date_available > 0){
+
+		if ($Product->products_date_available != '0000-00-00 00:00:00' && ($Product->products_date_available) != 'null'){
 			$this->setDateAvailable($Product->products_date_available);
 		}else{
-			$this->setDateAvailable('0000-00-00');
+			$this->setDateAvailable(date('Y-m-d'));
 		}
 		$this->setWeight($Product->products_weight);
 		//$this->setPrice($Product->products_price);
+		$this->setKeepPrice($Product->products_keepit_price);
 		$this->setStatus($Product->products_status);
+		$this->setFeatured($Product->products_featured);
 		$this->setManufacturer($Product->manufacturers_id);
+		$this->setMembershipEnabled($Product->membership_enabled);
 		$this->setTotalOrdered($Product->products_ordered);
 		$this->setOnOrder($Product->products_on_order);
 		$this->setDateOrdered($Product->products_date_ordered);
 		$this->setLastSold($Product->products_last_sold);
-		$this->setInventoryController($Product->products_inventory_controller);
-		if ($Product->ProductsAdditionalImages){
+		//$this->setInventoryController($Product->products_inventory_controller);
+		if(is_object($Product->ProductsAdditionalImages)){
 			foreach($Product->ProductsAdditionalImages->toArray() as $iInfo){
 				$this->addAdditionalImage($iInfo);
 			}
 		}
-		if ($Product->ProductsDescription){
+		if(is_object($Product->ProductsDescription)){
 			foreach($Product->ProductsDescription->toArray() as $dInfo){
 				$this->setName($dInfo['products_name'], $dInfo['language_id']);
 				$this->setDescription($dInfo['products_description'], $dInfo['language_id']);
@@ -164,6 +168,19 @@ class Product extends MI_Base
 	}
 
 	/**
+	 * @return float
+	 */
+	public function getKeepPrice() {
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'getProductKeepPrice')){
+			$return = call_user_method_array('getProductKeepPrice', $ProductType, func_get_args());
+		}else{
+			$return = $this->info['products_keepit_price'];
+		}
+		return $return;
+	}
+
+	/**
 	 * @param int $langId
 	 * @return string
 	 */
@@ -183,6 +200,11 @@ class Product extends MI_Base
 	 * @return string
 	 */
 	public function getImage() { return $this->info['products_image']; }
+
+	/**
+	 * @return string
+	 */
+	public function getMembershipEnabled() { return $this->info['membership_enabled']; }
 
 	/**
 	 * @return string
@@ -213,6 +235,11 @@ class Product extends MI_Base
 	 * @return int
 	 */
 	public function getStatus() { return (int)$this->info['products_status']; }
+
+	/**
+	 * @return int
+	 */
+	public function getFeatured() { return (int)$this->info['products_featured']; }
 
 	/**
 	 * @return int
@@ -358,6 +385,12 @@ class Product extends MI_Base
 	public function setPrice($val) { $this->info['products_price'] = (float)$val; }
 
 	/**
+	 * @param float $val
+	 * @return void
+	 */
+	public function setKeepPrice($val) { $this->info['products_keepit_price'] = (float)$val; }
+
+	/**
 	 * @param int $val
 	 * @return void
 	 */
@@ -367,7 +400,19 @@ class Product extends MI_Base
 	 * @param int $val
 	 * @return void
 	 */
+	public function setFeatured($val) { $this->info['products_featured'] = (int)$val; }
+
+	/**
+	 * @param int $val
+	 * @return void
+	 */
 	public function setManufacturer($val) { $this->info['manufacturers_id'] = (int)$val; }
+
+	/**
+	 * @param int $val
+	 * @return void
+	 */
+	public function setMembershipEnabled($val) { $this->info['membership_enabled'] = $val; }
 
 	/**
 	 * @param int $val
@@ -462,7 +507,7 @@ class Product extends MI_Base
 	 * @return bool
 	 */
 	public function isFeatured() {
-		return false;
+		return ($this->getFeatured() == 1);
 	}
 
 	/**

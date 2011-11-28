@@ -135,11 +135,47 @@
 	$statusDrop = htmlBase::newElement('selectbox')
 	->setName('status')
 	->attr('onchange', 'this.form.submit();');
+	$statusDrop->addOption('0','Any');
+	if(isset($_GET['status'])){
+		$statusDrop->selectOptionByValue($_GET['status']);
+	}
 	foreach($orders_status_array as $k => $v){
 		$statusDrop->addOption($k, $v);
 	}
 
 	echo sysLanguage::get('HEADING_TITLE_STATUS') . ': ' . $statusDrop->draw();
+
+	$productDrop = htmlBase::newElement('selectbox')
+		->setName('products_id')
+		->attr('onchange', 'this.form.submit();');
+
+	$productDrop->addOption('0', 'Please Select');
+
+	$lID = (int)Session::get('languages_id');
+
+	$Qproducts = Doctrine_Query::create()
+		->from('Products p')
+		->leftJoin('p.ProductsDescription pd')
+		->where('pd.language_id = ?', $lID)
+		->andWhere('p.products_in_box = ?', '0')
+		->orderBy('p.products_featured desc, pd.products_name asc, p.products_id desc');
+
+	EventManager::notify('AdminProductListingQueryBeforeExecute', &$Qproducts);
+
+	$Qproducts = $Qproducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	if(isset($_GET['products_id'])){
+		$productDrop->selectOptionByValue($_GET['products_id']);
+	}
+
+	foreach($Qproducts as $prod){
+		$productDrop->addOption($prod['products_id'], $prod['ProductsDescription'][0]['products_name']);
+	}
+
+	echo sysLanguage::get('HEADING_TITLE_PRODUCT') . ': ' . $productDrop->draw();
+
+	EventManager::notify('MonthlySalesAddFilters');
+
 	if ($sel_month<>0){
 		echo htmlBase::newElement('input')->setType('hidden')->setName('month')->setValue($sel_month)->draw();
 		echo htmlBase::newElement('input')->setType('hidden')->setName('year')->setValue($sel_year)->draw();
@@ -213,13 +249,22 @@
 		DAYOFMONTH(o.date_purchased) as row_day,
 	')
 	->from('Orders o')
-	->leftJoin('o.OrdersTotal ot')
-	->andWhereIn('ot.module_type', array('total', 'ot_total'))
+	->leftJoin('o.OrdersProducts op')
+	->leftJoin('o.OrdersTotal ot');
+
+	EventManager::notify('OrdersListingBeforeExecuteLeft', &$Qsales);
+
+	$Qsales->andWhereIn('ot.module_type', array('total', 'ot_total'))
 	->groupBy('YEAR(o.date_purchased) , MONTH(o.date_purchased)' . ($sel_month > 0 ? ' , DAYOFMONTH(o.date_purchased)' : ''))
 	->orderBy('o.date_purchased ' . ($invert ? 'asc' : 'desc'));
 
-	if (isset($_GET['status']) && !empty($_GET['status'])){
+	if(isset($_GET['products_id']) && $_GET['products_id'] > 0){
+		$Qsales->andWhere('op.products_id = ?', $_GET['products_id']);
+	}
+
+	if (isset($_GET['status']) && ($_GET['status'] > 0)){
 		$Qsales->andWhere('o.orders_status = ?', $status);
+
 	}
 
 	if ($sel_month > 0){

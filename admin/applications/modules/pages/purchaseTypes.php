@@ -2,8 +2,8 @@
 	$tableGrid = htmlBase::newElement('newGrid');
 
 $tableGrid->addButtons(array(
-		htmlBase::newElement('button')->setText('Enable')->addClass('enableButton')->disable(),
-		htmlBase::newElement('button')->setText('Disable')->addClass('disableButton')->disable(),
+		//htmlBase::newElement('button')->setText('Enable')->addClass('enableButton')->disable(),
+		//htmlBase::newElement('button')->setText('Disable')->addClass('disableButton')->disable(),
 		htmlBase::newElement('button')->setText('Edit')->addClass('editButton')->disable()
 	));
 

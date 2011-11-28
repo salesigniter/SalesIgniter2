@@ -11,7 +11,7 @@
 */
 
 	if (!class_exists('upload')){
-		require(DIR_WS_CLASSES . 'upload.php');
+		require(sysConfig::get('DIR_WS_CLASSES') . 'upload.php');
 	}
 
 	if ($new_image =  new upload('Filedata', $_GET['folder'])){

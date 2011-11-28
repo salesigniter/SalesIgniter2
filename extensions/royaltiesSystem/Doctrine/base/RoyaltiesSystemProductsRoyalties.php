@@ -86,7 +86,6 @@ class RoyaltiesSystemProductsRoyalties extends Doctrine_Record {
 		                                              ));
 		$this->hasColumn('products_price_rental', 'decimal', 15, array(
 		                                                              'type' => 'decimal',
-		                                                              'scale' => 4,
 		                                                              'length' => 15,
 		                                                              'unsigned' => 0,
 		                                                              'primary' => false,

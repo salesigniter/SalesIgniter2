@@ -17,7 +17,7 @@
 		$pageContents .= $notFoundDiv->draw() . $buttonBar->draw();
 	} else {
 		$pageTitle = $Product->getName();
-		if ($Product->hasModel()){
+		if ($Product->hasModel() && sysConfig::get('PRODUCT_INFO_SHOW_MODEL') == 'true'){
 			$pageTitle .= '&nbsp;<span class="smallText">[' . $Product->getModel() . ']</span>';
 		}
 		$Product->updateViews();

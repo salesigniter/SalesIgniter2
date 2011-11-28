@@ -309,7 +309,6 @@ class BannerManagerGroups extends Doctrine_Record {
 
 		$this->hasColumn('banner_group_description_opacity', 'decimal', 3, array(
 			'type'          => 'decimal',
-			'scale'         => 2,
 			'length'        => 3,
 			'unsigned'      => 0,
 			'primary'       => false,

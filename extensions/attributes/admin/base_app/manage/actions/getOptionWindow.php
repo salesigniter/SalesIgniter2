@@ -16,7 +16,7 @@
 		$langID = $languages[$i]['id'];
 				
 		$langImage = htmlBase::newElement('image')
-		->setSource(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'])
+		->setSource(sysConfig::get('DIR_WS_CATALOG_LANGUAGES') . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'])
 		->setTitle($languages[$i]['name']);
 				
 		$optionNameInput = htmlBase::newElement('input')->setName('option_name[' . $langID . ']');

@@ -3,7 +3,7 @@
 	 <div>
 
 	 <?php
-	 require(DIR_WS_CLASSES . 'currencies.php');
+	 require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
 	 $currencies = new currencies();
 	 $searchForm = htmlBase::newElement('form')
 	 ->attr('name', 'search')

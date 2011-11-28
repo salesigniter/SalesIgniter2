@@ -40,9 +40,11 @@
 		htmlBase::newElement('button')->setText('Details')->addClass('detailsButton')->disable(),
 		htmlBase::newElement('button')->setText('Delete')->addClass('deleteButton')->disable(),
 		htmlBase::newElement('button')->setText('Cancel')->addClass('cancelButton')->disable(),
-		htmlBase::newElement('button')->setText('Invoice')->addClass('invoiceButton')->disable(),
-		htmlBase::newElement('button')->setText('Packing Slip')->addClass('packingSlipButton')->disable()
+		htmlBase::newElement('button')->setText('Invoice')->addClass('invoiceButton')->disable()
 	);
+	if(sysConfig::get('SHOW_PACKING_SLIP_BUTTONS') == 'true'){
+		$gridButtons[] = htmlBase::newElement('button')->setText('Packing Slip')->addClass('packingSlipButton')->disable();
+	}
 	
 	EventManager::notify('OrdersGridButtonsBeforeAdd', &$gridButtons);
 	
@@ -229,6 +231,25 @@
 	->setLabel('Select All')
 	->setLabelPosition('after');
 
+	$statusField = htmlBase::newElement('selectbox')
+	->setName('status')
+	->setLabel('Status: ')
+	->setLabelPosition('before');
+	$statusField->addOption('0', 'All');
+
+	$QOrdersStatus = Doctrine_Query::create()
+	->from('OrdersStatus s')
+	->leftJoin('s.OrdersStatusDescription sd')
+	->where('sd.language_id = ?', (int)Session::get('languages_id'))
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	foreach($QOrdersStatus as $iStatus){
+		$statusField->addOption($iStatus['orders_status_id'], $iStatus['OrdersStatusDescription'][0]['orders_status_name']);
+	}
+	if(isset($_GET['status'])){
+		$statusField->selectOptionByValue($_GET['status']);
+	}
+
 	$limitField = htmlBase::newElement('selectbox')
 	->setName('limit')
 	->setLabel('Orders per Page: ')
@@ -270,7 +291,8 @@
 	$searchForm
 	->append($limitField)
 	->append($startdateField)
-	->append($enddateField);
+	->append($enddateField)
+	->append($statusField);
 	EventManager::notify('AdminOrdersListingSearchForm', $searchForm);
 	$searchForm->append($submitButton);
 

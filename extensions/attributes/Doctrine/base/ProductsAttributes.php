@@ -89,7 +89,7 @@ class ProductsAttributes extends Doctrine_Record {
 			'default'       => '0.0000',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => 4
+			'scale'         => false
 		));
 		
 		$this->hasColumn('options_values_image', 'string', 128, array(

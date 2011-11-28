@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <definitions>
 	<define key="HEADER_TITLE_ACCOUNT"><![CDATA[My Account]]></define>
 	<define key="HEADER_TITLE_LOGOFF"><![CDATA[Logoff]]></define>
@@ -24,15 +25,21 @@
 	<define key="FEMALE"><![CDATA[Female]]></define>
 	<define key="DOB_FORMAT_STRING"><![CDATA[mm/dd/yyyy]]></define>
 	<define key="BOX_HEADING_CONFIGURATION"><![CDATA[Configuration]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PASTDUE"><![CDATA[Past Due Report]]></define>
 	<define key="BOX_CONFIGURATION_MYSTORE"><![CDATA[My Store]]></define>
 	<define key="BOX_CONFIGURATION_LOGGING"><![CDATA[Logging]]></define>
 	<define key="BOX_CONFIGURATION_CACHE"><![CDATA[Cache]]></define>
 	<define key="BOX_HEADING_MODULES"><![CDATA[Modules]]></define>
 	<define key="BOX_MODULES_PAYMENT"><![CDATA[Payment]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PASTDUE"><![CDATA[Membership Past Due]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS"><![CDATA[Pickup Requests]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS_REPORT"><![CDATA[Pickup Requests Report]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS_TYPES"><![CDATA[Pickup Requests Types]]></define>
 	<define key="BOX_MODULES_SHIPPING"><![CDATA[Shipping]]></define>
 	<define key="BOX_MODULES_ORDER_TOTAL"><![CDATA[Order Total]]></define>
 	<define key="BOX_MODULES_INFOBOXES"><![CDATA[Infoboxes]]></define>
 	<define key="BOX_MODULES_PURCHASETYPES"><![CDATA[Purchase Types]]></define>
+	<define key="BOX_MODULES_PRODUCTTYPES"><![CDATA[Product Types]]></define>
 	<define key="BOX_HEADING_CATALOG"><![CDATA[Catalog]]></define>
 	<define key="BOX_CATALOG_CATEGORIES"><![CDATA[Categories]]></define>
 	<define key="BOX_CATALOG_PRODUCTS"><![CDATA[Products]]></define>
@@ -92,9 +99,9 @@
 	<define key="JS_ADDRESS"><![CDATA[* The  'Street Address ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_POST_CODE"><![CDATA[* The  'Postal Code ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_CITY"><![CDATA[* The  'City ' entry must have at least %s characters.<br/>]]></define>
-	<define key="JS_STATE"><![CDATA[* The  'State ' entry is must be selected.<br/>]]></define>
+	<define key="JS_STATE"><![CDATA[* The  'County/Province' entry is must be selected.<br/>]]></define>
 	<define key="JS_STATE_SELECT"><![CDATA[-- Select Above --]]></define>
-	<define key="JS_ZONE"><![CDATA[* The  'State ' entry must be selected from the list for this country.<br/>]]></define>
+	<define key="JS_ZONE"><![CDATA[* The  'County/Province' entry must be selected from the list for this country.<br/>]]></define>
 	<define key="JS_COUNTRY"><![CDATA[* The  'Country ' value must be chosen.<br/>]]></define>
 	<define key="JS_TELEPHONE"><![CDATA[* The  'Telephone Number ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_PASSWORD"><![CDATA[* The  'Password ' amd  'Confirmation ' entries must match amd have at least %s characters.<br/>]]></define>
@@ -114,11 +121,11 @@
 	<define key="ENTRY_COMPANY"><![CDATA[Company name:]]></define>
 	<define key="ENTRY_COMPANY_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_STREET_ADDRESS"><![CDATA[Street Address:]]></define>
-	<define key="ENTRY_SUBURB"><![CDATA[Suburb:]]></define>
+	<define key="ENTRY_SUBURB"><![CDATA[County:]]></define>
 	<define key="ENTRY_SUBURB_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_POST_CODE"><![CDATA[Postal Code:]]></define>
 	<define key="ENTRY_CITY"><![CDATA[City:]]></define>
-	<define key="ENTRY_STATE"><![CDATA[State:]]></define>
+	<define key="ENTRY_STATE"><![CDATA[County/Province:]]></define>
 	<define key="ENTRY_COUNTRY"><![CDATA[Country:]]></define>
 	<define key="ENTRY_COUNTRY_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_TELEPHONE_NUMBER"><![CDATA[Telephone Number:]]></define>
@@ -292,6 +299,7 @@
 	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_QUEUE"><![CDATA[Send Rentals]]></define>
 	<define key="BOX_RENTAL_MEMBERSHIP_RENTED_QUEUE"><![CDATA[Return Rentals By Customer]]></define>
 	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_ISSUES"><![CDATA[Rental Issues]]></define>
+	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PASTDUE"><![CDATA[Past Due Members]]></define>
 	<define key="TEXT_CLOSE_WINDOW"><![CDATA[Close Window]]></define>
 	<define key="TEXT_YES"><![CDATA[Yes]]></define>
 	<define key="TEXT_NO"><![CDATA[No]]></define>
@@ -370,10 +378,10 @@
 	<define key="ENTRY_POST_CODE_ERROR_MIN_LENGTH"><![CDATA[Your Postal Code must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_MIN_LENGTH"><![CDATA[Your City must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_ALPHA"><![CDATA[Your City can only contain letters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your Suburb must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your Suburb can only contain letters.]]></define>
-	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your State must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your State can only contain letters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your County must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your County can only contain letters.]]></define>
+	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your County/Province must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your County/Province can only contain letters.]]></define>
 	<define key="ENTRY_COUNTRY_ERROR_NUMERIC"><![CDATA[You must select a country from the Countries pull down menu.]]></define>
 	<define key="ENTRY_FAX_ERROR_MIN_LENGTH"><![CDATA[Your Fax number must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_FAX_ERROR_PHONE"><![CDATA[Your Fax number must be in this format: 555-444-2222]]></define>
@@ -443,6 +451,20 @@
 	
 	<define key="TEXT_ADMIN_MENU_SES_UPDATES"><![CDATA[Check Updates]]></define>
 	<define key="INVENTORY_CENTERS_SORT_ORDER"><![CDATA[Inventory Centers Sort Order:]]></define>
+	
+	<define key="ENTRY_GENDER_ERROR_REQUIRED"><![CDATA[Gender required.]]></define>
+	<define key="ENTRY_DOB_ERROR_REQUIRED"><![CDATA[DOB required.]]></define>
+	<define key="ENTRY_COMPANY_ERROR_REQUIRED"><![CDATA[Company required.]]></define>
+	<define key="ENTRY_CITY_BIRTH_ERROR_REQUIRED"><![CDATA[City Birth required.]]></define>
+	<define key="TABLE_HEADING_PRODUCTS_QTY"><![CDATA[Quantity]]></define>
+	<define key="TABLE_HEADING_PRODUCTS_NAME"><![CDATA[Product Name]]></define>
+	<define key="TABLE_HEADING_PRODUCTS_BARCODE"><![CDATA[Barcode]]></define>
+	<define key="PAYMENT_MODULE_MO_AWAITING_PAYMENT"><![CDATA[Awaiting Payment]]></define>
+	<define key="TEXT_BEFORE_QUOTES"><![CDATA[First, please enter your zip code so we can calculate shipping and availability :<br/>]]></define>
+
+
+	<define key="TABLE_HEADING_YEAR"><![CDATA[Year]]></define>
+
 	
 	<define javascript="true" php="false" key="TEXT_VALIDATING_OVERRIDE"><![CDATA[Validating Override]]></define>
 	<define javascript="true" php="false" key="TEXT_OVERRIDE_VALIDATED"><![CDATA[Override Validated]]></define>

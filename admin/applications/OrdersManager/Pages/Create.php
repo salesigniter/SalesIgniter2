@@ -51,6 +51,7 @@
 		}
 
 		private function buildStatusHistoryTable(){
+			global $Editor;
 			$historyTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0)->css('width', '100%');
 
 			$historyTable->addHeaderRow(array(

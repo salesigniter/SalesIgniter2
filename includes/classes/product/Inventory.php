@@ -87,6 +87,14 @@ class productInventory
 		return false;
 	}
 
+	public function getInvUnavailableStatus() {
+		return $this->invMethod->getInvUnavailableStatus();
+	}
+
+	public function setInvUnavailableStatus($val) {
+		return $this->invMethod->setInvUnavailableStatus($val);
+	}
+
 	function updateStock($orderId, $orderProductId, &$cartProduct) {
 		if (is_null($this->invMethod) === false){
 			return $this->invMethod->updateStock($orderId, $orderProductId, &$cartProduct);

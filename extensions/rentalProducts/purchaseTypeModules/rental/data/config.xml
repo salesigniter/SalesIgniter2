@@ -110,7 +110,7 @@
 		<tab><![CDATA[Product Info]]></tab>
 		<value><![CDATA[Disable Button]]></value>
 		<description><![CDATA[Choose which method to use on the product info page when a purchase type is out of stock?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('Disable Button', 'Out Of Stock Text', 'Hide Box'),]]></set_function>
+		<set_function><![CDATA[tep_cfg_select_option(array('Disable Button', 'Out Of Stock Text', 'Hide Box', 'Show Notify (Requires SMS Notify Extension)'),]]></set_function>
 	</configuration>
 	<configuration>
 		<title><![CDATA[Enable Inventory Management]]></title>

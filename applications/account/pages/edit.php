@@ -12,8 +12,7 @@
 		->setValue('f')
 		->setLabel(sysLanguage::get('FEMALE'));
 		
-		if ((isset($gender) && $gender == 'f') || ($userAccount->getCustomerGender() == 'f')){
-			$femaleInput->setChecked(true);
+		if ((isset($gender) && $gender == 'f') || ($userAccount->getGender() == 'f')){			$femaleInput->setChecked(true);
 		}else{
 			$maleInput->setChecked(true);
 		}
@@ -57,6 +56,19 @@
 			'columns' => array(
 				array('addCls' => 'main', 'text' => sprintf(sysLanguage::get('ENTRY_DATE_OF_BIRTH'),'('.str_replace('%Y','yy',str_replace('%m','mm',str_replace('%d','dd',sysLanguage::getDateFormat('short')))).')')),
 				array('addCls' => 'main', 'text' => $dobInput->draw())
+			)
+		));
+	}
+
+if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true') {
+	$cityBirthInput = htmlBase::newElement('input')
+		->setName('city_birth')
+		->setValue($userAccount->getCityBirth());
+
+	$formTable->addBodyRow(array(
+			'columns' => array(
+				array('addCls' => 'main', 'text' => sysLanguage::get('ENTRY_CITY_BIRTH')),
+				array('addCls' => 'main', 'text' => $cityBirthInput->draw())
 			)
 		));
 	}

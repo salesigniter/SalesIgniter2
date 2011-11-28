@@ -195,14 +195,22 @@ class inventoryCenters_admin_products_new_product extends Extension_inventoryCen
 	public function NewProductAddAttributeTrackMethods(&$purchaseType, &$pInfo, &$trackMethodTable){
 		$this->NewProductAddTrackMethods(&$purchaseType, &$pInfo, &$trackMethodTable);
 	}
-	
-	public function NewProductAddTrackMethods($controller, &$purchaseType, &$pInfo, &$trackMethodTable){
-		$inputName = 'use_center[' . $controller . '][' . $purchaseType . ']';
-		
+
+	public function NewProductAddTrackMethods($controller, &$PurchaseType, &$trackMethodTable) {
+		$inputName = 'use_center[' . $controller . '][' . $PurchaseType->getCode() . ']';
+
+		$QProductInventory = Doctrine_Query::create()
+		->from('ProductsInventory')
+		->where('products_id = ?', $PurchaseType->getData('products_id'))
+		->andWhere('track_method = ?', $PurchaseType->getData('inventory_track_method') )
+		->andWhere('type = ?', $PurchaseType->getCode())
+		->andWhere('controller = ?', $controller)
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
 		$checkbox = htmlBase::newElement('checkbox')
 		->setName($inputName)
 		->setValue('1')
-		->setChecked(($this->use_center[$controller][$purchaseType] == '1'))
+		->setChecked((isset($QProductInventory[0]['use_center']) && $QProductInventory[0]['use_center']  == '1'))
 		->setLabelPosition('after');
 		if ($this->stockMethod == 'Store' && $this->multiStoreEnabled === true){
 			$checkbox->setLabel('Use Stores');
@@ -262,7 +270,15 @@ class inventoryCenters_admin_products_new_product extends Extension_inventoryCen
 		
 		$Result = $QinventoryCenter->execute(array(), Doctrine::HYDRATE_ARRAY);
 
-		$box = clone $this->selectBox;
+		$box = htmlBase::newElement('selectbox');
+		if ($this->stockMethod == 'Store' && $this->multiStoreEnabled === true){
+			$box->addClass('invStore')->setName('invStore');
+		}else{
+			$box->addClass('invCenter')->setName('invCenter');
+		}
+		foreach($this->inventoryCenterArray as $cInfo){
+			$box->addOption($cInfo['id'], $cInfo['text']);
+		}
 		if ($Result) {
 			$box->selectOptionByValue($Result[0]['id']);
 		}
@@ -274,16 +290,16 @@ class inventoryCenters_admin_products_new_product extends Extension_inventoryCen
 			'text' => $colText
 		);
 	}
-	
-	public function NewProductAddAttributeQuantityRows($settings, $inventoryColumns, &$pInfo, &$quantityTable){
+
+	public function NewProductAddAttributeQuantityRows($settings, $inventoryColumns, &$pInfo, &$quantityTable) {
 		$this->NewProductAddQuantityRows($settings, $inventoryColumns, &$pInfo, &$quantityTable);
 	}
-	
-	public function NewProductAddQuantityRows($settings, $inventoryColumns, &$pInfo, &$quantityTable){
+
+	public function NewProductAddQuantityRows($PurchaseType, $inventoryColumns, &$quantityTable) {
 		if ($this->allowTableAddition() === false) return;
 
-		$purchaseType = $settings['purchaseType'];
-		$dataSet = $settings['dataSet'];
+		$purchaseType = $PurchaseType->getCode();
+		//$dataSet = $settings['dataSet'];
 		$aID_string = (isset($settings['attributeString']) ? $settings['attributeString'] : null);
 		$output = '';
 		if (sizeof($this->inventoryCenterArray) > 0){
@@ -312,9 +328,7 @@ class inventoryCenters_admin_products_new_product extends Extension_inventoryCen
 					);
 					
 					$col = 0;
-					foreach($inventoryColumns as $short => $long){
-						if (($purchaseType == 'new' || $purchaseType == 'used') && ($short == 'O' || $short == 'B' || $short == 'R')) continue;
-						if ($purchaseType == 'reservation' && $short == 'P') continue;
+					foreach($inventoryColumns as $short){
 						
 						$lastCell = false;
 						if ($col == ($totalCols-1)){
@@ -322,9 +336,27 @@ class inventoryCenters_admin_products_new_product extends Extension_inventoryCen
 						}
 
 						$invQty = '0';
-						if (isset($dataSet[$centerId])){
-							$invQty = $dataSet[$centerId][$long];
-						}
+				$QinventoryQuantity = Doctrine_Query::create()
+					->from('ProductsInventory i')
+					->leftJoin('i.ProductsInventoryQuantity iq')
+					->where('i.products_id = ?', $PurchaseType->getProductId())
+					->andWhere('track_method = ?', 'quantity')
+					->andWhere('type = ?', $purchaseType)
+					->andWhere('controller = ?', 'normal');
+
+				EventManager::notify('AdminEditProductLoadInventoryQuantity', $QinventoryQuantity, $centerId);
+
+				$Result = $QinventoryQuantity->execute();
+				if ($Result){
+					$Quantity = $Result[0]->ProductsInventoryQuantity[0];
+					switch($short){
+						case 'A': $invQty = $Quantity->available; break;
+						case 'O': $invQty = $Quantity->qty_out; break;
+						case 'B': $invQty = $Quantity->broken; break;
+						case 'R': $invQty = $Quantity->reserved; break;
+						case 'P': $invQty = $Quantity->purchased; break;
+					}
+				}
 						
 						if (is_null($aID_string) === false){
 							$inputName = 'inventory_quantity[attribute][' . $aID_string . '][' . $purchaseType . '][inventory_centers][' . $centerId . '][' . $short . ']';

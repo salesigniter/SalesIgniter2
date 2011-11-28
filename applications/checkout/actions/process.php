@@ -186,6 +186,11 @@
 					$userAccount->setTelephoneNumber($onePageCheckout->onePage['info']['telephone']);
 				}
 
+				if (!empty($_POST['billing_city_birth'])) {
+					$onePageCheckout->onePage['info']['city_birth'] = $_POST['billing_city_birth'];
+					$userAccount->setCityBirth($onePageCheckout->onePage['info']['city_birth']);
+				}
+
 				if (!empty($_POST['billing_email_address'])) {
 					$onePageCheckout->onePage['info']['email_address'] = $_POST['billing_email_address'];
 					$userAccount->setEmailAddress($onePageCheckout->onePage['info']['email_address']);
@@ -373,9 +378,13 @@
 
 							// initialized for the email confirmation
 							$products_ordered = '';
+							$order_has_streaming_or_download = false;
+
 							foreach ($ShoppingCart->getProducts() as $cartProduct) {
 								$order->insertOrderedProduct($cartProduct, &$products_ordered);
-
+								if($cartProduct->getPurchaseType() == 'download' || $cartProduct->getPurchaseType() == 'stream'  || $cartProduct->getPurchaseType() == 'new'){
+									$order_has_streaming_or_download = true;
+								}
 								EventManager::notify('CheckoutProcessInsertOrderedProduct', $cartProduct, &$products_ordered);
 
 								// #################### Added CCGV ######################

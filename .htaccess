@@ -102,11 +102,9 @@ AddType image/x-xbitmap .xbm
 # WAV files
 AddType audio/x-wav .wav
 
-#php_value zlib.output_compression on
-
 Options +FollowSymLinks
 RewriteEngine On 
-RewriteBase /et_video/
+RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

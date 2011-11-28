@@ -9,109 +9,116 @@
 			EventManager::attachEvents(array(
 				'CountContents',
 				'AddToCartAfterAction',
-				'AddToCartBeforeAction'
+				'AddToCartBeforeAction',
+				'AddToCartAllow'
 			), 'ShoppingCart', $this);
 		}
 
+		public function AddToCartAllow($cartData, $Product){
+			return true;
+		}
+
 		public function AddToCartBeforeAction(ShoppingCartProduct &$cartProduct){
-			$pInfo = $cartProduct->getInfo();
-			if(isset($_POST['rental_qty'])){
-				$pInfo['reservationInfo']['quantity'] = $_POST['rental_qty'];
-			}
+			if($_POST['purchase_type'] == 'reservation'){
+				$pInfo = $cartProduct->getInfo();
+				if(isset($_POST['rental_qty'])){
+					$pInfo['reservationInfo']['quantity'] = $_POST['rental_qty'];
+				}
 
-			if (isset($pInfo['rental_shipping']) && $_POST['rental_shipping'] !== false) {
-				list($module, $method) = explode('_', $_POST['rental_shipping']);
-				$pInfo['reservationInfo']['shipping']['module'] = $module;
-				$pInfo['reservationInfo']['shipping']['id'] = $method;
-			}
-			if (isset($_POST['start_date'])){
-				$pInfo['reservationInfo']['start_date'] = $_POST['start_date'];
-			}
+				if (isset($pInfo['rental_shipping']) && $_POST['rental_shipping'] !== false) {
+					list($module, $method) = explode('_', $_POST['rental_shipping']);
+					$pInfo['reservationInfo']['shipping']['module'] = $module;
+					$pInfo['reservationInfo']['shipping']['id'] = $method;
+				}
+				if (isset($_POST['start_date'])){
+					$pInfo['reservationInfo']['start_date'] = $_POST['start_date'];
+				}
 
-			if (isset($_POST['event_date'])) {
-				$pInfo['reservationInfo']['event_date'] = $_POST['event_date'];
-			}
-			if (isset($_POST['event_name'])) {
-				$pInfo['reservationInfo']['event_name'] = $_POST['event_name'];
-			}
+				if (isset($_POST['event_date'])) {
+					$pInfo['reservationInfo']['event_date'] = $_POST['event_date'];
+				}
+				if (isset($_POST['event_name'])) {
+					$pInfo['reservationInfo']['event_name'] = $_POST['event_name'];
+				}
 
-			if (isset($_POST['event_gate'])) {
-				$pInfo['reservationInfo']['event_gate'] = $_POST['event_gate'];
-			}
+				if (isset($_POST['event_gate'])) {
+					$pInfo['reservationInfo']['event_gate'] = $_POST['event_gate'];
+				}
 
-			if (isset($_POST['semester_name'])) {
-				$pInfo['reservationInfo']['semester_name'] = $_POST['semester_name'];
-			}
+				if (isset($_POST['semester_name'])) {
+					$pInfo['reservationInfo']['semester_name'] = $_POST['semester_name'];
+				}
 
-			if (isset($_POST['end_date'])) {
-				$pInfo['reservationInfo']['end_date'] = $_POST['end_date'];
-			}
+				if (isset($_POST['end_date'])) {
+					$pInfo['reservationInfo']['end_date'] = $_POST['end_date'];
+				}
 
-			if (isset($_POST['rental_qty'])) {
-				$pInfo['reservationInfo']['quantity'] = $_POST['rental_qty'];
-			}
+				if (isset($_POST['rental_qty'])) {
+					$pInfo['reservationInfo']['quantity'] = $_POST['rental_qty'];
+				}
 
-			$shippingInfo = array(
-				'zonereservation',
-				'zonereservation'
-			);
-			if (isset($_POST['rental_shipping']) && $_POST['rental_shipping'] !== false){
-				$shippingInfo = explode('_', $_POST['rental_shipping']);
-			}
-
-			if(isset($_POST['start_date']) && isset($_POST['end_date']) && isset($_POST['days_before']) && isset($_POST['days_after'])){
-				$reservationInfo = array(
-					'shipping_module' => $shippingInfo[0],
-					'shipping_method' => $shippingInfo[1],
-					'start_date'      => $_POST['start_date'],
-					'end_date'        => $_POST['end_date'],
-					'days_before'     => $_POST['days_before'],
-					'days_after'     => $_POST['days_after'],
-					'quantity'        => $_POST['rental_qty']
+				$shippingInfo = array(
+					'zonereservation',
+					'zonereservation'
 				);
-			}else{
-				$reservationInfo = array(
-					'shipping_module' => $pInfo['reservationInfo']['shipping']['module'],
-					'shipping_method' => $pInfo['reservationInfo']['shipping']['id'],
-					'start_date'      => $pInfo['reservationInfo']['start_date'],
-					'end_date'        => $pInfo['reservationInfo']['end_date'],
-					'days_before'     => $pInfo['reservationInfo']['days_before'],
-					'days_after'     => $pInfo['reservationInfo']['days_after'],
-					'quantity'        => $pInfo['reservationInfo']['quantity']
-				);
-			}
+				if (isset($_POST['rental_shipping']) && $_POST['rental_shipping'] !== false){
+					$shippingInfo = explode('_', $_POST['rental_shipping']);
+				}
 
-
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-				if(isset($_POST['event_date']) && isset($_POST['event_name'])){
-					$reservationInfo['event_date'] = $_POST['event_date'];
-					$reservationInfo['event_name'] = $_POST['event_name'];
-					if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-						$reservationInfo['event_gate'] = $_POST['event_gate'];
-					}
+				if(isset($_POST['start_date']) && isset($_POST['end_date']) && isset($_POST['days_before']) && isset($_POST['days_after'])){
+					$reservationInfo = array(
+						'shipping_module' => $shippingInfo[0],
+						'shipping_method' => $shippingInfo[1],
+						'start_date'      => $_POST['start_date'],
+						'end_date'        => $_POST['end_date'],
+						'days_before'     => $_POST['days_before'],
+						'days_after'     => $_POST['days_after'],
+						'quantity'        => $_POST['rental_qty']
+					);
 				}else{
-					$reservationInfo['event_date'] = $pInfo['reservationInfo']['event_date'];
-					$reservationInfo['event_name'] = $pInfo['reservationInfo']['event_name'];
-					if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-						$reservationInfo['event_gate'] = $pInfo['reservationInfo']['event_gate'];
+					$reservationInfo = array(
+						'shipping_module' => $pInfo['reservationInfo']['shipping']['module'],
+						'shipping_method' => $pInfo['reservationInfo']['shipping']['id'],
+						'start_date'      => $pInfo['reservationInfo']['start_date'],
+						'end_date'        => $pInfo['reservationInfo']['end_date'],
+						'days_before'     => $pInfo['reservationInfo']['days_before'],
+						'days_after'     => $pInfo['reservationInfo']['days_after'],
+						'quantity'        => $pInfo['reservationInfo']['quantity']
+					);
+				}
+
+
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
+					if(isset($_POST['event_date']) && isset($_POST['event_name'])){
+						$reservationInfo['event_date'] = $_POST['event_date'];
+						$reservationInfo['event_name'] = $_POST['event_name'];
+						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
+							$reservationInfo['event_gate'] = $_POST['event_gate'];
+						}
+					}else{
+						$reservationInfo['event_date'] = $pInfo['reservationInfo']['event_date'];
+						$reservationInfo['event_name'] = $pInfo['reservationInfo']['event_name'];
+						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
+							$reservationInfo['event_gate'] = $pInfo['reservationInfo']['event_gate'];
+						}
 					}
 				}
+				if(isset($_POST['semester_name'])){
+					$reservationInfo['semester_name'] = $_POST['semester_name'];
+				}else{
+					$reservationInfo['semester_name'] = $pInfo['reservationInfo']['semester_name'];
+				}
+
+				$purchaseType = PurchaseTypeModules::getModule('reservation');
+				$purchaseType->loadProduct($cartProduct->getIdString());
+
+				$purchaseType->processAddToOrderOrCart($reservationInfo, $pInfo);
+
+				EventManager::notify('ReservationProcessAddToCart', &$pInfo['reservationInfo']);
+				EventManager::notify('PurchaseTypeAddToCart', $purchaseType->getCode(), &$pInfo, $purchaseType->pprInfo);
+
+				$cartProduct->updateInfo($pInfo);
 			}
-			if(isset($_POST['semester_name'])){
-				$reservationInfo['semester_name'] = $_POST['semester_name'];
-			}else{
-				$reservationInfo['semester_name'] = $pInfo['reservationInfo']['semester_name'];
-			}
-
-			$purchaseType = PurchaseTypeModules::getModule('reservation');
-			$purchaseType->loadProduct($cartProduct->getIdString());
-
-			$purchaseType->processAddToOrderOrCart($reservationInfo, $pInfo);
-
-			EventManager::notify('ReservationProcessAddToCart', &$pInfo['reservationInfo']);
-			EventManager::notify('PurchaseTypeAddToCart', $purchaseType->getCode(), &$pInfo, $purchaseType->pprInfo);
-
-			$cartProduct->updateInfo($pInfo);
 		}
 		
 		public function CountContents(&$totalItems){
@@ -167,7 +174,7 @@
 					}
 				}
 				if ($isRemoved){
-					$ShoppingCart->contents->remove($pID, 'reservation');
+					$ShoppingCart->remove($pID);
 					$messageStack->addSession('pageStack','You cannot add products with different level of service on the same order','error');
 				}
 			}

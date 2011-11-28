@@ -325,10 +325,19 @@ foreach($MultiStores->getStoresArray() as $sInfo){
 			)
 		));
 
+	if(Session::get('login_groups_id') != 1){
+		$AdminGroups = Doctrine_Core::getTable('AdminGroups')->find(Session::get('login_groups_id'));
+		$varExtra = unserialize($AdminGroups->extra_data);
+	}else{
+		$varExtra['buttonsMultistoreEnabled']['hasCreateInvoice'] = true;
+		$varExtra['buttonsMultistoreEnabled']['hasPayInvoice'] = true;
+	}
+
 	$GenerateInvoice = htmlBase::newElement('button')
 		->attr('data-store_id', $sInfo['stores_id'])
 		->addClass('genInvoice')
 		->setText('Create Invoice');
+
 
 	$AddPayment = htmlBase::newElement('button')
 		->attr('data-store_id', $sInfo['stores_id'])
@@ -348,8 +357,8 @@ foreach($MultiStores->getStoresArray() as $sInfo){
 						'line-height' => '15pt'
 					),
 					'text' => '<div style="float:right;font-size:7pt;">' .
-						$GenerateInvoice->draw() .
-						$AddPayment->draw() .
+						((($varExtra['buttonsMultistoreEnabled']['hasCreateInvoice']))?$GenerateInvoice->draw():'') .
+						((($varExtra['buttonsMultistoreEnabled']['hasPayInvoice']))?$AddPayment->draw():'') .
 						'</div>' .
 						'<b>' . $sInfo['stores_name'] . '</b>'
 				)
@@ -406,10 +415,10 @@ foreach($MultiStores->getStoresArray() as $sInfo){
 					->setText(sysLanguage::get('TEXT_BUTTON_GENERATE'))
 					->draw();
 
-					/*echo htmlBase::newElement('button')
-						->setId('generateCsv')
+					echo htmlBase::newElement('button')
 						->setText(sysLanguage::get('TEXT_BUTTON_GENERATE_CSV'))
-						->draw();*/
+					    ->setHref(itw_app_link('action=csvExport&appExt=multiStore', 'fees_report', 'default'))
+						->draw();
 				?></td>
 			</tr>
 		</table>

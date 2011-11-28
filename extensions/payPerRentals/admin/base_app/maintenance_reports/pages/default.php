@@ -1,14 +1,25 @@
 <?php
 	$Qmaint = Doctrine_Query::create()
-	->from('PayPerRentalMaintenance pm')
-	->leftJoin('pm.Admin a')
-	->leftJoin('pm.PayPerRentalMaintenanceRepairs pmr')
-	->leftJoin('pm.ProductsInventoryBarcodes pib')
+	->from('BarcodeHistoryRented bhr')
+	->leftJoin('bhr.ProductsInventoryBarcodes pib')
+	->leftJoin('pib.PayPerRentalMaintenanceRepairs pmr')
+	->leftJoin('pmr.Admin a')
 	->leftJoin('pmr.PayPerRentalMaintenanceRepairParts pmrp');
 
-	if(isset($_GET['stat_date'])){
-		$Qmaint = $Qmaint->where('maintenance_date >= ?',$_GET['start_date']);
+	if(isset($_GET['start_date']) && !empty($_GET['start_date'])){
+		$Qmaint->where('bhr.last_maintenance_date >= ?',$_GET['start_date']);
 	}
+
+	if(isset($_GET['end_date']) && !empty($_GET['end_date'])){
+		$Qmaint->andWhere('bhr.last_maintenance_date <= ?',$_GET['end_date']);
+	}
+
+	$multiStore = $appExtension->getExtension('multiStore');
+	if ($multiStore !== false && $multiStore->isEnabled() === true){
+		$Qmaint->leftJoin('pib.ProductsInventoryBarcodesToStores pibs')
+			->andWhereIn('pibs.inventory_store_id', Session::get('admin_showing_stores'));
+	}
+
 
 $tableGrid = htmlBase::newElement('newGrid')
 	->usePagination(true)
@@ -18,6 +29,7 @@ $tableGrid = htmlBase::newElement('newGrid')
 
 $gridHeaderColumns = array(
 	array('text' => sysLanguage::get('TABLE_HEADING_BARCODE')),
+	array('text' => sysLanguage::get('TABLE_HEADING_BARCODE_TYPE')),
 	array('text' => sysLanguage::get('TABLE_HEADING_TYPE')),
 	array('text' => sysLanguage::get('TABLE_HEADING_ADMIN')),
 	array('text' => sysLanguage::get('TABLE_HEADING_DATE')),
@@ -56,6 +68,16 @@ if (isset($_GET['start_date']) && !empty($_GET['start_date'])){
 	$startdateField->val($_GET['start_date']);
 }
 
+$enddateField = htmlBase::newElement('input')
+	->setName('end_date')
+	->setLabel('End Date: ')
+	->setLabelPosition('before')
+	->setId('end_date');
+
+if (isset($_GET['end_date']) && !empty($_GET['end_date'])){
+	$enddateField->val($_GET['end_date']);
+}
+
 $submitButton = htmlBase::newElement('button')
 	->setType('submit')
 	->usePreset('save')
@@ -64,6 +86,7 @@ $submitButton = htmlBase::newElement('button')
 $searchForm
 ->append($limitField)
 ->append($startdateField)
+->append($enddateField)
 ->append($submitButton);
 
 $tableGrid->addHeaderRow(array(
@@ -74,31 +97,32 @@ $tableGrid->addHeaderRow(array(
 $maintenances = &$tableGrid->getResults();
 if ($maintenances){
 	foreach($maintenances as $maintenance){
-				$mId = $maintenance['pay_per_rental_maintenance_id'];
+				$mId = $maintenance['barcode_id'];
 		        $eventType = '8-points check';
 				$price = 0;
 				$priceParts = 0;
+				$admin = '';
 				$parts = '';
-				foreach($maintenance['PayPerRentalMaintenanceRepairs'] as $repair){
+				foreach($maintenance['ProductsInventoryBarcodes']['PayPerRentalMaintenanceRepairs'] as $repair){
 					$price += $repair['price'];
 					foreach($repair['PayPerRentalMaintenanceRepairParts'] as $part){
 						$priceParts += $part['part_price'];
 						$parts .= $part['part_name'].'; ';
 					}
+					$admin .= $repair['Admin']['admin_firstname'].' '.$repair['Admin']['admin_lastname'].'<br/>';
 				}
-		        switch($maintenance['type']){
-			       case '1': $eventType = '8-points check';
-			            break;
-			       case '2': $eventType = 'bi-weekly';
-			                  break;
-			       case '3': $eventType = '6-months';
-			                  break;
-		        }
+
+		        $QPPRMaintenancePeriods = Doctrine_Core::getTable('PayPerRentalMaintenancePeriods')->find($maintenance['last_maintenance_type']);
+				if($QPPRMaintenancePeriods){
+					$eventType = $QPPRMaintenancePeriods->maintenance_period_name;
+				}
+
 				$gridBodyColumns = array(
 					array('text' => $maintenance['ProductsInventoryBarcodes']['barcode']),
+					array('text' => is_null($maintenance['ProductsInventoryBarcodes']['barcode_type'])?'None':$maintenance['ProductsInventoryBarcodes']['barcode_type']),
 					array('text' => $eventType),
-					array('text' => $maintenance['Admin']['admin_firstname'].' '.$maintenance['Admin']['admin_lastname']),
-					array('text' => strftime(sysLanguage::getDateFormat('long'), strtotime($maintenance['maintenance_date']))),
+					array('text' => $admin),
+					array('text' => strftime(sysLanguage::getDateFormat('long'), strtotime($maintenance['last_maintenance_date']))),
 					array('text' => $currencies->format($price)),
 					array('text' => $parts),
 					array('text' => $currencies->format($priceParts))
@@ -123,6 +147,12 @@ if ($maintenances){
 		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
 			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
 			<br style="clear:both;"/> <br/>
+			<?php echo htmlBase::newElement('button')
+			->setText(sysLanguage::get('TEXT_BUTTON_GENERATE_CSV'))
+			->setHref(itw_app_link('action=csvExport&appExt=payPerRentals'.(isset($_GET['start_date'])?'&start_date='.$_GET['start_date']:'').(isset($_GET['end_date'])?'&end_date='.$_GET['end_date']:''), 'maintenance_reports', 'default'))
+			->draw();
+			?>
+
 		</div>
 	</div>
 

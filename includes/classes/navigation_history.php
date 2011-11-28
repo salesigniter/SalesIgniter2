@@ -29,7 +29,7 @@ Released under the GNU General Public License
 
 			for ($i=0, $n=sizeof($this->path); $i<$n; $i++) {
                 $getParamsString = implode('|',$this->path[$i]['get']);
-				if ( $this->path[$i]['app'] == $_GET['app'] &&  $this->path[$i]['appPage'] == $_GET['appPage'] && $getParamsString == $thisGetParamsString) {
+				if ( isset($_GET['app'])&& isset($_GET['appPage'])&& $this->path[$i]['app'] == $_GET['app'] &&  $this->path[$i]['appPage'] == $_GET['appPage'] && $getParamsString == $thisGetParamsString) {
 					if (isset($cPath)) {
 						if (!isset($this->path[$i]['get']['cPath'])) {
 							continue;
@@ -60,8 +60,8 @@ Released under the GNU General Public License
 			}
 
 			if ($set == 'true') {
-				$this->path[] = array('app' => $_GET['app'],
-                'appPage' =>$_GET['appPage'],
+				$this->path[] = array('app' => isset($_GET['app'])?$_GET['app']:'',
+                		'appPage' =>isset($_GET['appPage'])?$_GET['appPage']:'',
 				'mode' => $request_type,
 				'get' => $_GET,
 				'post' => $_POST);

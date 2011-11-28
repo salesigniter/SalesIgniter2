@@ -5,5 +5,10 @@
 			<length>10000</length>
 			<notnull>false</notnull>
 		</addon_products>
+		<optional_addon_products>
+			<type>string</type>
+			<length>10000</length>
+			<notnull>false</notnull>
+		</optional_addon_products>
 	</Products>
 </data>

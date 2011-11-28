@@ -83,6 +83,19 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 		->setName('barcodeNumber')
 		->addClass('barcodeNumber');
 
+	$barcodeTypeSelect = htmlBase::newElement('selectbox')
+		->setName('barcodeTypeSelect')
+		->addClass('barcodeTypeSelect');
+
+	$barcodeTypesList = explode(';', sysConfig::get('BARCODES_INVENTORY_TYPES'));
+	$hasTypesList = false;
+	if(!empty($barcodeTypesList[0])){
+		$hasTypesList = true;
+		foreach($barcodeTypesList as $bItem){
+			$barcodeTypeSelect->addOption($bItem, $bItem);
+		}
+	}
+
 	$autoGenTextInput = htmlBase::newElement('input')
 		->setSize(3)
 		->setName('autogenTotal')
@@ -99,7 +112,7 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	$barcodeTableBody = array(
 		array(
 			'addCls' => 'main',
-			'text' => $barcodeInput->draw() . '<br />' . $autoGenTextInput->draw() . $autoGenCheckboxInput->draw()
+			'text' => $barcodeInput->draw() . '<br />' . $autoGenTextInput->draw() . ($hasTypesList?$barcodeTypeSelect->draw():'') . $autoGenCheckboxInput->draw()
 		),
 		array(
 			'addCls' => 'centerAlign main',
@@ -152,6 +165,10 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 		),
 		array(
 			'addCls' => 'ui-widget-content ui-state-default ui-grid-cell',
+			'text' => 'Barcode Type'
+		),
+		array(
+			'addCls' => 'ui-widget-content ui-state-default ui-grid-cell',
 			'text' => 'Type'
 		),
 		array(
@@ -189,6 +206,16 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	);
 	if ($Inventory && $Inventory->count() > 0){
 		foreach($Inventory->ProductsInventoryBarcodes->toArray() as $bInfo){
+			$barcodeTypeSelectBox = htmlBase::newElement('selectbox')
+				->setName('barcodeTypeSelectBox')
+				->addClass('barcodeTypeSelectBox');
+			$barcodeTypeSelectBox->addOption('None', 'None');
+			if($hasTypesList){
+				foreach($barcodeTypesList as $bItem){
+					$barcodeTypeSelectBox->addOption($bItem, $bItem);
+				}
+				$barcodeTypeSelectBox->selectOptionByValue($bInfo['type']);
+			}
 			$currentBarcodesTableBody = array(
 				array(
 					'addCls' => 'ui-widget-content ui-grid-cell ui-grid-cell-first centerAlign',
@@ -197,6 +224,10 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 				array(
 					'addCls' => 'ui-widget-content ui-grid-cell',
 					'text' => $bInfo['barcode']
+				),
+				array(
+					'addCls' => 'ui-widget-content ui-grid-cell',
+					'text' => $barcodeTypeSelectBox->draw()
 				),
 				array(
 					'addCls' => 'ui-widget-content ui-grid-cell',

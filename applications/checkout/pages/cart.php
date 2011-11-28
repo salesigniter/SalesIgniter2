@@ -9,13 +9,14 @@
 		$productsName = $cartProduct->getNameHtml();
 		$productsModel = $cartProduct->getModel();
 		$quantity = $cartProduct->getCartQuantityHtml();
+		$ProductType = $cartProduct->getProductClass()->getProductTypeClass();
 
 		$productRows[] = array(
 			array('text' => $productsName, 'align' => 'left'),
 			array('text' => $quantity, 'align' => 'left'),
 			array('text' => $currencies->display_price($productPrice, $productTax), 'align' => 'right'),
 			array('text' => $currencies->display_price($productFinalPrice, $productTax, $productQuantity), 'align' => 'right'),
-			array('text' => '<a pID="'.$pID_string.'" type="'.$purchaseType.'" href="#" class="ui-icon ui-icon-closethick removeFromCart"></a>', 'align' => 'right')
+			array('text' => '<a pID="'.$cartProduct->getId().'" href="#" class="ui-icon ui-icon-closethick removeFromCart"></a>', 'align' => 'right')
 		);
 
 		EventManager::notify('ShoppingCartListingAddBodyColumn', &$productRows, $cartProduct);

@@ -25,11 +25,11 @@
 	<define key="ENTRY_SEARCH_CUSTOMER"><![CDATA[Search For Customer:]]></define>
 	<define key="ENTRY_MEMBER_NUMBER"><![CDATA[Member Number:]]></define>
 	
-	<define key="TEXT_BUTTON_SAVE_AS_ORDER"><![CDATA[Save As Order]]></define>
+	<define key="TEXT_BUTTON_SAVE_AS_ORDER"><![CDATA[Save As Reservation]]></define>
 	<define key="TEXT_BUTTON_UPDATE_ORDER"><![CDATA[Update Order]]></define>
-	<define key="TEXT_BUTTON_SAVE_AS_ESTIMATE"><![CDATA[Save As Estimate]]></define>
+	<define key="TEXT_BUTTON_SAVE_AS_ESTIMATE"><![CDATA[Save As Quotation]]></define>
 	<define key="TEXT_BUTTON_UPDATE_ESTIMATE"><![CDATA[Update Estimate]]></define>
-	<define key="TEXT_BUTTON_UPDATE_CUSTOMER"><![CDATA[Update Customer]]></define>
+	<define key="TEXT_BUTTON_UPDATE_CUSTOMER"><![CDATA[Proceed To Next Step]]></define>
 	
 	<define key="HEADING_CUSTOMER_INFORMATION"><![CDATA[Customer Information]]></define>
 	<define key="HEADING_PRODUCTS"><![CDATA[Products]]></define>

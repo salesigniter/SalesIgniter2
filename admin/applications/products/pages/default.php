@@ -1,6 +1,4 @@
 <?php
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
-
 	function addGridRow($productClass, &$tableGrid, &$infoBoxes){
 		global $allGetParams, $editButton, $copyButton, $deleteButton, $currencies;
 		$productId = $productClass->getID();
@@ -132,11 +130,12 @@
 		}
 
 		$productImage = $productClass->getImage();
-		if (!empty($productImage) && file_exists($_SERVER['DOCUMENT_ROOT'] . $productImage)){
+
+		if (!empty($productImage) && file_exists(sysConfig::getDirFsCatalog().'images/' . $productImage)){
 			$imageHtml = htmlBase::newElement('image')
-			->setSource($productImage)
-			->setWidth(SMALL_IMAGE_WIDTH)
-			->setHeight(SMALL_IMAGE_HEIGHT)
+			->setSource(sysConfig::getDirWsCatalog().'images/' .$productImage)
+			->setWidth(sysConfig::get('SMALL_IMAGE_WIDTH'))
+			->setHeight(sysConfig::get('SMALL_IMAGE_HEIGHT'))
 			->thumbnailImage(true);
 		}else{
 			$imageHtml = htmlBase::newElement('span')

@@ -39,7 +39,7 @@ class RatioPriority extends Doctrine_Record {
 		'default' => '0.00',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 2,
+		'scale' => false,
 		));
 	}
 }

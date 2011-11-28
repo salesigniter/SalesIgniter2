@@ -36,7 +36,10 @@ class currencies {
 	}
 
 	public function format($number, $calculate_currency_value = true, $currency_type = '', $currency_value = ''){
-		if (empty($currency_type)) $currency_type = Session::get('currency');
+		if (empty($currency_type)){
+			$currency_type = (Session::exists('currency')?Session::get('currency'):sysConfig::get('DEFAULT_CURRENCY'));
+
+		}
 
 		$symbolLeft = $this->currencies[$currency_type]['symbol_left'];
 		$symbolRight = $this->currencies[$currency_type]['symbol_right'];

@@ -84,10 +84,10 @@ class Membership extends Doctrine_Record {
 		'length' => 9,
 		'unsigned' => 0,
 		'primary' => false,
-		'default' => '0.0000',
+		'default' => '0.00',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => 4,
+		'scale' => false,
 		));
 		$this->hasColumn('rent_tax_class_id', 'integer', 4, array(
 		'type' => 'integer',

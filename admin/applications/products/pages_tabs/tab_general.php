@@ -62,8 +62,10 @@
 				$ProductStatusDisabled->setChecked(true);
 			}
 		}
-		
+
 		$ProductFeaturedStatusEnabled->setChecked($Product->isFeatured());
+		$ProductFeaturedStatusDisabled->setChecked(!$Product->isFeatured());
+
 		$ProductOnOrder->setChecked($Product->isOnOrder());
 		$ProductDateAvailable->setValue($Product->getDateAvailable()->format('Y-m-d'));
 		$ManufacturerMenu->selectOptionByValue($Product->getManufacturer());

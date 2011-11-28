@@ -1,0 +1,23 @@
+<definitions>
+	<define key="HEADING_TITLE_MAINTENANCE"><![CDATA[Maintenance Periods]]></define>
+	<define key="TABLE_HEADING_MAINTENANCE_NAME"><![CDATA[Maintenance Periods]]></define>
+	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
+
+	<define key="TEXT_MAINTENANCE_NAME"><![CDATA[Maintenance Period Name: ]]></define>
+	<define key="TEXT_MAINTENANCE_DESCRIPTION"><![CDATA[Maintenance Period Description: ]]></define>
+	<define key="TEXT_MAINTENANCE_START_DATE"><![CDATA[Maintenance Period Start Date: ]]></define>
+	<define key="PERFORM_BEFORE_SEND"><![CDATA[Perform maintenance before sending: ]]></define>
+	<define key="TEXT_HOURS_BEFORE_SEND"><![CDATA[How many hours before sending: ]]></define>
+	<define key="PERFORM_AFTER_RETURN"><![CDATA[Perform maintenance after return: ]]></define>
+	<define key="TEXT_HOURS_AFTER_RETURN"><![CDATA[How many hours after return: ]]></define>
+	<define key="QUARANTINE_UNTIL_COMPLETED"><![CDATA[Quarantine item until maintenance completed: ]]></define>
+	<define key="EMAIL_ADMIN"><![CDATA[Send email to admins: ]]></define>
+	<define key="TEXT_ASSIGN_TO"><![CDATA[Assign to following admins: ]]></define>
+
+	<define key="TEXT_MAINTENANCE_SHOW_DAYS"><![CDATA[Perform maintenance every X number of days: ]]></define>
+	<define key="TEXT_MAINTENANCE_SHOW_RENTALS"><![CDATA[Perform maintenance every X number of rentals: ]]></define>
+	<define key="TEXT_MAINTENANCE_QUARANTINE_DAYS"><![CDATA[Quarantine automatically after X number of days: ]]></define>
+	<define key="TEXT_MAINTENANCE_QUARANTINE_RENTALS"><![CDATA[Quarantine automatically after X number of rentals: ]]></define>
+	<define key="IS_REPAIR"><![CDATA[Repair ]]></define>
+
+</definitions>

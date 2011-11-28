@@ -14,28 +14,39 @@ class PayPerRentalMaintenanceRepairs extends Doctrine_Record {
 	
 	public function setUp(){
 		$this->setUpParent();
-		$this->hasOne('PayPerRentalMaintenance', array(
-				'local'   => 'pay_per_rental_maintenance_id',
-				'foreign' => 'pay_per_rental_maintenance_id'
+		$this->hasOne('PayPerRentalMaintenancePeriods', array(
+				'local'   => 'maintenance_period_id',
+				'foreign' => 'maintenance_period_id'
 		));
 		$this->hasOne('Admin', array(
 				'local'   => 'admin_id',
 				'foreign' => 'admin_id'
 		));
+		$this->hasOne('ProductsInventoryBarcodes', array(
+				'local'   => 'barcode_id',
+				'foreign' => 'barcode_id'
+		));
 	}
 
 	public function setUpParent(){
 
-		$PayPerRentalMaintenance = Doctrine_Core::getTable('PayPerRentalMaintenance')->getRecordInstance();
+		$PayPerRentalMaintenancePeriods = Doctrine_Core::getTable('PayPerRentalMaintenancePeriods')->getRecordInstance();
 		$Admin = Doctrine_Core::getTable('Admin')->getRecordInstance();
-		$PayPerRentalMaintenance->hasMany('PayPerRentalMaintenanceRepairs', array(
-				'local'   => 'pay_per_rental_maintenance_id',
-				'foreign' => 'pay_per_rental_maintenance_id'
+		$ProductsInventoryBarcodes = Doctrine_Core::getTable('ProductsInventoryBarcodes')->getRecordInstance();
+
+		$ProductsInventoryBarcodes->hasMany('PayPerRentalMaintenanceRepairs', array(
+				'local'   => 'barcode_id',
+				'foreign' => 'barcode_id'
+			));
+
+		$PayPerRentalMaintenancePeriods->hasMany('PayPerRentalMaintenanceRepairs', array(
+				'local'   => 'maintenance_period_id',
+				'foreign' => 'maintenance_period_id'
 		));
-		$Admin->hasMany('PayPerRentalMaintenance', array(
+		$Admin->hasMany('PayPerRentalMaintenanceRepairs', array(
 				'local'   => 'admin_id',
 				'foreign' => 'admin_id'
-			));
+		));
 	}
 
 	
@@ -50,7 +61,7 @@ class PayPerRentalMaintenanceRepairs extends Doctrine_Record {
 			'autoincrement' => true,
 		));
 
-        $this->hasColumn('pay_per_rental_maintenance_id', 'integer', 4, array(
+        $this->hasColumn('barcode_id', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 4,
 			'unsigned' => 0,
@@ -58,6 +69,24 @@ class PayPerRentalMaintenanceRepairs extends Doctrine_Record {
 			'notnull' => false,
 			'autoincrement' => false,
 		));
+
+        $this->hasColumn('maintenance_date', 'datetime', null, array(
+		        'type'          => 'datetime',
+		        'primary'       => false,
+		        'notnull'       => true,
+		        'autoincrement' => false
+	        ));
+
+        $this->hasColumn('maintenance_period_id', 'integer', 4, array(
+		        'type' => 'integer',
+		        'length' => 4,
+		        'unsigned' => 0,
+		        'primary' => false,
+		        'default' => 0,
+		        'notnull' => false,
+		        'autoincrement' => false,
+	    ));
+
 
         $this->hasColumn('admin_id', 'integer', 4, array(
 		        'type' => 'integer',
@@ -83,7 +112,7 @@ class PayPerRentalMaintenanceRepairs extends Doctrine_Record {
 		        'default' => '0.0000',
 		        'notnull' => true,
 		        'autoincrement' => false,
-		        'scale' => 4,
+		        'scale' => false,
 	    ));
 
 

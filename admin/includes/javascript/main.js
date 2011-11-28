@@ -424,7 +424,7 @@ function showToolTip(settings){
 	$toolTip.css('top', (elOffset.top - $toolTip.height()));
 
 	//alert((settings.offsetLeft + 200) + ' >= ' + $(window).width());
-	if ((elOffset.left + 200) >= $(window).width()){
+	if ((elOffset.left + 300) >= $(window).width()){
 		$toolTip.css('left', (elOffset.left - $toolTip.width()));
 	}
 	if ((elOffset.top - $toolTip.height()) <= 0){

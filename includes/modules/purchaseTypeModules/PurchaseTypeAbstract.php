@@ -236,6 +236,14 @@ class PurchaseTypeBase extends ModuleBase
 		return $this->getInventoryClass()->getInventoryItems();
 	}
 
+	public function getInvUnavailableStatus() {
+		return $this->getInventoryClass()->getInvUnavailableStatus();
+	}
+
+	public function setInvUnavailableStatus($val) {
+		return $this->getInventoryClass()->setInvUnavailableStatus($val);
+	}
+
 	public function getPurchaseHtml($key) {
 		global $userAccount;
 		$return = null;

@@ -20,7 +20,7 @@
     }
 	$QproductName = $QproductName->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($QproductName){
-		foreach($QproductName as $pInfo){
+		foreach($QproductName as $pInfo){  //here should be checked for inventory by purchaseType...if it has it should show the product
 			$jsonData[] = array(
 				'value' => $pInfo['products_id'],
 				'label' => $pInfo['products_name'],

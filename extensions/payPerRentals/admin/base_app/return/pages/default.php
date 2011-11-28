@@ -112,7 +112,7 @@ if ($appExtension->isInstalled('inventoryCenters') && $appExtension->isEnabled('
     </form></td>
    </tr>
    <tr>
-    <td><form name="send_rentals" action="<?php echo itw_app_link('appExt=payPerRentals&action=return', 'return', 'default');?>" method="post"><table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <td><form name="send_rentals" id="returnReservation" action="<?php echo itw_app_link('appExt=payPerRentals&action=return', 'return', 'default');?>" method="post"><table border="0" width="100%" cellspacing="0" cellpadding="0">
      <tr>
       <td></td>
      </tr>
@@ -140,7 +140,7 @@ if ($appExtension->isInstalled('inventoryCenters') && $appExtension->isEnabled('
         <!--<td valign="top" class="dataTableHeadingContent"><?php echo sysLanguage::get('TABLE_HEADING_ADD_LATE_FEE');?></td>-->
         <td valign="top" class="dataTableHeadingContent"><?php echo sysLanguage::get('TABLE_HEADING_COMMENTS');?></td>
 	       <?php
-	  if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE') == 'False'){
+	  if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
 ?>
         <td valign="top" class="dataTableHeadingContent" align="center"><?php echo sysLanguage::get('TABLE_HEADING_ITEM_DMG');?></td>
         <td valign="top" class="dataTableHeadingContent" align="center"><?php echo sysLanguage::get('TABLE_HEADING_ITEM_LOST');?></td>
@@ -301,7 +301,7 @@ if ($Result->count() > 0){
         ?></td>
         <td class="main" align="center"><?php echo tep_draw_textarea_field('comment[' . $reservationId . ']', true, 30, 2);?></td>
 	       <?php
-				if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_RETURN_MAINTENANCE') == 'False'){
+				if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
 ?>
         <td class="main" align="center"><?php echo tep_draw_checkbox_field('damaged[' . $reservationId . ']', $reservationId);?></td>
         <td class="main" align="center"><?php echo tep_draw_checkbox_field('lost[' . $reservationId . ']', $reservationId);?></td>
@@ -365,8 +365,8 @@ if (isset($oprInfo['Packaged'])){
      <tr>
       <td align="right" height="35" valign="middle"><?php
       echo htmlBase::newElement('button')
-      ->setType('submit')
       ->setName('return')
+      ->addClass('returnButton')
       ->usePreset('save')
       ->setText(sysLanguage::get('TEXT_BUTTON_RETURN_RENTALS'))
       ->draw();

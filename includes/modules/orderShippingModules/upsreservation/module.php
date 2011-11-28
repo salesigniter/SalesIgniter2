@@ -15,7 +15,6 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 
 		$this->init('upsreservation');
 
-		if ($this->isEnabled() === true){
 			/*$this->types = array(
 				'1DM'    => 'Next Day Air Early AM',
 				'1DML'   => 'Next Day Air Early AM Letter',
@@ -40,7 +39,7 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 				'XPD'    => 'Worldwide Expedited'
 			);*/
 
-			if ($this->isEnabled() === true){
+			if (class_exists('ModulesShippingUpsReservationMethods')){
 				$Qmethods = Doctrine_Query::create()
 					->from('ModulesShippingUpsReservationMethods m')
 					->leftJoin('m.ModulesShippingUpsReservationMethodsDescription md')
@@ -119,12 +118,12 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 		$shipping_num_boxes = 1;
 		$this->getNumBoxes($shipping_weight, $shipping_num_boxes);
 
-		if ( isset($method) && !empty($method)) {
+		if (isset($method) && !empty($method)){
 			$prod = $method;
-		} else {
+		}
+		else {
 			$prod = 'GND';
 		}
-
 
 		$this->_upsProduct($prod);
 		if($App->getEnv() == 'catalog'){
@@ -180,9 +179,10 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 										'id' => 'method' . $methodId,
 										'title' => $mInfo['text'],
 										'default' => $mInfo['default'],
-										'cost' => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
-										'days_before' => $mInfo['days_before'],
-										'days_after' => $mInfo['days_after']
+										'cost'    => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
+										'showCost'    => ($cost + $this->handlingCost) * $numBoxes + ($cost + $this->handlingCost) * $numBoxes * ($mInfo['markup'] / 100),
+										'days_before'    => $mInfo['days_before'],
+										'days_after'    => $mInfo['days_after']
 									);
 								}
 							}
@@ -209,11 +209,12 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 			foreach($this->methods as $methodId => $mInfo){
 				if ($mInfo['status'] == 'True' && ($method == 'method' . $methodId || $method == '')){
 					$this->quotes['methods'][] = array(
-						'id' => 'method' . $methodId,
-						'title' => $mInfo['text'],
-						'cost' => 0,
-						'days_before' => $mInfo['days_before'],
-						'days_after' => $mInfo['days_after']
+						'id'      => 'method' . $methodId,
+						'title'   => $mInfo['text'],
+						'cost'	  =>0,
+						'showCost'	  =>0,
+						'days_before'    => $mInfo['days_before'],
+						'days_after'    => $mInfo['days_after']
 					);
 				}
 			}
@@ -351,27 +352,36 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 		$errorret = 'error'; // only return error if NO rates returned
 		//print_r($body_array);
 		$n = sizeof($body_array);
-		for ($i=0; $i<$n; $i++) {
+		for($i = 0; $i < $n; $i++){
 			$result = explode('%', $body_array[$i]);
 			$errcode = substr($result[0], -1);
-			switch ($errcode) {
+			switch($errcode){
 				case 3:
-					if (is_array($returnval)) $returnval[] = array($result[1] => $result[8]);
+					if (is_array($returnval)) {
+						$returnval[] = array($result[1] => $result[8]);
+					}
 					break;
 				case 4:
-					if (is_array($returnval)) $returnval[] = array($result[1] => $result[8]);
+					if (is_array($returnval)) {
+						$returnval[] = array($result[1] => $result[8]);
+					}
 					break;
 				case 5:
 					$errorret = $result[1];
 					break;
 				case 6:
-					if (is_array($returnval)) $returnval[] = array($result[3] => $result[10]);
+					if (is_array($returnval)) {
+						$returnval[] = array($result[3] => $result[10]);
+					}
 					break;
 			}
 		}
-		if (empty($returnval)) $returnval = $errorret;
+		if (empty($returnval)) {
+			$returnval = $errorret;
+		}
 
 		return $returnval;
 	}
 }
+
 ?>

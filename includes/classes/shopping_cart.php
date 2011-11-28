@@ -169,16 +169,21 @@ class ShoppingCart implements Serializable
 		$return = $Product->isActive();
 		if ($return === true){
 			$return = $Product->allowAddToCart($CartProductData);
+
 			if ($return === true){
 				$return = EventManager::notifyWithReturn('ShoppingCart\AddToCartAllow', $CartProductData, $Product);
+				$val = true;
 				foreach($return as $Result){
 					if ($Result === false){
-						$return = false;
+						$val = false;
 						break;
 					}
 				}
+				$return = $val;
+
 			}
 		}
+
 		return $return;
 	}
 

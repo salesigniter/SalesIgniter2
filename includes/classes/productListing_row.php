@@ -57,9 +57,7 @@ class productListing_row extends productListing
 			$getVars = tep_get_all_get_params(array('action', $this->sortKey));
 			parse_str($getVars, $getArr);
 			$hiddenFields = '';
-			foreach($getArr as $k => $v){
-				$hiddenFields .= '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
-			}
+			create_hidden_fields($getArr,&$hiddenFields);
 
 			$sortForm = htmlBase::newElement('form')
 				->attr('name', 'sorter')
@@ -92,8 +90,7 @@ class productListing_row extends productListing
 		}
 		$Result = $Pager->execute();
 
-		$this->templateData['pagerLinks'] = ($Pager->haveToPaginate() ? $PagerLayout->display(array(), true)
-			: '1 ' . sysLanguage::get('PRODUCT_LISTING_OF') . ' 1');
+		$this->templateData['pagerLinks'] = ($Pager->haveToPaginate() ? $PagerLayout->display(array(), true) : '1 '.sysLanguage::get('PRODUCT_LISTING_OF').' 1');
 
 		return array(
 			'Products' => $Result,
@@ -239,11 +236,10 @@ class productListing_row extends productListing
 				$key = $header['key'];
 
 				$boxContents[0][$col] = array(
-					'align' => $header['align'],
-					'valign' => 'middle',
-					'addCls' => (isset($this->templateData['headerSettings']['addCls'])
-						? $this->templateData['headerSettings']['addCls'] : false),
-					'text' => $header['text']
+					'align'  => $header['align'],
+					'valign' => $header['valign'],
+					'addCls' => (isset($this->templateData['headerSettings']['addCls']) ? $this->templateData['headerSettings']['addCls'] : false),
+					'text'   => $header['text']
 				);
 
 				foreach($this->templateData['listingColumns'][$key] as $row => $rInfo){

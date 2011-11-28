@@ -21,7 +21,6 @@
 		<inventory_store_id>
 			<type>integer</type>
 			<length>4</length>
-			<autoincrement>false</autoincrement>
 		</inventory_store_id>
 	</ProductsInventoryQuantity>
 </data>

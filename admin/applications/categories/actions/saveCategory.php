@@ -9,6 +9,10 @@
 		}
 	}
 
+	if (isset($_POST['parent_id']) && $_POST['parent_id'] > -1){
+		$Category->parent_id = $_POST['parent_id'];
+	}
+
 	$Category->sort_order = (int)$_POST['sort_order'];
 	$Category->categories_menu = (isset($_POST['categories_menu']) ? $_POST['categories_menu'] : 'infobox');
 

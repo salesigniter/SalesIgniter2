@@ -40,7 +40,7 @@ class Extension_orderCreator extends ExtensionBase {
 			'OrdersGridButtonsBeforeAdd',
 			'EstimatesGridButtonsBeforeAdd',
 			'OrdersListingBeforeExecute',
-			'OrdersProductsReservationListingBeforeExecute',
+			'OrdersProductsReservationListingBeforeExecuteUtilities',
 			'AdminOrdersListingBeforeExecute',
 			'OrderQueryBeforeExecute',
 			'ReservationCheckQueryBeforeExecute',
@@ -60,7 +60,7 @@ class Extension_orderCreator extends ExtensionBase {
 		}
 	}
 
-	public function OrdersProductsReservationListingBeforeExecute(&$Qorders){
+	public function OrdersProductsReservationListingBeforeExecuteUtilities(&$Qorders){
 		if(!isset($_GET['isEstimate'])){
 			$Qorders->andWhere('opr.is_estimate = ?', '0');
 		}

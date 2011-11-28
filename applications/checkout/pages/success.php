@@ -2,34 +2,35 @@
 	$QlastOrder = Doctrine_Query::create()
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
-			->leftJoin('op.OrdersProductsReservation ops')
 			->leftJoin('o.OrdersTotal ot')
 			->where('o.customers_id = ?', (int)$userAccount->getCustomerId())
 			->andWhereIn('ot.module_type', array('ot_total','total'))
 			->orderBy('o.orders_id desc')
 			->limit(1)
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			->execute();
 
+	$LastOrder = $QlastOrder[0];
     require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/Base.php');
-	$Order = new Order($QlastOrder[0]['orders_id']);
+	$Order = new Order($LastOrder->orders_id);
 
 	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_EVENT_SUCCESS_PAGE') == 'True'){
+		$Reservation = $LastOrder->OrdersProducts[0]->OrdersProductsReservation;
 		if (
-			isset($QlastOrder[0]['OrdersProducts'][0]['OrdersProductsReservation']) && 
-			isset($QlastOrder[0]['OrdersProducts'][0]['OrdersProductsReservation'][0])
+			$Reservation &&
+			$Reservation->count() > 0
 		){
-			$evInfo = ReservationUtilities::getEvent($QlastOrder[0]['OrdersProducts'][0]['OrdersProductsReservation'][0]['event_name']);
+			$evInfo = ReservationUtilities::getEvent($Reservation->event_name);
 			//$htmlEventLink = '<a href="'.itw_app_link('appExt=payPerRentals&ev_id='.$evInfo['events_id'],'show_event','default').'">View Event Details</a>';
-			$htmlEventDetails = '<br/><br/><b>Event Details:</b><br/>' .  trim($evInfo['events_details']);
+			$htmlEventDetails = '<br/><br/><b>Event Details:</b><br/>' .  trim($evInfo->events_details);
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$htmlEventGates = '<br/><br/><b>Event Gate:</b><br/>' .  trim($QlastOrder[0]['OrdersProducts'][0]['OrdersProductsReservation'][0]['event_gate']);
+				$htmlEventGates = '<br/><br/><b>Event Gate:</b><br/>' .  trim($Reservation->event_gate);
 			}
 		}
 	}
 
 	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_LOS_SUCCESS_PAGE') == 'True'){
-		//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$QlastOrder[0]['orders_id'], 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$QlastOrder[0]['orders_id'], 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
-		$htmlTermsDetails = $QlastOrder[0]['terms'];
+		//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
+		$htmlTermsDetails = $LastOrder->terms;
 	}
 ?>
 <div class="ui-widget">
@@ -57,7 +58,7 @@
       <tr>
         <td><table border="0" width="100%" cellspacing="0" cellpadding="2">
           <tr>
-            <td class="main" colspan="2"><b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'),$QlastOrder[0]['orders_id']) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b></td>
+            <td class="main" colspan="2"><b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'),$Order->getOrderId()) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b></td>
           </tr>
           <tr>
             <td class="smallText"><?php echo sysLanguage::get('HEADING_ORDER_DATE') . ' ' . tep_date_long($Order->getDatePurchased()); ?></td>
@@ -161,7 +162,7 @@ foreach($Order->getProducts() as $OrderProduct){
       <tr>
         <td>
       <?php
-$contents = EventManager::notifyWithReturn('OrderInfoAddBlock',$QlastOrder[0]['orders_id']);
+$contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $Order->getOrderId());
 	if (!empty($contents)){
 		foreach($contents as $content){
 			echo $content;
@@ -206,7 +207,7 @@ $contents = EventManager::notifyWithReturn('OrderInfoAddBlock',$QlastOrder[0]['o
       <tr>
         <td>
  <?php
-    $contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory',$QlastOrder[0]['orders_id']);
+    $contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory', $Order->getOrderId());
 	if (!empty($contents)){
 		foreach($contents as $content){
 			echo $content;
@@ -337,7 +338,7 @@ for($i=0, $n=sizeof($trackings); $i<$n; $i++){
 	?></div>
 </div>
 <?php
-	$contents = EventManager::notifyWithReturn('CheckoutSuccessFinish',$QlastOrder[0]);
+	$contents = EventManager::notifyWithReturn('CheckoutSuccessFinish',$LastOrder->toArray());
 	if (!empty($contents)){
 		foreach($contents as $content){
 			echo $content;
