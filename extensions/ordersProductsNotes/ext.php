@@ -75,7 +75,6 @@ class Extension_ordersProductsNotes extends ExtensionBase {
 				'text' => $inputElement->draw(),
 				'attr' => array('align' => 'left', 'valign' => 'top')
 			)));
-		}
 	}
 	
 	public function InsertOrderedProductBeforeSave(&$newOrdersProduct, &$product){

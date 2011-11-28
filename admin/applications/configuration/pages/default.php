@@ -25,7 +25,7 @@
 			if (ereg('->', $useFunction)){
 				$class_method = explode('->', $useFunction);
 				if (!is_object(${$class_method[0]})){
-					include(DIR_WS_CLASSES . $class_method[0] . '.php');
+					include(sysConfig::get('DIR_WS_CLASSES') . $class_method[0] . '.php');
 					${$class_method[0]} = new $class_method[0]();
 				}
 				$cfgValue = tep_call_function($class_method[1], $configurationValue, ${$class_method[0]});
