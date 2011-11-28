@@ -154,6 +154,9 @@ class OrderShippingZonereservation extends OrderShippingModuleBase
 		$selectBox->selectOptionByValue($value);
 		return $selectBox->draw();
 	}
-}
 
+	public function getTaxClass(){
+		return 0;
+	}
+}
 ?>

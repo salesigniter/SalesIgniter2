@@ -849,7 +849,7 @@ function tep_reset_cache_block($cache_block) {
 						$cached_file = $cache_blocks[$i]['file'];
 						$languages = tep_get_languages();
 						for ($j=0, $k=sizeof($languages); $j<$k; $j++) {
-							$cached_file_unlink = ereg_replace('-language', '-' . $languages[$j]['directory'], $cached_file);
+							$cached_file_unlink = preg_replace('/-language/', '-' . $languages[$j]['directory'], $cached_file);
 							if (ereg('^' . $cached_file_unlink, $cache_file)) {
 								@unlink(DIR_FS_CACHE . $cache_file);
 							}
@@ -861,7 +861,7 @@ function tep_reset_cache_block($cache_block) {
 				$cached_file = $cache_blocks[$i]['file'];
 				$languages = tep_get_languages();
 				for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-					$cached_file = ereg_replace('-language', '-' . $languages[$i]['directory'], $cached_file);
+					$cached_file = preg_replace('/-language/', '-' . $languages[$i]['directory'], $cached_file);
 					@unlink(DIR_FS_CACHE . $cached_file);
 				}
 			}
@@ -939,7 +939,7 @@ function tep_display_tax_value($value, $padding = TAX_DECIMAL_PLACES) {
 	return $value;
 }
 
-function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $from_email_name, $from_email_address) {
+function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $from_email_name, $from_email_address, $attachments = '') {
 	if (sysConfig::get('SEND_EMAILS') != 'true') return false;
 
 	// Instantiate a new mail object
@@ -951,6 +951,17 @@ function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $fro
 		$message->add_html($email_text, $text);
 	} else {
 		$message->add_text($text);
+	}
+	if(!empty($attachments)){
+		if(!is_array($attachments)){
+			$attachment = fread(fopen(sysConfig::getDirFsCatalog().$attachments, "r"), filesize(sysConfig::getDirFsCatalog() . $attachments));
+			$message->add_attachment($attachment,basename($attachments));
+		}else{
+			foreach($attachments as $attach){
+				$attachment = fread(fopen(sysConfig::getDirFsCatalog().$attach, "r"), filesize(sysConfig::getDirFsCatalog() . $attach));
+				$message->add_attachment($attachment,basename($attach));
+			}
+		}
 	}
 
 	// Send message
@@ -2042,7 +2053,7 @@ function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
 				'clientPassword' => $password,
 				'username' => sysConfig::get('SYSTEM_UPGRADE_USERNAME'),
 				'password' => sysConfig::get('SYSTEM_UPGRADE_PASSWORD'),
-				'domain' => $_SERVER['HTTP_HOST']
+				'domain' => sysConfig::get('HTTP_HOST')
 			));
 
 		$ResponseObj = $RequestObj->execute();

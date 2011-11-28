@@ -3,6 +3,9 @@ class productInventoryAttribute_quantity {
 	public function __construct($invData){
 		global $appExtension;
 		$this->aID_string = null;
+		if (isset($_POST['id'][$invData['type']])){
+			$this->aID_string = attributesUtil::getAttributeString($_POST['id'][$invData['type']]);
+		}
 		$this->invCentersInstalled = false;
 		$this->invData = $invData;
 		
@@ -72,6 +75,34 @@ class productInventoryAttribute_quantity {
 				$Stock->purchased += $cartProduct->getQuantity();
 			}
 			$Stock->save();
+		}
+	}
+
+	public function addStockToCollection(&$Product, &$CollectionObj){
+		global $Editor;
+		$Qcheck = Doctrine_Query::create()
+		->select('quantity_id')
+		->from('ProductsInventoryQuantity')
+		->where('inventory_id = ?', $this->invData['inventory_id']);
+		if (is_null($this->aID_string) === false){
+			$attributePermutations = attributesUtil::permutateAttributesFromString($this->aID_string);
+			$Qcheck->andWhereIn('attributes', $attributePermutations);
+		}
+		EventManager::notify('ProductInventoryQuantityUpdateStockQueryBeforeExecute', $this->invData, &$Qcheck);
+
+		$Record = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		if ($Record){
+			$CollectionObj->quantity_id = $Record[0]['quantity_id'];
+			$CollectionObj->ProductsInventoryQuantity->available -= $Product->getQuantity();
+
+			/* @TODO: Get in the pay per rental extension */
+			if ($this->payPerRentalsInstalled === true && $Product->getPurchaseType() == 'reservation'){
+				$CollectionObj->ProductsInventoryQuantity->reserved += $Product->getQuantity();
+			}else{
+				$CollectionObj->ProductsInventoryQuantity->purchased += $Product->getQuantity();
+			}
+		}else{
+			$Editor->addErrorMessage('There is no inventory for the estimate. Please reselect.');
 		}
 	}
 

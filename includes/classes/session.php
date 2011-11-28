@@ -8,13 +8,20 @@ class Session {
 		global $request_type;
 		self::resetSaveHandler();
 		
+		// set the session name and save path
+		if (APPLICATION_ENVIRONMENT == 'admin'){
+			self::setSessionName('osCAdminID');
+		}else{
+			self::setSessionName('osCID');
+		}
+		
 		self::setSavePath(sysConfig::get('SESSION_WRITE_DIRECTORY'));
 
 		// set the session name and save path
-		if ($_SERVER['HTTP_HOST'] == 'localhost'){
+		if (sysConfig::get('HTTP_HOST') == 'localhost'){
 			self::$cookieDomain = '';
 		}else{
-			self::$cookieDomain = str_replace('www.', '.', $_SERVER['HTTP_HOST']);
+			self::$cookieDomain = str_replace('www.', '.', sysConfig::get('HTTP_HOST'));
 		}
 
 		if (APPLICATION_ENVIRONMENT == 'admin'){

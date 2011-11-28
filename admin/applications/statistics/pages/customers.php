@@ -4,7 +4,7 @@
 <br />
 <?php
 	$Qcustomers = Doctrine_Query::create()
-	->select('c.customers_firstname, c.customers_lastname, sum(op.products_quantity * op.final_price) as ordersum')
+	->select('c.customers_firstname, c.customers_lastname, sum(op.final_price) as ordersum')
 	->from('Customers c')
 	->leftJoin('c.Orders o')
 	->leftJoin('o.OrdersProducts op')
@@ -36,10 +36,10 @@
 			}
 
 			$tableGrid->addBodyRow(array(
-				'onclick' => 'js_redirect(\'' . tep_href_link(FILENAME_CUSTOMERS, 'search=' . $cInfo['customers_lastname'], 'NONSSL') . '\')',
+				'onclick' => 'js_redirect(\'' . itw_app_link('search=' . $cInfo['customers_lastname'], 'customers', 'default') . '\')',
 				'columns' => array(
 					array('text' => $rowNum),
-					array('text' => '<a href="' . tep_href_link(FILENAME_CUSTOMERS, 'search=' . $cInfo['customers_lastname'], 'NONSSL') . '">' . $cInfo['customers_firstname'] . ' ' . $cInfo['customers_lastname'] . '</a>'),
+					array('text' => '<a href="' . itw_app_link('search=' . $cInfo['customers_lastname'], 'customers', 'default') . '">' . $cInfo['customers_firstname'] . ' ' . $cInfo['customers_lastname'] . '</a>'),
 					array('text' => $currencies->format($cInfo['ordersum']), 'align' => 'right')
 				)
 			));

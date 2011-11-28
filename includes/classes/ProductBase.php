@@ -46,7 +46,7 @@ class Product extends MI_Base
 			$this->setDateAvailable('0000-00-00');
 		}
 		$this->setWeight($Product->products_weight);
-		$this->setPrice($Product->products_price);
+		//$this->setPrice($Product->products_price);
 		$this->setStatus($Product->products_status);
 		$this->setManufacturer($Product->manufacturers_id);
 		$this->setTotalOrdered($Product->products_ordered);
@@ -54,12 +54,12 @@ class Product extends MI_Base
 		$this->setDateOrdered($Product->products_date_ordered);
 		$this->setLastSold($Product->products_last_sold);
 		$this->setInventoryController($Product->products_inventory_controller);
-		if(isset($Product->ProductsAdditionalImages)){
+		if ($Product->ProductsAdditionalImages){
 			foreach($Product->ProductsAdditionalImages->toArray() as $iInfo){
 				$this->addAdditionalImage($iInfo);
 			}
 		}
-		if(isset($Product->ProductsDescription)){
+		if ($Product->ProductsDescription){
 			foreach($Product->ProductsDescription->toArray() as $dInfo){
 				$this->setName($dInfo['products_name'], $dInfo['language_id']);
 				$this->setDescription($dInfo['products_description'], $dInfo['language_id']);

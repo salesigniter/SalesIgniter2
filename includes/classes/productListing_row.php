@@ -12,7 +12,12 @@ class productListing_row extends productListing
 
 	private function getDoctrinePager($useQuery, $useLimit = null) {
 		$currentPage = (isset($_GET['page']) ? (int)$_GET['page'] : 1);
-		$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : 25);
+		$limitsArray = explode(',',sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY'));
+		$limitResults = sysConfig::get('PRODUCT_LISTING_PRODUCTS_LIMIT');
+		if((isset($_GET['limit']) && (int)$_GET['limit'] > 0 && (int)$_GET['limit'] <= 25) || ((int)$_GET['limit'] >= 25 && in_array((int)$_GET['limit'],$limitsArray)) ){
+			$limitResults = (int)$_GET['limit'];
+		}
+		//$limitResults = (isset($_GET['limit']) ? (int)$_GET['limit'] : 10);
 
 		if (is_null($useLimit) === false){
 			$limitResults = $useLimit;
@@ -129,6 +134,8 @@ class productListing_row extends productListing
 			$pagerInfo = $this->buildPagerBar();
 			$Products = $pagerInfo['Products']->toArray(true);
 		}
+
+		EventManager::notify('ProductListingQueryAfterExecute', &$Products);
 
 		if (isset($pagerInfo['pagerLayout'])){
 			$PagerLayout = $pagerInfo['pagerLayout'];

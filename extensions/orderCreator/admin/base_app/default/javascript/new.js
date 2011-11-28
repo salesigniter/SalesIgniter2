@@ -164,11 +164,45 @@ $(document).ready(function (){
 					if(isEvent && $Row.find('.eventf').val() != '0'){
 						$('.reservationShipping').trigger('change');
 					}
-				}
+				$('.barcodeName').live('focus',function(){
+					if($(this).val() == ''){
+						$(this).keyup().autocomplete("search", "");
+					}
+				});
 				removeAjaxLoader($Row);
 			}
 		})
 	});
+
+	$('.barcodeName').live('keyup', function() {
+					var $rowVal = $(this).parent().parent();
+					var attributeVal = 'mId='+ $rowVal.attr('data-id') + '&purchaseType=' + $rowVal.find('.purchaseType').val();
+					$rowVal.find('.productAttribute option:selected').each(function() {
+						attributeVal += '&id[reservation][' + $(this).parent().attr('attrval') + ']=' + $(this).val();
+					});
+
+					var link = js_app_link('appExt=orderCreator&app=default&appPage=new&action=getBarcodes');
+		            var $barInput = $(this);
+					$(this).autocomplete({
+						source: function(request, response) {
+							$.ajax({
+							  url: link,
+							  data: attributeVal,
+							  dataType: 'json',
+							  type: 'POST',
+							  success: function(data){
+								  response(data);
+							  }
+							});
+						 },
+						minLength: 0,
+						select: function(event, ui) {
+							$barInput.val(ui.item.label);
+							$barInput.attr('barid', ui.item.value);
+							return false;
+						}
+					})
+				});
 
 	$('.taxRate').live('keyup', function (){
 		var $Row = $(this).parent().parent();

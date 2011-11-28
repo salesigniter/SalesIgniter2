@@ -280,6 +280,7 @@ $(document).ready(function (){
                 if ($('#currentPage').val() != 'addresses'){	              
 
                      $('#voucherRedeem').button();
+                     $('#gcRedeem').button();
                      $('#agreeMessage').hide();
                      $('#bar_step1').hide();
                      $('#bar_step2').show();
@@ -295,14 +296,21 @@ $(document).ready(function (){
                         	 $(this).trigger('click');
                      	 });
 					 }
-					 $(':radio[name="payment_method"]:checked').each(function(){
-						 $(this).click();
-					 });
-					 if ($(':radio[name="payment_method"]').size() == 1){
-						$(':radio[name="payment_method"]').each(function(){
-							$(this).trigger('click');
-						});
-					 }
+
+	                if($(':radio[name="payment_method"]:checked').size() == 0){
+		                var p=0;
+		                $(':radio[name="payment_method"]').each(function(){
+			                p++;
+			                if(p == 1){
+				                $(this).trigger('click');
+			                }
+		                });
+	                }else{
+		                $(':radio[name="payment_method"]:checked').each(function(){
+			                $(this).trigger('click');
+		                });
+	                }
+
                      $('.breadCrumb').html('<a class="headerNavigation" href="'+js_app_link('app=index&appPage=default')+'">You Are Here: Home</a> &raquo; Checkout &raquo; Payment & Shipping');
 					 $('#insure_button').button();
                       try{
@@ -317,9 +325,12 @@ $(document).ready(function (){
 						}
 	                }catch(err){
 	                }
-                	 if ($('.rentalPlans').length <= 0){
-                    	updateTotals();
-                	 }
+                	if ($('.rentalPlans').length <= 0){
+                        updateTotals();
+                	}
+                    if ($('.giftCertificates').length <= 0){
+                        updateTotals();
+                    }
                 }
                 $('#loginButton').button();
                 $('#changeBillingAddress').button();

@@ -17,9 +17,7 @@
 	->leftJoin('o.OrdersStatus s')
 	->leftJoin('s.OrdersStatusDescription sd')
 	->where('sd.language_id = ?', Session::get('languages_id'))
-	/*
-	 * @TODO: Change to only look for "total" after a while, when client upgrades will no longer be affected
-	 */
+
 	->andWhereIn('ot.module_type', array('total', 'ot_total'))
 	->andWhere('a.address_type = ?', 'customer')
 	->orderBy('o.date_purchased desc')
@@ -237,6 +235,7 @@
 		'ot_subtotal',
 		'ot_tax',
 		'ot_shipping',
+		'reservationshipping',
 		'total',
 		'tax',
 		'shipping',
@@ -248,6 +247,7 @@
 		'subtotal',
 		'loworderfee'
 	);
+	$shippingModules = array('ot_shipping','shipping','reservationshipping');
 	$QclassCheck = Doctrine_Query::create()
 	->select('value')
 	->from('OrdersTotal')
@@ -415,7 +415,7 @@
 			->select('SUM(ot.value) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersTotal ot')
-			->whereIn('ot.module_type', array('ot_shipping','shipping'));
+			->whereIn('ot.module_type', $shippingModules);
 
 			if ($loworder) {
 				$Queries['lowOrderFees'] = Doctrine_Query::create()

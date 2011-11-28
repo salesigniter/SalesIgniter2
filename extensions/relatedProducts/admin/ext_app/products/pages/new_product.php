@@ -71,12 +71,29 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 		$langId = Session::get('languages_id');
 		
 		$catList = '';
-		$categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.parent_id from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$langId . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.categories_name");
-		while ($categories = tep_db_fetch_array($categories_query)){
-			$catList .= '<optgroup label="' . $categories['categories_name'] . '">';
-			$Qproducts = tep_db_query('select p.products_id, pd.products_name, p.products_model from ' . TABLE_PRODUCTS . ' p, ' . TABLE_PRODUCTS_DESCRIPTION . ' pd, ' . TABLE_PRODUCTS_TO_CATEGORIES . ' p2c where p2c.products_id = p.products_id and p2c.categories_id = "' . $categories['categories_id'] . '" and pd.products_id = p.products_id and pd.language_id = "' . $langId . '"');
-			while($products = tep_db_fetch_array($Qproducts)){
-				$catList .= '<option value="' . $products['products_id'] . '">(' . $products['products_model'] . ") " . $products['products_name'] . '</option>';
+
+		$QCategories = Doctrine_Query::create()
+		->from('Categories c')
+		->leftJoin('c.CategoriesDescription cd')
+		->where('cd.language_id = ?', (int)$langId)
+		->andWhere('c.parent_id = ?', (int)$parent_id)
+		->orderBy('c.sort_order, cd.categories_name')
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+		foreach($QCategories as $categories){
+			$catList .= '<optgroup label="' . $categories['CategoriesDescription'][0]['categories_name'] . '">';
+
+			$Qproducts = Doctrine_Query::create()
+			->from('Products p')
+			->leftJoin('p.ProductsDescription pd')
+			->leftJoin('p.ProductsToCategories p2c')
+			->where('pd.language_id = ?', (int) $langId)
+			->andWhere('p2c.categories_id = ?', $categories['categories_id'])
+			->orderBy('pd.products_name')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+			foreach($Qproducts as $products){
+				$catList .= '<option value="' . $products['products_id'] . '">(' . $products['products_model'] . ") " . $products['ProductsDescription'][0]['products_name'] . '</option>';
 			}
 			
 			if (tep_childs_in_category_count($categories['categories_id']) > 0){
@@ -84,6 +101,7 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 			}
 			$catList .= '</optgroup>';
 		}
+
 		return $catList;
 	}
 
@@ -116,6 +134,20 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
                 $relatedProducts .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . $RelatedProduct->getName() . '</span>' . tep_draw_hidden_field('related_products[]', $RelatedProduct->getId()) . '</div>';
             }
         }
+		$QrelatedGlobal = Doctrine_Query::create()			
+			->from('ProductsRelatedGlobal ')
+			->where('type = "P"')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	
+		if (!empty($QrelatedGlobal)){  
+            $relatedG = explode(',', $QrelatedGlobal[0]['related_global']);
+			//if($relatedG == '') 
+			//$relatedG = $QrelatedGlobal['related_global'];
+
+            foreach($relatedG as $pID){
+                $relatedProductsGlobal .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . tep_get_products_name($pID) . '</span>' . tep_draw_hidden_field('related_productsGlobal[]', $pID) . '</div>';
+            }
+        }
 		
 		$table->addBodyRow(array(
 			'columns' => array(
@@ -128,7 +160,8 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 				),
 				array(
 					'addCls' => 'main',
-					'text' => '<button type="button" id="moveRight"><span>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;</span></button>'
+					'text' => '<button type="button" id="moveRight"><span>&nbsp;&nbsp;>>&nbsp;&nbsp;</span></button>'.
+								'<button type="button" id="moveRightGlobal"><span>&nbsp;&nbsp;Global >>&nbsp;&nbsp;</span></button>'
 				),
 				array(
 					'addCls' => 'main',
@@ -137,6 +170,14 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 						'valign' => 'top'
 					), 
 					'text' => $relatedProducts
+				),
+				array(
+					'addCls' => 'main',
+					'attr' => array(
+						'id' => 'relatedGlobal',
+						'valign' => 'top'
+					), 
+					'text' => $relatedProductsGlobal
 				)
 			)
 		));

@@ -6,7 +6,7 @@ $RequestObj->setData(array(
 	'version' => 1,
 	'username' => sysConfig::get('SYSTEM_UPGRADE_USERNAME'),
 	'password' => sysConfig::get('SYSTEM_UPGRADE_PASSWORD'),
-	'domain' => $_SERVER['HTTP_HOST']
+	'domain' => sysConfig::get('HTTP_HOST')
 ));
 
 $ResponseObj = $RequestObj->execute();

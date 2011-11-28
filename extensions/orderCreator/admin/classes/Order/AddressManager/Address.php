@@ -40,6 +40,9 @@ class OrderCreatorAddress extends OrderAddress implements Serializable {
 		$this->addressInfo['entry_cif'] = $val;
 	}
 
+	public function setDOB($val){
+		$this->addressInfo['entry_dob'] = $val;
+	}
 
 	public function setStreetAddress($val){
 		$this->addressInfo['entry_street_address'] = $val;

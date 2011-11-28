@@ -92,23 +92,51 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 		return 'none';
 	}
 
-	public function quote($method = '') {
-		global $order, $shipping_weight, $shipping_num_boxes, $userAccount;
+	public function getType(){
+		return $this->type;
+	}
 
-		if (isset($method) && !empty($method)){
-			$prod = $method;
+	public function getNumBoxes(&$shipping_weight, &$shipping_num_boxes){
+		$boxWeight = sysConfig::get('SHIPPING_BOX_WEIGHT');
+		$boxPadding = sysConfig::get('SHIPPING_BOX_PADDING');
+		$boxMaxWeight = sysConfig::get('SHIPPING_MAX_WEIGHT');
+
+
+		if ($boxWeight >= $shipping_weight * $boxPadding / 100) {
+			$shipping_weight = $shipping_weight + $boxWeight;
+		} else {
+			$shipping_weight = $shipping_weight + ($shipping_weight * $boxPadding / 100);
 		}
-		else {
+
+		if ($shipping_weight > $boxMaxWeight) { // Split into many boxes
+			$shipping_num_boxes = ceil($shipping_weight / $boxMaxWeight);
+			$shipping_weight = $shipping_weight / $shipping_num_boxes;
+		}
+	}
+	
+	public function quote($method = '', $shipping_weight = -1){
+		global $order,  $userAccount, $App;
+		$shipping_num_boxes = 1;
+		$this->getNumBoxes($shipping_weight, $shipping_num_boxes);
+
+		if ( isset($method) && !empty($method)) {
+			$prod = $method;
+		} else {
 			$prod = 'GND';
 		}
 
-		//if ($method) $this->_upsAction($method); // return a single quote
 
 		$this->_upsProduct($prod);
-		$deliveryAddress = $this->getDeliveryAddress();
-		$addressBook =& $userAccount->plugins['addressBook'];
-		if (is_object($addressBook) && $method != 'all'){
-			$deliveryCountry = $addressBook->getCountryInfo($deliveryAddress['entry_country_id']);
+		if($App->getEnv() == 'catalog'){
+			$deliveryAddress = $this->getDeliveryAddress();
+		}else{
+			global $Editor;
+			if(isset($Editor)){
+				$deliveryAddress = $Editor->AddressManager->getAddress('delivery')->toArray();
+			}
+		}
+		if (isset($deliveryAddress) && $method != 'all'){
+			$deliveryCountry = OrderShippingModules::getCountryInfo($deliveryAddress['entry_country_id']);
 			$country_name = tep_get_countries(sysConfig::get('SHIPPING_ORIGIN_COUNTRY'), true);
 			$this->_upsOrigin(sysConfig::get('SHIPPING_ORIGIN_ZIP'), $deliveryCountry['countries_iso_code_2']);
 			$this->_upsDest($deliveryAddress['entry_postcode'], $deliveryCountry['countries_iso_code_2']);
@@ -323,36 +351,27 @@ class OrderShippingUpsReservation extends OrderShippingModuleBase
 		$errorret = 'error'; // only return error if NO rates returned
 		//print_r($body_array);
 		$n = sizeof($body_array);
-		for($i = 0; $i < $n; $i++){
+		for ($i=0; $i<$n; $i++) {
 			$result = explode('%', $body_array[$i]);
 			$errcode = substr($result[0], -1);
-			switch($errcode){
+			switch ($errcode) {
 				case 3:
-					if (is_array($returnval)) {
-						$returnval[] = array($result[1] => $result[8]);
-					}
+					if (is_array($returnval)) $returnval[] = array($result[1] => $result[8]);
 					break;
 				case 4:
-					if (is_array($returnval)) {
-						$returnval[] = array($result[1] => $result[8]);
-					}
+					if (is_array($returnval)) $returnval[] = array($result[1] => $result[8]);
 					break;
 				case 5:
 					$errorret = $result[1];
 					break;
 				case 6:
-					if (is_array($returnval)) {
-						$returnval[] = array($result[3] => $result[10]);
-					}
+					if (is_array($returnval)) $returnval[] = array($result[3] => $result[10]);
 					break;
 			}
 		}
-		if (empty($returnval)) {
-			$returnval = $errorret;
-		}
+		if (empty($returnval)) $returnval = $errorret;
 
 		return $returnval;
 	}
 }
-
 ?>

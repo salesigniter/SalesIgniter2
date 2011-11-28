@@ -45,6 +45,17 @@ function add_extra_fields($table, $column, $column_attr = 'VARCHAR(255) NULL'){
 
 }
 
+function updatePagesDescription(){
+	$db=sysConfig::get('DB_DATABASE');
+	$link = mysql_connect(sysConfig::get('DB_SERVER'), sysConfig::get('DB_SERVER_USERNAME'), sysConfig::get('DB_SERVER_PASSWORD'));
+	if (! $link){
+		die(mysql_error());
+	}
+	mysql_select_db($db , $link) or die("Select Error: ".mysql_error());
+	mysql_query("ALTER TABLE  `pages_description` CHANGE  `pages_html_text`  `pages_html_text` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL") or die('An error occured when running updating pages_description table'.mysql_error());
+	mysql_query("ALTER TABLE  `pages_description` CHANGE  `pages_title`  `pages_title` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL") or die('An error occured when running updating pages_description table'.mysql_error());
+}
+
 
 
 function updateConfiguration($key, $group, $title, $desc, $default, $func) {
@@ -52,28 +63,27 @@ function updateConfiguration($key, $group, $title, $desc, $default, $func) {
 		->select('configuration_id')
 		->from('Configuration')
 		->where('configuration_key = ?', $key)
-		->execute();
-	if ($Qcheck->count() == 1) {
-		$newConfig = $Qcheck[0];
+		->fetchOne();
+
+	if ($Qcheck) {
 		if($title != -1){
-			$newConfig->configuration_title = $title;
+			$Qcheck->configuration_title = $title;
 		}
 		if($default != -1){
-			$newConfig->configuration_value = $default;
+			$Qcheck->configuration_value = $default;
 		}
 		if($desc != -1){
-			$newConfig->configuration_description = $desc;
+			$Qcheck->configuration_description = $desc;
 		}
 		if($group != -1){
-			$newConfig->configuration_group_id = $group;
+			$Qcheck->configuration_group_id = $group;
 		}
-		$newConfig->sort_order = 11;
+		$Qcheck->sort_order = 11;
 		if($func != -1){
-			$newConfig->set_function = $func;
+			$Qcheck->set_function = $func;
 		}
-		$newConfig->save();
+		$Qcheck->save();
 	}
-	$Qcheck->free();
 }
 
 addConfiguration('SHOW_MANUFACTURER_ON_PRODUCT_INFO', 1, 'Show manufacturer name on product Info', 'Show manufacturer name on product Info', 'false', "tep_cfg_select_option(array('true', 'false'),");
@@ -94,6 +104,8 @@ addConfiguration('SHOW_ENLAGE_IMAGE_TEXT', 1, 'Show enlarge image text on produc
 addConfiguration('PRODUCT_LISTING_TYPE', 8, 'Use rows or columns for product listing', 'Use rows or columns for product listing', 'row', "tep_cfg_select_option(array('row', 'column'),");
 addConfiguration('PRODUCT_LISTING_TOTAL_WIDTH', 8, 'When using columns for product listing content area width to use when calculating image width', 'When using columns for product listing content area width to use when calculating image width', '600', "");
 addConfiguration('PRODUCT_LISTING_PRODUCTS_COLUMNS', 8, 'When using columns for product listing number of products to display in a row', 'When using columns for product listing number of products to display in a row', '4', "");
+addConfiguration('PRODUCT_LISTING_PRODUCTS_LIMIT', 8, 'Number of products to list per page', 'Number of products to list per page (max 25)', '12', "");
+addConfiguration('PRODUCT_LISTING_PRODUCTS_LIMIT_ARRAY', 8, 'Results Per Page drop down values', 'Results Per Page drop down values (comma seperated example:<br>12,24,48,96)', '12,24,48,96', "");
 addConfiguration('TOOLTIP_DESCRIPTION_ENABLED', 8, 'Enable product image tooltip description for products listing?', 'Enable product image tooltip description for products listing?', 'true', "tep_cfg_select_option(array('true', 'false'),");
 addConfiguration('TOOLTIP_DESCRIPTION_BUTTONS', 8, 'Show buttons in product image tooltip description for products listing?', 'Show buttons in product image tooltip description for products listing?', 'true', "tep_cfg_select_option(array('true', 'false'),");
 
@@ -111,6 +123,8 @@ addConfiguration('ACCOUNT_TELEPHONE',5, 'Telephone Number', 'Telephone Number','
 addConfiguration('ACCOUNT_FISCAL_CODE',5, 'Fiscal Code', 'Fiscal Code','false',"tep_cfg_select_option(array('true', 'false'),");
 addConfiguration('ACCOUNT_CITY_BIRTH', 5, 'City of birth', 'City of birth', 'false', "tep_cfg_select_option(array('true', 'false'),");
 
+addConfiguration('BARCODE_TYPE', 1, 'Choose barcode type to use in the store', 'Choose barcode type to use in the store', 'Code 39', "tep_cfg_select_option(array('Code 128B', 'Code 39 Extended', 'QR', 'Code 39', 'Code 25', 'Code 25 Interleaved'),");
+
 /*
 		* This part is for completing with the remaining orders statuses if don't exists. In future updates they should be filled
 		* */
@@ -124,9 +138,8 @@ function addStatus($status_name) {
 	->orderBy('s.orders_status_id')
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if (count($Qstatus) <= 0) {
-        $Status = new OrdersStatus();
-
-		$Description = $Status->OrdersStatusDescription;
+		$Status = new OrdersStatus();
+		$Description = &$Status->OrdersStatusDescription;
 		foreach (sysLanguage::getLanguages() as $lInfo) {
 			$Description[$lInfo['id']]->language_id = $lInfo['id'];
 			$Description[$lInfo['id']]->orders_status_name = $status_name;
@@ -145,17 +158,94 @@ if($EmailTemplatesVariableCheck == false)
 	$Variable->email_templates_id = '17';
 	$Variable->save();
 }
+
+function addEmailTemplateVariables($variableName,$event, $is_conditional = 0, $condition_check = ''){
+    $emailTemplates = Doctrine_Core::getTable('EmailTemplates')->findOneByEmailTemplatesEvent($event);
+    if($emailTemplates){
+        $EmailTemplatesVariables = Doctrine_Core::getTable('EmailTemplatesVariables');
+        $EmailTemplatesVariableCheck = $EmailTemplatesVariables->findOneByEmailTemplatesIdAndEventVariable($emailTemplates->email_templates_id,$variableName);
+        if(!$EmailTemplatesVariableCheck){
+            $emailTemplatesVariable = new EmailTemplatesVariables();
+            $emailTemplatesVariable->email_templates_id = $emailTemplates->email_templates_id;
+            $emailTemplatesVariable->event_variable = $variableName;
+            $emailTemplatesVariable->is_conditional = $is_conditional;
+            $emailTemplatesVariable->condition_check = $condition_check;
+            $emailTemplatesVariable->save();
+        }
+    }
+}
+
+function addEmailTemplate($name, $event, $attach, $subject, $content){
+	$emailTemplates = Doctrine_Core::getTable('EmailTemplates')->findOneByEmailTemplatesEvent($event);
+	if(!$emailTemplates){
+		$emailTemplate = new EmailTemplates;
+		$emailTemplate->email_templates_name = $name;
+		$emailTemplate->email_templates_event = $event;
+		if(!empty($attach)){
+			$emailTemplate->email_templates_attach = $attach;
+		}
+		$emailTemplate->save();
+		$emailTemplateDescription = new EmailTemplatesDescription;
+		$emailTemplateDescription->email_templates_id = $emailTemplate->email_templates_id;
+		$emailTemplateDescription->email_templates_subject = $subject;
+		$emailTemplateDescription->email_templates_content = $content;
+		$emailTemplateDescription->language_id = Session::get('languages_id');
+
+		$emailTemplateDescription->save();
+	}
+}
+addEmailTemplate('Return Reminders','return_reminder','','Return Reminder Alert','Hello {$firstname},<br/><br/>The following products are to be returned {$rented_list}<br/><br/>Regards,<br/>{$store_owner}');
+addEmailTemplateVariables('firstname','return_reminder');
+addEmailTemplateVariables('email_address','return_reminder');
+addEmailTemplateVariables('rented_list','return_reminder');
+
+addEmailTemplate('Shipment Due Reminders','ship_reminder','','Shipment Due Reminder','Hello {$firstname},<br/><br/>The following products are due to be shipped {$rented_list}<br/><br/>Regards,<br/>{$store_owner}');
+addEmailTemplateVariables('firstname','ship_reminder');
+addEmailTemplateVariables('rented_list','ship_reminder');
+
+addEmailTemplateVariables('order_has_streaming_or_download','order_success', '1', 'order_has_streaming_or_download');
+
+
+
+addEmailTemplateVariables('customerFirstName','membership_activated_admin');
+addEmailTemplateVariables('customerLastName','membership_activated_admin');
+addEmailTemplateVariables('currentPlanPackageName','membership_activated_admin');
+addEmailTemplateVariables('currentPlanMembershipDays','membership_activated_admin');
+addEmailTemplateVariables('currentPlanNumberOfTitles','membership_activated_admin');
+addEmailTemplateVariables('currentPlanFreeTrial','membership_activated_admin');
+addEmailTemplateVariables('currentPlanPrice','membership_activated_admin');
+addEmailTemplateVariables('previousPlanPackageName','membership_activated_admin');
+addEmailTemplateVariables('previousPlanMembershipDays','membership_activated_admin',1);
+addEmailTemplateVariables('previousPlanNumberOfTitles','membership_activated_admin');
+addEmailTemplateVariables('previousPlanFreeTrial','membership_activated_admin');
+addEmailTemplateVariables('previousPlanPrice','membership_activated_admin');
+
+addEmailTemplateVariables('customerFirstName','membership_upgraded_admin');
+addEmailTemplateVariables('customerLastName','membership_upgraded_admin');
+addEmailTemplateVariables('currentPlanPackageName','membership_upgraded_admin');
+addEmailTemplateVariables('currentPlanMembershipDays','membership_upgraded_admin');
+addEmailTemplateVariables('currentPlanNumberOfTitles','membership_upgraded_admin');
+addEmailTemplateVariables('currentPlanFreeTrial','membership_upgraded_admin');
+addEmailTemplateVariables('currentPlanPrice','membership_upgraded_admin');
+addEmailTemplateVariables('previousPlanPackageName','membership_upgraded_admin');
+addEmailTemplateVariables('previousPlanMembershipDays','membership_upgraded_admin',1);
+addEmailTemplateVariables('previousPlanNumberOfTitles','membership_upgraded_admin');
+addEmailTemplateVariables('previousPlanFreeTrial','membership_upgraded_admin');
+addEmailTemplateVariables('previousPlanPrice','membership_upgraded_admin');
+
 addStatus('Waiting Confirmation');
 addStatus('Cancelled');
 addStatus('Approved');
 addStatus('Estimate');
 addStatus('Shipped');
 
+if(sysConfig::get('MODULE_ORDER_SHIPPING_ZONERESERVATION_STATUS') == 'True'){
+	add_extra_fields('modules_shipping_zone_reservation_methods','weight_rates','TEXT NULL');
+	add_extra_fields('modules_shipping_zone_reservation_methods','min_rental_number','INT(1) NOT NULL DEFAULT  "0"');
+	add_extra_fields('modules_shipping_zone_reservation_methods','min_rental_type','INT(1) NOT NULL DEFAULT  "0"');
+}
 
-add_extra_fields('modules_shipping_zone_reservation_methods','weight_rates','TEXT NULL');
-add_extra_fields('modules_shipping_zone_reservation_methods','min_rental_number'," INT( 1 ) NOT NULL DEFAULT  '0'");
-add_extra_fields('modules_shipping_zone_reservation_methods','min_rental_type'," INT( 1 ) NOT NULL DEFAULT  '0'");
-
+updatePagesDescription();
 
 //update bannerManger
 

@@ -20,6 +20,9 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 	public function processPayment($moduleName, &$CollectionObj = null){
 		global $Editor;
 		$Module = OrderPaymentModules::getModule($moduleName);
+		if (is_null($CollectionObj) === false){
+			$Module->logToCollection($CollectionObj);
+		}
 		$BillingAddress = $Editor->AddressManager->getAddress('billing');
 		
 		$RequestData = array(
@@ -51,11 +54,7 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 
 			$RequestData['cardCvv'] = $_POST['payment_cc_cvv'];
 		}
-
-		if (is_null($CollectionObj) === false){
-			$Module->logToCollection($CollectionObj);
-			$RequestData['orderID'] = $CollectionObj->orders_id;
-		}
+		
 		$success = $Module->sendPaymentRequest($RequestData);
 		if ($success === true){
 			return true;

@@ -116,7 +116,7 @@
 
 				$emailEvent->setVars(array(
 					'customerFirstName' => $userAccount->getFirstName(),
-					'customerLastNameName' => $userAccount->getLastName(),
+					'customerLastName' => $userAccount->getLastName(),
 					'currentPlanPackageName' => $currentPlan['MembershipPlanDescription'][0]['name'],
 					'currentPlanMembershipDays' => $currentPlan['membership_days'],
 					'currentPlanNumberOfTitles' => $currentPlan['no_of_titles'],

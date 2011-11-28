@@ -78,9 +78,9 @@ class OrderTotalShipping extends OrderTotalModuleBase
 			$order->info['total'] += $shippingCost;
 
 			$taxClassId = $module->getTaxClass();
-			if ($taxClassId > 0){
-				$shipping_tax = tep_get_tax_rate($taxClassId, $deliveryAddress['country_id'], $deliveryAddress['zone_id']);
-				$shipping_tax_description = tep_get_tax_description($taxClassId, $deliveryAddress['country_id'], $deliveryAddress['zone_id']);
+			if ($taxClassId > 0) {
+				$shipping_tax = tep_get_tax_rate($taxClassId, $deliveryAddress['entry_country_id'], $deliveryAddress['entry_zone_id']);
+				$shipping_tax_description = tep_get_tax_description($taxClassId, $deliveryAddress['entry_country_id'], $deliveryAddress['entry_zone_id']);
 
 				$order->info['tax'] += tep_calculate_tax($shippingCost, $shipping_tax);
 				$order->info['tax_groups']["$shipping_tax_description"] += tep_calculate_tax($shippingCost, $shipping_tax);

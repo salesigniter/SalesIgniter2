@@ -84,45 +84,6 @@ class Products extends Doctrine_Record {
 			'notnull'       => false,
 			'autoincrement' => false
 		));
-		$this->hasColumn('products_price', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_used', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_stream', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
-		$this->hasColumn('products_price_download', 'decimal', 15, array(
-			'type'          => 'decimal',
-			'length'        => 15,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0.0000',
-			'notnull'       => true,
-			'autoincrement' => false,
-			'scale'         => 4
-		));
 		$this->hasColumn('products_date_added', 'timestamp', null, array(
 			'type'          => 'timestamp',
 			'primary'       => false,

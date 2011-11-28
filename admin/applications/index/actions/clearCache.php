@@ -1,8 +1,10 @@
 <?php
-	apc_clear_cache('opcode');
-	$json = array(
-			'success' => true
-	);
-
-	EventManager::attachActionResponse($json, 'json');
+	apc_clear_cache('user');
+	$dir = sysConfig::getDirFsCatalog().'cache/';
+	foreach(glob($dir.'*javascript*.*') as $v){
+		unlink($v);
+	}
+	foreach(glob($dir.'*stylesheet*.*') as $v){
+		unlink($v);
+	}
 ?>

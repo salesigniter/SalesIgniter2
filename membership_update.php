@@ -1,4 +1,6 @@
 <?php
+putenv('SHELL=/bin/bash');
+putenv('TERM=vt100');
 /*
   $Id: conditions.php,v 1.22 2003/06/05 23:26:22 hpdl Exp $
 
@@ -59,7 +61,8 @@
           $membershipUpdate->setCurrentCustomer($userAccount);
           if ($membershipUpdate->isCanceled() === true){
               $membershipUpdate->cancelMembership();
-          }elseif($membershipUpdate->isMember() && $membershipUpdate->isActivated()){
+          }elseif($membershipUpdate->isMember() && ($membershipUpdate->isActivated() || $membershipUpdate->isRetry())){
+
               $paymentMethod = $membershipUpdate->paymentMethod();
               $Module = OrderPaymentModules::getModule($paymentMethod);
               $membershipUpdate->setPaymentObj($Module);

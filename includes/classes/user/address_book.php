@@ -11,8 +11,10 @@ class rentalStoreUser_addressBook {
 	}
 	
 	public function &getUserAccount(){
-		global $userAccount;
-		if (Session::exists('userAccount') === true){
+		global $userAccount, $appExtension;
+		if($appExtension->isAdmin()){
+            return $userAccount;
+        }elseif (Session::exists('userAccount') === true){
 			$userAccountCheck = &Session::getReference('userAccount');
 			if (is_object($userAccountCheck)){
 				$userAccount =& $userAccountCheck;
@@ -277,9 +279,11 @@ class rentalStoreUser_addressBook {
 
 	/* @TODO: getinto extension */
 	public function getAddressInventoryCenter($address = false){
-		
+        if(sysConfig::get('EXTENSION_INVENTORY_CENTERS_STOCK_METHOD') !== 'Zone'){
+            return 0;
+        }
+		require(sysConfig::getDirFsCatalog() . 'includes/functions/google_maps.php');
 		if (!class_exists('Services_JSON')){
-			require(sysConfig::getDirFsCatalog() . 'includes/functions/google_maps.php');
 			require(sysConfig::getDirFsCatalog() . 'includes/classes/json.php');
 		}
 

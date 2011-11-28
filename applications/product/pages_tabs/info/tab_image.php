@@ -169,6 +169,13 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	'</div>' . 
 	'<div style="clear:both;"></div>';
 
+	$contents = EventManager::notifyWithReturn('ProductInfoAfterPurchaseTypes', &$product);
+	if (!empty($contents)){
+		foreach($contents as $content){
+			echo $content;
+		}
+	}
+
 	if ($Product->isBox()){
 		$discs = $Product->getDiscs(false, true);
 		$totalDiscs = $Product->getTotalDiscs();
@@ -193,7 +200,12 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	}
 	
 	if (isset($discs) && sizeof($discs) > 0){
-		$productListing = new productListing_row();
+		if(sysConfig::get('PRODUCT_LISTING_TYPE') == 'row'){
+			$productListing = new productListing_row();
+		} else {
+			$productListing = new productListing_col();
+		}
+
 		$productListing->disablePaging()
 		->disableSorting()
 		->dontShowWhenEmpty()
@@ -237,7 +249,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 		'</div>';
 	}
 	
-	if ($Product->isAvailable() === false) {
+	if ($product->isNotAvailable()) {
 		echo '<div>' . 
 			sprintf(
 				sysLanguage::get('TEXT_DATE_AVAILABLE'),
@@ -256,10 +268,13 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	}
 	
 	echo '</div>';
-$contents = EventManager::notifyWithReturn('ProductInfoAfterBoxesPurchaseTypes', &$Product);
-if (!empty($contents)){
-	foreach($contents as $content){
-		echo $content;
+
+    //echo '<div style="text-align:center">';
+	$contents = EventManager::notifyWithReturn('ProductInfoTabImageAfterInfo', &$product);
+		if (!empty($contents)){
+			foreach($contents as $content){
+				echo $content;
+			}
 	}
-}
+	//echo '</div>';
 ?>

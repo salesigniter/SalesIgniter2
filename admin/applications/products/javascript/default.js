@@ -10,6 +10,10 @@ $(document).ready(function (){
 		js_redirect(js_app_link('app=products&appPage=new_product&productType=' + $('#newProductType').val()));
 	});
 
+	$('.copyButton').click(function(){
+		window.location = js_app_link('app=products&appPage=default&action=copyProduct&products_id=' + $(this).attr('products_id'));
+	});
+	
 	$('.deleteProductButton').click(function (){
 		var $selfButton = $(this);
 		$('<div></div>').dialog({

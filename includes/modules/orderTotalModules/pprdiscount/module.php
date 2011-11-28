@@ -35,16 +35,19 @@ class OrderTotalPprdiscount extends OrderTotalModuleBase
 				}
 			}
 			$Qorders = Doctrine_Query::create()
-				->from('Orders o')
-				->leftJoin('o.OrdersProducts op')
-				->leftJoin('op.OrdersProductsReservation opr')
-				->leftJoin('o.OrdersTotal ot')
-				->andWhereIn('ot.module_type', array('total', 'ot_total'))
-				->andWhereIn('op.products_id', $prodIds)
-				->andWhere('o.date_purchased > FROM_DAYS(TO_DAYS(NOW())-' . $this->pprDiscountDays . ')')
-				->orderBy('o.date_purchased desc')
-				->andWhere('o.customers_id = ?', $userAccount->getCustomerId())
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			->from('Orders o')
+			->leftJoin('o.OrdersProducts op')
+			->leftJoin('op.OrdersProductsReservation opr')
+			->leftJoin('o.OrdersTotal ot')
+			->andWhereIn('ot.module_type', array('total', 'ot_total'))
+			->andWhereIn('op.products_id', $prodIds)
+			->andWhere('o.date_purchased > FROM_DAYS(TO_DAYS(NOW())-'.$this->pprDiscountDays.')')
+			->orderBy('o.date_purchased desc')
+			->andWhere('o.customers_id = ?',$userAccount->getCustomerId());
+
+			EventManager::notify('OrdersListingBeforeExecute', &$Qorders);
+
+			$Qorders = $Qorders->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 			$discount = 0;
 			foreach($Qorders as $oInfo){

@@ -12,18 +12,15 @@ class productListing_productsPriceUsed {
 		return $selectSortKeys;
 	}
 
-	public function show(&$productClass){
-		$purchaseTypeUsed = $productClass->getPurchaseType('used', true);
-		if ($purchaseTypeUsed->getCurrentStock() > 0){
-			$buyNowButton = htmlBase::newElement('button')
-			->setText(sysLanguage::get('TEXT_BUTTON_BUY_NOW'))
-			->setHref(itw_app_link(tep_get_all_get_params(array('action', 'products_id')) . 'action=buy_used_product&products_id=' . $productClass->getID()), true);
-
-			EventManager::notify('ProductListingModuleShowBeforeShow', 'used', $productClass, &$buyNowButton);
-
-			return $purchaseTypeUsed->displayPrice() . '<br />' . $buyNowButton->draw();
+	public function show(Product &$Product){
+		global $currencies;
+		$ProductType = $Product->getProductTypeClass();
+		if (method_exists($ProductType, 'showProductListing')){
+			$return = $ProductType->showProductListing('productsPriceUsed');
+		}else{
+			$return = $currencies->format($Product->getPrice());
 		}
-		return false;
+		return $return;
 	}
 }
 ?>

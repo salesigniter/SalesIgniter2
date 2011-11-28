@@ -44,12 +44,16 @@ class productInventoryNormal_barcode {
 	
 	public function addStockToCollection(&$Product, &$CollectionObj){
 		if ($this->invData['type'] == 'new' || $this->invData['type'] == 'used' || $this->invData['type'] == 'reservation'){
+			$pInfo = $Product->getInfo();
 			$Qcheck = Doctrine_Query::create()
 			->select('ib.barcode_id')
 			->from('ProductsInventoryBarcodes ib')
 			->where('ib.status = ?', 'A')
-			->andWhere('ib.inventory_id = ?', $this->invData['inventory_id'])
-			->limit('1');
+			->andWhere('ib.inventory_id = ?', $this->invData['inventory_id']);
+			if(isset($pInfo['usableBarcodes']) && count($pInfo['usableBarcodes']) > 0){
+				$Qcheck->andWhereIn('ib.barcode_id', $pInfo['usableBarcodes']);
+			}
+			$Qcheck->limit('1');
 			
 			EventManager::notify('ProductInventoryBarcodeUpdateStockQueryBeforeExecute', $this->invData, &$Qcheck);
 			
@@ -57,6 +61,8 @@ class productInventoryNormal_barcode {
 			if ($Result){
 				$CollectionObj->barcode_id = (int) $Result[0]->barcode_id;
 				$CollectionObj->ProductsInventoryBarcodes->status = 'P';
+			}else{
+				$Editor->addErrorMessage('There is no inventory for the estimate. Please reselect.');
 			}
 		}
 	}

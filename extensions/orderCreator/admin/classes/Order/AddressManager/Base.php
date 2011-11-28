@@ -53,6 +53,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 		foreach($_POST['address'] as $type => $aInfo){
 			$this->addresses[$type]->setName($aInfo['entry_name']);
 			$this->addresses[$type]->setCityBirth($aInfo['entry_city_birth']);
+			$this->addresses[$type]->setDOB($aInfo['entry_dob']);
 			$this->addresses[$type]->setFiscalCode($aInfo['entry_cif']);
 			$this->addresses[$type]->setVATNumber($aInfo['entry_vat']);
 			$this->addresses[$type]->setCompany($aInfo['entry_company']);
@@ -83,6 +84,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 			$Address->entry_cif = $addressObj->getCIF();
 			$Address->entry_vat = $addressObj->getVAT();
 			$Address->entry_city_birth = $addressObj->getCityBirth();
+			$Address->entry_dob = $addressObj->getDateOfBirth();
 			$CollectionObj->add($Address);
 		}
 	}
@@ -113,6 +115,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 			$Address->entry_cif = $addressObj->getCIF();
 			$Address->entry_vat = $addressObj->getVAT();
 			$Address->entry_city_birth = $addressObj->getCityBirth();
+			$Address->entry_dob = $addressObj->getDateOfBirth();
 
 			$Address->save();
 		}
@@ -201,6 +204,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 		$cifInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_cif]');
 		$vatInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_vat]');
 		$cityBirthInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_city_birth]');
+		$dobInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_dob]');
 		$postcodeInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_postcode]');
 
 		$countryInput = htmlBase::newElement('selectbox')
@@ -251,6 +255,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 			$suburbInput->val($Address->getSuburb());
 			$cityInput->val($Address->getCity());
 			$cifInput->val($Address->getCIF());
+			$dobInput->val($Address->getDateOfBirth());
 			$vatInput->val($Address->getVAT());
 			$cityBirthInput->val($Address->getCityBirth());
 			$postcodeInput->val($Address->getPostcode());
@@ -289,6 +294,13 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 				'columns' => array(
 					array('text' => sysLanguage::get('ENTRY_VAT')),
 					array('text' => $vatInput)
+				)
+		));
+
+		$htmlTable->addBodyRow(array(
+				'columns' => array(
+					array('text' => sysLanguage::get('ENTRY_DOB')),
+					array('text' => $dobInput)
 				)
 		));
 

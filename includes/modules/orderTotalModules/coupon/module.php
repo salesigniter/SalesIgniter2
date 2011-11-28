@@ -155,7 +155,7 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 	}
 
 	public function calculate_credit($amount) {
-		global $ShoppingCart;
+		global $ShoppingCart, $onePageCheckout, $order;
 
 		$totalDiscount = 0;
 		if (Session::exists('cc_id') === true){
@@ -177,8 +177,29 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 
 				if ($Coupon['coupon_minimum_order'] <= $this->get_order_total()){
 					if (!empty($Coupon['restrict_to_products']) || !empty($Coupon['restrict_to_purchase_type'])){
-						foreach($ShoppingCart->getProducts() as $cartProduct){
-							$productPrice = ($cartProduct->getFinalPrice() * $cartProduct->getQuantity());
+						if($onePageCheckout->isMembershipCheckout()) {
+							$success = false;
+							if (!empty($Coupon['restrict_to_purchase_type'])){
+								$allowedPurchaseTypes = explode(',', $Coupon['restrict_to_purchase_type']);
+								if(strstr($Coupon['restrict_to_purchase_type'],',')){
+									$allowedPurchaseTypes = explode(',',$Coupon['restrict_to_purchase_type']);
+								} else {
+									$allowedPurchaseTypes = array($Coupon['restrict_to_purchase_type']);
+								}
+								$success = (is_array($allowedPurchaseTypes) && in_array('membership', $allowedPurchaseTypes));
+							} else {
+								$success = true;
+							}
+							if ($success && $Coupon['coupon_type'] == 'P'){
+
+								$priceDiscount = round($order->products[0]['final_price']*10)/10*$couponAmount/100;
+								$totalDiscount = $priceDiscount;
+							}else{
+								$totalDiscount = $couponAmount;
+							}
+						} else {
+							foreach($ShoppingCart->getProducts() as $cartProduct){
+								$productPrice = ($cartProduct->getFinalPrice() * $cartProduct->getQuantity());
 
 							if (!empty($Coupon['restrict_to_purchase_type'])){
 								$purchaseTypes = explode(',', $Coupon['restrict_to_purchase_type']);
@@ -231,7 +252,7 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 	}
 
 	public function calculate_tax_deduction($amount, $discountAmount, $method) {
-		global $userAccount, $order, $ShoppingCart;
+		global $userAccount, $order, $ShoppingCart, $onePageCheckout;
 
 		if (Session::exists('cc_id')){
 			$Qcoupon = Doctrine_Query::create()
@@ -390,7 +411,7 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 	}
 
 	public function get_order_total() {
-		global $order, $ShoppingCart, $userAccount;
+		global $order, $ShoppingCart, $userAccount, $onePageCheckout;
 
 		$order_total = $order->info['total'];
 		// Check if gift voucher is in cart and adjust total
@@ -437,9 +458,16 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 				if (!empty($Coupon['restrict_to_purchase_type'])){
 					$types = explode(',', $Coupon['restrict_to_purchase_type']);
 					$totalPrice = 0;
-					foreach($ShoppingCart->getProducts() as $cartProduct){
-						if (in_array($cartProduct->getPurchaseType(), $types)){
-							$totalPrice += $cartProduct->getFinalPrice(($this->include_tax == 'True')) * $cartProduct->getQuantity();
+					if($onePageCheckout->isMembershipCheckout()) {
+						if(is_array($types) && in_array('membership', $types)) {
+							$totalPrice = $order->products[0]['final_price'];
+						}
+
+					} else {
+						foreach($ShoppingCart->getProducts() as $cartProduct){
+							if (in_array($cartProduct->getPurchaseType(), $types)){
+								$totalPrice += $cartProduct->getFinalPrice(($this->include_tax == 'True')) * $cartProduct->getQuantity();
+							}
 						}
 					}
 					$order_total = $totalPrice;

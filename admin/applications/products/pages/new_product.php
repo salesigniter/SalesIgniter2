@@ -1,7 +1,8 @@
 <?php
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 $Product = new Product(
-	(isset($_GET['pID']) && empty($_POST) ? $_GET['pID'] : '')
+	(isset($_GET['pID']) && empty($_POST) ? $_GET['pID'] : ''),
+	true
 );
 if (!isset($_GET['pID']) && isset($_GET['productType'])){
 	$Product->setProductType($_GET['productType']);
