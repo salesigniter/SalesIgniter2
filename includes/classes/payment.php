@@ -65,15 +65,14 @@ class payment {
 			$billingAddress = $userAccount->plugins['addressBook']->getAddress('billing');
 
 			$check_flag = false;
-			$Qcheck = dataAccess::setQuery('select zone_id from {geo_zones} where geo_zone_id = {module_zone} and zone_country_id = {country_id} order by zone_id');
-			$Qcheck->setTable('{geo_zones}', TABLE_ZONES_TO_GEO_ZONES);
-			$Qcheck->setValue('{module_zone}', $module->paymentZone);
-			$Qcheck->setValue('{country_id}', $billingAddress['entry_country_id']);
-			while ($Qcheck->next() !== false){
-				if ($Qcheck->getVal('zone_id') < 1){
+			$Check = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select zone_id from ' . TABLE_ZONES_TO_GEO_ZONES . ' where geo_zone_id = "' . $module->paymentZone . '" and zone_country_id = "' . $billingAddress['entry_country_id'] . '" order by zone_id');
+			foreach ($Check as $cInfo){
+				if ($cInfo['zone_id'] < 1){
 					$check_flag = true;
 					break;
-				} elseif ($Qcheck->getVal('zone_id') == $billingAddress['entry_zone_id']){
+				} elseif ($cInfo['zone_id'] == $billingAddress['entry_zone_id']){
 					$check_flag = true;
 					break;
 				}

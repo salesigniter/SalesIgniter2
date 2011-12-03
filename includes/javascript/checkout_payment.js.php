@@ -84,10 +84,11 @@ if (MODULE_ORDER_TOTAL_INSTALLED)
 	$temp=$temp[count($temp)-1];
 	$temp=$temp['value'];
 
-	$gv_query = tep_db_query("select amount from " . TABLE_COUPON_GV_CUSTOMER . " where customer_id = '" . $customer_id . "'");
-	$gv_result = tep_db_fetch_array($gv_query);
+	$gvResult = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select amount from " . TABLE_COUPON_GV_CUSTOMER . " where customer_id = '" . $customer_id . "'");
 
-if ($gv_result['amount']>=$temp){ $coversAll=true;
+if ($gvResult[0]['amount']>=$temp){ $coversAll=true;
 
 ?>
 

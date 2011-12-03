@@ -18,7 +18,7 @@ class productListing_productsPriceUsed {
 		if (method_exists($ProductType, 'showProductListing')){
 			$return = $ProductType->showProductListing('productsPriceUsed');
 		}else{
-			$return = $currencies->format($Product->getPrice());
+			$return = $currencies->display_price($Product->getPrice());
 		}
 		return $return;
 	}

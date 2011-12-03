@@ -21,9 +21,11 @@
   }
   
   var disabledDates = [<?php
-      $QdisabledDates = tep_db_query('select * from blackout_dates');
+		$ResultSet = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select * from blackout_dates');
       $disabledJS = array();
-      while($disabledDates = tep_db_fetch_array($QdisabledDates)){
+      foreach($ResultSet as $disabledDates){
           $dateFrom = explode('-', $disabledDates['date_from']);
           foreach($dateFrom as $index => $number){
               $dateFrom[$index] = (int)$number;

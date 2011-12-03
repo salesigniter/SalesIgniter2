@@ -169,21 +169,16 @@ class ShoppingCart implements Serializable
 		$return = $Product->isActive();
 		if ($return === true){
 			$return = $Product->allowAddToCart($CartProductData);
-
 			if ($return === true){
 				$return = EventManager::notifyWithReturn('ShoppingCart\AddToCartAllow', $CartProductData, $Product);
-				$val = true;
 				foreach($return as $Result){
 					if ($Result === false){
-						$val = false;
+						$return = false;
 						break;
 					}
 				}
-				$return = $val;
-
 			}
 		}
-
 		return $return;
 	}
 
@@ -201,7 +196,8 @@ class ShoppingCart implements Serializable
 		$CartProductData = array(
 			'hash_id' => null,
 			'product_id' => $Product->getId(),
-			'id_string' => $Product->getId()
+			'id_string' => $Product->getId(),
+			'weight' => $Product->getWeight()
 		);
 
 		$Product->addToCartPrepare(&$CartProductData);

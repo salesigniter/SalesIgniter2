@@ -89,8 +89,10 @@ class ModuleConfigReader {
 		}
 
 		$ModuleConfig = array();
-		$QModuleConfig = mysql_query('select mc.* from modules m left join modules_configuration mc using(modules_id) where m.modules_type = "' . $this->moduleType . '" and m.modules_code = "' . $this->module . '"');
-		while($cfgInfo = mysql_fetch_assoc($QModuleConfig)){
+		$QModuleConfig = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select mc.* from modules m left join modules_configuration mc using(modules_id) where m.modules_type = "' . $this->moduleType . '" and m.modules_code = "' . $this->module . '"');
+		foreach($QModuleConfig as $cfgInfo){
 			$ModuleConfig[$cfgInfo['configuration_key']] = $cfgInfo;
 		}
 

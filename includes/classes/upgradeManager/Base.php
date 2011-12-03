@@ -63,8 +63,12 @@ class UpgradeManager {
 		if ($this->useProgressBar === true){
 			if (empty($upgradeDir)){
 				$this->clearProgressBar();
-				mysql_query('insert into progress_bar (name, message, percentage) values ("' . $this->globalProgressBarName . '", "Global Process Progress Bar", "0")');
-				mysql_query('insert into progress_bar (name, message, percentage) values ("' . $this->currentProgressBarName . '", "Per Process Progress Bar", "0")');
+				Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->exec('insert into progress_bar (name, message, percentage) values ("' . $this->globalProgressBarName . '", "Global Process Progress Bar", "0")');
+				Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->exec('insert into progress_bar (name, message, percentage) values ("' . $this->currentProgressBarName . '", "Per Process Progress Bar", "0")');
 			}
 		}
 
@@ -433,7 +437,9 @@ class UpgradeManager {
 	 */
 	private function updateProgressBar($message, $percent){
 		if ($this->useProgressBar === true){
-			mysql_query('update progress_bar set message = "' . $message . '", percentage = "' . ($percent * 100) . '" where name = "' . $this->currentProgressBarName . '"');
+			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec('update progress_bar set message = "' . $message . '", percentage = "' . ($percent * 100) . '" where name = "' . $this->currentProgressBarName . '"');
 		}
 	}
 
@@ -445,7 +451,9 @@ class UpgradeManager {
 	 */
 	public function updateGlobalProgressBar($percent){
 		if ($this->useProgressBar === true){
-			mysql_query('update progress_bar set message = "Global Process Progress", percentage = "' . ($percent * 100) . '" where name = "' . $this->globalProgressBarName . '"');
+			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec('update progress_bar set message = "Global Process Progress", percentage = "' . ($percent * 100) . '" where name = "' . $this->globalProgressBarName . '"');
 		}
 	}
 

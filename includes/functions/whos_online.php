@@ -61,7 +61,9 @@
       }
     
       // remove entries that have expired
-	  mysql_query('delete from whos_online where time_last_click < "' . $xx_mins_ago . '"');
+		Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->exec('delete from whos_online where time_last_click < "' . $xx_mins_ago . '"');
 
 	  /**
 	   * @TODO: Fix This

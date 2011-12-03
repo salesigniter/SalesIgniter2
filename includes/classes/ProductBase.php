@@ -72,21 +72,24 @@ class Product extends MI_Base
 			}
 		}
 
-		EventManager::notify('ProductInfoClassConstruct', &$this, $Product);
+		EventManager::notify('ProductInfoClassConstruct', $this, $Product);
 	}
 
 	/**
 	 * @return void
 	 */
 	function updateViews() {
-		mysql_query('update ' .
-			'products_description' .
-			' set ' .
-			'products_viewed = products_viewed + 1' .
-			' where ' .
-			'products_id = "' . $this->getId() . '" and ' .
-			'language_id = "' . Session::get('languages_id') . '"'
-		);
+		Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->exec(
+				'update ' .
+					'products_description' .
+				' set ' .
+					'products_viewed = products_viewed + 1' .
+				' where ' .
+					'products_id = "' . $this->getId() . '" and ' .
+					'language_id = "' . Session::get('languages_id') . '"'
+			);
 	}
 
 	/**

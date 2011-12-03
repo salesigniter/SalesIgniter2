@@ -29,11 +29,12 @@ abstract class InfoBoxAbstract {
 		$this->boxTemplateDefaultDir = sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgetTemplates/';
 		$this->boxCurrentTemplateDir = sysConfig::getDirFsCatalog() . 'templates/' . (Session::exists('tplDir') ? Session::get('tplDir') : 'fallback') . '/boxes/';
 
-		$Query = mysql_query('select * from templates_infoboxes where box_code = "' . $this->boxCode . '"');
-		if (mysql_num_rows($Query)){
-			$Result = mysql_fetch_assoc($Query);
+		$ResultSet = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select * from templates_infoboxes where box_code = "' . $this->boxCode . '"');
+		if ($ResultSet && sizeof($ResultSet) > 0){
 			$this->installed = true;
-			$this->boxData = $Result;
+			$this->boxData = $ResultSet[0];
 			
 			//$this->setBoxTemplateFile($this->boxData['template_file']);
 		}

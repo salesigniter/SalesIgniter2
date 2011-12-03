@@ -51,12 +51,11 @@
         $count_string = tep_db_input($count_key);
       }
 
-      $Qcount = dataAccess::setQuery('select count({count_string}) as total {from_query}');
-      $Qcount->setRaw('{count_string}', $count_string);
-      $Qcount->setRaw('{from_query}', substr($this->sql_query, $pos_from, ($pos_to - $pos_from)));
-      $Qcount->runQuery();
+		$Count = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select count(' . $count_string . ') as total ' . substr($this->sql_query, $pos_from, ($pos_to - $pos_from)));
 
-      $this->number_of_rows = $Qcount->getVal('total');
+      $this->number_of_rows = $Count[0]['total'];
       
       if (!$this->number_of_rows_per_page) $rows_per_page = 1; else $rows_per_page = $this->number_of_rows_per_page;
       $this->number_of_pages = ceil($this->number_of_rows / $rows_per_page);

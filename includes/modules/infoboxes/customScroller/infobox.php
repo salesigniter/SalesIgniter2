@@ -146,12 +146,10 @@ abstract class InfoBoxCustomScrollerAbstract
 				EventManager::notify('ScrollerRelatedQueryBeforeExecute', &$Query);
 				break;
 			case 'category':
-				global $current_category_id;
-				
-				if ($current_category_id>0){
+				if (Session::exists('current_category_id')){
 					$Query->leftJoin('p.ProductsToCategories p2c')
 						->leftJoin('p2c.Categories c')
-						->andWhere('c.parent_id = ? OR p2c.categories_id= ?', array($current_category_id, $current_category_id));
+						->andWhere('c.categories_id = ?', Session::get('current_category_id'));
 				}
 
 				EventManager::notify('ScrollerCategoryQueryBeforeExecute', &$Query);

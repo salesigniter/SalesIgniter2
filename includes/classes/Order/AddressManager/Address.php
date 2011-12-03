@@ -68,6 +68,10 @@ class OrderAddress {
 		return $this->getValue('entry_gender');
 	}
 
+	public function getDateOfBirth(){
+		return $this->getValue('entry_dob');
+	}
+
 	public function getName(){
 		return $this->getValue('entry_name');
 	}
@@ -102,6 +106,10 @@ class OrderAddress {
 
 	public function getCIF(){
 		return $this->getValue('entry_cif');
+	}
+
+	public function getCityBirth(){
+		return $this->getValue('entry_city_birth');
 	}
 
 	public function getPostcode(){

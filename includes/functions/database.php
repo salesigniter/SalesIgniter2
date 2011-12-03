@@ -39,6 +39,7 @@
 
   function tep_db_query($query, $link = 'db_link') {
     global $messageStack;
+    echo $query;
       $return = dataAccess::runQuery($query);
           if (isset($return['errMsg']) && !empty($return['errMsg'])){
               $errMsg = '<table cellpadding="3" cellspacing="0" border="0">' . 

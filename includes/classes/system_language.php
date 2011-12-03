@@ -36,19 +36,22 @@
 				} else {
 					$currency = (sysConfig::get('USE_DEFAULT_LANGUAGE_CURRENCY') == 'true') ? sysConfig::get('LANGUAGE_CURRENCY') : sysConfig::get('DEFAULT_CURRENCY');
 				}
-				$QcurrencyValue = mysql_query('select value from currencies where code = "' . $currency . '"');
-				$currencyValue = mysql_fetch_assoc($QcurrencyValue);
+				$currencyValue = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc('select value from currencies where code = "' . $currency . '"');
 
 				Session::set('currency', $currency);
-				Session::set('currency_value', $currencyValue['value']);
+				Session::set('currency_value', $currencyValue[0]['value']);
 			}
 		}
 		
 		public static function getLanguages($reload = false){
 			if (empty(self::$catalog_languages) || $reload === true){
-				$Qlanguages = mysql_query('select * from languages where status = 1 order by sort_order');
-				if (mysql_num_rows($Qlanguages)){
-					while($lInfo = mysql_fetch_assoc($Qlanguages)){
+				$Languages = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc('select * from languages where status = 1 order by sort_order');
+				if (sizeof($Languages) > 0){
+					foreach($Languages as $lInfo){
 						self::$catalog_languages[$lInfo['code']] = array(
 							'id'        => $lInfo['languages_id'],
 							'code'      => $lInfo['code'],
@@ -134,10 +137,11 @@
 		public static function getDirectory($lang = null){
 			$dir = null;
 			if (is_null($lang) === false){
-				$Qdir = mysql_query('select directory from languages where code = "' . $lang . '" or languages_id = "' . $lang . '"');
-				if (mysql_num_rows($Qdir)){
-					$result = mysql_fetch_assoc($Qdir);
-					$dir = $result['directory'];
+				$ResultSet = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc('select directory from languages where code = "' . $lang . '" or languages_id = "' . $lang . '"');
+				if (sizeof($ResultSet) > 0){
+					$dir = $ResultSet['directory'];
 				}
 			}else{
 				$dir = self::$language['directory'];

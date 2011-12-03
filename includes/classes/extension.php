@@ -98,6 +98,8 @@ class ExtensionBase
 					$tableColumns = $dbConn->import->listTableColumns($tableObj->getTableName());
 
 					foreach((array)$cols as $colName => $colSettings){
+						$colSettings = (array)$colSettings;
+								
 						$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
 						if (!isset($tableColumns[$colName])){
 							ExceptionManager::report('Database table column does not exist.', E_USER_ERROR, array(
@@ -108,7 +110,7 @@ class ExtensionBase
 								));
 						}
 						else {
-							$tableObjRecord->hasColumn($colName, $colSettings['type'], $length);
+							$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
 						}
 					}
 				}
@@ -132,6 +134,8 @@ class ExtensionBase
 							$tableColumns = $dbConn->import->listTableColumns($tableObj->getTableName());
 
 							foreach((array)$cols as $colName => $colSettings){
+								$colSettings = (array)$colSettings;
+								
 								$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
 								if (!isset($tableColumns[$colName])){
 									ExceptionManager::report('Database table column does not exist.', E_USER_ERROR, array(
@@ -142,7 +146,7 @@ class ExtensionBase
 										));
 								}
 								else {
-									$tableObjRecord->hasColumn($colName, $colSettings['type'], $length);
+									$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
 								}
 							}
 						}

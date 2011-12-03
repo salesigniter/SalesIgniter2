@@ -123,7 +123,7 @@ class Products extends Doctrine_Record {
 			'default'       => '0.00',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => false
+			'scale'         => 2
 		));
 		$this->hasColumn('products_status', 'integer', 1, array(
 			'type'          => 'integer',
@@ -216,12 +216,12 @@ class Products extends Doctrine_Record {
 			'default'       => '0.00',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => false
+			'scale'         => 2
 		));
 
-		$this->hasColumn('membership_enabled', 'string', null, array(
+		$this->hasColumn('membership_enabled', 'string', 32, array(
 			'type'    => 'string',
-			'length'  => null,
+			'length'  => 32,
 			'primary' => false,
 			'notnull' => false,
 			'default' => 'normal'

@@ -59,10 +59,11 @@ function buildAppLink($o){
 		$paramsParsed = true;
 		if ($o['app'] == 'product' && isset($vars['products_id'])){
 			if (!isset($productNameResults[(int)$vars['products_id']])){
-				$Query = mysql_query('select products_name from products_description where products_id = "' . (int)$vars['products_id'] . '" and language_id = "' . Session::get('languages_id') . '"');
-				$Result = mysql_fetch_assoc($Query);
+				$ResultSet = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc('select products_name from products_description where products_id = "' . (int)$vars['products_id'] . '" and language_id = "' . Session::get('languages_id') . '"');
 
-				$productName = seoUrlClean($Result['products_name']);
+				$productName = seoUrlClean($ResultSet[0]['products_name']);
 				$productNameResults[(int)$vars['products_id']]['products_name'] = $productName;
 			}else{
 				$productName = $productNameResults[(int)$vars['products_id']]['products_name'];
