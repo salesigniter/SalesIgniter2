@@ -160,6 +160,8 @@ if ($products){
 				$date_return = 'Not Applicable';
 				if($pib['status'] == 'M'){
 					$status = 'Maintenance';
+				}elseif($pib['status'] == 'Q'){
+					$status = 'Quarantine';
 				}else{
 					if(isset($Qreservations[0])){
 						if($Qreservations[0]['rental_state'] == 'reserved'){

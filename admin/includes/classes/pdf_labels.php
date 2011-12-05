@@ -443,7 +443,7 @@ class PDF_Labels {
 	}
 
 	function loadProductBarcodes($id, $singleBarcode = false){
-		$product = new product($id);
+		$product = new Product($id);
 
 		$Qinventory = Doctrine_Query::create()
 		->select('i.inventory_id, ib.barcode, ib.barcode_id')
@@ -470,7 +470,7 @@ class PDF_Labels {
 	}
 
 	function loadBarcodes($pID, $barcodes){
-		$product = new product($pID);
+		$product = new Product($pID);
 		foreach($barcodes as $barcodeId){
 			$Qbarcode = Doctrine_Query::create()
 			->select('barcode, barcode_id')

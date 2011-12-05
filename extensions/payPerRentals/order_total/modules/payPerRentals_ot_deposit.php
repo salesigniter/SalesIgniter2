@@ -57,8 +57,10 @@ class payPerRentals_ot_deposit {
 
 	public function check() {
 		if (!isset($this->_check)) {
-			$check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'EXTENSION_PAY_PER_RENTALS_ORDER_TOTAL_DEPOSIT_STATUS'");
-			$this->_check = tep_db_num_rows($check_query);
+			$Check = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'EXTENSION_PAY_PER_RENTALS_ORDER_TOTAL_DEPOSIT_STATUS'");
+			$this->_check = sizeof($Check);
 		}
 
 		return $this->_check;

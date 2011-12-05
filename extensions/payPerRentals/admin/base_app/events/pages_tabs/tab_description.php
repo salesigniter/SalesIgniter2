@@ -174,17 +174,14 @@ if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 			 $TableEventsProducts->addHeaderRow(array(
 					 'addCls' => 'ui-state-hover EventsProductsTableHeader',
 					 'columns' => array(
-						 array('text' => '<div style="float:left;width:80px;">' .sysLanguage::get('TABLE_HEADING_PRODUCT_MODEL').'</div>'.
-							 '<div style="float:left;width:150px;">'.sysLanguage::get('TABLE_HEADING_QTY').'</div>'.
-							 '<div style="float:left;width:40px;">'.htmlBase::newElement('icon')->setType('insert')->addClass('insertIconHidden')->draw().
-							 '</div><br style="clear:both"/>'
-						 )
+						 array('align' => 'left', 'text' => sysLanguage::get('TABLE_HEADING_PRODUCT_MODEL')),
+						 array('text' => sysLanguage::get('TABLE_HEADING_QTY')),
+						 array('text' => 'Available Inventory'),
+						 array('align' => 'right', 'text' => htmlBase::newElement('icon')->setType('insert')->addClass('insertIcon')->draw())
 					 )
 				 ));
 
-			 $deleteIcon = htmlBase::newElement('icon')->setType('delete')->addClass('deleteIconHidden')->draw();
-			 $hiddenList = htmlBase::newElement('list')
-			 ->addClass('hiddenList');
+			 $deleteIcon = htmlBase::newElement('icon')->setType('delete')->addClass('deleteIcon')->draw();
 
 			 if(isset($_GET['eID'])){
 				 $QProductEvents = Doctrine_Query::create()
@@ -207,27 +204,16 @@ if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 						 ->attr('size', '15')
 						 ->val($iprodev['qty']);
 
-					 $divLi1 = '<div style="float:left;width:80px;">'.$htmlProductsModel->draw().'</div>';
-					 $divLi2 = '<div style="float:left;width:80px;">'.$htmlQty->draw().'</div>';
-					 $divLi5 = '<div style="float:left;width:40px;">'.$deleteIcon.'</div>';
-
-					 $liObj = new htmlElement('li');
-					 $liObj->css(array(
-							 'font-size' => '.8em',
-							 'list-style' => 'none',
-							 'line-height' => '1.1em',
-							 'border-bottom' => '1px solid #cccccc',
-							 'cursor' => 'crosshair'
-						 ))
-						 ->html($divLi1.$divLi2.$divLi5.'<br style="clear:both;"/>');
-					 $hiddenList->addItemObj($liObj);
+					 $TableEventsProducts->addBodyRow(array(
+						 'addCls' => 'ui-state-hover EventsProductsTableHeader',
+						 'columns' => array(
+							 array('text' => $htmlProductsModel->draw()),
+							 array('text' => $htmlQty->draw()),
+							 array('text' => $deleteIcon->draw())
+						 )
+					 ));
 				 }
 			 }
-			 $TableEventsProducts->addBodyRow(array(
-					 'columns' => array(
-						 array('align' => 'center', 'text' => $hiddenList->draw(),'addCls' => 'eventsProduct')
-					 )
-				 ));
 			  echo $TableEventsProducts->draw();
 			 ?></td>
 	 </tr>

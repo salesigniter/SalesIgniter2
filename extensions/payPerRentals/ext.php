@@ -17,7 +17,7 @@ class Extension_payPerRentals extends ExtensionBase {
 
 	public function init(){
 		global $App, $appExtension, $typeNames, $inventoryTypes;
-		if ($this->enabled === false)
+		if ($this->isEnabled() === false)
 			return;
 
 		$typeNames['reservation'] = 'Reservation';
@@ -49,21 +49,6 @@ class Extension_payPerRentals extends ExtensionBase {
 			EventManager::attachEvent('OrderInfoAddBlock', null, $this);
 			EventManager::attachEvent('OrderShowExtraPackingData', null, $this);
 		}
-
-		/*
-		 * Shopping Cart Actions --BEGIN--
-		 */
-		require(dirname(__FILE__) . '/classEvents/ShoppingCart.php');
-		$eventClass = new ShoppingCart_payPerRentals();
-		$eventClass->init();
-
-		require(dirname(__FILE__) . '/classEvents/ShoppingCartProduct.php');
-		$eventClass = new ShoppingCartProduct_payPerRentals();
-		$eventClass->init();
-
-		require(dirname(__FILE__) . '/classEvents/ShoppingCartDatabase.php');
-		$eventClass = new ShoppingCartDatabase_payPerRentals();
-		$eventClass->init();
 
 		require(dirname(__FILE__) . '/classes/Utilities.php');
 

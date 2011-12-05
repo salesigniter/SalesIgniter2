@@ -1,5 +1,4 @@
 <?php
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 
 	//PurchaseTypeModules::loadModules();
@@ -34,12 +33,6 @@
 	
 		require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
 		$currencies = new currencies();
-	
-		// Ultimate SEO URLs v2.1
-		// If the action will affect the cache entries
-		if (isset($_GET['action'])){
-			if (preg_match('/(insert|update|setflag|setfflag)/', $_GET['action'])) include_once('includes/reset_seo_cache.php');
-		}
 	
 		$trackMethods = array(
 			array('id' => 'quantity', 'text' => 'Use Quantity Tracking'),
