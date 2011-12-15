@@ -87,7 +87,7 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 		->setName('barcodeTypeSelect')
 		->addClass('barcodeTypeSelect');
 
-	$barcodeTypesList = explode(';', sysConfig::get('BARCODES_INVENTORY_TYPES'));
+	$barcodeTypesList = explode(',', sysConfig::get('BARCODES_INVENTORY_TYPES'));
 	$hasTypesList = false;
 	if(!empty($barcodeTypesList[0])){
 		$hasTypesList = true;
@@ -219,7 +219,7 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 			$currentBarcodesTableBody = array(
 				array(
 					'addCls' => 'ui-widget-content ui-grid-cell ui-grid-cell-first centerAlign',
-					'text' => '<input type="checkbox" name="barcodes[]" value="' . $bInfo['barcode_id'] . '" class="barcode_' . $purchaseTypeCode . '">'
+					'text' => '<input type="checkbox" name="barcodes[]" value="' . $bInfo['barcode_id'] . '" data-barcode="' . $bInfo['barcode'] . '" class="barcode_' . $purchaseTypeCode . '">'
 				),
 				array(
 					'addCls' => 'ui-widget-content ui-grid-cell',

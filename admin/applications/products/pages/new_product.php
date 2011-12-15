@@ -8,20 +8,22 @@ if (!isset($_GET['pID']) && isset($_GET['productType'])){
 }
 
 $manufacturers_array = array(array('id' => '', 'text' => sysLanguage::get('TEXT_NONE')));
-$manufacturers_query = tep_db_query("select manufacturers_id, manufacturers_name from " . TABLE_MANUFACTURERS . " order by manufacturers_name");
-while($manufacturers = tep_db_fetch_array($manufacturers_query)){
+$Qmanufacturers = Doctrine_Manager::getInstance()
+	->getCurrentConnection()
+	->fetchAssoc("select manufacturers_id, manufacturers_name from " . TABLE_MANUFACTURERS . " order by manufacturers_name");
+foreach($Qmanufacturers as $manufacturers){
 	$manufacturers_array[] = array('id' => $manufacturers['manufacturers_id'],
 		'text' => $manufacturers['manufacturers_name']);
 }
 
 $tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
-$tax_class_query = tep_db_query("select tax_class_id, tax_class_title from " . TABLE_TAX_CLASS . " order by tax_class_title");
-while($tax_class = tep_db_fetch_array($tax_class_query)){
+$QtaxClass = Doctrine_Manager::getInstance()
+	->getCurrentConnection()
+	->fetchAssoc("select tax_class_id, tax_class_title from " . TABLE_TAX_CLASS . " order by tax_class_title");
+foreach($QtaxClass as $tax_class){
 	$tax_class_array[] = array('id' => $tax_class['tax_class_id'],
 		'text' => $tax_class['tax_class_title']);
 }
-
-$languages = tep_get_languages();
 
 if ($Product->isActive() === true){
 	$in_status = true;
@@ -45,7 +47,7 @@ else {
 $box_id = false;
 $disc_label = 1;
 if ($Product->getId() > 0){
-	if ($Product->isInBox()){
+	/*if ($Product->isInBox()){
 		$box_query = tep_db_query("select box_id, disc from " . TABLE_PRODUCTS_TO_BOX . " where products_id=" . $Product->getId());
 		$box = tep_db_fetch_array($box_query);
 		$box_id = $box['box_id'];
@@ -57,7 +59,7 @@ if ($Product->getId() > 0){
 	{
 		$boxes_array[] = array('id' => $boxes['products_id'],
 			'text' => $boxes['products_name']);
-	}
+	}*/
 }
 
 $is_box_array = array();

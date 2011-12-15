@@ -50,7 +50,7 @@
 			$userAccount->setGender($accountValidation['entry_gender']);
 		}
 		if (isset($accountValidation['dob'])){
-			$userAccount->setDateOfBirth(strftime(sysLanguage::getDateFormat('short'),strtotime($accountValidation['dob'])));
+			$userAccount->setDateOfBirth($accountValidation['dob']);
 		}
 		$userAccount->setMemberNumber((!empty($_POST['customers_number']) ? $_POST['customers_number'] : tep_create_random_value(8)));
 		$userAccount->setAccountFrozen((isset($_POST['customers_account_frozen'])));
@@ -58,7 +58,14 @@
 		if (isset($accountValidation['city_birth'])){
 			$userAccount->setCityBirth($accountValidation['city_birth']);
 		}
-		$userAccount->updateCustomerAccount();
+		
+		if (isset($_GET['cID'])){
+			$userAccount->updateCustomerAccount();
+			$addressBook->updateAddress((int)$_POST['default_address_id'], $accountValidation);
+		}else{
+			$userAccount->createNewAccount();
+			$addressBook->insertAddress($accountValidation, true);
+		}
 
 		if (array_key_exists('planid', $_POST) || array_key_exists('activate', $_POST) || array_key_exists('make_member', $_POST)){
 			if (array_key_exists('activate', $_POST)){

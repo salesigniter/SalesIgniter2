@@ -1,6 +1,12 @@
 <?php
-	$configurationId = (int)$_GET['cID'];
-	
+$Group = Doctrine_Core::getTable('ConfigurationGroup')
+	->findOneByConfigurationGroupKey($_GET['key']);
+foreach($_POST['configuration'] as $k => $v){
+	$Group->Configuration[$k]->configuration_key = $k;
+	$Group->Configuration[$k]->configuration_value = $v;
+}
+$Group->save();
+	/*
 	if (isset($_FILES['configuration_value'])){
 		$curUpload = new upload('configuration_value');
 		$curUpload->set_extensions(array('jpg', 'gif', 'png'));
@@ -55,6 +61,8 @@
 	}else{
 		$messageStack->addSession('pageStack', 'Configuration not found by id=' . $configurationId);
 	}
-
-	EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action'))), 'redirect');
+*/
+	EventManager::attachActionResponse(array(
+		'success' => true
+	), 'json');
 ?>
