@@ -1,0 +1,58 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[Maintenance Events]]></define>
+	<define key="TABLE_HEADING_EVENTS"><![CDATA[Event]]></define>
+	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
+	<define key="TAB_DESCRIPTION"><![CDATA[Description]]></define>
+	<define key="TEXT_EVENTS_NAME"><![CDATA[Event Name: ]]></define>
+	<define key="TEXT_EVENTS_DATE"><![CDATA[Event Date: ]]></define>
+	<define key="TEXT_EVENTS_DETAILS"><![CDATA[Event Details: ]]></define>
+	<define key="TEXT_EVENTS_SHIPPING"><![CDATA[Event Shipping: ]]></define>
+	<define key="TEXT_EVENTS_GATES"><![CDATA[Event Gates: ]]></define>
+
+	<define key="TABLE_HEADING_PRODUCT_PART_NAME"><![CDATA[Part Name]]></define>
+	<define key="TABLE_HEADING_PART_PRICE"><![CDATA[Part Price]]></define>
+	<define key="HEADING_TITLE_REPAIRS"><![CDATA[Repairs]]></define>
+	<define key="TABLE_HEADING_BARCODE_TYPE"><![CDATA[Barcode Type]]></define>
+
+	<define key="TABLE_HEADING_MAINTENANCE"><![CDATA[Maintenance]]></define>
+	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
+	<define key="TABLE_HEADING_BARCODE"><![CDATA[Barcode]]></define>
+	<define key="TABLE_HEADING_TYPE"><![CDATA[Event Type]]></define>
+	<define key="TABLE_HEADING_ADMIN"><![CDATA[Admin Name]]></define>
+	<define key="TABLE_HEADING_PARTS_USED"><![CDATA[Parts Used]]></define>
+	<define key="TABLE_HEADING_PARTS_PRICE"><![CDATA[Parts Price]]></define>
+	<define key="TEXT_EVENTS_SHIPPING"><![CDATA[Event Shipping: ]]></define>
+	<define key="TABLE_HEADING_DATE"><![CDATA[Date]]></define>
+	<define key="TABLE_HEADING_PRICE"><![CDATA[Labour Price]]></define>
+	<define key="TABLE_HEADING_QTY"><![CDATA[Qty]]></define>
+	<define key="TEXT_EVENTS_QTY"><![CDATA[Qty per product: ]]></define>
+	<define key="TEXT_BUTTON_GENERATE_CSV"><![CDATA[Generate CSV ]]></define>
+
+	<define key="TABLE_HEADING_STORE_NAME"><![CDATA[Store Name]]></define>
+	<define key="TABLE_HEADING_STORE_REG_NO"><![CDATA[Store Reg No]]></define>
+	<define key="TABLE_HEADING_HIRE_START_DATE"><![CDATA[Hire Start Date]]></define>
+	<define key="TABLE_HEADING_HIRE_END_DATE"><![CDATA[Hire End Date]]></define>
+	<define key="TABLE_HEADING_HIRE_ADMIN_NAME"><![CDATA[Admin Name]]></define>
+	<define key="TABLE_HEADING_CUSTOMER_NAME"><![CDATA[Customer Name]]></define>
+	<define key="TABLE_HEADING_CUSTOMER_GUEST_WALKIN"><![CDATA[Guest or Walkin]]></define>
+	<define key="TABLE_HEADING_CUSTOMER_ID_TYPE"><![CDATA[ID type]]></define>
+
+
+	<define key="TABLE_HEADING_CUSTOMER_ID_NUMBER"><![CDATA[ID Number]]></define>
+	<define key="TABLE_HEADING_HIRE_PRICE_DAY"><![CDATA[Price/Day]]></define>
+
+	<define key="TABLE_HEADING_HIRE_TOTAL_EXCL_VAT"><![CDATA[Total Ex VAT]]></define>
+	<define key="TABLE_HEADING_HIRE_TOTAL_INCL_VAT"><![CDATA[Total Incl VAT]]></define>
+
+	<define key="TABLE_HEADING_HIRE_MANAGEMENT_FEES_EXCL_VAT"><![CDATA[Manag Fees Ex VAT]]></define>
+	<define key="TABLE_HEADING_HIRE_MANAGEMENT_FEES_INCL_VAT"><![CDATA[Manag Fees Incl VAT]]></define>
+
+	<define key="TABLE_HEADING_HIRE_MARKETING_FEES_EXCL_VAT"><![CDATA[Mark Fees Ex VAT]]></define>
+	<define key="TABLE_HEADING_HIRE_MARKETING_FEES_INCL_VAT"><![CDATA[Mark Fees Incl VAT]]></define>
+
+
+
+
+
+
+</definitions>

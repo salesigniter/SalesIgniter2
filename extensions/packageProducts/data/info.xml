@@ -1,0 +1,8 @@
+<data>
+	<name>Package Products</name>
+	<key>packageProducts</key>
+	<version>1.0</version>
+	<author>Stephen Walker ( http://www.itwebexperts.com )</author>
+	<status_key>EXTENSION_PACKAGE_PRODUCTS_ENABLED</status_key>
+	<installed_key>EXTENSION_PACKAGE_PRODUCTS_INSTALLED</installed_key>
+</data>

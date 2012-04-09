@@ -1,0 +1,9 @@
+<data>
+	<name>Gateway 2Checkout</name>
+	<key>gateway2checkout</key>
+	<version>1.0</version>
+	<author>Stephen Walker ( http://www.itwebexperts.com )</author>
+	<status_key>EXTENSION_GATEWAY2CHECKOUT_ENABLED</status_key>
+	<installed_key>EXTENSION_GATEWAY2CHECKOUT_INSTALLED</installed_key>
+	<description><![CDATA[2checkout Payment Gateway Integration]]></description>
+</data>

@@ -1,0 +1,24 @@
+<ConfigurationGroup>
+	<title>Package</title>
+	<key>productTypePackage</key>
+	<description>Configuration Settings For The Package Product Type</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Product Type Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<ENABLED>
+					<title><![CDATA[Enable Product Type]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to enable this product type?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</ENABLED>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

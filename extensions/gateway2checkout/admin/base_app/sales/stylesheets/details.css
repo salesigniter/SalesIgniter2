@@ -1,0 +1,119 @@
+.orderDetailTable {
+}
+
+.orderDetailTableBlock {
+	padding-left        : 1em;
+	vertical-align      : top;
+	border-bottom-width : 0;
+	border-left-width   : 0;
+}
+
+.orderDetailTableBlock.last {
+	border-left-width  : 0;
+	border-right-width : 0;
+}
+
+.orderDetailTableBlock a:visited, .orderDetailTableBlock a:active, .orderDetailTableBlock a:hover, .orderDetailTableBlock a:link,
+.invoiceContainer a:visited, .invoiceContainer a:active, .invoiceContainer a:hover, .invoiceContainer a:link {
+	color : #5387ae;
+}
+
+.orderDetailHeading {
+	line-height : 2em;
+}
+
+.orderDetailHeadingText {
+	padding-left : 1em;
+	text-align   : left;
+	font-weight  : bold;
+}
+
+.orderDetailLabel {
+	font-weight : bold;
+	font-size   : .9em;
+}
+
+.orderDetailText {
+	font-weight : normal;
+	font-size   : .9em;
+}
+
+.invoiceContainer {
+}
+
+.invoiceTable {
+	width: 100%;
+}
+
+.invoiceOverviewBlock {
+	vertical-align     : top;
+	background         : #fcfbb5;
+	border-left-width  : 0;
+	border-right-width : 0;
+	border-top-width   : 0;
+}
+
+.invoiceOverviewLabel {
+	font-size   : .9em;
+	font-weight : bold;
+}
+
+.invoiceOverviewText {
+	padding-left : 2em;
+	font-size    : .9em;
+}
+
+.invoiceItemTable {
+	width               : 100%;
+	font-size           : .9em;
+	border-style        : solid;
+	border-color        : #cccccc;
+	border-top-width    : 1px;
+	border-bottom-width : 1px;
+}
+
+.invoiceItemTableHeader th {
+	font-size           : inherit;
+	font-weight         : bold;
+	vertical-align      : top;
+	border-style        : solid;
+	border-color        : #cccccc;
+	border-bottom-width : 1px;
+}
+
+.invoiceItemTableFooter td {
+	font-size        : inherit;
+	border-style     : solid;
+	border-color     : #cccccc;
+	border-top-width : 1px;
+}
+
+.invoiceItemTableBody td {
+	font-size      : inherit;
+	vertical-align : top;
+	font-weight    : normal;
+}
+
+.refund {
+	color: red;
+}
+
+.commentsContainer {
+	padding:1em;
+}
+
+.commentsTable {
+	font-size : .9em;
+}
+
+.commentsTable th {
+	text-align : left;
+	border-style        : solid;
+	border-color        : #cccccc;
+	border-bottom-width : 1px;
+}
+
+.commentsTable td {
+}
+
+.addCommentButton { float:right; }

@@ -1,0 +1,10 @@
+<definitions>
+	<define key="HEADING_NEW_RENTAL_CUSTOMER"><![CDATA[New Rental Customer]]></define>
+
+	<define key="TEXT_NEW_RENTAL_CUSTOMER"><![CDATA[I am a new membership customer.]]></define>
+	<define key="TEXT_NEW_RENTAL_CUSTOMER_INTRODUCTION"><![CDATA[By creating a membership account at %s you will be able to do the online renting process faster, be up to date on the rental items, and keep track of rental orders you have previously made.]]></define>
+
+	<define key="MY_ACCOUNT_RENTAL_QUEUE"><![CDATA[My Rental Queue]]></define>
+	<define key="MY_ACCOUNT_RENTED_PRODUCTS"><![CDATA[My Rented Products]]></define>
+	<define key="MY_ACCOUNT_RENTAL_ISSUES"><![CDATA[My Rental Issues]]></define>
+</definitions>

@@ -1,0 +1,8 @@
+<data>
+	<OrdersProducts>
+		<package_id>
+			<type>integer</type>
+			<length>4</length>
+		</package_id>
+	</OrdersProducts>
+</data>

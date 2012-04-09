@@ -1,0 +1,18 @@
+<definitions>
+	<define key="HEADING_TITLE_DETAILS"><![CDATA[Rental Queue Details]]></define>
+
+	<define key="TEXT_MEMBER_SINCE"><![CDATA[<br />Member Since: %s<br />]]></define>
+	<define key="TEXT_RENTED_QUEUE"><![CDATA[Rented queue for "%s"]]></define>
+
+	<define key="TABLE_HEADING_ID"><![CDATA[Product Id]]></define>
+	<define key="TABLE_HEADING_TITLE_REQUESTING"><![CDATA[Items in Rental Queue ]]></define>
+	<define key="TABLE_HEADING_PACKAGE_ALLOWED"><![CDATA[ No. of rentals Allowed]]></define>
+	<define key="TABLE_HEADING_ITEMS"><![CDATA[Items in Rented Queue]]></define>
+	<define key="TABLE_HEADING_SEND"><![CDATA[Send]]></define>
+	<define key="TABLE_HEADING_PRIORITY"><![CDATA[Priority ]]></define>
+	<define key="TABLE_HEADING_MOVIE_TITLE"><![CDATA[Movie Title ]]></define>
+	<define key="TABLE_HEADING_STATUS"><![CDATA[Status]]></define>
+	<define key="TABLE_HEADING_BAR_CODE"><![CDATA[Barcode]]></define>
+
+	<define key="TEXT_BUTTON_RENT"><![CDATA[Send Rentals]]></define>
+</definitions>

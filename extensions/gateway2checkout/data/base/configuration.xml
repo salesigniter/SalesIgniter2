@@ -1,0 +1,30 @@
+<ConfigurationGroup>
+	<title>Gateway 2Checkout</title>
+	<description>2Checkout Payment Gatway</description>
+	<key>gateway2checkout</key>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Extension Settings</description>
+			<configurations>
+				<EXTENSION_GATEWAY2CHECKOUT_INSTALLED editable="false">
+					<title>Installation Status</title>
+					<value>False</value>
+					<description></description>
+				</EXTENSION_GATEWAY2CHECKOUT_INSTALLED>
+				<EXTENSION_GATEWAY2CHECKOUT_ENABLED>
+					<title>Enable 2checkout</title>
+					<value>False</value>
+					<description>Enable Or Disable The 2checkout Extension</description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</EXTENSION_GATEWAY2CHECKOUT_ENABLED>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

@@ -1,0 +1,30 @@
+<ConfigurationGroup>
+	<title>Package Products</title>
+	<key>packageProducts</key>
+	<description>Configuration Settings For The Package Products Extension</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Extension Settings</description>
+			<configurations>
+				<EXTENSION_PACKAGE_PRODUCTS_INSTALLED editable="false">
+					<title>Installation Status</title>
+					<value>False</value>
+					<description></description>
+				</EXTENSION_PACKAGE_PRODUCTS_INSTALLED>
+				<EXTENSION_PACKAGE_PRODUCTS_ENABLED>
+					<title>Enable Package Products</title>
+					<value>False</value>
+					<description>Enable or disable the package products extension</description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</EXTENSION_PACKAGE_PRODUCTS_ENABLED>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

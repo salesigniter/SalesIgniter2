@@ -1,0 +1,278 @@
+.column { display: inline-block; }
+.ui-filemanager-icon, .ui-filemanager-icon.ui-state-hover, .ui-filemanager-icon.ui-state-active {
+	display: inline-block;
+	vertical-align:middle;
+	width:32px;
+	height:32px;
+
+	background-image: url(/ext/jQuery/external/filemanager/images/icons-128.png);
+	background-repeat: no-repeat;
+}
+.ui-filemanager-icon-18, .ui-widget-content .ui-filemanager-icon-18, .ui-filemanager-icon-18.ui-state-hover, .ui-widget-content .ui-filemanager-icon-18.ui-state-hover {
+	width:18px;
+	height:18px;
+	background-size: 90px;
+}
+.ui-filemanager-icon-32, .ui-widget-content .ui-filemanager-icon-32, .ui-filemanager-icon-32.ui-state-hover, .ui-widget-content .ui-filemanager-icon-32.ui-state-hover {
+	width:32px;
+	height:32px;
+	background-size: 160px;
+}
+.ui-filemanager-icon-128, .ui-widget-content .ui-filemanager-icon-128, .ui-filemanager-icon-128.ui-state-hover, .ui-widget-content .ui-filemanager-icon-128.ui-state-hover {
+	width:128px;
+	height:128px;
+	background-size: 640px;
+}
+.ui-filemanager-icon-action { margin:3px; }
+.ui-filemanager-icon-view { margin:3px; }
+.ui-filemanager-icon-breadcrumb { margin:3px; }
+.ui-filemanager-icon-action-edit   { background-position: -18px   -144px; }
+.ui-filemanager-icon-action-delete   { background-position: -36px   -144px; }
+.ui-filemanager-icon-action-upload   { background-position: -54px   -144px; }
+.ui-filemanager-icon-action-saveas   { background-position: -72px   -144px; }
+.ui-filemanager-icon-action-newdir   { background-position: 0px   -144px; }
+.ui-filemanager-icon-view-columns { background-position: 0px -162px; }
+.ui-filemanager-icon-view-detail  { background-position: -18px -162px; }
+.ui-filemanager-icon-view-icons   { background-position: -36px -162px; }
+.ui-filemanager-icon-view-list    { background-position: -54px -162px; }
+.ui-filemanager-icon-view-tile    { background-position: -72px -162px; }
+.ui-filemanager-icon-breadcrumb-prev { background-position: -36px -54px; }
+.ui-filemanager-icon-breadcrumb-next { background-position: -54px -54px; }
+
+.ui-filemanager-icon-18.ui-filemanager-icon-type-psd   { background-position: 0px   0px;    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-pdf   { background-position: -18px 0px;    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-eps   { background-position: -36px 0px;    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-ind   { background-position: -54px 0px;    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-fla   { background-position: -72px 0px;    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-jsf   { background-position: 0px   -18px;   }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-html  { background-position: -18px -18px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-proj  { background-position: -36px -18px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-docx  { background-position: -54px -18px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-xslx  { background-position: -72px -18px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-vsd   { background-position: 0px   -36px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-accdb { background-position: -18px -36px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-pptx  { background-position: -36px -36px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-pub   { background-position: -54px -36px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-pst   { background-position: -72px -36px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-doc   {                                    }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-eml   { background-position: 0px   -54px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-js    { background-position: -18px -54px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-midi  { background-position: -72px -54px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-wma   { background-position: 0px   -72px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-mp3   { background-position: -18px -72px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-wav   { background-position: -36px -72px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-ini   { background-position: -54px -72px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-set   { background-position: -72px -72px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-mov   { background-position: 0px   -90px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-avi   { background-position: -18px -90px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-mpeg  { background-position: -36px -90px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-wmv   { background-position: -54px -90px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-read  { background-position: -72px -90px;  }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-txt   { background-position: 0px   -108px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-url   { background-position: -18px -108px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-css   { background-position: -36px -108px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-rar   { background-position: -54px -108px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-zip   { background-position: -72px -108px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-bmp   { background-position: 0px   -126px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-jpg   { background-position: -18px -126px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-png   { background-position: -36px -126px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-gif   { background-position: -54px -126px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-tiff  { background-position: -72px -126px; }
+.ui-filemanager-icon-18.ui-filemanager-icon-type-dir   { background-position: 0px   -144px; }
+
+.ui-filemanager-icon-32.ui-filemanager-icon-type-psd   { background-position: 0px    0px;    }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-pdf   { background-position: -32px  0px;    }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-eps   { background-position: -64px  0px;    }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-ind   { background-position: -96px  0px;    }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-fla   { background-position: -128px 0px;    }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-jsf   { background-position: 0px    -32px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-html  { background-position: -32px  -32px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-proj  { background-position: -64px  -32px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-docx  { background-position: -96px  -32px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-xslx  { background-position: -128px -32px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-vsd   { background-position: 0px    -64px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-accdb { background-position: -32px  -64px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-pptx  { background-position: -64px  -64px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-pub   { background-position: -96px  -64px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-pst   { background-position: -128px -64px;  }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-doc   {                                     }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-eml   { background-position: 0px    -96px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-js    { background-position: -32px  -96px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-midi  { background-position: -128px -96px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-wma   { background-position: 0px    -128px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-mp3   { background-position: -32px  -128px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-wav   { background-position: -64px  -128px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-ini   { background-position: -96px  -128px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-set   { background-position: -128px -128px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-mov   { background-position: 0px    -160px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-avi   { background-position: -32px  -160px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-mpeg  { background-position: -64px  -160px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-wmv   { background-position: -96px  -160px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-read  { background-position: -128px -160px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-txt   { background-position: 0px    -192px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-url   { background-position: -32px  -192px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-css   { background-position: -64px  -192px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-rar   { background-position: -96px  -192px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-zip   { background-position: -128px -192px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-bmp   { background-position: 0px    -224px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-jpg   { background-position: -32px  -224px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-png   { background-position: -64px  -224px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-gif   { background-position: -96px  -224px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-tiff  { background-position: -128px -224px; }
+.ui-filemanager-icon-32.ui-filemanager-icon-type-dir   { background-position: 0px    -256px; }
+
+.ui-filemanager-icon-128.ui-filemanager-icon-type-psd   { background-position: 0px    0px;     }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-pdf   { background-position: -128px 0px;     }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-eps   { background-position: -256px 0px;     }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-ind   { background-position: -384px 0px;     }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-fla   { background-position: -512px 0px;     }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-jsf   { background-position: 0px    -128px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-html  { background-position: -128px -128px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-proj  { background-position: -256px -128px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-docx  { background-position: -384px -128px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-xslx  { background-position: -512px -128px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-vsd   { background-position: 0px    -256px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-accdb { background-position: -128px -256px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-pptx  { background-position: -256px -256px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-pub   { background-position: -384px -256px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-pst   { background-position: -512px -256px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-doc   {}
+.ui-filemanager-icon-128.ui-filemanager-icon-type-eml   { background-position: 0px    -384px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-js    { background-position: -128px -384px  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-midi  { background-position: -512px -384px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-wma   { background-position: 0px    -512px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-mp3   { background-position: -128px -512px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-wav   { background-position: -256px -512px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-ini   { background-position: -384px -512px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-set   { background-position: -512px -512px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-mov   { background-position: 0px    -640px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-avi   { background-position: -128px -640px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-mpeg  { background-position: -256px -640px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-wmv   { background-position: -384px -640px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-read  { background-position: -512px -640px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-txt   { background-position: 0px    -768px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-url   { background-position: -128px -768px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-css   { background-position: -256px -768px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-rar   { background-position: -384px -768px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-zip   { background-position: -512px -768px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-bmp   { background-position: 0px    -896px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-jpg   { background-position: -128px -896px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-png   { background-position: -256px -896px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-gif   { background-position: -384px -896px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-tiff  { background-position: -512px -896px;  }
+.ui-filemanager-icon-128.ui-filemanager-icon-type-dir   { background-position: 0px    -1024px; }
+
+.ui-filemanager-dialog { padding:0; }
+.ui-filemanager-dialog .ui-dialog-titlebar { border-top-width: 0;border-left-width: 0;border-right-width: 0; }
+.ui-filemanager-dialog .ui-dialog-content { padding:0;overflow: hidden; }
+.ui-filemanager-dialog span, .ui-filemanager-dialog div, .ui-filemanager-dialog td {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.ui-filemanager-toolbar { position: absolute;height: 100px;z-index: 100;width:100%;border-left-width: 0;border-right-width: 0;<?php echo buildSimpleGradient('#fafcfd', '#cddaea');?> }
+.ui-filemanager-toolbar-breadcrumb { margin: 0px 10px 5px 10px;position: absolute;bottom: 0;left: 0; }
+.ui-filemanager-toolbar-breadcrumb input { width:100%; }
+.ui-filemanager-toolbar-file-info { height: 61px; }
+.ui-filemanager-toolbar-view-icons { margin:10px;position: absolute;top: 0;right: 0; }
+.ui-filemanager-toolbar-view-icons a { border:none;opacity: 1; margin:2px;outline: none; }
+.ui-filemanager-toolbar-view-icons a.ui-state-hover { border:none;opacity: 0.75; }
+.ui-filemanager-toolbar-view-icons a.ui-state-active { border:none;opacity: 0.5; }
+.ui-filemanager-toolbar-view-icons-list { display:none;position: absolute;right:0;list-style:none;margin:0;padding:.5em;white-space: nowrap; }
+.ui-filemanager-toolbar-view-icons-list li { font-weight: normal;border: 1px solid transparent;padding: 0 .5em; }
+.ui-filemanager-toolbar-action-icons { margin:10px;position: absolute;top: 0;left: 0; }
+.ui-filemanager-toolbar-action-icons a { border:none;opacity: 1; margin:5px;outline: none; }
+.ui-filemanager-toolbar-action-icons a.ui-state-hover { border:none;opacity: 0.75; }
+
+.ui-filemanager-upload-file-ok { background: green; }
+.ui-filemanager-upload-file-invalid { background: red; }
+.ui-filemanager-upload-file-cancelled { background: blue; }
+
+.ui-filemanager-toolbar-file-info { position:absolute;bottom:0px; }
+.ui-filemanager-dialog #selectedFileInfo { display:none; }
+.ui-filemanager-dialog #selectedFileInfo .label { text-align:right;display:inline-block;width:100px;font-weight: normal;font-size: 11px;color:#5a6779; }
+.ui-filemanager-dialog #selectedFileInfo .value { text-align:left;display:inline-block;width:125px;font-weight: normal;font-size: 10px;color:#1e395b; }
+.ui-filemanager-dialog #selectedFileInfo .column { display:inline-block;vertical-align: top; }
+.ui-filemanager-dialog #selectedFileInfo #selectedFileIcon {}
+.ui-filemanager-dialog #selectedFileInfo #selectedFileName {}
+.ui-filemanager-dialog #selectedFileInfo #selectedFileType {}
+.ui-filemanager-dialog #selectedFileInfo #selectedFileSize { float:left; }
+.ui-filemanager-dialog #selectedFileInfo #selectedFileDateTaken { float:left; }
+.ui-filemanager-dialog #selectedFileInfo #selectedFileDimensions { float:left; }
+.ui-filemanager-dialog #selectedFileInfo #selectedFileDateAdded { float:left; }
+.ui-filemanager-dialog #selectedFileInfo #selectedFileDateModified { float:left; }
+
+.ui-filemanager-listing-icons { list-style: none;padding:0;margin:0; }
+.ui-filemanager-listing-icons li { float: left;margin: 3px;text-align: center; }
+
+.ui-filemanager-listing-columns { list-style:none;padding:0;margin:0; }
+.ui-filemanager-listing-columns li { float: left;margin: 3px; }
+
+.ui-filemanager-listing-tile { list-style:none;padding:0;margin:0; }
+.ui-filemanager-listing-tile li { float: left;margin: 3px; }
+
+.fileName {
+	display: inline-block;
+	vertical-align: middle;
+	max-width: 100px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin-left: auto;
+	margin-right: auto;
+}
+#selectedFileName { max-width: 200px;overflow: hidden;display: inline-block;white-space: nowrap;text-overflow: ellipsis; }
+
+#windows { position: absolute;top: 102px;width: 100%; }
+
+#fileListing { position: absolute;top: 0px;left:0;width: 100%;background:#fcfcfc;overflow: auto; }
+#fileListing td, #fileListing li, #fileListing div, #fileListing span { font-size:10px; }
+
+#fileListing li { border: 1px solid transparent; }
+
+#fileListing tr {  }
+#fileListing tr > th { border-bottom: 1px solid #cccccc;background: #D8E5EF; }
+#fileListing tr > td { border:1px solid transparent;border-left-width:0;border-right-width:0;border-bottom: 1px solid #dcdcdc;  }
+#fileListing tr > td:first-child { border-left-width:1px; }
+#fileListing tr > td:last-child { border-right-width:1px; }
+
+#fileListing .ui-state-hover { <?php echo buildSimpleGradient('#fafbfd', '#ebf3fd');?> }
+#fileListing .ui-state-active { <?php echo buildSimpleGradient('#dcebfc', '#c1dbfc');?> }
+
+#fileListing li.ui-state-hover { border-color: #aeccf1; }
+#fileListing li.ui-state-active { border-color: #7a9fcb; }
+
+#fileListing tr.ui-state-hover > td { border-color:#aeccf1; }
+#fileListing tr.ui-state-active > td { border-color:#7a9fcb; }
+
+#deleteItemBlock, #editItemBlock, #createDirBlock, #previewBlock, #uploadBlock {
+	position: absolute;left:0px;width: 100%;overflow: auto;padding-top: 45px;
+}
+#deleteItemBlock #processAction, #editItemBlock #processAction, #previewBlock #processAction, #createDirBlock #processAction {
+	height:43px;position:absolute;top:0px;left:0px;margin:0;width:50%;<?php echo buildBorderRadius('0px', '0px', '0px', '0px');?>
+}
+#deleteItemBlock #returnToListing, #editItemBlock #returnToListing, #previewBlock #returnToListing, #createDirBlock #returnToListing {
+	height:43px;position:absolute;top:0px;right:0px;margin:0;width:50%;<?php echo buildBorderRadius('0px', '0px', '0px', '0px');?>
+}
+
+#previewBlock .preview { text-align: center;line-height: 100%; }
+#previewBlock .preview img { vertical-align: middle; }
+
+#uploadBlock { padding-top: 65px; }
+#uploadBlock #uploadInfo { width:100%;position:absolute;top:-20px;height:20px;background:#add8e6;text-align: center;line-height: 20px;font-weight: bold; }
+
+/* File Uploader Overrides */
+#uploadBlock .px-input-button, #uploadBlock .px-buttons button, #uploadBlock #returnToListing { <?php echo buildBorderRadius('0px', '0px', '0px', '0px');?> }
+#uploadBlock #returnToListing { position: absolute;top: -65px;right: 0px;width: 25%;height: 45px;margin:0; }
+#uploadBlock #returnToListing.ui-state-default { color:#666;border-color:#FEFEFE;background:#EFEFEF; }
+#uploadBlock .px-form-input { position: absolute;top: -65px;left: 0;width: 25%; }
+#uploadBlock .px-form-input .px-input-button { height:43px;width: 100%;margin:0; }
+#uploadBlock .px-form-input .px-input-button.ui-state-default { color:#666;border-color:#FEFEFE;background:#EFEFEF; }
+#uploadBlock .px-form-input .px-input-button .ui-button-text { line-height: 2em; }
+#uploadBlock .px-widget .px-buttons { position: absolute;top: -65px;left: 25%;width: 50%; }
+#uploadBlock .px-widget .px-buttons button { height:45px;width:50%;margin:0; }
+#uploadBlock .px-widget .px-buttons button.ui-state-default { color:#666;border-color:#FEFEFE;background:#EFEFEF; }
+#uploadBlock .upload-data { width:auto;margin:.4em;height: 4em; }

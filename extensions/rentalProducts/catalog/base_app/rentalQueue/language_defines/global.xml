@@ -1,0 +1,13 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[My Rental Queue]]></define>
+
+	<define key="TABLE_HEADING_TITLE"><![CDATA[Products]]></define>
+	<define key="TABLE_HEADING_PRIORITY"><![CDATA[Priority]]></define>
+	<define key="TABLE_HEADING_AVAILABILITY"><![CDATA[Availability]]></define>
+	<define key="TABLE_HEADING_REMOVE"><![CDATA[Remove]]></define>
+
+	<define key="TEXT_REQUESTED_PRODUCTS"><![CDATA[Requested Products]]></define>
+	<define key="TEXT_SHIPPED_PRODUCTS"><![CDATA[Shipped Products]]></define>
+
+	<define key="TEXT_BUTTON_CONTINUE_CART"><![CDATA[Continue Searching]]></define>
+</definitions>
