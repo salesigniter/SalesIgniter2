@@ -311,7 +311,7 @@ else {
 			'debug'              => true,
 			'quiet'              => true,
 			'encodeMethod'       => '',
-			'contentTypeCharset' => 'utf8'
+			'contentTypeCharset' => 'utf-8'
 		);
 
 		switch(sysConfig::get('TEMPLATE_JAVASCRIPT_COMPRESSION')){

@@ -46,9 +46,6 @@ class TemplateManagerLayoutsWidgets extends Doctrine_Record
 	public function setUp()
 	{
 		parent::setUp();
-		$this->hasOne('TemplatesInfoboxes', array(
-			'local' => 'identifier',
-			'foreign' => 'box_code'));
 
 		$this->hasOne('TemplateManagerLayoutsColumns as Column', array(
 			'local' => 'column_id',

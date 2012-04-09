@@ -39,23 +39,8 @@ echo '		' . $html . "\n";
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo sysLanguage::getCharset();?>" />
 	<base href="<?php echo ((sysConfig::get('REQUEST_TYPE') == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . sysConfig::getDirWsCatalog(); ?>" />
 	<link rel="stylesheet" type="text/css" href="<?php echo $stylesheetLink;?>" />
-	<script type="text/javascript">
-		var thisFile = '<?php echo basename($_SERVER['PHP_SELF']);?>';
-		var SID = '<?php echo SID;?>';
-		var sessionId = '<?php echo Session::getSessionId();?>';
-		var sessionName = '<?php echo Session::getSessionName();?>';
-	</script>
+	<script><?php require('includes/javascript/jsAppTop.php');?></script>
 	<script type="text/javascript" src="<?php echo $javascriptLink;?>"></script>
-	<script>
-		jsCurrencies.setCode('<?php echo $CurrencyInfo['code'];?>');
-		jsCurrencies.setTitle('<?php echo $CurrencyInfo['title'];?>');
-		jsCurrencies.setSymbolLeft('<?php echo $CurrencyInfo['symbol_left'];?>');
-		jsCurrencies.setSymbolRight('<?php echo $CurrencyInfo['symbol_right'];?>');
-		jsCurrencies.setDecimalPoint('<?php echo $CurrencyInfo['decimal_point'];?>');
-		jsCurrencies.setThousandsPoint('<?php echo $CurrencyInfo['thousands_point'];?>');
-		jsCurrencies.setDecimalPlaces(<?php echo $CurrencyInfo['decimal_places'];?>);
-		jsCurrencies.setValue(<?php echo $CurrencyInfo['value'];?>);
-	</script>
 </head>
 <body>
 <noscript>
