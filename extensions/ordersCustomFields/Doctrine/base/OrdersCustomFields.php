@@ -43,9 +43,9 @@ class OrdersCustomFields extends Doctrine_Record {
 			'autoincrement' => true,
 		));
 		
-		$this->hasColumn('input_type', 'string', 12, array(
+		$this->hasColumn('input_type', 'string', 16, array(
 			'type' => 'string',
-			'length' => 12,
+			'length' => 16,
 			'fixed' => false,
 			'primary' => false,
 			'default' => 'text',
@@ -53,8 +53,8 @@ class OrdersCustomFields extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('input_required', 'int', 1, array(
-			'type' => 'int',
+		$this->hasColumn('input_required', 'integer', 1, array(
+			'type' => 'integer',
 			'length' => 1,
 			'fixed' => false,
 			'primary' => false,

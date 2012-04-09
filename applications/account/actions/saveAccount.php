@@ -12,7 +12,6 @@
 	if (array_key_exists('telephone', $_POST)) $accountValidation['telephone'] = $_POST['telephone'];
 	if (array_key_exists('fax', $_POST)) $accountValidation['fax'] = $_POST['fax'];
 	if (array_key_exists('dob', $_POST)) $accountValidation['dob'] = $_POST['dob'];
-	if (array_key_exists('city_birth', $_POST)) $accountValidation['city_birth'] = $_POST['city_birth'];
 
 	$hasError = $userAccount->validate($accountValidation);
 	if ($hasError == false) {
@@ -38,17 +37,11 @@
 			}
 		}
 
-		if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
-			if ($accountValidation['city_birth'] != $userAccount->getCityBirth()){
-				$userAccount->setCityBirth($accountValidation['city_birth']);
-			}
-		}
-
 		if (sysConfig::get('ACCOUNT_DOB') == 'true'){
-			$parsed = strptime($accountValidation['dob'], sysLanguage::getDateFormat('short'));
-			$dob = date('Y-m-d',mktime(0,0,0,($parsed['tm_mon']+1),$parsed['tm_mday'],(1900+$parsed['tm_year'])));
+			$parsed = date_parse($accountValidation['dob']);
+			$dob = date('Y-m-d', mktime(0,0,0,$parsed['month'],$parsed['day'],$parsed['year']));
 			if ($dob != $userAccount->getDateOfBirth()){
-				$userAccount->setDateOfBirth($accountValidation['dob']);
+				$userAccount->setDateOfBirth($dob);
 			}
 		}
 

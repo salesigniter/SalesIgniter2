@@ -32,8 +32,8 @@
 		$tplFile = 'popup';
 	}
 	
-	if (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/' . $tplFile . '.tpl.php')){
-		require(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/' . $tplFile . '.tpl.php');
+	if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php')){
+		require(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php');
 	}else{
 		require(sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/' . $tplFile . '.tpl.php');
 	}

@@ -17,16 +17,22 @@ function LoadAllColumnData(&$Data, &$New){
 	foreach($Data->Styles as $Style){
 		$New->Styles[$Style->definition_key]->definition_value = $Style->definition_value;
 	}
-	if ($Data->Widgets && $Data->Widgets->count() > 0){
-		foreach($Data->Widgets as $wInfo){
-			$newWidget = $New->Widgets->getTable()->create();
-			LoadAllWidgetData($wInfo, $newWidget);
-			$New->Widgets->add($newWidget);
+
+	if ($Data->Children && $Data->Children->count() > 0){
+		LoadAllColumnData($Data->Children, $New);
+	}else{
+		if ($Data->Widgets && $Data->Widgets->count() > 0){
+			foreach($Data->Widgets as $wInfo){
+				$newWidget = $New->Widgets->getTable()->create();
+				LoadAllWidgetData($wInfo, $newWidget);
+				$New->Widgets->add($newWidget);
+			}
 		}
 	}
 }
 function LoadAllContainerData(&$Data, &$New){
 	$New->sort_order = $Data->sort_order;
+	$New->link_id = $Data->link_id;
 	foreach($Data->Configuration as $Config){
 		$New->Configuration[$Config->configuration_key]->configuration_value  = $Config->configuration_value;
 	}
@@ -82,5 +88,6 @@ $New->save();
 EventManager::attachActionResponse(array(
 	'success' => true,
 	'layoutId' => $New->layout_id,
-	'layoutName' => $New->layout_name
+	'layoutName' => $New->layout_name,
+	'layoutType' => ucfirst($New->layout_type)
 ), 'json');

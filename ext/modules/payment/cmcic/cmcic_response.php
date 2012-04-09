@@ -1,7 +1,7 @@
 <?php
 /*
-$Id: cmcic_response_rc1.php,v 1.02  15/04/2009 Sébastien STRAZIERI (informatiquedefrance@gmail.com)
-Adaptation du module CM-CIC révision 3.0 PHP4 - avril 2009
+$Id: cmcic_response_rc1.php,v 1.02  15/04/2009 SÃ©bastien STRAZIERI (informatiquedefrance@gmail.com)
+Adaptation du module CM-CIC rÃ©vision 3.0 PHP4 - avril 2009
 
 osCommerce, Open Source E-Commerce Solutions
 http://www.oscommerce.com
@@ -15,7 +15,7 @@ Released under the GNU General Public License
 	//chdir('../../../../');
 	//require('includes/application_top.php');
 
-	//include(DIR_WS_MODULES . 'payment/cmcic.php');
+	//include(sysConfig::getDirFsCatalog() . 'includes/modules/OrderPaymentModules/cmcic.php');
 
 	/*tep_db_perform('cmcic_response', array(
 	'ref_number' => $CMCIC_bruteVars['reference'],

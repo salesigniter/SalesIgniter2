@@ -143,10 +143,7 @@
 					$i++;
 				}
 				
-				$product_query=tep_db_query("select products_name from products_description where products_id='" . $products_id . "' and language_id = '" . Session::get('languages_id') . "'");
-				$product = tep_db_fetch_array($product_query);
-				
-				$display_link = $product['products_name'].' <I>(Product)</I>';
+				$display_link = tep_get_products_name($products_id).' <I>(Product)</I>';
 			}elseif (strpos($temp_url_link,'?cPath=')){
 				$temp=str_replace('index.php?','',$temp_url_link);
 				$temp=str_replace('?','',$temp);
@@ -166,12 +163,14 @@
 				$i=0;
 				$cat_list = '';
 				while($i < count($parameters)){
-					$category_query=tep_db_query("select categories_name from categories_description where categories_id='" . $parameters[$i] . "' and language_id = '" . Session::get('languages_id') . "'");
-					$category = tep_db_fetch_array($category_query);
+					$Category = Doctrine_Manager::getInstance()
+						->getCurrentConnection()
+						->fetchAssoc("select categories_name from categories_description where categories_id='" . $parameters[$i] . "' and language_id = '" . Session::get('languages_id') . "'");
+
 					if ($i > 0){
-						$cat_list.=' / '.$category['categories_name'];
+						$cat_list.=' / '.$category[0]['categories_name'];
 					}else{
-						$cat_list=$category['categories_name'];
+						$cat_list=$category[0]['categories_name'];
 					}
 					$i++;
 				}
@@ -181,7 +180,7 @@
 			}
 			
 			// alteration for last url product name  eof
-			$lastPageUrl = '<a HREF="' . (($request_type == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . $temp_url_link . '" target="_blank">' . $display_link . '</a>';
+			$lastPageUrl = '<a HREF="' . ((sysConfig::get('REQUEST_TYPE') == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . $temp_url_link . '" target="_blank">' . $display_link . '</a>';
 			
 
 			if ($sessionId != $ipAddress){

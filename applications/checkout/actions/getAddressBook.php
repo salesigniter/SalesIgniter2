@@ -1,6 +1,6 @@
 <?php
 	ob_start();
-	$addressType = $_POST['addressType'];
+	$addressType = (isset($_POST['addressType']) ? $_POST['addressType'] : $_GET['addressType']);
 	?>
 <table cellpadding="0" cellspacing="0" border="0" width="93%">
 <?php
@@ -27,14 +27,14 @@
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($Qaddress){
       foreach($Qaddress as $aInfo){
-        $format_id = tep_get_address_format_id($aInfo['country_id']);
+        $format_id = tep_get_address_format_id($aInfo['entry_country_id']);
 ?>
      <tr>
       <td><?php echo tep_draw_separator('pixel_trans.gif', '10', '1'); ?></td>
       <td colspan="2"><table border="0" width="100%" cellspacing="0" cellpadding="2">
        <tr class="moduleRow">
         <td width="10"><?php echo tep_draw_separator('pixel_trans.gif', '10', '1'); ?></td>
-        <td class="main" colspan="2"><b><?php echo tep_output_string_protected($aInfo['firstname'] . ' ' . $aInfo['lastname']); ?></b></td>
+        <td class="main" colspan="2"><b><?php echo tep_output_string_protected($aInfo['entry_firstname'] . ' ' . $aInfo['entry_lastname']); ?></b></td>
         <td class="main" align="right"><?php echo tep_draw_radio_field('address', $aInfo['address_book_id'], ($aInfo['address_book_id'] == $checked)); ?></td>
         <td width="10"><small><span style="color:#FF0000;">Select</span></small><?php echo tep_draw_separator('pixel_trans.gif', '10', '1'); ?></td>
        </tr>
@@ -68,6 +68,19 @@
 	<?php
 	$html = ob_get_contents();
 	ob_end_clean();
-	
+
+	if (Session::get('layoutType') == 'smartphone'){
+		$html = '<div data-role="page" style="background: url(/et_video/templates/moviestore/images/body_bg.png)">' .
+			'<div data-role="header">' .
+			'<h1>My Address Book</h1>' .
+			'</div>' .
+			'<div data-role="content">' .
+			$html .
+			'</div>' .
+			'<div data-role="footer" data-theme="etvideo-blue">' .
+			'<h4>&copy; 2012 ET Video</h4>' .
+			'</div>' .
+			'</div>';
+	}
 	EventManager::attachActionResponse($html, 'html');
 ?>

@@ -22,13 +22,14 @@
 	->usePreset('continue')
 	->setType('submit')
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'account_newsletter',
-		'action' => itw_app_link('action=updateNewsletters', 'account', 'newsletters', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=updateNewsletters', 'account', 'newsletters', 'SSL'))
+	->setName('account_newsletter')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

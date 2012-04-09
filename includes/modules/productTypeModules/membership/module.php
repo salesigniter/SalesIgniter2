@@ -1,5 +1,5 @@
 <?php
-class ProductTypeMembership extends ModuleBase
+class ProductTypeMembership extends ProductTypeBase
 {
 
 	private $_moduleCode = 'membership';
@@ -14,10 +14,10 @@ class ProductTypeMembership extends ModuleBase
 		$this->init($this->_moduleCode);
 	}
 
-	public function init($forceEnable = false) {
+	public function init($code, $forceEnable = false, $moduleDir = false) {
 		$this->import(new Installable);
 
 		$this->setModuleType('productType');
-		parent::init($this->_moduleCode, $forceEnable);
+		parent::init($code, $forceEnable, $moduleDir);
 	}
 }

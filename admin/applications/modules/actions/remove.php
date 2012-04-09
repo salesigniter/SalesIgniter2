@@ -32,14 +32,15 @@
 		$InfoBox->delete();
 	}
 }
-elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'orderShipping', 'productType'))) {
+elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'orderShipping', 'productType', 'purchaseType'))) {
 	$Installer = new ModuleInstaller($_GET['moduleType'], $_GET['module'], (isset($_GET['extName']) ? $_GET['extName'] : null));
 	$Installer->remove();
 }
 
 if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
 	EventManager::attachActionResponse(array(
-			'success' => true
+			'success' => true,
+			'moduleType', $_GET['moduleType']
 		), 'json');
 }
 else {

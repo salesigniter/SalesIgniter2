@@ -17,7 +17,7 @@ class reviews_catalog_product_info extends Extension_reviews {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'ProductInfoTabHeader',
@@ -115,9 +115,9 @@ class reviews_catalog_product_info extends Extension_reviews {
 					$rating = $rInfo['reviews_rating'];
 
 
-					$productImage = '<img src="imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' .  sysConfig::get('DIR_WS_IMAGES') . $rInfo['Products'][0]['products_image'] . '" alt="' . $productName . '"/>';
+					$productImage = '<img src="imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' .  $rInfo['Products'][0]['products_image'] . '" alt="' . $productName . '"/>';
 					$reviewText = nl2br(tep_break_string(htmlspecialchars($rInfo['ReviewsDescription'][0]['reviews_text']), 60, '-<br>') . ((strlen($rInfo['reviews_text']) >= 100) ? '..' : ''));
-					$reviewRating = sprintf(TEXT_REVIEW_RATING, tep_image(sysConfig::get('DIR_WS_IMAGES') . 'stars_' . $rating . '.gif', sprintf(TEXT_OF_5_STARS, $rating)), sprintf(TEXT_OF_5_STARS, $rating));
+					$reviewRating = sprintf(sysLanguage::get('TEXT_REVIEW_RATING'), tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'stars_' . $rating . '.gif', sprintf(sysLanguage::get('TEXT_OF_5_STARS'), $rating)), sprintf(sysLanguage::get('TEXT_OF_5_STARS'), $rating));
 
 					eval("\$tableContent .= \"$rowTemplate\";");
 				}

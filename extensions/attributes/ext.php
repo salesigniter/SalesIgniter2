@@ -20,7 +20,7 @@ class Extension_attributes extends ExtensionBase {
 
 	public function init(){
 		global $App, $appExtension, $Template;
-		if ($this->enabled === false)
+		if ($this->isEnabled() === false)
 			return;
 
 		EventManager::attachEvents(array(
@@ -70,7 +70,6 @@ class Extension_attributes extends ExtensionBase {
 		if ($appExtension->isInstalled('attributes') && $appExtension->isEnabled('attributes')){
 			$ProductsAttributes = attributesUtil::organizeAttributeArray(attributesUtil::getAttributes(null, $optionId));
 			foreach($ProductsAttributes as $optionId => $aInfo){
-				$count = 0;
 				$added = array();
 				$dropArray = array();
 				foreach($aInfo['ProductsOptionsValues'] as $vInfo){
@@ -343,9 +342,13 @@ class Extension_attributes extends ExtensionBase {
 				$orderedProduct->getProductsId(),
 				null,
 				null,
-				$orderedProduct->getProductClass()->getProductTypeClass()->getPurchaseTypeCode(false)
+				$orderedProduct->getProductClass()->getProductTypeClass()
 			);
 			if ($ProductsAttributes){
+				$mypInfo = $orderedProduct->getInfo();
+				if(isset($mypInfo['attributes'])){
+					$myAttributes = $mypInfo['attributes'];
+				}
 				$Attributes = attributesUtil::organizeAttributeArray($ProductsAttributes);
 				//print_r($Attributes);
 				foreach($Attributes as $optionId => $aInfo){
@@ -354,10 +357,6 @@ class Extension_attributes extends ExtensionBase {
 					->attr('attrval',$optionId)
 					->addClass('ui-widget-content productAttribute');
 					foreach($aInfo['ProductsOptionsValues'] as $vInfo){
-						if (!isset($selectedPrefix)){
-							$selectedPrefix = $vInfo['price_prefix'];
-							$selectedPrice = $vInfo['options_values_price'];
-						}
 						$valuesDrop->addOption(
 							$vInfo['options_values_id'],
 							$vInfo['options_values_name']
@@ -366,8 +365,15 @@ class Extension_attributes extends ExtensionBase {
 					
 					$prefixDrop = htmlBase::newElement('selectbox')
 					->setName('product[' . $orderedProduct->getId() . '][attributes][' . $optionId . '][prefix]')
-					->addClass('ui-widget-content')
-					->selectOptionByValue($selectedPrefix);
+					->addClass('ui-widget-content');
+					if(isset($myAttributes)){
+						$prefixDrop->selectOptionByValue($myAttributes[$optionId]['prefix']);
+						$valuesDrop->selectOptionByValue($myAttributes[$optionId]['value']);
+						$selectedPrice = $myAttributes[$optionId]['price'];
+					}else{
+						$selectedPrice = 0;
+					}
+
 					$prefixDrop->addOption('+', '+');
 					$prefixDrop->addOption('-', '-');
 
@@ -441,8 +447,10 @@ class Extension_attributes extends ExtensionBase {
 		return $orderedProduct;
 	}
 
-	public function ProductInfoBeforeDescription(){
-		return $this->drawAttributes();
+	public function ProductInfoBeforeDescription(Product $Product){
+		return $this->drawAttributes(array(
+			'productCls' => $Product
+		));
 	}
 
 	public function ProductListingProductsBeforeShowPrice(&$product){
@@ -500,14 +508,18 @@ class Extension_attributes extends ExtensionBase {
 	public function drawAttributes($settings = null){
 		global $appExtension, $currencies;
 		$product = &$settings['productCls'];
-
-		if (!isset($product->productInfo['ProductsAttributes']) || sizeof($product->productInfo['ProductsAttributes']) <= 0)
-			return;
+		if (!is_object($product)){
+			echo '<pre>';debug_print_backtrace();
+			print_r($settings);
+			itwExit();
+		}
+		//if (!isset($product->productInfo['ProductsAttributes']) || sizeof($product->productInfo['ProductsAttributes']) <= 0)
+		//	return;
 
 		if (isset($settings['purchase_type'])){
-			$ProductsAttributes = attributesUtil::getAttributes($product->productInfo['products_id'], null, null, $settings['purchase_type']);
+			$ProductsAttributes = attributesUtil::getAttributes($product->getId(), null, null, $settings['purchase_type']);
 		}else{
-			$ProductsAttributes = attributesUtil::getAttributes($product->productInfo['products_id']);
+			$ProductsAttributes = attributesUtil::getAttributes($product->getId());
 		}
 
 		$Attributes = array();
@@ -566,7 +578,9 @@ class Extension_attributes extends ExtensionBase {
 		$attributesTemplate->setTemplateFile($templateFile, $templateDir);
 
 		$attributesTemplate->setVars(array(
-			'attributes' => $Attributes
+			'attributes' => $Attributes,
+			'productClass' => $product,
+			'purchase_type'=> (isset($settings['purchase_type'])?$settings['purchase_type']:'new')
 		));
 
 		return $attributesTemplate->parse();

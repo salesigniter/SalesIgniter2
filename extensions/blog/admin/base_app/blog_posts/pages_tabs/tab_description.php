@@ -21,8 +21,26 @@ $PostStatusDisabled = htmlBase::newElement('radio')
              if ($Post['post_status'] == '0')
 			    $PostStatusDisabled->setChecked(true);
 		}
-            $PostDate->setValue($Post['post_date']);
+            $PostDate->setValue($Post['post_date']->format('d/m/Y'));
     }
+$PostFeaturedImage = htmlBase::newElement('fileManager')
+	->setName('post_featured_image')
+	->val($Post['post_featured_image']);
+
+$PostFullFeaturedImage = htmlBase::newElement('fileManager')
+	->setName('post_full_featured_image')
+	->val($Post['post_full_featured_image']);
+
+$PostFeaturedVideo = htmlBase::newElement('input')
+->setName('post_featured_media')
+->setValue($Post['post_featured_media']);
+
+$PostRedirectUrl = htmlBase::newElement('input')
+	->setName('post_redirect_url')
+	->setValue($Post['post_redirect_url']);
+
+
+
 ?>
 <table cellpadding="0" cellspacing="0" border="0">
       <tr>
@@ -42,18 +60,44 @@ $PostStatusDisabled = htmlBase::newElement('radio')
       <tr>
    <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
   </tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_POSTS_FEATURED_IMAGE'); ?><br></td>
+		<td class="main"><?php echo $PostFeaturedImage->draw(); ?></td>
+	</tr>
+	<tr>
+		<td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+	</tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_POSTS_FULL_FEATURED_IMAGE'); ?><br></td>
+		<td class="main"><?php echo $PostFullFeaturedImage->draw(); ?></td>
+	</tr>
+	<tr>
+		<td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+	</tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_POSTS_FEATURED_VIDEO'); ?><br><small>(youtube-vimeo only)</small></td>
+		<td class="main"><?php echo $PostFeaturedVideo->draw(); ?></td>
+	</tr>
+	<tr>
+		<td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+	</tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_POSTS_REDIRECT_URL'); ?><br><small>(youtube-vimeo only)</small></td>
+		<td class="main"><?php echo $PostRedirectUrl->draw(); ?></td>
+	</tr>
+	<tr>
+		<td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+	</tr>
 </table>
  <?php echo '<ul>';
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$langImage = tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']);
-		$lID = $languages[$i]['id'];
-		echo '<li class="ui-tabs-nav-item"><a href="#langTab_' . $lID . '"><span>' . $languages[$i]['name'] . '</span></a></li>';
+	foreach (sysLanguage::getLanguages() as $lInfo) {
+		$lID = $lInfo['id'];
+		echo '<li class="ui-tabs-nav-item"><a href="#langTab_' . $lID . '"><span>' . $lInfo['showName']() . '</span></a></li>';
 	}
 	echo '</ul>';
 	
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$langImage = tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']);
-		$lID = $languages[$i]['id'];
+	foreach (sysLanguage::getLanguages() as $lInfo) {
+		$lID = $lInfo['id'];
 		
 		$PostTitle = htmlBase::newElement('input')
 		->setName('blog_post_title[' . $lID . ']');

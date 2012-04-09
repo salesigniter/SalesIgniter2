@@ -21,11 +21,6 @@ class Products extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 		
-		$this->hasOne('Manufacturers', array(
-			'local' => 'manufacturers_id',
-			'foreign' => 'manufacturers_id'
-		));
-		
 		$this->hasMany('ProductsToBox', array(
 			'local'   => 'products_id',
 			'foreign' => 'products_id',
@@ -51,11 +46,16 @@ class Products extends Doctrine_Record {
 	}
 	
 	public function preInsert($event){
-		$this->products_date_added = date('Y-m-d H:i:s');
+		$this->products_date_added->setTimestamp(time());
+		$this->products_last_modified = null;
 	}
 	
 	public function preUpdate($event){
-		$this->products_last_modified = date('Y-m-d H:i:s');
+		if ($this->products_last_modified instanceof SesDateTime){
+			$this->products_last_modified->setTimestamp(time());
+		}else{
+			$this->products_last_modified = date(DATE_TIMESTAMP);
+		}
 	}
 	
 	public function setTableDefinition(){
@@ -94,27 +94,9 @@ class Products extends Doctrine_Record {
 				'autoincrement' => false,
 				'scale'         => false
 		));
-		$this->hasColumn('products_date_added', 'timestamp', null, array(
-			'type'          => 'timestamp',
-			'primary'       => false,
-			'default'       => '0000-00-00 00:00:00',
-			'notnull'       => true,
-			'autoincrement' => false
-		));
-		$this->hasColumn('products_last_modified', 'timestamp', null, array(
-			'type'          => 'timestamp',
-			'primary'       => false,
-			'default'       => 'null',
-			'notnull'       => false,
-			'autoincrement' => false
-		));
-		$this->hasColumn('products_date_available', 'timestamp', null, array(
-			'type'          => 'timestamp',
-			'primary'       => false,
-				'default'       => 'null',
-			'notnull'       => false,
-			'autoincrement' => false
-		));
+		$this->hasColumn('products_date_added', 'timestamp');
+		$this->hasColumn('products_last_modified', 'timestamp');
+		$this->hasColumn('products_date_available', 'timestamp');
 		$this->hasColumn('products_weight', 'decimal', 5, array(
 			'type'          => 'decimal',
 			'length'        => 5,
@@ -141,14 +123,6 @@ class Products extends Doctrine_Record {
 			'primary'       => false,
 			'default'       => '0',
 			'notnull'       => true,
-			'autoincrement' => false
-		));
-		$this->hasColumn('manufacturers_id', 'integer', 4, array(
-			'type'          => 'integer',
-			'length'        => 4,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'notnull'       => false,
 			'autoincrement' => false
 		));
 		$this->hasColumn('products_ordered', 'integer', 4, array(
@@ -187,12 +161,7 @@ class Products extends Doctrine_Record {
 			'notnull'       => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('products_date_ordered', 'timestamp', null, array(
-			'type'          => 'timestamp',
-			'primary'       => false,
-			'notnull'       => false,
-			'autoincrement' => false
-		));
+		$this->hasColumn('products_date_ordered', 'timestamp');
 		$this->hasColumn('products_featured', 'integer', 1, array(
 			'type'          => 'integer',
 			'length'        => 1,
@@ -202,12 +171,7 @@ class Products extends Doctrine_Record {
 			'notnull'       => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('products_last_sold', 'timestamp', null, array(
-			'type'          => 'timestamp',
-			'primary'       => false,
-			'notnull'       => false,
-			'autoincrement' => false
-		));
+		$this->hasColumn('products_last_sold', 'timestamp');
 		$this->hasColumn('products_ratio', 'decimal', 5, array(
 			'type'          => 'decimal',
 			'length'        => 5,

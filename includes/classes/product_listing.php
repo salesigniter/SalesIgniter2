@@ -15,7 +15,7 @@ class productListing {
 		->from('ProductsListing p')
 		->leftJoin('p.ProductsListingDescription pd')
 		->where('p.products_listing_status = ?', '1')
-		->andWhere('find_in_set(?, p.products_listing_template)', Session::get('tplDir'))
+		->andWhere('find_in_set(?, p.products_listing_template)', sysConfig::get('TEMPLATE_DIRECTORY'))
 		->orderBy('p.products_listing_sort_order')
 		->execute();
 		if ($Qcolumns->count() > 0){
@@ -75,13 +75,9 @@ class productListing {
 				$dirObj->next();
 			}
 		}
-		
-		if (file_exists(sysConfig::getDirFsCatalog() . 'templates/fallback/classes/product_listing/' . $name . '.php')){
-			$module = sysConfig::getDirFsCatalog() . 'templates/fallback/classes/product_listing/' . $name . '.php';
-		}
-		
-		if (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/classes/product_listing/' . $name . '.php')){
-			$module = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/classes/product_listing/' . $name . '.php';
+
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php')){
+			$module = sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php';
 		}
 		
 		if ($module !== false){

@@ -1,24 +1,34 @@
 <?php
-
+if(!isset($_GET['cond']) && !isset($_GET['type'])){
+	      $_GET['cond'] = 'good';
+}
 	$QMaintenancePeriodsAll = Doctrine_Query::create()
 	->from('PayPerRentalMaintenancePeriods')
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-$type = isset($_GET['type'])?$_GET['type']:$QMaintenancePeriodsAll[0]['maintenance_period_id'];
+	$type = isset($_GET['type'])?$_GET['type']:$QMaintenancePeriodsAll[0]['maintenance_period_id'];
+
 
 	$QMaintenancePeriods = Doctrine_Query::create()
 	->from('PayPerRentalMaintenancePeriods')
 	->where('maintenance_period_id = ?', $type)
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-	$Qmaint = Doctrine_Query::create()
-    ->from('ProductsInventoryBarcodes pib')
-	->leftJoin('pib.BarcodeHistoryRented bhr');
-	if(!isset($_GET['cond']) || $_GET['cond'] == 'good'){
-		$Qmaint->where('bhr.current_maintenance_type = ?',$type);
-	}else{
+	if($QMaintenancePeriods[0]['is_repair'] != '1'){
+		$Qmaint = Doctrine_Query::create()
+		->from('ProductsInventoryBarcodes pib')
+		->leftJoin('pib.BarcodeHistoryRented bhr');
+		if(!isset($_GET['cond']) || $_GET['cond'] == 'good'){
+			$Qmaint->where('bhr.current_maintenance_type = ?',$type);
+		}else{
 
-		$Qmaint->where('bhr.current_maintenance_cond = ?', (($_GET['cond'] == 'bad')?'2':'3') );
+			$Qmaint->where('bhr.current_maintenance_cond = ?', (($_GET['cond'] == 'bad')?'2':'3') );
+		}
+	}else{
+		$Qmaint = Doctrine_Query::create()
+		->from('ProductsInventoryBarcodes pib')
+		->leftJoin('pib.BarcodeHistoryRented bhr')
+		->where('bhr.current_maintenance_cond = ?','2');
 	}
 
 	/*$multiStore = $appExtension->getExtension('multiStore');
@@ -107,8 +117,7 @@ $type = isset($_GET['type'])?$_GET['type']:$QMaintenancePeriodsAll[0]['maintenan
 		<form name="" method="get" action="<?php echo itw_app_link(tep_get_all_get_params(array('cond')),null,null);?>">
 		Select Item Condition: <select name="cond" onchange="this.form.submit()">
 			<option value="good" <?php echo (isset($_GET['cond']) && $_GET['cond'] == 'good'?'selected="selected"':''); ?>>Not Checked</option>
-			<option value="bad" <?php echo (isset($_GET['cond']) && $_GET['cond'] == 'bad'?'selected="selected"':''); ?>>To be Repaired</option>
-			<option value="repaired" <?php echo (isset($_GET['cond']) && $_GET['cond'] == 'repaired'?'selected="selected"':''); ?>>Repaired</option>
+			<option value="repaired" <?php echo (isset($_GET['cond']) && $_GET['cond'] == 'repaired'?'selected="selected"':''); ?>>Repaired Needs Approval</option>
 		</select>
 		</form>
 	<?php
@@ -124,14 +133,12 @@ $type = isset($_GET['type'])?$_GET['type']:$QMaintenancePeriodsAll[0]['maintenan
 		->setName('maintenance_selectbox')
 		->attr('id', 'maintenance_selectbox');
 
-		if($type != '-1'){
-			$qMaintenanceSelect->selectOptionByValue($type);
-		}
+		$qMaintenanceSelect->selectOptionByValue($type);
 
 		foreach($QMaintenancePeriods as $qPeriod){
 			$qMaintenanceSelect->addOption($qPeriod['maintenance_period_id'], $qPeriod['maintenance_period_name']);
 		}
-		$qMaintenanceSelect->addOption('-1', sysLanguage::get('TEXT_BUTTON_REPAIRS'));
+		//$qMaintenanceSelect->addOption('-1', sysLanguage::get('TEXT_BUTTON_REPAIRS'));
 
 		echo $qMaintenanceSelect->draw();
 
@@ -149,3 +156,9 @@ $type = isset($_GET['type'])?$_GET['type']:$QMaintenancePeriodsAll[0]['maintenan
 		</div>
 	</div>
 </div>
+
+	<?php
+/*
+ <option value="bad" <?php echo (isset($_GET['cond']) && $_GET['cond'] == 'bad'?'selected="selected"':''); ?>>To be Repaired</option>
+ * */
+?>

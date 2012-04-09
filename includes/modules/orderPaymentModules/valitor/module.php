@@ -94,7 +94,7 @@ class OrderPaymentValitor extends CreditCardModule {
 	}
 	
 	
-	public function processPayment(){
+	public function processPayment($orderID = null, $amount = null){
 		global $order, $onePageCheckout;
 
 		$paymentAmount = $order->info['total'];

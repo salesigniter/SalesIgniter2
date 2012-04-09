@@ -15,28 +15,21 @@
 	$admin = Session::get('login_id');
 	$date = date('Y-m-d H:i:s');
 
-	/*$Maintenances = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairs');
-	$Maintenance = $Maintenances->findOneByBarcodeId((int) $_GET['mID']);
-	if(!$Maintenance){*/
-	$Maintenance = new PayPerRentalMaintenanceRepairs;
-	//}
+	$Maintenances = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairs');
+	if (isset($_GET['mID'])){
+		$Maintenance = $Maintenances->find((int) $_GET['mID']);
+	}
+
 	$Maintenance->comments = $comments;
 	$Maintenance->price = $price;
-	$Maintenance->barcode_id = $_GET['mID'];
 	$Maintenance->admin_id = $admin;
 	$Maintenance->repair_date = $date;
-
-
-	$BarcodeHistoryRented = Doctrine_Core::getTable('BarcodeHistoryRented')->find((int) $_GET['mID']);
-	$BarcodeHistoryRented->current_maintenance_cond = '3';
-	$BarcodeHistoryRented->save();
-	$Maintenance->maintenance_date = $BarcodeHistoryRented->last_maintenance_date;
-	$Maintenance->maintenance_period_id = $BarcodeHistoryRented->last_maintenance_type;
 	$Maintenance->save();
 
 $PayPerRentalMaintenanceRepairParts = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairParts');
 Doctrine_Query::create()
 	->delete('PayPerRentalMaintenanceRepairParts')
+//->whereNotIn('price_per_rental_per_products_id', $saveArray)
 	->andWhere('pay_per_rental_maintenance_repairs_id =?', $Maintenance->pay_per_rental_maintenance_repairs_id)
 	->execute();
 
@@ -51,5 +44,5 @@ if(isset($_POST['parts'])){
 }
 
 
-EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'mID=' . $_GET['mID'], null, 'repairs'), 'redirect');
+EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'mID=' . $Maintenance->pay_per_rental_maintenance_id, null, 'repairs'), 'redirect');
 ?>

@@ -2,6 +2,5 @@
 	<define key="MODULE_PURCHASE_TYPE_MEMBERSHIPRENTAL_TITLE"><![CDATA[Membership Rental]]></define>
 	<define key="MODULE_PURCHASE_TYPE_MEMBERSHIPRENTAL_DESCRIPTION"><![CDATA[Membership Based Rentals Which Mimic Sites Like netflix.com]]></define>
 	<define key="TEXT_ENABLED_MEMBERSHIPS"><![CDATA[Enabled Packages]]></define>
-	<define key="TEXT_KEEP_PRICE"><![CDATA[Keep It Price]]></define>
-
+	<define key="TEXT_EXISTS_IN_QUEUE"><![CDATA[Already in rental queue]]></define>
 </definitions>

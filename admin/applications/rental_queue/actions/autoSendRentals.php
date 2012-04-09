@@ -1,6 +1,5 @@
 <?php
-	require(sysConfig::get('DIR_WS_CLASSES') . 'rental_queue.php');
-	require(sysConfig::getDirFsCatalog() .'includes/classes/ProductBase.php');
+	require(sysConfig::getDirFsCatalog() . 'includes/classes/rental_queue.php');
 	$processed = array(
 		'noneInQueue' => array(),
 		'noInventory' => array()
@@ -16,11 +15,10 @@
 		$Customers = Doctrine_Query::create()
 		->select('customers_id')
 		->from('CustomersMembership')
-		->where('ismember = ?', 'M')
-		->andWhere('activate = ?', 'Y')
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-		foreach($Customers as $customer){
+		->where('ismember', 'M')
+		->andWhere('activate', 'Y')
+		->execute();
+		foreach($Customers->toArray() as $customer){
 			if (in_array($customer['customers_id'], $processed['noneInQueue'])) continue;
 
 			$userAccount = new rentalStoreUser($customer['customers_id']);
@@ -33,7 +31,6 @@
 
 				$totalRented = $rentalQueue->count_rented();
 				$totalCanSend = $membership->getRentalsAllowed() - $totalRented;
-
 				if ($totalCanSend > 0){
 					if ($rentalQueue->isEmpty()){
 						$rentalsSent = true;
@@ -52,13 +49,9 @@
 							$errorAdd .= '<br />Inventory Center ID: ' . (int) $centerID;
 						}
 						$products = $rentalQueue->getProducts();
-
 						for($i=0, $n=sizeof($products); $i<$n; $i++){
 							$barcodeId = false;
-							//$purchaseTypeCls = $products[$i]['productClass']->getPurchaseType('rental');
-							$purchaseTypeCls = PurchaseTypeModules::getModule('membershipRental');
-							$purchaseTypeCls->loadProduct($products[$i]['productClass']->getID());
-
+							$purchaseTypeCls = $products[$i]['productClass']->getPurchaseType('rental');
 							$productInv =& $purchaseTypeCls->invMethod->trackMethod;
 							$productInv->invUnavailableStatus = array(
 								'B',
@@ -102,7 +95,7 @@
 								$rentalQueue->incrementTopRentals($products[$i]['id']);
 
 								$shipmentDate = date('Y-m-d');
-								$arrivalDate = date('Y-m-d', mktime(0,0,0,date('m'),(date('d') + (int)sysConfig::get('RENTAL_QUEUE_DAYS_INTERVAL')),date('Y')));
+								$arrivalDate = date('Y-m-d', mktime(0,0,0,date('m'),date('d')+RENTAL_QUEUE_DAYS_INTERVAL,date('Y')));
 
 								$NewRentedQueue = new RentedQueue();
 								$NewRentedQueue->customers_id = $QproductsQueue['customers_id'];
@@ -147,7 +140,7 @@
 								));
 
 								$emailEvent->sendEmail(array(
-									'name'  => $userAccount->getFirstName(),
+									'name'  => $full_name,
 									'email' => $userAccount->getEmailAddress()
 								));
 

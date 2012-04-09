@@ -3,7 +3,6 @@
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 
 	$appContent = $App->getAppContentFile();
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
 
 	$gID = (isset($_GET['gID'])) ? $_GET['gID'] : ($App->getAppPage() == 'product_listing' || $App->getAppPage() == 'product_sort_listing' ? 8 : 1);
 	

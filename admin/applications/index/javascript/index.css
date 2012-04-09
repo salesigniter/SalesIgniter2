@@ -1,94 +1,89 @@
 /* Columns section */
-/* Reset */
-body,img,p,h1,h2,h3,h4,h5,h6,ul,ol {margin:0; padding:0; list-style:none; border:none;}
-/* End Reset */
+#desktopWidgets ul { list-style:none;padding:0;margin:0;text-align:center; }
+#desktopWidgets li.ui-widget { margin:1em;display: inline-block;vertical-align: top;width:46%;text-align: left; }
+#desktopWidgets li.widget-placeholder { margin:1em;display: inline-block;vertical-align: top;width:48%;border: 2px dashed #999;}
+#desktopWidgets .ui-widget-header { padding: 0 .5em;position: relative; }
+#desktopWidgets .ui-widget-header h3 { display: inline-block; }
+#desktopWidgets .ui-widget-header .edit { position:absolute;right:3.5em;top:.5em; }
+#desktopWidgets .ui-widget-header .remove { position:absolute;right:.5em;top:.5em; }
+#desktopWidgets li > .ui-widget-content { border-top:0px;padding:10px; }
+#desktopWidgets li.collapsed > .ui-widget-content {display:none;}
+
+
+#desktopWidgets li.color-yellow > .ui-widget-header { background:#f2bc00;border-color:#f2bc00; }
+#desktopWidgets li.color-yellow > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-yellow > .ui-widget-content { border-color:#f2bc00; }
+
+#desktopWidgets li.color-red > .ui-widget-header { background:#dd0000;border-color:#dd0000; }
+#desktopWidgets li.color-red > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-red > .ui-widget-content { border-color:#dd0000; }
+
+#desktopWidgets li.color-blue > .ui-widget-header { background:#148ea4;border-color:#148ea4; }
+#desktopWidgets li.color-blue > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-blue > .ui-widget-content { border-color:#148ea4; }
+
+#desktopWidgets li.color-white > .ui-widget-header { background:#ffffff;border-color:#000000; }
+#desktopWidgets li.color-white > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-white > .ui-widget-content { border-color:#000000; }
+
+#desktopWidgets li.color-orange > .ui-widget-header { background:#f66e00;border-color:#f66e00; }
+#desktopWidgets li.color-orange > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-orange > .ui-widget-content { border-color:#f66e00; }
+
+#desktopWidgets li.color-green > .ui-widget-header { background:#8dc100;border-color:#8dc100; }
+#desktopWidgets li.color-green > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-green > .ui-widget-content { border-color:#8dc100; }
+
+#desktopWidgets li.color-yellowgradient { <?php echo buildSimpleGradient('#f2bc00', '#ffffff');?> }
+#desktopWidgets li.color-yellowgradient > .ui-widget-header { border-color:#f2bc00;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-yellowgradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-yellowgradient > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-yellowgradient > .ui-widget-content { background:transparent;border-color:#f2bc00; }
+
+#desktopWidgets li.color-redgradient { <?php echo buildSimpleGradient('#dd0000', '#ffffff');?> }
+#desktopWidgets li.color-redgradient > .ui-widget-header { border-color:#dd0000;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-redgradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-redgradient > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-redgradient > .ui-widget-content { background:transparent;border-color:#dd0000; }
+
+#desktopWidgets li.color-bluegradient { <?php echo buildSimpleGradient('#148ea4', '#ffffff');?> }
+#desktopWidgets li.color-bluegradient > .ui-widget-header { border-color:#148ea4;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-bluegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-bluegradient > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-bluegradient > .ui-widget-content { background:transparent;border-color:#148ea4; }
+
+#desktopWidgets li.color-whitegradient { <?php echo buildSimpleGradient('#ffffff', '#000000');?> }
+#desktopWidgets li.color-whitegradient > .ui-widget-header { border-color:#000000;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-whitegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-whitegradient > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-whitegradient > .ui-widget-content { background:transparent;border-color:#000000; }
+
+#desktopWidgets li.color-orangegradient { <?php echo buildSimpleGradient('#f66e00', '#ffffff');?> }
+#desktopWidgets li.color-orangegradient > .ui-widget-header { border-color:#f66e00;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-orangegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-orangegradient > .ui-widget-header h3 { color:#FFFFFF; }
+#desktopWidgets li.color-orangegradient > .ui-widget-content { background:transparent;border-color:#f66e00; }
+
+#desktopWidgets li.color-greengradient { <?php echo buildSimpleGradient('#8dc100', '#ffffff');?> }
+#desktopWidgets li.color-greengradient > .ui-widget-header { border-color:#8dc100;border-bottom-width:0px;background:transparent; }
+#desktopWidgets li.color-greengradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
+#desktopWidgets li.color-greengradient > .ui-widget-header h3 { color:#000000; }
+#desktopWidgets li.color-greengradient > .ui-widget-content { background:transparent;border-color:#8dc100; }
 
 /* Colors */
-.color-yellow {background:#f2bc00;}
-.color-red    {background:#dd0000;}
-.color-blue   {background:#148ea4;}
-.color-white  {background:url(<?php echo sysConfig::getDirWsAdmin();?>applications/index/javascript/ui-bg_highlight-soft_75_cccccc_1x100.png) repeat-x scroll 50% 50% #CCCCCC;}
-.color-orange {background:#f66e00;}
-.color-green  {background:#8dc100;}
-.color-yellow h3,
-.color-white h3,
-.color-green h3
-	{color:#000;}
-.color-red h3,
-.color-blue h3,
-.color-orange h3
-	{color:#FFF;}
+.colors .color-yellow {background:#f2bc00;}
+.colors .color-red    {background:#dd0000;}
+.colors .color-blue   {background:#148ea4;}
+.colors .color-white  {background:#ffffff;}
+.colors .color-orange {background:#f66e00;}
+.colors .color-green  {background:#8dc100;}
+.colors .color-yellowgradient {<?php echo buildSimpleGradient('#f2bc00', '#ffffff');?>}
+.colors .color-redgradient    {<?php echo buildSimpleGradient('#dd0000', '#ffffff');?>}
+.colors .color-bluegradient   {<?php echo buildSimpleGradient('#148ea4', '#ffffff');?>}
+.colors .color-whitegradient  {<?php echo buildSimpleGradient('#ffffff', '#ffffff');?>}
+.colors .color-orangegradient {<?php echo buildSimpleGradient('#f66e00', '#ffffff');?>}
+.colors .color-greengradient  {<?php echo buildSimpleGradient('#8dc100', '#ffffff');?>}
 /* End Colors */
 
-#columns .column {
-    float: left;
-    width: 50%;
-	/* Min-height: */
-	min-height: 400px;
-	height: auto !important;
-	height: 400px;
-}
-/* Column dividers (background-images) : */
-#columns .widget {
-    margin: 30px 20px 0 20px;
-    padding: 2px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-#columns .widget .widget-head {
-    color: #000;
-    overflow: hidden;
-    width: 100%;
-    height: 30px;
-    line-height: 30px;
-}
-#columns .widget .widget-head h3 {
-    padding: 0 5px;
-    float: left;
-}
-#columns .widget .widget-content {
-    background: #ffffff;
-    padding: 0 5px;
-    color: #000000;
-    -moz-border-radius-bottomleft: 2px;
-    -moz-border-radius-bottomright: 2px;
-    -webkit-border-bottom-left-radius: 2px;
-    -webkit-border-bottom-right-radius: 2px;
-    line-height: 1.2em;
-    overflow: hidden;
-}
-#columns .widget .widget-content p {
-    padding: 0.8em 0;
-    border-bottom: 1px solid #666;
-}
-#columns .widget .widget-content img {
-    float: right;
-    margin: 10px;
-    border: 1px solid #FFF;
-}
-#columns .widget .widget-content pre {
-    padding: 0.5em 5px;
-    color: #EEE;
-    font-size: 12px;
-}
-#columns .widget .widget-content ul {
-    padding: 5px 0 5px 20px;
-    list-style: disc;
-}
-#columns .widget .widget-content ul li {padding: 3px 0;}
-#columns .widget .widget-content ul.images {
-    padding: 7px 0 0 0;
-    list-style: none;
-    height: 1%;
-}
-#columns .widget .widget-content ul.images li {
-    display: inline;
-    float: left;
-}
-#columns .widget .widget-content ul.images img {
-    display: inline;
-    float: left;
-    margin: 0 0 7px 7px;
-}
 /* End Columns section */
 

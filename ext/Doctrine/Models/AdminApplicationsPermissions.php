@@ -43,10 +43,6 @@ class AdminApplicationsPermissions extends Doctrine_Record {
 		'default' => '',
 		'notnull' => false,
 		));
-		$this->hasColumn('admin_groups', 'text', null, array(
-		'type' => 'text',
-		'primary' => false,
-		'notnull' => false,
-		));
+		$this->hasColumn('admin_groups', 'string', 1000);
 	}
 }

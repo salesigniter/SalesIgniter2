@@ -11,101 +11,102 @@
 */
 
 //here i check for parent
-	if (!$userAccount->isLoggedIn()){
-		tep_redirect(itw_app_link(null,'account','default'));
-	}else{
-		$pageContents = '';
-		
-		$Qshipped = Doctrine_Query::create()
+if (!$userAccount->isLoggedIn()){
+	tep_redirect(itw_app_link(null, 'account', 'default'));
+}
+else {
+	$pageContents = '';
+
+	$Qshipped = Doctrine_Query::create()
 		->from('RentedQueue r')
 		->where('r.return_date <= ?', '0000-00-00 00:00:00')
 		->andWhere('r.customers_id = ?', $userAccount->getCustomerId())
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-		$info_box_contents = array();
-		$info_box_contents[0][] = array(
-			'align' => 'left',
-			'params' => 'class="ui-widget-header"',
-			'text' => sysLanguage::get('TABLE_HEADING_TITLE')
-		);
+	$info_box_contents = array();
+	$info_box_contents[0][] = array(
+		'align'  => 'left',
+		'params' => 'class="ui-widget-header"',
+		'text'   => sysLanguage::get('TABLE_HEADING_TITLE')
+	);
 
-		$info_box_contents[0][] = array(
-			'align' => 'left',
-			'params' => 'class="ui-widget-header"',
-			'text' => sysLanguage::get('TABLE_HEADING_SHIPMENT_DATE')
-		);
+	$info_box_contents[0][] = array(
+		'align'  => 'left',
+		'params' => 'class="ui-widget-header"',
+		'text'   => sysLanguage::get('TABLE_HEADING_SHIPMENT_DATE')
+	);
 
-		$info_box_contents[0][] = array(
-			'align' => 'left',
-			'params' => 'class="ui-widget-header"',
-			'text' => sysLanguage::get('TABLE_HEADING_ARRIVAL_DATE')
-		);
+	$info_box_contents[0][] = array(
+		'align'  => 'left',
+		'params' => 'class="ui-widget-header"',
+		'text'   => sysLanguage::get('TABLE_HEADING_ARRIVAL_DATE')
+	);
 
-		$i = 1;
-		if ($Qshipped){
-			foreach($Qshipped as $sInfo){
-				if ($i % 2 == 1) {
-					$info_box_contents[] = array('params' => 'class="productListing-even"');
-				}else{
-					$info_box_contents[] = array('params' => 'class="productListing-odd"');
-				}
-
-				$productsName = '<a target="_blank" href="'.itw_app_link('products_id='.$sInfo['products_id'],'product','info').'">'.tep_get_products_name($sInfo['products_id']).'</a>';
-				$shipDate = $sInfo['shipment_date'];
-				$shipDateString = date("m/d/Y", strtotime($shipDate));
-				$arrivalDate = $sInfo['arrival_date'];
-				$arrivalDateString = date("m/d/Y", strtotime($arrivalDate));
-
-				$info_box_contents[$i][] = array(
-					'params' => 'class="productListing-data"',
-					'text' => $productsName
-				);
-
-				$info_box_contents[$i][] = array(
-					'align' => 'left',
-					'params' => 'class="productListing-data" valign="top"',
-					'text' => $shipDateString
-				);
-
-				$info_box_contents[$i][] = array(
-					'align' => 'left',
-					'params' => 'class="productListing-data" valign="top"',
-					'text' => $arrivalDateString
-				);
-				$i++;
-
+	$i = 1;
+	if ($Qshipped){
+		foreach($Qshipped as $sInfo){
+			if ($i % 2 == 1){
+				$info_box_contents[] = array('params' => 'class="productListing-even"');
 			}
+			else {
+				$info_box_contents[] = array('params' => 'class="productListing-odd"');
+			}
+
+			$productsName = '<a target="_blank" href="' . itw_app_link('products_id=' . $sInfo['products_id'], 'product', 'info') . '">' . tep_get_products_name($sInfo['products_id']) . '</a>';
+			$shipDate = $sInfo['shipment_date'];
+			$shipDateString = date("m/d/Y", strtotime($shipDate));
+			$arrivalDate = $sInfo['arrival_date'];
+			$arrivalDateString = date("m/d/Y", strtotime($arrivalDate));
+
+			$info_box_contents[$i][] = array(
+				'params' => 'class="productListing-data"',
+				'text'   => $productsName
+			);
+
+			$info_box_contents[$i][] = array(
+				'align'  => 'left',
+				'params' => 'class="productListing-data" valign="top"',
+				'text'   => $shipDateString
+			);
+
+			$info_box_contents[$i][] = array(
+				'align'  => 'left',
+				'params' => 'class="productListing-data" valign="top"',
+				'text'   => $arrivalDateString
+			);
+			$i++;
 		}
-		$shippedProducts = $i - 1;
-		
-		if ($shippedProducts){
-			ob_start();
-			echo '<div><b>' . sysLanguage::get('TEXT_SHIPPED_MOVIES') . ' - ' . $shippedProducts . '</b><br><br>';
-			new productListingBox($info_box_contents);
-			echo '</div><br>';
-			$pageContents .= ob_get_contents();
-			ob_end_clean();
-		}
-		
-		$Qrental = Doctrine_Query::create()
+	}
+	$shippedProducts = $i - 1;
+
+	if ($shippedProducts){
+		ob_start();
+		echo '<div><b>' . sysLanguage::get('TEXT_SHIPPED_MOVIES') . ' - ' . $shippedProducts . '</b><br><br>';
+		new productListingBox($info_box_contents);
+		echo '</div><br>';
+		$pageContents .= ob_get_contents();
+		ob_end_clean();
+	}
+
+	$Qrental = Doctrine_Query::create()
 		->from('RentalQueueTable')
 		->where('customers_id = ?', $userAccount->getCustomerId());
-		EventManager::notify('RentalQueueBeforeExecute', &$Qrental);
-		$Qrental = $Qrental->orderBy('priority')
+	EventManager::notify('RentalQueueBeforeExecute', &$Qrental);
+	$Qrental = $Qrental->orderBy('priority')
 
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		if (count($Qrental) > 0){
-			ob_start();
-?>
+	if (count($Qrental) > 0){
+		ob_start();
+		?>
 	<table border="0" width="100%" cellspacing="0" cellpadding="0">
 		<tr>
 			<td><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>
 		</tr>
 		<tr>
 			<td class="main"><b><?php
-			echo sysLanguage::get('TEXT_REQUESTED_MOVIES') . " - " . count($Qrental);
+				echo sysLanguage::get('TEXT_REQUESTED_MOVIES') . " - " . count($Qrental);
 
-			?></b></td>
+				?></b></td>
 		</tr>
 		<tr>
 			<td><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>
@@ -122,63 +123,64 @@
 				<?php
 				$info_box_contents = array();
 				$info_box_contents[0][] = array(
-					'align' => 'center',
+					'align'  => 'center',
 					'params' => 'class="ui-widget-header"',
-					'text' => sysLanguage::get('TABLE_HEADING_PRIORITY')
+					'text'   => sysLanguage::get('TABLE_HEADING_PRIORITY')
 				);
 
 				$info_box_contents[0][] = array(
-					'align' => 'center',
+					'align'  => 'center',
 					'params' => 'class="ui-widget-header"',
-					'text' => sysLanguage::get('TABLE_HEADING_TITLE')
+					'text'   => sysLanguage::get('TABLE_HEADING_TITLE')
 				);
 
 				if (sysConfig::get('RENTAL_AVAILABILITY_RENTAL_QUEUE') == 'true'){
 					$info_box_contents[0][] = array(
-						'align' => 'center',
+						'align'  => 'center',
 						'params' => 'class="ui-widget-header"',
-						'text' => sysLanguage::get('TABLE_HEADING_AVAILABILITY')
+						'text'   => sysLanguage::get('TABLE_HEADING_AVAILABILITY')
 					);
 				}
 
 				$info_box_contents[0][] = array(
-					'align' => 'center',
+					'align'  => 'center',
 					'params' => 'class="ui-widget-header"',
-					'text' => sysLanguage::get('TABLE_HEADING_REMOVE')
+					'text'   => sysLanguage::get('TABLE_HEADING_REMOVE')
 				);
 
 				EventManager::notify('ListingRentalQueueHeader', &$info_box_contents[0]);
 
 				$i = 1;
 				foreach($Qrental as $rInfo){
-					if ($i % 2 == 1) {
+					if ($i % 2 == 1){
 						$info_box_contents[] = array('params' => 'class="productListing-even"');
-					}else{
+					}
+					else {
 						$info_box_contents[] = array('params' => 'class="productListing-odd"');
 					}
 
 					$productsId = $rInfo['products_id'];
 
 					$priority = htmlBase::newElement('input')
-					->setName('queue_priority['.$productsId.']')
-					->setSize(2)
-					->setValue($rInfo['priority']);
+						->setName('queue_priority[' . $productsId . ']')
+						->setSize(2)
+						->setValue($rInfo['priority']);
 
 					$QproductsInQueue = Doctrine_Query::create()
-					->from('RentalQueueTable')
-					->where('products_id = ?', $productsId)
-					->andWhere('customers_id = ?', $userAccount->getCustomerId())
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+						->from('RentalQueueTable')
+						->where('products_id = ?', $productsId)
+						->andWhere('customers_id = ?', $userAccount->getCustomerId())
+						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 					$QAvailability = Doctrine_Query::create()
-					->from('RentalAvailability r')
-					->leftJoin('r.RentalAvailabilityDescription rad')
-					->where('rad.language_id = ?', Session::get('languages_id'))
-					->orderBy('ratio')
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+						->from('RentalAvailability r')
+						->leftJoin('r.RentalAvailabilityDescription rad')
+						->where('rad.language_id = ?', Session::get('languages_id'))
+						->orderBy('ratio')
+						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 					$productClass = new product($productsId);
-					$productsName = '<a target="_blank" href="'.itw_app_link('products_id='.$productsId,'product','info').'">'.$productClass->getName().'</a>';
+					$productsName = '<a target="_blank" href="' . itw_app_link('products_id=' . $productsId, 'product', 'info') . '">' . $productClass->getName() . '</a>';
 					$purchaseTypeRental = $productClass->getPurchaseType('rental', true);
 					$availability = count($QproductsInQueue) - $purchaseTypeRental->getCurrentStock();
 					$availabilityName = null;
@@ -192,34 +194,34 @@
 						}
 					}
 
-					$remove	= htmlBase::newElement('checkbox')
-					->setName('queue_delete[]')
-					->setValue($productsId);
+					$remove = htmlBase::newElement('checkbox')
+						->setName('queue_delete[]')
+						->setValue($productsId);
 
 					$info_box_contents[$i][] = array(
-						'align' => 'center',
+						'align'  => 'center',
 						'params' => 'class="productListing-data"',
-						'text' => $priority->draw()
+						'text'   => $priority->draw()
 					);
 
 					$info_box_contents[$i][] = array(
-						'align' => 'center',
+						'align'  => 'center',
 						'params' => 'class="productListing-data" valign="top"',
-						'text' => $productsName
+						'text'   => $productsName
 					);
 
 					if (sysConfig::get('RENTAL_AVAILABILITY_RENTAL_QUEUE') == 'true'){
 						$info_box_contents[$i][] = array(
-							'align' => 'center',
+							'align'  => 'center',
 							'params' => 'class="productListing-data" valign="top"',
-							'text' => $availabilityName
+							'text'   => $availabilityName
 						);
 					}
 
 					$info_box_contents[$i][] = array(
-						'align' => 'center',
+						'align'  => 'center',
 						'params' => 'class="productListing-data" valign="top"',
-						'text' => $remove->draw()
+						'text'   => $remove->draw()
 					);
 
 					EventManager::notify('ListingRentalQueue', &$info_box_contents[$i], $rInfo);
@@ -232,44 +234,46 @@
 			</td>
 		</tr>
 	</table>
-<?php
-	$pageContents .= ob_get_contents();
-	ob_end_clean();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'update_rental_queue',
-		'action' => itw_app_link('action=updateQueue', 'rentals', 'queue'),
-		'method' => 'post'
-	));
+	<?php
+		$pageContents .= ob_get_contents();
+		ob_end_clean();
 
-	$link = itw_app_link(null, 'products', 'all');
-	if (isset($navigation->snapshot['get']) && sizeof($navigation->snapshot['get']) > 0){
-		if (isset($navigation->snapshot['get']['cPath'])){
-			$link = itw_app_link('cPath=' . $navigation->snapshot['get']['cPath'], 'index', 'default');
+		$pageContents = htmlBase::newElement('form')
+			->setAction(itw_app_link('action=updateQueue', 'rentals', 'queue'))
+			->setName('update_rental_queue')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
+
+		$link = itw_app_link(null, 'products', 'all');
+		if (isset($navigation->snapshot['get']) && sizeof($navigation->snapshot['get']) > 0){
+			if (isset($navigation->snapshot['get']['cPath'])){
+				$link = itw_app_link('cPath=' . $navigation->snapshot['get']['cPath'], 'index', 'default');
+			}
 		}
+
+		$continueButtonHtml = htmlBase::newElement('button')
+			->setName('continue')
+			->setText(sysLanguage::get('TEXT_BUTTON_CONTINUE_CART'))
+			->setHref($link);
+
+		$updateQueueButton = htmlBase::newElement('button')
+			->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_QUEUE'))
+			->setType('submit');
+
+		$pageButtons = $continueButtonHtml->draw() . ' ' . $updateQueueButton->draw();
 	}
+	else {
+		$pageContents .= sysLanguage::get('TEXT_QUEUE_EMPTY');
 
-	$continueButtonHtml = htmlBase::newElement('button')
-	->setName('continue')
-	->setText(sysLanguage::get('TEXT_BUTTON_CONTINUE_CART'))
-	->setHref($link);
-
-	$updateQueueButton = htmlBase::newElement('button')
-	->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_QUEUE'))
-	->setType('submit');
-
-	$pageButtons = $continueButtonHtml->draw(). ' '.$updateQueueButton->draw();
-}else{
-	$pageContents .= sysLanguage::get('TEXT_QUEUE_EMPTY');
-
-	$pageButtons = htmlBase::newElement('button')
-	->usePreset('continue')
-	->setHref(itw_app_link(null,'index','default'))
-	->draw();
+		$pageButtons = htmlBase::newElement('button')
+			->usePreset('continue')
+			->setHref(itw_app_link(null, 'index', 'default'))
+			->draw();
+	}
 }
-	}
 
-	$pageContent->set('pageTitle', sysLanguage::get('HEADING_TITLE'));
-	$pageContent->set('pageContent', $pageContents);
-	$pageContent->set('pageButtons', $pageButtons);
+$pageContent->set('pageTitle', sysLanguage::get('HEADING_TITLE'));
+$pageContent->set('pageContent', $pageContents);
+$pageContent->set('pageButtons', $pageButtons);
 ?>

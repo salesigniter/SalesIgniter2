@@ -3,24 +3,15 @@
 	
 	$valuesListing = htmlBase::newElement('div')->attr('id', 'valuesListing')->css(array(
 		'display'  => 'block',
-		'width'    => '100%',
-		'height'   => '12em',
-		'overflow' => 'auto',
 		'vertical-align' => 'top'
 	));
 
 	$optionsListing = htmlBase::newElement('div')->attr('id', 'optionsListing')->css(array(
-		'display'  => 'block',
-		'width'    => '100%',
-		'height'   => '215px',
-		'overflow' => 'auto'
+		'display'  => 'block'
 	));
 
 	$groupsListing = htmlBase::newElement('div')->attr('id', 'groupsListing')->css(array(
-		'display'  => 'block',
-		'width'    => '100%',
-		'height'   => '182px',
-		'overflow' => 'auto'
+		'display'  => 'block'
 	));
 
 	$iconCss = array(
@@ -50,8 +41,8 @@
 
 			$newValueWrapper = htmlBase::newElement('div')->css(array(
 				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '2em',
+				'width'   => '10em',
+				'height'  => '3em',
 				'padding' => '.3em',
 				'margin'  => '.2em'
 			))->addClass('ui-widget ui-widget-content ui-corner-all optionValue draggableValue')
@@ -68,7 +59,7 @@
 	->where('od.language_id = ?', $languageId);
 
 	$trashBin = new htmlElement('div');
-	$trashBin->addClass('trashBin')->html(sysLanguage::get('TEXT_TRASH_BIN') . '<div class="ui-icon ui-icon-trash" style="float:left;"></div>');
+	$trashBin->addClass('trashBin')->html('<span class="ui-icon ui-icon-trash"></span>' . sysLanguage::get('TEXT_TRASH_BIN'));
 
 	$Result = $Qoptions->execute()->toArray();
 	if ($Result){
@@ -111,8 +102,8 @@
 
 			$newOptionWrapper = htmlBase::newElement('div')->attr('option_id', $oInfo['products_options_id'])->css(array(
 				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '200px',
+				'width'   => '15em',
+				'height'  => '12em',
 				'padding' => '.3em',
 				'margin'  => '.2em'
 			))->addClass('ui-widget ui-widget-content ui-corner-all productOption droppableOption draggableOption')
@@ -128,7 +119,7 @@
 	->orderBy('og.products_options_groups_name');
 
 	$trashBin = new htmlElement('div');
-	$trashBin->addClass('trashBin')->html(sysLanguage::get('TEXT_TRASH_BIN') . '<div class="ui-icon ui-icon-trash" style="float:left;"></div>');
+	$trashBin->addClass('trashBin')->html('<span class="ui-icon ui-icon-trash"></span>' . sysLanguage::get('TEXT_TRASH_BIN'));
 
 	$Result = $QoptionsGroups->execute()->toArray();
 	if ($Result){
@@ -169,10 +160,10 @@
 
 			$newGroupWrapper = htmlBase::newElement('div')->attr('group_id', $gInfo['products_options_groups_id'])->css(array(
 				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '150px',
+				'width'   => '15em',
+				'height'  => '12em',
 				'padding' => '.3em',
-				'margin'  => '.2em'
+				'margin'  => '.3em'
 			))->addClass('ui-widget ui-widget-content ui-corner-all droppableGroup')
 			->html('<b>' . $gInfo['products_options_groups_name'] . '</b>' . $deleteIcon->draw() . $editIcon->draw() . '<hr>' . $trashBin->draw() . '<hr />' . $sortableList->draw());
 
@@ -188,14 +179,14 @@
   $newValueButton = htmlBase::newElement('div')->append(htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_VALUE'))->setId('newValue'));
   $newGroupButton = htmlBase::newElement('div')->append(htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_GROUP'))->setId('newGroup'));
   
-  echo $newValueButton->draw();
-  echo $valuesListing->draw();
+  echo $newValueButton->draw().'Examples: small, medium, large';
+  echo $valuesListing->draw().'<br style="clear:both"/>';
   
-  echo $newOptionButton->draw();
-  echo $optionsListing->draw();
+  echo $newOptionButton->draw().'Example: size<br/>After adding an option, drag the value down to the option';
+  echo $optionsListing->draw().'<br style="clear:both"/>';
   
-  echo $newGroupButton->draw();
-  echo $groupsListing->draw();
+  echo $newGroupButton->draw().'Example: shirt<br/>Drag one or more options to a Group.<br/> You MUST put your option to a group to add attributes to a product, even if there is only one option in a group';
+  echo $groupsListing->draw().'<br style="clear:both"/>';
  ?>
  
  <div id="newOptionDialog" title="<?php echo sysLanguage::get('WINDOW_TITLE_NEW_OPTION');?>"></div>

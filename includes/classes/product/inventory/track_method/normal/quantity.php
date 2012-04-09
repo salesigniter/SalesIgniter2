@@ -3,7 +3,16 @@ class productInventoryNormal_quantity {
 	public function __construct($invData){
 		global $appExtension;
 		$this->invData = $invData;
-		
+		$this->invUnavailableStatus = array(
+			'B', //Broken
+			'O', //Out
+			'P', //Purchased
+			'R', //Reserved
+			'T',  //In Transfer,
+			'M',  //Maintenance
+			'Q'  //Quarantine
+		);
+
 		$extPayPerRentals = $appExtension->getExtension('payPerRentals');
 		if ($extPayPerRentals && $extPayPerRentals->isInstalled() === true){
 			$this->payPerRentalsInstalled = true;
@@ -127,6 +136,14 @@ class productInventoryNormal_quantity {
 			}
 		}
 		return $qty;
+	}
+
+	public function setInvUnavailableStatus($val){
+		$this->invUnavailableStatus = $val;
+	}
+
+	public function getInvUnavailableStatus(){
+		return $this->invUnavailableStatus;
 	}
 }
 ?>

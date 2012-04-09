@@ -1113,7 +1113,7 @@
 (function ($) {
 	var themes_loaded = [];
 	// this variable stores the path to the themes folder - if left as false - it will be autodetected
-	$.jstree._themes = DIR_WS_CATALOG + 'ext/jQuery/external/jstree/themes/';
+	$.jstree._themes = jsConfig.get('DIR_WS_CATALOG') + 'ext/jQuery/external/jstree/themes/';
 	$.jstree.plugin("themes", {
 		__init : function () { 
 			this.get_container()

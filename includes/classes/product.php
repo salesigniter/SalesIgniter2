@@ -20,8 +20,7 @@ class ProductInfo {
 			'p.products_date_available, ' . 
 			'p.products_weight, ' . 
 			'p.products_status, ' . 
-			'p.manufacturers_id, ' . 
-			'p.products_ordered, ' . 
+			'p.products_ordered, ' .
 			'p.products_date_ordered, ' . 
 			'p.products_last_sold, ' . 
 			'pd.products_name, ' . 
@@ -44,7 +43,6 @@ class ProductInfo {
 		$this->setDateAvailable($Product['products_date_available']);
 		$this->setWeight($Product['products_weight']);
 		$this->setStatus($Product['products_status']);
-		$this->setManufacturer($Product['manufacturers_id']);
 		$this->setTotalOrdered($Product['products_ordered']);
 		$this->setDateOrdered($Product['products_date_ordered']);
 		$this->setLastSold($Product['products_last_sold']);
@@ -111,7 +109,6 @@ class ProductInfo {
 	public function getDateAvailable(){ return $this->info['products_date_available']; }
 	public function getWeight(){ return $this->info['products_weight']; }
 	public function getStatus(){ return $this->info['products_status']; }
-	public function getManufacturer(){ return $this->info['manufacturers_id']; }
 	public function getTotalOrdered(){ return $this->info['products_ordered']; }
 	public function getDateOrdered(){ return $this->info['products_date_ordered']; } //??????
 	public function getLastSold(){ return $this->info['products_last_sold']; } //??????
@@ -127,7 +124,6 @@ class ProductInfo {
 	public function setDateAvailable($val){ $this->info['products_date_available'] = new DateTime($val); }
 	public function setWeight($val){ $this->info['products_weight'] = $val; }
 	public function setStatus($val){ $this->info['products_status'] = $val; }
-	public function setManufacturer($val){ $this->info['manufacturers_id'] = $val; }
 	public function setTotalOrdered($val){ $this->info['products_ordered'] = $val; }
 	public function setDateOrdered($val){ $this->info['products_date_ordered'] = new DateTime($val); } //??????
 	public function setLastSold($val){ $this->info['products_last_sold'] = new DateTime($val); } //??????
@@ -160,7 +156,6 @@ class Product {
 		->select('p.*, pd.*, m.*')
 		->from('Products p')
 		->leftJoin('p.ProductsDescription pd')
-		->leftJoin('p.Manufacturers m')
 		->where('p.products_id = ?', (int)$pID)
 		->andWhere('pd.language_id = ?', Session::get('languages_id'));
 		
@@ -278,7 +273,6 @@ class Product {
 
 	/* HAS Methods -- Begin -- */
 	function hasModel(){ return (tep_not_null($this->productInfo['products_model'])); }
-	function hasManufacturer(){ return ($this->productInfo['manufacturers_id'] > 0); }
 	function hasURL(){ return tep_not_null($this->productInfo['ProductsDescription'][Session::get('languages_id')]['products_url']); }
 	function hasImage(){ return tep_not_null($this->productInfo['products_image']); }
 	/* HAS Methods -- End -- */
@@ -289,10 +283,8 @@ class Product {
 	function getTaxRate(){ return $this->productInfo['taxRate']; }
 	function getModel(){ return $this->productInfo['products_model']; }
 	function getName(){ return stripslashes($this->productInfo['ProductsDescription'][Session::get('languages_id')]['products_name']); }
-	function getImage(){ return sysConfig::getDirWsCatalog() . sysConfig::get('DIR_WS_IMAGES') . $this->productInfo['products_image']; }
+	function getImage(){ return $this->productInfo['products_image']; }
 	function getDescription(){ return stripslashes($this->productInfo['ProductsDescription'][Session::get('languages_id')]['products_description']); }
-	function getManufacturerID(){ return $this->productInfo['Manufacturers']['manufacturers_id']; }
-	function getManufacturerName(){ return stripslashes($this->productInfo['Manufacturers']['manufacturers_name']); }
 	function getURL(){ return $this->productInfo['ProductsDescription'][Session::get('languages_id')]['products_url']; }
 	function getPreview(){ return $this->productInfo['movie_preview']; }
 	function getAvailableDate(){ return $this->productInfo['products_date_available']; }

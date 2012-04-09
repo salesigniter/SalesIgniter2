@@ -10,14 +10,9 @@
 		->fetchOne()->toArray();
 	}
 
-	$languages = tep_get_languages();
 	$valueNames = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0');
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++){
-		$langID = $languages[$i]['id'];
-				
-		$langImage = htmlBase::newElement('image')
-		->setSource(sysConfig::get('DIR_WS_CATALOG_LANGUAGES'). $languages[$i]['directory'] . '/images/' . $languages[$i]['image'])
-		->setTitle($languages[$i]['name']);
+	foreach (sysLanguage::getLanguages() as $lInfo){
+		$langID = $lInfo['id'];
 				
 		$valueNameInput = htmlBase::newElement('input')->setName('value_name[' . $langID . ']');
 		if (isset($Qvalue)){
@@ -25,7 +20,7 @@
 		}
 		$valueNames->addBodyRow(array(
 			'columns' => array(
-				array('addCls' => 'main', 'text' => $langImage),
+				array('addCls' => 'main', 'text' => $lInfo['showName']()),
 				array('addCls' => 'main', 'text' => $valueNameInput)
 			)
 		));

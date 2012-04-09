@@ -20,6 +20,9 @@ class osC_onePageCheckout {
 		$this->buildSession(true);
 	}
 
+	/**
+	 * @return RentalStoreUser
+	 */
 	public function &getUserAccount(){
 		$userAccount = &Session::getReference('userAccount');
 		return $userAccount;
@@ -74,6 +77,7 @@ class osC_onePageCheckout {
 		global $order;
 		$info =& $this->onePage['info'];
 		if (isset($info['payment']['title'])){
+			$order->info['payment'] = $info['payment'];
 			$order->info['payment_module'] = $info['payment']['title'];
 		}
 		if (isset($info['shipping']['title'])){
@@ -141,6 +145,20 @@ class osC_onePageCheckout {
 		EventManager::notify('CheckoutSetShippingStatus');
 
 	}
+	
+	public function setPaymentMethod($moduleCode){
+		global $order;
+		$Module = OrderPaymentModules::getModule($moduleCode);
+		
+		$this->onePage['info']['payment'] = array(
+			'id'    => $Module->getCode(),
+			'title' => $Module->getTitle()
+		);
+		
+		if (isset($order) && is_object($order)){
+			$order->loadPaymentInfo();
+		}
+	}
 
 	public function fixTaxes(){
 		global $order;
@@ -189,8 +207,9 @@ class osC_onePageCheckout {
 			$userAccount->setFaxNumber((isset($this->onePage['info']['fax']) ? $this->onePage['info']['fax'] : ''));
 			$userAccount->setTelephoneNumber($this->onePage['info']['telephone']);
 			$userAccount->setPassword($this->onePage['info']['password']);
-			$userAccount->setGender($customerAddress['entry_gender']);
-			$userAccount->setDateOfBirth((isset($customerAddress['dob']) ? tep_date_raw($customerAddress['dob']) : ''));
+			$userAccount->setGender((isset($customerAddress['dob']) ? $customerAddress['entry_gender'] : ''));
+			$userAccount->setDateOfBirth((isset($customerAddress['dob']) ? $customerAddress['dob'] : ''));
+			$userAccount->setCityBirth((isset($customerAddress['entry_city_birth']) ? $customerAddress['entry_city_birth'] : ''));
 			$userAccount->setNewsletter((isset($this->onePage['info']['newsletter']) ? $this->onePage['info']['newsletter'] : '0'));
 			$userAccount->setLanguageId(Session::get('languages_id'));
 			$customerId = $userAccount->createNewAccount();
@@ -327,7 +346,7 @@ class osC_onePageCheckout {
         $order->info['tax_groups'] = false;
 		
 		$addressBook =& $userAccount->plugins['addressBook'];
-		$billingAddress =& $addressBook->getAddress('billing');
+		$billingAddress = $addressBook->getAddress('billing');
 		if ($billingAddress['entry_country_id'] == ''){
 			$countryId = 0;
 			$zoneId = 0;
@@ -404,10 +423,14 @@ class osC_onePageCheckout {
 	}
 
 	public function verifyContents(){
-		global $ShoppingCart;
+		global $App, $ShoppingCart;
 		// if there is nothing in the customers cart, redirect them to the shopping cart page
 		if ($ShoppingCart->countContents() < 1) {
-			tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
+			if ($App->getAppName() == 'mobile'){
+				tep_redirect(itw_app_link(null, 'mobile', 'shoppingCart'));
+			}else{
+				tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
+			}
 		}
 	}
 

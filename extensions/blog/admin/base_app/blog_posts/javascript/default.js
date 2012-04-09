@@ -1,30 +1,23 @@
-
 $(document).ready(function (){
-	$('.deletePostButton').click(function (){
-		var $selfButton = $(this);
-		$('<div></div>').dialog({
-			autoOpen: true,
-			width: 300,
-			modal: true,
-			resizable: false,
-			allowClose: false,
-			title: 'Delete Product Confirm',
-			open: function (e){
-				$(e.target).html('Are you sure you want to delete this product?');
-			},
-			close: function (){
-				$(this).dialog('destroy');
-			},
-			buttons: {
-				'Delete Post': function(){
-					window.location = js_app_link('appExt=blog&app=blog_posts&appPage=default&action=deletePostConfirm&post_id=' + $selfButton.attr('post_id'));
-				},
-				'Don\'t Delete': function(){
-					$(this).dialog('destroy');
-				}
-			}
-		});
-		return false;
+	$('.gridButtonBar').find('.newButton').click(function (){
+		js_redirect(js_app_link('appExt=blog&app=blog_posts&appPage=new_post'));
 	});
 
+	$('.gridButtonBar').find('.editButton').click(function (){
+		var postId = $('.gridBodyRow.state-active').attr('data-post_id');
+		js_redirect(js_app_link('appExt=blog&app=blog_posts&appPage=new_post&pID=' + postId));
+	});
+
+	$('.gridButtonBar').find('.deleteButton').click(function (){
+		var postId = $('.gridBodyRow.state-active').attr('data-post_id');
+
+		confirmDialog({
+			confirmUrl: js_app_link('appExt=blog&app=blog_posts&appPage=default&action=deletePostConfirm&pID=' + postId),
+			title: 'Confirm Delete',
+			content: 'Are you sure you want to delete this post?',
+			success: function (){
+				js_redirect(js_app_link('appExt=blog&app=blog_posts&appPage=default'));
+			}
+		});
+	});
 });

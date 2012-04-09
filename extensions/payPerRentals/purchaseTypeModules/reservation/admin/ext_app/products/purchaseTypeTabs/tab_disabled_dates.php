@@ -5,7 +5,7 @@
 	private $displayOrder = 5;
 
 	public function __construct() {
-		$this->setHeading(sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING'));
+		//$this->setHeading(sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING'));
 	}
 
 	public function setHeading($val) {
@@ -24,10 +24,8 @@
 		$this->displayOrder = $val;
 	}
 
-	public function addTab(&$TabsObj, Product $Product) {
-		$PurchaseTypeCls = PurchaseTypeModules::getModule('reservation');
-
-		$typeName = $PurchaseTypeCls->getCode();
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType) {
+		$typeName = $PurchaseType->getCode();
 		$typeText = sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING_DISABLED_DATES');
 
 		/*Start Hidden Dates*/

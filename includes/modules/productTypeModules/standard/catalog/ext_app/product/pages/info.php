@@ -1,5 +1,5 @@
 <?php
-	$pageContents = '';
+$pageContents = '';
 if ($Product->isValid() === false || $Product->isActive() === false){
 	$notFoundDiv = htmlBase::newElement('div')
 		->addClass('ui-widget ui-widget-content ui-corner-all')
@@ -15,24 +15,21 @@ if ($Product->isValid() === false || $Product->isActive() === false){
 
 	$pageTitle = sysLanguage::get('TEXT_PRODUCT_NOT_FOUND');
 	$pageContents .= $notFoundDiv->draw() . $buttonBar->draw();
-} else {
+}
+else {
 	$pageTitle = $Product->getName();
 	if ($Product->hasModel()){
 		$pageTitle .= '&nbsp;<span class="smallText">[' . $Product->getModel() . ']</span>';
 	}
 	$Product->updateViews();
 
-	//DISPLAY PRODUCT WAS ADDED TO WISHLIST IF WISHLIST REDIRECT IS ENABLED
-	if (Session::exists('wishlist_id') === true){
-		Session::remove('wishlist_id');
-		$pageContents .= '<div class"messageStackSuccess">' . sysLanguage::get('PRODUCT_ADDED_TO_WISHLIST') . '</div>';
-	}
-
 	$showAlsoPurchased = false;
-	if (isset($_GET['products_id'])) {
-		$orders_query = tep_db_query("select p.products_id, p.products_image from orders_products opa, orders_products opb, orders o, products p where opa.products_id = '" . (int)$_GET['products_id'] . "' and opa.orders_id = opb.orders_id and opb.products_id != '" . (int)$_GET['products_id'] . "' and opb.products_id = p.products_id and opb.orders_id = o.orders_id and p.products_status = '1' group by p.products_id order by o.date_purchased desc limit " . sysConfig::get('MAX_DISPLAY_ALSO_PURCHASED'));
-		$num_products_ordered = tep_db_num_rows($orders_query);
-		if ($num_products_ordered >= sysConfig::get('MIN_DISPLAY_ALSO_PURCHASED')) {
+	if (isset($_GET['products_id'])){
+		$QOrders = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select p.products_id, p.products_image from orders_products opa, orders_products opb, orders o, products p where opa.products_id = '" . (int)$_GET['products_id'] . "' and opa.orders_id = opb.orders_id and opb.products_id != '" . (int)$_GET['products_id'] . "' and opb.products_id = p.products_id and opb.orders_id = o.orders_id and p.products_status = '1' group by p.products_id order by o.date_purchased desc limit " . sysConfig::get('MAX_DISPLAY_ALSO_PURCHASED'));
+		$num_products_ordered = sizeof($QOrders);
+		if ($num_products_ordered >= sysConfig::get('MIN_DISPLAY_ALSO_PURCHASED')){
 			$showAlsoPurchased = true;
 		}
 	}
@@ -45,9 +42,9 @@ if ($Product->isValid() === false || $Product->isActive() === false){
 	}
 
 	$pageContents .= '<div id="tabs"><ul>';
-	$pageContents .= '<li><a href="#tabImage"><span>'.sysLanguage::get('TAB_OVERVIEW').'</span></a></li>';
+	$pageContents .= '<li><a href="#tabImage"><span>' . sysLanguage::get('TAB_OVERVIEW') . '</span></a></li>';
 	if ($showAlsoPurchased === true){
-		$pageContents .= '<li><a href="#tabAlsoPurchased"><span>'.sysLanguage::get('TAB_ALSO_PURCHASED').'</span></a></li>';
+		$pageContents .= '<li><a href="#tabAlsoPurchased"><span>' . sysLanguage::get('TAB_ALSO_PURCHASED') . '</span></a></li>';
 	}
 
 	$contents = EventManager::notifyWithReturn('ProductInfoTabHeader', &$Product);
@@ -101,16 +98,22 @@ if (!empty($content)){
 }
 
 $link = itw_app_link('cPath=' . tep_get_product_path($Product->getID()), 'index', 'default');
-if (sizeof($navigation->snapshot)){
+$lastPath = $navigation->getPath(1);
+if ($lastPath){
 	$getVars = array();
-	if (is_array($navigation->snapshot['get'])){
-		foreach($navigation->snapshot['get'] as $k => $v){
+	if (is_array($lastPath['get'])){
+		foreach($lastPath['get'] as $k => $v){
+			if ($k == 'app' || $k == 'appPage'){
+				continue;
+			}
 			$getVars[] = $k . '=' . $v;
 		}
-	}else{
-		$getVars[] = $navigation->snapshot['get'];
 	}
-	//$link = tep_href_link($navigation->snapshot['page'], implode('&', $getVars), $navigation->snapshot['mode']);
+	else {
+		$getVars[] = $lastPath['get'];
+	}
+
+	$link = itw_app_link(implode('&', $getVars), $lastPath['app'], $lastPath['appPage'], $lastPath['mode']);
 }
 
 $pageButtons .= htmlBase::newElement('button')

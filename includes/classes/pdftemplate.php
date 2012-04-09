@@ -11,12 +11,12 @@ class PDFTemplate {
 			$baseDir = '/';
 		}
 
-		/*if (file_exists(DIR_FS_CATALOG . 'templates/' . Session::get('tplDir') . '/' . $baseDir . $fileName)){
-			$this->baseDir = DIR_FS_CATALOG . 'templates/' . Session::get('tplDir') . '/' . $baseDir;
-		}elseif (file_exists(DIR_FS_CATALOG . 'templates/' . Session::get('tplDir') . '/' . $fileName)){
-			$this->baseDir = DIR_FS_CATALOG . 'templates/' . Session::get('tplDir') . '/';
-		}elseif (file_exists(DIR_FS_CATALOG . 'templates/fallback/' . $baseDir . $fileName)){
-			$this->baseDir = DIR_FS_CATALOG . 'templates/fallback/' . $baseDir;
+		/*if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $baseDir . $fileName)){
+			$this->baseDir = sysConfig::get('DIR_FS_TEMPLATE') . $baseDir;
+		}elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $fileName)){
+			$this->baseDir = sysConfig::get('DIR_FS_TEMPLATE');
+		}elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $baseDir . $fileName)){
+			$this->baseDir = sysConfig::get('DIR_FS_TEMPLATE') . $baseDir;
 		}elseif (file_exists($baseDir . $fileName)){
 			$this->baseDir = $baseDir;
 		}else{
@@ -84,7 +84,7 @@ class PDFTemplate {
 	}
 	
 	public function parse($useFile = null){
-		global $App, $appExtension, $messageStack, $ExceptionManager, $request_type;
+		global $App, $appExtension, $messageStack, $ExceptionManager;
 		//$userAccount = &Session::getReference('userAccount');
 		
 		$file = $this->layoutFile;

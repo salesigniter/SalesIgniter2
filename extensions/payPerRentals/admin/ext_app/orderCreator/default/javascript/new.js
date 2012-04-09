@@ -31,6 +31,7 @@ $(document).ready(function (){
 					height: 561,
 					open: function (){
 						$(this).html(data.calendar);
+						$(this).find('.reservationTable').append(data.extraHidden);
 					},
 					close:function(){
 						removeAjaxLoader($(mainField));
@@ -43,13 +44,13 @@ $(document).ready(function (){
 								showAjaxLoader($(self).parent(), 'large');
 								var myStartDate = $(self).find('.start_date').val();
 
-								if($(self).find('.start_time')){
+								if($(self).find('.start_time').size() > 0){
 									myStartDate = myStartDate+' '+$(self).find('.start_time').val();
 								}
 
 								var myEndDate = $(self).find('.end_date').val();
 
-								if($(self).find('.end_time')){
+								if($(self).find('.end_time').size() > 0){
 									myEndDate = myEndDate+' '+$(self).find('.end_time').val();
 								}
 
@@ -61,6 +62,7 @@ $(document).ready(function (){
 									shipping   : $(self).find('input[name="rental_shipping"]:checked').val(),
 									qty        : $(self).find('.rental_qty').val()
 								});
+
 								var insVal = -1;
 								if($(self).find('.hasInsurance').attr('checked') == true){
 									insVal = 1;
@@ -77,7 +79,9 @@ $(document).ready(function (){
 										$Row.find('.resDateHidden').val(postData.start_date + ',' + postData.end_date);
 										$Row.find('.res_start_date').html(postData.start_date);
 										$Row.find('.res_end_date').html(postData.end_date);
-										$Row.find('.productQty').val(postData.qty);
+										if (postData.qty > 0){
+											$Row.find('.productQty').val(postData.qty);
+										}
 										$Row.find('.priceEx').val(postResp.price).trigger('keyup');
 
 										var $shippingInput = $Row.find('.reservationShipping');

@@ -1,19 +1,32 @@
 <?php
 class Application {
+	private $env;
 	private $envDir;
+	private $appName;
+	private $appPage;
+	private $appLocation = false;
+	private $envDirs = array();
+	private $appDir = array();
 	private $addedStylesheetFiles = array();
 	private $addedJavascriptFiles = array();
 
-	public function __construct($appName, $appPage){
+	public function __construct(){
+		$this->env = APPLICATION_ENVIRONMENT;
+	}
+
+	public function loadApplication($appName, $appPage){
+		global $appExtension;
 		$this->appName = $appName;
 		$this->appPage = $appPage;
 		$this->infoBoxId = null;
-		$this->env = APPLICATION_ENVIRONMENT;
+
+		$appExtension->onLoadApplication($this);
 
 		if ($this->env == 'admin'){
 			$this->envDirs = array(sysConfig::getDirFsAdmin() . 'applications/' . $this->appName . '/');
 		}else{
 			$this->envDirs = array(sysConfig::getDirFsCatalog() . 'applications/' . $this->appName . '/');
+			$this->envDirs[] = sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/';
 		}
 
 		if (isset($_GET['appExt'])){
@@ -113,6 +126,10 @@ class Application {
 			$this->appDir['absolute'] . 'language_defines/global.xml'
 		);
 
+		if (file_exists($this->appDir['absolute'] . 'language_defines/' . $this->getAppPage() . '.xml')){
+			$languageFiles[] = $this->appDir['absolute'] . 'language_defines/' . $this->getAppPage() . '.xml';
+		}
+
 		/*
 		 * Load extension files for application
 		 */
@@ -152,7 +169,10 @@ class Application {
 			), &$javascriptFiles);
 
 		$pageJsFile = $this->getAppPage() . '.js';
-		if (file_exists($this->appDir['absolute'] . 'javascript/' . $pageJsFile)){
+		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/javascript/' . $pageJsFile)){
+			$javascriptFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/javascript/' . $pageJsFile;
+		}
+		elseif (file_exists($this->appDir['absolute'] . 'javascript/' . $pageJsFile)){
 			if ($this->env == 'admin'){
 				$javascriptFiles[] = $this->appDir['relative'] . 'javascript/' . $pageJsFile;
 			}else{
@@ -186,7 +206,10 @@ class Application {
 		$stylesheetFiles = array();
 
 		$pageCssFile = $this->getAppPage() . '.css';
-		if (file_exists($this->appDir['absolute'] . 'stylesheets/' . $pageCssFile)){
+		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/stylesheets/' . $pageCssFile)){
+			$javascriptFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/stylesheets/' . $pageCssFile;
+		}
+		elseif (file_exists($this->appDir['absolute'] . 'stylesheets/' . $pageCssFile)){
 			$stylesheetFiles[] = $this->appDir['relative'] . 'stylesheets/' . $pageCssFile;
 		}
 
@@ -237,7 +260,10 @@ class Application {
 	public function getActionFiles($action){
 		global $appExtension;
 		$actionFiles = array();
-		if (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')){
+		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
+			$actionFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/actions/' . $action . '.php';
+		}
+		elseif (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')){
 			$actionFiles[] = $this->appDir['absolute'] . 'actions/' . $action . '.php';
 		}
 

@@ -220,12 +220,14 @@ class OrderPaymentPaypalipn extends StandardPaymentModule
                                                    and pa.options_values_id = poval.products_options_values_id
                                                    and popt.language_id = '" . Session::get('languages_id') . "'
                                                    and poval.language_id = '" . Session::get('languages_id') . "'";
-							$attributes = tep_db_query($attributes_query);
 						}
 						else {
-							$attributes = tep_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . $order->products[$i]['id'] . "' and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . Session::get('languages_id') . "' and poval.language_id = '" . Session::get('languages_id') . "'");
+							$attributes_query = "select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . $order->products[$i]['id'] . "' and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . Session::get('languages_id') . "' and poval.language_id = '" . Session::get('languages_id') . "'";
 						}
-						$attributes_values = tep_db_fetch_array($attributes);
+						$Qattributes = Doctrine_Manager::getInstance()
+							->getCurrentConnection()
+							->fetchAssoc($attributes_query);
+						$attributes_values = $Qattributes[0];
 
 						// Unfortunately PayPal only accepts two attributes per product, so the
 						// third attribute onwards will not be shown at PayPal

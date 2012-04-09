@@ -1,11 +1,6 @@
 <?php
 	$appContent = $App->getAppContentFile();
 	
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-	$currencies = new currencies();
-	
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
-	
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/shopping_cart.php');
 	//$ShoppingCart = new ShoppingCart;
 	
@@ -65,7 +60,7 @@
 				if ($variable_type == 'array'){
 					$start_position = strpos($serialization_data, $variable_name . '|a');
 				}else{
-					$start_position = strpos($serialization_data, $variable_name . '|O');
+					$start_position = strpos($serialization_data, $variable_name . '|');
 				}
 				
 				$tag = 0;
@@ -109,7 +104,7 @@
 			$ShoppingCart = unserialize(osc_get_serialized_variable($session_data, 'ShoppingCart', 'object'));
 			$userAccount = unserialize(osc_get_serialized_variable($session_data, 'userAccount', 'object'));
 			$currency = unserialize(osc_get_serialized_variable($session_data, 'currency', 'string'));
-			
+			//echo $session_data . "\n";print_r($ShoppingCart) . "\n";
 			if (isset($ShoppingCart) && is_object($ShoppingCart)){
 				$ShoppingCart->initContents();
 				$products = $ShoppingCart->getProducts();

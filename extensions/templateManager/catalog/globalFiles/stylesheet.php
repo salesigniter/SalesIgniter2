@@ -3,7 +3,7 @@ chdir('../../../../');
 if (isset($_GET['layout_id'])){
 	$env = 'catalog';
 	$layoutId = $_GET['layout_id'];
-	$templateDir = isset($_GET['tplDir'])?$_GET['tplDir']:'';
+	$templateDir = isset($_GET['tplDir']) ? $_GET['tplDir'] : '';
 }
 else {
 	$env = 'admin';
@@ -14,11 +14,13 @@ $import = 'noimport';
 if (isset($_GET['import']) && !empty($_GET['import'])){
 	$import = $_GET['import'];
 }
-$cacheKey = $env . '-stylesheet-' . $templateDir . '-' . md5($_SERVER['HTTP_USER_AGENT'] . '-' . $layoutId . '-' . $import);
+$cacheKey = $templateDir . '-' . md5($_SERVER['HTTP_USER_AGENT'] . '-' . $layoutId . '-' . $import);
+$noCache = isset($_GET['noCache']);
+$noMin = isset($_GET['noMin']);
 
 require('includes/classes/system_cache.php');
-$StylesheetCache = new SystemCache($cacheKey);
-if ($StylesheetCache->loadData() === true && !isset($_GET['noCache'])){
+$StylesheetCache = new SystemCache($cacheKey, 'cache/' . $env . '/stylesheet/');
+if ($noCache === false && $StylesheetCache->loadData() === true){
 	$StylesheetCache->output(false, true);
 	exit;
 }
@@ -26,10 +28,6 @@ else {
 	include('includes/application_top.php');
 
 	$sources = array();
-	if ($env == 'catalog'){
-		$sources[] = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/blueprint/screen.css';
-	}
-
 	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.core.css';
 	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.theme.css';
 
@@ -60,17 +58,18 @@ a:hover { text-decoration: underline;color: #626262; }
 form { display: inline; }
 textarea { width: 100%;font-size: 11px; }
 
-h1 { font-size: 22px;color: #c30;margin: 10px;font-weight: normal; }
-h2 { font-size: 18px;color: #c00 }
-h3 { font-size: 15px; }
-h4 { font-size: 13px;color: #c30;margin: 10px;font-weight: bold; }
+h1 { font-size: inherit;color: inherit;font-weight: inherit; }
+h2 { font-size: inherit;color: inherit;font-weight: inherit; }
+h3 { font-size: inherit;color: inherit;font-weight: inherit; }
+h4 { font-size: inherit;color: inherit;font-weight: inherit; }
 
 .inputRequirement { color: red;}
 .main, .main { font-size: .9em;line-height: 1.5em; }
 .smallText { font-family: Arial, sans-serif;font-size: .9em; }
 .column { margin:0; }
+/*.widget { min-height:32px; }*/
 <?php
- /* Overwrites for the core css framework --END-- */
+	/* Overwrites for the core css framework --END-- */
 
 	$sources = array(
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.accordion.css',
@@ -84,9 +83,13 @@ h4 { font-size: 13px;color: #c30;margin: 10px;font-weight: bold; }
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.autocomplete.css',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.button.css',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.stars.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.menu.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/external/virtualKeyboard/jquery.keyboard.css'
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.menu.css'
 	);
+
+	if ($App->getEnv() == 'admin'){
+		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/filemanager/jquery.filemanager.css';
+		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/fileuploader/jquery.fileuploader.css';
+	}
 
 	foreach($sources as $filePath){
 		if (file_exists($filePath)){
@@ -120,14 +123,16 @@ h4 { font-size: 13px;color: #c30;margin: 10px;font-weight: bold; }
 .ui-corner-br { <?php echo buildBorderRadius('0px', '0px', '4px', '0px'); ?> }
 .ui-corner-bl { <?php echo buildBorderRadius('0px', '0px', '0px', '4px'); ?> }
 .ui-corner-top { <?php echo buildBorderRadius('4px', '4px', '0px', '0px'); ?> }
+.ui-corner-top-big { <?php echo buildBorderRadius('10px', '10px', '0px', '0px'); ?> }
 .ui-corner-bottom { <?php echo buildBorderRadius('0px', '0px', '4px', '4px'); ?> }
+.ui-corner-bottom-big { <?php echo buildBorderRadius('0px', '0px', '10px', '10px'); ?> }
 .ui-corner-right { <?php echo buildBorderRadius('0px', '4px', '4px', '0px'); ?> }
 .ui-corner-left { <?php echo buildBorderRadius('4px', '0px', '0px', '4px'); ?> }
 
 .ui-button {  }
-.ui-button.ui-state-default { border-color: #f8ef24; }
-.ui-button.ui-state-hover { border-color: #ffffff; }
-.ui-button.ui-state-active { border-color: #ffffff; }
+.ui-button.ui-state-default { color:#555555;border-color: #d3d3d3;<?php echo buildLinearGradient(270, array(array('#ededed', 0), array('#ededed', .5), array('#e6e6e6', .5), array('#eeeeee', 1))); ?> }
+.ui-button.ui-state-hover { color:#212121;border-color: #999999;<?php echo buildLinearGradient(270, array(array('#e4e4e4', 0), array('#e4e4e4', .5), array('#dadada', .5), array('#e7e7e7', 1))); ?> }
+.ui-button.ui-state-active { color:#212121;border-color: #aaaaaa;background:#ffffff; }
 .ui-button .ui-button-icon-primary, .ui-button-text-icon .ui-button-icon-primary, .ui-button-text-icons .ui-button-icon-primary, .ui-button-icons-only .ui-button-icon-primary{ left:0.3em; }
 
 .ui-widget-header { border-color: #cccccc;color:#222222;line-height: 1.35em;vertical-align: top; }
@@ -137,9 +142,8 @@ h4 { font-size: 13px;color: #c30;margin: 10px;font-weight: bold; }
 .ui-widget-footer-box { margin-top:.5em; }
 .ui-widget-footer-box .ui-button { margin:.5em; }
 
-.ui-icon.ui-icon-closethick { background-image: url(<?php echo jqueryIconsPath('cd0a0a'); ?>); }
 <?php
- /* Overwrites for jQuery UI Settinge --END-- */
+	/* Overwrites for jQuery UI Settinge --END-- */
 
 	/* Our core managed css --BEGIN-- */
 	?>
@@ -218,20 +222,20 @@ a.productListingRowPagerLink:hover { text-decoration:none; }
 .pageHeaderContainer .ui-icon { margin-left:.3em;display:inline-block;vertical-align:middle; }
 .pageContent { margin:.2em; }
 .pageButtonBar { text-align:right; padding:.3em; margin-top:.5em; }
-.ui-dialog .ui-dialog-buttonpane button {padding: 5px;}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { font-size: 0.9em; }
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button { padding: .1em; }
 a.readMore, a.readMore:link, a.readMore:visited, a.readMore:active {color: #c40000; text-decoration: underline; font-weight: bold; }
 a.readMore:hover{color: black;}
 <?php
- /*
-	 * @TODO: Move to pay per rentals infobox buildStylesheet function
-	 */
+	/*
+		 * @TODO: Move to pay per rentals infobox buildStylesheet function
+		 */
 	if ($appExtension->isInstalled('payPerRentals')){
 		?>
 	.ui-datepicker-reserved { background: #FF0000; }
 	.ui-datepicker-reserved span.ui-state-default { background: #FF0000; }
 
 	<?php
-
 	}
 
 	/*
@@ -249,7 +253,6 @@ a.readMore:hover{color: black;}
 	.comf, .captcha_img{ display:block;margin-bottom:10px; }
 	#cke_comment_text{ width:80%; }
 	<?php
-
 	}
 	/* Our core managed css --END-- */
 
@@ -290,65 +293,127 @@ a.readMore:hover{color: black;}
 	}
 
 	if ($env == 'catalog'){
+		$TemplateManager = $appExtension->getExtension('templateManager');
+		$TemplateManager->loadWidgets($templateDir);
 		$boxStylesEntered = array();
+		$infoBoxSources = array();
+		$boxStylesheetSourcesEntered = array();
 		$addCss = '';
-		function parseContainer($Container) {
-			global $boxStylesEntered, $addCss;
 
-			if ($Container->Configuration['id'] && $Container->Configuration['id']->configuration_value != ''){
-				$Style = new StyleBuilder();
-				$Style->setSelector('#' . $Container->Configuration['id']->configuration_value);
-				foreach($Container->Styles as $sInfo){
-					$Style->addRule($sInfo->definition_key, $sInfo->definition_value);
-				}
-				$addCss .= $Style->outputCss();
+		function getElementId($dataArr) {
+			if (isset($dataArr['widget_id'])){
+				$idCol = 'widget_id';
+				$idVal = $dataArr['widget_id'];
+				$configTable = 'template_manager_layouts_widgets_configuration';
+			}
+			elseif (isset($dataArr['column_id'])) {
+				$idCol = 'column_id';
+				$idVal = $dataArr['column_id'];
+				$configTable = 'template_manager_layouts_columns_configuration';
+			}
+			elseif (isset($dataArr['container_id'])) {
+				$idCol = 'container_id';
+				$idVal = $dataArr['container_id'];
+				$configTable = 'template_manager_layouts_containers_configuration';
 			}
 
-			if ($Container->Children->count() > 0){
-				foreach($Container->Children as $ChildObj){
+			if (!isset($idCol)){
+				print_r($dataArr);
+			}
+			$QconfigId = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select configuration_value from ' . $configTable . ' where configuration_key = "id" and ' . $idCol . ' = "' . $idVal . '"');
+			return $QconfigId[0]['configuration_value'];
+		}
+
+		function parseContainer($Container) {
+			global $TemplateManager, $boxStylesEntered, $infoBoxSources, $boxStylesheetSourcesEntered, $addCss;
+
+			if (isset($Container['widget_id'])){
+				$typeId = $Container['widget_id'];
+				$type = 'widget';
+			}
+			elseif (isset($Container['column_id'])) {
+				$typeId = $Container['column_id'];
+				$type = 'column';
+			}
+			elseif (isset($Container['container_id'])) {
+				$typeId = $Container['container_id'];
+				$type = 'container';
+			}
+
+			if (($ElementId = getElementId($Container)) != ''){
+				if (($Styles = $TemplateManager->getStyleInfo($type, $typeId)) !== false){
+					$Style = new StyleBuilder();
+					$Style->setSelector('#' . $ElementId);
+					foreach($Styles as $sInfo){
+						$Style->addRule($sInfo['definition_key'], $sInfo['definition_value']);
+					}
+					$addCss .= $Style->outputCss();
+				}
+			}
+
+			if ($type == 'container' && (($Containers = $TemplateManager->getContainerChildren($typeId)) !== false)){
+				foreach($Containers as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			else {
-				foreach($Container->Columns as $colInfo){
-					if ($colInfo->Configuration['id'] && $colInfo->Configuration['id']->configuration_value != ''){
+			elseif ($type == 'container' && (($Columns = $TemplateManager->getContainerColumns($typeId)) !== false)) {
+				foreach($Columns as $ChildObj){
+					parseContainer($ChildObj);
+				}
+			}
+			elseif ($type == 'column' && (($Columns = $TemplateManager->getColumnChildren($typeId)) !== false)) {
+				foreach($Columns as $ChildObj){
+					parseContainer($ChildObj);
+				}
+			}
+			elseif ($type == 'column' && (($Widgets = $TemplateManager->getColumnWidgets($typeId)) !== false)) {
+				foreach($Widgets as $wInfo){
+					parseContainer($wInfo);
+				}
+			}
+			elseif ($type == 'widget') {
+				if (($Configuration = $TemplateManager->getConfigInfo($type, $typeId)) !== false){
+					foreach($Configuration as $config){
+						if ($config['configuration_key'] == 'widget_settings'){
+							$WidgetSettings = json_decode($config['configuration_value']);
+							break;
+						}
+					}
+
+					if (($Styles = $TemplateManager->getStyleInfo($type, $typeId)) !== false){
 						$Style = new StyleBuilder();
-						$Style->setSelector('#' . $colInfo->Configuration['id']->configuration_value);
-						foreach($colInfo->Styles as $sInfo){
-							$Style->addRule($sInfo->definition_key, $sInfo->definition_value);
+						$Style->setSelector('#widget_' . $typeId);
+						foreach($Styles as $sInfo){
+							$Style->addRule($sInfo['definition_key'], $sInfo['definition_value']);
 						}
 						$addCss .= $Style->outputCss();
 					}
 
-					foreach($colInfo->Widgets as $wInfo){
-						foreach($wInfo->Configuration as $config){
-							if ($config->configuration_key == 'widget_settings'){
-								$WidgetSettings = json_decode($config->configuration_value);
-								break;
+					$WidgetClass = $TemplateManager->getWidget($Container['identifier']);
+					if ($WidgetClass !== false){
+						if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
+							$WidgetClass->setBoxId($WidgetSettings->id);
+						}
+						$WidgetClass->setWidgetProperties($WidgetSettings);
+						if (method_exists($WidgetClass, 'buildStylesheet')){
+							if ($WidgetClass->buildStylesheetMultiple === true || !in_array($WidgetClass->getBoxCode(), $boxStylesEntered)){
+								echo $WidgetClass->buildStylesheet();
+
+								$boxStylesEntered[] = $WidgetClass->getBoxCode();
 							}
 						}
-						$className = 'InfoBox' . ucfirst($wInfo->identifier);
-						if (!class_exists($className)){
-							$Qbox = Doctrine_Query::create()
-								->select('box_path')
-								->from('TemplatesInfoboxes')
-								->where('box_code = ?', $wInfo->identifier)
-								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-							require($Qbox[0]['box_path'] . 'infobox.php');
-						}
-
-						$Box = new $className();
-						if (method_exists($className, 'buildStylesheet')){
-							if ($Box->buildStylesheetMultiple === true || !in_array($className, $boxStylesEntered)){
-								if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
-									$Box->setBoxId($WidgetSettings->id);
+						if (method_exists($WidgetClass, 'getStylesheetSources')){
+							if (!in_array($WidgetClass->getBoxCode(), $boxStylesheetSourcesEntered)){
+								$infoBoxCssFiles = $WidgetClass->getStylesheetSources();
+								foreach($infoBoxCssFiles as $infoBoxCssFile){
+									if (file_exists($infoBoxCssFile)){
+										$infoBoxSources[] = $infoBoxCssFile;
+									}
 								}
-								$Box->setWidgetProperties($WidgetSettings);
 
-								echo $Box->buildStylesheet();
-
-								$boxStylesEntered[] = $className;
+								$boxStylesheetSourcesEntered[] = $WidgetClass->getBoxCode();
 							}
 						}
 					}
@@ -356,28 +421,57 @@ a.readMore:hover{color: black;}
 			}
 		}
 
-		$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find((int)$_GET['layout_id']);
+		$Layout = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select * from template_manager_layouts where layout_id = "' . (int)$_GET['layout_id'] . '"');
 		if ($Layout){
+			if (($LayoutStyles = $TemplateManager->getStyleInfo('layout', $Layout[0]['layout_id'])) !== false){
+				$StyleBuilder = new StyleBuilder();
+				$StyleBuilder->setSelector('body');
+				$rules = array();
+				foreach($LayoutStyles as $sInfo){
+					$StyleBuilder->addRule($sInfo['definition_key'], $sInfo['definition_value']);
+				}
+				$addCss .= $StyleBuilder->outputCss();
+			}
+
+			$Containers = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select * from template_manager_layouts_containers where layout_id = "' . $Layout[0]['layout_id'] . '" and parent_id = 0 order by sort_order');
+			if (sizeof($Containers) > 0){
+				foreach($Containers as $cInfo){
+					if ($cInfo['link_id'] > 0){
+						$Link = Doctrine_Manager::getInstance()
+							->getCurrentConnection()
+							->fetchAssoc('select c.* from template_manager_container_links l left join template_manager_layouts_containers c using(container_id) where l.link_id = "' . $cInfo['link_id'] . '"');
+						parseContainer($Link[0]);
+					}
+					else {
+						parseContainer($cInfo);
+					}
+				}
+			}
+
+			foreach($infoBoxSources as $filePath){
+				if (file_exists($filePath)){
+					echo '/*' . "\n" .
+						' * Template Widget Required File' . "\n" .
+						' * Path: ' . $filePath . "\n" .
+						' * --BEGIN--' . "\n" .
+						' */' . "\n";
+					require($filePath);
+					echo '/*' . "\n" .
+						' * Template Widget Required File' . "\n" .
+						' * Path: ' . $filePath . "\n" .
+						' * --END--' . "\n" .
+						' */' . "\n";
+				}
+			}
+
 			echo '/*' . "\n" .
 				' * Layout Manager Generated Styles' . "\n" .
 				' * --BEGIN--' . "\n" .
 				' */' . "\n";
-			$Template = $Layout->Template;
-
-			if ($Layout->Styles->count() > 0){
-				$StyleBuilder = new StyleBuilder();
-				$StyleBuilder->setSelector('body');
-				$rules = array();
-				foreach($Layout->Styles as $sInfo){
-					$StyleBuilder->addRule($sInfo->definition_key, $sInfo->definition_value);
-				}
-				echo $StyleBuilder->outputCss();
-			}
-
-			foreach($Layout->Containers as $Container){
-				parseContainer($Container);
-			}
-
 			echo $addCss;
 			echo '/*' . "\n" .
 				' * Layout Manager Generated Styles' . "\n" .
@@ -387,26 +481,26 @@ a.readMore:hover{color: black;}
 
 		echo '/*' . "\n" .
 			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/stylesheet.css' . "\n" .
+			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
 			' * --BEGIN--' . "\n" .
 			' */' . "\n";
-		require(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/stylesheet.css');
+		require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
 		echo '/*' . "\n" .
 			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/stylesheet.css' . "\n" .
+			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
 			' * --END--' . "\n" .
 			' */' . "\n";
 	}
 	else {
 		echo '/*' . "\n" .
 			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::getDirFsAdmin() . 'template/fallback/stylesheet.css' . "\n" .
+			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
 			' * --BEGIN--' . "\n" .
 			' */' . "\n";
-		require(sysConfig::getDirFsAdmin() . 'template/fallback/stylesheet.css');
+		require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
 		echo '/*' . "\n" .
 			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::getDirFsAdmin() . 'template/fallback/stylesheet.css' . "\n" .
+			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
 			' * --END--' . "\n" .
 			' */' . "\n";
 	}
@@ -419,38 +513,61 @@ a.readMore:hover{color: black;}
 		return $fileContent;
 	}
 
-	define('MINIFY_MIN_DIR', sysConfig::getDirFsCatalog() . 'min');
+	$nowTime = time();
+	$maxAge = (60 * 60 * 24 * 2);
+	$expiresTime = $nowTime + $maxAge;
 
-	/*
+	if ($noMin === true || sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION') == 'none'){
+		$Result = array(
+			'headers' => array(
+				'Content-Type'	 => 'text/css'
+			),
+			'content' => src1_fetch()
+		);
+		if ($noCache === false && sysConfig::get('TEMPLATE_STYLESHEET_CACHE') == 1){
+			$Result['headers']['Expires'] = gmdate('D, d M Y H:i:s \G\M\T', $expiresTime);
+			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+			$Result['headers']['Cache-Control'] = 'max-age=' . $maxAge;
+		}
+		else {
+			$Result['headers']['Expires'] = 'Sat, 26 Jul 1997 05:00:00 GMT';
+			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+			$Result['headers']['Cache-Control'] = 'no-cache, must-revalidate';
+		}
+	}
+	else {
+		define('MINIFY_MIN_DIR', sysConfig::getDirFsCatalog() . 'min');
+
+		/*
 		 * This script implements a Minify server for a single set of sources.
 		 * If you don't want '.php' in the URL, use mod_rewrite...
 		 */
-	header('Content-Type: text/css');
 
-	// setup Minify
-	set_include_path(MINIFY_MIN_DIR . '/lib' . PATH_SEPARATOR . get_include_path());
-	require 'Minify.php';
-	require 'Minify/Cache/File.php';
-	Minify::setCache(new Minify_Cache_File()); // guesses a temp directory
+		// setup Minify
+		set_include_path(MINIFY_MIN_DIR . '/lib' . PATH_SEPARATOR . get_include_path());
+		require 'Minify.php';
+		require 'Minify/Cache/File.php';
+		Minify::setCache(new Minify_Cache_File()); // guesses a temp directory
 
-	// setup sources
-	$sources = new Minify_Source(array(
-			'id' => 'source1',
-			'getContentFunc' => 'src1_fetch',
-			'contentType' => Minify::TYPE_CSS,
-			'lastModified' => time()
+		// setup sources
+		$sources = new Minify_Source(array(
+			'id'              => 'source1',
+			'getContentFunc'  => 'src1_fetch',
+			'contentType'	 => Minify::TYPE_CSS,
+			'lastModified'    => $nowTime
 		));
 
-	// handle request
-	$serveArr = array(
-		'files' => $sources,
-		'maxAge' => 86400,
-		'quiet' => true,
-		'debug' => true
-	);
+		// handle request
+		$serveArr = array(
+			'files'              => $sources,
+			'maxAge'             => $maxAge,
+			'quiet'              => true,
+			'debug'              => true,
+			'encodeMethod'       => '',
+			'contentTypeCharset' => false
+		);
 
-	if (isset($Template) && is_object($Template)){
-		switch($Template->Configuration['STYLESHEET_COMPRESSION']->configuration_value){
+		switch(sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION')){
 			case 'gzip':
 				//ob_start("ob_gzhandler");
 				break;
@@ -462,15 +579,14 @@ a.readMore:hover{color: black;}
 				$serveArr['debug'] = false;
 				break;
 		}
+		$Result = Minify::serve('Files', $serveArr);
 	}
-	$Result = Minify::serve('Files', $serveArr);
 
-	$StylesheetCache->setAddedHeaders($Result['headers']);
-	//$StylesheetCache->setContentType('text/css');
 	$StylesheetCache->setContent($Result['content']);
-	$StylesheetCache->setExpires(time() + (60 * 60 * 24 * 2));
-	$StylesheetCache->setLastModified($Result['headers']['Last-Modified']);
-	$StylesheetCache->store();
+	$StylesheetCache->setAddedHeaders($Result['headers']);
+	if ($noCache === false && sysConfig::get('TEMPLATE_STYLESHEET_CACHE') == 1){
+		$StylesheetCache->store();
+	}
 
 	$StylesheetCache->output(false, true);
 

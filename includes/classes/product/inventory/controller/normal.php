@@ -38,8 +38,8 @@
 			return $this->trackMethod->addStockToCollection($ProductObj, $CollectionObj);
 		}
 
-		public function getInventoryItems(){
-			return $this->trackMethod->getInventoryItems();
+		public function getInventoryItems($includeUnavailable = false){
+			return $this->trackMethod->getInventoryItems($includeUnavailable);
 		}
 		public function getInvUnavailableStatus(){
 			return $this->trackMethod->getInvUnavailableStatus();

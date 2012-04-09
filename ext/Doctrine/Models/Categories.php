@@ -18,6 +18,12 @@ class Categories extends Doctrine_Record {
 			'foreign' => 'categories_id',
 			'cascade' => array('delete')
 		));
+
+		$this->hasMany('Categories as Children', array(
+			'local' => 'categories_id',
+			'foreign' => 'parent_id',
+			'cascade' => array('delete')
+		));
 	}
 	
 	public function preInsert($event){

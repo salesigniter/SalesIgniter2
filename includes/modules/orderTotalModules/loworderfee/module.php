@@ -12,7 +12,7 @@ class OrderTotalLoworderfee extends OrderTotalModuleBase
 		$this->init('loworderfee');
 
 		if ($this->isInstalled() === true){
-			$this->taxClass = $this->getConfigData('MODULE_ORDER_TOTAL_LOWORDERFEE_TAX_CLASS');
+			$this->taxClass = $this->getConfigData('TAX_CLASS');
 			$this->allowFees = $this->getConfigData('MODULE_ORDER_TOTAL_LOWORDERFEE_LOW_ORDER_FEE');
 			$this->feesDestination = $this->getConfigData('MODULE_ORDER_TOTAL_LOWORDERFEE_DESTINATION');
 			$this->lowOrderAmount = $this->getConfigData('MODULE_ORDER_TOTAL_LOWORDERFEE_ORDER_UNDER');
@@ -20,7 +20,7 @@ class OrderTotalLoworderfee extends OrderTotalModuleBase
 		}
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order;
 
 		if ($this->allowFees == 'True'){
@@ -51,11 +51,9 @@ class OrderTotalLoworderfee extends OrderTotalModuleBase
 				$order->info['tax_groups']["$tax_description"] += tep_calculate_tax($this->lowOrderFee, $tax);
 				$order->info['total'] += $this->lowOrderFee + tep_calculate_tax($this->lowOrderFee, $tax);
 
-				$this->addOutput(array(
-						'title' => $this->getTitle() . ':',
-						'text' => $this->formatAmount(tep_add_tax($this->lowOrderFee, $tax)),
-						'value' => tep_add_tax($this->lowOrderFee, $tax)
-					));
+				$outputData['title'] = $this->getTitle() . ':';
+				$outputData['text'] = $this->formatAmount(tep_add_tax($this->lowOrderFee, $tax));
+				$outputData['value'] = tep_add_tax($this->lowOrderFee, $tax);
 			}
 		}
 	}

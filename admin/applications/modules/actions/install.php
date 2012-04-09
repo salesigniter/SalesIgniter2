@@ -23,7 +23,7 @@ if ($App->getPageName() == 'infoboxes'){
 	}
 	$Infobox->save();
 }
-elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'orderShipping', 'productType'))) {
+elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'orderShipping', 'productType', 'purchaseType'))) {
 	$Installer = new ModuleInstaller($_GET['moduleType'], $_GET['module'], (isset($_GET['extName']) ? $_GET['extName'] : null), (isset($_GET['modulePath']) ? $_GET['modulePath'] : null));
 	$Installer->install();
 }
@@ -34,6 +34,6 @@ if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
 		), 'json');
 }
 else {
-	EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action', 'module', 'moduleType', 'modulePath'))), 'redirect');
+	EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action', 'module', 'modulePath'))), 'redirect');
 }
 ?>

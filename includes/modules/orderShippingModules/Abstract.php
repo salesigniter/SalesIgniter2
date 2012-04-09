@@ -2,12 +2,26 @@
 class OrderShippingModuleBase extends ModuleBase
 {
 
+	/**
+	 * @var array
+	 */
 	private $output = array();
 
+	/**
+	 * @var int
+	 */
 	private $taxClass = 0;
 
+	/**
+	 * @var int
+	 */
 	private $shippingZone = 0;
 
+	/**
+	 * @param string $code
+	 * @param bool $forceEnable
+	 * @param bool $moduleDir
+	 */
 	public function init($code, $forceEnable = false, $moduleDir = false) {
 		$this->import(new Installable);
 		$this->import(new SortedDisplay);
@@ -28,10 +42,16 @@ class OrderShippingModuleBase extends ModuleBase
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function getStatus() {
 		return $this->isEnabled();
 	}
 
+	/**
+	 * @return RentalStoreUser
+	 */
 	public function &getUserAccount() {
 		global $onePageCheckout;
 		if (isset($onePageCheckout) && is_object($onePageCheckout)){
@@ -44,6 +64,9 @@ class OrderShippingModuleBase extends ModuleBase
 		return $userAccount;
 	}
 
+	/**
+	 * @return bool|array
+	 */
 	public function getDeliveryAddress() {
 		global $Editor, $userAccount;
 		if (isset($Editor) && is_object($Editor)){
@@ -66,6 +89,9 @@ class OrderShippingModuleBase extends ModuleBase
 		return false;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function updateStatus() {
 		global $order, $onePageCheckout;
 
@@ -100,33 +126,64 @@ class OrderShippingModuleBase extends ModuleBase
 				$this->setEnabled(false);
 			}
 		}
+		return true;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function check() {
 		return ($this->isInstalled() === true);
 	}
 
+	/**
+	 * @param $data
+	 */
 	public function addOutput($data) {
 		$this->output[] = $data;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getTaxClass() {
 		return $this->taxClass;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getOutput() {
 		return $this->output;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getMethods() {
+		return $this->methods;
+	}
+
+	/**
+	 * @param string $method
+	 */
 	public function quote($method = '') {
 		die('Quote function not overwritten.');
 	}
 
+	/**
+	 * @param $amount
+	 * @return string
+	 */
 	public function formatAmount($amount) {
 		global $order, $currencies;
 		return $currencies->format($amount, true, $order->info['currency'], $order->info['currency_value']);
 	}
 
+	/**
+	 * @param $module
+	 * @param $moduleConfig
+	 */
 	public function onInstall(&$module, &$moduleConfig) {
 	}
 }

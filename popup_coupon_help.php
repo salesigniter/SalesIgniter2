@@ -18,7 +18,7 @@
 <html <?php echo HTML_PARAMS; ?>>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>">
-<base href="<?php echo (($request_type == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>">
+<base href="<?php echo ((sysConfig::get('REQUEST_TYPE') == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>">
 <title><?php echo sysLanguage::get('TITLE'); ?></title>
 <link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>

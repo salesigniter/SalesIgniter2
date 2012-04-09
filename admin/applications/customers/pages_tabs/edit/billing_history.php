@@ -27,7 +27,7 @@ else {
 	foreach($Qbillings as $Billing){
 		$templateParsed[] = sprintf($template,
 			$Billing->orders_id,
-			date('Y-m-d', strtotime($Billing->date_purchased)),
+			$Billing->date_purchased->format(sysLanguage::getDateFormat('short')),
 			$Billing->Customers->CustomersMembership->plan_name,
 			strip_tags($Billing->order_total)
 		);

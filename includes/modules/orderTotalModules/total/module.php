@@ -12,14 +12,12 @@ class OrderTotalTotal extends OrderTotalModuleBase
 		$this->init('total');
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order;
 
-		$this->addOutput(array(
-				'title' => $this->getTitle() . ':',
-				'text' => '<b>' . $this->formatAmount($order->info['total']) . '</b>',
-				'value' => $order->info['total']
-			));
+		$outputData['title'] = $this->getTitle() . ':';
+		$outputData['text'] = '<b>' . $this->formatAmount($order->info['total']) . '</b>';
+		$outputData['value'] = $order->info['total'];
 	}
 }
 

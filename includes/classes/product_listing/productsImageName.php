@@ -13,15 +13,11 @@ class productListing_productsImageName {
 
 	public function show(&$productClass){
 		global $cPath;
-		if (isset($_GET['manufacturers_id'])) {
-			$addedGetVar = '&manufacturers_id=' . $_GET['manufacturers_id'];
-		} else {
-			$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
-		}
+		$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
 		$retuned = '<div style="text-align:center;width:110px;">';
 		$products_series = '';
 		if ($productClass->hasImage()){
-			$image = sysConfig::get('DIR_WS_IMAGES') . $productClass->getImage();
+			$image = $productClass->getImage();
 			EventManager::notify('ProductListingProductsImageNameShow', &$image, &$productClass);
 
 			$imageHtml = htmlBase::newElement('image')
@@ -29,11 +25,7 @@ class productListing_productsImageName {
 			->setWidth(sysConfig::get('SMALL_IMAGE_WIDTH'))
 			->setHeight(sysConfig::get('SMALL_IMAGE_HEIGHT'))
 			->thumbnailImage(true);
-			if (isset($_GET['manufacturers_id'])) {
-				$addedGetVar = '&manufacturers_id=' . $_GET['manufacturers_id'];
-			} else {
-				$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
-			}
+			$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
 
 	//		if ($includeBoxInfo === true){
 				if ($productClass->isInBox()){

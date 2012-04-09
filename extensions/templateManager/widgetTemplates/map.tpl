@@ -84,30 +84,15 @@ $(document).ready(function (){
 	var inv = [];
 <?php
 		$Inventory_centers = Doctrine_Query::create()
-		->from('ProductsInventoryCenters');
-
-		$multiStore = $appExtension->getExtension('multiStore');
-		if ($multiStore !== false && $multiStore->isEnabled() === true){
-			$Inventory_centers->where('inventory_center_stores=?', Session::get('current_store_id'));
-		}
-
-		$Inventory_centers = $Inventory_centers->execute(array(), Doctrine::HYDRATE_ARRAY);
-
+		->from('ProductsInventoryCenters')
+		->where('inventory_center_stores=?', Session::get('current_store_id'))
+		->execute(array(), Doctrine::HYDRATE_ARRAY);
 		if($Inventory_centers){
 			$i = 0;
 			foreach($Inventory_centers as $inv){
-				$f = true;
-				$multiStore = $appExtension->getExtension('multiStore');
-				if ($multiStore !== false && $multiStore->isEnabled() === true){
-					$storeArr = explode(';', $inv['inventory_center_stores']);
+	         	$storeArr = explode(';', $inv['inventory_center_stores']);
 
-					if(in_array(Session::get('current_store_id'), $storeArr)){
-						$f = true;
-					}else{
-						$f = false;
-					}
-				}
-	         	if($f){
+				if(in_array(Session::get('current_store_id'), $storeArr)){
 					$invent = stripslashes (htmlspecialchars ($inv['inventory_center_address']));
 					$invent = str_replace("\r\n", " ", $invent);
 

@@ -29,7 +29,7 @@ class OrderPaymentCustom3 extends StandardPaymentModule
 			));
 	}
 
-	public function processPayment() {
+	public function processPayment($orderID = null, $amount = null) {
 		global $order;
 
 		return $this->sendPaymentRequest(array(
@@ -40,7 +40,7 @@ class OrderPaymentCustom3 extends StandardPaymentModule
 
 	public function processPaymentCron($orderID) {
 		global $order;
-		$order->info['payment_method'] = $this->title;
+		$order->info['payment_method'] = $this->getTitle();
 
 		$this->processPayment();
 		return true;

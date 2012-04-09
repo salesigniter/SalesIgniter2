@@ -78,16 +78,10 @@ class RentalQueueTable extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('status', 'enum', 1, array(
-		'type' => 'enum',
+		$this->hasColumn('status', 'string', 1, array(
+		'type' => 'string',
 		'length' => 1,
 		'fixed' => false,
-		'values' =>
-		array(
-		0 => 'L',
-		1 => 'S',
-		2 => 'A',
-		),
 		'primary' => false,
 		'default' => 'S',
 		'notnull' => true,

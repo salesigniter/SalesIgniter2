@@ -5,9 +5,8 @@ $(document).ready(function (){
 		$('.makeFCK', ui.panel).each(function (){
 			if ($(this).is(':hidden')) return;
 
-			CKEDITOR.replace(this, {
-				filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
-			});
+			$(this).ckeditor();
 		});
 	});
+	$('.fileManager').filemanager();
 });

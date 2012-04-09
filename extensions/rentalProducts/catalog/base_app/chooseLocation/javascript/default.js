@@ -65,11 +65,11 @@ $(document).ready(function () {
 									});
 
 									$.each(addresses, function (key, jsonObj) {
-										$('#mapsHolder table>tbody').append(
+										$('#addressHolder tbody').append(
 											'<tr>' +
 												'<td valign="top"><input type="radio" name="my_store" value="' + jsonObj.storesId + '"' + (key == 0 ? ' checked="checked"' : '') + '></td>' +
 												'<td>' +
-												'<strong>From: </strong>' + jsonObj.originAddresses[0] + '<br />' +
+												'<strong>From: </strong>' + location1.address + '<br />' +
 												'<strong>To: </strong>' + jsonObj.destinationAddresses[0] + '<br />' +
 												'<strong>Distance: </strong>' + jsonObj.rows[0].elements[0].distance.text +
 												'</td>' +
@@ -86,10 +86,7 @@ $(document).ready(function () {
 								processing = processing + 1;
 
 								geocoder.geocode({ address: self.address }, function (response, status) {
-										if (status != google.maps.GeocoderStatus.OK){
-											alert("Geocode was not successful for the following reason: " + status);
-										}
-										else {
+										if (status == google.maps.GeocoderStatus.OK){
 											var location2 = {
 												lat: response[0].geometry.location.lat(),
 												lng: response[0].geometry.location.lng(),
@@ -122,6 +119,8 @@ $(document).ready(function () {
 													addresses.push(response);
 													processing = processing - 1;
 												});
+										}else{
+											processing = processing - 1;
 										}
 									});
 

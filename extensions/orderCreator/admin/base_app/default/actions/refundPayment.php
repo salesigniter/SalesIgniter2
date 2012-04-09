@@ -27,29 +27,29 @@
 			$iconClass = 'ui-icon-alert';
 		}
 			
-		$html = '<tr>' . 
-			'<td class="ui-widget-content" style="border-top:none;">' . 
+		$html = '<tr class="gridBodyRow" data-can_refund="false" data-can_void="false">' .
+			'<td class="gridBodyRowColumn">' .
 				tep_date_short($paymentHistory['date_added']) . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumn">' .
 				$paymentHistory['payment_method'] . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumn">' .
 				stripslashes($paymentHistory['gateway_message']) . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;" align="center">' . 
+			'<td class="gridBodyRowColumn centerAlign">' .
 				'<span class="ui-icon ' . $iconClass . '">' . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumn">' .
 				$currencies->format($paymentHistory['payment_amount']) . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumn">' .
 				(isset($cardInfo) && is_array($cardInfo) ? $cardInfo['cardNumber'] : '') . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumn">' .
 				(isset($cardInfo) && is_array($cardInfo) ? $cardInfo['cardExpMonth'] . ' / ' . $cardInfo['cardExpYear'] : '') . 
 			'</td>' . 
-			'<td class="ui-widget-content" style="border-top:none;border-left:none;">' . 
+			'<td class="gridBodyRowColumnLast">' .
 				(isset($cardInfo) && is_array($cardInfo) && isset($cardInfo['cardCvvNumber']) ? $cardInfo['cardCvvNumber'] : 'N/A') . 
 			'</td>' . 
 		'</tr>';

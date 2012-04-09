@@ -4,7 +4,7 @@
  *
  * @package Order
  * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2010, I.T. Web Experts
+ * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
 require(dirname(__FILE__) . '/Product.php');
@@ -14,69 +14,76 @@ require(dirname(__FILE__) . '/OrderGiftCertificateProduct.php');
 class OrderProductManager
 {
 
+	/**
+	 * @var int|null
+	 */
 	protected $orderId = null;
 
+	/**
+	 * @var array
+	 */
 	protected $Contents = array();
 
-	public function __construct($orderedProducts = null, $order = null){
+	/**
+	 * @param array|null $orderedProducts
+	 * @param int|null $order
+	 */
+	public function __construct(array $orderedProducts = null, $order = null){
 		if (is_null($orderedProducts) === false){
             	$is_gift_certificate = 0;
-            	if(is_null($order) === false && $order['is_gift_certificate']){
+            	if(is_null($order) === false && isset($order['is_gift_certificate']) && $order['is_gift_certificate']){
                 	$is_gift_certificate = $order['is_gift_certificate'];
             	}
 
             foreach($orderedProducts as $i => $pInfo){
                 if($is_gift_certificate) {
                     $orderedProduct = new OrderGiftCertificateProduct($pInfo);
-                } else if(isset($pInfo['purchase_type']) && $pInfo['purchase_type'] != 'membership'){
+                } else if (!isset($pInfo['purchase_type']) || $pInfo['purchase_type'] != 'membership'){
                     $orderedProduct = new OrderProduct($pInfo);
                 } else {
                     $orderedProduct = new OrderRentalMembershipProduct($pInfo);
                 }
                 $this->add($orderedProduct);
             }
-
 		}
 	}
 
-	public function init() {
-		foreach($this->getContents() as $cartProduct){
-			$cartProduct->init();
-		}
-	}
-
+	/**
+	 * @param int $val
+	 */
 	public function setOrderId($val) {
 		$this->orderId = $val;
 	}
 
 	/**
-	 * @param null $id
-	 * @return OrderProduct|array|null
+	 * @return OrderProduct[]
 	 */
-	public function getContents($id = null) {
-		if (is_null($id) === false){
-			if (array_key_exists($id, $this->Contents)){
-				return $this->Contents[$id];
-			}
-		}
-		else {
-			return $this->Contents;
-		}
-		return null;
-	}
-
-	public function add($orderedProduct) {
-		$this->Contents[$orderedProduct->getId()] = $orderedProduct;
+	public function getContents() {
+		return $this->Contents;
 	}
 
 	/**
-	 * @param $id
-	 * @return OrderProduct
+	 * @param OrderProduct $orderProduct
 	 */
-	public function get($id) {
-		return $this->getContents($id);
+	public function add(OrderProduct &$orderProduct) {
+		$this->Contents[$orderProduct->getId()] = $orderProduct;
 	}
 
+	/**
+	 * @param int $id
+	 * @return OrderProduct|bool
+	 */
+	public function get($id) {
+		$id = (int) $id;
+		if (array_key_exists($id, $this->Contents)){
+			return $this->Contents[$id];
+		}
+		return false;
+	}
+
+	/**
+	 * @return float|int
+	 */
 	public function getTotalWeight() {
 		$total_weight = 0;
 		foreach($this->Contents as $Product){
@@ -85,7 +92,22 @@ class OrderProductManager
 		return $total_weight;
 	}
 
-	public function listProducts($showTableHeading = true, $showQty = true, $showBarcode = true, $showModel = true, $showName = true, $showExtraInfo = true, $showPrice = true, $showPriceWithTax = true, $showTotal = true, $showTotalWithTax = true, $showTax = true, $Order) {
+	/**
+	 * @param bool $showTableHeading
+	 * @param bool $showQty
+	 * @param bool $showBarcode
+	 * @param bool $showModel
+	 * @param bool $showName
+	 * @param bool $showExtraInfo
+	 * @param bool $showPrice
+	 * @param bool $showPriceWithTax
+	 * @param bool $showTotal
+	 * @param bool $showTotalWithTax
+	 * @param bool $showTax
+	 * @param Order $Order
+	 * @return htmlElement_table
+	 */
+	public function listProducts($showTableHeading = true, $showQty = true, $showBarcode = true, $showModel = true, $showName = true, $showExtraInfo = true, $showPrice = true, $showPriceWithTax = true, $showTotal = true, $showTotalWithTax = true, $showTax = true, Order $Order) {
 		global  $currencies, $typeNames;
 		$productsTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0)->css('width', '100%');
 
@@ -144,7 +166,7 @@ class OrderProductManager
 			$productQty = $orderedProduct->getQuantity();
 			$productModel = $orderedProduct->getModel();
 			$i = 0;
-			$barcode = $orderedProduct->displayBarcode();
+			$barcode = $orderedProduct->displayBarcodes();
 
 			$productsName = $orderedProduct->getNameHtml($showExtraInfo);
 
@@ -223,5 +245,3 @@ class OrderProductManager
 		return $productsTable;
 	}
 }
-
-?>

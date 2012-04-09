@@ -111,15 +111,6 @@ class BannerManagerBanners extends Doctrine_Record {
 			'length'        => 250,
 			'notnull'       => true
 	   ));
-		$this->hasColumn('banners_target', 'integer', 1, array(
-				'type'          => 'integer',
-				'length'        => 1,
-				'unsigned'      => 0,
-				'primary'       => false,
-				'default'       => '0',
-				'notnull'       => true,
-				'autoincrement' => false
-		));
 		$this->hasColumn('banners_body', 'string', 100, array(
 			'type'          => 'string',
 			'length'        => 100,
@@ -138,63 +129,65 @@ class BannerManagerBanners extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_html', 'string', null, array(
+		$this->hasColumn('banners_html', 'string', 999, array(
 			'type'          => 'string',
+			'length'        => 999,
 			'fixed'         => false,
 			'primary'       => false,
 			'notnull'       => false,
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_description', 'string', null, array(
+		$this->hasColumn('banners_description', 'string', 999, array(
 			'type'          => 'string',
+			'length'        => 999,
 			'fixed'         => false,
 			'primary'       => false,
 			'notnull'       => false,
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_small_description', 'string', 400, array(
+		$this->hasColumn('banners_small_description', 'string', 999, array(
 			'type'          => 'string',
-			'length'        => 400,
+			'length'        => 999,
 			'fixed'         => false,
 			'primary'       => false,
 			'notnull'       => false,
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_views', 'integer', 6, array(
+		$this->hasColumn('banners_views', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'default'       => '0',
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_clicks', 'integer', 6, array(
+		$this->hasColumn('banners_clicks', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'default'       => '0',
 			'autoincrement' => false
 		));
-		$this->hasColumn('banners_sort_order', 'integer', 6, array(
+		$this->hasColumn('banners_sort_order', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'autoincrement' => false
 		));
-	$this->hasColumn('banners_expires_views', 'integer', 6, array(
+	$this->hasColumn('banners_expires_views', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'default'       => '0',
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banners_expires_clicks', 'integer', 6, array(
+		$this->hasColumn('banners_expires_clicks', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'default'       => '0',
 			'autoincrement' => false

@@ -95,22 +95,24 @@
 		}
 	}
 
+if ($appExtension->isEnabled('attributes')){
 	$attributeSelect = htmlBase::newElement('selectbox')
-	->setName('listing_attribute_id')
-	->selectOptionByValue($pInfo->listing_attribute_id);
+		->setName('listing_attribute_id')
+		->selectOptionByValue($pInfo->listing_attribute_id);
 
 	$Qattributes = Doctrine_Query::create()
-	->select('o.products_options_id, od.products_options_name')
-	->from('ProductsOptions o')
-	->leftJoin('o.ProductsOptionsDescription od')
-	->where('od.language_id = ?', Session::get('languages_id'))
-	->orderBy('od.products_options_name')
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		->select('o.products_options_id, od.products_options_name')
+		->from('ProductsOptions o')
+		->leftJoin('o.ProductsOptionsDescription od')
+		->where('od.language_id = ?', Session::get('languages_id'))
+		->orderBy('od.products_options_name')
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($Qattributes){
 		foreach($Qattributes as $aInfo){
 			$attributeSelect->addOption($aInfo['products_options_id'], $aInfo['ProductsOptionsDescription'][0]['products_options_name']);
 		}
 	}
+}
 
 	$topTable = htmlBase::newElement('table')
 	->setCellPadding(3)
@@ -158,12 +160,14 @@
 		)
 	));
 
+if ($appExtension->isEnabled('attributes')){
 	$topTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'text' => 'Attribute: '),
 			array('addCls' => 'main', 'text' => $attributeSelect)
 		)
 	));
+}
 
 	$topTable->addBodyRow(array(
 		'columns' => array(

@@ -1298,6 +1298,10 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
                 }
                 unset($options[$k]);
             }
+            
+            if (($k == 'fixed' || $k == 'notnull' || $k == 'primary') && is_string($option)){
+            	$options[$k] = (strtolower($option) == 'true');
+            }
         }
 
         // extract column name & field name
@@ -2317,12 +2321,16 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
      */
     public function prepareValue($fieldName, $value, $typeHint = null)
     {
-        if ($value === self::$_null) {
+		// sw45859 Added For Sales Igniter Version 2 --BEGIN--
+		$type = is_null($typeHint) ? $this->getTypeOf($fieldName) : $typeHint;
+		$processAnyway = array('timestamp', 'datetime');
+		// sw45859 Added For Sales Igniter Version 2 --END--
+
+        if ($value === self::$_null && !in_array($type, $processAnyway)) {
             return self::$_null;
-        } else if ($value === null) {
+        } else if ($value === null && !in_array($type, $processAnyway)) {
             return null;
         } else {
-            $type = is_null($typeHint) ? $this->getTypeOf($fieldName) : $typeHint;
 
             switch ($type) {
                 case 'enum':
@@ -2347,7 +2355,20 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
                         return $value;
                     }
                 break;
-                case 'gzip':
+				// sw45859 Added For Sales Igniter Version 2 --BEGIN--
+				case 'timestamp':
+				case 'datetime':
+					if (is_string($value) || is_null($value)){
+						$value = SesDateTime::createFromFormat(DATE_TIMESTAMP, $value);
+
+						if ($value === false) {
+							throw new Doctrine_Table_Exception('Failed to turn ' . $fieldName . ' into DateTime object.');
+						}
+						return $value;
+					}
+					break;
+				// sw45859 Added For Sales Igniter Version 2 --END--
+               case 'gzip':
                     $value = gzuncompress($value);
 
                     if ($value === false) {

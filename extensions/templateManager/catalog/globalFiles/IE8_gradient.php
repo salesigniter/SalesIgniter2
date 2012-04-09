@@ -80,20 +80,14 @@ else {
 			$yEnd = 0;
 			break;
 	}
-	$randomId = time();
+	$random = rand(500, 1000);
 	ob_start();
 	echo '<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?' . '>';
 	?>
-<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" version="1.1" viewBox="0 0 1 1" width="<?php echo $width;?>" height="<?php echo $height;?>">
-	<defs>
-		<linearGradient id="<?php echo $randomId;?>"
-			x1="<?php echo $xStart;?>%"
-			y1="<?php echo $yStart;?>%"
-			x2="<?php echo $xEnd;?>%"
-			y2="<?php echo $yEnd;?>%"
-			>
-			<?php
-   foreach($colorStops as $sInfo){
+<svg xmlns="http://www.w3.org/2000/svg" width="<?php echo $width;?>" height="<?php echo $height;?>" viewBox="0 0 1 1" preserveAspectRatio="none">
+	<linearGradient id="gradient<?php echo $random;?>" gradientUnits="userSpaceOnUse" x1="<?php echo $xStart;?>%" y1="<?php echo $yStart;?>%" x2="<?php echo $xEnd;?>%" y2="<?php echo $yEnd;?>%">
+		<?php
+		foreach($colorStops as $sInfo){
 			$color = $sInfo->color;
 			$opacity = $sInfo->opacity;
 			if (substr($color, 0, 4) == 'rgba'){
@@ -103,19 +97,12 @@ else {
 				$opacity = $matches[4][0];
 			}
 			?>
-			<stop
-				offset="<?php echo $sInfo->pos;?>%"
-				stop-color="<?php echo $color;?>"
-				stop-opacity="<?php echo $opacity;?>"
-				/>
+			<stop offset="<?php echo $sInfo->pos;?>%" stop-color="<?php echo $color;?>" stop-opacity="<?php echo $opacity;?>"/>
 			<?php
-
 		}
-			?>
-		</linearGradient>
-	</defs>
-
-	<rect x="0" y="0" width="100%" height="100%" style="fill:url(#<?php echo $randomId;?>);" />
+		?>
+	</linearGradient>
+	<rect x="0" y="0" width="100%" height="100%" fill="url(#gradient<?php echo $random;?>)" />
 </svg>
 <?php
    $svgInfo = ob_get_contents();

@@ -9,10 +9,7 @@
 	This script and it's source is not redistributable
 */
 $(document).ready(function (){
-	$('.makeFCK').ckeditor(function (){
-	}, {
-		filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
-	});
+	$('.makeFCK').ckeditor();
 	
 	$('#languageTabs').tabs();
 });

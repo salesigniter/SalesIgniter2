@@ -74,16 +74,10 @@ class RentIssues extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('status', 'enum', 1, array(
-		'type' => 'enum',
+		$this->hasColumn('status', 'string', 1, array(
+		'type' => 'string',
 		'length' => 1,
 		'fixed' => false,
-		'values' =>
-		array(
-		0 => 'P',
-		1 => 'C',
-		2 => 'O',
-		),
 		'primary' => false,
 		'default' => 'O',
 		'notnull' => true,

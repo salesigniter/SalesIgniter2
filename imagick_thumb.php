@@ -4,10 +4,10 @@ $imgSrc= isset($_GET['imgSrc'])?$_GET['imgSrc']:'';
 $width =isset($_GET['width'])?$_GET['width']:'';
 $height =isset($_GET['height'])?$_GET['height']:'';
 
-$cacheKey = 'image-' . md5($path . '-' . $imgSrc . '-' . $width . '-' . $height);
+$cacheKey = md5($path . '-' . $imgSrc . '-' . $width . '-' . $height);
 
 	require('includes/classes/system_cache.php');
-	$ImageCache = new SystemCache($cacheKey);
+	$ImageCache = new SystemCache($cacheKey, 'cache/catalog/images/');
 if ($ImageCache->loadData() === true){
 	$ImageCache->output(false, true);
 	exit;

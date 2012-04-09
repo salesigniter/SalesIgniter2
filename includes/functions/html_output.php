@@ -14,17 +14,8 @@ Released under the GNU General Public License
 // Ultimate SEO URLs v2.1
 // The HTML href link wrapper function
 function tep_href_link($page = '', $parameters = '', $connection = 'NONSSL', $add_session_id = true, $search_engine_safe = true) {
-	global $seo_urls;
-	if ($page == 'checkout.php'){
-		return itw_app_link($parameters, 'checkout', 'default', $connection);
-	}
-	if ( !is_object($seo_urls) ){
-		if ( !class_exists('SEO_URL') ){
-			include_once(sysConfig::get('DIR_WS_CLASSES') . 'seo.class.php');
-		}
-		$seo_urls = new SEO_URL(Session::get('languages_id'));
-	}
-	return $seo_urls->href_link($page, $parameters, $connection, $add_session_id);
+	print_r(debug_print_backtrace());
+	die('Function is no longer allowed, please update.');
 }
 
 function seoUrlClean($val){
@@ -32,7 +23,7 @@ function seoUrlClean($val){
 }
 
 function buildAppLink($o){
-	static $productNameResults;
+	static $productNameResults, $categoryNameResults;
 	$envDir = ($o['env'] == 'catalog' ? sysConfig::getDirWsCatalog() : sysConfig::getDirWsAdmin());
 	
 	if ($o['connection'] == 'NONSSL') {
@@ -78,6 +69,32 @@ function buildAppLink($o){
 					$paramsParsed = false;
 				}
 			}
+		}elseif ($o['app'] == 'index' && isset($vars['cPath'])){
+			if (!isset($categoryNameResults[$vars['cPath']])){
+				$categoryName = array();
+				foreach(explode('_', $vars['cPath']) as $catId){
+					$ResultSet = Doctrine_Manager::getInstance()
+						->getCurrentConnection()
+						->fetchAssoc('select categories_name from categories_description where categories_id = "' . (int)$catId . '" and language_id = "' . Session::get('languages_id') . '"');
+					if ($ResultSet && sizeof($ResultSet) > 0){
+						$categoryName[] = seoUrlClean($ResultSet[0]['categories_name']);
+					}
+				}
+				$categoryName = implode('/', $categoryName);
+				$categoryNameResults[$vars['cPath']]['categories_name'] = $categoryName;
+			}else{
+				$categoryName = $categoryNameResults[(int)$vars['cPath']]['categories_name'];
+			}
+
+			if (!empty($categoryName)){
+				$link .= 'category/';
+				$o['app'] = $vars['cPath'];
+				$o['page'] = $categoryName;
+				unset($vars['cPath']);
+				if (sizeof($vars) <= 0){
+					$paramsParsed = false;
+				}
+			}
 		}else{
 			if (isset($vars['appExt'])){
 				$link .= $vars['appExt'] . '/';
@@ -92,9 +109,26 @@ function buildAppLink($o){
 		if (isset($vars['appPage'])) unset($vars['appPage']);
 		if (isset($vars['appExt'])) unset($vars['appExt']);
 	}
-		
+
+	if (
+		(!isset($vars) || sizeof($vars) <= 0) &&
+		(isset($_GET['noCache']) || isset($_GET['showErrors']))
+	){
+		$vars = array();
+	}
+
+	if (isset($_GET['noCache'])){
+		$vars['noCache'] = true;
+	}
+	if (isset($_GET['showErrors'])){
+		$vars['showErrors'] = true;
+	}
+
 	if (isset($vars) && sizeof($vars) > 0){
-		$link .= '?' . urldecode(http_build_query($vars)) . '&' . SID;
+		$link .= '?' . urldecode(http_build_query($vars));
+		if (SID != ''){
+			$link .= '&' . SID;
+		}
 		if ($o['connection'] == 'SSL'){
 			$link .= '&' . Session::getSessionName() . '=' . Session::getSessionId();
 		}
@@ -109,13 +143,8 @@ function buildAppLink($o){
 }
 
 function itw_app_link($params=null, $appName=null, $appPage=null, $connection='NONSSL'){
-	global $request_type;
 	$appExt = null;
 
-	if($appName == 'account' && sysConfig::get('ENABLE_SSL') == true && ($connection !== 'SSL')){
-		$connection = 'SSL';
-	}
-	
 	if (!is_null($params)){
 		parse_str($params, $vars);
 		$paramsParsed = true;
@@ -124,7 +153,7 @@ function itw_app_link($params=null, $appName=null, $appPage=null, $connection='N
 		}
 
 		if (isset($vars['rType'])){
-			if ($vars['rType'] == 'ajax' && $connection == 'NONSSL' && $request_type == 'SSL'){
+			if ($vars['rType'] == 'ajax' && $connection == 'NONSSL' && sysConfig::get('REQUEST_TYPE') == 'SSL'){
 				$connection = 'SSL';
 			}
 		}
@@ -183,7 +212,7 @@ function itw_admin_app_link($params=null, $appName=null, $appPage=null, $connect
 // Scales product images dynamically, resulting in smaller file sizes, and keeps
 // proper image ratio. Used in conjunction with product_thumb.php t/n generator.
 function tep_image($src, $alt = '', $width = '', $height = '', $params = '') {
-	if (empty($src) || $src == DIR_WS_IMAGES || !file_exists(DIR_FS_CATALOG . $src)) return;
+	if (empty($src) || $src == sysConfig::get('DIR_WS_TEMPLATE_IMAGES') || !file_exists(sysConfig::getDirFsCatalog() . $src)) return;
 	// Set default image variable and code
 	$image = '<img src="' . $src . '"';
 
@@ -202,7 +231,7 @@ function tep_image($src, $alt = '', $width = '', $height = '', $params = '') {
 	}
 
 	// Do we calculate the image size?
-	if (CONFIG_CALCULATE_IMAGE_SIZE && !$dont_calculate) {
+	if (sysConfig::get('CONFIG_CALCULATE_IMAGE_SIZE') == 'true' && !$dont_calculate) {
 
 		// Get the image's information
 		if ($image_size = @getimagesize($src)) {
@@ -236,7 +265,7 @@ function tep_image($src, $alt = '', $width = '', $height = '', $params = '') {
 				tep_output_string($width).'&amp;h='.tep_output_string($height).'"';
 			}
 
-		} elseif (IMAGE_REQUIRED == 'false') {
+		} elseif (sysConfig::get('IMAGE_REQUIRED') == 'false') {
 			return '';
 		}
 	}
@@ -266,7 +295,7 @@ function tep_image($src, $alt = '', $width = '', $height = '', $params = '') {
 ////
 // Output a separator either through whitespace, or with an image
 function tep_draw_separator($image = 'pixel_black.gif', $width = '100%', $height = '1') {
-	return tep_image(DIR_WS_IMAGES . $image, '', $width, $height);
+	return tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . $image, '', $width, $height);
 }
 
 ////

@@ -1,43 +1,42 @@
-<configurations>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Installed Status]]></title>
-		<key><![CDATA[INSTALLED]]></key>
-		<value><![CDATA[False]]></value>
-		<description><![CDATA[Tells if the module is installed or not]]></description>
-		<set_function><![CDATA[tep_cfg_show_installed_status(]]></set_function>
-	</configuration>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Enable Google Zone Shipping]]></title>
-		<key><![CDATA[STATUS]]></key>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to offer google zone shipping?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Tax Class]]></title>
-		<key><![CDATA[TAX_CLASS]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Use the following tax class on the shipping fee.]]></description>
-		<use_function><![CDATA[ttep_get_tax_class_title]]></use_function>
-		<set_function><![CDATA[tep_cfg_pull_down_tax_classes(]]></set_function>
-	</configuration>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Display Order]]></title>
-		<key><![CDATA[DISPLAY_ORDER]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
-	</configuration>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[By Order or By Product]]></title>
-		<key><![CDATA[MODULE_ORDER_SHIPPING_ZONE_RESERVATION_TYPE]]></key>
-		<value><![CDATA[Product]]></value>
-		<description><![CDATA[What type of shipping: by order or by product?]]></description>
-		<sort_order>1</sort_order>
-		<set_function><![CDATA[tep_cfg_select_option(array('Order', 'Product'),]]></set_function>
-	</configuration>
-</configurations>
+<ConfigurationGroup>
+	<title>Zone Reservation</title>
+	<key>orderShippingZoneReservation</key>
+	<description>Configuration Settings For The Zone Reservation Shipping Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Shipping Module Settings</description>
+			<configurations>
+				<INSTALLED>
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<STATUS>
+					<title><![CDATA[Enable Google Zone Shipping]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to offer google zone shipping?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</STATUS>
+				<TAX_CLASS>
+					<title><![CDATA[Tax Class]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Use the following tax class on the shipping fee.]]></description>
+					<use_function><![CDATA[ttep_get_tax_class_title]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_tax_classes(]]></set_function>
+				</TAX_CLASS>
+				<DISPLAY_ORDER>
+					<title><![CDATA[Display Order]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+				</DISPLAY_ORDER>
+				<MODULE_ORDER_SHIPPING_ZONE_RESERVATION_TYPE>
+					<title><![CDATA[By Order or By Product]]></title>
+					<value><![CDATA[Product]]></value>
+					<description><![CDATA[What type of shipping: by order or by product?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('Order', 'Product'),]]></set_function>
+				</MODULE_ORDER_SHIPPING_ZONE_RESERVATION_TYPE>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

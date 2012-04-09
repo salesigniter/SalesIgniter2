@@ -17,7 +17,7 @@ class Extension_featuredManager extends ExtensionBase {
 	}
 	
 	public function init(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 	}
 
 
@@ -72,8 +72,10 @@ function tep_get_featured_group_tree_list($checked = false, $include_itself = tr
     }
     $catList = '<ul class="catListingUL">';
 
-    $groups_query = tep_db_query("select * from featured_manager_groups");
-    while ($groups = tep_db_fetch_array($groups_query)) {
+	$Qgroups = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select * from featured_manager_groups");
+    foreach ($Qgroups as $groups) {
         $catList .= '<li>' .
 				tep_draw_checkbox_field('groups[]', $groups['featured_group_id'],
 	                                    (in_array($groups['featured_group_id'], $checked)),

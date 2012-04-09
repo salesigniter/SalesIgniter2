@@ -1,5 +1,5 @@
 /*Copyright(c)2009,www.supersite.me*/
-var imageUrl=DIR_WS_CATALOG + 'ext/jQuery/external/iColorPicker/images/color.png';
+var imageUrl=jsConfig.get('DIR_WS_CATALOG') + 'ext/jQuery/external/iColorPicker/images/color.png';
 function iColorShow(id,id2){
 	var eICP=jQuery("#"+id2).offset();
 	jQuery("#iColorPicker").css({
@@ -85,4 +85,4 @@ this.iColorPicker=function(){
 
 jQuery(function(){
 	iColorPicker()
-})
+});

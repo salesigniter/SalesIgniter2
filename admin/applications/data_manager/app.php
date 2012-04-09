@@ -4,9 +4,6 @@
 	$appContent = $App->getAppContentFile();
 
 
-	
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
-
 	$separator = "\t";
 	$default_image_manufacturer = '';
 	$default_image_product = '';
@@ -19,12 +16,14 @@
 	
 	$showLogInfo = false;
 
-	
+	/* SHOULD NOT BE HERE, IT IS IN THE GENERAL REMOVED AND SHOULD BE MOVED BACK THERE IF YOU NEED IT */
 	function tep_get_tax_class_rate($tax_class_id) {
 		$tax_multiplier = 0;
-		$tax_query = tep_db_query("select SUM(tax_rate) as tax_rate from " . TABLE_TAX_RATES . " WHERE  tax_class_id = '" . $tax_class_id . "' GROUP BY tax_priority");
-		if (tep_db_num_rows($tax_query)) {
-			while ($tax = tep_db_fetch_array($tax_query)) {
+		$QtaxRate = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select SUM(tax_rate) as tax_rate from tax_rates WHERE  tax_class_id = '" . $tax_class_id . "' GROUP BY tax_priority");
+		if (sizeof($QtaxRate)) {
+			foreach ($QtaxRate as $tax) {
 				$tax_multiplier += $tax['tax_rate'];
 			}
 		}
@@ -32,9 +31,10 @@
 	}
 
 	function tep_get_tax_title_class_id($tax_class_title) {
-		$classes_query = tep_db_query("select tax_class_id from " . TABLE_TAX_CLASS . " WHERE tax_class_title = '" . $tax_class_title . "'" );
-		$tax_class_array = tep_db_fetch_array($classes_query);
-		$tax_class_id = $tax_class_array['tax_class_id'];
+		$QtaxClass = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select tax_class_id from tax_class WHERE tax_class_title = '" . $tax_class_title . "'" );
+		$tax_class_id = $QtaxClass[0]['tax_class_id'];
 		return $tax_class_id ;
 	}
 

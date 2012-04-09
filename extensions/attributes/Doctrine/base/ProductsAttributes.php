@@ -89,7 +89,7 @@ class ProductsAttributes extends Doctrine_Record {
 			'default'       => '0.0000',
 			'notnull'       => true,
 			'autoincrement' => false,
-			'scale'         => false
+			'scale'         => 4
 		));
 		
 		$this->hasColumn('options_values_image', 'string', 128, array(
@@ -110,9 +110,9 @@ class ProductsAttributes extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('sort_order', 'integer', 6, array(
+		$this->hasColumn('sort_order', 'integer', 2, array(
 			'type'          => 'integer',
-			'length'        => 6,
+			'length'        => 2,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '0',

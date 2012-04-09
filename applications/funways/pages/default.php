@@ -46,7 +46,7 @@
             $link = itw_app_link('fcPath=' . $fcPath . '_' . $category['categories_id'], 'funways', 'default');
         }
         echo '<a href="' . $link . '">' .
-             tep_image(DIR_WS_IMAGES . $category['categories_image'], $category['categories_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) .
+             tep_image($category['categories_image'], $category['categories_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) .
              '</a><br><strong><a href="' . $link . '">' .
              $category['categories_name'] .
              '</a></strong><br>' .

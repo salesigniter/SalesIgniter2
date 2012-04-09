@@ -86,7 +86,7 @@
                   "\nPayment Method: " . $paymentMethod;
 
           //STORE_OWNER_EMAIL_ADDRESS;
-          mail(sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'),$subject,$body,"From:".EMAIL_FROM);
+          mail(STORE_OWNER_EMAIL_ADDRESS,$subject,$body,"From:".EMAIL_FROM);
           $messageStack->addSession('pageStack', sysLanguage::get('UPGRADE_EMAIL_SENT'), 'success');
 
           tep_redirect(itw_app_link(null, 'account', 'default', 'SSL'));
@@ -202,13 +202,14 @@
 	->usePreset('continue')
 	->setType('submit')
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'membership',
-		'action' => itw_app_link(null,'account', 'membership', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link(null,'account', 'membership', 'SSL'))
+	->setName('membership')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

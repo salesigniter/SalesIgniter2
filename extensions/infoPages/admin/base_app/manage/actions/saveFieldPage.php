@@ -29,9 +29,8 @@
 		$Page->page_type = 'field';
 		$Page->page_key = $_POST['page_key'];
 
-		$languages = tep_get_languages();
-		for($i=0, $n=sizeof($languages); $i<$n; $i++){
-			$lID = $languages[$i]['id'];
+		foreach(sysLanguage::getLanguages() as $lInfo){
+			$lID = $lInfo['id'];
 
 			$Page->PagesDescription[$lID]->language_id = $lID;
 			$Page->PagesDescription[$lID]->pages_title = 'FIELD PAGE';

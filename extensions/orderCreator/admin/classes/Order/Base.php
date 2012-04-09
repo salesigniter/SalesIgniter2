@@ -1,33 +1,73 @@
 <?php
+/**
+ * Main order creator order class
+ *
+ * @package OrderCreator
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
+
 require(dirname(__FILE__) . '/AddressManager/Base.php');
 require(dirname(__FILE__) . '/ProductManager/Base.php');
 require(dirname(__FILE__) . '/TotalManager/Base.php');
 require(dirname(__FILE__) . '/PaymentManager/Base.php');
 
-class OrderCreator extends Order implements Serializable {
+class OrderCreator extends Order implements Serializable
+{
 
+	/**
+	 * @var array
+	 */
 	private $data = array();
 
-	public function __construct($orderId = null){
-		if (is_null($orderId) === false){
+	/**
+	 * @var OrderCreatorAddressManager
+	 */
+	public $AddressManager;
+
+	/**
+	 * @var OrderCreatorProductManager
+	 */
+	public $ProductManager;
+
+	/**
+	 * @var OrderCreatorTotalManager
+	 */
+	public $TotalManager;
+
+	/**
+	 * @var OrderCreatorPaymentManager
+	 */
+	public $PaymentManager;
+
+	/**
+	 * @var array
+	 */
+	private $errorMessages = array();
+
+	/**
+	 * @param int $orderId
+	 */
+	public function __construct($orderId = 0) {
+		if ($orderId > 0){
 			$this->mode = 'edit';
 			$this->setOrderId($orderId);
 
 			$Qorder = Doctrine_Query::create()
-			->from('Orders o')
-			->leftJoin('o.OrdersAddresses oa')
-			->leftJoin('oa.Zones z')
-			->leftJoin('oa.Countries c')
-			->leftJoin('c.AddressFormat af')
-			->leftJoin('o.OrdersTotal ot')
-			->leftJoin('o.OrdersPaymentsHistory oph')
-			->leftJoin('o.OrdersStatusHistory osh')
-			->leftJoin('osh.OrdersStatus s')
-			->leftJoin('s.OrdersStatusDescription sd')
-			->leftJoin('o.OrdersProducts op')
-			->where('o.orders_id = ?', $orderId)
-			->andWhere('sd.language_id = ?', Session::get('languages_id'))
-			->orderBy('ot.sort_order, osh.date_added DESC');
+				->from('Orders o')
+				->leftJoin('o.OrdersAddresses oa')
+				->leftJoin('oa.Zones z')
+				->leftJoin('oa.Countries c')
+				->leftJoin('c.AddressFormat af')
+				->leftJoin('o.OrdersTotal ot')
+				->leftJoin('o.OrdersPaymentsHistory oph')
+				->leftJoin('o.OrdersStatusHistory osh')
+				->leftJoin('osh.OrdersStatus s')
+				->leftJoin('s.OrdersStatusDescription sd')
+				->leftJoin('o.OrdersProducts op')
+				->where('o.orders_id = ?', $orderId)
+				->andWhere('sd.language_id = ?', Session::get('languages_id'))
+				->orderBy('ot.sort_order, osh.date_added DESC');
 
 			EventManager::notify('OrderQueryBeforeExecute', &$Qorder);
 
@@ -46,113 +86,162 @@ class OrderCreator extends Order implements Serializable {
 
 			$this->PaymentManager = new OrderCreatorPaymentManager($this->Order['OrdersPaymentsHistory']);
 			$this->PaymentManager->setOrderId($this->Order['orders_id']);
-		}else{
+		}
+		else {
 			$this->mode = 'new';
 			$this->Order = array(
-				'orders_status' => 1,
-				'currency' => Session::get('currency'),
-				'currency_value' => Session::get('currency_value'),
-				'OrdersStatusHistory' => array(),
+				'orders_status'         => 1,
+				'currency'              => Session::get('currency'),
+				'currency_value'        => Session::get('currency_value'),
+				'OrdersStatusHistory'   => array(),
 				'OrdersPaymentsHistory' => array()
 			);
-			$this->AddressManager = new OrderCreatorAddressManager;
-			$this->ProductManager = new OrderCreatorProductManager;
+			$this->AddressManager = new OrderCreatorAddressManager();
+			$this->ProductManager = new OrderCreatorProductManager();
 			$this->TotalManager = new OrderCreatorTotalManager(array(
 				array(
 					'module_type' => 'subtotal',
-					'title' => 'Sub-Total:',
-					'value' => 0.00,
-					'sort_order' => 1
+					'title'       => 'Sub-Total:',
+					'value'       => 0.00,
+					'sort_order'  => 1
 				),
 				array(
 					'module_type' => 'tax',
-					'title' => 'Tax:',
-					'value' => 0.00,
-					'sort_order' => 2
+					'title'       => 'Tax:',
+					'value'       => 0.00,
+					'sort_order'  => 2
 				),
 				array(
 					'module_type' => 'total',
-					'editable' => false,
-					'title' => 'Total:',
-					'value' => 0.00,
-					'sort_order' => 3
+					'editable'    => false,
+					'title'       => 'Total:',
+					'value'       => 0.00,
+					'sort_order'  => 3
 				)
 			));
-			$this->PaymentManager = new OrderCreatorPaymentManager;
+			$this->PaymentManager = new OrderCreatorPaymentManager();
 		}
-			
+
 		$this->errorMessages = array();
+
+		EventManager::notify('OrderCreatorLoadOrder', $this);
 	}
 
-	public function init(){
+	/**
+	 *
+	 */
+	public function init() {
+		if (is_object($this->ProductManager) === false){
+			print_r(debug_print_backtrace());
+		}
 		$this->ProductManager->init();
 		/*$this->AddressManager->init();
 		$this->TotalManager->init();
 		$this->PaymentManager->init();*/
 	}
 
-	public function serialize(){
+	/**
+	 * @return string
+	 */
+	public function serialize() {
 		$data = array(
-			'orderId' => $this->getOrderId(),
-			'customerId' => $this->getCustomerId(),
-			'mode' => $this->mode,
-			'Order' => $this->Order,
+			'orderId'        => $this->getOrderId(),
+			'customerId'     => $this->getCustomerId(),
+			'mode'           => $this->mode,
+			'Order'          => $this->Order,
 			'ProductManager' => $this->ProductManager,
 			'AddressManager' => $this->AddressManager,
-			'TotalManager' => $this->TotalManager,
+			'TotalManager'   => $this->TotalManager,
 			'PaymentManager' => $this->PaymentManager,
-			'errorMessages' => $this->errorMessages,
-			'data' => $this->data
+			'errorMessages'  => $this->errorMessages,
+			'data'           => $this->data
 		);
 		return serialize($data);
 	}
 
-	public function unserialize($data){
+	/**
+	 * @param string $data
+	 */
+	public function unserialize($data) {
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
 			$this->$key = $dInfo;
 		}
 	}
 
-	public function setData($k, $v){
+	/**
+	 * @param string|int $k
+	 * @param mixed $v
+	 */
+	public function setData($k, $v) {
 		$this->data[$k] = $v;
 	}
 
-	public function getData($k){
+	/**
+	 * @param string|int $k
+	 * @return mixed
+	 */
+	public function getData($k) {
 		return $this->data[$k];
 	}
 
-	public function hasData($k){
+	/**
+	 * @param string|int $k
+	 * @return bool
+	 */
+	public function hasData($k) {
 		return (isset($this->data[$k]));
 	}
-	
-	public function addErrorMessage($val){
+
+	/**
+	 * @param string $val
+	 */
+	public function addErrorMessage($val) {
 		$this->errorMessages[] = $val;
 	}
-	
-	public function hasErrors(){
+
+	/**
+	 * @return bool
+	 */
+	public function hasErrors() {
 		return (sizeof($this->errorMessages) > 0);
 	}
-	
-	public function getErrors(){
+
+	/**
+	 * @return array
+	 */
+	public function getErrors() {
 		$return = $this->errorMessages;
 		$this->errorMessages = array();
 		return $return;
 	}
 
-	public function hasDebt(){
+	/**
+	 * @return bool
+	 */
+	public function hasDebt() {
 		return ($this->TotalManager->getTotalValue('total') > $this->PaymentManager->getPaymentsTotal());
 	}
 
-	public function hasCredit(){
+	/**
+	 * @return bool
+	 */
+	public function hasCredit() {
 		return ($this->TotalManager->getTotalValue('total') < $this->PaymentManager->getPaymentsTotal());
 	}
-	
-	public function hasPendingPayments(){
+
+	/**
+	 * @return bool
+	 */
+	public function hasPendingPayments() {
 		return ($this->PaymentManager->getPendingPaymentsTotal() > 0);
 	}
 
-	public function getBalance($type){
+	/**
+	 * @param $type
+	 * @return string
+	 */
+	public function getBalance($type) {
 		global $currencies;
 		switch($type){
 			case 'debt':
@@ -167,137 +256,205 @@ class OrderCreator extends Order implements Serializable {
 		}
 		return $currencies->format($Balance);
 	}
-	
-	public function editPaymentHistory(){
+
+	/**
+	 * @return htmlElement_table
+	 */
+	public function editPaymentHistory() {
 		return $this->PaymentManager->edit();
 	}
 
-	public function editTotals(){
+	/**
+	 * @return htmlElement_table
+	 */
+	public function editTotals() {
 		return $this->TotalManager->edit();
 	}
 
-	public function editAddresses(){
+	/**
+	 * @return string
+	 */
+	public function editAddresses() {
 		return $this->AddressManager->editAll();
 	}
 
-	public function editAddress($type){
+	/**
+	 * @param $type
+	 * @return string
+	 */
+	public function editAddress($type) {
 		return $this->AddressManager->editAddress($type);
 	}
-	
-	public function editProducts(){
+
+	/**
+	 * @return htmlElement_table
+	 */
+	public function editProducts() {
 		return $this->ProductManager->editProducts();
 	}
-	
-	public function setShippingModule($val){
-		$this->Order['shipping_module'] = $val;
+
+	/**
+	 * @param string $val
+	 */
+	public function setShippingModule($val) {
+		$this->Order['shipping_module'] = (string) $val;
 	}
 
-	public function setPaymentModule($val){
-		$this->Order['payment_module'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setPaymentModule($val) {
+		$this->Order['payment_module'] = (string) $val;
 	}
 
-	public function getShippingModule(){
-		return $this->Order['shipping_module'];
+	/**
+	 * @return string
+	 */
+	public function getShippingModule() {
+		return (string) $this->Order['shipping_module'];
 	}
-	
-	public function getPaymentModule(){
-		return $this->Order['payment_module'];
+
+	/**
+	 * @return string
+	 */
+	public function getPaymentModule() {
+		return (string) $this->Order['payment_module'];
 	}
-	
-	public function getPassword(){
+
+	/**
+	 * @return string
+	 */
+	public function getPassword() {
 		if (isset($_POST['account_password']) && !empty($_POST['account_password'])){
 			return $_POST['account_password'];
-		}else{
+		}
+		else {
 			return tep_create_random_value(sysConfig::get('ENTRY_PASSWORD_MIN_LENGTH'));
 		}
 	}
 
-	public function setCustomerId($val){
-		$this->customerId = $val;
-	}
-	
-	public function setTelephone($val){
-		$this->Order['customers_telephone'] = $val;
-	}
-
-	public function setEmailAddress($val){
-		$this->Order['customers_email_address'] = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setCustomerId($val) {
+		$this->customerId = (int) $val;
 	}
 
-	public function editTelephone(){
+	/**
+	 * @param string $val
+	 */
+	public function setTelephone($val) {
+		$this->Order['customers_telephone'] = (string) $val;
+	}
+
+	/**
+	 * @param string $val
+	 */
+	public function setEmailAddress($val) {
+		$this->Order['customers_email_address'] = (string) $val;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function editTelephone() {
 		$input = htmlBase::newElement('input')
-		->setName('telephone')
-		->val($this->getTelephone());
+			->setName('telephone')
+			->val($this->getTelephone());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
 
-	public function editEmailAddress(){
+	/**
+	 * @return string
+	 */
+	public function editEmailAddress() {
 		$input = htmlBase::newElement('input')
-		->setName('email')
-		->val($this->getEmailAddress());
+			->setName('email')
+			->val($this->getEmailAddress());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
 
-	public function editDriversLicense(){
+	/**
+	 * @return string
+	 */
+	public function editDriversLicense() {
 		$input = htmlBase::newElement('input')
 			->setName('drivers_license')
 			->val($this->getDriversLicense());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
 
-	public function editPassPort(){
+	/**
+	 * @return string
+	 */
+	public function editPassPort() {
 		$input = htmlBase::newElement('input')
 			->setName('passport')
 			->val($this->getPassPort());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
 
-	public function editRoomNumber(){
+	/**
+	 * @return string
+	 */
+	public function editRoomNumber() {
 		$input = htmlBase::newElement('input')
 			->setName('room_number')
 			->val($this->getRoomNumber());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
 
-	public function setMemberNumber($val){
-		$this->Order['customers_number'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setMemberNumber($val) {
+		$this->Order['customers_number'] = (string) $val;
 	}
 
-	public function getMemberNumber(){
+	/**
+	 * @return string
+	 */
+	public function getMemberNumber() {
 		$Qcustomer = Doctrine_Query::create()
 			->select('customers_number')
 			->from('Customers')
 			->where('customers_id = ?', $this->getCustomerId())
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		return $Qcustomer[0]['customers_number'];
+		return (sizeof($Qcustomer) > 0 ? $Qcustomer[0]['customers_number'] : '');
 	}
 
-	public function editMemberNumber(){
+	/**
+	 * @return string
+	 */
+	public function editMemberNumber() {
 		$input = htmlBase::newElement('input')
 			->attr('max_length', 12)
 			->setName('member_number')
 			->val($this->getMemberNumber());
 
-		return $input->draw();
+		return (string) $input->draw();
 	}
-	
-	public function createCustomerAccount($CollectionObj){
+
+	/**
+	 * @param Customers $CollectionObj
+	 */
+	public function createCustomerAccount(Customers $CollectionObj) {
 		$CustomerAddress = $this->AddressManager->getAddress('customer');
-		
+
 		$CollectionObj->language_id = Session::get('languages_id');
 		$CollectionObj->customers_number = $this->Order['customers_number'];
 		$CollectionObj->customers_firstname = $CustomerAddress->getFirstName();
 		$CollectionObj->customers_lastname = $CustomerAddress->getLastName();
 		$CollectionObj->customers_email_address = $this->getEmailAddress();
 		$CollectionObj->customers_telephone = $this->getTelephone();
-		
+
 		$password = '';
-		for ($i=0; $i<10; $i++){
+		for($i = 0; $i < 10; $i++){
 			$password .= tep_rand();
 		}
 		$salt = substr(md5($password), 0, 2);
@@ -309,12 +466,12 @@ class OrderCreator extends Order implements Serializable {
 		//$CollectionObj->customers_default_address_id = $this->getAddressId();
 		//$CollectionObj->customers_fax = $this->getFax();
 		//$CollectionObj->customers_newsletter = 1;
-		
+
 		EventManager::notify('OrderCreatorCreateCustomerAccount', $CollectionObj);
-		
+
 		$AddressBook = new AddressBook();
 		$AddressBook->entry_gender = $CustomerAddress->getGender();
-		if(sysConfig::get('ACCOUNT_COMPANY') == 'true'){
+		if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 			$AddressBook->entry_company = $CustomerAddress->getCompany();
 		}
 		$AddressBook->entry_firstname = $CustomerAddress->getFirstName();
@@ -326,13 +483,13 @@ class OrderCreator extends Order implements Serializable {
 		$AddressBook->entry_state = $CustomerAddress->getState();
 		$AddressBook->entry_country_id = $CustomerAddress->getCountryId();
 		$AddressBook->entry_zone_id = $CustomerAddress->getZoneId();
-		
+
 		EventManager::notify('OrderCreatorCreateCustomerAddress', $AddressBook);
-		
+
 		$CollectionObj->AddressBook->add($AddressBook);
-		
+
 		$CollectionObj->CustomersInfo->customers_info_number_of_logons = 0;
-		
+
 		$firstName = $CustomerAddress->getFirstName();
 		$lastName = $CustomerAddress->getLastName();
 		$emailAddress = $this->getEmailAddress();
@@ -342,10 +499,10 @@ class OrderCreator extends Order implements Serializable {
 
 		$emailEvent->setVars(array(
 			'email_address' => $emailAddress,
-			'password'      => $this->getPassword(),
-			'firstname'     => $firstName,
-			'lastname'      => $lastName,
-			'full_name'     => $fullName
+			'password'	  => $this->getPassword(),
+			'firstname'	 => $firstName,
+			'lastname'	  => $lastName,
+			'full_name'	 => $fullName
 		));
 
 		if (isset($this->newCustomerEmailVars)){
@@ -353,38 +510,41 @@ class OrderCreator extends Order implements Serializable {
 				$emailEvent->setVar($var, $val);
 			}
 		}
-		if(sysConfig::get('EXTENSION_ORDER_CREATOR_SEND_WELCOME_EMAIL') == 'True'){
+		if (sysConfig::get('EXTENSION_ORDER_CREATOR_SEND_WELCOME_EMAIL') == 'True'){
 			$emailEvent->sendEmail(array(
 				'email' => $emailAddress,
 				'name'  => $fullName
 			));
 		}
 	}
-	
-	public function sendNewOrderEmail($CollectionObj){
+
+	/**
+	 * @param Orders $CollectionObj
+	 */
+	public function sendNewOrderEmail(Orders $CollectionObj) {
 		global $appExtension, $currencies;
 		$DeliveryAddress = $this->AddressManager->getAddress('delivery');
 		$BillingAddress = $this->AddressManager->getAddress('billing');
-		
+
 		$sendToFormatted = $this->AddressManager->showAddress($DeliveryAddress, false);
 		$billToFormatted = $this->AddressManager->showAddress($BillingAddress, false);
 
 		$products_ordered = '';
 		foreach($CollectionObj->OrdersProducts as $opInfo){
-			$products_ordered .= sprintf("%s x %s (%s) = %s\n", 
+			$products_ordered .= sprintf("%s x %s (%s) = %s\n",
 				$opInfo->products_quantity,
 				$opInfo->products_name,
 				$opInfo->products_model,
 				$currencies->display_price(
-				 	$opInfo->products_price,
-				 	$opInfo->products_tax,
-				 	$opInfo->products_quantity
+					$opInfo->products_price,
+					$opInfo->products_tax,
+					$opInfo->products_quantity
 				)
 			);
-			
+
 			EventManager::notify('OrderCreatorAddProductToEmail', $opInfo, &$products_ordered);
 		}
-		
+
 		$emailEvent = new emailEvent('order_success', Session::get('languages_id'));
 		$emailEvent->setVar('order_id', $CollectionObj->orders_id);
 		$emailEvent->setVar('invoice_link', itw_catalog_app_link('order_id=' . $CollectionObj->orders_id, 'account', 'history_info', 'SSL', false));
@@ -427,7 +587,7 @@ class OrderCreator extends Order implements Serializable {
 		$emailEvent->sendEmail($sendVariables);
 
 		// send emails to other people
-		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != '') {
+		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != ''){
 			$emailEvent->sendEmail(array(
 				'email' => sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO'),
 				'name'  => ''
@@ -435,7 +595,11 @@ class OrderCreator extends Order implements Serializable {
 		}
 	}
 
-	public function sendNewEstimateEmail($CollectionObj, $emailAddress = ''){
+	/**
+	 * @param Orders $CollectionObj
+	 * @param string $emailAddress
+	 */
+	public function sendNewEstimateEmail(Orders $CollectionObj, $emailAddress = '') {
 		global $appExtension, $currencies;
 		$DeliveryAddress = $this->AddressManager->getAddress('delivery');
 		$BillingAddress = $this->AddressManager->getAddress('billing');
@@ -450,9 +614,9 @@ class OrderCreator extends Order implements Serializable {
 				$opInfo->products_name,
 				$opInfo->products_model,
 				$currencies->display_price(
-				 	$opInfo->products_price,
-				 	$opInfo->products_tax,
-				 	$opInfo->products_quantity
+					$opInfo->products_price,
+					$opInfo->products_tax,
+					$opInfo->products_quantity
 				)
 			);
 
@@ -484,9 +648,10 @@ class OrderCreator extends Order implements Serializable {
 		$emailEvent->setVar('orderTotals', $orderTotals);
 		$sendVariables = array();
 		EventManager::notify('OrderCreatorBeforeSendNewEmail', $CollectionObj, $emailEvent, &$products_ordered, &$sendVariables);
-		if($emailAddress == ''){
+		if ($emailAddress == ''){
 			$email = $CollectionObj->customers_email_address;
-		}else{
+		}
+		else {
 			$email = $emailAddress;
 		}
 		$sendVariables['email'] = $email;
@@ -495,7 +660,7 @@ class OrderCreator extends Order implements Serializable {
 		$emailEvent->sendEmail($sendVariables);
 
 		// send emails to other people
-		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != '') {
+		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != ''){
 			$emailEvent->sendEmail(array(
 				'email' => sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO'),
 				'name'  => ''
@@ -503,4 +668,5 @@ class OrderCreator extends Order implements Serializable {
 		}
 	}
 }
+
 ?>

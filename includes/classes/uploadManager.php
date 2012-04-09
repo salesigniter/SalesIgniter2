@@ -1,4 +1,8 @@
 <?php
+if (class_exists('SystemFTP') === false){
+	require(dirname(__FILE__) . '/ftp/base.php');
+}
+
 require(dirname(__FILE__) . '/uploadManager/Exception.php');
 require(dirname(__FILE__) . '/uploadManager/Abstract.php');
 require(dirname(__FILE__) . '/uploadManager/UploadFile.php');
@@ -134,7 +138,7 @@ class UploadManager implements SplSubject
 	}
 
 	public function extensionIsAllowed(UploadFile $file) {
-		if (sizeof($this->extensions) > 0){
+		if (sizeof($this->extensions) > 0 && $this->extensions[0] != '*'){
 			$fileName = $file->getName();
 			if (!in_array(strtolower(substr($fileName, strrpos($fileName, '.') + 1)), $this->extensions)){
 				return false;
@@ -145,7 +149,8 @@ class UploadManager implements SplSubject
 
 	public function destinationIsWritable() {
 		if (!is_writeable($this->destination)){
-			if ($this->ftpRes && $this->ftpRes->makeWritable($this->destination)){
+			/* Using ftp user which is able to write to all folders/files */
+			if ($this->ftpRes){
 				return true;
 			}
 			return false;

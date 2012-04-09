@@ -3,8 +3,6 @@
 	 <div>
 
 	 <?php
-	 require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-	 $currencies = new currencies();
 	 $searchForm = htmlBase::newElement('form')
 	 ->attr('name', 'search')
 	 ->attr('action', itw_app_link(tep_get_all_get_params()))

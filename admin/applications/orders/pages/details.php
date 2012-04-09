@@ -128,7 +128,7 @@
 			
 			$historyTable->addBodyRow(array(
 				'columns' => array(
-					array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none'), 'align' => 'center', 'text' => tep_datetime_short($history['date_added'])),
+					array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none'), 'align' => 'center', 'text' => $history['date_added']->format(sysLanguage::getDateFormat('short'))),
 					array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'align' => 'center', 'text' => $icon),
 					array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'text' => $history['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name']),
 					array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'text' => nl2br(stripslashes($history['comments']))),
@@ -192,7 +192,7 @@
 	
 	$tabContent = '<div class="main"><b>' . sysLanguage::get('TABLE_HEADING_COMMENTS') . '</b></div>' . 
 	'<form name="status" action="' . itw_app_link(tep_get_all_get_params(array('action')) . 'action=updateOrder') . '" method="post">' . 
-	tep_draw_textarea_field('comments', 'soft', '60', '5') . 
+	tep_draw_textarea_field('comments', 'hard', '60', '5') .
 	'<br />';
 	EventManager::notify('OrderDetailsTabPaneInsideComments', &$orderInfo, &$tabContent);
 	$tabContent .= $trackingTable->draw() .
@@ -204,7 +204,7 @@
 	'<td class="main"><b>' . sysLanguage::get('ENTRY_STATUS') . '</b> ' . tep_draw_pull_down_menu('status', $orders_statuses, $Order->getCurrentStatus(true)) . '</td>' .
 	'</tr>' . 
 	'<tr>' . 
-	'<td class="main"><b>' . sysLanguage::get('ENTRY_NOTIFY_CUSTOMER') . '</b> ' . tep_draw_checkbox_field('notify', '', true) . '</td>' . 
+	'<td class="main"><b>' . sysLanguage::get('ENTRY_NOTIFY_CUSTOMER') . '</b> ' . tep_draw_checkbox_field('notify', '', (sysConfig::get('CUSTOMER_CHANGE_SEND_NOTIFICATION_EMAIL_DEFAULT') == 'true'?true:false)) . '</td>' .
 	'<td class="main"><b>' . sysLanguage::get('ENTRY_NOTIFY_COMMENTS') . '</b> ' . tep_draw_checkbox_field('notify_comments', '', true) . '</td>' . 
 	'</tr>' . 
 	'</table></td>' . 

@@ -9,14 +9,6 @@
 	->leftJoin('ib.ProductsInventory i')
 	->leftJoin('opr.ProductsInventoryQuantity iq')
 	->leftJoin('iq.ProductsInventory i2')
-	/*			->leftJoin('rb.RentalBookings rb_child')
-	->leftJoin('rb_child.Orders o_child')
-	->leftJoin('o_child.OrdersAddresses oa_child')
-	->leftJoin('rb_child.OrdersProducts op_child')
-	->leftJoin('rb_child.ProductsInventoryBarcodes ib_child')
-	->leftJoin('ib_child.ProductsInventory i_child')
-	->leftJoin('rb_child.ProductsInventoryQuantity iq_child')
-	->leftJoin('iq_child.ProductsInventory i2_child')*/
 	->where('opr.start_date BETWEEN "' . $_GET['start_date'] . '" AND "' . $_GET['end_date'] . '"')
 	->andWhere('opr.rental_state = ?', 'reserved')
 	->andWhere('oa.address_type = ?', 'delivery')
@@ -44,12 +36,25 @@
 	}
 
 
-    EventManager::notify('OrdersListingBeforeExecute', &$Qreservations);
+EventManager::notify('OrdersListingBeforeExecute', &$Qreservations);
 
 	$Qreservations = $Qreservations->execute();
 	if ($Qreservations !== false){
 		$Orders = $Qreservations->toArray(true);
+
+		$Reservations = array();
 		foreach($Orders as $oInfo){
+			$Reservation = array(
+				'orders_id'       => $oInfo['orders_id'],
+				'OrdersAddresses' => $oInfo['OrdersAddresses'],
+				'OrdersProducts'  => $oInfo['OrdersProducts']
+			);
+
+			$Reservations[] = $Reservation;
+		}
+		EventManager::notify('GetReservationsOrdersListingPopulateArray', &$Reservations);
+
+		foreach($Reservations as $oInfo){
 			$html .= '<tr class="dataTableRow"><td colspan="11" style="border-bottom:1px solid #000000;">Order id:'.$oInfo['orders_id'].' </td></tr>';
 			foreach($oInfo['OrdersProducts'] as $opInfo){
 				foreach($opInfo['OrdersProductsReservation'] as $rInfo){
@@ -59,23 +64,22 @@
 					$productName = $opInfo['products_name'];
 
 					$customersName = $orderAddress['entry_name'];
-					if(empty($customersName)){
-						$customerTable = Doctrine_Core::getTable('Customers')->find($oInfo['customers_id']);
-						$customersName = $customerTable->customers_firstname. ' '.$customerTable->customers_lastname;
-					}
 					$trackMethod = $rInfo['track_method'];
 					$useCenter = 0;
 
-					$startArr = date_parse($rInfo['start_date']);
-					$endArr = date_parse($rInfo['end_date']);
-
-					$resStart = tep_date_short($rInfo['start_date']);
-					$resEnd = tep_date_short($rInfo['end_date']);
+					$resStart = $rInfo['start_date']->format(sysLanguage::getDateTimeFormat());
+					$resEnd = $rInfo['end_date']->format(sysLanguage::getDateTimeFormat());
 
 					$padding_days_before = $rInfo['shipping_days_before'];
 					$padding_days_after = $rInfo['shipping_days_after'];
-					$shipOn = tep_date_short(date('Y-m-d', mktime(0,0,0,$startArr['month'],$startArr['day']-$padding_days_before,$startArr['year'])));
-					$dueBack = tep_date_short(date('Y-m-d', mktime(0,0,0,$endArr['month'],$endArr['day']+$padding_days_after,$endArr['year'])));
+
+					$shipOnDate = $rInfo['start_date'];
+					$shipOnDate->modify('-' . $padding_days_before . ' Day');
+					$shipOn = $shipOnDate->format(sysLanguage::getDateFormat('short'));
+
+					$dueBackDate = $rInfo['end_date'];
+					$dueBackDate->modify('+' . $padding_days_after . ' Day');
+					$dueBack = $dueBackDate->format(sysLanguage::getDateFormat('short'));
 
 					$Qcheck = Doctrine_Query::create()
 					->from('OrdersProductsReservation opr')

@@ -78,6 +78,15 @@ $(document).ready(function (){
 			width: 600,
 			height: 400,
 			autoShow: true,
+			open: function (){
+				var self = this;
+				$(this).find('.selectAll').click(function (){
+					var allBoxChecked = this.checked;
+					$(self).find('input[name="translate_model[]"]').each(function (){
+						this.checked = allBoxChecked;
+					});
+				});
+			},
 			buttons: {
 				'Create Language': function (){
 					var self = this;
@@ -85,7 +94,10 @@ $(document).ready(function (){
 					
 					var postVars = [];
 					postVars.push('fromLangCode=en');
-					postVars.push('toLangCode=' + $(self).find('select[name=toLanguage]').val());
+					if ($(self).find('[name=toLangCode]').size() > 0){
+						postVars.push('toLangCode=' + $(self).find('[name=toLangCode]').val());
+					}
+					postVars.push('toLanguage=' + $(self).find('[name=toLanguage]').val());
 					postVars.push($(self).find('input[name="translate_model[]"]:checked').serialize());
 					
 					$.ajax({

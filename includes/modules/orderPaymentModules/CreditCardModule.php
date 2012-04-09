@@ -37,10 +37,14 @@ class CreditCardModule extends PaymentModuleBase
 			'Laser' => 'Laser'
 	);
 
+	public function useVerificationNumber(){
+		return ($this->requireCvv === true);
+	}
+
 	public function getCardImages() {
 		$cc_images = '';
 		foreach($this->allowedTypes as $k => $v){
-			$cc_images .= tep_image(sysConfig::get('DIR_WS_ICONS') . $k . '.gif', $v);
+			$cc_images .= tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . $k . '.gif', $v);
 		}
 		return $cc_images;
 	}
@@ -61,13 +65,12 @@ class CreditCardModule extends PaymentModuleBase
 			$onePageCheckout->onePage['info']['payment']['cardDetails']['cardType'] = $validator->cc_type;
 		}
 
-		if ($this->requireCvv === true){
-			if (isset($validator->cc_cvv_number)){
-				$onePageCheckout->onePage['info']['payment']['cardDetails']['cardCvvNumber'] = $validator->cc_cvv_number;
-			}
-		}
-
 		if (!empty($result['error'])){
+			if ($this->requireCvv === true){
+				//if (isset($validator->cc_cvv_number)){
+				$onePageCheckout->onePage['info']['payment']['cardDetails']['cardCvvNumber'] = $validator->cc_cvv_number;
+				//}
+			}
 			if (isset($onePageCheckout) && is_object($onePageCheckout)){
 				if ($onePageCheckout->isMembershipCheckout() === true){
 					$redirectTo = itw_app_link('checkoutType=rental&payment_error=1', 'checkout', 'default', 'SSL');
@@ -107,7 +110,7 @@ class CreditCardModule extends PaymentModuleBase
 		for($i = 1; $i < 13; $i++){
 			$expires_month[] = array(
 				'id' => sprintf('%02d', $i),
-				'text' => strftime('%B', mktime(0, 0, 0, $i, 1, 2000))
+				'text' => sprintf('%02d', $i) . ' - ' . strftime('%B', mktime(0, 0, 0, $i, 1, 2000))
 			);
 		}
 		return $expires_month;
@@ -157,7 +160,11 @@ class CreditCardModule extends PaymentModuleBase
 	}
 
 	public function getCreditCardExpMonthField() {
-		$input = htmlBase::newElement('selectbox')->setName('cardExpMonth')->setId('cardExpMonth');
+		$input = htmlBase::newElement('selectbox')
+			->attr('data-overlay-theme', 'b')
+			->attr('data-native-menu', 'false')
+			->setName('cardExpMonth')
+			->setId('cardExpMonth');
 
 		foreach(self::getMonthDropMenuArr() as $mInfo){
 			$input->addOption($mInfo['id'], $mInfo['text']);
@@ -171,7 +178,11 @@ class CreditCardModule extends PaymentModuleBase
 	}
 
 	public function getCreditCardExpYearField() {
-		$input = htmlBase::newElement('selectbox')->setName('cardExpYear')->setId('cardExpYear');
+		$input = htmlBase::newElement('selectbox')
+			->attr('data-overlay-theme', 'b')
+			->attr('data-native-menu', 'false')
+			->setName('cardExpYear')
+			->setId('cardExpYear');
 
 		foreach(self::getYearDropMenuArr() as $yInfo){
 			$input->addOption($yInfo['id'], $yInfo['text']);
@@ -195,7 +206,11 @@ class CreditCardModule extends PaymentModuleBase
 	}
 
 	public function getCreditCardTypeField() {
-		$input = htmlBase::newElement('selectbox')->setName('cardType')->setId('cardType');
+		$input = htmlBase::newElement('selectbox')
+			->attr('data-overlay-theme', 'b')
+			->attr('data-native-menu', 'false')
+			->setName('cardType')
+			->setId('cardType');
 		foreach($this->allowedTypes as $k => $v){
 			$input->addOption($k, $v);
 		}

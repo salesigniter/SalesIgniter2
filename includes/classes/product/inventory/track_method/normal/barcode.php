@@ -113,15 +113,18 @@ class productInventoryNormal_barcode {
 		return $Result[0]['barcode_id'];
 	}
 
-	public function getInventoryItems(){
+	public function getInventoryItems($includeUnavailable = false){
 		$barcodes = array();
 		$Qcheck = Doctrine_Query::create()
 		->from('ProductsInventoryBarcodes ib')
-		->where('ib.inventory_id = ?', $this->invData['inventory_id'])
-		->andWhereNotIn('ib.status', $this->invUnavailableStatus);
+		->where('ib.inventory_id = ?', $this->invData['inventory_id']);
+
+		if ($includeUnavailable === false){
+			$Qcheck->andWhereNotIn('ib.status', $this->invUnavailableStatus);
+		}
 		
 		EventManager::notify('ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute', $this->invData, $Qcheck);
-		
+
 		$Result = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		if ($Result){
 			foreach($Result as $i => $barcode){
@@ -131,7 +134,7 @@ class productInventoryNormal_barcode {
 					'inventory_id' => $barcode['inventory_id'],
 					'status'       => $barcode['status']
 				);
-				
+
 				EventManager::notify('ProductInventoryBarcodeGetInventoryItemsArrayPopulate', $barcode, &$barcodes[$i]);
 			}
 		}

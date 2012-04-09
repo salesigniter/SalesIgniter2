@@ -10,6 +10,53 @@
 	This script and it's source is not redistributable
 */
 
+class RelatedProductsProductClassImport extends MI_Importable
+{
+
+	private $_hasRelated = false;
+
+	private $RelatedProducts = array();
+
+	public function initRelatedProducts() {
+		$Qdata = Doctrine_Query::create()
+			->select('related_products')
+			->from('Products')
+			->where('products_id = ?', $this->getId())
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		if ($Qdata && sizeof($Qdata) > 0){
+			$Data = $Qdata[0];
+			$this->_hasRelated = true;
+
+			$products = explode(',', $Data['related_products']);
+			foreach($products as $pID){
+				if ($pID > 0){
+					$this->addRelatedProduct($pID);
+				}
+			}
+		}
+	}
+
+	public function hasRelatedProducts(){
+		return $this->_hasRelated;
+	}
+
+	public function addRelatedProduct($id){
+		$this->RelatedProducts[] = $id;
+	}
+
+	public function getRelatedProductIds(){
+		return implode(',', $this->RelatedProducts);
+	}
+	
+	public function getRelatedProducts(){
+		$products = array();
+		foreach($this->RelatedProducts as $productID){
+			$products[] = new Product($productID);
+		}
+		return $products;
+	}
+}
+
 class Extension_relatedProducts extends ExtensionBase {
 
 	public function __construct(){
@@ -17,7 +64,7 @@ class Extension_relatedProducts extends ExtensionBase {
 	}
 
 	public function init(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
 			'IndexProductsListingAfterListing',
@@ -25,10 +72,16 @@ class Extension_relatedProducts extends ExtensionBase {
 			'ProductInfoTabHeader',
 			'ProductInfoAfterPurchaseTypes',
 			'ProductInfoTabBody',
-			'ScrollerRelatedQueryBeforeExecute'
+			'ScrollerRelatedQueryBeforeExecute',
+			'ProductInfoClassConstruct'
 		), null, $this);
 	}
 	
+	public function ProductInfoClassConstruct(Product &$ProductClass, $Product) {
+		$ProductClass->import(new RelatedProductsProductClassImport);
+		$ProductClass->initRelatedProducts();
+	}
+
 	public function ScrollerRelatedQueryBeforeExecute(&$Query)
 	{
 		global $product;
@@ -98,12 +151,13 @@ class Extension_relatedProducts extends ExtensionBase {
 		global $ShoppingCart;
 
 		$contentRelated = '';
-		$productArr = '';
+		$productArr = array();
 		foreach($ShoppingCart->getProducts() as $cartProduct){
-			$pClass = new product($cartProduct->getIdString());
-			$productArr .= $pClass->productInfo['related_products'] .', ';
+			if ($cartProduct->getProductClass()->hasRelatedProducts()){
+				$productArr[] = $cartProduct->getProductClass()->getRelatedProductIds();
+			}
 		}
-		$productArr = substr($productArr, 0, strlen($productArr) -2);
+		$productArr = implode(',', $productArr);
 		$listing = $this->getListing($productArr);
 		$contentRelated .= $listing->draw();
 		if (!empty($contentRelated)){
@@ -352,7 +406,7 @@ class Extension_relatedProducts extends ExtensionBase {
 				}
 			}
 			$ProductG = Doctrine_Core::getTable('ProductsRelatedGlobal')->findOneByType('P');
-			if (count($ProductG) > 0){
+			if ($ProductG && $ProductG->count() > 0){
 				$related = explode(',',$ProductG->related_global);
 				foreach($related as $qp){
 					$relatedProducts .= ",".$qp;

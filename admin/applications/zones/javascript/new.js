@@ -124,9 +124,7 @@ $(document).ready(function (){
 		recenterMap();	
 	});
 	$('.makeFCK').each(function (){
-			CKEDITOR.replace(this, {
-				filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
-			});
+			CKEDITOR.replace(this);
 		});
 
 	map = new GMap2(document.getElementById('googleMap'));

@@ -168,7 +168,7 @@
 		}
 
 
-	EventManager::notify('OrderCreatorAddToInfoTableAfter', &$infoTable, $Editor);
+	EventManager::notify('OrderCreatorAddToInfoTableAfter', $infoTable, $Editor);
 
 	$contents = EventManager::notifyWithReturn('OrderInfoAddBlockEdit', (isset($oID) ? $oID : null));
 	if (!empty($contents)){
@@ -240,14 +240,14 @@
 		if (isset($_GET['oID'])){
 			echo '<br /><h2><u>' . sysLanguage::get('HEADING_STATUS_HISTORY') . '</u></h2>';
 
-			$historyTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0)->css('width', '100%');
+			$historyTable = htmlBase::newElement('newGrid');
 
 			$historyTable->addHeaderRow(array(
 				'columns' => array(
-					array('addCls' => 'main ui-widget-header', 'align' => 'center', 'text' => sysLanguage::get('TABLE_HEADING_DATE_ADDED')),
-					array('addCls' => 'main ui-widget-header', 'css' => array('border-left' => 'none'), 'align' => 'center', 'text' => sysLanguage::get('TABLE_HEADING_CUSTOMER_NOTIFIED')),
-					array('addCls' => 'main ui-widget-header', 'css' => array('border-left' => 'none'), 'align' => 'center', 'text' => sysLanguage::get('TABLE_HEADING_STATUS')),
-					array('addCls' => 'main ui-widget-header', 'css' => array('border-left' => 'none'), 'align' => 'center', 'text' => sysLanguage::get('TABLE_HEADING_COMMENTS'))
+					array('text' => sysLanguage::get('TABLE_HEADING_DATE_ADDED')),
+					array('text' => sysLanguage::get('TABLE_HEADING_CUSTOMER_NOTIFIED')),
+					array('text' => sysLanguage::get('TABLE_HEADING_STATUS')),
+					array('text' => sysLanguage::get('TABLE_HEADING_COMMENTS'))
 				)
 			));
 
@@ -261,10 +261,10 @@
 
 					$historyTable->addBodyRow(array(
 						'columns' => array(
-							array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none'), 'align' => 'center', 'text' => tep_datetime_short($history['date_added'])),
-							array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'align' => 'center', 'text' => $icon),
-							array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'text' => $history['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name']),
-							array('addCls' => 'ui-widget-content', 'css' => array('border-top' => 'none', 'border-left' => 'none'), 'text' => nl2br(stripslashes($history['comments']))),
+							array('align' => 'center', 'text' => $history['date_added']->format(sysLanguage::getDateFormat('long'))),
+							array('align' => 'center', 'text' => $icon),
+							array('text' => $history['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name']),
+							array('text' => nl2br(stripslashes($history['comments']))),
 						)
 					));
 				}

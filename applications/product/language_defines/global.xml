@@ -7,7 +7,6 @@
 	<define key="TABLE_HEADING_IMAGE"><![CDATA[]]></define>
 	<define key="TABLE_HEADING_MODEL"><![CDATA[Model]]></define>
 	<define key="TABLE_HEADING_PRODUCTS"><![CDATA[Movie Title]]></define>
-	<define key="TABLE_HEADING_MANUFACTURER"><![CDATA[Distributors]]></define>
 	<define key="TABLE_HEADING_QUANTITY"><![CDATA[Quantity]]></define>
 	<define key="TABLE_HEADING_PRICE"><![CDATA[Price]]></define>
 	<define key="TABLE_HEADING_WEIGHT"><![CDATA[Weight]]></define>
@@ -38,7 +37,6 @@
     <define key="TAB_OVERVIEW"><![CDATA[Overview]]></define>
     <define key="TAB_PREVIEW"><![CDATA[Preview]]></define>
     <define key="TAB_ALSO_PURCHASED"><![CDATA[Also purchased]]></define>
-    <define key="TEXT_MANUFACTURER"><![CDATA[<b>Manufacturer: </b>]]></define>
 	<define key="TEXT_ONETIME_INTRO"><![CDATA[Please select your shipping speed, then your rental start date. You must first select shipping speed because it affects when your rental can begin (to allow for shipping time)]]></define>
 	<define key="TEXT_RESET_SELECTION"><![CDATA[Reset Selections: ]]></define>
 	<define key="TEXT_BUTTON_RESET_SELECTIONS"><![CDATA[Reset Selections]]></define>

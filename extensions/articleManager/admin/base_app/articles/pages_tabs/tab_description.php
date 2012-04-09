@@ -1,16 +1,14 @@
 <?php
 	echo '<ul>' . "\n";
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$langImage = tep_image(sysConfig::getDirFsCatalog() . 'languages/' . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']);
-		$lID = $languages[$i]['id'];
-		echo '	<li class="ui-tabs-nav-item"><a href="#langTab_' . $lID . '"><span>' . $languages[$i]['name'] . '</span></a></li>' . "\n";
+	foreach (sysLanguage::getLanguages() as $lInfo) {
+		$lID = $lInfo['id'];
+		echo '	<li class="ui-tabs-nav-item"><a href="#langTab_' . $lID . '"><span>' . $lInfo['showName']() . '</span></a></li>' . "\n";
 	}
 	echo '</ul>' . "\n";
 
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
+	foreach (sysLanguage::getLanguages() as $lInfo) {
 
-		$langImage = tep_image(sysConfig::getDirFsCatalog() . 'languages/' . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']);
-		$lID = $languages[$i]['id'];
+		$lID = $lInfo['id'];
 		$name = ''; $description = '';$url = ''; $htc_title = ''; $htc_desc = ''; $htc_keywords = '';
 		if (isset($_GET['aID'])){
 			$name = $Article->ArticlesDescription[$lID]->articles_name;

@@ -1,14 +1,7 @@
 <?php
-  $rentalissues_query = tep_db_query('
-      select 
-          i.issue_id, i.products_name, date_format(i.reported_date,"%m/%d/%Y") as formatted_date, i.status, problem, feedback  
-      from 
-          ' . TABLE_RENTAL_ISSUES . ' i 
-      where 
-          i.customers_id = "' . (int)$Customer->customers_id . '" 
-      order by 
-          i.issue_id desc
-  ');
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select i.issue_id, i.products_name, date_format(i.reported_date,"%m/%d/%Y") as formatted_date, i.status, problem, feedback from rental_issues i where i.customers_id = "' . (int)$Customer->customers_id . '" order by i.issue_id desc');
 
   $template = '<tr %s class="%s" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'%s\'">
    <td class="dataTableContent">%s</td>
@@ -19,7 +12,7 @@
    <td class="dataTableContent" align="right">%s</td>
   </tr>';
   $templateParsed = array();
-  while ($rental_issues = tep_db_fetch_array($rentalissues_query)) {
+  foreach ($ResultSet as $rental_issues) {
       if ((!isset($_GET['tID']) || (isset($_GET['tID']) && ($_GET['tID'] == $rental_issues['issue_id']))) && !isset($tcInfo) && (substr($action, 0, 3) != 'new')) {
           $tcInfo = new objectInfo($rental_issues);
       }
@@ -40,9 +33,9 @@
       if ($rental_issues['status'] == 'C') $status = 'Closed';
       
       if (isset($tcInfo) && is_object($tcInfo) && ($rental_issues['issue_id'] == $tcInfo->issue_id)) {
-          $rowButton = tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif');
+          $rowButton = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_arrow_right.gif');
       } else {
-          $rowButton = '<a href="' . itw_app_link('&tID=' . $rental_issues['issue_id'],'rental_queue','issues') . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>';
+          $rowButton = '<a href="' . itw_app_link('&tID=' . $rental_issues['issue_id'],'rental_queue','issues') . '">' . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>';
       }
       $customerTable = Doctrine_Core::getTable('Customers')->find((int)$Customer->customers_id);
       $templateParsed[] = sprintf($template, 

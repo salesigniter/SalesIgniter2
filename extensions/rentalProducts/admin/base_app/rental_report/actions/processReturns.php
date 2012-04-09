@@ -6,7 +6,7 @@ foreach($_POST['items'] as $oprID){
 		$PurchaseType = PurchaseTypeModules::getModule('rental');
 
 		$Rental->rental_state = $PurchaseType->getConfigData('RENTAL_STATUS_RETURNED');
-		$Rental->date_returned = date(DATE_RSS);
+		$Rental->date_returned = date(DATE_TIMESTAMP);
 
 		if ($Rental->barcode_id > 0){
 			$Rental->ProductsInventoryBarcodes->status = 'A';

@@ -43,17 +43,23 @@ class TemplatePages extends Doctrine_Record {
 		'default' => '',
 		'notnull' => false,
 		));
-		$this->hasColumn('layout_id', 'string', null, array(
+		$this->hasColumn('layout_id', 'string', 999, array(
 		'type' => 'string',
-		'length' => null,
+		'length' => 999,
 		'primary' => false,
 		'notnull' => false,
 		));
-		$this->hasColumn('page_type', 'string', null, array(
+		$this->hasColumn('page_type', 'string', 999, array(
 		   'type' => 'string',
-		   'length' => null,
+		   'length' => 999,
 		   'primary' => false,
 		   'notnull' => true,
 	    ));
+		$this->hasColumn('associative_url', 'string', 999, array(
+				'type' => 'string',
+				'length' => 999,
+				'primary' => false,
+				'notnull' => true,
+		));
 	}
 }

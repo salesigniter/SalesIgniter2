@@ -26,7 +26,7 @@ class PurchaseTypeTabReservation_tab_inventory
 		return $this->heading;
 	}
 
-	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType) {
 		global $tax_class_array;
 		if ($PurchaseType->getConfigData('INVENTORY_ENABLED') == 'True'){
 			$TabsObj->addTabHeader('purchaseTypeReservationSettingsTabInventory', array('text' => $this->getHeading()))

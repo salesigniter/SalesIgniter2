@@ -14,11 +14,17 @@ class Product extends MI_Base
 		'AdditionalImages' => array()
 	);
 
-	private $productType = false;
+	protected $productType = false;
 
 	private $_isValid = false;
 
+	protected $debug = true;
+
+	public $debugInfo = array();
+
 	public function __construct($pID = '') {
+		$this->import(new Bindable);
+
 		$Products = Doctrine_Core::getTable('Products');
 		if (!empty($pID)){
 			$Product = $Products->find((int)$pID);
@@ -29,44 +35,36 @@ class Product extends MI_Base
 			$this->_isValid = false;
 		}
 
+		$this->setId($Product->products_id, false);
 		$this->setProductType($Product->products_type);
 
-		$this->setId($Product->products_id);
 		$this->setImage($Product->products_image);
 		$this->setModel($Product->products_model);
 		$this->setDateAdded($Product->products_date_added);
-		if ($Product->products_last_modified > 0){
-			$this->setLastModified($Product->products_last_modified);
-		}else{
-			$this->setLastModified('0000-00-00');
-		}
-
-		if ($Product->products_date_available != '0000-00-00 00:00:00' && ($Product->products_date_available) != 'null'){
-			$this->setDateAvailable($Product->products_date_available);
-		}else{
-			$this->setDateAvailable(date('Y-m-d'));
-		}
+		$this->setLastModified($Product->products_last_modified);
+		$this->setDateAvailable($Product->products_date_available);
 		$this->setWeight($Product->products_weight);
 		//$this->setPrice($Product->products_price);
 		$this->setKeepPrice($Product->products_keepit_price);
 		$this->setStatus($Product->products_status);
 		$this->setFeatured($Product->products_featured);
-		$this->setManufacturer($Product->manufacturers_id);
-		$this->setMembershipEnabled($Product->membership_enabled);
+		//$this->setMembershipEnabled($Product->membership_enabled);
 		$this->setTotalOrdered($Product->products_ordered);
 		$this->setOnOrder($Product->products_on_order);
 		$this->setDateOrdered($Product->products_date_ordered);
 		$this->setLastSold($Product->products_last_sold);
 		//$this->setInventoryController($Product->products_inventory_controller);
-		if(is_object($Product->ProductsAdditionalImages)){
+		if (is_object($Product->ProductsAdditionalImages)){
 			foreach($Product->ProductsAdditionalImages->toArray() as $iInfo){
 				$this->addAdditionalImage($iInfo);
 			}
 		}
-		if(is_object($Product->ProductsDescription)){
+
+		if (is_object($Product->ProductsDescription)){
 			foreach($Product->ProductsDescription->toArray() as $dInfo){
 				$this->setName($dInfo['products_name'], $dInfo['language_id']);
 				$this->setDescription($dInfo['products_description'], $dInfo['language_id']);
+				$this->setShortDescription($dInfo['products_short_description'], $dInfo['language_id']);
 				$this->setUrl($dInfo['products_url'], $dInfo['language_id']);
 				$this->setSeoUrl($dInfo['products_seo_url'], $dInfo['language_id']);
 			}
@@ -97,15 +95,19 @@ class Product extends MI_Base
 	 * @return void
 	 */
 	public function loadProductType($ProductsType) {
-		if (ProductTypeModules::isEnabled($ProductsType, true)){
-			$this->productType = ProductTypeModules::getModule($ProductsType);
-		}else{
-			$this->productType = new stdClass();
+		$this->productType = ProductTypeModules::getModule($ProductsType);
+		if (!is_object($this->productType)){
+			echo '<pre>';
+			print_r($_POST);
+			print_r($_GET);
+			debug_print_backtrace();
+			die();
 		}
+		$this->productType->setProductId($this->getId());
 	}
 
 	/**
-	 * @return mixed
+	 * @return ProductTypeStandard|ProductTypePackage|ProductTypeGiftVoucher|ProductTypeMembership
 	 */
 	public function &getProductTypeClass() {
 		if ($this->productType === false){
@@ -153,6 +155,21 @@ class Product extends MI_Base
 			$return = $ProductType->getProductDescription($langId);
 		}else{
 			$return = $this->info['products_description'][$langId];
+		}
+		return $return;
+	}
+
+	/**
+	 * @param int $langId
+	 * @return string
+	 */
+	public function getShortDescription($langId = 0) {
+		$ProductType = $this->getProductTypeClass();
+		$langId = $this->getLanguageId($langId);
+		if (method_exists($ProductType, 'getProductShortDescription')){
+			$return = $ProductType->getProductShortDescription($langId);
+		}else{
+			$return = $this->info['products_short_description'][$langId];
 		}
 		return $return;
 	}
@@ -207,11 +224,6 @@ class Product extends MI_Base
 	/**
 	 * @return string
 	 */
-	public function getMembershipEnabled() { return $this->info['membership_enabled']; }
-
-	/**
-	 * @return string
-	 */
 	public function getModel() { return $this->info['products_model']; }
 
 	/**
@@ -247,11 +259,6 @@ class Product extends MI_Base
 	/**
 	 * @return int
 	 */
-	public function getManufacturer() { return (int)$this->info['manufacturers_id']; }
-
-	/**
-	 * @return int
-	 */
 	public function getTotalOrdered() { return (int)$this->info['products_ordered']; }
 
 	/**
@@ -265,7 +272,7 @@ class Product extends MI_Base
 	public function getLastSold() { return $this->info['products_last_sold']; } //??????
 
 	/**
-	 * @return ModuleBase
+	 * @return string
 	 */
 	public function getProductType() { return $this->info['products_type']; }
 
@@ -275,25 +282,22 @@ class Product extends MI_Base
 	public function getOnOrder() { return (int)$this->info['products_on_order']; }
 
 	/**
-	 * @return string
-	 */
-	public function getInventoryController() { return $this->info['products_inventory_controller']; }
-
-	/**
 	 * @return array
 	 */
 	public function getAdditionalImages() { return (array)$this->info['AdditionalImages']; }
 
 	/**
 	 * @param int $val
-	 * @return void
+	 * @param bool $loadProductTypeClass
 	 */
-	public function setId($val) {
+	public function setId($val, $loadProductTypeClass = true) {
 		$this->info['products_id'] = (int)$val;
 
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'setProductId')){
-			$ProductType->setProductId($this->info['products_id']);
+		if ($loadProductTypeClass === true){
+			$ProductType = $this->getProductTypeClass();
+			if (is_object($ProductType) && method_exists($ProductType, 'setProductId')){
+				$ProductType->setProductId($this->info['products_id']);
+			}
 		}
 	}
 
@@ -308,7 +312,7 @@ class Product extends MI_Base
 		if (method_exists($ProductType, 'setProductName')){
 			$ProductType->setProductName($val, $this->getLanguageId($langId));
 		}else{
-			$this->info['products_name'][$langId] = $val;;
+			$this->info['products_name'][$langId] = $val;
 		}
 	}
 
@@ -324,6 +328,21 @@ class Product extends MI_Base
 			$ProductType->setProductDescription($val, $this->getLanguageId($langId));
 		}else{
 			$this->info['products_description'][$langId] = $val;
+		}
+	}
+
+	/**
+	 * @param string $val
+	 * @param int $langId
+	 * @return void
+	 */
+	public function setShortDescription($val, $langId = 0) {
+		$ProductType = $this->getProductTypeClass();
+		$langId = $this->getLanguageId($langId);
+		if (method_exists($ProductType, 'setProductDescription')){
+			$ProductType->setProductShortDescription($val, $this->getLanguageId($langId));
+		}else{
+			$this->info['products_short_description'][$langId] = $val;
 		}
 	}
 
@@ -361,19 +380,19 @@ class Product extends MI_Base
 	 * @param string $val
 	 * @return void
 	 */
-	public function setDateAdded($val) { $this->info['products_date_added'] = new DateTime($val); }
+	public function setDateAdded(SesDateTime $val) { $this->info['products_date_added'] = $val; }
 
 	/**
 	 * @param string $val
 	 * @return void
 	 */
-	public function setLastModified($val) { $this->info['products_last_modified'] = new DateTime($val); }
+	public function setLastModified(SesDateTime $val) { $this->info['products_last_modified'] = $val; }
 
 	/**
 	 * @param string $val
 	 * @return void
 	 */
-	public function setDateAvailable($val) { $this->info['products_date_available'] = new DateTime($val); }
+	public function setDateAvailable(SesDateTime $val) { $this->info['products_date_available'] = $val; }
 
 	/**
 	 * @param float $val
@@ -409,43 +428,25 @@ class Product extends MI_Base
 	 * @param int $val
 	 * @return void
 	 */
-	public function setManufacturer($val) { $this->info['manufacturers_id'] = (int)$val; }
-
-	/**
-	 * @param int $val
-	 * @return void
-	 */
-	public function setMembershipEnabled($val) { $this->info['membership_enabled'] = $val; }
-
-	/**
-	 * @param int $val
-	 * @return void
-	 */
 	public function setTotalOrdered($val) { $this->info['products_ordered'] = (int)$val; }
 
 	/**
 	 * @param string $val
 	 * @return void
 	 */
-	public function setDateOrdered($val) { $this->info['products_date_ordered'] = new DateTime($val); }
+	public function setDateOrdered(SesDateTime $val) { $this->info['products_date_ordered'] = $val; }
 
 	/**
 	 * @param string $val
 	 * @return void
 	 */
-	public function setLastSold($val) { $this->info['products_last_sold'] = new DateTime($val); }
+	public function setLastSold(SesDateTime $val) { $this->info['products_last_sold'] = $val; }
 
 	/**
 	 * @param int $val
 	 * @return void
 	 */
 	public function setOnOrder($val) { $this->info['products_on_order'] = (int)$val; }
-
-	/**
-	 * @param $val
-	 * @return void
-	 */
-	public function setInventoryController($val) { $this->info['products_inventory_controller'] = $val; }
 
 	/**
 	 * @param array $val

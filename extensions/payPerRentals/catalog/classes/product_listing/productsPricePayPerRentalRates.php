@@ -19,11 +19,11 @@ class productListing_productsPricePayPerRentalRates {
 		return $selectSortKeys;
 	}
 	public function show(&$productClass){
-		global $currencies;
+		global $currencies, $appExtension;
 		$tableRow = array();
 		$purchaseTypeClass = $productClass->getPurchaseType('reservation');
 
-		if (is_null($purchaseTypeClass) === false && sysConfig::get('EXTENSION_PAY_PER_RENTALS_ENABLED') == 'True' && $purchaseTypeClass->hasInventory()){
+		if (is_null($purchaseTypeClass) === false && $appExtension->isEnabled('payPerRentals') === true && $purchaseTypeClass->hasInventory()){
 
 			$QPricePerRentalProducts = Doctrine_Query::create()
 				->from('PricePerRentalPerProducts pprp')

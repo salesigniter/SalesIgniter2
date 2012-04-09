@@ -25,7 +25,7 @@
 	<define key="HEADER_NAV_LINK_FEATURED"><![CDATA[Featured]]></define>
 	<define key="HEADER_NAV_LINK_BEST_SELLERS"><![CDATA[Best Sellers]]></define>
 	<define key="HEADER_NAV_LINK_MY_DOWNLOADS"><![CDATA[My Downloads]]></define>
-	<define key="HEADER_NAV_TEXT_SEARCH"><![CDATA[Product Search]]></define>
+	<define key="HEADER_NAV_TEXT_SEARCH"><![CDATA[Search]]></define>
 	<define key="HEADER_NAV_GIFT_SUBSCRIPTION"><![CDATA[Gift Subscription]]></define>
 	<define key="HEADER_NAV_TERMS"><![CDATA[Terms]]></define>
 	<define key="HEADER_NAV_LINK_WHEELS"><![CDATA[WHEELS]]></define>
@@ -90,10 +90,11 @@
 	<define key="ENTRY_DATE_OF_BIRTH"><![CDATA[Date of Birth %s:]]></define>
 	<define key="ENTRY_EMAIL_ADDRESS"><![CDATA[E-Mail Address:]]></define>
 	<define key="ENTRY_STREET_ADDRESS"><![CDATA[Street Address:]]></define>
-	<define key="ENTRY_SUBURB"><![CDATA[County:]]></define>
+	<define key="ENTRY_SUBURB"><![CDATA[Suburb:]]></define>
 	<define key="ENTRY_POST_CODE"><![CDATA[Postal Code:]]></define>
 	<define key="ENTRY_CITY"><![CDATA[City:]]></define>
-	<define key="ENTRY_STATE"><![CDATA[County/Province:]]></define>
+	<define key="ENTRY_CITY_BIRTH"><![CDATA[City of Birth:]]></define>
+	<define key="ENTRY_STATE"><![CDATA[State/Province:]]></define>
 	<define key="ENTRY_COMPANY_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_COUNTRY"><![CDATA[Country:]]></define>
 	<define key="ENTRY_TELEPHONE_NUMBER"><![CDATA[Telephone Number:]]></define>
@@ -305,14 +306,14 @@
 	<define key="ENTRY_POST_CODE_ERROR_MIN_LENGTH"><![CDATA[Your Postal Code must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_MIN_LENGTH"><![CDATA[Your City must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_ALPHA"><![CDATA[Your City can only contain letters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your County must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your County can only contain letters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your Suburb must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your Suburb can only contain letters.]]></define>
 	<define key="ENTRY_GENDER_ERROR_REQUIRED"><![CDATA[Gender required.]]></define>
 	<define key="ENTRY_DOB_ERROR_REQUIRED"><![CDATA[DOB required.]]></define>
 	<define key="ENTRY_COMPANY_ERROR_REQUIRED"><![CDATA[Company required.]]></define>
 	<define key="ENTRY_CITY_BIRTH_ERROR_REQUIRED"><![CDATA[City Birth required.]]></define>
-	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your County/Province must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your County/Province can only contain letters.]]></define>
+	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your State must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your State can only contain letters.]]></define>
 	<define key="ENTRY_COMPANY_ERROR_REQUIRED"><![CDATA[Your company is required.]]></define>
 	<define key="ENTRY_GENDER_ERROR_REQUIRED"><![CDATA[Your gender is required.]]></define>
 	<define key="ENTRY_COUNTRY_ERROR_NUMERIC"><![CDATA[You must select a country from the Countries pull down menu.]]></define>
@@ -425,6 +426,9 @@
 	<define key="PURCHASE_TYPE_NEW_NAME"><![CDATA[Purchase (New)]]></define>
 	<define key="PURCHASE_TYPE_NEW_SHOW"><![CDATA[New]]></define>
 
+	<define key="PURCHASE_TYPE_PACKAGE_NAME"><![CDATA[Package]]></define>
+	<define key="PURCHASE_TYPE_PACKAGE_SHOW"><![CDATA[Package]]></define>
+
 	<define key="PURCHASE_TYPE_RENTAL_NAME"><![CDATA[Membership Rental]]></define>
 	<define key="PURCHASE_TYPE_RENTAL_SHOW"><![CDATA[Member Rental]]></define>
 
@@ -448,7 +452,7 @@
     <define key="TEXT_EMAIL_DO_NOT_MATCH"><![CDATA[The email address or password do not match our records]]></define>
     <define key="TEXT_INFO_SEMESTER"><![CDATA[Semester Name:]]></define>
     
-    <define key="HEADER_TEXT_SHOPPING_CART_ITEMS"><![CDATA[%s Items in your shopping cart]]></define>
+    <define key="HEADER_TEXT_SHOPPING_CART_ITEMS"><![CDATA[Shopping Cart(%s items)]]></define>
     <define key="HEADER_TEXT_RENTAL_QUEUE_ITEMS"><![CDATA[%s Items in your rental queue]]></define>
     <define key="TEXT_ENTRY_PICKUP_TIME"><![CDATA[Pickup Up Time:]]></define>
     <define key="TEXT_ENTRY_RETURN_TIME"><![CDATA[Drop Off Time:]]></define>
@@ -593,8 +597,5 @@
 	<define key="TEXT_MIN"><![CDATA[Min rental ]]></define>
 	<define key="TEXT_OUT_OF_STOCK"><![CDATA[Out of Stock ]]></define>
 	<define key="RENTAL_CUSTOMER_IS_PAST_DUE"><![CDATA[We have not been able to process your membership payment. Please update your credit card on file by  <a style="color:red;" href="%s">clicking here</a> ]]></define>
-	<define key="TEXT_OUT_OF_STOCK"><![CDATA[Out Of Stock]]></define>
-    	<define key="TEXT_LOGIN_REQUIRED"><![CDATA[Login Required]]></define>
-    
-	<define key="EXTENSION_PAY_PER_RENTALS_ERROR_NO_INVENTORY_FOR_SELECTED_DATES"><![CDATA[There is no inventory for the selected dates.]]></define>
+
 </definitions>

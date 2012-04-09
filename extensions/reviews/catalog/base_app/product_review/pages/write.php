@@ -73,13 +73,14 @@
 		->usePreset('continue')
 		->setText(sysLanguage::get('WRITE_REVIEW'))
 		->draw();
-	
-		$pageContent->set('pageForm', array(
-			'name' => 'write_review',
-			'action' => itw_app_link('appExt=reviews&action=saveReview', 'product_review', 'default'),
-			'method' => 'post'
-		));
-	
+
+		$pageContents = htmlBase::newElement('form')
+			->setAction(itw_app_link('appExt=reviews&action=saveReview', 'product_review', 'default'))
+			->setName('write_review')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
+
 		$pageContent->set('pageTitle', $pageTitle);
 		$pageContent->set('pageContent', $pageContents);
 		$pageContent->set('pageButtons', $pageButtons);

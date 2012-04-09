@@ -18,7 +18,7 @@ class OrderTotalPointsRewards extends OrderTotalModuleBase {
 		}
 	}
 
-	public function process(){
+	public function process(array &$outputData){
 		global $order;
 		$ShoppingCart = &Session::getReference('ShoppingCart');
 		$userAccount = &Session::getReference('userAccount');
@@ -44,11 +44,10 @@ class OrderTotalPointsRewards extends OrderTotalModuleBase {
 
 		if ( $discountAmount > 0 && $discountAmount <= $order->info['total']) {
 			$order->info['total'] = $order->info['total']- $discountAmount;
-			$this->addOutput(array(
-								  'title' => $this->getTitle() . ':',
-								  'text' => '<b>-' . $this->formatAmount($discountAmount) . '</b>',
-								  'value' => $order->info['total']
-							 ));
+
+			$outputData['title'] = $this->getTitle() . ':';
+			$outputData['text'] = '<b>-' . $this->formatAmount($discountAmount) . '</b>';
+			$outputData['value'] = $order->info['total'];
 		}
 	}
 

@@ -19,10 +19,10 @@
 
 		$today = getdate();
 		for ($i=$today['year']; $i < $today['year']+10; $i++){
-			$expires_year[] = array('id' => strftime('%Y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
+			$expires_year[] = array('id' => strftime('%y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
 		}
 
-		$year = substr($cardExpDate,-4);
+		$year = substr($cardExpDate,-2);
 		if ($year != null){
 			$arr_date = explode($year, $cardExpDate);
 			//echo date("F Y", mktime(0, 0, 0, $arr_date[0], 1, "20".$year));
@@ -93,11 +93,12 @@
 	}
 	
 	if (!isset($_GET['delete'])){
-		$pageContent->set('pageForm', array(
-			'name' => 'addressbook',
-			'action' => itw_app_link('action=saveBilling' . (isset($_GET['edit']) ? '&edit=' . $_GET['edit'] : ''), 'account', 'billing_address_book', 'SSL'),
-			'method' => 'post'
-		));
+		$pageContents = htmlBase::newElement('form')
+			->setAction(itw_app_link('action=saveBilling' . (isset($_GET['edit']) ? '&edit=' . $_GET['edit'] : ''), 'account', 'address_book_process', 'SSL'))
+			->setName('addressbook')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
 	}
 	
 	$pageContent->set('pageTitle', $pageTitle);

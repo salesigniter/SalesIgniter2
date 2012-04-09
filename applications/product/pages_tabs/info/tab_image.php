@@ -5,20 +5,25 @@ $productName = $Product->getName();
 $productImage = $Product->getImage();
 $thumbUrl = 'imagick_thumb.php?path=rel&imgSrc=';
 
-$image = $thumbUrl . sysConfig::get('DIR_WS_IMAGES') . $productImage;
+$image = $thumbUrl . $productImage;
 EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 ?>
 <style>
 .productImageGallery a { border:1px solid transparent;display:inline-block;vertical-align:middle;margin:.2em; }
 </style>
 <?php
-	$productsImage = '<div style="text-align:center;float:left;margin:1em;margin-right:2em;" class="ui-widget ui-widget-content ui-corner-all">' . 
-		'<div style="margin:.5em;text-align:center;"><a id="productsImage" class="fancyBox" href="<?php echo $image;?>">' . 
-			'<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' . 
-			sysLanguage::get('TEXT_CLICK_TO_ENLARGE') . 
-		'</a>' . 
-		rating_bar($productName,$productID) . 
-		'</div>';
+	$productsImage = '<div style="text-align:center;float:left;margin:1em;margin-right:2em;" class="ui-widget ui-widget-content ui-corner-all">' .
+                     '<div style="margin:.5em;text-align:center;">';
+	if(sysConfig::get('SHOW_ENLAGE_IMAGE_TEXT') == 'true') {
+		$productsImage .= '<a id="productsImage" class="fancyBox" href="' . $image . '">' .
+						  '<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' .
+						  sysLanguage::get('TEXT_CLICK_TO_ENLARGE') .
+						  '</a>';
+	} else {
+		$productsImage .= '<img src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />';
+	}
+	$productsImage .= rating_bar($productName,$productID) .
+                  '</div>';
 
 	$AdditionalImages = $Product->getAdditionalImages();
 	if (sizeof($AdditionalImages) > 0){
@@ -43,6 +48,9 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	}else{
 		$productsImage .= '<a class="fancyBox ui-state-active" style="display:none" index="0" rel="gallery" href="' . $image . '"><img class="additionalImage" imgSrc="' . $image . '&width=250&height=250" src="' . $image . '&width=50&height=50"></a>';
 	}
+
+	EventManager::notify('ProductInfoAfterShowImages', $product, &$productsImage);
+
 	$productsImage .= '</div>';
 	
 	echo $productsImage;
@@ -55,10 +63,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 			echo $content;
 		}
 	}
-	if(sysConfig::get('SHOW_MANUFACTURER_ON_PRODUCT_INFO') == 'true'){
-		echo sysLanguage::get('TEXT_MANUFACTURER'). $Product->getManufacturerName().'<br />';
-	}
-	
+
 	echo $Product->getDescription() . '<br />';
 
 	$contents = EventManager::notifyWithReturn('ProductInfoAfterDescription', &$Product);
@@ -124,9 +129,8 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 		))
 		->css('width', 'auto')->removeCss('margin-left')->removeCss('margin-right')
 		->setHeader($boxInfo['header'])
-		->setButtonBarLocation('bottom')
-		->addContentRow($boxInfo['content']);
-		
+		->setButtonBarLocation('bottom');
+
 		if ($boxInfo['allowQty'] === true){
 			$qtyInput = htmlBase::newElement('input')
 			->css('margin-right', '1em')
@@ -138,9 +142,14 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 			
 			$boxObj->addButton($qtyInput);
 		}
-		
-		$boxObj->addButton($boxInfo['button']);
-		
+		if(isset($boxInfo['button']) && is_object($boxInfo['button'])){
+			$boxObj->addButton($boxInfo['button']);
+		}
+
+		EventManager::notifyWithReturn('ProductInfoTabImageBeforeDrawPurchaseType', &$Product, &$boxObj, &$boxInfo);
+
+		$boxObj->addContentRow($boxInfo['content']);
+
 		$columns[] = array(
 			'align' => 'center',
 			'valign' => 'top',
@@ -249,7 +258,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 		'</div>';
 	}
 	
-	if ($product->isNotAvailable()) {
+	if ($Product->isAvailable() === false) {
 		echo '<div>' . 
 			sprintf(
 				sysLanguage::get('TEXT_DATE_AVAILABLE'),
@@ -270,7 +279,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	echo '</div>';
 
     //echo '<div style="text-align:center">';
-	$contents = EventManager::notifyWithReturn('ProductInfoTabImageAfterInfo', &$product);
+	$contents = EventManager::notifyWithReturn('ProductInfoTabImageAfterInfo', $Product);
 		if (!empty($contents)){
 			foreach($contents as $content){
 				echo $content;

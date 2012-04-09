@@ -28,15 +28,17 @@
 		$OptionsToFields->delete();
 	}
 	
-	if ($_POST['input_type'] == 'select' || $_POST['input_type'] == 'select_other'){
+	if ($_POST['input_type'] == 'select' || $_POST['input_type'] == 'select_other' || $_POST['input_type'] == 'select_address'){
 		$lID = Session::get('languages_id');
 		
 		$i=0;
 		foreach($_POST['option_name'] as $index => $val){
 			if (!empty($val)){
+				parse_str($_POST['option_data'][$index], $jsonData);
 				$Option = new OrdersCustomFieldsOptions();
 				$Option->sort_order = $_POST['option_sort'][$index];
-				
+				$Option->extra_data = json_encode($jsonData);
+
 				$Option->OrdersCustomFieldsOptionsDescription[$lID]->option_name = $val;
 				$Option->OrdersCustomFieldsOptionsDescription[$lID]->language_id = $lID;
 				
@@ -67,10 +69,10 @@
 	$newFieldWrapper = new htmlElement('div');
 	$newFieldWrapper->css(array(
 		'float'   => 'left',
-		'width'   => '150px',
-		'height'  => '59px',
-		'padding' => '4px',
-		'margin'  => '3px'
+		'width'   => '15em',
+		'height'  => '10em',
+		'padding' => '.5em',
+		'margin'  => '.5em'
 	))->addClass('ui-widget ui-widget-content ui-corner-all draggableField')
 	->html('<b><span class="fieldName" field_id="' . $Field->field_id . '">' . $Field->OrdersCustomFieldsDescription[Session::get('languages_id')]['field_name'] . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . sysLanguage::get('TEXT_TYPE') . '<span class="fieldType">' . $Field->input_type . '</span><br />Required: ' . ($Field->input_required == '1' ? 'Yes': 'No').'<br />Sort Order: '. $Field->sort_order);
 	

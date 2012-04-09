@@ -82,7 +82,6 @@
 			$newProduct->products_status = 1;
 			//$newProduct->products_featured = $Product->products_featured;
 			$newProduct->products_tax_class_id = $Product->products_tax_class_id;
-			$newProduct->manufacturers_id = $Product->manufacturers_id;
 			$newProduct->products_type = $Product->products_type;
 			$newProduct->products_in_box = 1;
 
@@ -95,7 +94,6 @@
 				$newProduct->ProductsDescription[$lID]->products_head_title_tag = $description['products_head_title_tag'];
 				$newProduct->ProductsDescription[$lID]->products_head_desc_tag = $description['products_head_desc_tag'];
 				$newProduct->ProductsDescription[$lID]->products_head_keywords_tag = $description['products_head_keywords_tag'];
-				$newProduct->ProductsDescription[$lID]->products_url = $description['products_url'];
 				$newProduct->ProductsDescription[$lID]->products_viewed = '0';
 			}
 

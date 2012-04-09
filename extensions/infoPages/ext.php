@@ -13,9 +13,19 @@
 class Extension_infoPages extends ExtensionBase {
 
 	public function __construct(){
-		global $App;
 		parent::__construct('infoPages');
+	}
 
+	public function init(){
+		global $appExtension;
+		if ($this->isEnabled() === false) return;
+
+		if ($appExtension->isAdmin()){
+			EventManager::attachEvent('BoxCmsAddLink', null, $this);
+		}
+	}
+
+	public function onLoadApplication(&$App){
 		if ($App->getEnv() == 'catalog' && isset($_GET['appExt']) && $_GET['appExt'] == 'infoPages'){
 			if (isset($_GET['pages_id'])){
 				$this->pageId = (int) $_GET['pages_id'];
@@ -24,15 +34,6 @@ class Extension_infoPages extends ExtensionBase {
 			}
 
 			$App->setAppPage('default');
-		}
-	}
-
-	public function init(){
-		global $appExtension;
-		if ($this->enabled === false) return;
-
-		if ($appExtension->isAdmin()){
-			EventManager::attachEvent('BoxCmsAddLink', null, $this);
 		}
 	}
 
@@ -177,6 +178,19 @@ class Extension_infoPages extends ExtensionBase {
 		}
 		$ResultHtml .= '</td></tr></table>';
 		return $ResultHtml;
+	}
+
+	public function displayContentBlockHeading($id){
+		$block = $this->getInfoPage($id, Session::get('languages_id'), false, true);
+		if ($block && isset($block['PagesDescription'][Session::get('languages_id')])){
+			$content = $block['PagesDescription'][Session::get('languages_id')]['pages_title'];
+			if ($this->checkMultiStore === true){
+				if ($block['StoresPages'][Session::get('current_store_id')]['show_method'] == 'use_custom'){
+					$content = $block['StoresPages'][Session::get('current_store_id')]['StoresPagesDescription'][Session::get('languages_id')]['pages_title'];
+				}
+			}
+			return stripslashes($content);
+		}
 	}
 
 	public function displayContentBlock($id){

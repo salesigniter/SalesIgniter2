@@ -10,7 +10,9 @@
 
             tep_redirect(tep_href_link(FILENAME_ARTICLES, 'tPath=' . $tPath . '&tID=' . $topics_id));
           } else {
-            tep_db_query("update " . TABLE_TOPICS . " set parent_id = '" . (int)$new_parent_id . "', last_modified = now() where topics_id = '" . (int)$topics_id . "'");
+	  		Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update " . TABLE_TOPICS . " set parent_id = '" . (int)$new_parent_id . "', last_modified = now() where topics_id = '" . (int)$topics_id . "'");
 
             if (USE_CACHE == 'true') {
               tep_reset_cache_block('topics');

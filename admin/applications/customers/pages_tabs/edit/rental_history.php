@@ -1,8 +1,9 @@
 <?php
-  $customers_query_raw = "SELECT p.products_id,r.date_added,r.shipment_date,r.return_date, p.products_name, r.broken,r.products_barcode FROM ".TABLE_RENTED_PRODUCTS .' r, '. TABLE_PRODUCTS_DESCRIPTION.' p '. " where p.products_id = r.products_id and p.language_id='".Session::get('languages_id')."' and r.return_date > '0000-00-00 00:00:00' and customers_id =".$cID ;
-  $customers_query = tep_db_query($customers_query_raw);
+	$QCustomers = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("SELECT p.products_id,r.date_added,r.shipment_date,r.return_date, p.products_name, r.broken,r.products_barcode FROM rented_products r, products_description p where p.products_id = r.products_id and p.language_id='".Session::get('languages_id')."' and r.return_date > '0000-00-00 00:00:00' and customers_id =".$cID);
   $templateParsed = array();
-  if (tep_db_num_rows($customers_query) < 1){
+  if (sizeof($QCustomers) < 1){
       $templateParsed[] = '<tr>
        <td colspan="6" class="messageStackError">' . sysLanguage::get('TEXT_INFO_NO_RENTAL_HISTORY') . '</td>
       </tr>';
@@ -15,7 +16,7 @@
        <td class="smallText" align="left">%s</td>
        <td class="smallText" align="left">%s</td>
       </tr>';
-      while ($customers = tep_db_fetch_array($customers_query)){
+      foreach ($Qcustomers as $customers){
           $templateParsed[] = sprintf($template, 
               $customers['products_id'], 
               $customers['products_barcode'], 

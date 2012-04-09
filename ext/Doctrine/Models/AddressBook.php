@@ -59,12 +59,7 @@ class AddressBook extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('entry_dob', 'timestamp', null, array(
-			'type' => 'timestamp',
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+		$this->hasColumn('entry_dob', 'date');
 		
 		$this->hasColumn('entry_firstname', 'string', 32, array(
 			'type' => 'string',

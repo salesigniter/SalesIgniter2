@@ -18,9 +18,8 @@
 	);
 	$pInfo = new objectInfo($parameters);
 
-	$languages = tep_get_languages();
-	for($i=0, $n=sizeof($languages); $i<$n; $i++){
-		$lID = $languages[$i]['id'];
+foreach(sysLanguage::getLanguages() as $lInfo){
+		$lID = $lInfo['id'];
 		if (!isset($pInfo->pages_title)) $pInfo->pages_title = array();
 		if (!isset($pInfo->pages_html_text)) $pInfo->pages_html_text = array();
 
@@ -64,8 +63,8 @@
 	->setValue($pInfo->infobox_status);
 
 	$tabsObj = htmlBase::newElement('tabs')->setId('languageTabs');
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$lID = $languages[$i]['id'];
+foreach(sysLanguage::getLanguages() as $lInfo){
+		$lID = $lInfo['id'];
 
 		/* Build all inputs that are needed --BEGIN-- */
 		$titleInput = htmlBase::newElement('input')
@@ -102,11 +101,8 @@
 		/* Build the table --END-- */
 
 		/* Build the tabbed interface --BEGIN-- */
-		$imgObj = htmlBase::newElement('image')
-		->setSource(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image']);
-
 		$tabsObj->addTabHeader('tab_' . $lID, array(
-			'text' => $languages[$i]['name']
+			'text' => $lInfo['showName']()
 		))->addTabPage('tab_' . $lID, array(
 			'text' => $editTable->draw() . '<br />' . $ckField->draw() . '<br />' . sysLanguage::get('TEXT_PAGES_PAGE_NOTE')
 		));

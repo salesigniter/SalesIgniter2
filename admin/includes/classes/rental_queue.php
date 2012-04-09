@@ -24,9 +24,10 @@
       }
       
       function count_rented(){
-          $QtotalRented = tep_db_query('select count(customers_id) as total from ' . TABLE_RENTED_QUEUE . ' where customers_id = "' . $this->customerID . '"');
-          $totalRented = tep_db_fetch_array($QtotalRented);
-        return $totalRented['total'];
+ 		$Total = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select count(customers_id) as total from ' . TABLE_RENTED_QUEUE . ' where customers_id = "' . $this->customerID . '"');
+        return $Total[0]['total'];
       }
       
       function incrementTopRentals($pID){
@@ -57,11 +58,9 @@
           $index = 0;
           foreach($sortOrder as $products_id => $priority) {
               $pID = tep_get_prid($products_id);
-              $product = new Product($pID);
+              $product = new product($pID);
               if ($product->isValid()){
-              	  //$purchaseTypeCls = $product->getPurchaseType('rental');
-	              $purchaseTypeCls = PurchaseTypeModules::getModule('membershipRental');
-	              $purchaseTypeCls->loadProduct($pID);
+              	$purchaseTypeCls = $product->getPurchaseType('rental');
                   $products_array[$index] = array(
                       'productClass' => $product,
                       'id'       => $products_id,

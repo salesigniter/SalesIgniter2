@@ -67,12 +67,19 @@
 					if (values.width_unit == '%'){
 						$Tab.find('.widthSlider').slider('option', 'min', 0);
 						$Tab.find('.widthSlider').slider('option', 'max', 100);
+						$Tab.find('.widthSlider').slider('value', values.width);
 					}
 					else {
+						var parentWidth = parentCls.getCurrentElement().parent().innerWidth();
 						$Tab.find('.widthSlider').slider('option', 'min', 30);
-						$Tab.find('.widthSlider').slider('option', 'max', parentCls.getCurrentElement().parent().innerWidth());
+						$Tab.find('.widthSlider').slider('option', 'max', parentWidth);
+						if (values.width > parentWidth){
+							$Tab.find('input[name=width]').val(parentWidth);
+							$Tab.find('.widthSlider').slider('value', parentWidth);
+						}else{
+							$Tab.find('.widthSlider').slider('value', values.width);
+						}
 					}
-					$Tab.find('.widthSlider').slider('value', values.width);
 				}
 			},
 			processInputs: function () {

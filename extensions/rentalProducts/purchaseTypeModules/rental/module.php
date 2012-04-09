@@ -43,18 +43,17 @@ class PurchaseType_Rental extends PurchaseTypeBase
 	public function allowAddToCart($CartProductData){
 		global $messageStack, $userAccount;
 
-		if ($userAccount->isLoggedIn() === false && Session::exists('on_set_location') === false){
+		if (Session::exists('kiosk_active') === true){
+			
+		}
+		elseif ($userAccount->isLoggedIn() === false && Session::exists('chosen_location') === false){
 			Session::set('on_set_location', $_POST);
 			tep_redirect(itw_app_link('appExt=rentalProducts', 'chooseLocation', 'default'));
-		}else{
-			PurchaseTypeModules::loadModule('rental');
-			$PurchaseType = PurchaseTypeModules::getModule('rental');
+		}
+		elseif ($this->rentalLimitReached() === true){
+			$messageStack->addSession('pageStack', sysLanguage::get('TEXT_RENTAL_LIMIT_REACHED'), 'error');
 
-			if ($PurchaseType->rentalLimitReached() === true){
-				$messageStack->addSession('pageStack', sysLanguage::get('TEXT_RENTAL_LIMIT_REACHED'), 'error');
-
-				tep_redirect(itw_app_link(tep_get_all_get_params(array('action', 'rType'))));
-			}
+			tep_redirect(itw_app_link(tep_get_all_get_params(array('action', 'rType'))));
 		}
 		return true;
 	}
@@ -66,22 +65,37 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		EventManager::notify('PurchaseTypeAddToCart', $this->getCode(), &$pInfo, $this->productInfo);
 	}
 
-	public function updateStock($orderId, $orderProductId, &$cartProduct) {
+	public function updateStock($orderId, $orderProductId, ShoppingCartProduct &$cartProduct) {
 		return false;
 	}
 
-	public function onInsertOrderedProduct($cartProduct, $orderId, &$orderedProduct, &$products_ordered) {
+	public function onInsertOrderedProduct(ShoppingCartProduct $cartProduct, $orderId, OrdersProducts &$orderedProduct, &$products_ordered) {
+		global $appExtension;
+		$MultiStore = $appExtension->getExtension('multiStore');
+
 		$pID = (int)$cartProduct->getIdString();
 		$InventoryCls =& $this->getInventoryClass();
 
-		$startDate = date(DATE_RSS, time());
-		$endDate = date(DATE_RSS, strtotime('+' . $this->getConfigData('RENTAL_PERIOD') . ' Day'));
+		$startDate = date(DATE_TIMESTAMP, time());
+		$endDate = date(DATE_TIMESTAMP, strtotime('+' . $this->getConfigData('RENTAL_PERIOD') . ' Day'));
 
 		$trackMethod = $InventoryCls->getTrackMethod();
 
 		$Rental =& $orderedProduct->OrdersProductsRentals;
 		$Rental->start_date = $startDate;
 		$Rental->end_date = $endDate;
+
+		if ($MultiStore){
+			$expireMin = $MultiStore->getStoreInfo('stores_order_expire');
+		}else{
+			$expireMin = $this->getConfigData('RENTAL_PRODUCT_RESERVATION_EXPIRATION');
+		}
+		if ($expireMin > 0){
+			$Rental->date_expires = date(DATE_TIMESTAMP, strtotime('+' . $expireMin . ' minutes'));
+		}else{
+			$Rental->date_expires = 0;
+		}
+
 		$Rental->rental_state = $this->getConfigData('RENTAL_STATUS_RESERVED');
 
 		$nextInvItem = (int) $InventoryCls->getNextInventoryItemId();
@@ -110,8 +124,8 @@ class PurchaseType_Rental extends PurchaseTypeBase
 	public function addToOrdersProductCollection(OrderCreatorProduct $OrderProduct, &$OrderedProduct){
 		$InventoryCls =& $this->getInventoryClass();
 
-		$startDate = date(DATE_RSS, time());
-		$endDate = date(DATE_RSS, strtotime('+' . $this->getConfigData('RENTAL_PERIOD') . ' Day'));
+		$startDate = date(DATE_TIMESTAMP, time());
+		$endDate = date(DATE_TIMESTAMP, strtotime('+' . $this->getConfigData('RENTAL_PERIOD') . ' Day'));
 
 		$trackMethod = $InventoryCls->getTrackMethod();
 
@@ -142,10 +156,12 @@ class PurchaseType_Rental extends PurchaseTypeBase
 	public function rentalLimitReached($customerId = false){
 		global $userAccount;
 		$reached = false;
-		if ($userAccount->isLoggedIn() === true || $customerId !== false){
-			if ($customerId === false){
+		if (is_object($userAccount) && $userAccount->isLoggedIn() === true){
+			if (!$customerId === false){
 				$customerId = $userAccount->getCustomerId();
 			}
+		}
+		if ($customerId !== false){
 			$Qcheck = Doctrine_Query::create()
 				->select('count(opr.orders_products_rentals_id) as total')
 				->from('Orders o')
@@ -160,10 +176,8 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		}
 		return $reached;
 	}
-	
-	public function expireReservations(){
-		$expireTime = strtotime('-' . $this->getConfigData('RENTAL_PRODUCT_RESERVATION_EXPIRATION') . ' minutes');
-		
+
+	/*public function expireReservations(){
 		$Qorders = Doctrine_Query::create()
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
@@ -171,40 +185,25 @@ class PurchaseType_Rental extends PurchaseTypeBase
 			->where('opr.rental_state = ?', $this->getConfigData('RENTAL_STATUS_RESERVED'))
 			->execute();
 		if ($Qorders && $Qorders->count() > 0){
+			$CurTime = time();
 			foreach($Qorders as $Order){
-				$DateParsed = date_parse($Order->date_purchased);
-				$TimePurchased = mktime($Date['hour'], $Date['minute'], $Date['second'], $Date['month'], $Date['day'], $Date['year']);
-				if ($TimePurchased <= $expireTime){
-					foreach($Order->OrdersProducts as $Product){
-						if ($Product->OrdersProductsRentals){
+				$save = false;
+				foreach($Order->OrdersProducts as $Product){
+					if ($Product->OrdersProductsRentals){
+						$ExpiresTime = strtotime($Product->OrdersProductsRentals->date_expires);
+						if ($ExpiresTime <= $CurTime){
+							$save = true;
 							$Product->OrdersProductsRentals->rental_state = $this->getConfigData('RENTAL_STATUS_EXPIRED');
 						}
 					}
+				}
+
+				if ($save === true){
 					$Order->save();
 				}
 			}
 		}
-	}
-
-	public function expireShoppingCart(){
-		$expireTime = time();
-
-		$Qdata = Doctrine_Query::create()
-			->from('CustomersBasket')
-			->execute();
-		if ($Qdata && $Qdata->count() > 0){
-			foreach($Qdata as $cInfo){
-				$CartContents = unserialize($cInfo->cart_data);
-				foreach($CartContents as $CartProduct){
-					if ($CartProduct->hasData('expires') && $CartProduct->getData('expires') < $expireTime){
-						$CartContents->remove($CartProduct);
-					}
-				}
-				$cInfo->cart_data = $CartContents->serialize();
-			}
-			$Qdata->save();
-		}
-	}
+	}*/
 
 	public function getPurchaseHtml($key) {
 		global $userAccount;
@@ -228,15 +227,15 @@ class PurchaseType_Rental extends PurchaseTypeBase
 								->addClass('outOfStockText')
 								->html(sysLanguage::get('TEXT_OUT_OF_STOCK'));
 							break;
-						case 'Show Notify (Requires SMS Notify Extension)':
-							if ($userAccount->isLoggedIn()){
+						case 'Show Notify (Requires Notify Extension)':
+							if (sysConfig::exists('EXTENSION_NOTIFY_ENABLED')){
 								$button = htmlBase::newElement('button')
-									->setText('Text Message Me When In Stock')
-									->setHref(itw_app_link('appExt=smsNotify&type=product&pID=' . $this->getProductId(), 'addNotify', 'default'));
+									->setText('Notify Me When In Stock')
+									->setHref(itw_app_link('appExt=notify&type=product&pID=' . $this->getProductId(), 'add', 'default'));
 							}else{
-								$button = htmlBase::newElement('button')
-									->setText('Text Message Me When In Stock')
-									->setHref(itw_app_link('appExt=smsNotify&type=product&pID=' . $this->getProductId(), 'addNotify', 'default'));
+								$button = htmlBase::newElement('span')
+									->addClass('outOfStockText')
+									->html(sysLanguage::get('TEXT_OUT_OF_STOCK'));
 							}
 							break;
 						case 'Hide Box':
@@ -250,7 +249,7 @@ class PurchaseType_Rental extends PurchaseTypeBase
 						$allowQty = false;
 						$button = htmlBase::newElement('button')
 							->setHref(itw_app_link(null, 'account', 'login'))
-							->setText(sysLanguage::get('TEXT_LOGIN_REQUIRED'));
+							->setText(sysLanguage::get('TEXT_BUTTON_LOGIN_REQUIRED'));
 					}
 				}
 				
@@ -280,11 +279,11 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		return $return;
 	}
 
-	public function getOrderedProductBarcode($pInfo){
+	public function getOrderedProductBarcode(array $pInfo){
 		return $pInfo['OrdersProductsRentals']['ProductsInventoryBarcodes']['barcode'];
 	}
 
-	public function displayOrderedProductBarcode($pInfo){
+	public function displayOrderedProductBarcode(array $pInfo){
 		return $pInfo['OrdersProductsRentals']['ProductsInventoryBarcodes']['barcode'];
 	}
 
@@ -294,17 +293,6 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		if ($this->rentalLimitReached($Editor->getCustomerId()) === true){
 			$return = false;
 			$Editor->addErrorMessage('Rental Limit Reached For This Customer');
-		}
-		return $return;
-	}
-	public function showProductListing($col){
-		global $rentalQueue;
-		$return = false;
-		if ($col == 'rental'){
-			if ($this->hasInventory()){
-
-				$return = $this->getTitle().': '. $this->displayPrice() . ' / ' . $this->getConfigData('RENTAL_PERIOD') . ' Day(s)';
-			}
 		}
 		return $return;
 	}

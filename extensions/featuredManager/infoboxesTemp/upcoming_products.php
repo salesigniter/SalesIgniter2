@@ -10,8 +10,10 @@
   Released under the GNU General Public License
 */
 
-  $expected_query = tep_db_query("select p.products_id, pd.products_name, products_date_available as date_expected from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where to_days(products_date_available) >= to_days(now()) and p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by " . EXPECTED_PRODUCTS_FIELD . " " . EXPECTED_PRODUCTS_SORT . " limit " . MAX_DISPLAY_UPCOMING_PRODUCTS);
-  if (tep_db_num_rows($expected_query) > 0) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select p.products_id, pd.products_name, products_date_available as date_expected from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where to_days(products_date_available) >= to_days(now()) and p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by " . EXPECTED_PRODUCTS_FIELD . " " . EXPECTED_PRODUCTS_SORT . " limit " . MAX_DISPLAY_UPCOMING_PRODUCTS);
+  if (sizeof($ResultSet) > 0) {
   	ob_start();
 ?>
 <!-- upcoming_products //-->
@@ -26,7 +28,7 @@
               <tr>
 <?php
     $row = 0;
-    while ($expected = tep_db_fetch_array($expected_query)) {
+    foreach ($ResultSet as $expected) {
       $row++;
       if (($row / 2) == floor($row / 2)) {
         echo '              <tr class="upcomingProducts-even">' . "\n";

@@ -16,10 +16,6 @@
 			->execute();;
 
 			$messageStack->addSession('pageStack', 'Category has been moved', 'success');
-			if (USE_CACHE == 'true') {
-				tep_reset_cache_block('categories');
-				tep_reset_cache_block('also_purchased');
-			}
 
 			$link = itw_app_link(tep_get_all_get_params(array('action', 'cPath', 'cID')) . ($new_parent_id > 0 ? 'cPath=' . $new_parent_id . '&' : '') . 'cID=' . $categories_id);
 		}

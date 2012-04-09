@@ -106,13 +106,14 @@ $membership = $userAccount->plugins['membership'];
 	->usePreset('cancel')
 	->setHref(itw_app_link(null, 'account', 'default'))
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'membership_upgrade',
-		'action' => itw_app_link('action=upgradeMembership', 'account', 'membership_upgrade', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=upgradeMembership', 'account', 'membership_upgrade', 'SSL'))
+	->setName('membership_upgrade')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

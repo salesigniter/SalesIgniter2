@@ -2,7 +2,10 @@
 	ob_start();
 ?>
 <noscript><?php
-echo tep_get_pages_content(13);
+$InfoPages = $appExtension->getExtension('infoPages');
+if ($InfoPages){
+	echo $InfoPages->displayContentBlock(13);
+}
 ?></noscript>
 <style>
 .pstrength-minchar {
@@ -136,12 +139,14 @@ echo tep_get_pages_content(13);
 <?php
 	$pageContents = ob_get_contents();
 	ob_end_clean();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'checkout',
-		'action' => 'Javascript:void(0)',
-		'method' => 'post'
-	));
+
+$pageContents = htmlBase::newElement('form')
+	->setAction('Javascript:void(0)')
+	->setName('checkout')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', sysLanguage::get('HEADING_TITLE'));
 	$pageContent->set('pageContent', $pageContents);
 ?>

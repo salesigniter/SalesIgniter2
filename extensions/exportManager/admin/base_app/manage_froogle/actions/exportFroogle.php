@@ -29,7 +29,6 @@
 			->from('Products p')
 			->leftJoin('p.ProductsDescription pd')
 			->leftJoin('p.ProductsToCategories p2c')
-			->leftJoin('p.Manufacturers m')
 			->where('pd.language_id = ?', Session::get('languages_id'))
 			->orderBy('p.products_id')
 			->execute(array(),Doctrine_Core::HYDRATE_ARRAY);
@@ -74,10 +73,6 @@
 
 					if (tep_not_null($category['categories_name'])){
 						$entry['g:department'] = "![CDATA[" . $category['categories_name'] . "]]";
-					}
-
-					if ($productClass->hasManufacturer()) {
-						$entry['g:brand'] = "![CDATA[" . $productClass->getManufacturerName() . "]]";
 					}
 
 					if ($productClass->hasImage()){

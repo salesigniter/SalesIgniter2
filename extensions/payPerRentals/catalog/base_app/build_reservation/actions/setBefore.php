@@ -3,7 +3,6 @@
 	$html2  =  '';
  	$nr = 0;
 	$goodDates = '';
-	$events_date = '';
 	$selectedDates = array();
 	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_ENABLE_TIME') == 'True'){
 
@@ -136,66 +135,42 @@
 		}else{
 			Session::set('isppr_product_qty', 1);
 		}
-	}
-	else {
-		if(!isset($_POST['isZip'])){
-			Session::set('isppr_selected', false);
-		}
-	}
 
-if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_SHIP') == 'True'){
-	if (isset($_POST['ship_method']) && $_POST['ship_method'] != '0' && $_POST['ship_method'] != 'null'){
-		Session::set('isppr_shipping_method', $_POST['ship_method']);
-
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
-			$module = OrderShippingModules::getModule('zonereservation');
-		}
-		else {
-
-			if (isset($_POST['zipCode']) && !empty($_POST['zipCode'])){
-				$postcode = $_POST['zipCode'];
-				Session::set('isppr_shipping_zip', $_POST['zipCode']);
-				$shippingAddressArray = array(
-					'entry_street_address' => (isset($_POST['street_address']) && !empty($_POST['street_address']))
-						? $_POST['street_address'] : '',
-					'entry_postcode' => $postcode,
-					'entry_city' => (isset($_POST['city']) && !empty($_POST['city'])) ? $_POST['city'] : '',
-					'entry_state' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
-						: '',
-					'entry_country_id' => (isset($_POST['country']) && !empty($_POST['country'])) ? $_POST['country']
-						: sysConfig::get('STORE_COUNTRY'),
-					'entry_zone_id' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
-						: ''
-				);
-				$addressBook =& $userAccount->plugins['addressBook'];
-				$addressBook->addAddressEntry('delivery', $shippingAddressArray);
-
-			}
-			$module = OrderShippingModules::getModule('upsreservation');
-		}
-		if (isset($module) && is_object($module)){
-			$quotes = $module->quote();
-			for($i = 0, $n = sizeof($quotes['methods']); $i < $n; $i++){
-				if ($quotes['methods'][$i]['id'] == $_POST['ship_method']){
-					Session::set('isppr_shipping_days_before', $quotes['methods'][$i]['days_before']);
-					Session::set('isppr_shipping_days_after', $quotes['methods'][$i]['days_after']);
-					Session::set('isppr_shipping_cost', $quotes['methods'][$i]['cost']);
-					break;
-				}
-			}
-		}
-		Session::set('isppr_selected', true);
-	}
-	else {
-		if(!isset($_POST['isZip']))
+	}else{
 		Session::set('isppr_selected', false);
 	}
-}
-else {
-	Session::set('isppr_shipping_days_before', 0);
-	Session::set('isppr_shipping_days_after', 0);
-	Session::set('isppr_shipping_cost', 0);
-}
+
+	if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_SHIP') == 'True'){
+			if(isset($_POST['ship_method']) && $_POST['ship_method'] != '0'){
+				
+				Session::set('isppr_shipping_method', $_POST['ship_method']);
+
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
+					$module = OrderShippingModules::getModule('zonereservation');
+				} else{
+					$module = OrderShippingModules::getModule('upsreservation');
+				}
+				if(isset($module) && is_object($module)){
+					$quotes = $module->quote();
+
+					for($i=0, $n=sizeof($quotes['methods']); $i<$n; $i++){
+						if($quotes['methods'][$i]['id'] == $_POST['ship_method']){
+							Session::set('isppr_shipping_days_before', $quotes['methods'][$i]['days_before']);
+							Session::set('isppr_shipping_days_after', $quotes['methods'][$i]['days_after']);
+							Session::set('isppr_shipping_cost', $quotes['methods'][$i]['cost']);
+							break;
+						}
+					}
+				}
+				Session::set('isppr_selected', true);
+		}else{
+			Session::set('isppr_selected', false);
+		}
+	}else{
+		Session::set('isppr_shipping_days_before', 0);
+		Session::set('isppr_shipping_days_after', 0);
+		Session::set('isppr_shipping_cost', 0);
+	}
 
 	if(!isset($_POST['rType']) && !isset($_POST['fromInfobox'])){
 			if(isset($_POST['cPath']) && ($_POST['cPath'] != '-1')){
@@ -216,22 +191,19 @@ else {
 				->from('PayPerRentalEvents')
 				->where('events_id = ?', $_POST['event'])
 				->fetchOne();
-			$events_date = date('m/d/Y', strtotime($Qevent->events_date));
 
 			if($Qevent->events_days>1){
 				$myDates = '';
 				if(Session::exists('isppr_event_multiple_dates')){
 					$datesArr = Session::get('isppr_event_multiple_dates');
 					$selectedDates = $datesArr;
-					if(isset($datesArr[0]) && !empty($datesArr[0])){
-						$myDates = '<div class="mydates">';
-						foreach($datesArr as $iDate){
-							$myDates .= '<input type="hidden" name="multiple_dates[]" value="'.$iDate.'">';
-						}
-						$myDates .= '</div>';
+					$myDates = '<div class="mydates">';
+					foreach($datesArr as $iDate){
+						$myDates .= '<input type="hidden" name="multiple_dates[]" value="'.$iDate.'">';
 					}
+					$myDates .= '</div>';
 				}
-				$html2 = '<div style="position:relative"><div class="allCalendar"><div class="myTextCalendar" style="color:red;background-color:#ffffff;width:200px;padding:10px;padding-top:5px;padding-bottom:5px;">Please click the dates you want to reserve. Then click the Done Selecting Dates button, and then chose your gate (optional) and click view rentals</div><div class="myCalendar"></div> </div><div class="calDone">Choose Dates</div><span class="closeCal ui-icon ui-icon-closethick"></span></div>'.$myDates;
+				$html2 = '<div style="position:relative"><div class="myCalendar"></div> </div><div class="calDone">Hide Calendar</div>'.$myDates;
 				$startTimePadding = strtotime($Qevent->events_date);
 				$endTimePadding = strtotime('+' . $Qevent->events_days . ' days', $startTimePadding);
 				$booked = array();
@@ -245,32 +217,10 @@ else {
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'False'){
 				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
 					$module = OrderShippingModules::getModule('zonereservation');
-			}
-			else {
-				if (isset($_POST['zipCode']) && !empty($_POST['zipCode'])){
-					$postcode = $_POST['zipCode'];
-
-					$shippingAddressArray = array(
-						'entry_street_address' => (isset($_POST['street_address']) && !empty($_POST['street_address']))
-							? $_POST['street_address'] : '',
-						'entry_postcode' => $postcode,
-						'entry_city' => (isset($_POST['city']) && !empty($_POST['city'])) ? $_POST['city'] : '',
-						'entry_state' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
-							: '',
-						'entry_country_id' => (isset($_POST['country']) && !empty($_POST['country']))
-							? $_POST['country'] : sysConfig::get('STORE_COUNTRY'),
-						'entry_zone_id' => (isset($_POST['state']) && ($_POST['state'] != 'undefined'))
-							? $_POST['state'] : ''
-					);
-					$addressBook =& $userAccount->plugins['addressBook'];
-					$addressBook->addAddressEntry('delivery', $shippingAddressArray);
-					//global $current_product_weight;
-					//$current_product_weight = $product->getWeight()* $_GET['qty'];
-					//OrderShippingModules::calculateWeight();
+				} else{
 					$module = OrderShippingModules::getModule('upsreservation');
 				}
-			}
-			$shippingArr = explode(',', $Qevent->shipping);
+				$shippingArr = explode(',', $Qevent->shipping);
 
 
 				$html.='<option value="0">Select Level of Service</option>';
@@ -331,63 +281,11 @@ else {
 				'nr'	=> $nr,
 				'data'     => $html,
 				'calendar' => $html2,
-				'events_date' => $events_date,
 				'selectedDates' => $selectedDates,
 				'goodDates' => $goodDates
 			), 'json');
-		}
-	else {
-
-		if (isset($_POST['zipCode']) && !empty($_POST['zipCode'])){
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'False'){
-				$module = OrderShippingModules::getModule('zonereservation');
-			}
-			else {
-				$postcode = $_POST['zipCode'];
-
-				$shippingAddressArray = array(
-					'entry_street_address' => (isset($_POST['street_address']) && !empty($_POST['street_address']))
-						? $_POST['street_address'] : '',
-					'entry_postcode' => $postcode,
-					'entry_city' => (isset($_POST['city']) && !empty($_POST['city'])) ? $_POST['city'] : '',
-					'entry_state' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
-						: '',
-					'entry_country_id' => (isset($_POST['country']) && !empty($_POST['country'])) ? $_POST['country']
-						: sysConfig::get('STORE_COUNTRY'),
-					'entry_zone_id' => (isset($_POST['state']) && ($_POST['state'] != 'undefined')) ? $_POST['state']
-						: ''
-				);
-				$addressBook =& $userAccount->plugins['addressBook'];
-				$addressBook->addAddressEntry('delivery', $shippingAddressArray);
-				//global $current_product_weight;
-				//$current_product_weight = $product->getWeight()* $_GET['qty'];
-				//OrderShippingModules::calculateWeight();
-				$module = OrderShippingModules::getModule('upsreservation');
-			}
-			$html .= '<option value="0">Select Method</option>';
-			$nr = 0;
-			if (isset($module) && is_object($module)){
-				$quotes = $module->quote();
-				for($i = 0, $n = sizeof($quotes['methods']); $i < $n; $i++){
-
-					if (Session::exists('isppr_shipping_method') && Session::get('isppr_shipping_method') == $quotes['methods'][$i]['id']){
-						$html .= '<option selected="selected" value="' . $quotes['methods'][$i]['id'] . '">' . $quotes['methods'][$i]['title'] /*. ' (' . $currencies->format($quotes['methods'][$i]['cost']) . ')' */ . '</option>';
-					}
-					else {
-						$html .= '<option value="' . $quotes['methods'][$i]['id'] . '">' . $quotes['methods'][$i]['title'] /*. ' (' . $currencies->format($quotes['methods'][$i]['cost']) . ')' */. '</option>';
-					}
-					$nr++;
-				}
-			}
-			EventManager::attachActionResponse(array(
-					'success' => true,
-					'data' => $html,
-					'calendar' => $html2,
-					'selectedDates' => $selectedDates,
-					'goodDates' => $goodDates
-				), 'json');
-		}
-		else if (sysConfig::get('EXTENSION_INVENTORY_CENTERS_USE_LOCATION') == 'True'){
+		}else{
+			//echo 'kk';
 			if (isset($_POST['pickup']) &&($_POST['pickup'] != 'select')){
 				//echo 'll';
 				    Session::set('isppr_continent', '');
@@ -466,7 +364,6 @@ else {
 					'success' => true,
 					'data'     => $html,
 					'calendar' => $html2,
-					'events_date' => $events_date,
 					'selectedDates' =>$selectedDates,
 					'goodDates' => $goodDates
 				), 'json');
@@ -484,7 +381,6 @@ else {
 				}
 			}
 		}
-	}
 	}
  
 ?>

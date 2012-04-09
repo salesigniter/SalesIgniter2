@@ -21,11 +21,6 @@
 	
 	$appContent = $App->getAppContentFile();
 
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.core.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.slide.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fold.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fade.js');
-
 	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.progressbar.js');
 	
 	$App->addJavascriptFile('admin/applications/ses_update/javascript/jsdifflib.js');

@@ -139,124 +139,6 @@ function updatePackageProduct(){
 	});
 }
 
-function uploadManagerField($el){
-	if ($el.attr('type') == 'file'){
-		alert($el.attr('name') + ' cannot be an upload manager field because it is not a text input field.');
-		return;
-	}
-	
-	var isMulti = false;
-	var autoUpload = true;
-	var hasPreviewContainer = false;
-	var debug = false;
-	var $debugger = $('#' + $el.attr('id') + '_uploadDebugOutput').addClass('uploadDebugger');
-	if (debug === true){
-		$debugger.show();
-	}
-	
-	if ($el.attr('data-is_multi')){
-		isMulti = ($el.attr('data-is_multi') == 'true');
-	}
-	
-	if ($el.attr('data-has_preview')){
-		hasPreviewContainer = true;
-		var $previewContainer = $('#' + $el.attr('id') + '_previewContainer');
-	}
-		
-	if ($el.attr('data-auto_upload')){
-		autoUpload = ($el.attr('data-auto_upload') == 'true');
-	}
-		
-	var fileType = $el.attr('data-file_type');
-	$el.uploadify({
-		uploader: DIR_WS_CATALOG + 'ext/jQuery/external/uploadify/uploadify.swf',
-		script: 'application.php',
-		method: 'GET',
-		multi: isMulti,
-		scriptData: {
-			'app': thisApp,
-			'appPage': thisAppPage,
-			'action': 'uploadFile',
-			'rType': 'ajax',
-			'osCAdminID': sessionId,
-			'fileType': fileType
-		},
-		cancelImg: DIR_WS_CATALOG + 'ext/jQuery/external/uploadify/images/cancel.png',
-		auto: autoUpload,
-		onError: function (event, queueID, fileObj, errorObj){
-			var curVal = $debugger.val();
-			$debugger.val(curVal + "\nError Uploading: " + errorObj.type + " :: " + errorObj.info);
-		},
-		onAllComplete: function (){
-			var curVal = $debugger.val();
-			$debugger.val(curVal + "\nAll Uploads Completed!");
-		},
-		onOpen: function (event, queueID, fileObj){
-			var curVal = $debugger.val();
-			$debugger.val(curVal + "\nBeginning Upload: " + fileObj.name);
-		},
-		onProgress: function (event, queueID, fileObj, data){
-			var curVal = $debugger.val();
-			$debugger.val(curVal + "\nUpload Speed: " + data.speed + ' KB/ps');
-		},
-		onComplete: function (event, queueID, fileObj, resp, data){
-			var curVal = $debugger.val();
-			$debugger.val(curVal + "\nUpload Completed\nJson Response: " + resp);
-			
-			var theResp = eval('(' + resp + ')');			
-
-			if (theResp.success == true){
-				if (isMulti){
-					if ($el.val() != ''){
-						$el.val($el.val() + ';' + theResp.image_name);
-					}else{
-						$el.val(theResp.image_name);
-					}
-				}else{
-					$el.val(theResp.image_name);
-				}
-				
-				if (hasPreviewContainer === true){
-					var $deleteIcon = $('<a></a>')
-					.addClass('ui-icon ui-icon-closethick');
-				
-					var $zoomIcon = $('<a></a>')
-					.addClass('ui-icon ui-icon-zoomin');
-					
-					var $fancyBox = $('<a></a>')
-					.addClass('fancyBox')
-					.attr('href', theResp.image_path);
-					
-					var $img = $('<img></img>')
-					.attr('src', theResp.thumb_path)
-					.appendTo($fancyBox);
-					
-					var $thumbHolder = $('<div></div>')
-					.css('text-align', 'center')
-					.append($fancyBox)
-					.append($zoomIcon)
-					.append($deleteIcon);
-					
-					var $theBox = $('<div>').css({
-						'float'  : 'left',
-						'width'  : '80px',
-						'height' : '100px',
-						'border' : '1px solid #cccccc',
-						'margin' : '.5em'
-					}).append($thumbHolder);
-				
-					if (isMulti){
-						$previewContainer.append($theBox);
-					}else{
-						$previewContainer.html($theBox);
-					}
-					$('.fancyBox', $theBox).trigger('loadBox');
-				}
-			}
-		}
-	});
-}
-
 function popupWindowComments(url, barcodeId, w, h) {
 	$('<div id="commentsWindow"></div>').dialog({
 		autoOpen: true,
@@ -329,25 +211,8 @@ var trigger = $(this);
 var popup = $('.events ul', this).css('opacity', 0);
 
 $(document).ready(function (){
-	$('#turnOnDebugger').each(function (){
-		this.turnedOn = false;
-		$(this).click(function (){
-			if (this.turnedOn == false){
-				$('.uploadDebugger').show();
-				$(this).val('Turn Off Upload Debugger');
-				this.turnedOn = true;
-			}else{
-				$('.uploadDebugger').hide();
-				$(this).val('Turn On Upload Debugger');
-				this.turnedOn = false;
-			}
-		});
-	});
-
 	$('.makeFCK').each(function (){
-		$(this).data('editorInstance', CKEDITOR.replace(this, {
-			filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
-		}));
+		$(this).data('editorInstance', CKEDITOR.replace(this));
 	});
 
 	$('.makeTabs').tabs();
@@ -397,32 +262,22 @@ $(document).ready(function (){
 		$('.netPricing').trigger('keyup');
 	}).trigger('change');
 
-	$('#printLabels').click(function (){
-		var $this = $(this);
-		var labelsType = $('#labelsType').val();
-		var totalLabels = $('.barcode_new:checked, .barcode_used:checked, .barcode_reservation:checked, .barcode_rental:checked');
-		if (labelsType == '5164' && totalLabels.size() == 1){
-			$('#5164_dialog').dialog({
-				modal: true,
-				closable: false,
-				title: 'Please Select Location',
-				buttons: {
-					'Generate': function (){
-						if ($('input[name="labelPos"]:checked', this).size() <= 0){
-							alert('Please Select A Position For The Label');
-						}else{
-							$('#5164_dialog').dialog('close');
-							window.open(js_app_link('app=products&appPage=new_product&action=genLabels&pID=' + productID + '&' + totalLabels.serialize() + '&labelType=' + labelsType + '&loc=' + $('input[name="labelPos"]:checked', this).val()));
-						}
-					},
-					'Cancel': function (){
-						$('#5164_dialog').dialog('close');
-					}
+	$('.printLabels').each(function () {
+		var button = this;
+		$(this).labelPrinter({
+			labelTypes: ['8160-b'],
+			printUrl : js_app_link('app=products&appPage=new_product&action=genLabels'),
+			getData : function () {
+				return $(button).parentsUntil('.ui-tabs-panel').last().find('input[name="barcodes[]"]:checked').serialize();
+			},
+			beforeShow : function () {
+				if ($(button).parentsUntil('.ui-tabs-panel').last().find('input[name="barcodes[]"]:checked').size() <= 0){
+					alert('Please select barcodes to print using the checkboxes on the left of the table rows');
+					return false;
 				}
-			}).show();
-		}else{
-			window.open(js_app_link('app=products&appPage=new_product&action=genLabels&pID=' + productID + '&' + totalLabels.serialize() + '&labelType=' + labelsType));
-		}
+				return true;
+			}
+		});
 	});
 
 	var productsArr = [];
@@ -466,9 +321,32 @@ $(document).ready(function (){
 			alert('Must enter an amount of barcode to auto generate.');
 			return false;
 		}
-		var $tabDiv = $thisRow.parent().parent().parent();
+		/*
+		var barcode = $('.barcodeNumber', $thisRow).val();
+		var barcodeType = $('.barcodeTypeSelect', $thisRow).val();
+		var valid = true;
+
+		var Code39Pattern = /[^A-Z0-9\-\. \$\/\+\%\*]+/;
+		if (barcodeType == 'Code39' && Code39Pattern.test(barcode)){
+			valid = false;
+			message = 'Code 39 Barcodes Can Only Contain Uppercase Letters, 0-9, -, ., $, /, +, %, and *';
+		}
+
+		var CodabarPattern = /[^A-ENT0-9\-\:\. \$\/\+\*]+/;
+		if (barcodeType == 'CODABAR' && CodabarPattern.test(barcode)){
+			valid = false;
+			message = 'Codabar Barcodes Can Only Contain Uppercase Letters A-E, N, T, 0-9, -, ., :, $, /, +, and *';
+		}
+
+		if (valid === false){
+			alert(message);
+			return;
+		}
+		*/
+		var $tabDiv = $thisRow.parentsUntil('.ui-tabs-panel').last();
 
 		var linkParams = [];
+		linkParams.push('rType=ajax');
 		linkParams.push('app=products');
 		linkParams.push('appPage=new_product');
 		linkParams.push('action=addBarcode');
@@ -493,7 +371,7 @@ $(document).ready(function (){
 					success: function (data){
 						if (typeof data.errorMsg == 'undefined'){
 							var $newRow = $(data.tableRow);
-							$newRow.appendTo($thisRow.parent().parent().parent().find('.currentBarcodeTable'));
+							$tabDiv.find('.grid .gridBody').append($newRow);
 						}else{
 							alert(data.errorMsg);
 						}
@@ -687,9 +565,10 @@ $(document).ready(function (){
 		$('.ui-button', this).addClass('ui-state-disabled').addClass('programDisabled');
 		$(this).addClass('programDisabled');
 	});
-	
-	$('.ajaxUpload, .ajaxUploadMulti, .uploadManagerInput').each(function (){
-		uploadManagerField($(this));
+
+	$('input[name=products_image]').filemanager();
+	$('input[name=additional_images]').filemanager({
+		allowMultiple: true
 	});
 	
 	$('.fancyBox').live('loadBox', function (){

@@ -1,6 +1,6 @@
 <?php
 /*
-	Multi Stores Extension Version 1
+	Order Creator Extension Version 1
 	
 	I.T. Web Experts, Rental Store v2
 	http://www.itwebexperts.com
@@ -17,7 +17,7 @@ class orderCreator_admin_orders_details extends Extension_orderCreator {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'OrderInfoAddBlock'

@@ -36,24 +36,46 @@
 				$.each(['top', 'bottom', 'left', 'right'], function (k, pos) {
 					$Tab.find('input[name=margin_' + pos + ']')
 						.val(values.margin[pos])
-						.keyup(function () { thisCls.processInputs.apply(parentCls); });
+						.keyup(function () {
+							thisCls.processInputs.apply(parentCls);
+							$Tab.find('#' + $(this).attr('name') + 'Slider').slider('value', $(this).val());
+						});
 
 					$Tab.find('select[name=margin_' + pos + '_unit]')
 						.val(values.margin[pos + '_unit'])
 						.change(function () {
-						thisCls.checkDisable.apply(parentCls, [$Tab.find('input[name=margin_' + pos + ']'), $(this)]);
-						thisCls.processInputs.apply(parentCls);
-					});
+							thisCls.checkDisable.apply(parentCls, [$Tab.find('input[name=margin_' + pos + ']'), $(this)]);
+							thisCls.processInputs.apply(parentCls);
+						});
 
 					$Tab.find('input[name=padding_' + pos + ']')
 						.val(values.padding[pos])
-						.keyup(function () { thisCls.processInputs.apply(parentCls); });
+						.keyup(function () {
+							thisCls.processInputs.apply(parentCls);
+							$Tab.find('#' + $(this).attr('name') + 'Slider').slider('value', $(this).val());
+						});
 
 					$Tab.find('select[name=padding_' + pos + '_unit]')
 						.val(values.padding[pos + '_unit'])
 						.change(function () {
 						thisCls.checkDisable.apply(parentCls, [$Tab.find('input[name=padding_' + pos + ']'), $(this)]);
 						thisCls.processInputs.apply(parentCls);
+					});
+
+					parentCls.createPercentSlider($Tab.find('#margin_' + pos + 'Slider'), {
+						value: parseInt($Tab.find('input[name=margin_' + pos + ']').val()),
+						slide: function (e, ui){
+							$Tab.find('input[name=margin_' + pos + ']').val(ui.value);
+							thisCls.processInputs.apply(parentCls);
+						}
+					});
+
+					parentCls.createPercentSlider($Tab.find('#padding_' + pos + 'Slider'), {
+						value: parseInt($Tab.find('input[name=padding_' + pos + ']').val()),
+						slide: function (e, ui){
+							$Tab.find('input[name=padding_' + pos + ']').val(ui.value);
+							thisCls.processInputs.apply(parentCls);
+						}
 					});
 
 					thisCls.checkDisable.apply(parentCls, [$Tab.find('input[name=margin_' + pos + ']'), $Tab.find('select[name=margin_' + pos + '_unit]')]);

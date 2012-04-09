@@ -169,7 +169,7 @@ class htmlElement
 			}
 		}
 		elseif ($val !== false) {
-			if (is_object($val) || substr($val, 0, 1) == '{' || substr($val, 0, 1) == '[') {
+			if (is_object($val) || is_array($val) || substr($val, 0, 1) == '{' || substr($val, 0, 1) == '[') {
 				$Style = new StyleBuilder();
 				$Style->addRule($key, $val);
 				foreach($Style->getArray() as $k => $v){
@@ -404,7 +404,7 @@ class htmlElement
 		if (!empty($this->styles)){
 			$arr = array();
 			foreach($this->styles as $name => $val){
-				if (is_numeric($name)){
+				if ($name == 'custom_css' || is_numeric($name)){
 					$arr[] = $val;
 				}
 				else {
@@ -437,7 +437,11 @@ class htmlElement
 			if (sizeof($this->appendElements) > 0){
 				foreach($this->appendElements as $elObj){
 					if (is_object($elObj)){
-						$html .= $elObj->draw();
+						if ($elObj instanceof SesDateTime){
+							$html .= $elObj->format(sysLanguage::getDateTimeFormat());
+						}else{
+							$html .= $elObj->draw();
+						}
 					}
 				}
 			}
@@ -581,6 +585,7 @@ interface htmlWidgetPlugin
 
 class StyleBuilder {
 	private $definitions = array();
+	private $extDefinitions = array();
 	private $selector = '';
 
 	public function __construct(){
@@ -619,6 +624,7 @@ class StyleBuilder {
 	}
 
 	public function addRule($ruleName, $ruleVal){
+		//echo 'HERE::' . $ruleName . '<br>';
 		if (is_array($ruleVal)){
 			$ruleVal = json_decode(json_encode($ruleVal));
 			$this->parseJsonRule($ruleName, $ruleVal);
@@ -892,7 +898,60 @@ class StyleBuilder {
 
 				buildBoxShadow($allShadows, $this);
 				break;
+			case 'text_shadow':
+				$allShadows = array();
+				foreach($val as $sInfo){
+					$allShadows[] = array(
+						$sInfo->shadow_offset_x,
+						$sInfo->shadow_offset_y,
+						$sInfo->shadow_blur,
+						$sInfo->shadow_color
+					);
+				}
+
+				buildTextShadow($allShadows, $this);
+				break;
+			case 'link':
+				$keys = array('unvisited', 'visited', 'hover', 'active');
+				foreach($keys as $k){
+					$color = $val->$k->color;
+					$weight = $val->$k->weight;
+					$backgroundColor = $val->$k->background_color;
+					$textDecoration = $val->$k->text_decoration;
+
+					switch($k){
+						case 'unvisited':
+							$this->addExternalRule('a:link', 'color', $color);
+							$this->addExternalRule('a:link', 'font-weight', $weight);
+							$this->addExternalRule('a:link', 'background-color', $backgroundColor);
+							$this->addExternalRule('a:link', 'text-decoration', $textDecoration);
+							break;
+						case 'visited':
+							$this->addExternalRule('a:visited', 'color', $color);
+							$this->addExternalRule('a:visited', 'font-weight', $weight);
+							$this->addExternalRule('a:visited', 'background-color', $backgroundColor);
+							$this->addExternalRule('a:visited', 'text-decoration', $textDecoration);
+							break;
+						case 'hover':
+							$this->addExternalRule('a:hover', 'color', $color);
+							$this->addExternalRule('a:hover', 'font-weight', $weight);
+							$this->addExternalRule('a:hover', 'background-color', $backgroundColor);
+							$this->addExternalRule('a:hover', 'text-decoration', $textDecoration);
+							break;
+						case 'active':
+							$this->addExternalRule('a:active', 'color', $color);
+							$this->addExternalRule('a:active', 'font-weight', $weight);
+							$this->addExternalRule('a:active', 'background-color', $backgroundColor);
+							$this->addExternalRule('a:active', 'text-decoration', $textDecoration);
+							break;
+					}
+				}
+				break;
 		}
+	}
+
+	public function addExternalRule($ruleText, $def, $val){
+		$this->extDefinitions[$this->selector . ' ' . $ruleText][$def] = $val;
 	}
 
 	public function getArray(){
@@ -909,11 +968,21 @@ class StyleBuilder {
 	}
 
 	public function outputCss(){
-		$output = $this->selector . ' { ';
+		$output .= $this->selector . ' { ';
 		foreach($this->definitions as $k => $v){
 			$output .= $k . ': ' . $v . ';';
 		}
 		$output .= ' }' . "\n";
+
+		if (!empty($this->extDefinitions)){
+			foreach($this->extDefinitions as $sel => $rInfo){
+				$output .= $sel . ' { ';
+				foreach($rInfo as $def => $val){
+					$output .= $def . ': ' . $val . ';';
+				}
+				$output .= ' }' . "\n";
+			}
+		}
 		return $output;
 	}
 }

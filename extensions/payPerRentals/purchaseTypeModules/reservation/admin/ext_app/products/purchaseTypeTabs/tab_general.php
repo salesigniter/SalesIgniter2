@@ -5,7 +5,7 @@
 	private $displayOrder = 0;
 
 	public function __construct() {
-		$this->setHeading(sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING'));
+		//$this->setHeading(sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING'));
 	}
 
 	public function setHeading($val) {
@@ -24,9 +24,7 @@
 		$this->displayOrder = $val;
 	}
 
-	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
-		$PurchaseType->loadData($Product->getId());
-
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType) {
 		$PayPerRentalTypes = Doctrine_Query::create()
 		->from('PayPerRentalTypes')
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -35,7 +33,7 @@
 		$typeText = sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING_GENERAL');
 
 		$enabledInput = htmlBase::newElement('checkbox')
-			->setName('products_type[]')
+			->setName('purchase_type[]')
 			->setChecked($PurchaseType->getData('status') == 1)
 			->val($typeName);
 

@@ -2,19 +2,19 @@
 <configuration>
 	<config protected="true">
 		<key>HTTP_DOMAIN_NAME</key>
-		<value>localhost</value>
+		<value>kingdomcamerarentals.com</value>
 	</config>
 	<config protected="true">
 		<key>HTTPS_DOMAIN_NAME</key>
-		<value>localhost</value>
+		<value>kingdomcamerarentals.com</value>
 	</config>
 	<config protected="false">
 		<key>DIR_WS_CATALOG</key>
-		<value>/SalesIgniter1/</value>
+		<value>/</value>
 	</config>
 	<config protected="true">
 		<key>DIR_FS_DOCUMENT_ROOT</key>
-		<value>D:/phpStormProjects</value>
+		<value>/home/kingdomc/public_html</value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER</key>
@@ -22,15 +22,15 @@
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_USERNAME</key>
-		<value>root</value>
+		<value>kingdomc_rent</value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_PASSWORD</key>
-		<value></value>
+		<value>rent99</value>
 	</config>
 	<config protected="true">
 		<key>DB_DATABASE</key>
-		<value>salesigniter_1</value>
+		<value>kingdomc_rent</value>
 	</config>
 	<config protected="true">
 		<key>ENABLE_SSL</key>
@@ -50,26 +50,38 @@
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_USERNAME</key>
-		<value>myusername</value>
+		<value>kingdomc</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_PASSWORD</key>
-		<value>mypassword</value>
+		<value>911acf076d38584e9e11e0afc61acb88</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_SERVER</key>
-		<value>ftp.mydomain.com</value>
+		<value>kingdomcamerarentals.com</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_FTP_PATH</key>
+		<value>/public_html/</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_USERNAME</key>
-		<value>username</value>
+		<value>kingdomc</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_PASSWORD</key>
-		<value>password</value>
+		<value>tdfw^z6c,G}b</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_INSTALL_DATE</key>
 		<value></value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_CHARACTER_SET</key>
+		<value>utf8</value>
+	</config>
+	<config protected="true">
+		<key>SYSTEM_CHARACTER_SET_COLLATION</key>
+		<value>utf8_general_ci</value>
 	</config>
 </configuration>

@@ -1,14 +1,20 @@
 <definitions>
 	<define key="HEADING_TITLE"><![CDATA[Customers]]></define>
 	<define key="HEADING_TITLE_SEARCH"><![CDATA[Search:]]></define>
+
 	<define key="TABLE_HEADING_SELECT"><![CDATA[Select]]></define>
 	<define key="TABLE_HEADING_CUSTOMERS_ID"><![CDATA[ID]]></define>
+	<define key="TABLE_HEADING_EMAIL_ADDRESS"><![CDATA[Email Address]]></define>
 	<define key="TABLE_HEADING_FIRSTNAME"><![CDATA[First Name]]></define>
 	<define key="TABLE_HEADING_LASTNAME"><![CDATA[Last Name]]></define>
 	<define key="TABLE_HEADING_ACCOUNT_CREATED"><![CDATA[Account Created]]></define>
-	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
+	<define key="TABLE_HEADING_INFO"><![CDATA[Info]]></define>
 	<define key="TABLE_HEADING_MEMBER_OR_USER"><![CDATA[Member/User]]></define>
 	<define key="TABLE_HEADING_RENTAL_STATUS"><![CDATA[Rental Status]]></define>
+
+	<define key="TEXT_CUSTOMERS_EMAIL_ADDRESS_ERROR_EMAIL"><![CDATA[Error: Customers Email Address Isn't A Valid Email Address]]></define>
+	<define key="TEXT_CUSTOMERS_EMAIL_ADDRESS_ERROR_UNIQUE"><![CDATA[Error: Customers Email Address Already Exists]]></define>
+
 	<define key="TEXT_DATE_ACCOUNT_CREATED"><![CDATA[Account Created:]]></define>
 	<define key="TEXT_DATE_ACCOUNT_LAST_MODIFIED"><![CDATA[Last Modified:]]></define>
 	<define key="TEXT_INFO_DATE_LAST_LOGON"><![CDATA[Last Logon:]]></define>
@@ -138,6 +144,7 @@
  	<define key="TEXT_INFO_NO_ONETIME_RENTAL_HISTORY"><![CDATA[Pay Per Rental History List for this customer is Empty]]></define>
  	<define key="TEXT_INFO_NO_ONETIME_RENTAL_PENDING"><![CDATA[Pay Per Rental Pending List for this customer is Empty]]></define>
     <define key="ENTRY_EMAIL_ADDRESS_EXISTS_ERROR"><![CDATA[Email Address already exists]]></define>
+
 	<define key="ENTRY_CITY_BIRTH"><![CDATA[City of birth:]]></define>
 	<define key="ENTRY_CIF"><![CDATA[Fiscal code:]]></define>
 	<define key="ENTRY_VAT"><![CDATA[VAT:]]></define>
@@ -150,6 +157,14 @@
 	
 	<define key="ENTRY_NUMBER"><![CDATA[Member Number: ]]></define>
 	<define key="ENTRY_FROZEN"><![CDATA[Account Is Frozen: ]]></define>
-		<define key="PASSWORD"><![CDATA[Password:]]></define>
+	<define key="PASSWORD"><![CDATA[Password:]]></define>
+	<define key="PASSWORD_CONFIRMATION"><![CDATA[Password Confirmation:]]></define>
+	<define key="TEXT_SEND_EMAIL"><![CDATA[Email customer membership info:]]></define>
+	<define key="ENTRY_NOTES_INPUT"><![CDATA[Notes:]]></define>
 
+	<define key="HEADING_TITLE_REPORTS"><![CDATA[Membership Billing Report]]></define>
+	<define key="TABLE_HEADING_TRANS_DATE"><![CDATA[Date]]></define>
+	<define key="TABLE_HEADING_PAYMENT_METHOD"><![CDATA[Payment Method]]></define>
+	<define key="TABLE_HEADING_TRANS_STATUS"><![CDATA[Status]]></define>
+	<define key="TABLE_HEADING_TRANS_ERROR"><![CDATA[Result]]></define>
 </definitions>

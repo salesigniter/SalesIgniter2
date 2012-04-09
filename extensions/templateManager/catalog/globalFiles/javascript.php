@@ -1,15 +1,15 @@
 <?php
-	chdir('../../../../');
+chdir('../../../../');
 
 if (isset($_GET['env'])){
 	$env = $_GET['env'];
 	$layoutId = (isset($_GET['layout_id']) ? $_GET['layout_id'] : '9999');
 	$templateDir = $_GET['tplDir'];
 }
-elseif (isset($_GET['layout_id'])){
+elseif (isset($_GET['layout_id'])) {
 	$env = 'catalog';
 	$layoutId = $_GET['layout_id'];
-	$templateDir = isset($_GET['tplDir'])?$_GET['tplDir']:'';
+	$templateDir = isset($_GET['tplDir']) ? $_GET['tplDir'] : '';
 }
 else {
 	$env = 'admin';
@@ -20,165 +20,63 @@ $import = '';
 if (isset($_GET['import']) && !empty($_GET['import'])){
 	$import = $_GET['import'];
 }
-$cacheKey = $env . '-javascript-' . $templateDir . '-' . md5($layoutId . '-' . $import);
+$cacheKey = $templateDir . '-' . md5($_SERVER['HTTP_USER_AGENT'] . '-' . $layoutId . '-' . $import);
+$noCache = isset($_GET['noCache']);
+$noMin = isset($_GET['noMin']);
 
 require('includes/classes/system_cache.php');
-$JavascriptCache = new SystemCache($cacheKey);
-if ($JavascriptCache->loadData() === true && !isset($_GET['noCache'])){
+$JavascriptCache = new SystemCache($cacheKey, 'cache/' . $env . '/javascript/');
+if ($noCache === false && $JavascriptCache->loadData() === true){
 	$JavascriptCache->output(false, true);
 	exit;
 }
 else {
 	include('includes/application_top.php');
 
-	ob_start();
-	if ($env == 'catalog'){
-		?>
-	$(document).ready(function (){
-	$('.starRating').stars({
-	split: 2,
-	cancelShow: false,
-	disabled: <?php echo ($userAccount->isLoggedIn() === true ? 'false' : 'true'); ?>,
-	callback: function (ui, type, value){
-	$.ajax({
-	cache: false,
-	url: js_href_link(thisFile),
-	data: 'rType=ajax&action=rateProduct&pID=' + $(ui.element).attr('products_id') + '&rating=' + (value/2),
-	dataType: 'json',
-	success: function (data){
-	if (data.success == false){
-	alert('Vote was not placed.');
-	}
-	}
-	});
-	}
-	});
-
-	$('.checkoutFormButton').button();
-
-	$('.ui-button').each(function (){
-	var disable = false;
-	if ($(this).hasClass('ui-state-disabled')){
-	disable = true;
-	}
-	$(this).button({
-	disabled: disable
-	}).click(function (e){
-	if ($(this).hasClass('ui-state-disabled')){
-	e.preventDefault();
-	return false;
-	}
-	});
-	});
-	<?php
-		 $boxJavascriptsEntered = array();
-		function parseContainer($Container) {
-			global $boxJavascriptsEntered;
-			if ($Container->Children->count() > 0){
-				foreach($Container->Children as $ChildObj){
-					parseContainer($ChildObj);
-				}
-			}
-			else {
-				foreach($Container->Columns as $colInfo){
-					foreach($colInfo->Widgets as $wInfo){
-						foreach($wInfo->Configuration as $config){
-							if ($config->configuration_key == 'widget_settings'){
-								$WidgetSettings = json_decode($config->configuration_value);
-								break;
-							}
-						}
-						$className = 'InfoBox' . ucfirst($wInfo->identifier);
-						if (!class_exists($className)){
-							$Qbox = Doctrine_Query::create()
-								->select('box_path')
-								->from('TemplatesInfoboxes')
-								->where('box_code = ?', $wInfo->identifier)
-								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-							require($Qbox[0]['box_path'] . 'infobox.php');
-						}
-
-						$Box = new $className();
-						if (method_exists($className, 'buildJavascript')){
-							if ($Box->buildJavascriptMultiple === true || !in_array($className, $boxJavascriptsEntered)){
-								if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
-									$Box->setBoxId($WidgetSettings->id);
-								}
-								$Box->setWidgetProperties($WidgetSettings);
-
-								echo $Box->buildJavascript();
-
-								$boxJavascriptsEntered[] = $className;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find((int)$_GET['layout_id']);
-		if ($Layout){
-			$Template = $Layout->Template;
-			foreach($Layout->Containers as $Container){
-				parseContainer($Container);
-			}
-		}
-		?>
-	});
-	<?php
-	 echo file_get_contents(sysConfig::getDirFsCatalog() . 'ext/jQuery/external/reflection/reflection.js');
-	}
-	$fileContent = ob_get_contents();
-	ob_end_clean();
-
-	function src1_fetch() {
-		global $fileContent, $env;
-		if ($env == 'catalog'){
-			return $fileContent;
-		}
-	}
-
-	define('MINIFY_MIN_DIR', sysConfig::getDirFsCatalog() . 'min');
-
-	/*
-		 * This script implements a Minify server for a single set of sources.
-		 * If you don't want '.php' in the URL, use mod_rewrite...
-		 */
-
-	// setup Minify
-	set_include_path(MINIFY_MIN_DIR . '/lib' . PATH_SEPARATOR . get_include_path());
-	require 'Minify.php';
-	require 'Minify/Cache/File.php';
-	Minify::setCache(new Minify_Cache_File()); // guesses a temp directory
-
-	// setup sources
 	$sources = array(
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery-min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.core.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.widget.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.core.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.mouse.min.js',
+		//sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.mouse.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.mouse.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.position.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.draggable.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.droppable.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.sortable.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.resizable.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.tabs.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.button.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.dialog.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.datepicker.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.accordion.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.stars.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.progressbar.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.effects.fade.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/external/virtualKeyboard/jquery.keyboard.js'
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.newGrid.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.core.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.blind.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.bounce.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.clip.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.core.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.drop.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.explode.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.fade.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.fold.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.highlight.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.pulsate.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.scale.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.shake.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.slide.min.js',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.transfer.min.js'
 	);
 
 	if ($env == 'admin'){
+		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/filemanager/jquery.filemanager.js';
+		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/fileuploader/jquery.fileuploader.js';
 		$sources[] = sysConfig::getDirFsAdmin() . 'includes/javascript/main.js';
 		$sources[] = sysConfig::getDirFsAdmin() . 'includes/general.js';
 	}
 	else {
+		$sources[] = sysConfig::getDirFsCatalog() . 'includes/javascript/functions.js';
 		$sources[] = sysConfig::getDirFsCatalog() . 'includes/javascript/general.js';
 	}
 
@@ -207,23 +105,216 @@ else {
 		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/i18n/' . Session::get('languages_code') . '.js';
 	}
 
-	$sources[] = new Minify_Source(array(
-			'id' => 'source1',
+	ob_start();
+	foreach($sources as $filePath){
+		if (file_exists($filePath)){
+			echo '/*' . "\n" .
+				' * Required File' . "\n" .
+				' * Path: ' . $filePath . "\n" .
+				' * --BEGIN--' . "\n" .
+				' */' . "\n";
+			require($filePath);
+			echo '/*' . "\n" .
+				' * Required File' . "\n" .
+				' * Path: ' . $filePath . "\n" .
+				' * --END--' . "\n" .
+				' */' . "\n";
+		}
+	}
+
+	if ($env == 'catalog'){
+		$TemplateManager = $appExtension->getExtension('templateManager');
+		$TemplateManager->loadWidgets($templateDir);
+		$boxJavascriptsEntered = array();
+		$boxJavascriptSourcesEntered = array();
+		$infoBoxSources = array();
+		function parseContainer($Container) {
+			global $TemplateManager, $boxJavascriptsEntered, $boxJavascriptSourcesEntered, $infoBoxSources;
+
+			if (isset($Container['widget_id'])){
+				$typeId = $Container['widget_id'];
+				$type = 'widget';
+			}
+			elseif (isset($Container['column_id'])) {
+				$typeId = $Container['column_id'];
+				$type = 'column';
+			}
+			elseif (isset($Container['container_id'])) {
+				$typeId = $Container['container_id'];
+				$type = 'container';
+			}
+
+			if ($type == 'container' && (($Containers = $TemplateManager->getContainerChildren($typeId)) !== false)){
+				foreach($Containers as $ChildObj){
+					parseContainer($ChildObj);
+				}
+			}
+			elseif ($type == 'container' && (($Columns = $TemplateManager->getContainerColumns($typeId)) !== false)) {
+				foreach($Columns as $ChildObj){
+					parseContainer($ChildObj);
+				}
+			}
+			elseif ($type == 'column' && (($Columns = $TemplateManager->getColumnChildren($typeId)) !== false)) {
+				foreach($Columns as $ChildObj){
+					parseContainer($ChildObj);
+				}
+			}
+			elseif ($type == 'column' && (($Widgets = $TemplateManager->getColumnWidgets($typeId)) !== false)) {
+				foreach($Widgets as $wInfo){
+					parseContainer($wInfo);
+				}
+			}
+			elseif ($type == 'widget') {
+				if (($Configuration = $TemplateManager->getConfigInfo($type, $typeId)) !== false){
+					foreach($Configuration as $config){
+						if ($config['configuration_key'] == 'widget_settings'){
+							$WidgetSettings = json_decode($config['configuration_value']);
+							break;
+						}
+					}
+
+					$WidgetClass = $TemplateManager->getWidget($Container['identifier']);
+					if ($WidgetClass !== false){
+						if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
+							$WidgetClass->setBoxId($WidgetSettings->id);
+						}
+						$WidgetClass->setWidgetProperties($WidgetSettings);
+						if (method_exists($WidgetClass, 'buildJavascript')){
+							if ($WidgetClass->buildJavascriptMultiple === true || !in_array($WidgetClass->getBoxCode(), $boxJavascriptsEntered)){
+								echo $WidgetClass->buildJavascript();
+
+								$boxJavascriptsEntered[] = $WidgetClass->getBoxCode();
+							}
+						}
+						if (method_exists($WidgetClass, 'getJavascriptSources')){
+							if (!in_array($WidgetClass->getBoxCode(), $boxJavascriptSourcesEntered)){
+								$infoBoxJsFiles = $WidgetClass->getJavascriptSources();
+								foreach($infoBoxJsFiles as $infoBoxJsFile){
+									if (file_exists($infoBoxJsFile)){
+										$infoBoxSources[] = $infoBoxJsFile;
+									}
+								}
+
+								$boxJavascriptSourcesEntered[] = $WidgetClass->getBoxCode();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$Layout = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select * from template_manager_layouts where layout_id = "' . (int)$_GET['layout_id'] . '"');
+		if ($Layout){
+			echo '/*' . "\n" .
+				' * Layout Manager Generated Javascript' . "\n" .
+				' * --BEGIN--' . "\n" .
+				' */' . "\n";
+			$Containers = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select * from template_manager_layouts_containers where layout_id = "' . $Layout[0]['layout_id'] . '" and parent_id = 0 order by sort_order');
+			if (sizeof($Containers) > 0){
+				foreach($Containers as $cInfo){
+					if ($cInfo['link_id'] > 0){
+						$Link = Doctrine_Manager::getInstance()
+							->getCurrentConnection()
+							->fetchAssoc('select c.* from template_manager_container_links l left join template_manager_layouts_containers c using(container_id) where l.link_id = "' . $cInfo['link_id'] . '"');
+						parseContainer($Link[0]);
+					}
+					else {
+						parseContainer($cInfo);
+					}
+				}
+			}
+			echo '/*' . "\n" .
+				' * Layout Manager Generated Javascript' . "\n" .
+				' * --END--' . "\n" .
+				' */' . "\n";
+		}
+
+		echo file_get_contents(sysConfig::getDirFsCatalog() . 'ext/jQuery/external/reflection/reflection.js');
+		if (sizeof($infoBoxSources) > 0){
+			foreach($infoBoxSources as $filePath){
+				if (file_exists($filePath)){
+					echo '/*' . "\n" .
+						' * Required Infobox File' . "\n" .
+						' * Path: ' . $filePath . "\n" .
+						' * --BEGIN--' . "\n" .
+						' */' . "\n";
+					require($filePath);
+					echo '/*' . "\n" .
+						' * Required Infobox File' . "\n" .
+						' * Path: ' . $filePath . "\n" .
+						' * --END--' . "\n" .
+						' */' . "\n";
+				}
+			}
+		}
+	}
+	$fileContent = ob_get_contents();
+	ob_end_clean();
+
+	function src1_fetch() {
+		global $fileContent;
+		return $fileContent;
+	}
+
+	$nowTime = time() + 60;
+	$maxAge = (60 * 60 * 24 * 2);
+	$expiresTime = $nowTime + $maxAge;
+
+	if ($noMin === true || sysConfig::get('TEMPLATE_JAVASCRIPT_COMPRESSION') == 'none'){
+		$Result = array(
+			'headers' => array(
+				'Content-Type'	 => 'application/x-javascript'
+			),
+			'content' => src1_fetch()
+		);
+		if ($noCache === false && sysConfig::get('TEMPLATE_JAVASCRIPT_CACHE') == 1){
+			$Result['headers']['Expires'] = gmdate('D, d M Y H:i:s \G\M\T', $expiresTime);
+			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+			$Result['headers']['Cache-Control'] = 'max-age=' . $maxAge;
+		}
+		else {
+			$Result['headers']['Expires'] = 'Sat, 26 Jul 1997 05:00:00 GMT';
+			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+			$Result['headers']['Cache-Control'] = 'no-cache, must-revalidate';
+		}
+	}
+	else {
+		define('MINIFY_MIN_DIR', sysConfig::getDirFsCatalog() . 'min');
+
+		/**
+		 * This script implements a Minify server for a single set of sources.
+		 * If you don't want '.php' in the URL, use mod_rewrite...
+		 */
+
+		// setup Minify
+		set_include_path(MINIFY_MIN_DIR . '/lib' . PATH_SEPARATOR . get_include_path());
+		require 'Minify.php';
+		require 'Minify/Cache/File.php';
+		Minify::setCache(new Minify_Cache_File()); // guesses a temp directory
+
+		// setup sources
+		$sources = new Minify_Source(array(
+			'id'			 => 'source1',
 			'getContentFunc' => 'src1_fetch',
-			'contentType' => Minify::TYPE_JS,
-			'lastModified' => time()
+			'contentType'	=> Minify::TYPE_JS,
+			'lastModified'   => $nowTime
 		));
 
-	// handle request
-	$serveArr = array(
-		'files' => $sources,
-		'maxAge' => 86400,
-		'debug' => true,
-		'quiet' => true
-	);
+		// handle request
+		$serveArr = array(
+			'files'              => $sources,
+			'maxAge'             => $maxAge,
+			'debug'              => true,
+			'quiet'              => true,
+			'encodeMethod'       => '',
+			'contentTypeCharset' => 'utf8'
+		);
 
-	if (isset($Template) && is_object($Template)){
-		switch($Template->Configuration['JAVASCRIPT_COMPRESSION']->configuration_value){
+		switch(sysConfig::get('TEMPLATE_JAVASCRIPT_COMPRESSION')){
 			case 'gzip':
 				//ob_start("ob_gzhandler");
 				break;
@@ -235,15 +326,14 @@ else {
 				$serveArr['debug'] = false;
 				break;
 		}
+		$Result = Minify::serve('Files', $serveArr);
 	}
-	$Result = Minify::serve('Files', $serveArr);
 
-	$JavascriptCache->setAddedHeaders($Result['headers']);
-	//$JavascriptCache->setContentType('text/javascript');
 	$JavascriptCache->setContent($Result['content']);
-	$JavascriptCache->setExpires(time() + (60 * 60 * 24 * 2));
-	$JavascriptCache->setLastModified($Result['headers']['Last-Modified']);
-	$JavascriptCache->store();
+	$JavascriptCache->setAddedHeaders($Result['headers']);
+	if ($noCache === false && sysConfig::get('TEMPLATE_JAVASCRIPT_CACHE') == 1){
+		$JavascriptCache->store();
+	}
 
 	$JavascriptCache->output(false, true);
 

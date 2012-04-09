@@ -15,13 +15,13 @@ $Config = new ModuleConfigReader(
 );
 
 $tabs = array();
-$tabsPages = array();
 $tabId = 1;
-foreach($Config->getConfig() as $cfg){
-	if (!isset($tabs[$cfg->getTab()])){
-		$tabs[$cfg->getTab()] = array(
+foreach($Config->getConfig() as $tabKey => $tabInfo){
+	if (!isset($tabs[$tabKey])){
+		$tabs[$tabKey] = array(
 			'panelId' => 'page-' . $tabId,
-			'panelHeader' => $cfg->getTab(),
+			'panelHeader' => $tabInfo['title'],
+			'panelDescription' => $tabInfo['description'],
 			'panelTable' => htmlBase::newElement('table')
 				->addClass('configTable')
 				->setCellPadding(5)
@@ -30,83 +30,32 @@ foreach($Config->getConfig() as $cfg){
 		$tabId++;
 	}
 
-	if ($cfg->hasSetFunction() === true){
-		$function = $cfg->getSetFunction();
-		switch(true){
-			case (stristr($function, 'tep_cfg_select_option')):
-				$type = 'radio';
-				$function = str_replace(
-					'tep_cfg_select_option',
-					'tep_cfg_select_option_elements',
-					$function
-				);
-				break;
-			case (stristr($function, 'tep_cfg_pull_down_order_statuses')):
-				$type = 'drop';
-				$function = str_replace(
-					'tep_cfg_pull_down_order_statuses',
-					'tep_cfg_pull_down_order_statuses_element',
-					$function
-				);
-				break;
-			case (stristr($function, 'tep_cfg_pull_down_zone_classes')):
-				$type = 'drop';
-				$function = str_replace(
-					'tep_cfg_pull_down_zone_classes',
-					'tep_cfg_pull_down_zone_classes_element',
-					$function
-				);
-				break;
-			case (stristr($function, 'tep_cfg_select_multioption')):
-			case (stristr($function, '_selectOptions')):
-				$type = 'checkbox';
-				$function = str_replace(
-					array(
-						'tep_cfg_select_multioption',
-						'_selectOptions'
-					),
-					'tep_cfg_select_multioption_element',
-					$function
-				);
-				break;
-		}
-		eval('$inputField = ' . $function . "'" . $cfg->getValue() . "', '" . $cfg->getKey() . "');");
-
-		if (is_object($inputField)){
-			if ($type == 'checkbox'){
-				$inputField->setName('configuration[' . $cfg->getKey() . '][]');
-			}
-			else {
-				$inputField->setName('configuration[' . $cfg->getKey() . ']');
-			}
-		}
-		elseif (substr($inputField, 0, 3) == '<br') {
-			$inputField = substr($inputField, 4);
-		}
-	}
-	else {
-		$inputField = tep_draw_input_field('configuration[' . $cfg->getKey() . ']', $cfg->getValue());
-	}
-
-	$tabs[$cfg->getTab()]['panelTable']->addBodyRow(array(
+	foreach($tabInfo['config'] as $cfg){
+		$tabs[$tabKey]['panelTable']->addBodyRow(array(
 			'columns' => array(
 				array(
-					'text' => '<b>' . $cfg->getTitle() . '</b>',
+					'text'   => '<span class="ui-icon ui-icon-blue ui-icon-alert" style="display:none" tooltip="This field has been edited"></span>',
+					'addCls' => 'editedInfo',
+					'valign' => 'top'
+				),
+				array(
+					'text'   => '<b>' . $cfg->getTitle() . '</b>',
 					'addCls' => 'main',
 					'valign' => 'top'
 				),
 				array(
-					'text' => $inputField,
+					'text'   => $Config->getInputField($cfg),
 					'addCls' => 'main',
 					'valign' => 'top'
 				),
 				array(
-					'text' => $cfg->getDescription(),
+					'text'   => $cfg->getDescription(),
 					'addCls' => 'main',
 					'valign' => 'top'
 				)
 			)
 		));
+	}
 }
 
 EventManager::notify(
@@ -114,7 +63,7 @@ EventManager::notify(
 	&$tabs,
 	$_GET['module'],
 	$_GET['moduleType'],
-	(isset($_GET['modulePath']) ? $_GET['modulePath'] : false)
+	$Config
 );
 
 $tabPanel = htmlBase::newElement('tabs')
@@ -130,7 +79,7 @@ EventManager::notify(
 	&$tabPanel,
 	$_GET['module'],
 	$_GET['moduleType'],
-	(isset($_GET['modulePath']) ? $_GET['modulePath'] : false)
+	$Config
 );
 
 $infoBox->addContentRow($tabPanel->draw());

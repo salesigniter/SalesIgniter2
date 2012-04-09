@@ -125,7 +125,6 @@
 	<define key="HEADING_DOWNLOAD"><![CDATA[Download links]]></define>
 	<define key="HEADING_TRACKING"><![CDATA[Order Tracking]]></define>
 	<define key="HEADING_NEW_CUSTOMER"><![CDATA[New Customer]]></define>
-	<define key="HEADING_NEW_RENTAL_CUSTOMER"><![CDATA[New Rental Customer]]></define>
 	<define key="HEADING_RETURNING_CUSTOMER"><![CDATA[Returning Customer]]></define>
 
 	<define key="TEXT_NO_PURCHASES"><![CDATA[You have not yet made any purchases.]]></define>
@@ -169,9 +168,7 @@
 	<define key="TEXT_ACCOUNT_CREATED"><![CDATA[Congratulations! Your new account has been successfully created! You can now take advantage of member priviledges to enhance your online shopping experience with us. If you have <small><b>ANY</b></small> questions about the operation of this online shop, please email the <a href="%s">store owner</a>.<br><br>A confirmation has been sent to the provided email address. If you have not received it within the hour, please <a href="%s">contact us</a>.]]></define>
 
 	<define key="TEXT_NEW_CUSTOMER"><![CDATA[I am a new customer.]]></define>
-	<define key="TEXT_NEW_RENTAL_CUSTOMER"><![CDATA[I am a new membership customer.]]></define>
 	<define key="TEXT_NEW_CUSTOMER_INTRODUCTION"><![CDATA[By creating an account at %s you will be able to shop faster, be up to date on an orders status, and keep track of the orders you have previously made.]]></define>
-	<define key="TEXT_NEW_RENTAL_CUSTOMER_INTRODUCTION"><![CDATA[By creating a membership account at %s you will be able to do the online renting process faster, be up to date on the rental items, and keep track of rental orders you have previously made.]]></define>
 
 	<define key="TEXT_RETURNING_CUSTOMER"><![CDATA[I am a returning customer.]]></define>
 	<define key="TEXT_PASSWORD_FORGOTTEN"><![CDATA[Password forgotten? Click here.]]></define>
@@ -195,7 +192,6 @@
   	<define key="TABLE_HEADING_IMAGE"><![CDATA[]]></define>
   	<define key="TABLE_HEADING_MODEL"><![CDATA[Model]]></define>
   	<define key="TABLE_HEADING_PRODUCTS"><![CDATA[Product Name]]></define>
-  	<define key="TABLE_HEADING_MANUFACTURER"><![CDATA[Distributors]]></define>
   	<define key="TABLE_HEADING_QUANTITY"><![CDATA[Quantity]]></define>
   	<define key="TABLE_HEADING_PRICE"><![CDATA[Price]]></define>
   	<define key="TABLE_HEADING_WEIGHT"><![CDATA[Weight]]></define>
@@ -207,7 +203,6 @@
   	<define key="TEXT_BUY"><![CDATA[Buy 1]]></define>
   	<define key="TEXT_NOW"><![CDATA[now]]></define>
   	<define key="TEXT_ALL_CATEGORIES"><![CDATA[All Genere]]></define>
-  	<define key="TEXT_ALL_MANUFACTURERS"><![CDATA[All Distributors]]></define>
   	<define key="TEXT_DUPLICATE_RENTAL_ITEM"><![CDATA[This item is already present in your rental queue. Please select another item.]]></define>
 
 	<define key="TEXT_PACKAGE_NAME"><![CDATA[Package Name]]></define>
@@ -317,4 +312,6 @@
 	<define key="CREDIT_CARD_NUMBER_TEXT"><![CDATA[*]]></define>
 	<define key="CREDIT_CARD_EXPIRY_TEXT"><![CDATA[*]]></define>
 	<define key="CREDIT_CARD_CVV_TEXT"><![CDATA[*]]></define>
+
+	<define key="ENTRY_MEMBER_NUMBER"><![CDATA[Member Number: ]]></define>
 </definitions>

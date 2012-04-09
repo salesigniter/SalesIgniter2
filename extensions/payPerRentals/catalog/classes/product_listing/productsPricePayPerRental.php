@@ -23,6 +23,17 @@ class productListing_productsPricePayPerRental {
 	}
 
 	public function show(Product &$Product){
+		global $currencies;
+		$ProductType = $Product->getProductTypeClass();
+		if (method_exists($ProductType, 'showProductListing')){
+			$return = $ProductType->showProductListing('productsPriceReservation');
+		}else{
+			$return = $currencies->format($Product->getPrice());
+		}
+		return $return;
+	}
+	
+	/*public function show(Product &$Product){
 		$return = false;
 		$ProductType = $Product->getProductTypeClass();
 		$ProductType->setPurchaseTypes('');
@@ -39,8 +50,8 @@ class productListing_productsPricePayPerRental {
 			}
 
 		}
-		/* */
+
 		return $return;
-	}
+	}*/
 }
 ?>

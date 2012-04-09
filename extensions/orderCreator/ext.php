@@ -28,16 +28,19 @@ class Extension_orderCreator extends ExtensionBase {
 	
 	public function postSessionInit(){
 		if (Session::exists('OrderCreator')){
-			if (isset($this->removeSession) && $this->removeSession === true){
-				Session::remove('OrderCreator');
+			if (basename($_SERVER['PHP_SELF']) != 'stylesheet.php' && basename($_SERVER['PHP_SELF']) != 'javascript.php'){
+				if (isset($this->removeSession) && $this->removeSession === true){
+					Session::remove('OrderCreator');
+				}
 			}
 		}
 	}
 	
 	public function init(){
 		global $appExtension;
+		if ($this->isEnabled() === false) return;
+
 		EventManager::attachEvents(array(
-			'OrdersGridButtonsBeforeAdd',
 			'EstimatesGridButtonsBeforeAdd',
 			'OrdersListingBeforeExecute',
 			'OrdersProductsReservationListingBeforeExecuteUtilities',
@@ -107,17 +110,6 @@ class Extension_orderCreator extends ExtensionBase {
 		}
 	}
 	
-	public function OrdersGridButtonsBeforeAdd(&$gridButtons){
-		$gridButtons[] = htmlBase::newElement('button')
-		->setText(sysLanguage::get('TEXT_NEW_ORDER'))
-		->addClass('createButton')
-		->setHref(itw_app_link('appExt=orderCreator', 'default', 'new'));
-		
-		$gridButtons[] = htmlBase::newElement('button')
-		->setText(sysLanguage::get('TEXT_EDIT_ORDER'))
-		->addClass('editButton')
-		->disable();
-	}
 	public function EstimatesGridButtonsBeforeAdd(&$gridButtons){
 		$gridButtons[] = htmlBase::newElement('button')
 			->setText(sysLanguage::get('TEXT_NEW_ESTIMATE'))

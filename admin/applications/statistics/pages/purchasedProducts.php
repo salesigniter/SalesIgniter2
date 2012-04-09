@@ -12,10 +12,8 @@
 	->groupBy('pd.products_id')
 	->orderBy('p.products_ordered DESC, pd.products_name');
 
-	$tableGrid = htmlBase::newElement('grid')
+	$tableGrid = htmlBase::newElement('newGrid')
 	->usePagination(true)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit']: 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1))
 	->setQuery($Qproducts);
 
 	$tableGrid->addHeaderRow(array(
@@ -46,10 +44,8 @@
 		}
 	}
 ?>
- <div style="width:100%;float:left;">
-  <div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-   <div style="width:99%;margin:5px;">
+  <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+   <div style="margin:5px;">
    <?php echo $tableGrid->draw();?>
    </div>
-  </div>
  </div>

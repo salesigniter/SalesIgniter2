@@ -122,19 +122,7 @@ $(document).ready(function (){
 											$('#commentID').hide();
 											$('.isB').click(function(){
 												CKEDITOR.replace('commentID', {
-													toolbar :
-														[
-															['Cut','Copy','Paste','PasteText','PasteFromWord','-'],
-															['Undo','Redo','-'],
-															['Image','Table','SpecialChar','PageBreak'],
-															'/',
-															['Styles','Format'],
-															['Bold','Italic','Strike'],
-															['NumberedList','BulletedList','-'],
-															['Link','Unlink','Anchor']
-
-														],
-													filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
+													toolbar : 'Simple'
 												});
 												//disable save button
 												$('.saveButton').attr('disabled', 'disabled');

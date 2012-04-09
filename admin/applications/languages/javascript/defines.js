@@ -1,3 +1,15 @@
+/*
+ * Sales Igniter E-Commerce System
+ * Version: 2.0
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) 2011 I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written conscent of I.T. Web Experts
+ */
+
 function removeAllEditors($el){
 	var windowEl = $el || $('.editWindow');
 	windowEl.find('textarea').each(function (){
@@ -17,19 +29,14 @@ function checkModifications($el){
 function translateText(){
 	var fromLang = $('select[name=fromLanguage]').val();
 	var toLang = $('select[name=toLanguage]').val();
-	$('textarea').each(function (){
-		var self = this;
-		
-		showAjaxLoader($(self), 'large');
-		
-		google.language.translate($(self).val(), fromLang, toLang, function(result) {
-			if (!result.error) {
-				$(self).val(result.translation);
-			}
-			removeAjaxLoader($(self));
+	var postData = $('textarea').serialize();
+	showAjaxLoader($('textarea'), 'large');
+	$.post(js_app_link('app=languages&appPage=defines&action=translateText'), $('textarea').serialize() + '&fromLang=' + $('select[name=fromLanguage]').val() + '&toLang=' + $('select[name=toLanguage]').val(), function (data){
+		$.each(data.translated, function (k, v){
+			$('textarea[name="text[' + k + ']"]').html(v);
+			removeAjaxLoader($('textarea[name="text[' + k + ']"]'));
 		});
-	});
-	$('select[name=fromLanguage]').val(toLang);
+	}, 'json');
 }
 
 function loadFile(filePath){
@@ -80,7 +87,9 @@ function processSearch(){
 }
 	
 $(document).ready(function (){
-	google.language.getBranding('googleBrand');
+	if (typeof google != 'undefined'){
+		google.language.getBranding('googleBrand');
+	}
 	
 	$('.ui-icon-plusthick').click(function (){
 		if ($(this).hasClass('ui-icon-minusthick')){
@@ -114,20 +123,22 @@ $(document).ready(function (){
 		}
 	});
 	
-	$('#googleTranslate').click(function (){
-		if (checkModifications()){
-			confirmDialog({
-				title: 'Abandon Modifications',
-				content: 'There are unsaved modifications, are you sure you want to abandon them?',
-				onConfirm: function (){
-					translateText();
-					$(this).dialog('close').remove();
-				}
-			});
-		}else{
-			translateText();
-		}
-	});
+	if (typeof google != 'undefined'){
+		$('#googleTranslate').click(function (){
+			if (checkModifications()){
+				confirmDialog({
+					title: 'Abandon Modifications',
+					content: 'There are unsaved modifications, are you sure you want to abandon them?',
+					onConfirm: function (){
+						translateText();
+						$(this).dialog('close').remove();
+					}
+				});
+			}else{
+				translateText();
+			}
+		});
+	}
 	
 	$('.ui-icon-newwin').live('click', function (){
 		if ($(this).parent().parent().hasClass('ui-state-disabled')) return false;
@@ -139,9 +150,7 @@ $(document).ready(function (){
 			}else{
 				$(this).trigger('focusin');
 				$(this).data('editorInstance', CKEDITOR.replace(this, {
-					toolbar: 'Basic',
-					enterMode: CKEDITOR.ENTER_BR,
-					filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
+					toolbar: 'Basic'
 				}));
 			}
 		});

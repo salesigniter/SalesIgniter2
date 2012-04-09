@@ -43,7 +43,7 @@ $(document).ready(function () {
 					$.ajax({
 						cache: false,
 						url: js_app_link('app=index&appPage=default&action=saveSet'),
-						data: "set_name=" + $('#set_name').val(),
+						data: "set_name=" + $('#set_name').val()+'&selected_fav='+$('#favoritesSetDialog .favSelectbox option:selected').val(),
 						type: 'post',
 						dataType: 'json',
 						success: function (data){

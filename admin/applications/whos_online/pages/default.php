@@ -44,14 +44,9 @@
 	echo sysLanguage::get('TEXT_INFO_LAST_REFRESH') . '&nbsp;<span class="refreshTime"></span><br />';
 	echo sysLanguage::get('TEXT_INFO_NEXT_REFRESH') . '&nbsp;<span class="nextRefreshTime">N/A</span>';
 ?></font></div>
-<div class="gridContainer">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;" class="gridTableHolder"></div>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;" class="gridTableHolder"></div>
 </div>
-<div style="clear:both;"></div>
 <div style="margin:.5em;"><table border="0" cellpadding="3" cellspacing="0">
 	<tr>
 		<td class="smallText" align="left" colspan="2"><?php echo sprintf(sysLanguage::get('TEXT_NUMBER_OF_CUSTOMERS'), '<span class="sessionCount">0</span>');?></td>
@@ -74,5 +69,5 @@
 	</tr>
 </table></div>
 <div style="margin:.5em;"><?php
-	echo '<b>' . sysLanguage::get('TEXT_MY_IP_ADDRESS') . ':</b>&nbsp;' . tep_get_ip_address() . '<br><small>' . sysConfig::get('TEXT_NOT_AVAILABLE') . '</small>';
+	echo '<b>' . sysLanguage::get('TEXT_MY_IP_ADDRESS') . ':</b>&nbsp;' . tep_get_ip_address() . '<br><small>' . sysLanguage::get('TEXT_NOT_AVAILABLE') . '</small>';
 ?></div>

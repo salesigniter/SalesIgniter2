@@ -4,126 +4,169 @@
  *
  * @package Order
  * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2010, I.T. Web Experts
+ * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-class OrderPaymentManager {
-	protected $orderId = null;
+class OrderPaymentManager
+{
+
+	/**
+	 * @var int
+	 */
+	protected $orderId = 0;
+
+	/**
+	 * @var array
+	 */
 	protected $History = array();
+
+	/**
+	 * @var float
+	 */
 	protected $PaymentsTotal = 0;
+
+	/**
+	 * @var float
+	 */
 	protected $PendingPaymentsTotal = 0;
-	
-	public function __construct($PaymentHistory = null){
+
+	/**
+	 * @param array|null $PaymentHistory
+	 */
+	public function __construct(array $PaymentHistory = null) {
 		if (is_null($PaymentHistory) === false){
 			$this->History = $PaymentHistory;
 			foreach($this->getPaymentHistory() as $hInfo){
 				if ($hInfo['success'] == 1){
-					$this->PaymentsTotal += $hInfo['payment_amount'];
-				}elseif ($hInfo['success'] == 2){
+					if ($hInfo['is_refund'] == 0){
+						$this->PaymentsTotal += $hInfo['payment_amount'];
+					}
+					else {
+						$this->PaymentsTotal += $hInfo['payment_amount'];
+					}
+				}
+				elseif ($hInfo['success'] == 2) {
 					$this->PendingPaymentsTotal += $hInfo['payment_amount'];
 				}
 			}
 		}
 	}
 
-	public function setOrderId($val){
-		$this->orderId = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setOrderId($val) {
+		$this->orderId = (int) $val;
 	}
-	
-	public function getPaymentsTotal(){
+
+	/**
+	 * @return float
+	 */
+	public function getPaymentsTotal() {
 		return $this->PaymentsTotal;
 	}
-	
-	public function getPendingPaymentsTotal(){
+
+	/**
+	 * @return float
+	 */
+	public function getPendingPaymentsTotal() {
 		return $this->PendingPaymentsTotal;
 	}
-	
-	public function getPaymentHistory(){
+
+	/**
+	 * @return array
+	 */
+	public function getPaymentHistory() {
 		return $this->History;
 	}
-	
-	public function show($cardData = true){
+
+	/**
+	 * @param bool $cardData
+	 * @return htmlElement_table
+	 */
+	public function show($cardData = true) {
 		global $Order, $currencies, $App;
 		$paymentHistoryTable = htmlBase::newElement('table')
-		->setCellPadding(3)
-		->setCellSpacing(0)
-		->css('width', '100%');
+			->setCellPadding(3)
+			->setCellSpacing(0)
+			->css('width', '100%');
 
 		$hasCard = false;
 		$hasPayment = false;
 		foreach($this->History as $paymentHistory){
 			$cardInfo = false;
 			$hasCard = false;
-		    $hasPayment = true;
+			$hasPayment = true;
 			if (array_key_exists('card_details', $paymentHistory) && is_null($paymentHistory['card_details']) === false){
 				$cardInfo = unserialize(cc_decrypt($paymentHistory['card_details']));
 				if (empty($cardInfo['cardNumber'])){
 					$cardInfo = false;
 				}
 			}
-			
+
 			if ($App->getEnv() == 'catalog'){
 				$cardInfo = false;
 			}
-		
+
 			$rowColumns = array(
 				array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
+					'css'    => array(
 						'border-top' => 'none'
 					),
-					'text' => tep_date_short($paymentHistory['date_added'])
+					'text'   => $paymentHistory['date_added']->format(sysLanguage::getDateFormat('short'))
 				),
 				array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
+					'css'    => array(
+						'border-top'  => 'none',
 						'border-left' => 'none'
 					),
-					'text' => $paymentHistory['payment_method']),
-				array(
-					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
-						'border-left' => 'none'
-					),
-					'text' => stripslashes($paymentHistory['gateway_message'])
+					'text'   => $paymentHistory['payment_method']
 				),
 				array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
+					'css'    => array(
+						'border-top'  => 'none',
 						'border-left' => 'none'
 					),
-					'text' => $currencies->format($paymentHistory['payment_amount'], true, $Order->getCurrency(), $Order->getCurrencyValue())
+					'text'   => stripslashes($paymentHistory['gateway_message'])
+				),
+				array(
+					'addCls' => 'ui-widget-content',
+					'css'    => array(
+						'border-top'  => 'none',
+						'border-left' => 'none'
+					),
+					'text'   => $currencies->format($paymentHistory['payment_amount'], true, $Order->getCurrency(), $Order->getCurrencyValue())
 				)
 			);
-			
+
 			if ($cardInfo !== false){
 				$hasCard = true;
 				$rowColumns[] = array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
+					'css'    => array(
+						'border-top'  => 'none',
 						'border-left' => 'none'
 					),
-					'text' => (is_array($cardInfo) ? (($cardData == false)? 'XXXXXXXXXXX' . substr($cardInfo['cardNumber'], strlen($cardInfo['cardNumber'])-5,4):$cardInfo['cardNumber']) : '')
+					'text'   => (is_array($cardInfo) ? (($cardData == false) ? 'XXXXXXXXXXX' . substr($cardInfo['cardNumber'], strlen($cardInfo['cardNumber']) - 5, 4) : $cardInfo['cardNumber']) : '')
 				);
 				$rowColumns[] = array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
+					'css'    => array(
+						'border-top'  => 'none',
 						'border-left' => 'none'
 					),
-					'text' => (is_array($cardInfo) ? $cardInfo['cardExpMonth'] . ' / ' . $cardInfo['cardExpYear'] : '')
+					'text'   => (is_array($cardInfo) ? $cardInfo['cardExpMonth'] . ' / ' . $cardInfo['cardExpYear'] : '')
 				);
 				$rowColumns[] = array(
 					'addCls' => 'ui-widget-content',
-					'css' => array(
-						'border-top' => 'none',
+					'css'    => array(
+						'border-top'  => 'none',
 						'border-left' => 'none'
 					),
-					'text' => (is_array($cardInfo) && isset($cardInfo['cardCvvNumber']) ? $cardInfo['cardCvvNumber'] : 'N/A')
+					'text'   => (is_array($cardInfo) && isset($cardInfo['cardCvvNumber']) ? $cardInfo['cardCvvNumber'] : 'N/A')
 				);
 			}
 
@@ -132,74 +175,73 @@ class OrderPaymentManager {
 			));
 			unset($cardInfo);
 		}
-	
+
 		$headerColumns = array(
 			array(
 				'addCls' => 'main ui-widget-header',
-				'align' => 'left',
-				'text' => sysLanguage::get('TEXT_PAYMENT_HISTORY_DATE_ADDED')
+				'align'  => 'left',
+				'text'   => sysLanguage::get('TEXT_PAYMENT_HISTORY_DATE_ADDED')
 			),
 			array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => sysLanguage::get('TEXT_PAYMENT_HISTORY_PAYMENT_METHOD')
+				'align'  => 'left',
+				'text'   => sysLanguage::get('TEXT_PAYMENT_HISTORY_PAYMENT_METHOD')
 			),
 			array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => sysLanguage::get('TEXT_PAYMENT_HISTORY_MESSAGE')
+				'align'  => 'left',
+				'text'   => sysLanguage::get('TEXT_PAYMENT_HISTORY_MESSAGE')
 			),
 			array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => sysLanguage::get('TEXT_PAYMENT_HISTORY_AMOUNT_PAID')
+				'align'  => 'left',
+				'text'   => sysLanguage::get('TEXT_PAYMENT_HISTORY_AMOUNT_PAID')
 			)
 		);
-	
+
 		if ($hasCard === true){
 			$headerColumns[] = array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => 'Card Used'
+				'align'  => 'left',
+				'text'   => 'Card Used'
 			);
 			$headerColumns[] = array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => 'Exp Date Used'
+				'align'  => 'left',
+				'text'   => 'Exp Date Used'
 			);
 			$headerColumns[] = array(
 				'addCls' => 'main ui-widget-header',
-				'css' => array(
+				'css'    => array(
 					'border-left' => 'none'
 				),
-				'align' => 'left',
-				'text' => 'CVV Code Used'
+				'align'  => 'left',
+				'text'   => 'CVV Code Used'
 			);
 		}
-	    if ($hasPayment){
+		if ($hasPayment){
 			$paymentHistoryTable->addHeaderRow(array(
 				'columns' => $headerColumns
 			));
 		}
 
-
 		return $paymentHistoryTable;
-
 	}
 }
+
 ?>

@@ -21,6 +21,31 @@
 		$Container->Configuration->clear();
 	}
 	$Container->sort_order = (int)$el->attr('data-sort_order');
+	$Container->is_anchor = (int)$el->attr('data-is_anchor');
+	$Container->anchor_id = (int)$el->attr('data-anchor_id');
+
+	if(!empty($Container->anchor_id) && (int)$Container->anchor_id > 0){
+
+		if ($el->attr('data-container_id')){
+			if ($Container->Children){
+				$Container->Children->clear();
+			}
+			if ($Container->Columns){
+				$Container->Columns->clear();
+			}
+			$TemplateLayoutsContainer = Doctrine_Core::getTable('TemplateManagerLayoutsContainers');
+			$Original = $TemplateLayoutsContainer->find((int)$Container->anchor_id);
+			LoadAllContainerData($Original, $Container);
+		}else{
+			if ($Container->Widgets){
+				$Container->Widgets->clear();
+			}
+			$TemplateManagerLayoutsColumns = Doctrine_Core::getTable('TemplateManagerLayoutsColumns');
+			$Original = $TemplateManagerLayoutsColumns->find((int)$Container->anchor_id);
+			LoadAllColumnData($Original, $Container);
+		}
+		return;
+	}
 
 	// process css for id and classes
 	if ($el->attr('data-styles')){
@@ -114,6 +139,7 @@ if (isset($_POST['layout_template'])){
 $Layout->save();
 $layoutId = $Layout->layout_id;
 $layoutName = $Layout->layout_name;
+$layoutType = $Layout->layout_type;
 
 $Reset = $TemplatePages->findAll();
 foreach($Reset as $rInfo){
@@ -124,7 +150,7 @@ foreach($Reset as $rInfo){
 				unset($layouts[$idx]);
 			}
 
-			if ($id = ''){
+			if ($id == ''){
 				unset($layouts[$idx]);
 			}
 		}
@@ -135,14 +161,16 @@ foreach($Reset as $rInfo){
 
 if (isset($_POST['applications'])){
 	foreach($_POST['applications'] as $appName => $Pages){
-		if ($appName == 'ext'){
+		if ($appName == 'ext') {
 			continue;
 		}
 
 		foreach($Pages as $pageName){
 			$TemplatePage = $TemplatePages->findOneByApplicationAndPage($appName, $pageName);
 			$pageType = !empty($_POST['pagetype'][$appName][$pageName]) ? $_POST['pagetype'][$appName][$pageName] : '';
+			$assocurl = !empty($_POST['assocurl'][$appName][$pageName]) ? $_POST['assocurl'][$appName][$pageName] : '';
 			$currentPageTypesNew = false;
+			$currentAssocNew = false;
 
 			if (!$TemplatePage){
 				$TemplatePage = new TemplatePages();
@@ -152,26 +180,38 @@ if (isset($_POST['applications'])){
 
 			$currentLayouts = explode(',', $TemplatePage->layout_id);
 			$currentPageTypes = explode(',', $TemplatePage->page_type);
+			$currentAssoc = explode(',', $TemplatePage->associative_url);
 
 			foreach($currentLayouts as $key => $currentLayout) {
 				//echo 'inside ' . $layoutId . ' = ' . $currentLayout . "\n";
 				if($layoutId == $currentLayout) {
 					$currentPageTypesNew[$key] = $pageType;
+					$currentAssocNew[$key] = $assocurl;
 
 				} else {
-					if(isset($currentPageTypes[$key]))
+					if(isset($currentPageTypes[$key])){
 						$currentPageTypesNew[$key] = $currentPageTypes[$key];
-					else
+					}else{
 						$currentPageTypesNew[$key] = '';
+					}
+
+					if(isset($currentAssoc[$key])){
+						$currentAssocNew[$key] = $currentAssoc[$key];
+					}else{
+						$currentAssocNew[$key] = '';
+					}
+
 				}
 			}
 
 			if (!in_array($layoutId, $currentLayouts)){
 				$currentLayouts[] = $layoutId;
 				$currentPageTypesNew[] = $pageType;
+				$currentAssocNew[] = $assocurl;
 			}
 
 			$TemplatePage->page_type = implode(',', $currentPageTypesNew);
+			$TemplatePage->associative_url = implode(',', $currentAssocNew);
 			$TemplatePage->layout_id = implode(',', $currentLayouts);
 			$TemplatePage->save();
 		}
@@ -185,6 +225,8 @@ if (isset($_POST['applications']['ext'])){
 				$TemplatePage = $TemplatePages->findOneByApplicationAndPageAndExtension($appName, $pageName, $extName);
 				$pageType = !empty($_POST['pagetype']['ext'][$extName][$pageName]) ? $_POST['pagetype']['ext'][$extName][$pageName] : '';
 				$currentPageTypesNew = false;
+				$assocurl = !empty($_POST['assocurl']['ext'][$extName][$pageName]) ? $_POST['assocurl']['ext'][$extName][$pageName] : '';
+				$currentAssocNew = false;
 				
 				if (!$TemplatePage){
 					$TemplatePage = new TemplatePages();
@@ -195,23 +237,36 @@ if (isset($_POST['applications']['ext'])){
 
 				$currentLayouts = explode(',', $TemplatePage->layout_id);
 				$currentPageTypes = explode(',', $TemplatePage->page_type);
+				$currentAssoc = explode(',', $TemplatePage->associative_url);
 
 				foreach($currentLayouts as $key=> $currentLayout) {
 					if($layoutId == $currentLayout) {
 						$currentPageTypesNew[$key] = $pageType;
+						$currentAssocNew[$key] = $assocurl;
+
 					} else {
-						if(isset($currentPageTypes[$key]))
+						if(isset($currentPageTypes[$key])){
 							$currentPageTypesNew[$key] = $currentPageTypes[$key];
-						else
+						}
+						else{
 							$currentPageTypesNew[$key] = '';
+						}
+						if(isset($currentAssoc[$key])){
+							$currentAssocNew[$key] = $currentAssoc[$key];
+						}
+						else{
+							$currentAssocNew[$key] = '';
+						}
 					}
 				}
 
 				if (!in_array($layoutId, $currentLayouts)){
 					$currentLayouts[] = $layoutId;
 					$currentPageTypesNew[] = $pageType;
+					$currentAssocNew[] = $assocurl;
 				}
 				$TemplatePage->page_type = implode(',', $currentPageTypesNew);
+				$TemplatePage->associative_url = implode(',', $currentAssocNew);
 				$TemplatePage->layout_id = implode(',', $currentLayouts);
 				$TemplatePage->save();
 			}
@@ -223,7 +278,7 @@ EventManager::attachActionResponse(array(
 		'success' => true,
 		'layoutId' => $layoutId,
 		'layoutName' => $layoutName,
-		'layoutType' => ucfirst($layoutType)
+		'layoutType' => (isset($layoutType)?ucfirst($layoutType):'')
 	), 'json');
 ?>
 <?php

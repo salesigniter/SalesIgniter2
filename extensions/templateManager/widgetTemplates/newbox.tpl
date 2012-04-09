@@ -8,4 +8,3 @@
  <div class="ui-widget-content"><?php echo $boxContent;?></div>
 </div>
 </div>
-<br style="clear: both"/>

@@ -59,7 +59,7 @@ if ($orders){
 			//array('text' => $htmlCheckbox->draw(), 'align' => 'center'),
 			array('text' => $orderId),
 			//array('text' => $order['OrdersAddresses']['customer']['entry_name']),
-			array('text' => tep_datetime_short($order['date_purchased']), 'align' => 'center'),
+			array('text' => $order['date_purchased']->format(sysLanguage::getDateFormat('short')), 'align' => 'center'),
 			array('text' => $order['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'], 'align' => 'center'),
 			array('text' => strip_tags($order['order_total']), 'align' => 'right')
 		);
@@ -81,9 +81,9 @@ if ($orders){
 						'text' => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
 							'<tr>' .
 							'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_CREATED') . '</b></td>' .
-							'<td> ' . tep_date_short($order['date_purchased']) . '</td>' .
+							'<td> ' . $order['date_purchased']->format(sysLanguage::getDateFormat('short')) . '</td>' .
 							'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_LAST_MODIFIED') . '</b></td>' .
-							'<td>' . tep_date_short($order['last_modified']) . '</td>' .
+							'<td>' . $order['last_modified']->format(sysLanguage::getDateFormat('short')) . '</td>' .
 							'<td></td>' .
 							'</tr>' .
 							'<tr>' .

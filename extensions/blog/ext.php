@@ -18,24 +18,51 @@
 
 		public function init() {
 			global $App, $appExtension, $Template, $blog_cPath, $blog_cPath_array, $current_blog_category_id;
-			if ($this->enabled === false) return;
+			if ($this->isEnabled() === false) return;
 
-			//blog_category_path
-			if (isset($_GET['blog_cPath'])) {
-				$blog_cPath = $_GET['blog_cPath'];
-			} else {
-				$blog_cPath = '';
+			//load extenders
+			$this->extenders = array();
+			$dirIterate = new DirectoryIterator(sysConfig::getDirFsCatalog()  . 'extensions/blog/data/extender/');
+			$directories = array();
+			foreach($dirIterate as $fileObj){
+				if ($fileObj->isDot() || $fileObj->isFile()){
+					continue;
+				}
+
+				$directories[] = array(
+					'path' => $fileObj->getPath(),
+					'basename' => $fileObj->getBasename()
+				);
 			}
 
-			if (tep_not_null($blog_cPath)) {
-				$blog_cPath_array = tep_parse_blog_category_path($blog_cPath);
-				$blog_cPath = implode('_', $blog_cPath_array);
-				$current_blog_category_id = $blog_cPath_array[(sizeof($blog_cPath_array)-1)];
-			} else {
-				$current_blog_category_id = 0;
+			foreach($directories as $dirInfo){
+
+				if(file_exists(sysConfig::getDirFsCatalog()  . 'extensions/blog/data/extender/'.$dirInfo['basename'].'/fields.xml')){
+					$extenderXml = simplexml_load_file(sysConfig::getDirFsCatalog()  .'extensions/blog/data/extender/'.$dirInfo['basename'].'/fields.xml');
+
+					$this->extenders[(string)$extenderXml->info->key]['title'] = (string)$extenderXml->info->title;
+					$fields = array();
+					foreach($extenderXml->fields->field as $field){
+						$fields[(string)$field->name]['type'] = (string)$field->type;
+						$fields[(string)$field->name]['table'] = (string)$field->table;
+						$fields[(string)$field->name]['realtype'] = (string)$field->realtype;
+						$fields[(string)$field->name]['showName'] = (string)$field->showName;
+						$fields[(string)$field->name]['default'] = (string)$field->default;
+						$fields[(string)$field->name]['showFunction'] = (string)$field->showFunction;
+						$fields[(string)$field->name]['searchFunction'] = (string)$field->searchFunction;
+					}
+					$this->extenders[(string)$extenderXml->info->key]['fields'] = $fields;
+
+				}
+
 			}
 
-			if (isset($_GET['appExt']) && $_GET['appExt'] == 'blog'){
+			//in the menu add for every key a menu for categories and posts
+			//filter by key the posts
+			//in the new category show new fields for fields in the key array and get the default data from the extra_field
+			//the same in new posts
+
+			if (APPLICATION_ENVIRONMENT == 'catalog' && isset($_GET['appExt']) && $_GET['appExt'] == 'blog'){
 				if ($App->getAppName() == 'show_category'){
 					$eventFunction = 'addCategoryHeaderTags';
 				}elseif ($App->getAppName() == 'show_archive'){
@@ -47,13 +74,38 @@
 					'name'     => 'HeaderTagsBeforeOutput',
 					'function' => $eventFunction
 				), null, $this);
+				if ($App->getEnv() == 'catalog' && isset($_GET['appExt']) && $_GET['appExt'] == 'blog' && $_GET['app'] == 'show_category' ){
+					$App->setAppPage('default');
+					$_GET['actualPage'] = $_GET['appPage'];
+				}
 			}
 
 			EventManager::attachEvents(array(
 				'PageLeftColumnBeforeInfobox',
 				'PageRightColumnBeforeInfobox',
+				'BoxModulesAddLink',
 				'PageLayoutHeaderCustomMeta'
 			), null, $this);
+		}
+
+		public function BoxModulesAddLink(&$contents){
+			$subChildren = array();
+
+			foreach($this->extenders as $key => $fields){
+				$subChildren[] = array('link' => false,
+									'text' => $fields['title'],
+									'children' => array(array('link' => itw_app_link('appExt=blog&key='.$key,'blog_categories','default','SSL'), 'text' => 'Categories'),
+														array('link' => itw_app_link('appExt=blog&key='.$key,'blog_posts','default','SSL'), 'text' => 'Posts'))
+				);
+
+			}
+			if(count($subChildren) > 0){
+				$contents['children'][] = array(
+					'link' => false,
+					'text' => 'Blog Extenders',
+					'children' => $subChildren
+				);
+			}
 		}
 
 		public function getCategoryHeaderTitle($seo_title){
@@ -70,6 +122,33 @@
 				return  $cInfo['BlogCategoriesDescription'][(int)Session::get('languages_id')]['blog_categories_title'];
 			}
 			return false;
+		}
+
+		public function getPostCategories($blog_post_id){
+			global $appExtension;
+			if (!isset($this->checkMultiStore)){
+				$multiStore = $appExtension->getExtension('multiStore');
+				if ($multiStore !== false && $multiStore->isEnabled() === true){
+					$this->checkMultiStore = true;
+				} else{
+					$this->checkMultiStore = false;
+				}
+			}
+
+			$Query = Doctrine_Query::create()
+				->select('cd.*, cc.*, c.*')
+				->from('BlogPostToCategories c')
+				->leftJoin('c.BlogCategories cc')
+				->leftJoin('cc.BlogCategoriesDescription cd')
+				->where('cd.language_id = ?', (int) Session::get('languages_id'))
+				->andWhere('c.blog_post_id = ?', (int) $blog_post_id);
+
+			if ($this->checkMultiStore === true){
+				$Query->addSelect('ps.*')
+					->leftJoin('cc.BlogCategoriesToStores ps')
+					->andWhere('ps.stores_id = ?', (int) Session::get('current_store_id'));
+			}
+			return $Query->execute();
 		}
 
 		public function getCategoryHeaderDescription($seo_title){
@@ -169,7 +248,7 @@
 			}
 		}
 
-		public function getCategories($languageId = null) {
+		public function getCategories($languageId = null, $parent = -1) {
 			global $appExtension;
 
 			if (!isset($this->checkMultiStore)){
@@ -199,12 +278,16 @@
 				->andWhere('pc.stores_id = ?', (int) Session::get('current_store_id'));
 			}
 
+			if($parent > -1){
+				$Query->where('c.parent_id = ?', (int) $parent);
+			}
+
 			$Result = $Query->execute();
 
 			return $Result;
 		}
 
-		public function getCategoriesPosts($languageId = null, $seo_cat = null, $pg_limit, $pg, &$pagerBar) {
+		public function getCategoriesPosts($languageId = null, $seo_cat = null, $pg_limit, $pg, &$pagerBar, $categ = -1) {
 			global $appExtension;
 
 			if (!isset($this->checkMultiStore)){
@@ -240,6 +323,10 @@
 				$Query->andWhere('cd.language_id = ?', (int) Session::get('languages_id'));
 			}
 
+			if($categ > -1){
+				$Query->andWhere('cc.blog_categories_id = ?', $categ);
+			}
+
 			if ($this->checkMultiStore === true){
 				$Query->addSelect('ps.*')
 				->leftJoin('cc.BlogCategoriesToStores ps')
@@ -251,6 +338,64 @@
 
 			$pagerRange = new Doctrine_Pager_Range_Sliding(array(
 			'chunk' => 5
+			));
+
+			$pagerLayout = new PagerLayoutWithArrows($listingPager, $pagerRange, $pagerLink);
+			$pagerLayout->setMyType('posts');
+			$pagerLayout->setTemplate('<a href="{%url}" style="margin-left:5px;background-color:#ffffff;padding:3px;">{%page}</a>');
+			$pagerLayout->setSelectedTemplate('<span style="margin-left:5px;">{%page}</span>');
+
+			$pager = $pagerLayout->getPager();
+
+			$Result = $pager->execute()->toArray(true);
+
+			$pagerBar = $pagerLayout->display(array(), true);
+
+			return $Result;
+		}
+
+		public function getPostsWithPaging($languageId = null, $seo_cat = null, $pg_limit, $pg, &$pagerBar) {
+			global $appExtension;
+
+			if (!isset($this->checkMultiStore)){
+				$multiStore = $appExtension->getExtension('multiStore');
+				if ($multiStore !== false && $multiStore->isEnabled() === true){
+					$this->checkMultiStore = true;
+				} else{
+					$this->checkMultiStore = false;
+				}
+			}
+
+			$Query = Doctrine_Query::create()
+				->from('BlogPosts p')
+				->leftJoin('p.BlogPostsDescription pd')
+				->leftJoin('p.BlogPostToCategories c')
+				->leftJoin('c.BlogCategories cc')
+				->leftJoin('cc.BlogCategoriesDescription cd')
+				->where('p.post_status = 1')
+				->orderBy('p.post_date desc');
+
+			if (is_null($languageId) === false){
+				$Query->andWhere('pd.language_id = ?', (int) $languageId);
+				//$Query->andWhere('cd.language_id = ?', (int) $languageId);
+			} else{
+				$Query->andWhere('pd.language_id = ?', (int) Session::get('languages_id'));
+				//$Query->andWhere('cd.language_id = ?', (int) Session::get('languages_id'));
+			}
+			if (is_null($seo_cat) === false){
+				$Query->andWhere('cd.blog_categories_seo_url = ?', $seo_cat);
+			}
+
+			if ($this->checkMultiStore === true){
+				$Query->leftJoin('cc.BlogCategoriesToStores ps')
+					->andWhere('ps.stores_id = ?', (int) Session::get('current_store_id'));
+			}
+
+			$listingPager = new Doctrine_Pager($Query, $pg, $pg_limit);
+			$pagerLink = itw_app_link(tep_get_all_get_params(array('page', 'action')) . 'page={%page_number}');
+
+			$pagerRange = new Doctrine_Pager_Range_Sliding(array(
+				'chunk' => 5
 			));
 
 			$pagerLayout = new PagerLayoutWithArrows($listingPager, $pagerRange, $pagerLink);
@@ -520,21 +665,26 @@
 	/*end blog*/
 
 	/*Blog functions*/
-
-	function tep_friendly_seo_url($string){
-		$string = preg_replace("`\[.*\]`U","",$string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
-		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
-		$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
-		return strtolower(trim($string, '-'));
-	}
+    if(!function_exists('tep_friendly_seo_url')){
+		function tep_friendly_seo_url($string){
+			$string = preg_replace("`\[.*\]`U","",$string);
+			$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
+			$string = htmlentities($string, ENT_COMPAT, 'utf-8');
+			$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
+			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
+			return strtolower(trim($string, '-'));
+		}
+    }
 
 	function tep_set_post_status($post_id, $status) {
 		if ($status == '1') {
-			return tep_db_query("update blog_posts set post_status = '1' where post_id = '" . (int)$post_id . "'");
+			return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update blog_posts set post_status = '1' where post_id = '" . (int)$post_id . "'");
 		} elseif ($status == '0') {
-			return tep_db_query("update blog_posts set post_status = '0' where post_id = '" . (int)$post_id . "'");
+			return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update blog_posts set post_status = '0' where post_id = '" . (int)$post_id . "'");
 		} else {
 			return -1;
 		}
@@ -542,49 +692,16 @@
 
 	function tep_set_comment_status($comment_id, $status) {
 		if ($status == '1') {
-			return tep_db_query("update blog_comments set comment_status = '1' where comment_id = '" . (int)$comment_id . "'");
+			return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update blog_comments set comment_status = '1' where comment_id = '" . (int)$comment_id . "'");
 		} elseif ($status == '0') {
-			return tep_db_query("update blog_comments set comment_status = '0' where comment_id = '" . (int)$comment_id . "'");
+			return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update blog_comments set comment_status = '0' where comment_id = '" . (int)$comment_id . "'");
 		} else {
 			return -1;
 		}
-	}
-
-	function tep_get_blog_path($current_category_id = '') {
-		global $blog_cPath_array;
-
-		if (tep_not_null($current_category_id)) {
-			$cp_size = sizeof($blog_cPath_array);
-			if ($cp_size == 0) {
-				$blog_cPath_new = $current_category_id;
-			} else {
-				$blog_cPath_new = '';
-				$last_category_query = tep_db_query("select parent_id from blog_categories where blog_categories_id = '" . (int)$blog_cPath_array[($cp_size-1)] . "'");
-				$last_category = tep_db_fetch_array($last_category_query);
-
-				$current_category_query = tep_db_query("select parent_id from blog_categories where blog_categories_id = '" . (int)$current_category_id . "'");
-				$current_category = tep_db_fetch_array($current_category_query);
-
-				if ($last_category['parent_id'] == $current_category['parent_id']) {
-					for ($i=0; $i<($cp_size-1); $i++) {
-						$blog_cPath_new .= '_' . $blog_cPath_array[$i];
-					}
-				} else {
-					for ($i=0; $i<$cp_size; $i++) {
-						$blog_cPath_new .= '_' . $blog_cPath_array[$i];
-					}
-				}
-				$blog_cPath_new .= '_' . $current_category_id;
-
-				if (substr($blog_cPath_new, 0, 1) == '_') {
-					$blog_cPath_new = substr($blog_cPath_new, 1);
-				}
-			}
-		} else {
-			$blog_cPath_new = implode('_', $blog_cPath_array);
-		}
-
-		return 'blog_cPath=' . $blog_cPath_new;
 	}
 
 	function tep_get_blog_category_tree($parent_id = '0', $spacing = '', $exclude = '', $category_tree_array = '', $include_itself = false) {
@@ -592,13 +709,16 @@
 		if ( (sizeof($category_tree_array) < 1) && ($exclude != '0') ) $category_tree_array[] = array('id' => '0', 'text' => sysLanguage::get('TEXT_TOP'));
 
 		if ($include_itself) {
-			$category_query = tep_db_query("select cd.blog_categories_title from blog_categories_description cd where cd.language_id = '" . (int)Session::get('languages_id') . "' and cd.blog_categories_id = '" . (int)$parent_id . "'");
-			$category = tep_db_fetch_array($category_query);
-			$category_tree_array[] = array('id' => $parent_id, 'text' => $category['blog_categories_title']);
+			$category = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select cd.blog_categories_title from blog_categories_description cd where cd.language_id = '" . (int)Session::get('languages_id') . "' and cd.blog_categories_id = '" . (int)$parent_id . "'");
+			$category_tree_array[] = array('id' => $parent_id, 'text' => $category[0]['blog_categories_title']);
 		}
 
-		$categories_query = tep_db_query("select c.blog_categories_id, cd.blog_categories_title, c.parent_id from blog_categories c, blog_categories_description cd where c.blog_categories_id = cd.blog_categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.blog_categories_title");
-		while ($categories = tep_db_fetch_array($categories_query)) {
+		$categories_query = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select c.blog_categories_id, cd.blog_categories_title, c.parent_id from blog_categories c, blog_categories_description cd where c.blog_categories_id = cd.blog_categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.blog_categories_title");
+		foreach ($categories_query as $categories) {
 			if ($exclude != $categories['blog_categories_id']) $category_tree_array[] = array('id' => $categories['blog_categories_id'], 'text' => $spacing . $categories['blog_categories_title']);
 			$category_tree_array = tep_get_blog_category_tree($categories['blog_categories_id'], $spacing . '&nbsp;&nbsp;&nbsp;', $exclude, $category_tree_array);
 		}
@@ -606,39 +726,27 @@
 		return $category_tree_array;
 	}
 
-	function tep_parse_blog_category_path($cPath) {
-		// make sure the category IDs are integers
-		$blog_cPath_array = array_map('tep_string_to_int', explode('_', $cPath));
-
-		// make sure no duplicate category IDs exist which could lock the server in a loop
-		$tmp_array = array();
-		$n = sizeof($blog_cPath_array);
-		for ($i=0; $i<$n; $i++) {
-			if (!in_array($blog_cPath_array[$i], $tmp_array)) {
-				$tmp_array[] = $blog_cPath_array[$i];
-			}
-		}
-
-		return $tmp_array;
-	}
-
 
 	function tep_articles_in_blog_category_count($categories_id, $include_deactivated = false) {
 		$products_count = 0;
 
 		if ($include_deactivated) {
-			$products_query = tep_db_query("select count(*) as total from blog_posts p, blog_post_to_categories p2c where p.post_id = p2c.blog_post_id and p2c.blog_categories_id = '" . (int)$categories_id . "'");
+			$products = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select count(*) as total from blog_posts p, blog_post_to_categories p2c where p.post_id = p2c.blog_post_id and p2c.blog_categories_id = '" . (int)$categories_id . "'");
 		} else {
-			$products_query = tep_db_query("select count(*) as total from blog_posts p, blog_post_to_categories p2c where p.post_id = p2c.blog_post_id and p.post_status = '1' and p2c.blog_categories_id = '" . (int)$categories_id . "'");
+			$products = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select count(*) as total from blog_posts p, blog_post_to_categories p2c where p.post_id = p2c.blog_post_id and p.post_status = '1' and p2c.blog_categories_id = '" . (int)$categories_id . "'");
 		}
 
-		$products = tep_db_fetch_array($products_query);
+		$products_count += $products[0]['total'];
 
-		$products_count += $products['total'];
-
-		$childs_query = tep_db_query("select blog_categories_id from blog_categories where parent_id = '" . (int)$categories_id . "'");
-		if (tep_db_num_rows($childs_query)) {
-			while ($childs = tep_db_fetch_array($childs_query)) {
+		$childs_query = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select blog_categories_id from blog_categories where parent_id = '" . (int)$categories_id . "'");
+		if (sizeof($childs_query) > 0) {
+			foreach ($childs_query as $childs) {
 				$products_count += tep_articles_in_blog_category_count($childs['blog_categories_id'], $include_deactivated);
 			}
 		}
@@ -652,8 +760,10 @@
 	function tep_childs_in_blog_category_count($categories_id) {
 		$categories_count = 0;
 
-		$categories_query = tep_db_query("select blog_categories_id from blog_categories where parent_id = '" . (int)$categories_id . "'");
-		while ($categories = tep_db_fetch_array($categories_query)) {
+		$categories_query = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select blog_categories_id from blog_categories where parent_id = '" . (int)$categories_id . "'");
+		foreach ($categories_query as $categories) {
 			$categories_count++;
 			$categories_count += tep_childs_in_blog_category_count($categories['blog_categories_id']);
 		}
@@ -672,16 +782,18 @@
 			$catList = '<ul class="catListingUL">';
 
 			if ($parent_id == '0'){
-				$category_query = tep_db_query("select cd.blog_categories_title from blog_categories_description cd where cd.language_id = '" . (int)Session::get('languages_id') . "' and cd.blog_categories_id = '" . (int)$parent_id . "'");
-				if (tep_db_num_rows($category_query)){
-					$category = tep_db_fetch_array($category_query);
-
-					$catList .= '<li>' . tep_draw_checkbox_field('blog_categories[]', $parent_id, (in_array($parent_id, $checked)), 'id="catCheckbox_' . $parent_id . '"') . '<label for="catCheckbox_' . $parent_id . '">' . $category['blog_categories_title'] . '</label></li>';
+				$category = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc("select cd.blog_categories_title from blog_categories_description cd where cd.language_id = '" . (int)Session::get('languages_id') . "' and cd.blog_categories_id = '" . (int)$parent_id . "'");
+				if (sizeof($category) > 0){
+					$catList .= '<li>' . tep_draw_checkbox_field('blog_categories[]', $parent_id, (in_array($parent_id, $checked)), 'id="catCheckbox_' . $parent_id . '"') . '<label for="catCheckbox_' . $parent_id . '">' . $category[0]['blog_categories_title'] . '</label></li>';
 				}
 			}
 
-			$categories_query = tep_db_query("select c.blog_categories_id, cd.blog_categories_title, c.parent_id from blog_categories c, blog_categories_description cd where c.blog_categories_id = cd.blog_categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.blog_categories_title");
-			while ($categories = tep_db_fetch_array($categories_query)) {
+			$categories_query = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select c.blog_categories_id, cd.blog_categories_title, c.parent_id from blog_categories c, blog_categories_description cd where c.blog_categories_id = cd.blog_categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.blog_categories_title");
+			foreach ($categories_query as $categories) {
 				$catList .= '<li>' . tep_draw_checkbox_field('blog_categories[]', $categories['blog_categories_id'], (in_array($categories['blog_categories_id'], $checked)), 'id="catCheckbox_' . $categories['blog_categories_id'] . '"') . '<label for="catCheckbox_' . $categories['blog_categories_id'] . '">' . $categories['blog_categories_title'] . '</label></li>';
 				if (tep_childs_in_blog_category_count($categories['blog_categories_id']) > 0){
 					$catList .= '<li class="subCatContainer">' . tep_get_blog_category_tree_list($categories['blog_categories_id'], $checked, false) . '</li>';

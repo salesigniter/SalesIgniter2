@@ -41,10 +41,12 @@
 				$pw_keywords = explode(' ',stripslashes(strtolower($_GET['keywords'])));
 				$pw_replacement_words = $pw_keywords;
 				$pw_boldwords = $pw_keywords;
-				$sql_words = tep_db_query("SELECT * FROM searchword_swap");
+				$ResultSet = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc("SELECT * FROM searchword_swap");
 				$pw_replacement = '';
 				$pw_link_text = '';
-				while ($sql_words_result = tep_db_fetch_array($sql_words)) {
+				foreach ($ResultSet as $sql_words_result) {
 					if(stripslashes(strtolower($_GET['keywords'])) == stripslashes(strtolower($sql_words_result['sws_word']))){
 						$pw_replacement = stripslashes($sql_words_result['sws_replacement']);
 						$pw_link_text = '<b><i>' . stripslashes($sql_words_result['sws_replacement']) . '</i></b>';

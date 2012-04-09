@@ -53,6 +53,7 @@ class RentalStoreUser implements Serializable {
 	public function loadPlugins(){
 		$this->plugins['membership'] = new rentalStoreUser_membership($this->customerInfo['id']);
 		$this->plugins['addressBook'] = new rentalStoreUser_addressBook($this->customerInfo['id']);
+		$this->plugins['addressBook']->defaultAddress = $this->customerInfo['default_address_id'];
 	}
 
 	public function processLogOut(){
@@ -150,13 +151,18 @@ class RentalStoreUser implements Serializable {
 			if (isset($customer['is_provider']) && $customer['is_provider'] == '1'){
 				$customerInfo['is_provider'] = true;
 			}
-			
+
+			if (isset($customer['customers_cell_phone'])){
+				$customerInfo['cellphone'] = $customer['customers_cell_phone'];
+				$customerInfo['cellphone_carrier'] = $customer['customers_cell_phone_carrier'];
+			}
+
 			$this->setCustomerInfo($customerInfo);
 		}
 	}
 
 	public function isFrozen(){
-		return ($this->customerInfo['frozen'] === true);
+		return (isset($this->customerInfo['frozen']) && $this->customerInfo['frozen'] === true);
 	}
 
 	public function isProvider(){
@@ -217,7 +223,7 @@ class RentalStoreUser implements Serializable {
 					$this->plugins['membership']->__construct($this->customerInfo['id']);
 				}
 
-				if (sysConfig::get('EXTENSION_INVENTORY_CENTERS_ENABLED') == 'True'){
+				if ($appExtension->isEnabled('inventoryCenters') === true){
 					$this->setCustomerInfo(array(
 						'serviceCenter' => $this->plugins['addressBook']->getAddressInventoryCenter()
 					));
@@ -235,25 +241,15 @@ class RentalStoreUser implements Serializable {
 					Session::set('customer_default_address_id', $this->plugins['addressBook']->defaultAddress);
 				}
 
-				if (ALLOW_RENTALS == 'true'){
-					Session::set('rental_address_id', $this->plugins['membership']->membershipInfo['rental_address_id']);
-				}
-
-				if (sysConfig::get('EXTENSION_INVENTORY_CENTERS_ENABLED') == 'True'){
+				if ($appExtension->isEnabled('inventoryCenters') === true){
 					$_SESSION['addressCheck']['systemSelected'] = $this->customerInfo['serviceCenter'];
 				}
 
 				$this->updateUserLogins();
 
-				EventManager::notify('ProcessLoginAfterExecute', &$this);
-
 				$ShoppingCart->restoreContents();
 
-				if (Session::exists('rentalQueueBase') === true){
-					$rentalQueueBase = &Session::getReference('rentalQueueBase');
-					$rentalQueueBase->customerID = $this->customerInfo['id'];
-					$rentalQueueBase->restore_contents();
-				}
+				EventManager::notify('ProcessLoginAfterExecute', &$this);
 			}else{
 				$error = true;
 			}
@@ -345,8 +341,8 @@ class RentalStoreUser implements Serializable {
 
 		EventManager::notify('NewCustomerAccountBeforeExecute', &$newUser);
 
-		$newUser->customers_number = $this->customerInfo['memberNumber'];
-		$newUser->customers_account_frozen = ($this->customerInfo['frozen'] === true ? '1' : '0');
+		$newUser->customers_number = (isset($this->customerInfo['memberNumber']) ? $this->customerInfo['memberNumber'] : tep_create_random_value(8));
+		$newUser->customers_account_frozen = (isset($this->customerInfo['frozen']) && $this->customerInfo['frozen'] === true ? '1' : '0');
 
 		$newUser->save();
 		$this->customerInfo['id'] = $newUser->customers_id;
@@ -434,7 +430,6 @@ class RentalStoreUser implements Serializable {
 		$CustomersInfo->customers_info_number_of_logons++;
 		$CustomersInfo->customers_info_date_of_last_logon = date('Y-m-d H:i:s');
 		$CustomersInfo->save();
-
 		
 		unset($CustomersInfo);
 	}
@@ -577,6 +572,14 @@ class RentalStoreUser implements Serializable {
 		$this->customerInfo['telephone'] = $val;
 	}
 
+	public function setCellphoneNumber($val){
+		$this->customerInfo['cellphone'] = $val;
+	}
+
+	public function setCellphoneCarrier($val){
+		$this->customerInfo['cellphone_carrier'] = $val;
+	}
+
 	public function setPassword($val){
 		$this->customerInfo['password'] = $val;
 	}
@@ -586,11 +589,8 @@ class RentalStoreUser implements Serializable {
 	}
 
 	public function setDateOfBirth($val){
-		$date = strptime($val, sysLanguage::getDateFormat('short'));
-		$mm = $date['tm_mon']+1;
-		$dd = $date['tm_mday'];
-		$yy = 1900 + $date['tm_year'];
-		$this->customerInfo['dob'] = date('Y-m-d', mktime(0,0,0,$mm, $dd, $yy));
+		$date = date_parse($val);
+		$this->customerInfo['dob'] = date('Y-m-d', mktime(0,0,0,$date['month'],$date['day'],$date['year'])); 
 	}
 
 	public function setNewsletter($val){
@@ -641,6 +641,8 @@ class RentalStoreUser implements Serializable {
 	public function getFirstName(){ return $this->customerInfo['firstName']; }
 	public function getLastName(){ return $this->customerInfo['lastName']; }
 	public function getTelephoneNumber(){ return $this->customerInfo['telephone']; }
+	public function getCellphoneNumber(){ return $this->customerInfo['cellphone']; }
+	public function getCellphoneCarrier(){ return $this->customerInfo['cellphone_carrier']; }
 	public function getFaxNumber(){ return $this->customerInfo['fax']; }
 	public function getCustomerId(){ return $this->customerInfo['id']; }
 	public function getDateOfBirth(){ return $this->customerInfo['dob']; }
@@ -705,7 +707,7 @@ class RentalStoreUser implements Serializable {
 							if (preg_match('/^[a-z][a-z]$/', $top_level_domain) != 1) {
 								$tld_pattern = '';
 								// Get authorized TLDs from text file
-								$tlds = file(DIR_WS_INCLUDES . 'tld.txt');
+								$tlds = file(sysConfig::getDirFsCatalog() . 'includes/tld.txt');
 								while (list(,$line) = each($tlds)) {
 									// Get rid of comments
 									$words = explode('#', $line);

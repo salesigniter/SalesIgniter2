@@ -29,7 +29,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$product);
      <div class="ui-widget ui-widget-content ui-corner-all" style="overflow:none;">
       <a class="fancyBox ui-state-active" index="0" rel="gallery" href="<?php echo $image;?>"><img class="additionalImage" imgSrc="<?php echo $image;?>&width=250&height=250" src="<?php echo $image;?>&width=50&height=50"></a>
 <?php
-   		$imgSrc = sysConfig::getDirWsCatalog() . sysConfig::get('DIR_WS_IMAGES');
+   		$imgSrc = '';
 	     $ind = 0;
     	foreach($QadditionalImages as $imgInfo){
     		$addImage = $thumbUrl . $imgSrc . $imgInfo['file_name'];

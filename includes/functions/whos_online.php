@@ -26,6 +26,13 @@
   function tep_update_whos_online() {
     // WOL 1.6 - Need access to spider_flag and user_agent and moved some assignments up here from below
     global $spider_flag, $user_agent, $userAccount;
+
+	  if (
+		  basename($_SERVER['PHP_SELF']) == 'stylesheet.php' ||
+		  basename($_SERVER['PHP_SELF']) == 'javascript.php'
+	  ){
+		  return;
+	  }
       
       $wo_ip_address = tep_get_ip_address();
       $wo_last_page_url = request_uri();
@@ -68,9 +75,9 @@
 	  /**
 	   * @TODO: Fix This
 	   */
-	  /*
+
 	  $WhosOnline = Doctrine_Core::getTable('WhosOnline');
-	  $Entry = $WhosOnline->findBySessionId($wo_session_id);
+	  $Entry = $WhosOnline->findOneBySessionId($wo_session_id);
 	  if (!$Entry){
 		  $Entry = $WhosOnline->create();
 		  $Entry->session_id = $wo_session_id;
@@ -84,6 +91,5 @@
 	  $Entry->http_referer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
 	  $Entry->user_agent = $user_agent;
 	  $Entry->save();
-	  */
   }
 ?>

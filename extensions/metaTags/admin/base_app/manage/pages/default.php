@@ -43,11 +43,10 @@
 	//each language tabs (anchor - header)
 
 	echo '<ul>';
-	$lang_tab_headers = '';
 	foreach($languages as $lInfo){
 		$langImage 	= tep_image(sysConfig::getDirFsCatalog() . 'languages/' . $lInfo['directory'] . '/images/' . $lInfo['image'], $lInfo['name']);
 		$showName 	= $lInfo['showName']();
-		$lang_tab_header = sprintf (
+		echo sprintf (
 			'<li class="ui-tabs-nav-item">
 				<a href="#langTab_%s">
 					<span>%s</span>
@@ -56,21 +55,13 @@
 			$lInfo['id'],
 			$showName //update core
 		);
-
-		if($lInfo['id'] === sysLanguage::getId()){
-			$lang_tab_headers =  $lang_tab_header . $lang_tab_headers;
-		} else {
-			$lang_tab_headers .=  $lang_tab_header;
-		}
 	}
-	echo $lang_tab_headers;
 	echo '</ul>';
 
 
 	//each language tabs (div content)
 
 	$layout = '';
-	$lang_tab_contents = '';
 	foreach($languages as $lInfo){
 
 		$lID = $lInfo['id'];
@@ -163,15 +154,7 @@
 
 		$layout .= '</div>';
 
-		if($lInfo['id'] === sysLanguage::getId()){
-			$lang_tab_contents =  $layout . $lang_tab_contents;
-		} else {
-			$lang_tab_contents .=  $layout;
-		}
-		$layout = '';
-
     }
-	$layout = $lang_tab_contents;
 
 
 	//form

@@ -2,16 +2,11 @@
 	if (isset($_POST) && !empty($_POST)){
 		$rInfo = new objectInfo($_POST);
 	}else{
-		$Qreview = dataAccess::setQuery('select r.reviews_id, r.products_id, r.customers_name, r.date_added, r.last_modified, r.reviews_read, rd.reviews_text, r.reviews_rating, p.products_image, pd.products_name from {reviews} r, {reviews_description} rd, {products} p left join {products_description} pd using(products_id) where p.products_id = r.products_id and pd.language_id = {language_id} and r.reviews_id = {review_id} and r.reviews_id = rd.reviews_id')
-		->setTable('{reviews}', TABLE_REVIEWS)
-		->setTable('{reviews_description}', TABLE_REVIEWS_DESCRIPTION)
-		->setTable('{products}', TABLE_PRODUCTS)
-		->setTable('{products_description}', TABLE_PRODUCTS_DESCRIPTION)
-		->setValue('{language_id}', Session::get('languages_id'))
-		->setValue('{review_id}', (int)$_GET['rID'])
-		->runQuery();
+		$Review = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select r.reviews_id, r.products_id, r.customers_name, r.date_added, r.last_modified, r.reviews_read, rd.reviews_text, r.reviews_rating, p.products_image, pd.products_name from ' . TABLE_REVIEWS . ' r, ' . TABLE_REVIEWS_DESCRIPTION . ' rd, ' . TABLE_PRODUCTS . ' p left join ' . TABLE_PRODUCTS_DESCRIPTION . ' pd using(products_id) where p.products_id = r.products_id and pd.language_id = "' . Session::get('languages_id') . '" and r.reviews_id = "' . (int)$_GET['rID'] . '" and r.reviews_id = rd.reviews_id')
 		
-		$rInfo = new objectInfo($Qreview->toArray());
+		$rInfo = new objectInfo($Review[0]);
 	}
 	$ratingBar = htmlBase::newElement('ratingbar')->setStars(5)->setValue($rInfo->reviews_rating);
 ?>
@@ -20,7 +15,7 @@
 <form name="update" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'rID')) . 'action=save&rID=' . (int)$_GET['rID']);?>" method="post">
 <div style="width:100%;display:inline-block;">
 	<p>
-		<?php echo tep_image(DIR_WS_CATALOG_IMAGES . $rInfo->products_image, $rInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, 'hspace="5" vspace="5" align="right"');?>
+		<?php echo tep_image($rInfo->products_image, $rInfo->products_name, sysConfig::get('SMALL_IMAGE_WIDTH'), sysConfig::get('SMALL_IMAGE_HEIGHT'), 'hspace="5" vspace="5" align="right"');?>
 		<div class="main"><b><?php echo sysLanguage::get('ENTRY_PRODUCT'); ?></b> <?php echo $rInfo->products_name; ?></div>
 		<div class="main"><b><?php echo sysLanguage::get('ENTRY_FROM'); ?></b> <?php echo $rInfo->customers_name; ?></div>
 		<div class="main"><b><?php echo sysLanguage::get('ENTRY_DATE'); ?></b> <?php echo tep_date_short($rInfo->date_added); ?></div>

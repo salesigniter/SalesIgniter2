@@ -31,6 +31,7 @@ class Extension_payPerRentals extends ExtensionBase {
 			'ProductInventoryQuantityGetItemCount',
 			'ApplicationTopAction_reserve_now',
 			'BoxMarketingAddLink',
+			'BoxModulesAddLink',
 			'OrderBeforeSendEmail',
             'ProductBeforeTaxAddress',
 			'NewProductAddBarcodeListingHeader',
@@ -245,7 +246,7 @@ class Extension_payPerRentals extends ExtensionBase {
 			Session::remove('post_array');
 		}
 
-		$pID = (int) tep_get_prid($_GET['products_id']);
+		$pID = (int) $_GET['products_id'];
 		$purchaseType = PurchaseTypeModules::getModule('reservation');
 		$purchaseType->loadProduct($pID);
 		//$product = new product($pID);
@@ -330,6 +331,54 @@ class Extension_payPerRentals extends ExtensionBase {
 		}
 	}
 
+
+	public function BoxModulesAddLink(&$contents){
+		$subChildren = array();
+
+		if (sysPermissions::adminAccessAllowed('maintenance', 'default', 'payPerRentals') === true){
+			$subChildren[] = array(
+				'link' => itw_app_link('appExt=payPerRentals','maintenance','default','SSL'),
+				'text' => 'Maintenance'
+			);
+		}
+		if (sysPermissions::adminAccessAllowed('maintenance_periods', 'default', 'payPerRentals') === true){
+			$subChildren[] = array(
+				'link' => itw_app_link('appExt=payPerRentals','maintenance_periods','default','SSL'),
+				'text' => 'Maintenance Periods'
+			);
+		}
+
+		if (sysPermissions::adminAccessAllowed('items_reports', 'default', 'payPerRentals') === true){
+			$subChildren[] = array(
+				'link' => itw_app_link('appExt=payPerRentals','items_reports','default','SSL'),
+				'text' => 'Cycle Reports'
+			);
+		}
+
+		if (sysPermissions::adminAccessAllowed('maintenance_reports', 'default', 'payPerRentals') === true){
+			$subChildren[] = array(
+				'link' => itw_app_link('appExt=payPerRentals','maintenance_reports','default','SSL'),
+				'text' => 'Maintenance Reports'
+			);
+		}
+
+		if (sysPermissions::adminAccessAllowed('rent_report', 'default', 'payPerRentals') === true){
+			$subChildren[] = array(
+				'link' => itw_app_link('appExt=payPerRentals','rent_report','default','SSL'),
+				'text' => 'Hire Reports'
+			);
+		}
+		if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'True'){
+			$contents['children'][] = array(
+				'link' => false,
+				'text' => 'Maintenance',
+				'children' => $subChildren
+			);
+		}
+
+	}
+
+
 	public function BoxMarketingAddLink(&$contents){
 		if (sysPermissions::adminAccessAllowed('default_orders', 'show_reports', 'payPerRentals') === true){
 			$contents['children'][] = array(
@@ -341,6 +390,24 @@ class Extension_payPerRentals extends ExtensionBase {
 			$contents['children'][] = array(
 				'link'       => itw_app_link('appExt=payPerRentals','reservations_reports','default','SSL'),
 				'text' => 'Rental Inventory Report'
+			);
+		}
+		if (sysPermissions::adminAccessAllowed('default', 'maintenance_reports', 'payPerRentals') === true){
+			$contents['children'][] = array(
+				'link'       => itw_app_link('appExt=payPerRentals','maintenance_reports','default','SSL'),
+				'text' => 'Maintenance Reports'
+			);
+		}
+		if (sysPermissions::adminAccessAllowed('default', 'items_reports', 'payPerRentals') === true){
+			$contents['children'][] = array(
+				'link'       => itw_app_link('appExt=payPerRentals','items_reports','default','SSL'),
+				'text' => 'Cycle Reports'
+			);
+		}
+		if (sysPermissions::adminAccessAllowed('default', 'rent_report', 'payPerRentals') === true){
+			$contents['children'][] = array(
+				'link'       => itw_app_link('appExt=payPerRentals','rent_report','default','SSL'),
+				'text' => 'Hire Reports'
 			);
 		}
 	}

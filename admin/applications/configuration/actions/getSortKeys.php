@@ -33,8 +33,8 @@
 			}
 		}
 
-		if (file_exists(sysConfig::getDirFsCatalog() . 'templates/fallback/classes/product_listing/' . $name . '.php')){
-			$module = sysConfig::getDirFsCatalog() . 'templates/fallback/classes/product_listing/' . $name . '.php';
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php')){
+			$module = sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php';
 		}
 
 		if (!class_exists($className)){

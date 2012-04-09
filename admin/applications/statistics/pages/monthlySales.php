@@ -264,14 +264,13 @@
 
 	if (isset($_GET['status']) && ($_GET['status'] > 0)){
 		$Qsales->andWhere('o.orders_status = ?', $status);
-
 	}
 
 	if ($sel_month > 0){
 		$Qsales->andWhere('MONTH(o.date_purchased) = ?', $sel_month);
 	}
 
-    EventManager::notify('OrdersListingBeforeExecute', &$Qsales);
+    EventManager::notify('AdminOrdersListingBeforeExecute', &$Qsales);
 
 	$Result = $Qsales->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($Result){
@@ -343,50 +342,50 @@
 			$Queries = array();
 
 			$Queries['salesRental'] = Doctrine_Query::create()
-			->select('SUM(op.final_price * op.products_quantity) as total')
+			->select('o.orders_id, SUM(op.final_price * op.products_quantity) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
 			->andWhere('op.purchase_type = ?', 'membership');
 
 			$Queries['netNoTax'] = Doctrine_Query::create()
-			->select('SUM(op.final_price * op.products_quantity) as total')
+			->select('o.orders_id, SUM(op.final_price * op.products_quantity) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
 			->where('op.products_tax = ?', '0');
 
 			$Queries['netTax'] = Doctrine_Query::create()
-			->select('SUM(op.final_price * op.products_quantity) as total')
+			->select('o.orders_id, SUM(op.final_price * op.products_quantity) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
 			->where('op.products_tax > ?', '0');
 
 			$Queries['grossSales'] = Doctrine_Query::create()
-			->select('SUM(op.final_price * op.products_quantity * (1 + (op.products_tax / 100.0))) as total')
+			->select('o.orders_id, SUM(op.final_price * op.products_quantity * (1 + (op.products_tax / 100.0))) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
-			->where('op.products_tax > ?', '0');
+			->where('op.products_tax >= ?', '0');
 
 			$Queries['salesTax'] = Doctrine_Query::create()
-			->select('SUM((op.final_price * op.products_quantity * (1 + (op.products_tax / 100.0))) - (op.final_price * op.products_quantity)) as total')
+			->select('o.orders_id, SUM((op.final_price * op.products_quantity * (1 + (op.products_tax / 100.0))) - (op.final_price * op.products_quantity)) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersProducts op')
 			->where('op.products_tax > ?', '0');
 
 			$Queries['taxCollected'] = Doctrine_Query::create()
-			->select('SUM(ot.value) as total')
+			->select('o.orders_id, SUM(ot.value) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersTotal ot')
 			->whereIn('ot.module_type', array('ot_tax','tax'));
 
 			$Queries['shippingCollected'] = Doctrine_Query::create()
-			->select('SUM(ot.value) as total')
+			->select('o.orders_id, SUM(ot.value) as total')
 			->from('Orders o')
 			->leftJoin('o.OrdersTotal ot')
 			->whereIn('ot.module_type', array('ot_shipping','shipping'));
 
 			if ($loworder) {
 				$Queries['lowOrderFees'] = Doctrine_Query::create()
-				->select('SUM(ot.value) as total')
+				->select('o.orders_id, SUM(ot.value) as total')
 				->from('Orders o')
 				->leftJoin('o.OrdersTotal ot')
 				->where('ot.module_type = ?', 'ot_loworderfee');
@@ -394,7 +393,7 @@
 
 			if ($extra_class){
 				$Queries['otherOrderFees'] = Doctrine_Query::create()
-				->select('SUM(ot.value) as total')
+				->select('o.orders_id, SUM(ot.value) as total')
 				->from('Orders o')
 				->leftJoin('o.OrdersTotal ot')
 				->whereNotIn('ot.module_type', $classValueArr);
@@ -412,7 +411,7 @@
 					$queryObj->andWhere('DAYOFMONTH(o.date_purchased) = ?', $sInfo['row_day']);
 				}
 
-				EventManager::notify('OrdersListingBeforeExecute', &$queryObj);
+				EventManager::notify('AdminOrdersListingBeforeExecute', &$queryObj);
 
 				$$finalVarName = $queryObj->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			}
@@ -439,7 +438,7 @@
 			$tax_this_row = (floor(($tax_this_row * 100) + 0.5)) / 100;
 
 			// accumulate row results in footer
-			$footer_gross += $sInfo['gross_sales']; // Gross Income
+			$footer_gross += $gross_sales_this_row; // Gross Income
 			$footer_sales += $net_sales_this_row + $zero_rated_net_sales_this_row - $rentals_sales_this_row; // Product Sales
 			$footer_rentals += $rentals_sales_this_row; // Product Rental
 			$footer_sales_nontaxed += $zero_rated_net_sales_this_row; // Nontaxed Sales
@@ -472,7 +471,7 @@
 			$bodyRowCols = array(
 				array('align' => 'left', 'text' => $col1Text),
 				array('align' => 'left', 'text' => $col2Text),
-				array('align' => 'right', 'format' => 'currency', 'text' => mirror_out($sInfo['gross_sales'])),
+				array('align' => 'right', 'format' => 'currency', 'text' => mirror_out($gross_sales_this_row)),
 				array('align' => 'right', 'format' => 'currency', 'text' => mirror_out($net_sales_this_row + $zero_rated_net_sales_this_row - $rentals_sales_this_row)),
 				array('align' => 'right', 'format' => 'currency', 'text' => mirror_out($rentals_sales_this_row)),
 				array('align' => 'right', 'format' => 'currency', 'text' => mirror_out($zero_rated_net_sales_this_row)),

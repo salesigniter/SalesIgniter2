@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <definitions>
 	<define key="HEADER_TITLE_ACCOUNT"><![CDATA[My Account]]></define>
 	<define key="HEADER_TITLE_LOGOFF"><![CDATA[Logoff]]></define>
@@ -25,16 +24,11 @@
 	<define key="FEMALE"><![CDATA[Female]]></define>
 	<define key="DOB_FORMAT_STRING"><![CDATA[mm/dd/yyyy]]></define>
 	<define key="BOX_HEADING_CONFIGURATION"><![CDATA[Configuration]]></define>
-	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PASTDUE"><![CDATA[Past Due Report]]></define>
 	<define key="BOX_CONFIGURATION_MYSTORE"><![CDATA[My Store]]></define>
 	<define key="BOX_CONFIGURATION_LOGGING"><![CDATA[Logging]]></define>
 	<define key="BOX_CONFIGURATION_CACHE"><![CDATA[Cache]]></define>
 	<define key="BOX_HEADING_MODULES"><![CDATA[Modules]]></define>
 	<define key="BOX_MODULES_PAYMENT"><![CDATA[Payment]]></define>
-	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PASTDUE"><![CDATA[Membership Past Due]]></define>
-	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS"><![CDATA[Pickup Requests]]></define>
-	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS_REPORT"><![CDATA[Pickup Requests Report]]></define>
-	<define key="BOX_RENTAL_MEMBERSHIP_RENTAL_PICKUP_REQUESTS_TYPES"><![CDATA[Pickup Requests Types]]></define>
 	<define key="BOX_MODULES_SHIPPING"><![CDATA[Shipping]]></define>
 	<define key="BOX_MODULES_ORDER_TOTAL"><![CDATA[Order Total]]></define>
 	<define key="BOX_MODULES_INFOBOXES"><![CDATA[Infoboxes]]></define>
@@ -54,6 +48,7 @@
 	<define key="BOX_HEADING_CUSTOMERS"><![CDATA[Customers]]></define>
 	<define key="BOX_CUSTOMERS_CUSTOMERS"><![CDATA[Customers]]></define>
 	<define key="BOX_CUSTOMERS_ORDERS"><![CDATA[Orders]]></define>
+	<define key="BOX_CUSTOMERS_ESTIMATES"><![CDATA[Estimates]]></define>
 	<define key="BOX_CUSTOMERS_SEND_RENTALS"><![CDATA[Send Rentals]]></define>
 	<define key="BOX_CUSTOMERS_SUBSCRIBERS"><![CDATA[Membership]]></define>
 	<define key="BOX_HEADING_LOCATION_AND_TAXES"><![CDATA[Locations / Taxes]]></define>
@@ -79,6 +74,7 @@
 	<define key="BOX_HEADING_LOCALIZATION"><![CDATA[Localization]]></define>
 	<define key="BOX_LOCALIZATION_CURRENCIES"><![CDATA[Currencies]]></define>
 	<define key="BOX_LOCALIZATION_LANGUAGES"><![CDATA[Languages]]></define>
+	<define key="BOX_LOCALIZATION_ADDRESS_FORMAT"><![CDATA[Address Format]]></define>
 	<define key="BOX_LOCALIZATION_ORDERS_STATUS"><![CDATA[Orders Status]]></define>
 	<define key="JS_ERROR"><![CDATA[Errors have occured during the process of your form!<br/>Please make the following corrections:<br/><br/>]]></define>
 	<define key="JS_OPTIONS_VALUE_PRICE"><![CDATA[* The new product atribute needs a price value<br/>]]></define>
@@ -99,9 +95,9 @@
 	<define key="JS_ADDRESS"><![CDATA[* The  'Street Address ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_POST_CODE"><![CDATA[* The  'Postal Code ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_CITY"><![CDATA[* The  'City ' entry must have at least %s characters.<br/>]]></define>
-	<define key="JS_STATE"><![CDATA[* The  'County/Province' entry is must be selected.<br/>]]></define>
+	<define key="JS_STATE"><![CDATA[* The  'State ' entry is must be selected.<br/>]]></define>
 	<define key="JS_STATE_SELECT"><![CDATA[-- Select Above --]]></define>
-	<define key="JS_ZONE"><![CDATA[* The  'County/Province' entry must be selected from the list for this country.<br/>]]></define>
+	<define key="JS_ZONE"><![CDATA[* The  'State ' entry must be selected from the list for this country.<br/>]]></define>
 	<define key="JS_COUNTRY"><![CDATA[* The  'Country ' value must be chosen.<br/>]]></define>
 	<define key="JS_TELEPHONE"><![CDATA[* The  'Telephone Number ' entry must have at least %s characters.<br/>]]></define>
 	<define key="JS_PASSWORD"><![CDATA[* The  'Password ' amd  'Confirmation ' entries must match amd have at least %s characters.<br/>]]></define>
@@ -121,11 +117,11 @@
 	<define key="ENTRY_COMPANY"><![CDATA[Company name:]]></define>
 	<define key="ENTRY_COMPANY_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_STREET_ADDRESS"><![CDATA[Street Address:]]></define>
-	<define key="ENTRY_SUBURB"><![CDATA[County:]]></define>
+	<define key="ENTRY_SUBURB"><![CDATA[Suburb:]]></define>
 	<define key="ENTRY_SUBURB_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_POST_CODE"><![CDATA[Postal Code:]]></define>
 	<define key="ENTRY_CITY"><![CDATA[City:]]></define>
-	<define key="ENTRY_STATE"><![CDATA[County/Province:]]></define>
+	<define key="ENTRY_STATE"><![CDATA[State:]]></define>
 	<define key="ENTRY_COUNTRY"><![CDATA[Country:]]></define>
 	<define key="ENTRY_COUNTRY_ERROR"><![CDATA[]]></define>
 	<define key="ENTRY_TELEPHONE_NUMBER"><![CDATA[Telephone Number:]]></define>
@@ -325,36 +321,52 @@
 	<define key="TEXT_INFO_TRACKING_DHL1"><![CDATA[DHL(1):]]></define>
 	<define key="TEXT_INFO_TRACKING_DHL2"><![CDATA[DHL(2):]]></define>
 	<define key="PULL_DOWN_DEFAULT"><![CDATA[Please Select]]></define>
+
 	<define key="TEXT_BUTTON_ADD"><![CDATA[Add]]></define>
-	<define key="TEXT_BUTTON_CONTINUE"><![CDATA[Continue]]></define>
-	<define key="TEXT_BUTTON_INSERT"><![CDATA[Insert]]></define>
-	<define key="TEXT_BUTTON_MOVE"><![CDATA[Move]]></define>
-	<define key="TEXT_BUTTON_PRINT"><![CDATA[Print]]></define>
-	<define key="TEXT_BUTTON_RESET"><![CDATA[Reset]]></define>
-	<define key="TEXT_BUTTON_UPDATE"><![CDATA[Update]]></define>
-	<define key="TEXT_BUTTON_SUBMIT"><![CDATA[Submit]]></define>
 	<define key="TEXT_BUTTON_AJAX_SAVE"><![CDATA[Save Now (Ajax)]]></define>
-	<define key="TEXT_BUTTON_GO"><![CDATA[ GO ]]></define>
+	<define key="TEXT_BUTTON_APPLY"><![CDATA[Apply]]></define>
+	<define key="TEXT_BUTTON_APPLY_FILTER"><![CDATA[Apply Filters]]></define>
 	<define key="TEXT_BUTTON_BACK"><![CDATA[Back]]></define>
-	<define key="TEXT_BUTTON_CANCEL"><![CDATA[Cancel]]></define>
-	<define key="TEXT_BUTTON_DELETE"><![CDATA[Delete]]></define>
-	<define key="TEXT_BUTTON_EDIT"><![CDATA[Edit]]></define>
-	<define key="TEXT_BUTTON_INSTALL"><![CDATA[Install]]></define>
-	<define key="TEXT_BUTTON_NEW"><![CDATA[New]]></define>
-	<define key="TEXT_BUTTON_NEXT"><![CDATA[Next]]></define>
-	<define key="TEXT_BUTTON_SAVE"><![CDATA[Save]]></define>
-	<define key="TEXT_BUTTON_UNINSTALL"><![CDATA[Uninstall]]></define>
-	<define key="TEXT_BUTTON_LOAD"><![CDATA[Load]]></define>
-	<define key="TEXT_BUTTON_HELP"><![CDATA[Help]]></define>
+	<define javascript="true" php="true" key="TEXT_BUTTON_CANCEL"><![CDATA[Cancel]]></define>
+	<define javascript="true" php="true" key="TEXT_BUTTON_CONFIRM"><![CDATA[Confirm]]></define>
+	<define key="TEXT_BUTTON_CONTINUE"><![CDATA[Continue]]></define>
 	<define key="TEXT_BUTTON_COPY"><![CDATA[Copy]]></define>
 	<define key="TEXT_BUTTON_COPY_TO"><![CDATA[Copy To]]></define>
+	<define key="TEXT_BUTTON_DELETE"><![CDATA[Delete]]></define>
+	<define key="TEXT_BUTTON_EDIT"><![CDATA[Edit]]></define>
+	<define key="TEXT_BUTTON_EMAIL"><![CDATA[Email]]></define>
+	<define key="TEXT_BUTTON_GO"><![CDATA[ GO ]]></define>
+	<define key="TEXT_BUTTON_HELP"><![CDATA[Help]]></define>
+	<define key="TEXT_BUTTON_INSERT"><![CDATA[Insert]]></define>
+	<define key="TEXT_BUTTON_INSTALL"><![CDATA[Install]]></define>
+	<define key="TEXT_BUTTON_LOAD"><![CDATA[Load]]></define>
+	<define key="TEXT_BUTTON_MOVE"><![CDATA[Move]]></define>
+	<define key="TEXT_BUTTON_NEW"><![CDATA[New]]></define>
 	<define key="TEXT_BUTTON_NEW_CATEGORY"><![CDATA[New Category]]></define>
-	<define key="TEXT_BUTTON_NEW_PRODUCT"><![CDATA[New Product]]></define>
 	<define key="TEXT_BUTTON_NEW_PAGE"><![CDATA[New Page]]></define>
-	<define key="TEXT_BUTTON_VIEW_FILES"><![CDATA[View Files]]></define>
+	<define key="TEXT_BUTTON_NEW_PRODUCT"><![CDATA[New Product]]></define>
+	<define key="TEXT_BUTTON_NEXT"><![CDATA[Next]]></define>
+	<define key="TEXT_BUTTON_ORDERS"><![CDATA[Orders]]></define>
+	<define key="TEXT_BUTTON_PRINT"><![CDATA[Print]]></define>
+	<define javascript="true" php="false" key="TEXT_BUTTON_PRINT_NO"><![CDATA[Don't Print]]></define>
+	<define javascript="true" php="false" key="TEXT_BUTTON_PRINT_YES"><![CDATA[Print]]></define>
+	<define key="TEXT_BUTTON_RESET"><![CDATA[Reset]]></define>
+	<define key="TEXT_BUTTON_RESET_FILTER"><![CDATA[Reset Filters]]></define>
+	<define key="TEXT_BUTTON_SAVE"><![CDATA[Save]]></define>
+	<define key="TEXT_BUTTON_SEARCH"><![CDATA[Search]]></define>
 	<define key="TEXT_BUTTON_STORE_FILE"><![CDATA[Store File]]></define>
 	<define key="TEXT_BUTTON_STORE_FILES"><![CDATA[Store Files]]></define>
-	<define key="TEXT_BUTTON_CONFIRM"><![CDATA[Confirm]]></define>
+	<define key="TEXT_BUTTON_SUBMIT"><![CDATA[Submit]]></define>
+	<define key="TEXT_BUTTON_UNINSTALL"><![CDATA[Uninstall]]></define>
+	<define javascript="true" php="false" key="TEXT_BUTTON_UNZOOM"><![CDATA[UnZoom]]></define>
+	<define key="TEXT_BUTTON_UPDATE"><![CDATA[Update]]></define>
+	<define key="TEXT_BUTTON_VIEW_FILES"><![CDATA[View Files]]></define>
+	<define javascript="true" php="false" key="TEXT_BUTTON_ZOOM"><![CDATA[Zoom]]></define>
+
+	<define key="TEXT_TOOLTIP_CLEAR_FILTER_BUTTON"><![CDATA[Clear All Filters]]></define>
+	<define key="TEXT_TOOLTIP_CLEAR_FILTER_ICON"><![CDATA[Remove This Filter]]></define>
+	<define key="TEXT_TOOLTIP_APPLY_FILTER_BUTTON"><![CDATA[Apply Filters]]></define>
+
 	<define key="ENTRY_FIRST_NAME_ERROR_MIN_LENGTH"><![CDATA[Your First Name must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_FIRST_NAME_ERROR_ALPHA"><![CDATA[Your First Name can only contain letters.]]></define>
 	<define key="ENTRY_LAST_NAME_ERROR_MIN_LENGTH"><![CDATA[Your Last Name must contain a minimum of %s characters.]]></define>
@@ -378,10 +390,10 @@
 	<define key="ENTRY_POST_CODE_ERROR_MIN_LENGTH"><![CDATA[Your Postal Code must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_MIN_LENGTH"><![CDATA[Your City must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_CITY_ERROR_ALPHA"><![CDATA[Your City can only contain letters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your County must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your County can only contain letters.]]></define>
-	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your County/Province must contain a minimum of %s characters.]]></define>
-	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your County/Province can only contain letters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_MIN_LENGTH"><![CDATA[Your Suburb must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_SUBURB_ERROR_ALPHA"><![CDATA[Your Suburb can only contain letters.]]></define>
+	<define key="ENTRY_STATE_ERROR_MIN_LENGTH"><![CDATA[Your State must contain a minimum of %s characters.]]></define>
+	<define key="ENTRY_STATE_ERROR_ALPHA"><![CDATA[Your State can only contain letters.]]></define>
 	<define key="ENTRY_COUNTRY_ERROR_NUMERIC"><![CDATA[You must select a country from the Countries pull down menu.]]></define>
 	<define key="ENTRY_FAX_ERROR_MIN_LENGTH"><![CDATA[Your Fax number must contain a minimum of %s characters.]]></define>
 	<define key="ENTRY_FAX_ERROR_PHONE"><![CDATA[Your Fax number must be in this format: 555-444-2222]]></define>
@@ -451,7 +463,8 @@
 	
 	<define key="TEXT_ADMIN_MENU_SES_UPDATES"><![CDATA[Check Updates]]></define>
 	<define key="INVENTORY_CENTERS_SORT_ORDER"><![CDATA[Inventory Centers Sort Order:]]></define>
-	
+	<define key="PURCHASE_TYPE_RESERVATION_NAME"><![CDATA[Reservation]]></define>
+	<define key="PURCHASE_TYPE_RESERVATION_SHOW"><![CDATA[Reservation]]></define>
 	<define key="ENTRY_GENDER_ERROR_REQUIRED"><![CDATA[Gender required.]]></define>
 	<define key="ENTRY_DOB_ERROR_REQUIRED"><![CDATA[DOB required.]]></define>
 	<define key="ENTRY_COMPANY_ERROR_REQUIRED"><![CDATA[Company required.]]></define>
@@ -460,13 +473,13 @@
 	<define key="TABLE_HEADING_PRODUCTS_NAME"><![CDATA[Product Name]]></define>
 	<define key="TABLE_HEADING_PRODUCTS_BARCODE"><![CDATA[Barcode]]></define>
 	<define key="PAYMENT_MODULE_MO_AWAITING_PAYMENT"><![CDATA[Awaiting Payment]]></define>
-	<define key="TEXT_BEFORE_QUOTES"><![CDATA[First, please enter your zip code so we can calculate shipping and availability :<br/>]]></define>
-
-
+		<define key="TEXT_BEFORE_QUOTES"><![CDATA[First, please enter your zip code so we can calculate shipping and availability :<br/>]]></define>
 	<define key="TABLE_HEADING_YEAR"><![CDATA[Year]]></define>
 
-	
 	<define javascript="true" php="false" key="TEXT_VALIDATING_OVERRIDE"><![CDATA[Validating Override]]></define>
 	<define javascript="true" php="false" key="TEXT_OVERRIDE_VALIDATED"><![CDATA[Override Validated]]></define>
 	<define javascript="true" php="false" key="TEXT_OVERRIDE_NOT_VALIDATED"><![CDATA[Override not validated]]></define>
+
+	<define javascript="true" php="false" key="TEXT_HEADER_CONFIRM_LOST_CHANGES"><![CDATA[Confirm Navigation]]></define>
+	<define javascript="true" php="false" key="TEXT_INFO_LOST_CHANGES"><![CDATA[Navigating away will cause all changes to be lost, are you sure?]]></define>
 </definitions>

@@ -50,6 +50,11 @@ class ShoppingCart implements Serializable
 	 */
 	private $weight_virtual = 0;
 
+	/**
+	 * @var array
+	 */
+	private $globalData = array();
+
 	public function __construct() {
 		$this->emptyCart();
 	}
@@ -70,10 +75,35 @@ class ShoppingCart implements Serializable
 		return ($this->contents->count() > 0);
 	}
 
+	public function setGlobalData($val){
+		$this->globalData = $val;
+	}
+
+	public function getGlobalData($key = null){
+		if (is_null($key) === false){
+			if (isset($this->globalData[$key])){
+				return $this->globalData[$key];
+			}else{
+				return null;
+			}
+		}
+		return $this->globalData;
+	}
+
+	public function hasGlobalData(){
+		return (!empty($this->globalData));
+	}
+
+	/**
+	 * @return ShoppingCartContents
+	 */
 	public function getContents(){
 		return $this->contents;
 	}
 
+	/**
+	 * @return ShoppingCartContents
+	 */
 	public function getProducts(){
 		return $this->getContents();
 	}
@@ -120,11 +150,16 @@ class ShoppingCart implements Serializable
 	}
 
 	public function serialize() {
-		return serialize($this->contents);
+		return serialize(array(
+			'contents' => $this->contents,
+			'globalData' => $this->globalData
+		));
 	}
 
 	public function unserialize($data) {
-		$this->contents = unserialize($data);
+		$data = unserialize($data);
+		$this->contents = $data['contents'];
+		$this->globalData = $data['globalData'];
 	}
 
 	private function _notify($pID) {
@@ -136,7 +171,7 @@ class ShoppingCart implements Serializable
 	}
 
 	public function emptyCart($reset_database = false) {
-		$this->contents = new ShoppingCartContents();
+		$this->contents = new ShoppingCartContents(array());
 		$this->total = 0;
 		$this->weight = 0;
 		$this->content_type = false;
@@ -223,9 +258,9 @@ class ShoppingCart implements Serializable
 				$CartProduct->updateInfo($CartProductData);
 			}
 			else {
-				$CartProduct->addToCartBeforeAction();
+				$CartProduct->addToCartBeforeAction($CartProduct);
 				$this->contents->offsetSet($hashId, $CartProduct);
-				$CartProduct->addToCartAfterAction();
+				$CartProduct->addToCartAfterAction($CartProduct);
 			}
 
 			$this->cartID = $this->generateCartId();
@@ -247,6 +282,7 @@ class ShoppingCart implements Serializable
 		$this->cartID = $this->generateCartId();
 
 		$this->storeCart();
+		return true;
 	}
 
 	public function calculate() {
@@ -260,12 +296,7 @@ class ShoppingCart implements Serializable
 		}
 
 		foreach($this->contents as $cartProduct){
-			$addtoTotal = $cartProduct->getFinalPrice() * $cartProduct->getQuantity();
-			if ($cartProduct->isTaxable() === true){
-				$addtoTotal += tep_calculate_tax($addtoTotal, $cartProduct->getProductClass()->getProductTypeClass()
-						->getTaxRate());
-			}
-
+			$addtoTotal = $cartProduct->getFinalPrice((sysConfig::get('DISPLAY_PRICE_WITH_TAX') == 'true'), true);
 			$addToWeight = 0;
 			if ($cartProduct->hasWeight() === true){
 				$addToWeight += $cartProduct->getProductClass()->getWeight() * $cartProduct->getQuantity();
@@ -307,10 +338,11 @@ class ShoppingCart implements Serializable
 		}
 	}
 
-	public function inCart($pID_string, $purchaseType = 'new') {
-		$cartProduct = $this->contents->find($pID_string, $purchaseType);
-		if ($cartProduct){
-			return true;
+	public function inCart($pID_string) {
+		foreach($this->contents as $cartProduct){
+			if ($cartProduct->getInfo('product_id') == $pID_string){
+				return true;
+			}
 		}
 		return false;
 	}

@@ -29,13 +29,14 @@
 	->usePreset('continue')
 	->setType('submit')
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'password_forgotten',
-		'action' => itw_app_link('action=resetPassword', 'account', 'password_forgotten', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=resetPassword', 'account', 'password_forgotten', 'SSL'))
+	->setName('password_forgotten')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

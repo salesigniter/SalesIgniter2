@@ -1,6 +1,6 @@
 <?php
-	$basePath = '../../../../';
-	require($basePath . 'includes/application_top.php');
+$basePath = '../../../../';
+require($basePath . 'includes/application_top.php');
 ?>
 <?php
 
@@ -10,10 +10,10 @@
  *	filemanager.php
  *	use for ckeditor filemanager plug-in by Core Five - http://labs.corefive.com/Projects/FileManager/
  *
- *	@license	MIT License
- *	@author		Riaan Los <mail (at) riaanlos (dot) nl>
- *  @author		Simon Georget <simon (at) linea21 (dot) com>
- *	@copyright	Authors
+ * @license	MIT License
+ * @author		Riaan Los <mail (at) riaanlos (dot) nl>
+ * @author		Simon Georget <simon (at) linea21 (dot) com>
+ * @copyright	Authors
  */
 require_once('./inc/filemanager.inc.php');
 require_once('filemanager.config.php');
@@ -22,90 +22,90 @@ $fm = new Filemanager($config);
 
 $response = '';
 
-if(!auth()) {
-  $fm->error($fm->lang('AUTHORIZATION_REQUIRED'));
+if (!auth()){
+	$fm->error($fm->lang('AUTHORIZATION_REQUIRED'));
 }
 
-if(!isset($_GET)) {
-  $fm->error($fm->lang('INVALID_ACTION'));
-} else {
+if (!isset($_GET)){
+	$fm->error($fm->lang('INVALID_ACTION'));
+}
+else {
 
-  if(isset($_GET['mode']) && $_GET['mode']!='') {
+	if (isset($_GET['mode']) && $_GET['mode'] != ''){
 
-    switch($_GET['mode']) {
-      	
-      default:
+		switch($_GET['mode']){
 
-        $fm->error($fm->lang('MODE_ERROR'));
-        break;
+			default:
 
-      case 'getinfo':
+				$fm->error($fm->lang('MODE_ERROR'));
+				break;
 
-        if($fm->getvar('path')) {
-          $response = $fm->getinfo();
-        }
-        break;
+			case 'getinfo':
 
-      case 'getfolder':
-        	
-        if($fm->getvar('path')) {
-          $response = $fm->getfolder();
-        }
-        break;
+				if ($fm->getvar('path')){
+					$response = $fm->getinfo();
+				}
+				break;
 
-      case 'rename':
+			case 'getfolder':
 
-        if($fm->getvar('old') && $fm->getvar('new')) {
-          $response = $fm->rename();
-        }
-        break;
+				if ($fm->getvar('path')){
+					$response = $fm->getfolder();
+				}
+				break;
 
-      case 'delete':
+			case 'rename':
 
-        if($fm->getvar('path')) {
-          $response = $fm->delete();
-        }
-        break;
+				if ($fm->getvar('old') && $fm->getvar('new')){
+					$response = $fm->rename();
+				}
+				break;
 
-      case 'addfolder':
+			case 'delete':
 
-        if($fm->getvar('path') && $fm->getvar('name')) {
-          $response = $fm->addfolder();
-        }
-        break;
+				if ($fm->getvar('path')){
+					$response = $fm->delete();
+				}
+				break;
 
-      case 'download':
-        if($fm->getvar('path')) {
-          $fm->download();
-        }
-        break;
-      case 'preview':
-        if($fm->getvar('path')) {
-          $fm->preview();
-        }
-        break;
+			case 'addfolder':
 
-    }
+				if ($fm->getvar('path') && $fm->getvar('name')){
+					$response = $fm->addfolder();
+				}
+				break;
 
-  } else if(isset($_POST['mode']) && $_POST['mode']!='') {
+			case 'download':
+				if ($fm->getvar('path')){
+					$fm->download();
+				}
+				break;
+			case 'preview':
+				if ($fm->getvar('path')){
+					$fm->preview();
+				}
+				break;
+		}
+	}
+	else {
+		if (isset($_POST['mode']) && $_POST['mode'] != ''){
 
-    switch($_POST['mode']) {
-      	
-      default:
+			switch($_POST['mode']){
 
-        $fm->error($fm->lang('MODE_ERROR'));
-        break;
-        	
-      case 'add':
+				default:
 
-        if($fm->postvar('currentpath')) {
-          $fm->add();
-        }
-        break;
+					$fm->error($fm->lang('MODE_ERROR'));
+					break;
 
-    }
+				case 'add':
 
-  }
+					if ($fm->postvar('currentpath')){
+						$fm->add();
+					}
+					break;
+			}
+		}
+	}
 }
 
 echo json_encode($response);

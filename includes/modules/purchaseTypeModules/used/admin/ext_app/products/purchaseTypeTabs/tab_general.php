@@ -27,13 +27,11 @@ class PurchaseTypeTabUsed_tab_general
 	}
 
 	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
-		$PurchaseType->loadData($Product->getId());
-
 		$pricingTypeName = $PurchaseType->getCode();
 		$pricingTypeText = $PurchaseType->getTitle();
 
 		$enabledInput = htmlBase::newElement('checkbox')
-			->setName('products_type[]')
+			->setName('purchase_type[]')
 			->setChecked($PurchaseType->getData('status') == 1)
 			->val($pricingTypeName);
 

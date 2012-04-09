@@ -32,30 +32,31 @@
       }
       $rented = tep_db_fetch_array($rented_query);
 
-      $customer_address_query = tep_db_query("select c.customers_firstname, c.customers_lastname, c.customers_telephone, c.customers_email_address, ab.entry_company, ab.entry_street_address, ab.entry_suburb, ab.entry_postcode, ab.entry_city, ab.entry_zone_id, z.zone_name, co.countries_id, co.countries_name, co.countries_iso_code_2, co.countries_iso_code_3, co.address_format_id, ab.entry_state from " . TABLE_CUSTOMERS . " c, " . TABLE_ADDRESS_BOOK . " ab left join " . TABLE_ZONES . " z on (ab.entry_zone_id = z.zone_id) left join " . TABLE_COUNTRIES . " co on (ab.entry_country_id = co.countries_id) where c.customers_id = '" . $rented['customers_id'] . "' and ab.customers_id = '" . $rented['customers_id'] . "' and c.rental_address_id = ab.address_book_id");
-      $customer_address = tep_db_fetch_array($customer_address_query);
+		$CustomerAddress = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select c.customers_id, c.customers_firstname, c.customers_lastname, c.customers_telephone, c.customers_email_address, ab.entry_company, ab.entry_street_address, ab.entry_suburb, ab.entry_postcode, ab.entry_city, ab.entry_zone_id, z.zone_name, co.countries_id, co.countries_name, co.countries_iso_code_2, co.countries_iso_code_3, co.address_format_id, ab.entry_state from " . TABLE_CUSTOMERS . " c, " . TABLE_ADDRESS_BOOK . " ab left join " . TABLE_ZONES . " z on (ab.entry_zone_id = z.zone_id) left join " . TABLE_COUNTRIES . " co on (ab.entry_country_id = co.countries_id) where c.customers_id = '" . $rented['customers_id'] . "' and ab.customers_id = '" . $rented['customers_id'] . "' and c.rental_address_id = ab.address_book_id");
 
       $this->info = array('products_id' => $rented['products_id'],
                           'date_added' => $rented['date_added'],
                           'products_barcode' => $rented['products_barcode']);
 
-      $this->customer = array('id' => $customers['customers_id'],
-                              'firstname' => $customer_address['customers_firstname'],
-                              'lastname' => $customer_address['customers_lastname'],
-                              'telephone' => $customer_address['customers_telephone'],
-                              'email_address' => $customer_address['customers_email_address']);
+      $this->customer = array('id' => $CustomerAddress[0]['customers_id'],
+                              'firstname' => $CustomerAddress[0]['customers_firstname'],
+                              'lastname' => $CustomerAddress[0]['customers_lastname'],
+                              'telephone' => $CustomerAddress[0]['customers_telephone'],
+                              'email_address' => $CustomerAddress[0]['customers_email_address']);
 
-     $this->delivery = array('firstname' => $customer_address['entry_firstname'],
-                              'lastname' => $customer_address['entry_lastname'],
-                              'company' => $customer_address['entry_company'],
-                              'street_address' => $customer_address['entry_street_address'],
-                              'suburb' => $customer_address['entry_suburb'],
-                              'city' => $customer_address['entry_city'],
-                              'postcode' => $customer_address['entry_postcode'],
-                              'state' => ((tep_not_null($customer_address['entry_state'])) ? $customer_address['entry_state'] : $customer_address['zone_name']),
-                              'zone_id' => $customer_address['entry_zone_id'],
-                              'country' => $customer_address['countries_name'],
-                              'format_id' => $customer_address['address_format_id']);
+     $this->delivery = array('firstname' => $CustomerAddress[0]['entry_firstname'],
+                              'lastname' => $CustomerAddress[0]['entry_lastname'],
+                              'company' => $CustomerAddress[0]['entry_company'],
+                              'street_address' => $CustomerAddress[0]['entry_street_address'],
+                              'suburb' => $CustomerAddress[0]['entry_suburb'],
+                              'city' => $CustomerAddress[0]['entry_city'],
+                              'postcode' => $CustomerAddress[0]['entry_postcode'],
+                              'state' => ((tep_not_null($CustomerAddress[0]['entry_state'])) ? $CustomerAddress[0]['entry_state'] : $CustomerAddress[0]['zone_name']),
+                              'zone_id' => $CustomerAddress[0]['entry_zone_id'],
+                              'country' => $CustomerAddress[0]['countries_name'],
+                              'format_id' => $CustomerAddress[0]['address_format_id']);
 
 	}
   }

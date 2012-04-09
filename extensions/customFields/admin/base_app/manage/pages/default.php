@@ -33,7 +33,7 @@
 			->setHref(itw_app_link('appExt=customFields&windowAction=edit&action=getFieldWindow&fID=' . $fieldId))
 			->css($iconCss);
 
-			$htmlFields = '<b><span class="fieldName" field_id="' . $fieldId . '">' . $fieldName . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . TEXT_TYPE . '<span class="fieldType">' . $inputType . '</span><br />' . sysLanguage::get('TEXT_SHOWN_ON_SITE') . ($showOnSite == '1' ? 'Yes' : 'No');
+			$htmlFields = '<b><span class="fieldName" field_id="' . $fieldId . '">' . $fieldName . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . sysLanguage::get('TEXT_TYPE') . '<span class="fieldType">' . $inputType . '</span><br />' . sysLanguage::get('TEXT_SHOWN_ON_SITE') . ($showOnSite == '1' ? 'Yes' : 'No');
 
 			EventManager::notify('ProductCustomFieldsAddOptions', &$htmlFields, $fInfo);
 

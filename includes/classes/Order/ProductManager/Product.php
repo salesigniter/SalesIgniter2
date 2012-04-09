@@ -4,19 +4,31 @@
  *
  * @package OrderManager
  * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2010, I.T. Web Experts
+ * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
 class OrderProduct
 {
 
+	/**
+	 * @var array|null
+	 */
 	protected $pInfo = array();
 
-	protected $id = null;
+	/**
+	 * @var int
+	 */
+	protected $id = 0;
 
+	/**
+	 * @var float
+	 */
 	private $products_weight = 0;
 
-	public function __construct($pInfo = null) {
+	/**
+	 * @param array|null $pInfo
+	 */
+	public function __construct(array $pInfo = null) {
 		$this->regenerateId();
 		if (is_null($pInfo) === false){
 			$this->pInfo = $pInfo;
@@ -28,6 +40,13 @@ class OrderProduct
 	}
 
 	/**
+	 *
+	 */
+	public function init(){
+
+	}
+
+	/**
 	 * @return Product
 	 */
 	public function &getProductClass() {
@@ -35,79 +54,120 @@ class OrderProduct
 	}
 
 	/**
-	 * @return mixed
+	 * @return ProductTypeStandard|ProductTypePackage|ProductTypeGiftVoucher|ProductTypeMembership
 	 */
 	public function &getProductTypeClass() {
 		return $this->getProductClass()->getProductTypeClass();
 	}
 
+	/**
+	 *
+	 */
 	public function regenerateId() {
 		$this->id = tep_rand(5555, 99999);
 	}
 
+	/**
+	 * @param float $val
+	 */
 	public function setWeight($val){
-		$this->products_weight = $val;
+		$this->products_weight = (float) $val;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getId() {
 		return $this->id;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getOrderedProductId() {
-		return $this->pInfo['orders_products_id'];
+		return (int) $this->pInfo['orders_products_id'];
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getProductsId() {
-		return $this->pInfo['products_id'];
+		return (int) $this->pInfo['products_id'];
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getIdString() {
-		return $this->pInfo['orders_products_id'];
+		return (int) $this->pInfo['orders_products_id'];
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getTaxRate() {
-		return $this->pInfo['products_tax'];
+		return (float) $this->pInfo['products_tax'];
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getQuantity() {
-		return $this->pInfo['products_quantity'];
+		return (int) $this->pInfo['products_quantity'];
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getModel() {
-		return $this->pInfo['products_model'];
+		return (string) $this->pInfo['products_model'];
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getName() {
-		return $this->pInfo['products_name'];
+		return (string) $this->pInfo['products_name'];
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function hasBarcode() {
 		return ($this->getBarcode() !== false);
 	}
 
-	public function displayBarcode() {
+	/**
+	 * @return string
+	 */
+	public function displayBarcodes() {
+		$return = '';
+
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'displayOrderedProductBarcodes')){
+			$return = $ProductType->displayOrderedProductBarcodes($this->pInfo);
+		}
+		return $return;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBarcodes() {
 		$barcode = '';
 
 		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'displayOrderedProductBarcode')){
-			$barcode = $ProductType->displayOrderedProductBarcode($this->pInfo);
+		if (method_exists($ProductType, 'getOrderedProductBarcodes')){
+			$barcode = $ProductType->getOrderedProductBarcodes($this->pInfo);
 		}
-		return $barcode;
+		return (string) $barcode;
 	}
 
-	public function getBarcode() {
-		$barcode = false;
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'getOrderedProductBarcode')){
-			$barcode = $ProductType->getOrderedProductBarcode($this->pInfo);
-			if (empty($barcode)){
-				$barcode = false;
-			}
-		}
-		return $barcode;
-	}
-
+	/**
+	 * @param bool $wQty
+	 * @param bool $wTax
+	 * @return float
+	 */
 	public function getFinalPrice($wQty = false, $wTax = false) {
 		$price = $this->pInfo['final_price'];
 		if ($wQty === true){
@@ -117,22 +177,32 @@ class OrderProduct
 		if ($wTax === true){
 			$price = tep_add_tax($price, $this->getTaxRate());
 		}
-		return $price;
+		return (float) $price;
 	}
 
+	/**
+	 * @param bool $wTax
+	 * @return float
+	 */
 	public function getPrice($wTax = false) {
 		$price = $this->pInfo['products_price'];
 
 		if ($wTax === true){
 			$price = tep_add_tax($price, $this->getTaxRate());
 		}
-		return $price;
+		return (float) $price;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getWeight() {
-		return $this->products_weight * $this->getQuantity();
+		return (float) ($this->products_weight * $this->getQuantity());
 	}
 
+	/**
+	 * @return array
+	 */
 	private function getTaxAddressInfo() {
 		global $order, $userAccount;
 		$zoneId = null;
@@ -148,6 +218,10 @@ class OrderProduct
 		);
 	}
 
+	/**
+	 * @param bool $showExtraInfo
+	 * @return string
+	 */
 	public function getNameHtml($showExtraInfo = true) {
 		$nameHref = htmlBase::newElement('a')
 			->setHref(itw_catalog_app_link('products_id=' . $this->getProductsId(), 'product', 'info'))
@@ -168,17 +242,28 @@ class OrderProduct
 			$name .= $html;
 		}
 
-		return $name;
+		return (string) $name;
 	}
 
+	/**
+	 * @param string $key
+	 * @return bool
+	 */
 	public function hasInfo($key) {
 		return (isset($this->pInfo[$key]));
 	}
 
-	public function setInfo($pInfo){
+	/**
+	 * @param array $pInfo
+	 */
+	public function setInfo(array $pInfo){
 		$this->pInfo = $pInfo;
 	}
 
+	/**
+	 * @param null $key
+	 * @return array|bool|null
+	 */
 	public function getInfo($key = null) {
 		if (is_null($key)){
 			return $this->pInfo;

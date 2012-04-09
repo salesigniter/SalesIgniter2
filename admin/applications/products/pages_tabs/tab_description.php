@@ -10,6 +10,9 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	$ProductsUrl = htmlBase::newElement('input')
 		->setName('products_url[' . $lID . ']');
 
+	$ProductsShortDescription = htmlBase::newElement('ck_editor')
+		->setName('products_short_description[' . $lID . ']');
+
 	$ProductsDescription = htmlBase::newElement('ck_editor')
 		->setName('products_description[' . $lID . ']');
 
@@ -18,6 +21,7 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 
 	$ProductsName->setValue(stripslashes($Product->getName($lID)));
 	$ProductsDescription->html(stripslashes($Product->getDescription($lID)));
+	$ProductsShortDescription->html(stripslashes($Product->getShortDescription($lID)));
 	$ProductsUrl->setValue($Product->getUrl($lID));
 	$ProductsSeoUrl->setValue($Product->getSeoUrl($lID));
 
@@ -40,11 +44,24 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 		));
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('TEXT_PRODUCTS_DESCRIPTION')),
-				array('text' => $ProductsDescription->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => sysLanguage::get('TEXT_PRODUCTS_SHORT_DESCRIPTION')),
+			array('text' => $ProductsShortDescription->draw())
+		)
+	));
+
+	$inputTable->addBodyRow(array(
+		'columns' => array(
+			array('colspan' => 2, 'text' => '&nbsp;')
+		)
+	));
+
+	$inputTable->addBodyRow(array(
+		'columns' => array(
+			array('text' => sysLanguage::get('TEXT_PRODUCTS_DESCRIPTION')),
+			array('text' => $ProductsDescription->draw())
+		)
+	));
 
 	$inputTable->addBodyRow(array(
 			'columns' => array(

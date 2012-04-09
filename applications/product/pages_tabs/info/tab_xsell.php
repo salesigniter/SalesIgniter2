@@ -1,3 +1,3 @@
 <div id="tabXsell"><?php
-include(DIR_WS_MODULES . FILENAME_ARTICLES_PXSELL);
+include(sysConfig::getDirFsCatalog() . 'includes/modules/articles_xsell.php');
 ?></div>

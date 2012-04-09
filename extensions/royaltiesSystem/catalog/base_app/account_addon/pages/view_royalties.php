@@ -140,11 +140,12 @@ $pageButtons = htmlBase::newElement('button')
 		->setHref(itw_app_link(null,'account','default'))
 		->draw();
 
-$pageContent->set('pageForm', array(
-                                   'name' => 'search',
-                                   'action' => itw_app_link(tep_get_all_get_params()),
-                                   'method' => 'get'
-                              ));
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link(tep_get_all_get_params()))
+	->setName('search')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
 
 $pageContent->set('pageTitle', $pageTitle);
 $pageContent->set('pageContent', $pageContents);

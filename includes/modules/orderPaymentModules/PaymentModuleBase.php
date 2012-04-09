@@ -25,9 +25,12 @@ class PaymentModuleBase extends ModuleBase
 
 	private $errorMessage = null;
 
-	public function init($code, $forceEnable = false, $moduleDir = false) {
-		global $onePageCheckout;
+	protected $logUseCollection = false;
 
+	protected $Collection;
+
+
+	public function init($code, $forceEnable = false, $moduleDir = false) {
 		$this->import(new Installable);
 		$this->import(new SortedDisplay);
 
@@ -39,24 +42,16 @@ class PaymentModuleBase extends ModuleBase
 		}
 
 		if ($this->configExists($this->getModuleInfo('checkout_method_key'))){
-			$this->checkoutMethod = $this->getConfigData($this->getModuleInfo('checkout_method_key'));
+			$this->checkoutMethod = (int)$this->getConfigData($this->getModuleInfo('checkout_method_key'));
 		}
 
 		if ($this->configExists($this->getModuleInfo('order_status_key'))){
 			$this->orderStatus = (int)$this->getConfigData($this->getModuleInfo('order_status_key'));
 		}
+	}
 
-		if (isset($onePageCheckout) && is_object($onePageCheckout)){
-			if ($this->isEnabled() === true && $this->checkoutMethod != 'All'){
-				if ($onePageCheckout->isMembershipCheckout() === true && $this->checkoutMethod == 'Normal'){
-					$this->setEnabled(false);
-				}
-
-				if ($onePageCheckout->isMembershipCheckout() === false && $this->checkoutMethod == 'Membership'){
-					$this->setEnabled(false);
-				}
-			}
-		}
+	public function getDefaultOrderStatus(){
+		return $this->orderStatus;
 	}
 
 	public function getStatus() {
@@ -112,6 +107,18 @@ class PaymentModuleBase extends ModuleBase
 				$this->setEnabled(false);
 			}
 		}
+
+		if (isset($onePageCheckout) && is_object($onePageCheckout)){
+			if ($this->isEnabled() === true && $this->checkoutMethod != 'Both'){
+				if ($onePageCheckout->isMembershipCheckout() === true && $this->checkoutMethod == 'Normal'){
+					$this->setEnabled(false);
+				}
+
+				if ($onePageCheckout->isMembershipCheckout() === false && $this->checkoutMethod == 'Membership'){
+					$this->setEnabled(false);
+				}
+			}
+		}
 	}
 
 	public function javascriptValidation() {
@@ -126,29 +133,43 @@ class PaymentModuleBase extends ModuleBase
 	}
 
 	/*
-			 * Process the response from the gateway
-			 */
+	 * Process the response from the gateway
+	 */
 	private function onResponse($response) {
 	}
 
 	/*
-			 * On successful response from the gateway
-			 */
+	 * On successful response from the gateway
+	 */
 	private function onSuccess($info) {
 	}
 
 	/*
-			 * On failure response from the gateway
-			 */
+	 * On failure response from the gateway
+	 */
 	private function onFail($info) {
 	}
 
-	public function sendPaymentRequest($requestData) {
-		return true;
+	/*
+	 * Payment Module Events --BEGIN--
+	 */
+	public function beforeProcessPayment(){
+
 	}
 
 	public function processPayment($orderID = null, $amount = null) {
 		return false;
+	}
+
+	public function afterProcessPayment($success){
+
+	}
+	/*
+	 * Payment Module Events --END--
+	 */
+
+	public function sendPaymentRequest($requestData) {
+		return true;
 	}
 
 	public function refundPayment($requestData) {
@@ -200,16 +221,20 @@ class PaymentModuleBase extends ModuleBase
 		$this->errorMessage = $val;
 	}
 
+	public function ownsProcessPage(){
+		return false;
+	}
+
 	public function logPayment($info) {
 		global $order;
 
 		$newStatus = new OrdersPaymentsHistory();
-		$newStatus->orders_id = (isset($info['orderID']) ? $info['orderID'] : $order->newOrder['orderID']);
 		$newStatus->payment_module = $this->getCode();
 		$newStatus->payment_method = $this->getTitle();
 		$newStatus->payment_amount = $info['amount'];
 		$newStatus->success = (int)$info['success'];
 		$newStatus->can_reuse = (int)(isset($info['can_reuse']) ? $info['can_reuse'] : 0);
+		$newStatus->is_refund = (int)(isset($info['is_refund']) ? $info['is_refund'] : 0);
 
 		if (isset($info['message'])){
 			$newStatus->gateway_message = $info['message'];
@@ -219,12 +244,76 @@ class PaymentModuleBase extends ModuleBase
 			$newStatus->card_details = cc_encrypt(serialize($info['cardDetails']));
 		}
 
-		if (isset($this->logUseCollection) && $this->logUseCollection === true){
+		if ($this->logUseCollection === true){
 			$this->Collection->OrdersPaymentsHistory->add($newStatus);
 		}
 		else {
+			$newStatus->orders_id = (isset($info['orderID']) ? $info['orderID'] : $order->newOrder['orderID']);
 			$newStatus->save();
 		}
+	}
+
+	public function getPaymentEntryTable(){
+		$Table = htmlBase::newElement('table')
+			->addClass('paymentEntry')
+			->setCellPadding(2)
+			->setCellSpacing(0);
+
+		$Table->addBodyRow(array(
+			'columns' => array(
+				array('text' => 'Payment Amount: '),
+				array('text' => '<input type="text" class="ui-widget-content" name="payment_amount" size="10">')
+			)
+		));
+
+		$Table->addBodyRow(array(
+			'columns' => array(
+				array('text' => 'Comments: '),
+				array('text' => '<textarea name="payment_comments"></textarea>')
+			)
+		));
+
+		if ($this instanceof CreditCardModule){
+			$Table->addBodyRow(array(
+				'columns' => array(
+					array('text' => 'Card Type: '),
+					array('text' => $this->getCreditCardTypeField())
+				)
+			));
+
+			$Table->addBodyRow(array(
+				'columns' => array(
+					array('text' => 'Card Number: '),
+					array('text' => $this->getCreditCardNumber())
+				)
+			));
+
+			$Table->addBodyRow(array(
+				'columns' => array(
+					array('text' => 'Expiration: '),
+					array('text' => $this->getCreditCardExpMonthField() . '&nbsp;' . $this->getCreditCardExpYearField())
+				)
+			));
+
+			if ($this->useVerificationNumber() === true){
+				$Table->addBodyRow(array(
+					'columns' => array(
+						array('text' => 'CVV: '),
+						array('text' => $this->getCreditCardCvvField())
+					)
+				));
+			}
+		}
+
+		return $Table->draw();
+	}
+
+	public function getRemoteLoadingPage(){
+		$Main = htmlBase::newElement('div')
+			->css(array('text-align' => 'center'))
+			->html('<img src="' . sysConfig::getDirWsCatalog() . 'images/ajax-loader.gif"><br>Processing Order, Please Wait...');
+
+		return $Main->draw();
 	}
 }
 

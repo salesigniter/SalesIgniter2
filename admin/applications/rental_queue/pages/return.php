@@ -42,7 +42,7 @@
 													</tr>
 												</table>
 											</td>
-											<?php if (defined('EXTENSION_INVENTORY_CENTERS_ENABLED') && EXTENSION_INVENTORY_CENTERS_ENABLED == 'True'){ ?>
+											<?php if ($appExtension->isEnabled('inventoryCenters') === true){ ?>
 											<td valign="top" class="dataTableHeadingContent"><?php echo 'Inventory Center'; ?></td>
 											<?php } ?>
 											<td valign="top" class="dataTableHeadingContent"><?php echo sysLanguage::get('TABLE_HEADING_COMMENTS'); ?></td>
@@ -53,7 +53,7 @@
 		$order_by = ' AND r.customers_id = "' . $_GET['cID'] . '"' . $order_by;
 	}
 
-	if (sysConfig::exists('EXTENSION_INVENTORY_CENTERS_ENABLED') && sysConfig::get('EXTENSION_INVENTORY_CENTERS_ENABLED') == 'True'){
+	if ($appExtension->isEnabled('inventoryCenters') === true){
 		$invCenterArray = array();
 		$QinvCenters = Doctrine_Query::create()
 			->select('inventory_center_id, inventory_center_name')
@@ -106,7 +106,7 @@
 				<td class="main"><?php echo $rented['ProductsDescription'][0]['products_name']; ?></td>
 				<td class="main"><?php echo $rented['full_name']; ?></td>
 				<td class="main"><?php echo $Qbarcode[0]['ProductsInventoryBarcodes'][0]['barcode']; ?></td>
-				<?php if (sysConfig::exists('EXTENSION_INVENTORY_CENTERS_ENABLED') && sysConfig::get('EXTENSION_INVENTORY_CENTERS_ENABLED') == 'True'){ ?>
+				<?php if ($appExtension->isEnabled('inventoryCenters') === true){ ?>
 				<td class="main"><?php
 	                if ($Qbarcode[0]['use_center'] == '1'){
 						$QinvCenter = Doctrine_Query::create()

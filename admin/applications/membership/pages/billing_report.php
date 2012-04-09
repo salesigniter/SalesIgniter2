@@ -57,11 +57,7 @@
 ?></div>
 <br />
 <form name="actions" action="<?php echo itw_app_link('action=deleteReports', 'membership', 'billing_report');?>" method="post">
-<div class="gridContainer">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>
 </form>

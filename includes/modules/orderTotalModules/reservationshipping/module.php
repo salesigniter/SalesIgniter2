@@ -17,18 +17,16 @@ class OrderTotalReservationshipping extends OrderTotalModuleBase {
 
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order, $appExtension, $userAccount, $onePageCheckout;
 
 		if ($this->allowReservationShipping == 'True' && isset($onePageCheckout->onePage['info']['reservationshipping']['id'])) {
 			$order->info['total'] += $onePageCheckout->onePage['info']['reservationshipping']['cost'];
 
 			if($onePageCheckout->onePage['info']['reservationshipping']['cost'] > 0 && ($this->showReservationShipping == 'True') ){
-				$this->addOutput(array(
-					'title' => $this->getTitle() .'('.$onePageCheckout->onePage['info']['reservationshipping']['title'].')'. ':',
-					'text'  => $this->formatAmount($onePageCheckout->onePage['info']['reservationshipping']['cost']),
-					'value' => $onePageCheckout->onePage['info']['reservationshipping']['cost']
-				));
+				$outputData['title'] = $this->getTitle() .'('.$onePageCheckout->onePage['info']['reservationshipping']['title'].')'. ':';
+				$outputData['text']  = $this->formatAmount($onePageCheckout->onePage['info']['reservationshipping']['cost']);
+				$outputData['value'] = $onePageCheckout->onePage['info']['reservationshipping']['cost'];
 			}
 		}
 	}

@@ -1,98 +1,129 @@
-<configurations>
-	<configuration>
-		<title><![CDATA[Enable Purchase Type]]></title>
-		<key><![CDATA[ENABLED]]></key>
-		<tab><![CDATA[General]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to enable this purchase type?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Show On Admin Product List]]></title>
-		<key><![CDATA[SHOW_ON_ADMIN_PRODUCT_LIST]]></key>
-		<tab><![CDATA[General]]></tab>
-		<value><![CDATA[False]]></value>
-		<description><![CDATA[Do you want to show this purchase types inventory for the products listed on the admin product listing?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Require Login]]></title>
-		<key><![CDATA[LOGIN_REQUIRED]]></key>
-		<tab><![CDATA[General]]></tab>
-		<value><![CDATA[False]]></value>
-		<description><![CDATA[Do you want to require customers be logged in to add this type of product to their cart?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Allow Multiple In Cart]]></title>
-		<key><![CDATA[ALLOW_MULTIPLE_IN_CART]]></key>
-		<tab><![CDATA[General]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Allow more than one of the same item of this purchase type in the shopping cart?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Enable Pricing]]></title>
-		<key><![CDATA[PRICING_ENABLED]]></key>
-		<tab><![CDATA[General]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to enable pricing for this purchase type?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Enable Quantity Field]]></title>
-		<key><![CDATA[ALLOWED_PRODUCT_INFO_QUANTITY_FIELD]]></key>
-		<tab><![CDATA[Product Info]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Show the quantity field on product info to allow more than one to be added at a time?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Out Of Stock Display]]></title>
-		<key><![CDATA[OUT_OF_STOCK_PRODUCT_INFO_DISPLAY]]></key>
-		<tab><![CDATA[Product Info]]></tab>
-		<value><![CDATA[Disable Button]]></value>
-		<description><![CDATA[Choose which method to use on the product info page when a purchase type is out of stock?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('Disable Button', 'Out Of Stock Text', 'Hide Box'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Enable Inventory Management]]></title>
-		<key><![CDATA[INVENTORY_ENABLED]]></key>
-		<tab><![CDATA[Inventory]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to enable inventory management for this purchase type?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Verify Inventory When Adding To And Updating Cart]]></title>
-		<key><![CDATA[INVENTORY_SHOPPING_CART_VERIFY]]></key>
-		<tab><![CDATA[Inventory]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Verify inventory before allowing a product into the shopping cart?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Select Inventory Track Methods]]></title>
-		<key><![CDATA[INVENTORY_TRACK_METHODS]]></key>
-		<tab><![CDATA[Inventory]]></tab>
-		<value><![CDATA[quantity,barcode]]></value>
-		<description><![CDATA[Select the inventory track methods you wish to use for this purchase type]]></description>
-		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'quantity', 'text' => 'Quantity'), array('id' => 'barcode', 'text' => 'Barcode')),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Select Quantity Statuses]]></title>
-		<key><![CDATA[INVENTORY_QUANTITY_STATUSES]]></key>
-		<tab><![CDATA[Inventory]]></tab>
-		<value><![CDATA[A,P]]></value>
-		<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
-		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Select Barcode Statuses]]></title>
-		<key><![CDATA[INVENTORY_BARCODE_STATUSES]]></key>
-		<tab><![CDATA[Inventory]]></tab>
-		<value><![CDATA[A,P]]></value>
-		<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
-		<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
-	</configuration>
-</configurations>
+<ConfigurationGroup>
+	<title>New</title>
+	<key>purchaseTypeNew</key>
+	<description>Configuration Settings For The New Purchase Type</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Purchase Type Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<ENABLED>
+					<title><![CDATA[Enable Purchase Type]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to enable this purchase type?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</ENABLED>
+				<SHOW_ON_ADMIN_PRODUCT_LIST>
+					<title><![CDATA[Show On Admin Product List]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to show this purchase types inventory for the products listed on the admin product listing?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</SHOW_ON_ADMIN_PRODUCT_LIST>
+				<LOGIN_REQUIRED>
+					<title><![CDATA[Require Login]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to require customers be logged in to add this type of product to their cart?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</LOGIN_REQUIRED>
+				<ALLOW_MULTIPLE_IN_CART>
+					<title><![CDATA[Allow Multiple In Cart]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Allow more than one of the same item of this purchase type in the shopping cart?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</ALLOW_MULTIPLE_IN_CART>
+				<PRICING_ENABLED>
+					<title><![CDATA[Enable Pricing]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Do you want to enable pricing for this purchase type?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</PRICING_ENABLED>
+			</configurations>
+		</general>
+		<product_info>
+			<title>Product Info</title>
+			<description>Purchase Type Settings Used On The Product Info Page</description>
+			<configurations>
+				<ALLOWED_PRODUCT_INFO_QUANTITY_FIELD>
+					<title><![CDATA[Enable Quantity Field]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Show the quantity field on product info to allow more than one to be added at a time?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</ALLOWED_PRODUCT_INFO_QUANTITY_FIELD>
+				<OUT_OF_STOCK_PRODUCT_INFO_DISPLAY>
+					<title><![CDATA[Out Of Stock Display]]></title>
+					<value><![CDATA[Disable Button]]></value>
+					<description><![CDATA[Choose which method to use on the product info page when a purchase type is out of stock?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('Disable Button', 'Out Of Stock Text', 'Hide Box'),]]></set_function>
+				</OUT_OF_STOCK_PRODUCT_INFO_DISPLAY>
+			</configurations>
+		</product_info>
+		<inventory>
+			<title>Inventory</title>
+			<description>Inventory Settings</description>
+			<configurations>
+				<INVENTORY_ENABLED>
+					<title><![CDATA[Enable Inventory Management]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Do you want to enable inventory management for this purchase type?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</INVENTORY_ENABLED>
+				<INVENTORY_SHOPPING_CART_VERIFY>
+					<title><![CDATA[Verify Inventory When Adding To And Updating Cart]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Verify inventory before allowing a product into the shopping cart?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</INVENTORY_SHOPPING_CART_VERIFY>
+				<INVENTORY_TRACK_METHODS>
+					<title><![CDATA[Select Inventory Track Methods]]></title>
+					<value><![CDATA[quantity,barcode]]></value>
+					<value_glue><![CDATA[,]]></value_glue>
+					<description><![CDATA[Select the inventory track methods you wish to use for this purchase type]]></description>
+					<set_function>
+						<type>checkbox</type>
+						<values>
+							<value id="quantity"><![CDATA[Quantity]]></value>
+							<value id="barcode"><![CDATA[Barcode]]></value>
+						</values>
+					</set_function>
+				</INVENTORY_TRACK_METHODS>
+				<INVENTORY_QUANTITY_STATUSES>
+					<title><![CDATA[Select Quantity Statuses]]></title>
+					<value><![CDATA[A,P]]></value>
+					<value_glue><![CDATA[,]]></value_glue>
+					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
+					<set_function>
+						<type>checkbox</type>
+						<values>
+							<value id="A"><![CDATA[Available]]></value>
+							<value id="P"><![CDATA[Purchased]]></value>
+							<value id="O"><![CDATA[Out]]></value>
+							<value id="B"><![CDATA[Broken]]></value>
+							<value id="R"><![CDATA[Reserved]]></value>
+						</values>
+					</set_function>
+				</INVENTORY_QUANTITY_STATUSES>
+				<INVENTORY_BARCODE_STATUSES>
+					<title><![CDATA[Select Barcode Statuses]]></title>
+					<value><![CDATA[A,P]]></value>
+					<value_glue><![CDATA[,]]></value_glue>
+					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
+					<set_function>
+						<type>checkbox</type>
+						<values>
+							<value id="A"><![CDATA[Available]]></value>
+							<value id="P"><![CDATA[Purchased]]></value>
+							<value id="O"><![CDATA[Out]]></value>
+							<value id="B"><![CDATA[Broken]]></value>
+							<value id="R"><![CDATA[Reserved]]></value>
+						</values>
+					</set_function>
+				</INVENTORY_BARCODE_STATUSES>
+			</configurations>
+		</inventory>
+	</tabs>
+</ConfigurationGroup>

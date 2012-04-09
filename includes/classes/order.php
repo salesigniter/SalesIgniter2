@@ -1,13 +1,13 @@
 <?php
 /*
-$Id: order.php,v 1.33 2003/06/09 22:25:35 hpdl Exp $
+	Sales Igniter E-Commerce Store Version 2
 
-osCommerce, Open Source E-Commerce Solutions
-http://www.oscommerce.com
+	I.T. Web Experts
+	http://www.itwebexperts.com
 
-Copyright (c) 2003 osCommerce
+	Copyright (c) 2011 I.T. Web Experts
 
-Released under the GNU General Public License
+	This script and it's source is not redistributable
 */
 
 class OrderProcessor {
@@ -267,10 +267,11 @@ class OrderProcessor {
 	}
 
 	public function loadShippingInfo(){
-		global $shippingModules, $onePageCheckout;
-		if (isset($shippingModules) && isset($onePageCheckout) && array_key_exists('module', $onePageCheckout->onePage['info']['shipping'])){
+		global $onePageCheckout;
+		if (isset($onePageCheckout->onePage['info']['shipping']) && isset($onePageCheckout->onePage['info']['shipping']['id'])){
 			$this->info['shipping'] = $onePageCheckout->onePage['info']['shipping'];
-			if ($shippingModules->moduleIsLoaded($this->info['shipping']['module'])){
+			$ShippingModule = OrderShippingModules::getModule($this->info['shipping']['id']);
+			if ($ShippingModule){
 				$this->info['shipping_module'] = $this->info['shipping']['id'];
 				$this->info['shipping_method'] = $this->info['shipping']['title'];
 				$this->info['shipping_cost'] = $this->info['shipping']['cost'];
@@ -279,16 +280,17 @@ class OrderProcessor {
 	}
 
 	public function loadPaymentInfo(){
-		global $paymentModules;
-		if (isset($paymentModules) && Session::exists('payment') === true){
-			$this->info['payment'] = Session::get('payment');
-			if ($paymentModules->moduleIsLoaded($this->info['payment']['id'])) {
+		global $onePageCheckout;
+		if (isset($onePageCheckout->onePage['info']['payment']) && sizeof($onePageCheckout->onePage['info']['payment']) > 0){
+			$this->info['payment'] = $onePageCheckout->onePage['info']['payment'];
+			$PaymentModule = OrderPaymentModules::getModule($this->info['payment']['id']);
+			if ($PaymentModule) {
 				$this->info['payment_module'] = $this->info['payment']['id'];
 				$this->info['payment_method'] = $this->info['payment']['title'];
 
-				$paymentModule = $paymentModules->getModule($this->info['payment']['id']);
-				if (isset($paymentModule->order_status) && is_numeric($paymentModule->order_status) && $paymentModule->order_status > 0){
-					$this->info['order_status'] = $paymentModule->order_status;
+				$moduleOrderStatus = $PaymentModule->getDefaultOrderStatus();
+				if ($moduleOrderStatus > 0){
+					$this->info['order_status'] = $moduleOrderStatus;
 				}
 			}
 		}
@@ -300,12 +302,15 @@ class OrderProcessor {
 		$this->info['tax'] = 0;
 		$this->info['tax_groups'] = array();
 
-		foreach($ShoppingCart->getProducts() as $cartProduct) {
-			$shownPrice = $cartProduct->getFinalPrice(true) * $cartProduct->getQuantity();
+		$CartProducts = $ShoppingCart->getProducts()->getIterator();
+		while($CartProducts->valid() === true){
+			$CartProduct = $CartProducts->current();
+
+			$shownPrice = $CartProduct->getFinalPrice((sysConfig::get('DISPLAY_PRICE_WITH_TAX') == 'true'), true);
 			$this->info['subtotal'] += $shownPrice;
 
-			$tax = $cartProduct->getTaxRate();
-			$taxDesc = $cartProduct->getTaxDescription();
+			$tax = $CartProduct->getTaxRate();
+			$taxDesc = $CartProduct->getTaxDescription();
 			if (sysConfig::get('DISPLAY_PRICE_WITH_TAX') == 'true'){
 				$priceNoTax = ($shownPrice / (($tax < 10) ? "1.0" . str_replace('.', '', $tax) : "1." . str_replace('.', '', $tax)));
 				$this->info['tax'] += $shownPrice - $priceNoTax;
@@ -322,6 +327,8 @@ class OrderProcessor {
 					$this->info['tax_groups'][$taxDesc] = ($tax / 100) * $shownPrice;
 				}
 			}
+
+			$CartProducts->next();
 		}
 		//print_r($this->info);
 		if (sysConfig::get('DISPLAY_PRICE_WITH_TAX') == 'true'){
@@ -413,9 +420,13 @@ class OrderProcessor {
 		}else{
 			$newOrderAddress->entry_name = $address['entry_firstname'] . ' ' . $address['entry_lastname'];
 		}
-		$newOrderAddress->entry_company = $address['entry_company'];
+		if(isset($address['entry_company'])){
+			$newOrderAddress->entry_company = $address['entry_company'];
+		}
 		$newOrderAddress->entry_street_address = $address['entry_street_address'];
-		$newOrderAddress->entry_suburb = $address['entry_suburb'];
+		if(isset($address['entry_suburb'])){
+			$newOrderAddress->entry_suburb = $address['entry_suburb'];
+		}
 		$newOrderAddress->entry_city = $address['entry_city'];
 		$newOrderAddress->entry_postcode = $address['entry_postcode'];
 		$newOrderAddress->entry_state = $address['entry_state'];
@@ -446,6 +457,9 @@ class OrderProcessor {
 			$newOrdersTotal->module = $orderTotals[$i]['module'];
 			$newOrdersTotal->method = $orderTotals[$i]['method'];
 			$newOrdersTotal->sort_order = $orderTotals[$i]['sort_order'];
+
+			EventManager::notify('OrderInsertOrderTotalsBeforeSave', $orderTotals[$i], $newOrdersTotal);
+
 			$newOrdersTotal->save();
 		}
 	}
@@ -482,7 +496,7 @@ class OrderProcessor {
 		$newOrdersStatusHistory->save();
 	}
 
-	public function insertOrderedProduct($cartProduct, &$products_ordered){
+	public function insertOrderedProduct(ShoppingCartProduct $cartProduct, &$products_ordered){
 		global $currencies;
 		$this->newOrder['currentOrderedProduct'] = array();
 
@@ -513,7 +527,10 @@ class OrderProcessor {
 
 		EventManager::notify('InsertOrderedProductAfterSave', $newOrdersProduct, $cartProduct);
 
-		$cartProduct->onInsertOrderedProduct($this->newOrder['orderID'], $newOrdersProduct, &$products_ordered);
+		$ProductType = $cartProduct->getProductClass()->getProductTypeClass();
+		if (method_exists($ProductType, 'onInsertOrderedProduct')){
+			$ProductType->onInsertOrderedProduct($cartProduct, $this->newOrder['orderID'], $newOrdersProduct, &$products_ordered);
+		}
 
 		$this->newOrder['currentOrderedProduct']['id'] = $newOrdersProduct->orders_products_id;
 		$this->updateProductsOrdered($cartProduct);
@@ -597,7 +614,7 @@ class OrderProcessor {
 		$emailEvent = new emailEvent('order_success', $userAccount->getLanguageId());
 		$emailEvent->setVar('order_id', (isset($this->newOrder['orderID'])?$this->newOrder['orderID']:$this->orderId));
 		$emailEvent->setVar('invoice_link', itw_app_link('order_id=' . (isset($this->newOrder['orderID'])?$this->newOrder['orderID']:$this->orderId), 'account', 'history_info', 'SSL', false));
-		$emailEvent->setVar('date_ordered', strftime(sysLanguage::getDateFormat('long')));
+		$emailEvent->setVar('date_ordered', date(sysLanguage::getDateFormat('long')));
 		$emailEvent->setVar('ordered_products', (isset($this->newOrder['productsOrdered']) ? $this->newOrder['productsOrdered'] : ((isset($products_ordered)&&(!empty($products_ordered)))?$products_ordered:$this->products_ordered) ));
 		$emailEvent->setVar('billing_address', $billToFormatted);
 		$emailEvent->setVar('shipping_address', $sendToFormatted);

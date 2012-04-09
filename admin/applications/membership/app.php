@@ -1,11 +1,6 @@
 <?php
 	$appContent = $App->getAppContentFile();
 
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.core.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.slide.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fold.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fade.js');
-
 	$tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
 	$QtaxClass = Doctrine_Query::create()
 	->select('tax_class_id, tax_class_title')

@@ -26,8 +26,7 @@ class PurchaseTypeTabMembershipRental_tab_inventory
 		return $this->heading;
 	}
 
-	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
-		global $tax_class_array;
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_MembershipRental $PurchaseType) {
 		if ($PurchaseType->getConfigData('INVENTORY_ENABLED') == 'True'){
 			$TabsObj->addTabHeader('purchaseTypeMembershipRentalSettingsTabInventory', array('text' => $this->getHeading()))
 				->addTabPage('purchaseTypeMembershipRentalSettingsTabInventory', array('text' => buildNormalInventoryTabs($Product, $PurchaseType)));

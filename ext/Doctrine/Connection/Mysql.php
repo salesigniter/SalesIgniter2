@@ -203,6 +203,9 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
         foreach ($fields as $fieldName => $value) {
             $columns[] = $table->getColumnName($fieldName);
             $values[] = '?';
+			if ($value instanceof SesDateTime){
+				$value = $value->format(DATE_TIMESTAMP);
+			}
             $params[] = $value;
         }
 

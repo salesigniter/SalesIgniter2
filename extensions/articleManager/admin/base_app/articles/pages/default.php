@@ -34,9 +34,9 @@
 		$arrowIcon = htmlBase::newElement('icon')->setType('info');
 		
 		if ($articles['articles_status'] == '1') {
-			$statusIcons = tep_image(DIR_WS_IMAGES . 'icon_status_green.gif', IMAGE_ICON_STATUS_GREEN, 10, 10) . '&nbsp;&nbsp;<a href="' . itw_app_link('appExt=articleManager&action=setflag&flag=0&aID=' . $articles['articles_id'] . '&tPath=' . $tPath) . '">' . tep_image(DIR_WS_IMAGES . 'icon_status_red_light.gif', IMAGE_ICON_STATUS_RED_LIGHT, 10, 10) . '</a>';
+			$statusIcons = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_status_green.gif', sysLanguage::get('IMAGE_ICON_STATUS_GREEN'), 10, 10) . '&nbsp;&nbsp;<a href="' . itw_app_link('appExt=articleManager&action=setflag&flag=0&aID=' . $articles['articles_id'] . '&tPath=' . $tPath) . '">' . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_status_red_light.gif', sysLanguage::get('IMAGE_ICON_STATUS_RED_LIGHT'), 10, 10) . '</a>';
 		}else{
-			$statusIcons = '<a href="' . itw_app_link('appExt=articleManager&action=setflag&flag=1&aID=' . $articles['articles_id'] . '&tPath=' . $tPath) . '">' . tep_image(DIR_WS_IMAGES . 'icon_status_green_light.gif', IMAGE_ICON_STATUS_GREEN_LIGHT, 10, 10) . '</a>&nbsp;&nbsp;' . tep_image(DIR_WS_IMAGES . 'icon_status_red.gif', IMAGE_ICON_STATUS_RED, 10, 10);
+			$statusIcons = '<a href="' . itw_app_link('appExt=articleManager&action=setflag&flag=1&aID=' . $articles['articles_id'] . '&tPath=' . $tPath) . '">' . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_status_green_light.gif', sysLanguage::get('IMAGE_ICON_STATUS_GREEN_LIGHT'), 10, 10) . '</a>&nbsp;&nbsp;' . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icon_status_red.gif', sysLanguage::get('IMAGE_ICON_STATUS_RED'), 10, 10);
 		}
 
 		$tableGrid->addBodyRow(array(

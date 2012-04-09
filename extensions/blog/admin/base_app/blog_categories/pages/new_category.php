@@ -17,8 +17,6 @@
 	}else{
 		$Category = $Categories->getRecord();
 	}
-
-	$languages = tep_get_languages();
 ?>
 <form name="new_category" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) . 'action=saveCategory');?>" method="post" enctype="multipart/form-data">
 <div class="pageHeading"><?php
@@ -27,8 +25,10 @@
 <br />
 
 <div id="tab_container">
- <ul>  
+ <ul>
+<li class="ui-tabs-nav-item"><a href="#page-1"><span><?php echo sysLanguage::get('TAB_GENERAL');?></span></a></li>
   <li class="ui-tabs-nav-item"><a href="#page-2"><span><?php echo sysLanguage::get('TAB_DESCRIPTION');?></span></a></li>
+
 <?php
 	$contents = EventManager::notifyWithReturn('NewBlogCategoryTabHeader');
 	if (!empty($contents)){
@@ -39,6 +39,7 @@
 ?> 
  </ul>
 
+<div id="page-1"><?php include(sysConfig::getDirFsCatalog(). 'extensions/blog/admin/base_app/blog_categories/pages_tabs/tab_general.php');?></div>
  <div id="page-2"><?php include(sysConfig::getDirFsCatalog(). 'extensions/blog/admin/base_app/blog_categories/pages_tabs/tab_description.php');?></div>
 <?php
 	$contents = EventManager::notifyWithReturn('NewBlogCategoryTabBody', &$Category);
@@ -51,8 +52,8 @@
 </div>
 <br />
 <div style="text-align:right"><?php
-   $saveButton = htmlBase::newElement('button')->setType('submit')->setText(sysLanguage::get('IMAGE_SAVE'));
-   $cancelButton = htmlBase::newElement('button')->setText(sysLanguage::get('IMAGE_CANCEL'))
+   $saveButton = htmlBase::newElement('button')->setType('submit')->usePreset('save');
+   $cancelButton = htmlBase::newElement('button')->usePreset('cancel')
    ->setHref(itw_app_link(tep_get_all_get_params(array('action', 'appPage')), null, 'default', 'SSL'));
 
    echo $saveButton->draw() . $cancelButton->draw();

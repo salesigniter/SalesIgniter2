@@ -14,10 +14,20 @@ class ProductsPayPerPeriods extends Doctrine_Record {
 	
 	public function setUp(){
 		$this->setUpParent();
+		$this->hasOne('Products', array(
+			'local' => 'products_id',
+			'foreign' => 'products_id'
+		));
 	}
 	
 	public function setUpParent(){
+		$Products = Doctrine::getTable('Products')->getRecordInstance();
 
+		$Products->hasMany('ProductsPayPerPeriods', array(
+			'local' => 'products_id',
+			'foreign' => 'products_id',
+			'cascade' => array('delete')
+		));
 	}
 	
 	public function setTableDefinition(){

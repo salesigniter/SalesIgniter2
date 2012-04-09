@@ -20,5 +20,5 @@
 		}
 	}
 	
-	EventManager::attachActionResponse(itw_app_link(null,'checkout','default',$request_type), 'redirect');
+	EventManager::attachActionResponse(itw_app_link(null, 'checkout', 'default', sysConfig::get('REQUEST_TYPE')), 'redirect');
 ?>

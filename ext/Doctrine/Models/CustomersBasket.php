@@ -13,13 +13,14 @@
 class CustomersBasket extends Doctrine_Record {
 	
 	public function setUp(){
+		parent::setUp();
 		$this->setUpParent();
 	}
 	
 	public function setUpParent(){
 		$Customers = Doctrine::getTable('Customers')->getRecordInstance();
 
-		$Customers->hasMany('CustomersBasket', array(
+		$Customers->hasOne('CustomersBasket', array(
 			'local' => 'customers_id',
 			'foreign' => 'customers_id',
 			'cascade' => array('delete')

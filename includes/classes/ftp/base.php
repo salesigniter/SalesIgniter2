@@ -101,10 +101,7 @@ class SystemFTP
 			ftp_pasv($this->ftpConn, true);
 		}
 
-		/*
-		 * @TODO: How do i handle users who's home directory is not the one that includes public_html?????
-		 */
-		ftp_chdir($this->ftpConn, 'public_html');
+		$this->changeDirectory(sysConfig::get('SYSTEM_FTP_PATH'));
 
 		/*
 		 * Get to the catalog directory for all relative paths
@@ -116,8 +113,7 @@ class SystemFTP
 				if (empty($fName)) {
 					continue;
 				}
-
-				ftp_chdir($this->ftpConn, $fName);
+				$this->changeDirectory($fName);
 			}
 		}
 	}
@@ -146,12 +142,24 @@ class SystemFTP
 		return $this->changePermissions($filePath, $perms);
 	}
 
+	public function changeDirectory($dirPath){
+		return ftp_chdir($this->ftpConn, $this->cleanPath($dirPath));
+	}
+
+	public function createDirectory($dirPath){
+		return ftp_mkdir($this->ftpConn, $this->cleanPath($dirPath));
+	}
+
 	public function deleteDir($filePath) {
-		ftp_rmdir($this->ftpConn, $this->cleanPath($filePath));
+		return ftp_rmdir($this->ftpConn, $this->cleanPath($filePath));
 	}
 
 	public function deleteFile($filePath) {
-		ftp_delete($this->ftpConn, $this->cleanPath($filePath));
+		return ftp_delete($this->ftpConn, $this->cleanPath($filePath));
+	}
+
+	public function renameFile($oldName, $newName){
+		return ftp_rename($this->ftpConn, $oldName, $newName);
 	}
 
 	public function copyFile($from, $to) {
@@ -241,8 +249,10 @@ class SystemFTP
 		return $fileCheck;
 	}
 
-	private function changePermissions($filePath, $perms) {
+	public function changePermissions($filePath, $perms) {
 		$perms = '0' . $perms;
+		//echo sprintf('CHMOD %u %s', $perms, $this->cleanPath($filePath));
+		//print_r(ftp_raw($this->ftpConn, sprintf('CHMOD %u %s', $perms, $this->cleanPath($filePath))));
 		$ftpCmd = ftp_chmod($this->ftpConn, eval("return({$perms});"), $this->cleanPath($filePath));
 		$success = true;
 		if ($ftpCmd === false){

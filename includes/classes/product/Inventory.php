@@ -80,9 +80,9 @@ class productInventory
 		return false;
 	}
 
-	function getInventoryItems() {
+	function getInventoryItems($includeUnavailable = false) {
 		if (is_null($this->invMethod) === false){
-			return $this->invMethod->getInventoryItems();
+			return $this->invMethod->getInventoryItems($includeUnavailable);
 		}
 		return false;
 	}

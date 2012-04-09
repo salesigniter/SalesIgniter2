@@ -1,10 +1,19 @@
-<configurations>
-	<configuration>
-		<title><![CDATA[Enable Quantity Discounts Integration]]></title>
-		<key><![CDATA[QUANTITIY_DISCOUNT_ENABLED]]></key>
-		<tab><![CDATA[Quantity Discounts]]></tab>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to enable quantity discounts integration for this purchase type?]]></description>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-</configurations>
+<ConfigurationGroup modules="new,used,rental,reservation">
+	<title>Quantity Discounts</title>
+	<key>quantityDiscount</key>
+	<description>Configuration Settings For Quantity Discounts</description>
+	<tabs>
+		<quantity_discounts>
+			<title>Quantity Discounts</title>
+			<description>Quantity Discounts Settings</description>
+			<configurations>
+				<QUANTITIY_DISCOUNT_ENABLED>
+					<title><![CDATA[Enable Quantity Discounts Integration]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Do you want to enable quantity discounts integration for this purchase type?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</QUANTITIY_DISCOUNT_ENABLED>
+			</configurations>
+		</quantity_discounts>
+	</tabs>
+</ConfigurationGroup>

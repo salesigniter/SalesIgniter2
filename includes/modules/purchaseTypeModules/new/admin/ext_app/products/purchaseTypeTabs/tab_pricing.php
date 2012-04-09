@@ -26,11 +26,9 @@ class PurchaseTypeTabNew_tab_pricing
 		return $this->heading;
 	}
 
-	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
+	public function addTab(&$TabsObj, Product $Product, PurchaseType_new $PurchaseType) {
 		global $tax_class_array, $appExtension;
 		if ($PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
-			$PurchaseType->loadData($Product->getId());
-
 			$pricingTypeName = $PurchaseType->getCode();
 			$pricingTypeText = $PurchaseType->getTitle();
 			$productsPrice = $PurchaseType->getData('price');

@@ -17,7 +17,7 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'DataExportFullQueryBeforeExecute',
@@ -76,11 +76,9 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 		}
 	}
 	
-	public function DataExportFullQueryFileLayoutHeader(&$dataExport){
-		$dataExport->setHeaders(array(
-			'v_custom_fields_group'
-		));
-			
+	public function DataExportFullQueryFileLayoutHeader(&$HeaderRow){
+		$HeaderRow->addColumn('v_custom_fields_group');
+
 		$mostFields = 0;
 		$Qfields = Doctrine_Query::create()
 		->select('count(field_id) as total')
@@ -94,9 +92,7 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 		}
 			
 		for($i=1; $i<$mostFields+1; $i++){
-			$dataExport->setHeaders(array(
-				'v_custom_field' . $i
-			));
+			$HeaderRow->addColumn('v_custom_field' . $i);
 		}
 	}
 	
@@ -107,8 +103,13 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 		->addSelect('fg.group_name as v_custom_fields_group');
 	}
 	
-	public function DataExportBeforeFileLineCommit(&$productRow){
-		if (!empty($productRow['v_custom_fields_group_id'])){
+	public function DataExportBeforeFileLineCommit(&$CurrentRow, $pInfo){
+		$CurrentRow->addColumn(
+			$pInfo['v_custom_fields_group'],
+			'v_custom_fields_group'
+		);
+
+		if (!empty($pInfo['v_custom_fields_group_id'])){
 			$Qfields = Doctrine_Query::create()
 			->select('f.field_id, f2p.value')
 			->from('ProductsCustomFields f')
@@ -121,7 +122,11 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 			if ($Qfields){
 				$fieldNum = 1;
 				foreach($Qfields as $fInfo){
-					$productRow['v_custom_field' . $fieldNum++] = $fInfo['ProductsCustomFieldsToProducts'][0]['value'];
+					$CurrentRow->addColumn(
+						$fInfo['ProductsCustomFieldsToProducts'][0]['value'],
+						'v_custom_field' . $fieldNum ++
+					);
+					//$pInfo['v_custom_field' . $fieldNum++] = $fInfo['ProductsCustomFieldsToProducts'][0]['value'];
 				}
 			}
 		}

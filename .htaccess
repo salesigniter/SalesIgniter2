@@ -102,6 +102,8 @@ AddType image/x-xbitmap .xbm
 # WAV files
 AddType audio/x-wav .wav
 
+#php_value zlib.output_compression on
+
 Options +FollowSymLinks
 RewriteEngine On 
 RewriteBase /
@@ -109,18 +111,6 @@ RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
-
-# Ultimate SEO URLs BEGIN
-RewriteRule ^(.*)-p-([0-9]+).html$ product_info.php?products_id=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-c-([0-9_]+).html$ index.php?cPath=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-m-([0-9]+).html$ index.php?manufacturers_id=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-pi-([0-9]+).html$ popup_image.php?pID=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-t-([0-9_]+).html$ articles.php?tPath=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-a-([0-9]+).html$ article_info.php?articles_id=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-pr-([0-9]+).html$ product_reviews.php?products_id=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-pri-([0-9]+).html$ product_reviews_info.php?products_id=$2&%{QUERY_STRING}
-RewriteRule ^(.*)-i-([0-9]+).html$ information.php?info_id=$2&%{QUERY_STRING}
-# Ultimate SEO URLs END
 
 RewriteRule ^checkout_rental_account.(php|html)$ application.php?app=checkout&appPage=default&checkoutType=rental&%{QUERY_STRING}
 RewriteRule ^admin/showBarcode_(.*).png$ admin/showBarcode.php?code=$1&%{QUERY_STRING}
@@ -134,7 +124,8 @@ RewriteRule ^pullStream.php/(.*)/(.*)/(.*)/(.*)$ pullStream.php?pID=$1&oID=$2&op
 
 # Core rewrites ( these are needed for core applications using seo rewrites ) - BEGIN - 
 RewriteRule ^product/([^/]+)/([0-9]+)/([^/\.]+)\.(php|html)$ application.php?app=product&appPage=$1&products_id=$2&%{QUERY_STRING} [L]
-# Core rewrites ( these are needed for core applications using seo rewrites ) - END - 
+RewriteRule ^category/([0-9_]+)(.*)([^/\.]+)\.(php|html)$ application.php?app=index&appPage=default&cPath=$1&%{QUERY_STRING} [L]
+# Core rewrites ( these are needed for core applications using seo rewrites ) - END -
 
 # http://www.itwebexperts.com/rentalstore2/admin/application.php?appExt=infoPages&app=manage_pages&appPage=default
 # New rewrite rules for applications/extensions - BEGIN -

@@ -23,11 +23,9 @@
 <?php
 	}
 	
-	$tableGrid = htmlBase::newElement('grid')
+	$tableGrid = htmlBase::newElement('newGrid')
 	->usePagination(true)
-	->useSorting(true)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit']: 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1));
+	->useSorting(true);
 	if (isset($_GET['wordList'])){
 		$Qwords = Doctrine_Query::create()
 		->from('SearchwordSwap');
@@ -73,7 +71,8 @@
 		}
 	}else{
 		$Qwords = Doctrine_Query::create()
-		->from('SearchQueriesSorted');
+		->from('SearchQueriesSorted')
+		->orderBy('search_count DESC');
 	
 		$tableGrid->setQuery($Qwords);
 
@@ -97,11 +96,9 @@
 		}
 	}
 ?>
- <div style="width:100%;float:left;">
-  <div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-   <div style="width:99%;margin:5px;">
+  <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+   <div style="margin:5px;">
    <?php echo $tableGrid->draw();?>
-   </div>
   </div>
   <?php
   if (isset($_GET['wordList'])){

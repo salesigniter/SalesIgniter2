@@ -33,13 +33,13 @@
 	$selectBox->addOption('all', sysLanguage::get('TEXT_ALL'));
 	$selectBox->addOption('rental', sysLanguage::get('TEXT_RENTAL'));
 	
-	if (defined('EXTENSION_PAY_PER_RENTALS_ENABLED') && EXTENSION_PAY_PER_RENTALS_ENABLED == 'True'){
+	if ($appExtension->isEnabled('payPerRentals') === true){
 		$selectBox->addOption('onetime', sysLanguage::get('TEXT_PAY_PER_RENTAL'));
 	}
 	echo $selectBox->draw();
 ?></div>
 <?php
-	if (defined('EXTENSION_INVENTORY_CENTERS_ENABLED') && EXTENSION_INVENTORY_CENTERS_ENABLED == 'True'){
+	if ($appExtension->isEnabled('inventoryCenters') === true){
 		$selectBox = htmlBase::newElement('selectbox')
 		->setName('invCenter')
 		->setId('invCenter')
@@ -48,8 +48,10 @@
 		
 		$selectBox->addOption('', sysLanguage::get('TEXT_ALL_CENTERS'));
 		
-		$QinventoryCenter = tep_db_query('select * from ' . TABLE_PRODUCTS_INVENTORY_CENTERS . ' order by inventory_center_name');
-		while($inventoryCenter = tep_db_fetch_array($QinventoryCenter)){
+		$QinventoryCenter = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select * from products_inventory_centers order by inventory_center_name');
+		foreach($QinventoryCenter as $inventoryCenter){
 			$selectBox->addOption($inventoryCenter['inventory_center_id'], $inventoryCenter['inventory_center_name']);
 		}
 		echo '<div class="hideForPrint main" style="text-align:right;margin:.5em;">' . 
@@ -61,7 +63,7 @@
 	echo htmlBase::newElement('button')->setName('genList')->setId('genList')->setText(sysLanguage::get('TEXT_BUTTON_GENERATE_LIST'))->draw();
 ?></div>
 
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin:.5em;padding:.5em;">
+<div class="ui-widget ui-widget-content ui-corner-all middleTable" style="margin:.5em;padding:.5em;">
 <table cellpadding="2" cellspacing="0" border="0" id="reservations" width="100%">
  <thead>
   <tr>
@@ -73,25 +75,19 @@
    <th class="ui-widget-header" style="text-align:left;border-left:none;border-right:none;"><?php echo sysLanguage::get('TABLE_HEADING_INVENTORY_CENTER');?></th>
    <th class="ui-widget-header" style="text-align:left;border-left:none;border-right:none;"><?php echo sysLanguage::get('TABLE_HEADING_TYPE');?></th>
    <th class="ui-widget-header" style="text-align:left;border-left:none;"><?php echo sysLanguage::get('TABLE_HEADING_DATE_SENT');?></th>
+	  <?php
+	  if(sysConfig::get('EXTENSION_CUSTOM_FIELDS_SHOW_DOWNLOAD_FILE_COLUMN') == 'True'){
+	  ?>
+	        <th class="ui-widget-header" style="text-align:left;border-left:none;"><?php echo sysLanguage::get('TABLE_HEADING_DOWNLOAD_FILE');?></th>
+		  <?php
+		}
+?>
   </tr>
  </thead>
  <tbody>
  </tbody>
 </table>
 </div>
-
-<div class="hideForPrint main" style="text-align:right;margin:.5em;"><?php
-	$selectBox = htmlBase::newElement('selectbox')
-	->setName('label_type')
-	->setId('label_type');
-	
-	$selectBox->addOption('avery_5160', 'Avery 5160 Shipping Labels');
-	$selectBox->addOption('avery_5164', 'Avery 5164 Product Info Labels');
-	$selectBox->addOption('avery_5160_html', 'Shipping Labels HTML Version');
-	$selectBox->addOption('avery_5164_html', 'Product Info Labels HTML Version');
-	
-	echo $selectBox->draw();
-?></div>
 
 <div class="hideForPrint main" style="text-align:right;margin:.5em;"><?php
 	echo htmlBase::newElement('button')->setName('genLabels')->setId('genLabels')->setText(sysLanguage::get('TEXT_BUTTON_GENERATE_LABELS'))->draw();

@@ -27,19 +27,26 @@
 	$pg_limit = (int) sysConfig::get('EXTENSION_BLOG_POST_PER_PAGE');
 
 	$pagerBar = '';
-	$posts = $blog->getCategoriesPosts(null, $app_pg, $pg_limit, $pg, &$pagerBar);
-
+	//$posts = $blog->getCategoriesPosts(null, $app_pg, $pg_limit, $pg, &$pagerBar);
+	$posts = $blog->getPostsWithPaging(null, $app_pg, $pg_limit, $pg, &$pagerBar);
 	$contentHtml = '';
 	foreach ($posts as $post){
 		$categ = '';
-		foreach ($post['BlogPostToCategories'] as $cat){
+		$postCategories = $blog->getPostCategories($post['post_id']);
+		$Qcomments = Doctrine_Query::create()
+			->from('BlogCommentToPost c')
+			->leftJoin('c.BlogComments pc')
+			->where('c.blog_post_id = ?', $post['post_id'])
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+		foreach ($postCategories as $cat){
 			$categ .= $cat['BlogCategories']['BlogCategoriesDescription'][Session::get('languages_id')]['blog_categories_title'] . ', ';
 		}
 		$categ = substr($categ, 0, strlen($categ) - 2);
-
+		/*special modifications*/
 		$contentHtml.= "<h2 class='blog_post_title'><a href='" . itw_app_link('appExt=blog', 'show_post', $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_seo_url']) . "'>" . $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_title'] . "</a></h2>";
 		$contentHtml.= "<div class='blog_post_text'>" . $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_text'] . "</div>";
-		$contentHtml.= "<p class='blog_post_foot'>" . "Date: " . tep_date_short($post['post_date']) . "<br/>Categories: " . $categ . "</p>";
+		$contentHtml.= "<p class='blog_post_foot'>" . "Date: " . $post['post_date']->format(sysLanguage::getDateFormat('short')) . "<br/>Categories: " . $categ. "<br/>" . count($Qcomments).' Comments( <a href="'.itw_app_link('appExt=blog', 'show_post', $post['BlogPostsDescription'][Session::get('languages_id')]['blog_post_seo_url']).'#comments">click here to post a comment</a>)' . "</p>";
 	}
 
 	if ($app_pg == null){

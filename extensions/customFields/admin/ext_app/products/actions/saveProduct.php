@@ -10,17 +10,7 @@
 			$GroupsToProducts[]->group_id = $_POST['products_custom_fields_group'];
 			foreach($_POST['fields'] as $fID => $val){
 				$fieldValue = $val;
-				if (isset($_FILES['fields_' . $fID])){
-					$fieldUpload = new upload('fields_' . $fID);
-					$fieldUpload->set_extensions(array('jpg', 'gif', 'png'));
-					$fieldUpload->set_destination(DIR_FS_CATALOG_IMAGES);
-					if ($fieldUpload->parse() && $fieldUpload->save()) {
-						$fieldValue = $fieldUpload->filename;
-					}else{
-						$fieldValue = $val;
-					}
-				}
-					
+
 				$QfieldType = Doctrine_Query::create()
 				->select('f.input_type')
 				->from('ProductsCustomFields f')

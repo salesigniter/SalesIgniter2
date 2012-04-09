@@ -45,15 +45,15 @@
 			$locked = $nInfo['locked'];
 			
 			if ($status == '1'){
-				$statusIcon = tep_image(DIR_WS_ICONS . 'tick.gif', ICON_TICK);
+				$statusIcon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'tick.gif', sysLanguage::get('ICON_TICK'));
 			}else{
-				$statusIcon = tep_image(DIR_WS_ICONS . 'cross.gif', ICON_CROSS);
+				$statusIcon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'cross.gif', sysLanguage::get('ICON_CROSS'));
 			}
 			
 			if ($locked > 0) {
-				$lockedIcon = tep_image(DIR_WS_ICONS . 'locked.gif', ICON_LOCKED);
+				$lockedIcon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'locked.gif', sysLanguage::get('ICON_LOCKED'));
 			}else{
-				$lockedIcon = tep_image(DIR_WS_ICONS . 'unlocked.gif', ICON_UNLOCKED);
+				$lockedIcon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'unlocked.gif', sysLanguage::get('ICON_UNLOCKED'));
 			}
 			
 			$tableGrid->addBodyRow(array(
@@ -62,7 +62,7 @@
 					'data-locked' => ($locked > 0 ? 'true' : 'false')
 				),
 				'columns' => array(
-					array('text' => '<a href="' . itw_app_link($allGetParams . 'nID=' . $id, 'newsletters', 'preview') . '">' . tep_image(DIR_WS_ICONS . 'preview.gif', ICON_PREVIEW) . '</a>&nbsp;' . $title),
+					array('text' => '<a href="' . itw_app_link($allGetParams . 'nID=' . $id, 'newsletters', 'preview') . '">' . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'preview.gif', sysLanguage::get('ICON_PREVIEW')) . '</a>&nbsp;' . $title),
 					array('align' => 'right', 'text' => number_format($contentLength) . ' bytes'),
 					array('align' => 'center', 'text' => $module),
 					array('align' => 'center', 'text' => $statusIcon),
@@ -93,10 +93,6 @@
 	echo sysLanguage::get('HEADING_TITLE');
 ?></div>
 <br />
-<div class="gridContainer">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>

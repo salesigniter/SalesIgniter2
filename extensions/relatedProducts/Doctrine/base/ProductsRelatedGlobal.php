@@ -14,8 +14,8 @@ class ProductsRelatedGlobal extends Doctrine_Record {
 		$this->setTableName('products_related_global');
 
 
-		$this->hasColumn('type', 'char', 1, array(
-			'type'          => 'char',
+		$this->hasColumn('type', 'string', 1, array(
+			'type'          => 'string',
 			'length'        => 1,			
 			'primary'       => true,
 			'notnull'       => true,
@@ -24,7 +24,7 @@ class ProductsRelatedGlobal extends Doctrine_Record {
 
 		
 
-		$this->hasColumn('related_global', 'string', null, array(
+		$this->hasColumn('related_global', 'string', 999, array(
 			'type'          => 'string',
 			'notnull'       => true		
 		));

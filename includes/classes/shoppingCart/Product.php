@@ -60,7 +60,7 @@
 		public function addToCartBeforeAction(){
 			$ProductType = $this->getProductClass()->getProductTypeClass();
 			if (method_exists($ProductType, 'addToCartBeforeAction')){
-				$ProductType->addToCartBeforeAction();
+				$ProductType->addToCartBeforeAction($this);
 			}
 
 			EventManager::notify('ShoppingCart\AddToCartBeforeAction', $this);
@@ -69,7 +69,7 @@
 		public function addToCartAfterAction(){
 			$ProductType = $this->getProductClass()->getProductTypeClass();
 			if (method_exists($ProductType, 'addToCartAfterAction')){
-				$ProductType->addToCartAfterAction();
+				$ProductType->addToCartAfterAction($this);
 			}
 			EventManager::notify('ShoppingCart\AddToCartAfterAction', $this);
 		}
@@ -119,11 +119,15 @@
 				$this->purchaseTypeClass->inventoryCls->invMethod->trackMethod->aID_string = $this->pInfo['aID_string'];
 			}*/
 		}
-		
+
 		public function getName(){
 			return $this->getProductClass()->getName();
 		}
-		
+
+		public function getShortDescription(){
+			return $this->getProductClass()->getShortDescription();
+		}
+
 		public function getImage(){
 			return $this->getProductClass()->getImage();
 		}
@@ -169,9 +173,9 @@
 				$taxAddress = $userAccount->plugins['addressBook']->getAddress('billing');
 			} else {
 				$taxAddress = $userAccount->plugins['addressBook']->getAddress('delivery');
-			}			
+			}
 			$zoneId = $taxAddress['entry_zone_id'];
-			$countryId = $taxAddress['entry_country_id'];
+			$countryId = (isset($taxAddress['entry_country_id']) ? $taxAddress['entry_country_id'] : (isset($taxAddress['entry_country']) ? $taxAddress['entry_country'] : 0));
 			EventManager::notify('ProductBeforeTaxAddress', &$zoneId, &$countryId, $this, $order, $userAccount);
 			return array(
 				'zoneId'    => $zoneId,
@@ -258,9 +262,18 @@
 			$this->pInfo['final_price'] -= $val;
 		}
 		
-		public function getNameHtml(){
+		public function getNameHtml($settings = array()){
+			$options = array_merge(array(
+				'showProductName' => true
+			), $settings);
+
+			if (Session::get('layoutType') == 'smartphone'){
+				$link = itw_app_link('products_id=' . $this->pInfo['id_string'] . '&cart_id=' . $this->getId(), 'mobile', 'productInfo');
+			}else{
+				$link = itw_app_link('products_id=' . $this->pInfo['id_string'] . '&cart_id=' . $this->getId(), 'product', 'info');
+			}
 			$nameHref = htmlBase::newElement('a')
-			->setHref(itw_app_link('products_id=' . $this->pInfo['id_string'] . '&cart_id=' . $this->getId(), 'product', 'info'))
+			->setHref($link)
 			->css(array(
 				'font-weight' => 'bold'
 			))
@@ -270,7 +283,7 @@
 
 			$ProductType = $this->getProductClass()->getProductTypeClass();
 			if (method_exists($ProductType, 'showShoppingCartProductInfo')){
-				$name .= $ProductType->showShoppingCartProductInfo($this);
+				$name .= $ProductType->showShoppingCartProductInfo($this, $options);
 			}
 
 			$Result = EventManager::notifyWithReturn('ShoppingCartProduct\ProductNameAppend', &$this);
@@ -291,9 +304,14 @@
 			->setWidth(sysConfig::get('SMALL_IMAGE_WIDTH'))
 			->setHeight(sysConfig::get('SMALL_IMAGE_HEIGHT'))
 			->thumbnailImage(true);
-			
+
+			if (Session::get('layoutType') == 'smartphone'){
+				$link = itw_app_link('products_id=' . $this->pInfo['id_string'] . '&cart_id=' . $this->getId(), 'mobile', 'productInfo');
+			}else{
+				$link = itw_app_link('products_id=' . $this->pInfo['id_string'] . '&cart_id=' . $this->getId(), 'product', 'info');
+			}
 			$imageHref = htmlBase::newElement('a')
-			->setHref(itw_app_link('products_id=' . $this->pInfo['id_string'], 'product', 'info'))
+			->setHref($link)
 			->css(array(
 				'font-weight' => 'bold'
 			))
@@ -340,13 +358,6 @@
 			}
 			$this->pInfo = $newProductInfo;
 			//$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
-		}
-		
-		public function onInsertOrderedProduct($orderID, &$orderedProduct, &$products_ordered){
-			$ProductType = $this->getProductClass()->getProductTypeClass();
-			if (method_exists($ProductType, 'onInsertOrderedProduct')){
-				$ProductType->onInsertOrderedProduct($this, $orderID, $orderedProduct, &$products_ordered);
-			}
 		}
 	}
 ?>

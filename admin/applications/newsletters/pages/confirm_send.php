@@ -15,7 +15,7 @@
 	<table border="0" cellspacing="0" cellpadding="2">
 		<tr>
 			<td class="main" valign="middle"><?php
-				echo tep_image(DIR_WS_IMAGES . 'ani_send_email.gif', IMAGE_ANI_SEND_EMAIL);
+				echo tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'ani_send_email.gif', IMAGE_ANI_SEND_EMAIL);
 			?></td>
 			<td class="main" valign="middle"><b><?php
 				echo sysLanguage::get('TEXT_PLEASE_WAIT');

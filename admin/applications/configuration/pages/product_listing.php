@@ -39,7 +39,7 @@
 	}
 	
 	$templates = array();
-	$ignoreTemplates = array('email', 'help', 'help-text', 'Closed', 'fallback', 'new');
+	$ignoreTemplates = array('email', 'help', 'help-text', 'Closed', 'new');
 	$dirObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/');
 	while($dirObj->valid()){
 		if ($dirObj->isDot() || $dirObj->isFile() || in_array($dirObj->getBasename(), $ignoreTemplates)){
@@ -75,7 +75,6 @@
 	sort($listingClasses);
 	$columnHolder = htmlBase::newElement('div')->attr('id', 'columnsHolder');
 
-	$n = sizeof($languages);
 	$Qlisting = Doctrine_Query::create()
 	->from('ProductsListing p')
 	->leftJoin('p.ProductsListingDescription pd')
@@ -244,8 +243,7 @@
 	->append(htmlBase::newElement('br'));
 		foreach(sysLanguage::getLanguages() as $lInfo){
 				$langId = $lInfo['id'];
-		//$langImage = tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']);
-				
+
 		$nameInput = htmlBase::newElement('input')
 		->setName('products_listing_name[new][RandomNumber][' . $langId . ']')
 		->setLabel($lInfo['showName']())

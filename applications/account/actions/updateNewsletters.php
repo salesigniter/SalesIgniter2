@@ -8,7 +8,9 @@
 	if ($newsletter_general != $newsletter['customers_newsletter']) {
 		$newsletter_general = (($newsletter['customers_newsletter'] == '1') ? '0' : '1');
 
-		tep_db_query("update " . TABLE_CUSTOMERS . " set customers_newsletter = '" . (int)$newsletter_general . "' where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
+		Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->exec("update " . TABLE_CUSTOMERS . " set customers_newsletter = '" . (int)$newsletter_general . "' where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
 	}
 
 	$messageStack->addSession('pageStack', sysLanguage::get('SUCCESS_NEWSLETTER_UPDATED'), 'success');

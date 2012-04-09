@@ -52,7 +52,7 @@ class htmlElement_selectbox implements htmlElementPlugin {
 				}elseif ($index == $this->selectedOptionIndex){
 					$optionObj->attr('selected', 'selected');
 				}else{
-						$optionObj->removeAttr('selected');
+					$optionObj->removeAttr('selected');
 				}
 			}
 
@@ -96,7 +96,12 @@ class htmlElement_selectbox implements htmlElementPlugin {
 		return $html;
 	}
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
-	
+
+	public function val($val){
+		$this->selectOptionByValue($val);
+		return $this;
+	}
+
 	public function addOption($val, $html = '', $selected = false, $attributes = null){
 		$optionEl = new htmlElement('option');
 		$optionEl->attr('value', $val);

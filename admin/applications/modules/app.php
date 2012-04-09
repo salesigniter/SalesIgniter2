@@ -1,12 +1,8 @@
 <?php
 $appContent = $App->getAppContentFile();
 
-$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.core.js');
-$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.slide.js');
-$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fold.js');
-$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fade.js');
-$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
 $App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 
 $moduleType = $_GET['moduleType'];
 switch($moduleType){

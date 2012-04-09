@@ -12,14 +12,12 @@ class OrderTotalSubtotal extends OrderTotalModuleBase
 		$this->init('subtotal');
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order;
 
-		$this->addOutput(array(
-				'title' => $this->getTitle() . ':',
-				'text' => $this->formatAmount($order->info['subtotal']),
-				'value' => $order->info['subtotal']
-			));
+		$outputData['title'] = $this->getTitle() . ':';
+		$outputData['text'] = $this->formatAmount($order->info['subtotal']);
+		$outputData['value'] = $order->info['subtotal'];
 	}
 }
 

@@ -1,17 +1,23 @@
-<configurations>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Installed Status]]></title>
-		<key><![CDATA[INSTALLED]]></key>
-		<value><![CDATA[False]]></value>
-		<description><![CDATA[Tells if the module is installed or not]]></description>
-		<set_function><![CDATA[tep_cfg_show_installed_status(]]></set_function>
-	</configuration>
-	<configuration>
-		<tab><![CDATA[General]]></tab>
-		<title><![CDATA[Display Order]]></title>
-		<key><![CDATA[DISPLAY_ORDER]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
-	</configuration>
-</configurations>
+<ConfigurationGroup>
+	<title>Credit Card Error</title>
+	<key>orderPaymentCreditCardError</key>
+	<description>Configuration Settings For The Credit Card Error Payment Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Payment Module Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<DISPLAY_ORDER>
+					<title><![CDATA[Display Order]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+				</DISPLAY_ORDER>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

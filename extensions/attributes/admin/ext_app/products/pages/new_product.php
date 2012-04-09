@@ -10,19 +10,22 @@
 	This script and it's source is not redistributable
 */
 
-class attributes_admin_products_new_product extends Extension_attributes {
+class attributes_admin_products_new_product extends Extension_attributes
+{
 
-	public function __construct(){
+	public function __construct() {
 		parent::__construct();
 
 		define('TEXT_BUTTON_NEW_OPTION', 'Add Option');
-		define('TEXT_BUTTON_LOAD_SET', 'Load Set');
+		define('TEXT_BUTTON_LOAD_SET', 'Load Group');
 		define('TEXT_BUTTON_SAVE_SET', 'Save As Set');
 		define('TEXT_BUTTON_UPDATE_SET', 'Update Set');
 	}
 
-	public function load(){
-		if ($this->enabled === false) return;
+	public function load() {
+		if ($this->isEnabled() === false) {
+			return;
+		}
 
 		EventManager::attachEvents(array(
 			'NewProductAddTabs',
@@ -30,7 +33,7 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		), null, $this);
 	}
 
-	public function NewProductAppendJavascriptFiles(){
+	public function NewProductAppendJavascriptFiles() {
 		global $App;
 		$App->addJavascriptFile('extensions/attributes/admin/applications/products/javascript/new_product.js');
 	}
@@ -43,29 +46,29 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		}
 	}
 
-	public function NewProductTabBody(Product &$Product){
+	public function NewProductTabBody(Product &$Product) {
 		$newOptionButton = htmlBase::newElement('button')
-		->usePreset('install')
-		->css(array('float' => 'left'))
-		->setId('newOption')
-		->setText(sysLanguage::get('TEXT_BUTTON_NEW_OPTION'));
+			->usePreset('install')
+			->css(array('float' => 'left'))
+			->setId('newOption')
+			->setText(sysLanguage::get('TEXT_BUTTON_NEW_OPTION'));
 
 		$loadSetButton = htmlBase::newElement('button')
-		->usePreset('load')
-		->setId('loadSet')
-		->setText(sysLanguage::get('TEXT_BUTTON_LOAD_SET'));
+			->usePreset('load')
+			->setId('loadSet')
+			->setText(sysLanguage::get('TEXT_BUTTON_LOAD_SET'));
 
 		$buttonBar = htmlBase::newElement('div')
-		->css(array(
+			->css(array(
 			'text-align' => 'right'
 		))
-		->append($newOptionButton)->append($loadSetButton);
+			->append($newOptionButton)->append($loadSetButton);
 
 		$currentGroup = htmlBase::newElement('fieldset')
-		->append(htmlBase::newElement('legend')->html(sysLanguage::get('TEXT_INFO_CURRENT_GROUP')));
+			->append(htmlBase::newElement('legend')->html(sysLanguage::get('TEXT_INFO_CURRENT_GROUP')));
 
 		$currentGroupDiv = htmlBase::newElement('div')->attr('id', 'currentGroup');
-		if (isset($pInfo['products_id'])){
+		if ($Product->getId() > 0){
 			$groupTable = $this->getGroupTable($Product->getId());
 			if ($groupTable !== false){
 				$currentGroupDiv->append($groupTable);
@@ -74,28 +77,28 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		$currentGroup->append($currentGroupDiv);
 
 		$currentOptions = htmlBase::newElement('ul')
-		->css(array(
+			->css(array(
 			'list-style' => 'none',
-			'padding' => 0,
-			'margin' => 0
+			'padding'	=> 0,
+			'margin'	 => 0
 		))
-		->attr('id', 'currentOptions');
+			->attr('id', 'currentOptions');
 
-		if (isset($pInfo['products_id'])){
+		if ($Product->getId() > 0){
 			$ProductsAttributes = Doctrine_Query::create()
-			->from('ProductsAttributes a')
-			->leftJoin('a.ProductsAttributesViews av')
-			->where('a.products_id = ?', $Product->getId())
-			->andWhere('a.groups_id is null')
-			->orderBy('a.sort_order');
+				->from('ProductsAttributes a')
+				->leftJoin('a.ProductsAttributesViews av')
+				->where('a.products_id = ?', $Product->getId())
+				->andWhere('a.groups_id is null')
+				->orderBy('a.sort_order');
 
 			$ProductsAttributes = $ProductsAttributes->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			$Attributes = array();
 			foreach($ProductsAttributes as $attribute){
 				$Attributes[$attribute['options_id']][$attribute['options_values_id']] = array(
-					'options_values_price'    => $attribute['options_values_price'],
-					'options_values_image'    => $attribute['options_values_image'],
-					'price_prefix'            => $attribute['price_prefix'],
+					'options_values_price'	=> $attribute['options_values_price'],
+					'options_values_image'	=> $attribute['options_values_image'],
+					'price_prefix'			=> $attribute['price_prefix'],
 					'ProductsAttributesViews' => $attribute['ProductsAttributesViews']
 				);
 			}
@@ -104,11 +107,11 @@ class attributes_admin_products_new_product extends Extension_attributes {
 				$optionTable = $this->getOptionTable($optionId, $Values);
 				if ($optionTable !== false){
 					$liObj = htmlBase::newElement('li')
-					->attr('id', 'option_' . $optionId . '_sort')
-					->css(array(
+						->attr('id', 'option_' . $optionId . '_sort')
+						->css(array(
 						'padding' => '.5em'
 					))
-					->append($optionTable);
+						->append($optionTable);
 					$currentOptions->append($liObj);
 				}
 			}
@@ -121,80 +124,81 @@ class attributes_admin_products_new_product extends Extension_attributes {
 			$currentOptions->draw();
 	}
 
-	public function getGroupTable($productsId = null){
+	public function getGroupTable($productsId = null) {
 		global $typeNames;
 		if (is_null($productsId) === false){
 			$ProductsAttributes = Doctrine_Query::create()
-			->from('ProductsAttributes a')
-			->leftJoin('a.ProductsAttributesViews av')
-			->where('a.products_id = ?', $productsId)
-			->andWhere('a.groups_id is not null');
+				->from('ProductsAttributes a')
+				->leftJoin('a.ProductsAttributesViews av')
+				->where('a.products_id = ?', $productsId)
+				->andWhere('a.groups_id is not null');
 
 			$ProductsAttributes = $ProductsAttributes->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			$Attributes = array();
 			foreach($ProductsAttributes as $attribute){
 				$Attributes[$attribute['groups_id']][$attribute['options_id']][$attribute['options_values_id']] = array(
-					'options_values_price'    => $attribute['options_values_price'],
-					'options_values_image'    => $attribute['options_values_image'],
-					'price_prefix'            => $attribute['price_prefix'],
-					'use_inventory'           => $attribute['use_inventory'],
-					'purchase_types'          => $attribute['purchase_types'],
+					'options_values_price'	=> $attribute['options_values_price'],
+					'options_values_image'	=> $attribute['options_values_image'],
+					'price_prefix'			=> $attribute['price_prefix'],
+					'use_inventory'		   => $attribute['use_inventory'],
+					'purchase_types'		  => $attribute['purchase_types'],
 					'ProductsAttributesViews' => $attribute['ProductsAttributesViews']
 				);
 			}
 
 			if (isset($attribute['groups_id'])){
 				$groupId = $attribute['groups_id'];
-			}else{
+			}
+			else {
 				$groupId = 0;
 			}
-		}else{
+		}
+		else {
 			$groupId = (isset($_POST['option_group']) ? $_POST['option_group'] : 0);
 		}
-
 		if ($groupId > 0){
 			$Group = Doctrine_Query::create()
-			->from('ProductsOptionsGroups g')
-			->where('g.products_options_groups_id = ?', $groupId)
-			->fetchOne();
+				->from('ProductsOptionsGroups g')
+				->where('g.products_options_groups_id = ?', $groupId)
+				->fetchOne();
 			if ($Group){
 				$Group = $Group->toArray(true);
 				//echo '<pre>';print_r($Group);echo '</pre>';
 				$GroupContainer = htmlBase::newElement('div')
-				->addClass('ui-widget ui-widget-content ui-corner-all')
-				->attr('id', 'group_' . $Group['products_options_groups_id'])
-				->css('padding', '.2em')
-				->append(htmlBase::newElement('div')
-					->css('padding', '.5em')
-					->addClass('ui-widget ui-widget-header')
-					->html($Group['products_options_groups_name'])
+					->addClass('ui-widget ui-widget-content ui-corner-all')
+					->attr('id', 'group_' . $Group['products_options_groups_id'])
+					->css('padding', '.2em')
+					->append(htmlBase::newElement('div')
+						->css('padding', '.5em')
+						->addClass('ui-widget ui-widget-header')
+						->html($Group['products_options_groups_name'])
 				)->append(new htmlElement('br'));
 
 				$prefixMenu = htmlBase::newElement('selectbox')
-				->addOption('-', '-')
-				->addOption('+', '+')
-				->selectOptionByValue('+');
+					->addOption('-', '-')
+					->addOption('+', '+')
+					->selectOptionByValue('+');
 
 				$priceInput = htmlBase::newElement('input')
-				->attr('size', 8);
+					->attr('size', 8);
 
 				$inventoryCheckbox = htmlBase::newElement('checkbox')
-				->val('1');
+					->val('1');
 
 				$Qoptions = Doctrine_Query::create()
-				->from('ProductsOptions o')
-				->leftJoin('o.ProductsOptionsDescription od')
-				->leftJoin('o.ProductsOptionsToProductsOptionsGroups o2g')
-				->where('o2g.products_options_groups_id = ?', $Group['products_options_groups_id'])
-				->andWhere('od.language_id = ?', Session::get('languages_id'))
-				->execute()->toArray();
+					->from('ProductsOptions o')
+					->leftJoin('o.ProductsOptionsDescription od')
+					->leftJoin('o.ProductsOptionsToProductsOptionsGroups o2g')
+					->where('o2g.products_options_groups_id = ?', $Group['products_options_groups_id'])
+					->andWhere('od.language_id = ?', Session::get('languages_id'))
+					->execute()->toArray();
 				if ($Qoptions){
 					foreach($Qoptions as $oInfo){
 						$OptionsTable = htmlBase::newElement('table')
-						->css('width', '100%')
-						->addClass('ui-widget ui-widget-content')
-						->setCellPadding(2)
-						->setCellSpacing(0);
+							->css('width', '100%')
+							->addClass('ui-widget ui-widget-content')
+							->setCellPadding(2)
+							->setCellSpacing(0);
 
 						$Option = $oInfo;
 						$OptionDescription = $Option['ProductsOptionsDescription'][Session::get('languages_id')];
@@ -208,25 +212,41 @@ class attributes_admin_products_new_product extends Extension_attributes {
 						$columns = array(
 							array(
 								'addCls' => 'ui-widget ui-state-hover',
-								'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-								'text' => '<b>' . $optionName . '</b>'
+								'css'	=> array(
+									'border-left'  => '0px',
+									'border-right' => '0px',
+									'border-top'   => '0px'
+								),
+								'text'   => '<b>' . $optionName . '</b>'
 							),
 							array(
 								'addCls' => 'ui-widget ui-state-hover',
-								'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-								'text' => '<b>' . 'Price' . '</b>'
+								'css'	=> array(
+									'border-left'  => '0px',
+									'border-right' => '0px',
+									'border-top'   => '0px'
+								),
+								'text'   => '<b>' . 'Price' . '</b>'
 							),
 							array(
 								'addCls' => 'ui-widget ui-state-hover',
-								'align' => 'left',
-								'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-								'text' => '<b>' . 'Purchase Type' . '</b>'
+								'align'  => 'left',
+								'css'	=> array(
+									'border-left'  => '0px',
+									'border-right' => '0px',
+									'border-top'   => '0px'
+								),
+								'text'   => '<b>' . 'Purchase Type' . '</b>'
 							),
 							array(
 								'addCls' => 'ui-widget ui-state-hover',
-								'align' => 'left',
-								'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-								'text' => '<b>' . 'Allow Inventory Tracking' . '</b>'
+								'align'  => 'left',
+								'css'	=> array(
+									'border-left'  => '0px',
+									'border-right' => '0px',
+									'border-top'   => '0px'
+								),
+								'text'   => '<b>' . 'Allow Inventory Tracking' . '</b>'
 							)
 						);
 
@@ -234,16 +254,25 @@ class attributes_admin_products_new_product extends Extension_attributes {
 							if ($useMultiImage == '1'){
 								$columns[] = array(
 									'addCls' => 'ui-widget ui-state-hover',
-									'align' => 'right',
-									'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-									'text' => '<b>' . 'Add View' . '</b>'
+									'align'  => 'right',
+									'css'	=> array(
+										'border-left'  => '0px',
+										'border-right' => '0px',
+										'border-top'   => '0px'
+									),
+									'text'   => '<b>' . 'Add View' . '</b>'
 								);
-							}else{
+							}
+							else {
 								$columns[] = array(
 									'addCls' => 'ui-widget ui-state-hover',
-									'align' => 'right',
-									'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-									'text' => '<b>' . 'Image' . '</b>'
+									'align'  => 'right',
+									'css'	=> array(
+										'border-left'  => '0px',
+										'border-right' => '0px',
+										'border-top'   => '0px'
+									),
+									'text'   => '<b>' . 'Image' . '</b>'
 								);
 							}
 						}
@@ -253,12 +282,12 @@ class attributes_admin_products_new_product extends Extension_attributes {
 						));
 
 						$Qvalues = Doctrine_Query::create()
-						->from('ProductsOptionsValues ov')
-						->leftJoin('ov.ProductsOptionsValuesDescription ovd')
-						->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
-						->where('v2o.products_options_id = ?', $optionId)
-						->andWhere('ovd.language_id = ?', Session::get('languages_id'))
-						->execute()->toArray();
+							->from('ProductsOptionsValues ov')
+							->leftJoin('ov.ProductsOptionsValuesDescription ovd')
+							->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
+							->where('v2o.products_options_id = ?', $optionId)
+							->andWhere('ovd.language_id = ?', Session::get('languages_id'))
+							->execute()->toArray();
 						if ($Qvalues){
 							foreach($Qvalues as $vInfo){
 								$Value = $vInfo;
@@ -280,64 +309,64 @@ class attributes_admin_products_new_product extends Extension_attributes {
 								$checkboxes = array();
 								foreach($typeNames as $key => $typeName){
 									$checkboxes[] = array(
-										'label' => $typeName,
-										'labelPosition' => 'after',
+										'label'		  => $typeName,
+										'labelPosition'  => 'after',
 										'labelSeparator' => '&nbsp;',
-										'value' => $key
+										'value'		  => $key
 									);
 								}
 								$purchaseTypeBoxes = htmlBase::newElement('checkbox')
-								->addGroup(array(
-									'name' => 'attributes_purchase_types[' . $groupId . '][' . $optionId . '][' . $valueId . '][]',
+									->addGroup(array(
+									'name'	  => 'attributes_purchase_types[' . $groupId . '][' . $optionId . '][' . $valueId . '][]',
 									'separator' => array(
 										'type' => 'table',
 										'cols' => 3
 									),
-									'checked' => (isset($Attributes[$groupId][$optionId][$valueId]) ? explode(',', $Attributes[$groupId][$optionId][$valueId]['purchase_types']) : null),
-									'data' => $checkboxes
+									'checked'   => (isset($Attributes[$groupId][$optionId][$valueId]) ? explode(',', $Attributes[$groupId][$optionId][$valueId]['purchase_types']) : null),
+									'data'	  => $checkboxes
 								));
 
 								$columns = array(
 									array(
 										'addCls' => 'main',
-										'attr' => array(
+										'attr'   => array(
 											'valign' => 'top'
 										),
-										'text' => $valueName
+										'text'   => $valueName
 									),
 									array(
 										'addCls' => 'main',
-										'attr' => array(
+										'attr'   => array(
 											'valign' => 'top'
 										),
-										'text' => $prefixMenu->draw() . '&nbsp;' . $priceInput->draw()
+										'text'   => $prefixMenu->draw() . '&nbsp;' . $priceInput->draw()
 									),
 									array(
 										'addCls' => 'main',
-										'attr' => array(
+										'attr'   => array(
 											'valign' => 'top'
 										),
-										'text' => $purchaseTypeBoxes->draw()
+										'text'   => $purchaseTypeBoxes->draw()
 									),
 									array(
 										'addCls' => 'main',
-										'attr' => array(
+										'attr'   => array(
 											'valign' => 'top'
 										),
-										'text' => $inventoryCheckbox->draw()
+										'text'   => $inventoryCheckbox->draw()
 									)
 								);
 
 								if ($useImage == '1'){
 									if ($useMultiImage == '1'){
 										$addIcon = htmlBase::newElement('icon')
-										->setType('circlePlus')
-										->addClass('addImage')
-										->attr('view_name', 'attributes_view_image_name[' . $groupId . '][' . $optionId . '][' . $valueId . '][]')
-										->attr('upload_name', 'attributes_view_image_file[' . $groupId . '][' . $optionId . '][' . $valueId . '][]');
+											->setType('circlePlus')
+											->addClass('addImage')
+											->attr('view_name', 'attributes_view_image_name[' . $groupId . '][' . $optionId . '][' . $valueId . '][]')
+											->attr('upload_name', 'attributes_view_image_file[' . $groupId . '][' . $optionId . '][' . $valueId . '][]');
 
 										$deleteIcon = htmlBase::newElement('icon')->setType('closeThick')->css(array(
-											'float' => 'right',
+											'float'	=> 'right',
 											'position' => 'relative'
 										));
 
@@ -345,43 +374,44 @@ class attributes_admin_products_new_product extends Extension_attributes {
 										if (isset($Attributes[$groupId][$optionId][$valueId]['ProductsAttributesViews'])){
 											foreach($Attributes[$groupId][$optionId][$valueId]['ProductsAttributesViews'] as $imgInfo){
 												$html .= '<div style="padding:.2em;text-align:right;">' .
-												'View Name: <input type="text" name="' . $addIcon->attr('view_name') . '" value="' . $imgInfo['view_name'] . '" />' .
-												'&nbsp;&nbsp;&nbsp;&nbsp;' .
-												'View Image: <input type="file" name="' . $addIcon->attr('upload_name') . '" />' .
-												$deleteIcon->draw() .
-												'<br />' .
-											    'Current: ' . $imgInfo['view_image'] .
-												'<input type="hidden" name="attributes_previous_images[' . $groupId . '][' . $optionId . '][' . $valueId . ']" value="' . $imgInfo['view_image'] . '" />' .
-												'</div>';
+													'View Name: <input type="text" name="' . $addIcon->attr('view_name') . '" value="' . $imgInfo['view_name'] . '" />' .
+													'&nbsp;&nbsp;&nbsp;&nbsp;' .
+													'View Image: <input type="file" name="' . $addIcon->attr('upload_name') . '" />' .
+													$deleteIcon->draw() .
+													'<br />' .
+													'Current: ' . $imgInfo['view_image'] .
+													'<input type="hidden" name="attributes_previous_images[' . $groupId . '][' . $optionId . '][' . $valueId . ']" value="' . $imgInfo['view_image'] . '" />' .
+													'</div>';
 											}
 										}
 
 										$columns[] = array(
 											'addCls' => 'main',
-											'align' => 'right',
-											'attr' => array(
+											'align'  => 'right',
+											'attr'   => array(
 												'valign' => 'top'
 											),
-											'text' => $html
+											'text'   => $html
 										);
-									}else{
+									}
+									else {
 										$uploadInput = htmlBase::newElement('input')->setType('file')
-										->setName('value_image[' . $groupId . '][' . $optionId . '][' . $valueId . ']');
+											->setName('value_image[' . $groupId . '][' . $optionId . '][' . $valueId . ']');
 
 										$html = $uploadInput->draw();
 										if (isset($Attributes[$groupId][$optionId][$valueId])){
 											$html .= '<br />' .
-											         'Current: ' . $Attributes[$groupId][$optionId][$valueId]['options_values_image'] .
-											         '<input type="hidden" name="attributes_previous_images[' . $groupId . '][' . $optionId . '][' . $valueId . ']" value="' . $Attributes[$groupId][$optionId][$valueId]['options_values_image'] . '" />';
+												'Current: ' . $Attributes[$groupId][$optionId][$valueId]['options_values_image'] .
+												'<input type="hidden" name="attributes_previous_images[' . $groupId . '][' . $optionId . '][' . $valueId . ']" value="' . $Attributes[$groupId][$optionId][$valueId]['options_values_image'] . '" />';
 										}
 
 										$columns[] = array(
 											'addCls' => 'main',
-											'align' => 'right',
-											'attr' => array(
+											'align'  => 'right',
+											'attr'   => array(
 												'valign' => 'top'
 											),
-											'text' => $html
+											'text'   => $html
 										);
 									}
 								}
@@ -402,21 +432,22 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		return false;
 	}
 
-	public function getOptionTable($optionsId = null, $Values = null){
+	public function getOptionTable($optionsId = null, $Values = null) {
 		global $typeNames;
 		if (is_null($optionsId) === false){
 			$optionId = $optionsId;
-		}else{
+		}
+		else {
 			$optionId = $_POST['option'];
 		}
 		$html = '';
 		if ($optionId > 0){
 			$Option = Doctrine_Query::create()
-			->from('ProductsOptions o')
-			->leftJoin('o.ProductsOptionsDescription od')
-			->leftJoin('o.ProductsOptionsValuesToProductsOptions v2o')
-			->where('products_options_id = ?', $optionId)
-			->fetchOne();
+				->from('ProductsOptions o')
+				->leftJoin('o.ProductsOptionsDescription od')
+				->leftJoin('o.ProductsOptionsValuesToProductsOptions v2o')
+				->where('products_options_id = ?', $optionId)
+				->fetchOne();
 			if ($Option){
 				$Option = $Option->toArray(true);
 				$OptionDescription = $Option['ProductsOptionsDescription'][Session::get('languages_id')];
@@ -428,84 +459,94 @@ class attributes_admin_products_new_product extends Extension_attributes {
 				$optionName = $OptionDescription['products_options_name'];
 
 				$OptionContainer = htmlBase::newElement('div')
-				->addClass('ui-widget ui-widget-content ui-corner-all')
-				->attr('id', 'option_' . $Option['products_options_id'])
-				->css(array(
-					'padding' => '.2em',
+					->addClass('ui-widget ui-widget-content ui-corner-all')
+					->attr('id', 'option_' . $Option['products_options_id'])
+					->css(array(
+					'padding'  => '.2em',
 					'position' => 'relative'
 				))
-				->append(htmlBase::newElement('div')
-					->css(array(
-						'padding' => '.5em',
-						'border-bottom' => '0px'
-					))
-					->addClass('ui-widget ui-widget-header')
-					->html($Option['ProductsOptionsDescription'][Session::get('languages_id')]['products_options_name'])
-				)
-				->append(htmlBase::newElement('input')
-					->setType('hidden')
-					->setName('option_' . $Option['products_options_id'] . '_sort')
-					->setValue('0')
-				)
-				->append(htmlBase::newElement('icon')
+					->append(htmlBase::newElement('icon')
 					->setType('closeThick')
 					->css(array(
-						'position' => 'absolute',
-						'top' => '.8em',
-						'right' => '1em'
-					))
-				)
-				->append(htmlBase::newElement('icon')
+					'float'  => 'right',
+					'margin' => '.3em'
+				)))
+					->append(htmlBase::newElement('icon')
 					->setType('move')
 					->css(array(
-						'position' => 'absolute',
-						'top' => '.8em',
-						'right' => '2em'
-					))
-				);
+					'float'  => 'right',
+					'margin' => '.3em'
+				)))
+					->append(htmlBase::newElement('div')
+					->css(array(
+					'padding'	   => '.5em',
+					'border-bottom' => '0px'
+				))
+					->addClass('ui-widget ui-widget-header')
+					->html($Option['ProductsOptionsDescription'][Session::get('languages_id')]['products_options_name']))
+					->append(htmlBase::newElement('input')
+					->setType('hidden')
+					->setName('option_' . $Option['products_options_id'] . '_sort')
+					->setValue('0'));
 
 				$prefixMenu = htmlBase::newElement('selectbox')
-				->addOption('-', '-')
-				->addOption('+', '+')
-				->selectOptionByValue('+');
+					->addOption('-', '-')
+					->addOption('+', '+')
+					->selectOptionByValue('+');
 
 				$priceInput = htmlBase::newElement('input')
-				->attr('size', 8);
+					->attr('size', 8);
 
 				$inventoryCheckbox = htmlBase::newElement('checkbox')
-				->val('1');
+					->val('1');
 
 				$OptionsTable = htmlBase::newElement('table')
-				->css('width', '100%')
-				->addClass('ui-widget ui-widget-content')
-				->setCellPadding(2)
-				->setCellSpacing(0)
-				->stripeRows('tableRowEven', 'tableRowOdd');
+					->css('width', '100%')
+					->addClass('ui-widget ui-widget-content')
+					->setCellPadding(2)
+					->setCellSpacing(0)
+					->stripeRows('tableRowEven', 'tableRowOdd');
 
 				$columns = array(
 					array(
 						'addCls' => 'ui-widget ui-state-hover',
-						'align' => 'left',
-						'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-						'text' => '<b>' . 'Value Name' . '</b>'
+						'align'  => 'left',
+						'css'	=> array(
+							'border-left'  => '0px',
+							'border-right' => '0px',
+							'border-top'   => '0px'
+						),
+						'text'   => '<b>' . 'Value Name' . '</b>'
 					),
 					array(
 						'addCls' => 'ui-widget ui-state-hover',
-						'align' => 'left',
-						'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-						'text' => '<b>' . 'Price' . '</b>'
+						'align'  => 'left',
+						'css'	=> array(
+							'border-left'  => '0px',
+							'border-right' => '0px',
+							'border-top'   => '0px'
+						),
+						'text'   => '<b>' . 'Price' . '</b>'
 					),
 					array(
 						'addCls' => 'ui-widget ui-state-hover',
-						'align' => 'left',
-						'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-						'text' => '<b>' . 'Purchase Type' . '</b>'
+						'align'  => 'left',
+						'css'	=> array(
+							'border-left'  => '0px',
+							'border-right' => '0px',
+							'border-top'   => '0px'
+						),
+						'text'   => '<b>' . 'Purchase Type' . '</b>'
 					),
 					array(
 						'addCls' => 'ui-widget ui-state-hover',
-						'align' => 'left',
-						'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-						'text' => '<b>' . 'Allow Inventory Tracking' . '</b>'
+						'align'  => 'left',
+						'css'	=> array(
+							'border-left'  => '0px',
+							'border-right' => '0px',
+							'border-top'   => '0px'
+						),
+						'text'   => '<b>' . 'Allow Inventory Tracking' . '</b>'
 					)
 				);
 
@@ -513,16 +554,25 @@ class attributes_admin_products_new_product extends Extension_attributes {
 					if ($useMultiImage == '1'){
 						$columns[] = array(
 							'addCls' => 'ui-widget ui-state-hover',
-							'align' => 'right',
-							'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-							'text' => '<b>' . 'Add View' . '</b>'
+							'align'  => 'right',
+							'css'	=> array(
+								'border-left'  => '0px',
+								'border-right' => '0px',
+								'border-top'   => '0px'
+							),
+							'text'   => '<b>' . 'Add View' . '</b>'
 						);
-					}else{
+					}
+					else {
 						$columns[] = array(
 							'addCls' => 'ui-widget ui-state-hover',
-							'align' => 'right',
-							'css' => array('border-left' => '0px', 'border-right' => '0px', 'border-top' => '0px'),
-							'text' => '<b>' . 'Image' . '</b>'
+							'align'  => 'right',
+							'css'	=> array(
+								'border-left'  => '0px',
+								'border-right' => '0px',
+								'border-top'   => '0px'
+							),
+							'text'   => '<b>' . 'Image' . '</b>'
 						);
 					}
 				}
@@ -532,13 +582,13 @@ class attributes_admin_products_new_product extends Extension_attributes {
 				));
 
 				$Values = Doctrine_Query::create()
-				->from('ProductsOptionsValues ov')
-				->leftJoin('ov.ProductsOptionsValuesDescription ovd')
-				->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
-				->where('v2o.products_options_id = ?', $optionId)
-				->andWhere('ovd.language_id = ?', Session::get('languages_id'))
-				->orderBy('v2o.sort_order')
-				->execute()->toArray();
+					->from('ProductsOptionsValues ov')
+					->leftJoin('ov.ProductsOptionsValuesDescription ovd')
+					->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
+					->where('v2o.products_options_id = ?', $optionId)
+					->andWhere('ovd.language_id = ?', Session::get('languages_id'))
+					->orderBy('v2o.sort_order')
+					->execute()->toArray();
 				if ($Values){
 					foreach($Values as $vInfo){
 						$Value = $vInfo;
@@ -553,12 +603,12 @@ class attributes_admin_products_new_product extends Extension_attributes {
 
 						if (isset($_GET['pID'])){
 							$QproductsAttributes = Doctrine_Query::create()
-							->from('ProductsAttributes')
-							->where('products_id = ?', $_GET['pID'])
-							->andWhere('options_id = ?', $optionId)
-							->andWhere('options_values_id = ?', $valueId)
-							->andWhere('groups_id IS NULL')
-							->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+								->from('ProductsAttributes')
+								->where('products_id = ?', $_GET['pID'])
+								->andWhere('options_id = ?', $optionId)
+								->andWhere('options_values_id = ?', $valueId)
+								->andWhere('groups_id IS NULL')
+								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 							if ($QproductsAttributes){
 								$prefixMenu->selectOptionByValue($QproductsAttributes[0]['price_prefix']);
 								$priceInput->setValue($QproductsAttributes[0]['options_values_price']);
@@ -569,64 +619,64 @@ class attributes_admin_products_new_product extends Extension_attributes {
 						$checkboxes = array();
 						foreach($typeNames as $key => $typeName){
 							$checkboxes[] = array(
-								'label' => $typeName,
-								'labelPosition' => 'after',
+								'label'		  => $typeName,
+								'labelPosition'  => 'after',
 								'labelSeparator' => '&nbsp;',
-								'value' => $key
+								'value'		  => $key
 							);
 						}
 						$purchaseTypeBoxes = htmlBase::newElement('checkbox')
-						->addGroup(array(
-							'name' => 'attributes_purchase_types[0][' . $optionId . '][' . $valueId . '][]',
+							->addGroup(array(
+							'name'	  => 'attributes_purchase_types[0][' . $optionId . '][' . $valueId . '][]',
 							'separator' => array(
 								'type' => 'table',
 								'cols' => 3
 							),
-							'checked' => (isset($QproductsAttributes) ? explode(',', $QproductsAttributes[0]['purchase_types']) : null),
-							'data' => $checkboxes
+							'checked'   => (isset($QproductsAttributes) ? explode(',', $QproductsAttributes[0]['purchase_types']) : null),
+							'data'	  => $checkboxes
 						));
 
 						$columns = array(
 							array(
 								'addCls' => 'main',
-								'attr' => array(
+								'attr'   => array(
 									'valign' => 'top'
 								),
-								'text' => $valueName
+								'text'   => $valueName
 							),
 							array(
 								'addCls' => 'main',
-								'attr' => array(
+								'attr'   => array(
 									'valign' => 'top'
 								),
-								'text' => $prefixMenu->draw() . '&nbsp;' . $priceInput->draw()
+								'text'   => $prefixMenu->draw() . '&nbsp;' . $priceInput->draw()
 							),
 							array(
 								'addCls' => 'main',
-								'attr' => array(
+								'attr'   => array(
 									'valign' => 'top'
 								),
-								'text' => $purchaseTypeBoxes->draw()
+								'text'   => $purchaseTypeBoxes->draw()
 							),
 							array(
 								'addCls' => 'main',
-								'attr' => array(
+								'attr'   => array(
 									'valign' => 'top'
 								),
-								'text' => $inventoryCheckbox->draw()
+								'text'   => $inventoryCheckbox->draw()
 							)
 						);
 
 						if ($useImage == '1'){
 							if ($useMultiImage == '1'){
 								$addIcon = htmlBase::newElement('icon')
-								->setType('circlePlus')
-								->addClass('addImage')
-								->attr('view_name', 'attributes_view_image_name[0][' . $optionId . '][' . $valueId . '][]')
-								->attr('upload_name', 'attributes_view_image_file[0][' . $optionId . '][' . $valueId . '][]');
+									->setType('circlePlus')
+									->addClass('addImage')
+									->attr('view_name', 'attributes_view_image_name[0][' . $optionId . '][' . $valueId . '][]')
+									->attr('upload_name', 'attributes_view_image_file[0][' . $optionId . '][' . $valueId . '][]');
 
 								$deleteIcon = htmlBase::newElement('icon')->setType('closeThick')->css(array(
-									'float' => 'right',
+									'float'	=> 'right',
 									'position' => 'relative'
 								));
 
@@ -634,43 +684,44 @@ class attributes_admin_products_new_product extends Extension_attributes {
 								if (isset($Value['ProductsAttributesViews'])){
 									foreach($Value['ProductsAttributesViews'] as $imgInfo){
 										$html .= '<div style="padding:.2em;text-align:right;">' .
-										'View Name: <input type="text" name="' . $addIcon->attr('view_name') . '" value="' . $imgInfo['view_name'] . '" />' .
-										'&nbsp;&nbsp;&nbsp;&nbsp;' .
-										'View Image: <input type="file" name="' . $addIcon->attr('upload_name') . '" />' .
-										$deleteIcon->draw() .
-										'<br />' .
-									    'Current: ' . $imgInfo['view_image'] .
-										'<input type="hidden" name="attributes_previous_images[0][' . $optionId . '][' . $valueId . ']" value="' . $imgInfo['view_image'] . '" />' .
-										'</div>';
+											'View Name: <input type="text" name="' . $addIcon->attr('view_name') . '" value="' . $imgInfo['view_name'] . '" />' .
+											'&nbsp;&nbsp;&nbsp;&nbsp;' .
+											'View Image: <input type="file" name="' . $addIcon->attr('upload_name') . '" />' .
+											$deleteIcon->draw() .
+											'<br />' .
+											'Current: ' . $imgInfo['view_image'] .
+											'<input type="hidden" name="attributes_previous_images[0][' . $optionId . '][' . $valueId . ']" value="' . $imgInfo['view_image'] . '" />' .
+											'</div>';
 									}
 								}
 
 								$columns[] = array(
 									'addCls' => 'main',
-									'align' => 'right',
-									'attr' => array(
+									'align'  => 'right',
+									'attr'   => array(
 										'valign' => 'top'
 									),
-									'text' => $html
+									'text'   => $html
 								);
-							}else{
+							}
+							else {
 								$uploadInput = htmlBase::newElement('input')->setType('file')
-								->setName('attributes_value_image[0][' . $optionId . '][' . $valueId . ']');
+									->setName('attributes_value_image[0][' . $optionId . '][' . $valueId . ']');
 
 								$html = $uploadInput->draw();
 								$html .= '<br />' .
-								         'Current: ' . $vInfo['options_values_image'] .
-								         '<input type="hidden" name="attributes_previous_images[0][' . $optionId . '][' . $valueId . ']" value="' . $vInfo['options_values_image'] . '" />';
+									'Current: ' . $vInfo['options_values_image'] .
+									'<input type="hidden" name="attributes_previous_images[0][' . $optionId . '][' . $valueId . ']" value="' . $vInfo['options_values_image'] . '" />';
 							}
 
-								$columns[] = array(
-									'addCls' => 'main',
-									'align' => 'right',
-									'attr' => array(
-										'valign' => 'top'
-									),
-									'text' => $html
-								);
+							$columns[] = array(
+								'addCls' => 'main',
+								'align'  => 'right',
+								'attr'   => array(
+									'valign' => 'top'
+								),
+								'text'   => $html
+							);
 						}
 
 						$OptionsTable->addBodyRow(array(
@@ -686,12 +737,12 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		return false;
 	}
 
-	public function getInventoryEntry($data){
+	public function getInventoryEntry($data) {
 		$Qinventory = Doctrine_Query::create()
-		->select('type, track_method, inventory_id')
-		->from('ProductsInventory')
-		->where('products_id = ?', $data['productId'])
-		->andWhere('controller = ?', 'attribute');
+			->select('type, track_method, inventory_id')
+			->from('ProductsInventory')
+			->where('products_id = ?', $data['productId'])
+			->andWhere('controller = ?', 'attribute');
 
 		if (isset($data['purchaseType'])){
 			$Qinventory->andWhere('type = ?', $data['purchaseType']);
@@ -705,7 +756,7 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		return $Result;
 	}
 
-	public function getAttributeQuantity($data){
+	public function getAttributeQuantity($data) {
 		global $appExtension;
 		$ProductsInventory = $this->getInventoryEntry($data);
 
@@ -715,9 +766,9 @@ class attributes_admin_products_new_product extends Extension_attributes {
 			$attributesPermutations = $this->permutateAttributesFromString($data['aID_string']);
 
 			$QinventoryQuantity = Doctrine_Query::create()
-			->from('ProductsInventoryQuantity')
-			->where('inventory_id = ?', $inventory['inventory_id'])
-			->andWhereIn('attributes', $attributesPermutations);
+				->from('ProductsInventoryQuantity')
+				->where('inventory_id = ?', $inventory['inventory_id'])
+				->andWhereIn('attributes', $attributesPermutations);
 
 			if ($appExtension->isInstalled('inventoryCenters') === true){
 				$QinventoryQuantity->andWhere('inventory_center_id <= ?', '0');
@@ -733,7 +784,7 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		return $qtyInfo;
 	}
 
-	public function getAttributeBarcodes($data){
+	public function getAttributeBarcodes($data) {
 		global $appExtension;
 		$ProductsInventory = $this->getInventoryEntry($data);
 
@@ -742,16 +793,16 @@ class attributes_admin_products_new_product extends Extension_attributes {
 			$attributesPermutations = $this->permutateAttributesFromString($data['aID_string']);
 			foreach($ProductsInventory as $inventory){
 				$Qbarcodes = Doctrine_Query::create()
-				->from('ProductsInventoryBarcodes')
-				->where('inventory_id = ?', $inventory[0]['inventory_id'])
-				->andWhereIn('attributes', $attributesPermutations)
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+					->from('ProductsInventoryBarcodes')
+					->where('inventory_id = ?', $inventory[0]['inventory_id'])
+					->andWhereIn('attributes', $attributesPermutations)
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 				if ($Qbarcodes){
 					foreach($Qbarcodes as $bInfo){
 						$barcodeData[] = array(
 							'barcode_id' => $bInfo['barcode_id'],
-							'barcode' => $bInfo['barcode'],
-							'status' => $bInfo['status']
+							'barcode'	=> $bInfo['barcode'],
+							'status'	 => $bInfo['status']
 						);
 					}
 				}
@@ -760,7 +811,7 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		return $barcodeData;
 	}
 
-	public function getInventoryTable($settings){
+	public function getInventoryTable($settings) {
 		global $appExtension;
 		$purchaseType = $settings['purchaseType'];
 		$productId = $settings['productId'];
@@ -789,58 +840,60 @@ class attributes_admin_products_new_product extends Extension_attributes {
 		}
 
 		$invItemInfo = array(
-			'productId'    => $productId,
+			'productId'	=> $productId,
 			'purchaseType' => $purchaseType,
 			'trackMethod'  => $trackMethod,
 			'aID_string'   => $aID_String
 		);
 
 		$tableData = array(
-			'purchaseType' => $purchaseType,
+			'purchaseType'	=> $purchaseType,
 			'attributeString' => $aID_String,
-			'dataSet' => (isset($settings['dataSet']) ? $settings['dataSet'] : array())
+			'dataSet'		 => (isset($settings['dataSet']) ? $settings['dataSet'] : array())
 		);
 
 		if ($trackMethod == 'barcode'){
 			$barcodeTable = buildBarcodeEntryTable(array(
-				'purchaseType' => $purchaseType,
+				'purchaseType'	=> $purchaseType,
 				'attributeString' => $aID_String
 			));
 
 			$ajaxNotice = htmlBase::newElement('div')
-			->addClass('main')
-			->html('<small>*Barcodes are dynamically added and do not require the product to be updated</small>');
+				->addClass('main')
+				->html('<small>*Barcodes are dynamically added and do not require the product to be updated</small>');
 
 			$currentBarcodesTable = buildCurrentBarcodesTable($tableData);
 
 			$tableHtml = htmlBase::newElement('div')
-			->append($barcodeTable)
-			->append($ajaxNotice)
-			->append(htmlBase::newElement('hr'))
-			->append($currentBarcodesTable);
-		}else{
-	     	$quantityTable = buildQuantityTable($tableData);
+				->append($barcodeTable)
+				->append($ajaxNotice)
+				->append(htmlBase::newElement('hr'))
+				->append($currentBarcodesTable);
+		}
+		else {
+			$quantityTable = buildQuantityTable($tableData);
 
 			$tableHtml = $quantityTable;
 		}
 
 		$deleteIcon = htmlBase::newElement('icon')
-		->setType('closeThick')
-		->css(array(
+			->setType('closeThick')
+			->css(array(
 			'float' => 'right'
 		))
-		->attr('data-purchase_type', $purchaseType)
-		->attr('data-product_id', $productId)
-		->attr('data-attribute_string', $aID_String)
-		->attr('data-track_method', $trackMethod);
+			->attr('data-purchase_type', $purchaseType)
+			->attr('data-product_id', $productId)
+			->attr('data-attribute_string', $aID_String)
+			->attr('data-track_method', $trackMethod);
 
 		return '<div class="ui-widget ui-widget-content ui-corner-all" style="margin-bottom:1em;">' .
 			'<div class="ui-widget-header" style="padding:.5em;">' .
-				$deleteIcon->draw() .
-				'<b>' . implode(' + ', $tableHeadingDescription) . '</b>' .
+			$deleteIcon->draw() .
+			'<b>' . implode(' + ', $tableHeadingDescription) . '</b>' .
 			'</div>' .
 			$tableHtml->draw() .
-		'</div>';
+			'</div>';
 	}
 }
+
 ?>

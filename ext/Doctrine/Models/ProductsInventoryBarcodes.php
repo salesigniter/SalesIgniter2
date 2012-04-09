@@ -57,15 +57,6 @@ class ProductsInventoryBarcodes extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('type', 'string', 64, array(
-				'type'          => 'string',
-				'length'        => 64,
-				'fixed'         => false,
-				'primary'       => false,
-				'notnull'       => false,
-				'autoincrement' => false,
-		));
-
 		$this->hasColumn('status', 'string', 3, array(
 			'type'          => 'string',
 			'length'        => 3,

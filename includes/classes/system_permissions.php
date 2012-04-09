@@ -2,10 +2,25 @@
 	class sysPermissions {
 		private static $perms = array();
 
-		public static function isSimple(){
-			$Admin = Doctrine_Core::getTable('Admin')->findOneByAdminId((int)Session::get('login_id'));
-			return (($Admin->admin_simple_admin == '1')?true:false);
+		public static function checkLoggedIn(){
+			global $navigation, $App;
+			if (Session::exists('login_id') === false) {
+				$navigation->set_snapshot();
+				tep_redirect(itw_app_link(null, 'login', 'default', 'SSL'));
+			}
 		}
+
+		public static function isSimple(){
+			if (Session::get('login_id') == 'master'){
+				$isSimple = false;
+			}else{
+				$Admin = Doctrine_Core::getTable('Admin')
+					->findOneByAdminId((int)Session::get('login_id'));
+				$isSimple = ($Admin->admin_simple_admin == '1' ? true : false);
+			}
+			return $isSimple;
+		}
+
 		public static function loadPermissions(){
 			if (Session::exists('login_groups_id') && Session::get('login_groups_id') == '1'){
 				return;

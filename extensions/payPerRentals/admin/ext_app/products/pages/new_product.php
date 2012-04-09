@@ -36,7 +36,7 @@ class payPerRentals_admin_products_new_product extends Extension_payPerRentals
 	}
 
 	public function load() {
-		if ($this->enabled === false) {
+		if ($this->isEnabled() === false) {
 			return;
 		}
 

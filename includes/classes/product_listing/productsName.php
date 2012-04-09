@@ -11,13 +11,9 @@ class productListing_productsName {
 		return $selectSortKeys;
 	}
 
-	public function show(&$productClass){
-		global $cPath;
-		if (isset($_GET['manufacturers_id'])) {
-			$addedGetVar = '&manufacturers_id=' . $_GET['manufacturers_id'];
-		} else {
-			$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
-		}
+	public function show(Product &$productClass){
+		/*global $cPath;
+		$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
 
 //		if ($includeBoxInfo === true){
 			$products_series = '';
@@ -30,9 +26,15 @@ class productListing_productsName {
 				) . '</i></small>';
 			}
 //		}
-		$ratingsBar = rating_bar($productClass->getName(), $productClass->getID());
+		$ratingsBar = rating_bar($productClass->getName(), $productClass->getID());*/
 
-		return '<a href="' . htmlspecialchars(itw_app_link('products_id=' . $productClass->getID() . $addedGetVar, 'product', 'info')) . '">' . htmlspecialchars($productClass->getName()) . '</a>' . $products_series . $ratingsBar;
+		$ProductType = $productClass->getProductTypeClass();
+		if (method_exists($ProductType, 'showProductListing')){
+			$return = $ProductType->showProductListing('productsName');
+		}else{
+			$return = '<a href="' . itw_app_link('products_id=' . $productClass->getId(), 'product', 'info') . '">' . $productClass->getName() . '</a>';
+		}
+		return $return;
 	}
 }
 ?>

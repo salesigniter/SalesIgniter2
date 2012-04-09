@@ -21,7 +21,7 @@ class payPerRentals_catalog_shopping_cart extends Extension_payPerRentals {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		if (EXTENSION_PAY_PER_RENTALS_DATE_COVERAGE == 'Order'){
 			EventManager::attachEvent('ShoppingCartListingBeforeListing', null, $this);

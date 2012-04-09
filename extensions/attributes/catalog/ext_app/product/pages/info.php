@@ -17,18 +17,29 @@ class attributes_catalog_product_info extends Extension_attributes {
 	
 	public function load(){
 		global $appExtension;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 	}
 	
 	public function drawAttributes($settings = null){
 		global $appExtension, $currencies, $ShoppingCart;
-		$product = $settings['productClass'];
+		$mainDiv = htmlBase::newElement('div')
+			->setId('attributesDiv');
+		if (isset($settings['purchaseTypeClass'])){
+			$ProductsAttributes = attributesUtil::getAttributesByPurchaseType($settings['purchaseTypeClass']);
+			$ProductId = $settings['purchaseTypeClass']->getProductId();
+			$fieldNamePrefix = 'id[' . $settings['purchaseTypeClass']->getCode() . ']';
+			$mainDiv->attr('data-purchase_type', $settings['purchaseTypeClass']->getCode());
+		}elseif (isset($settings['productTypeClass'])){
+			$ProductsAttributes = attributesUtil::getAttributesByProductType($settings['productTypeClass']);
+			$ProductId = $settings['productTypeClass']->getProductId();
+			$fieldNamePrefix = 'id';
+		}
+		$mainDiv->attr('data-product_id', $ProductId);
 
-		if (!isset($product->productInfo['ProductsAttributes']) || sizeof($product->productInfo['ProductsAttributes']) <= 0) return;
+		if (!isset($ProductsAttributes)){
+			return;
+		}
 
-		if (!isset($settings['purchase_type'])) return;
-		
-		$ProductsAttributes = attributesUtil::getAttributes($product->productInfo['products_id'], null, null, $settings['purchase_type']);
 		$Attributes = attributesUtil::organizeAttributeArray($ProductsAttributes);
 
 		if (is_null($settings) === false && isset($settings['return_array'])){
@@ -63,7 +74,7 @@ class attributes_catalog_product_info extends Extension_attributes {
 					
 						$input = htmlBase::newElement('radio')
 						->setId('option_' . $optionId . '_value_' . $valueId)
-						->setName('id[' . $settings['purchase_type'] . '][' . $optionId . ']')
+						->setName($fieldNamePrefix . '[' . $optionId . ']')
 						->setValue($optionsValues[$i]['options_values_id'])
 						->setLabel($optionsValues[$i]['options_values_name']);
 					
@@ -79,12 +90,12 @@ class attributes_catalog_product_info extends Extension_attributes {
 								foreach($optionsValues[$i]['ProductsAttributesViews'] as $idx => $viewInfo){
 									if ($idx == 0){
 										$input->attr('title', $viewInfo['view_name'])
-										->attr('imageSrc', sysConfig::get('DIR_WS_IMAGES') . $viewInfo['view_image']);
+										->attr('imageSrc', $viewInfo['view_image']);
 									}
 								
 									$liObj = htmlBase::newElement('li')
-									->attr('imgSrc', 'product_thumb.php?w=280&img=' . sysConfig::get('DIR_WS_IMAGES') . $viewInfo['view_image'])
-									->attr('bigImgSrc', sysConfig::get('DIR_WS_IMAGES') . $viewInfo['view_image'])
+									->attr('imgSrc', 'product_thumb.php?w=280&img=' . $viewInfo['view_image'])
+									->attr('bigImgSrc', $viewInfo['view_image'])
 									->html($viewInfo['view_name']);
 									
 									$multiList->addItemObj($liObj);
@@ -94,7 +105,7 @@ class attributes_catalog_product_info extends Extension_attributes {
 								$list->addClass('useSingleImage');
 							
 								$input->attr('title', $optionsValues[$i]['options_values_name'])
-								->attr('imageSrc', sysConfig::get('DIR_WS_IMAGES') . $optionsValues[$i]['options_values_image']);
+								->attr('imageSrc', $optionsValues[$i]['options_values_image']);
 							}
 						}
 					
@@ -104,8 +115,13 @@ class attributes_catalog_product_info extends Extension_attributes {
 					break;
 				default:
 					$input = htmlBase::newElement('selectbox')
-					->setName('id[' . $settings['purchase_type'] . '][' . $optionId . ']')
-					->addOption('', 'Please Select');
+					->setName($fieldNamePrefix . '[' . $optionId . ']');
+
+					if(sysConfig::get('EXTENSION_ATTRIBUTES_HIDE_NO_INVENTORY') == 'False'){
+						$input->addClass('attrSelect');
+					}
+
+					//->addOption('', 'Please Select');
 
 					if ($oInfo['use_image'] == '1'){
 						$input->addClass('useImage');
@@ -137,7 +153,7 @@ class attributes_catalog_product_info extends Extension_attributes {
 								->css('display', 'none');
 								foreach($optionsValues[$i]['ProductsAttributesViews'] as $viewInfo){
 									$liObj = htmlBase::newElement('li')
-									->attr('imgSrc', sysConfig::get('DIR_WS_IMAGES') . $viewInfo['view_image'])
+									->attr('imgSrc', $viewInfo['view_image'])
 									->html($viewInfo['view_name']);
 								
 									$imageList->addItemObj($liObj);
@@ -145,14 +161,14 @@ class attributes_catalog_product_info extends Extension_attributes {
 								$multiList .= $imageList->draw();
 							}else{
 								$optionEl->attr('title', $optionsValues[$i]['options_values_name'])
-								->attr('imageSrc', sysConfig::get('DIR_WS_IMAGES') . $optionsValues[$i]['options_values_image']);
+								->attr('imageSrc', $optionsValues[$i]['options_values_image']);
 							}
 						}
 						$input->addOptionObj($optionEl);
 					}
 
-					if ($ShoppingCart->inCart($_GET['products_id'], $settings['purchase_type'])){
-						$cartProduct = $ShoppingCart->getProduct($_GET['products_id'], $settings['purchase_type']);
+					if ($ShoppingCart->inCart($ProductId)){
+						$cartProduct = $ShoppingCart->getProduct($ProductId);
 						
 						if ($cartProduct->hasInfo('attributes')){
 							$Attributes = $cartProduct->getInfo('attributes');
@@ -173,7 +189,8 @@ class attributes_catalog_product_info extends Extension_attributes {
 			));
 		}
 
-		return $table->draw();
+		$mainDiv->append($table);
+		return $mainDiv->draw();
 	}
 }
 ?>

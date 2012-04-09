@@ -14,7 +14,7 @@
 				'success' => true,
 				'errorMsg' => sysLanguage::get('TEXT_BARCODE_PURCHASED')
 			);
-		}elseif (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_ENABLED')){
+		}elseif ($appExtension->isEnabled('payPerRentals') === true){
 			$Qproducts = Doctrine_Query::create()
 				->from('ProductsInventoryBarcodes pib')
 				->leftJoin('pib.OrdersProductsReservation opr')

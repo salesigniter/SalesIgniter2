@@ -24,10 +24,9 @@
 		}
 	}
 
-	$languages = tep_get_languages();
 	$ArticlesDescription =& $Article->ArticlesDescription;
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$lID = $languages[$i]['id'];
+	foreach (sysLanguage::getLanguages() as $lInfo) {
+		$lID = $lInfo['id'];
 
 		$ArticlesDescription[$lID]->language_id = $lID;
 		$ArticlesDescription[$lID]->articles_name = $_POST['articles_name'][$lID];

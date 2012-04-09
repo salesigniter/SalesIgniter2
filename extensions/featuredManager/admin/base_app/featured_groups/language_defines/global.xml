@@ -31,8 +31,8 @@
 	<define key="TEXT_CATEGORIES_NAME"><![CDATA[Group Name:]]></define>
 	<define key="TEXT_CATEGORIES_IMAGE"><![CDATA[Group Image:]]></define>
 	<define key="TEXT_SORT_ORDER"><![CDATA[Sort Order:]]></define>
-	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE"><![CDATA[Error: Catalog images directory is not writeable: %s.]]></define>
-	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST"><![CDATA[Error: Catalog images directory does not exist: %s.]]></define>
+	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE"><![CDATA[Error: Catalog images directory is not writeable]]></define>
+	<define key="ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST"><![CDATA[Error: Catalog images directory does not exist]]></define>
 	<define key="ERROR_CANNOT_MOVE_CATEGORY_TO_PARENT"><![CDATA[Error: Group cannot be moved into child category.]]></define>
   	<define key="TEXT_CATEGORIES_SEO_URL"><![CDATA[Group SEO URL:]]></define>
 	<define key="TEXT_CATEGORIES_DESCRIPTION"><![CDATA[Groups Description:]]></define>

@@ -22,7 +22,7 @@ class OrderShippingInventorycenter extends OrderShippingModuleBase
 		if ($this->isEnabled() === true){
 			$this->allowOther = $this->getConfigData('MODULE_ORDER_SHIPPING_INVENTORYCENTER_ALLOW_OTHER');
 			$this->pricingMethod = $this->getConfigData('MODULE_ORDER_SHIPPING_INVENTORYCENTER_PRICING_METHOD');
-			try{
+
 			$Qmethods = Doctrine_Query::create()
 				->from('ModulesShippingInventoryCenterMethods')
 				->orderBy('sort_order')
@@ -38,18 +38,9 @@ class OrderShippingInventorycenter extends OrderShippingModuleBase
 					);
 				}
 			}
-			}catch(Doctrine_Connection_Exception $e){
-
-			}
 		}
 	}
 
-	public function getType(){
-		return $this->type;
-	}
-	public function getMethods() {
-		return $this->methods;
-	}
 	public function quote($method = '') {
 		global $order;
 
@@ -75,13 +66,17 @@ class OrderShippingInventorycenter extends OrderShippingModuleBase
 				$this->quotes['methods'][] = array(
 					'id' => 'method' . $methodId,
 					'title' => $mInfo['text'],
-					'cost' => $shippingCost,
-					'cost'    => $shippingCost,
-					'showCost' => $shippingCost,
-					'default' => $mInfo['default'],
-					'details' => $mInfo['text']
+					'cost' => $shippingCost
 				);
 			}
+		}
+
+		if ($this->allowOther == 'True' && ($method == 'methodOther' || $method == '')){
+			$this->quotes['methods'][] = array(
+				'id' => 'methodOther',
+				'title' => 'Other' . ($method == '' ? ' (Please provide details in the comment box below)' : ''),
+				'cost' => 0
+			);
 		}
 
 		$classId = $this->getTaxClass();

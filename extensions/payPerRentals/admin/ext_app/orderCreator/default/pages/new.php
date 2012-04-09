@@ -17,14 +17,15 @@ class payPerRentals_admin_orderCreator_default_new extends Extension_payPerRenta
 
 	public function load(){
 		global $App;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
 			'OrderCreatorAddProductToEmail'
 		), null, $this);
 
 		$App->addJavascriptFile('ext/jQuery/external/datepick/jquery.datepick.js');
-		$App->addStylesheetFile('ext/jQuery/external/datepick/css/jquery.datepick.css');
+		$App->addJavascriptFile('ext/jQuery/external/datepick/jquery.datepick.ext.js');
+		$App->addStylesheetFile('ext/jQuery/external/datepick/css/ui-ui-lightness.datepick.css');
 
 		$App->addJavascriptFile('ext/jQuery/external/fullcalendar/fullcalendar.min.js');
 		$App->addStylesheetFile('ext/jQuery/external/fullcalendar/fullcalendar.css');

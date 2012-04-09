@@ -27,6 +27,7 @@
 	<define key="TABLE_HEADING_QTY"><![CDATA[Qty]]></define>
 	<define key="TEXT_EVENTS_QTY"><![CDATA[Qty per product: ]]></define>
 	<define key="TEXT_BUTTON_GENERATE_CSV"><![CDATA[Generate CSV ]]></define>
+	<define key="TABLE_HEADING_CURRENT_MAINTENANCE_TYPE"><![CDATA[Current Maintenance]]></define>
 
 
 </definitions>

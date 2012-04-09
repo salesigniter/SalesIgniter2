@@ -37,7 +37,7 @@
             <tr class="infoBoxContents">
               <td><table border="0" width="100%" cellspacing="2" cellpadding="4">
                 <tr>
-                  <td class="main" width="50%" valign="top"><?php echo '<b>' . sysLanguage::get('TEXT_ORDER_DATE') . '</b> ' . tep_date_long($Order['date_purchased']) . '<br><b>' . sysLanguage::get('TEXT_ORDER_BILLED_TO') . '</b> ' . $Order['OrdersAddresses'][0]['entry_name']; ?></td>
+                  <td class="main" width="50%" valign="top"><?php echo '<b>' . sysLanguage::get('TEXT_ORDER_DATE') . '</b> ' . $Order['date_purchased']->format(sysLanguage::getDateFormat('long')) . '<br><b>' . sysLanguage::get('TEXT_ORDER_BILLED_TO') . '</b> ' . $Order['OrdersAddresses'][0]['entry_name']; ?></td>
                   <td class="main" width="30%" valign="top"><?php echo '<b>' . sysLanguage::get('TEXT_ORDER_PRODUCTS') . '</b> ' . sizeof($Order['OrdersProducts']) . '<br><b>' . sysLanguage::get('TEXT_ORDER_COST') . '</b> ' . strip_tags($Order['OrdersTotal'][0]['text']); ?></td>
                   <td class="main" width="20%" style="font-size:.75em;"><?php echo htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_VIEW'))->setHref(itw_app_link((isset($_GET['page']) ? 'page=' . $_GET['page'] . '&' : '') . 'order_id=' . $Order['orders_id'], 'account', 'history_info', 'SSL'))->draw(); ?></td>
                 </tr>

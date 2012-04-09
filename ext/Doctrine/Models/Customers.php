@@ -14,6 +14,8 @@ class Customers extends Doctrine_Record {
 	
 	public function setUp(){
 		parent::setUp();
+
+		//$this->setAttribute(Doctrine_Core::ATTR_VALIDATE, true);
 		
 		$this->hasMany('AddressBook', array(
 			'local' => 'customers_id',
@@ -83,38 +85,35 @@ class Customers extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		$this->hasColumn('customers_firstname', 'string', 32, array(
+			'notblank'   => true,
+			'minlength' => 3,
 			'type' => 'string',
 			'length' => 32,
-			'fixed' => false,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_lastname', 'string', 32, array(
+			'notblank'   => true,
+			'minlength' => 3,
 			'type' => 'string',
 			'length' => 32,
-			'fixed' => false,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_dob', 'date', null, array(
+			'past' => true,
 			'type' => 'date',
-			'primary' => false,
 			'default' => '0000-00-00',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_email_address', 'string', 96, array(
+			'unique' => true,
+			'notblank'   => true,
+			'email'   => true,
 			'type' => 'string',
 			'length' => 96,
-			'fixed' => false,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_default_address_id', 'integer', 4, array(
 			'type' => 'integer',
@@ -148,6 +147,16 @@ class Customers extends Doctrine_Record {
 				'primary' => false,
 				'default' => '',
 				'notnull' => true,
+				'autoincrement' => false,
+			));
+
+		$this->hasColumn('customers_notes', 'string', null, array(
+				'type' => 'string',
+				'length' => null,
+				'fixed' => false,
+				'primary' => false,
+				'default' => '',
+				'notnull' => false,
 				'autoincrement' => false,
 			));
 		$this->hasColumn('customers_fax', 'string', 32, array(

@@ -1,27 +1,32 @@
-function getLinkParams(addVars, isAjax) {
+function getLinkParams(addVars) {
 	var getVars = [];
+	getVars.push('rType=ajax');
 	getVars.push('app=modules');
 	getVars.push('appPage=default');
-	getVars.push('module=' + $('.gridBodyRow.state-active').attr('data-module_code'));
-	getVars.push('moduleType=' + $('.gridBodyRow.state-active').attr('data-module_type'));
-	getVars.push('modulePath=' + $('.gridBodyRow.state-active').attr('data-module_path'));
-
+	getVars.push('module=' + $('.gridBodyRow.state-active').data('module_code'));
+	getVars.push('moduleType=' + $('.gridBodyRow.state-active').data('module_type'));
+	getVars.push('modulePath=' + $('.gridBodyRow.state-active').data('module_path'));
 	if (addVars){
 		for(var i = 0; i < addVars.length; i++){
 			getVars.push(addVars[i]);
 		}
 	}
+
 	return getVars.join('&');
 }
 
+function setConfirmUnload() {
+	window.onbeforeunload = ($('.edited').size() > 0) ? function (){ return jsLanguage.get('TEXT_INFO_LOST_CHANGES') } : null;
+}
+
 $(document).ready(function () {
-	$('.gridBody > .gridBodyRow').click(function () {
-		if ($(this).hasClass('state-active')){
+	$('.gridBody > .gridBodyRow').click(function (e, isRefresh) {
+		if ($(this).hasClass('state-active') && !isRefresh){
 			return;
 		}
 
 		$('.gridButtonBar').find('button').button('enable');
-		if ($(this).attr('data-installed') == 'false'){
+		if ($(this).data('installed') === false){
 			$('.gridButtonBar').find('.uninstallButton').button('disable');
 			$('.gridButtonBar').find('.editButton').button('disable');
 		}
@@ -31,100 +36,51 @@ $(document).ready(function () {
 	});
 
 	$('.editButton').click(function () {
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=getActionWindow',
-			'window=edit'
-		]);
-
-		gridWindow({
+		configurationGridWindow({
 			buttonEl: this,
 			gridEl: $('.gridContainer'),
-			contentUrl: js_app_link(getVars),
-			onShow: function () {
-				var self = this;
-
-				$(self).find('.cancelButton').click(function () {
-					$(self).effect('fade', {
-							mode: 'hide'
-						}, function () {
-							$('.gridContainer').effect('fade', {
-									mode: 'show'
-								}, function () {
-									$(self).remove();
-								});
-						});
-				});
-
-				$(self).find('.saveButton').click(function () {
-					var getVars = getLinkParams([
-						'rType=ajax',
-						'action=save'
-					]);
-
-					$.ajax({
-						cache: false,
-						url: js_app_link(getVars),
-						dataType: 'json',
-						data: $(self).find('*').serialize(),
-						type: 'post',
-						success: function (data) {
-							if (data.success){
-								js_redirect(js_app_link('app=modules&appPage=default'));
-							}
-						}
-					});
-				});
-
-				$(self).find('.makeModFCK').each(function () {
-					CKEDITOR.replace(this, {
-						toolbar :
-							[
-								['Cut','Copy','Paste','PasteText','PasteFromWord','-'],
-								['Undo','Redo','-'],
-								['Image','Table','SpecialChar','PageBreak'],
-								'/',
-								['Styles','Format'],
-								['Bold','Italic','Strike'],
-								['NumberedList','BulletedList','-'],
-								['Link','Unlink','Anchor']
-
-							],
-
-						filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
-					});
-				});
-
-				$(self).find('.makeTabPanel').tabs();
-				$(self).find('.makeTabsVertical').each(function (){
-					makeTabsVertical('#' + $(this).attr('id'));
-				});
-
-				if (typeof editWindowOnLoad != 'undefined'){
-					editWindowOnLoad.apply(self);
-				}
+			contentUrl: js_app_link(getLinkParams(['action=getActionWindow', 'window=edit'])),
+			saveUrl: js_app_link(getLinkParams(['action=save'])),
+			onSaveSuccess: function (){
+				js_redirect(js_app_link('app=modules&appPage=default&moduleType=' + $('.gridBodyRow.state-active').data('module_type')));
 			}
 		});
 	});
 
 	$('.installButton').click(function () {
+		var $gridRow = $('.gridBodyRow.state-active');
 		var getVars = getLinkParams(['action=install']);
-		js_redirect(js_app_link(getVars));
+
+		showAjaxLoader($gridRow, 'small');
+		$.get(js_app_link(getVars, true), function (){
+			removeAjaxLoader($gridRow);
+			$gridRow.data('installed', true);
+			$gridRow
+				.find('.installedIcon')
+				.removeClass('ui-icon-circle-close')
+				.addClass('ui-icon-circle-check');
+			$gridRow.trigger('refresh');
+		});
 	});
 
 	$('.uninstallButton').click(function () {
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=remove'
-		]);
+		var $gridRow = $('.gridBodyRow.state-active');
+		var getVars = getLinkParams(['action=remove']);
 
+		showAjaxLoader($gridRow, 'small');
 		confirmDialog({
-			confirmUrl: js_app_link(getVars),
-			title: 'Confirm Module Uninstall',
-			content: 'Are you sure you want to uninstall this module?',
-			errorMessage: 'This module could not be uninstalled.',
-			success: function () {
-				js_redirect(js_app_link('app=' + thisApp + '&appPage=' + thisAppPage));
+			confirmUrl : js_app_link(getVars),
+			title : 'Confirm Module Uninstall',
+			content : 'Are you sure you want to uninstall this module?',
+			errorMessage : 'This module could not be uninstalled.',
+			success : function () {
+				removeAjaxLoader($gridRow);
+				$gridRow
+					.find('.installedIcon')
+					.removeClass('ui-icon-circle-check')
+					.addClass('ui-icon-circle-close');
+				$gridRow.data('installed', false);
+				$gridRow.trigger('refresh');
 			}
 		});
 	});

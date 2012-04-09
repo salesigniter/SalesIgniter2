@@ -23,6 +23,13 @@ class PurchaseType_used extends PurchaseTypeBase
 
 		$this->init('used', $forceEnable);
 	}
+	
+	public function showProductListing($col, $options = array()){
+		global $currencies;
+		if ($col == 'productsPriceUsed'){
+			return $currencies->display_price($this->getPrice(), $this->getTaxRate());
+		}
+	}
 }
 
 ?>

@@ -10,7 +10,7 @@
 	->leftJoin('iq.ProductsInventory iqi')
 	->where('o.orders_id = ?', $oID)
 	->andWhere('oa.address_type = ?', 'customer');
-    if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_ENABLED') == 'True') {
+    if($appExtension->isEnabled('payPerRentals') === true) {
         $QOrdersQuery->leftJoin('op.OrdersProductsReservation opr')
                 ->andWhere('parent_id IS NULL');
     }

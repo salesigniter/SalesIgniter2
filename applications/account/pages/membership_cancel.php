@@ -44,12 +44,13 @@ if($payment_method = "paypal" || $payment_method = "paypal_ipn") {
 	$payment_method = $membership->membershipInfo['payment_method'];
 
 	if ($payment_method != 'paypal' && $payment_method != 'paypal_ipn'){
-		$pageContent->set('pageForm', array(
-			'name' => 'account_edit',
-			'action' => itw_app_link('action=cancelMembership', 'account', 'membership_cancel', 'SSL'),
-			'method' => 'post'
-		));
-		
+		$pageContents = htmlBase::newElement('form')
+			->setAction(itw_app_link('action=cancelMembership', 'account', 'membership_cancel', 'SSL'))
+			->setName('account_edit')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
+
 		$pageButtons = htmlBase::newElement('button')
 		->usePreset('continue')
 		->setType('submit')
@@ -57,11 +58,13 @@ if($payment_method = "paypal" || $payment_method = "paypal_ipn") {
 		->setText(sysLanguage::get('TEXT_BUTTON_CANCEL'))
 		->draw();
 	}else{
-		$pageContent->set('pageForm', array(
-			'name' => 'checkout_confirmation',
-			'action' => OrderPaymentModules::getModule($payment_method, true)->form_action_url,
-			'method' => 'post'
-		));
+		$pageContents = htmlBase::newElement('form')
+			->setAction(OrderPaymentModules::getModule($payment_method, true)->form_action_url)
+			->setName('checkout_confirmation')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
+
 		$pageButtons = OrderPaymentModules::getModule($payment_method, true)->process_cancel_button();
 	}
 	

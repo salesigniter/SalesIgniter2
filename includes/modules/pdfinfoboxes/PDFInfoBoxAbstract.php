@@ -17,7 +17,6 @@ abstract class PDFInfoBoxAbstract {
 	private $boxTemplateDefaultDir = null;
 	private $boxTemplateDefault = 'box.tpl';
 	private $boxWidgetProperties = '';
-	private $boxCurrentTemplateDir = null;
 	private $boxTemplateFile = null;
 	private $boxTemplateDir = null;
 	private $extName = null;
@@ -27,8 +26,7 @@ abstract class PDFInfoBoxAbstract {
 		global $App;
 		$this->boxCode = $boxCode;
 		$this->boxTemplateDefaultDir = sysConfig::getDirFsCatalog() . 'extensions/pdfPrinter/widgetTemplates/';
-		$this->boxCurrentTemplateDir = sysConfig::getDirFsCatalog() . 'templates/' . (Session::exists('tplDir') ? Session::get('tplDir') : 'fallback') . '/boxes/';
-		
+
 		$Qinfobox = Doctrine_Query::create()
 		->from('PDFTemplatesInfoboxes i')
 		->where('i.box_code = ?', $this->boxCode)

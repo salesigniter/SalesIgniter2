@@ -1,5 +1,15 @@
 <?php
 
+$BannerStatusEnabled = htmlBase::newElement('radio')
+	->setName('banners_status')
+	->setLabel('Published')
+	->setValue('1');
+
+$BannerStatusDisabled = htmlBase::newElement('radio')
+	->setName('banners_status')
+	->setLabel('Not Published')
+	->setValue('0');
+
 $BannerStatusRunning = htmlBase::newElement('radio')
 	->setName('banners_status')
 	->setLabel('Running')
@@ -19,7 +29,11 @@ $BannerStatusExpired = htmlBase::newElement('radio')
 	->addClass('useDatepicker');
         if (isset($Banner)){
 
-            if ($Banner['banners_status'] == '2'){
+            if ($Banner['banners_status'] == '1'){
+			$BannerStatusEnabled->setChecked(true);
+            }else if ($Banner['banners_status'] == '0'){
+			    $BannerStatusDisabled->setChecked(true);
+			}else if ($Banner['banners_status'] == '2'){
 			    $BannerStatusRunning->setChecked(true);
 			}else if ($Banner['banners_status'] == '3'){
 			    $BannerStatusExpired->setChecked(true);
@@ -34,7 +48,7 @@ $BannerStatusExpired = htmlBase::newElement('radio')
   </tr>
  <tr>
    <td class="main"><?php echo sysLanguage::get('TEXT_BANNER_STATUS'); ?></td>
-   <td class="main"><?php echo  $BannerStatusRunning->draw() . $BannerStatusExpired->draw(); ?></td>
+   <td class="main"><?php echo $BannerStatusEnabled->draw() . $BannerStatusDisabled->draw() . $BannerStatusRunning->draw() . $BannerStatusExpired->draw(); ?></td>
   </tr>
   <tr>
    <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
@@ -96,11 +110,6 @@ $BannerStatusExpired = htmlBase::newElement('radio')
 		->setName('banners_views')
 		->attr('readonly', 'readonly');
 
-		$BannerTarget = htmlBase::newElement('selectbox')
-		->setName('banners_target')
-		->addOption('same','Same Window')
-		->addOption('new','New Window');
-
 		$BannerSortOrder = htmlBase::newElement('input')
 		->setName('banners_sort_order');
 		
@@ -118,13 +127,6 @@ $BannerStatusExpired = htmlBase::newElement('radio')
 			$BannerProduct->setValue(stripslashes($Banner['banners_products_id']));
 			$BannerViews->setValue(stripslashes($Banner['banners_views']));
 			$BannerClicks->setValue(stripslashes($Banner['banners_clicks']));
-
-			if($Banner['banners_target'] == 0){
-				$BannerTarget->selectOptionByValue('same');
-			}else{
-				$BannerTarget->selectOptionByValue('new');
-			}
-
 			$BannerExpiresViews->setValue(stripslashes($Banner['banners_expires_views']));
 			$BannerExpiresClicks->setValue(stripslashes($Banner['banners_expires_clicks']));
 			$BannerSortOrder->setValue(stripslashes($Banner['banners_sort_order']));
@@ -167,10 +169,6 @@ if ($Qpages){
    <td class="main" valign="top"><?php echo sysLanguage::get('TEXT_SELECT_CMS_PAGE_AS_POPUP'); ?></td>
    <td class="main"><?php echo $cmsPages->draw(); ?></td>
   </tr>
-	<tr>
-	 <td class="main" valign="top"><?php echo sysLanguage::get('TEXT_SELECT_BANNER_TARGET'); ?></td>
-	 <td class="main"><?php echo $BannerTarget->draw(); ?></td>
- </tr>
   <tr>
    <td class="main" valign="top"><?php echo sysLanguage::get('TEXT_BANNER_URL'); ?></td>
    <td class="main"><?php echo $BannerURL->draw(); ?></td>

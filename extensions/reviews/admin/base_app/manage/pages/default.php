@@ -13,24 +13,19 @@
 	$currentPage = (int)(isset($_GET['page']) ? $_GET['page'] : 0);
 	$allGetParams = tep_get_all_get_params(array('action', 'rID'));
 
-	$Qreviews = dataAccess::setQuery('select * from {reviews} order by date_added desc')
-	->setTable('{reviews}', TABLE_REVIEWS)
-	->setPagination($currentPage, MAX_DISPLAY_SEARCH_RESULTS);
-	while($Qreviews->next() !== false){
-		$reviewId = $Qreviews->getVal('reviews_id');
-		$productId = $Qreviews->getVal('products_id');
+	$Reviews = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select * from ' . TABLE_REVIEWS . ' order by date_added desc');
+	foreach($Reviews as $Review){
+		$reviewId = $Review['reviews_id'];
+		$productId = $Review['products_id'];
 
 		if ((!isset($_GET['rID']) || $_GET['rID'] == $reviewId) && !isset($rInfo)){
-			$QextraInfo = dataAccess::setQuery('select p.products_image, pd.products_name, length(rd.reviews_text) as reviews_text_size, (avg(r.reviews_rating) / 5 * 100) as average_rating from {reviews} r left join {reviews_description} rd using(reviews_id), {products} p left join {products_description} pd using(products_id) where p.products_id = r.products_id and pd.language_id = {language_id} and rd.reviews_id = r.reviews_id and r.reviews_id = {review_id}')
-			->setTable('{reviews}', TABLE_REVIEWS)
-			->setTable('{reviews_description}', TABLE_REVIEWS_DESCRIPTION)
-			->setTable('{products}', TABLE_PRODUCTS)
-			->setTable('{products_description}', TABLE_PRODUCTS_DESCRIPTION)
-			->setValue('{review_id}', $reviewId)
-			->setValue('{language_id}', Session::get('languages_id'))
-			->runQuery();
+			$ExtraInfo = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select p.products_image, pd.products_name, length(rd.reviews_text) as reviews_text_size, (avg(r.reviews_rating) / 5 * 100) as average_rating from ' . TABLE_REVIEWS . ' r left join ' . TABLE_REVIEWS_DESCRIPTION . ' rd using(reviews_id), ' . TABLE_PRODUCTS . ' p left join ' . TABLE_PRODUCTS_DESCRIPTION . ' pd using(products_id) where p.products_id = r.products_id and pd.language_id = "' . Session::get('languages_id') . '" and rd.reviews_id = r.reviews_id and r.reviews_id = "' . $reviewId . '"')
 
-			$rInfo = new objectInfo(array_merge($Qreviews->toArray(), $QextraInfo->toArray()));
+			$rInfo = new objectInfo(array_merge($Review, $ExtraInfo[0]));
 		}
 
 		$arrowIcon = htmlBase::newElement('icon')->setType('info')
@@ -44,7 +39,7 @@
 			$arrowIcon->setType('circleTriangleEast');
 		}
 
-		$ratingBar = htmlBase::newElement('ratingbar')->setStars(5)->setValue($Qreviews->getVal('reviews_rating'));
+		$ratingBar = htmlBase::newElement('ratingbar')->setStars(5)->setValue($Review['reviews_rating']);
 
 		$tableGrid->addBodyRow(array(
 			'addCls'  => $addCls,
@@ -52,7 +47,7 @@
 			'columns' => array(
 				array('text' => tep_get_products_name($productId)),
 				array('text' => $ratingBar->draw(), 'align' => 'center'),
-				array('text' => tep_date_short($Qreviews->getVal('date_added')), 'align' => 'center'),
+				array('text' => tep_date_short($Review['date_added']), 'align' => 'center'),
 				array('text' => $arrowIcon->draw(), 'align' => 'right')
 			)
 		));

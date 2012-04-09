@@ -54,9 +54,9 @@ class AdminGroups extends Doctrine_Record {
 			'notnull' => false,
 			'autoincrement' => false
 		));
-		$this->hasColumn('extra_data', 'string', null, array(
+		$this->hasColumn('extra_data', 'string', 999, array(
 				'type' => 'string',
-				'length' => null,
+				'length' => 999,
 				'fixed' => false,
 				'primary' => false,
 				'default' => '',

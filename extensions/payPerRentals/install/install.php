@@ -17,7 +17,8 @@ class payPerRentalsInstall extends extensionInstaller {
 	}
 
 	public function install(){
-		if (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_ENABLED') === true) return;
+		global $appExtension;
+		if ($appExtension->isEnabled('payPerRentals') === true) return;
 		
 		parent::install();
 		
@@ -75,6 +76,12 @@ class payPerRentalsInstall extends extensionInstaller {
 		$status->rental_status_available = '1';
 		$status->save();
 
+		$status = new RentalStatus();
+		$status->rental_status_text = 'PPR Maintenance';
+		$status->rental_status_color = 'ff0000';
+		$status->rental_status_available = '0';
+		$status->save();
+
 		$pprType = new PayPerRentalTypes();
 		$pprType->minutes = '1';
 		$pprType->pay_per_rental_types_name = 'Minutes';
@@ -107,7 +114,8 @@ class payPerRentalsInstall extends extensionInstaller {
 	}
 	
 	public function uninstall($remove = false){
-		if (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_ENABLED') === false) return;
+		global $appExtension;
+		if ($appExtension->isEnabled('payPerRentals') === false) return;
 		
 		parent::uninstall($remove);
 	}

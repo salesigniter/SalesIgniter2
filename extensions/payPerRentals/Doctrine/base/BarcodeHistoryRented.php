@@ -111,9 +111,9 @@ class BarcodeHistoryRented extends Doctrine_Record {
 		        'notnull' => false,
 		        'autoincrement' => false,
 	        ));
-        $this->hasColumn('current_maintenance_comments', 'string', null, array(
+        $this->hasColumn('current_maintenance_comments', 'string', 999, array(
 		        'type' => 'string',
-		        'length' => null,
+		        'length' => 999,
 		        'fixed' => false,
 		        'primary' => false,
 		        'default' => '',

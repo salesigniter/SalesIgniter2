@@ -17,9 +17,6 @@ if (tep_not_null($action)) {
 			Doctrine_Core::getTable('ProductsInventoryQuantity')->findAll()->delete();
 			Doctrine_Core::getTable('Customers')->findAll()->delete();
 			Doctrine_Core::getTable('Categories')->findAll()->delete();
-			Doctrine_Core::getTable('FunwaysCategories')->findAll()->delete();
-			Doctrine_Core::getTable('FunwaysProducts')->findAll()->delete();
-			Doctrine_Core::getTable('FunwaysProductsToCategories')->findAll()->delete();
 			//Doctrine_Core::getTable('RentalBookings')->findAll()->delete();
 			
 			Doctrine_Core::getTable('ProductsCustomFields')->findAll()->delete();
@@ -32,8 +29,6 @@ if (tep_not_null($action)) {
 			Doctrine_Core::getTable('ProductsOptionsValues')->findAll()->delete();
 			
 			
-			//Doctrine_Core::getTable('Manufacturers')->findAll()->delete();
-			//Doctrine_Core::getTable('ManufacturersInfo')->findAll()->delete();
 			//Doctrine_Core::getTable('Banners')->findAll()->delete();
 			//Doctrine_Core::getTable('BannersHistory')->findAll()->delete();
 			Doctrine_Core::getTable('Specials')->findAll()->delete();

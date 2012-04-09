@@ -80,9 +80,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_time', 'integer', 9, array(
+		$this->hasColumn('banner_group_time', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '3000',
@@ -98,9 +98,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'notnull'       => false,
 			'autoincrement' => false
 		));
-		$this->hasColumn('banner_group_effect_time', 'integer', 9, array(
+		$this->hasColumn('banner_group_effect_time', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '500',
@@ -108,9 +108,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_width', 'integer', 9, array(
+		$this->hasColumn('banner_group_width', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '550',
@@ -118,9 +118,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_spw', 'integer', 3, array(
+		$this->hasColumn('banner_group_spw', 'integer', 2, array(
 			'type'          => 'integer',
-			'length'        => 3,
+			'length'        => 2,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '7',
@@ -128,9 +128,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_sph', 'integer', 3, array(
+		$this->hasColumn('banner_group_sph', 'integer', 2, array(
 			'type'          => 'integer',
-			'length'        => 3,
+			'length'        => 2,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '5',
@@ -138,9 +138,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_strips', 'integer', 3, array(
+		$this->hasColumn('banner_group_strips', 'integer', 2, array(
 			'type'          => 'integer',
-			'length'        => 3,
+			'length'        => 2,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '10',
@@ -148,9 +148,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_height', 'integer', 9, array(
+		$this->hasColumn('banner_group_height', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '220',
@@ -158,9 +158,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_thumbs_width', 'integer', 9, array(
+		$this->hasColumn('banner_group_thumbs_width', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '50',
@@ -168,9 +168,9 @@ class BannerManagerGroups extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('banner_group_thumbs_height', 'integer', 9, array(
+		$this->hasColumn('banner_group_thumbs_height', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 9,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'default'       => '50',
@@ -309,6 +309,7 @@ class BannerManagerGroups extends Doctrine_Record {
 
 		$this->hasColumn('banner_group_description_opacity', 'decimal', 3, array(
 			'type'          => 'decimal',
+			'scale'         => 2,
 			'length'        => 3,
 			'unsigned'      => 0,
 			'primary'       => false,

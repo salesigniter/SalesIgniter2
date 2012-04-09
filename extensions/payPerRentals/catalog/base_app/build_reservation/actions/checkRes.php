@@ -1,12 +1,12 @@
 <?php
-	$starting_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
-	$ending_date = date('Y-m-d H:i:s', strtotime($_POST['end_date']));
+	$starting_date = DateTime::createFromFormat('m/d/Y', $_POST['start_date']);
+	$ending_date = DateTime::createFromFormat('m/d/Y', $_POST['end_date']);
  	//$isSemester = (isset($_POST['isSemester'])?true:false);
   	$semName = (isset($_POST['semester_name'])?$_POST['semester_name']:'');
 	$success = false;
 	$price = 0;
 	$message = '';
-    foreach($_POST['products_id'] as $pElem){
+    foreach($_POST['reservation_products_id'] as $pElem){
 		$purchaseTypeClass = PurchaseTypeModules::getModule('reservation');
 		$purchaseTypeClass->loadProduct($pElem);
 		OrderShippingModules::calculateWeight();
@@ -19,7 +19,7 @@
 		$pricing = $purchaseTypeClass->getReservationPrice($starting_date, $ending_date, $rInfo, $semName, isset($_POST['hasInsurance'])?true:false, $onlyShow);
 	    if (is_array($pricing) && is_numeric($pricing['price'])){
 		    $price += $pricing['price'];
-		    $message .= strip_tags($pricing['message']);
+		    $message .= $pricing['message'].'<br/>';
 		    $success = true;
 	    }
 	}

@@ -13,7 +13,7 @@
 class OrdersStatusHistory extends Doctrine_Record {
 
 	public function setUp(){
-		$this->setUpParent();
+		parent::setUp();
 		
 		$this->hasOne('OrdersStatus', array(
 			'local' => 'orders_status_id',
@@ -22,13 +22,10 @@ class OrdersStatusHistory extends Doctrine_Record {
 	}
 	
 	public function preInsert($event){
-		$this->date_added = date('Y-m-d H:i:s');
+		$this->date_added = date(DATE_TIMESTAMP);
 	}
 	
 	public function preUpdate($event){
-	}
-
-	public function setUpParent(){
 	}
 
 	public function setTableDefinition(){
@@ -59,13 +56,7 @@ class OrdersStatusHistory extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('date_added', 'timestamp', null, array(
-		'type' => 'timestamp',
-		'primary' => false,
-		'default' => '0000-00-00 00:00:00',
-		'notnull' => true,
-		'autoincrement' => false,
-		));
+		$this->hasColumn('date_added', 'timestamp');
 		$this->hasColumn('customer_notified', 'integer', 4, array(
 		'type' => 'integer',
 		'length' => 4,

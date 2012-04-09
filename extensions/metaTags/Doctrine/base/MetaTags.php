@@ -31,21 +31,21 @@ class MetaTags extends Doctrine_Record {
 		));
 
 		//The title tag',
-		$this->hasColumn('title', 'string', null, array(
+		$this->hasColumn('title', 'string', 999, array(
 			'type'          => 'string',
 			'notnull'       => true,
 			'collation'		=> 'utf8_general_ci',
 		));
 
 		//The meta-tag description',
-		$this->hasColumn('description', 'string', null, array(
+		$this->hasColumn('description', 'string', 999, array(
 			'type'          => 'string',
 			'notnull'       => true,
 			'collation'		=> 'utf8_general_ci',
 		));
 
 		//The meta-tag keywords',
-		$this->hasColumn('keywords', 'string', null, array(
+		$this->hasColumn('keywords', 'string', 999, array(
 			'type'          => 'string',
 			'notnull'       => true,
 			'collation'		=> 'utf8_general_ci',
@@ -66,8 +66,8 @@ class MetaTags extends Doctrine_Record {
 		 * - Specials Page
 		 * - Best Seller
 		 */
-		$this->hasColumn('type_page', 'char', 1, array(
-			'type'      => 'char',
+		$this->hasColumn('type_page', 'string', 1, array(
+			'type'      => 'string',
 			'length'	=> 1,
 			'notnull'   => true,
 			'default' 	=> 'D',

@@ -11,11 +11,11 @@
 		
 		if (isset($_POST['attributes_view_image_name'])){
 			$viewNames = $_POST['attributes_view_image_name'];
-			$viewImages = $_FILES['attributes_view_image_file'];
+			$viewImages = $_POST['attributes_view_image_file'];
 		}
 		
 		if (isset($_FILES['attributes_value_image'])){
-			$valueImages = $_FILES['attributes_value_image'];
+			$valueImages = $_POST['attributes_value_image'];
 		}
 		
 		$ProductAttributes =& $Product->ProductsAttributes;
@@ -45,48 +45,15 @@
 						$ProductAttributes[$counter]->use_inventory = '1';
 					}
 					
-					if (isset($valueImages) && isset($valueImages['name'][$groupId][$optionId][$valueId])){
-						$imageUpload = new upload(array(
-							'name'     => $valueImages['name'][$groupId][$optionId][$valueId],
-							'size'     => $valueImages['size'][$groupId][$optionId][$valueId],
-							'tmp_name' => $valueImages['tmp_name'][$groupId][$optionId][$valueId],
-							'error'    => $valueImages['error'][$groupId][$optionId][$valueId],
-							'type'     => $valueImages['type'][$groupId][$optionId][$valueId]
-						));
-						$imageUpload->set_extensions(array('jpg', 'gif', 'png'));
-						$imageUpload->set_destination(sysConfig::get('DIR_FS_CATALOG_IMAGES'));
-						if ($imageUpload->parse() && $imageUpload->save()){
-							$imageName = $imageUpload->filename;
-						}else{
-							if (isset($previousImages[$groupId][$optionId][$valueId])){
-								$imageName = $previousImages[$groupId][$optionId][$valueId];
-							}
-						}
-						$ProductAttributes[$counter]->options_values_image = $imageName;
+					if (isset($valueImages) && isset($valueImages[$groupId][$optionId][$valueId])){
+						$ProductAttributes[$counter]->options_values_image = $valueImages[$groupId][$optionId][$valueId];
 					}
 				
 					if (isset($viewNames) && isset($viewNames[$groupId][$optionId][$valueId])){
 						$counter2 = 0;
 						foreach($viewNames[$groupId][$optionId][$valueId] as $idx => $viewName){
 							$ProductAttributes[$counter]->ProductsAttributesViews[$counter2]->view_name = $viewName;
-
-							$imageUpload = new upload(array(
-								'name'     => $viewImages['name'][$groupId][$optionId][$valueId][$idx],
-								'size'     => $viewImages['size'][$groupId][$optionId][$valueId][$idx],
-								'tmp_name' => $viewImages['tmp_name'][$groupId][$optionId][$valueId][$idx],
-								'error'    => $viewImages['error'][$groupId][$optionId][$valueId][$idx],
-								'type'     => $viewImages['type'][$groupId][$optionId][$valueId][$idx]
-							));
-							$imageUpload->set_extensions(array('jpg', 'gif', 'png'));
-							$imageUpload->set_destination(sysConfig::get('DIR_FS_CATALOG_IMAGES'));
-							if ($imageUpload->parse() && $imageUpload->save()){
-								$imageName = $imageUpload->filename;
-							}else{
-								if (isset($previousImages[$groupId][$optionId][$valueId])){
-									$imageName = $previousImages[$groupId][$optionId][$valueId];
-								}
-							}
-							$ProductAttributes[$counter]->ProductsAttributesViews[$counter2]->view_image = $imageName;
+							$ProductAttributes[$counter]->ProductsAttributesViews[$counter2]->view_image = $viewImages[$groupId][$optionId][$valueId][$idx];
 							$counter2++;
 						}
 					}

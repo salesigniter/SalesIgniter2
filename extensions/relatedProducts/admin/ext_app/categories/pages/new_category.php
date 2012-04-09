@@ -17,7 +17,7 @@ class relatedProducts_admin_categories_new_category extends Extension_relatedPro
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'NewCategoryTabHeader',
@@ -29,11 +29,15 @@ class relatedProducts_admin_categories_new_category extends Extension_relatedPro
 		$langId = Session::get('languages_id');
 		
 		$catList = '';
-		$categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.parent_id from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$langId . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.categories_name");
-		while ($categories = tep_db_fetch_array($categories_query)){
+		$Qcategories = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select c.categories_id, cd.categories_name, c.parent_id from categories c, categories_description cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$langId . "' and c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, cd.categories_name");
+		foreach ($Qcategories as $categories){
 			$catList .= '<optgroup label="' . $categories['categories_name'] . '">';
-			$Qproducts = tep_db_query('select p.products_id, pd.products_name, p.products_model from ' . TABLE_PRODUCTS . ' p, ' . TABLE_PRODUCTS_DESCRIPTION . ' pd, ' . TABLE_PRODUCTS_TO_CATEGORIES . ' p2c where p2c.products_id = p.products_id and p2c.categories_id = "' . $categories['categories_id'] . '" and pd.products_id = p.products_id and pd.language_id = "' . $langId . '"');
-			while($products = tep_db_fetch_array($Qproducts)){
+			$Qproducts = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc('select p.products_id, pd.products_name, p.products_model from products p, products_description pd, products_to_categories p2c where p2c.products_id = p.products_id and p2c.categories_id = "' . $categories['categories_id'] . '" and pd.products_id = p.products_id and pd.language_id = "' . $langId . '"');
+			foreach($Qproducts as $products){
 				$catList .= '<option value="' . $products['products_id'] . '">(' . $products['products_model'] . ") " . $products['products_name'] . '</option>';
 			}
 			

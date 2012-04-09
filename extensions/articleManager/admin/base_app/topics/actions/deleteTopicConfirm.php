@@ -7,9 +7,11 @@
           $articles_delete = array();
 
           for ($i=0, $n=sizeof($topics); $i<$n; $i++) {
-            $article_ids_query = tep_db_query("select articles_id from " . TABLE_ARTICLES_TO_TOPICS . " where topics_id = '" . (int)$topics[$i]['id'] . "'");
+			$QarticleIds = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select articles_id from " . TABLE_ARTICLES_TO_TOPICS . " where topics_id = '" . (int)$topics[$i]['id'] . "'");
 
-            while ($article_ids = tep_db_fetch_array($article_ids_query)) {
+            foreach ($QarticleIds as $article_ids) {
               $articles[$article_ids['articles_id']]['topics'][] = $topics[$i]['id'];
             }
           }
@@ -23,9 +25,10 @@
             }
             $topic_ids = substr($topic_ids, 0, -2);
 
-            $check_query = tep_db_query("select count(*) as total from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$key . "' and topics_id not in (" . $topic_ids . ")");
-            $check = tep_db_fetch_array($check_query);
-            if ($check['total'] < '1') {
+ 			$Check = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc("select count(*) as total from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$key . "' and topics_id not in (" . $topic_ids . ")");
+            if ($Check[0]['total'] < '1') {
               $articles_delete[$key] = $key;
             }
           }

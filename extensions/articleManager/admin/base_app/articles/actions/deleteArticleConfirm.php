@@ -4,14 +4,19 @@
           $article_topics = $_POST['article_topics'];
 
           for ($i=0, $n=sizeof($article_topics); $i<$n; $i++) {
-            tep_db_query("delete from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$article_id . "' and topics_id = '" . (int)$article_topics[$i] . "'");
+ 			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("delete from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$article_id . "' and topics_id = '" . (int)$article_topics[$i] . "'");
           }
 
-          $article_topics_query = tep_db_query("select count(*) as total from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$article_id . "'");
-          $article_topics = tep_db_fetch_array($article_topics_query);
+		$Check = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select count(*) as total from " . TABLE_ARTICLES_TO_TOPICS . " where articles_id = '" . (int)$article_id . "'");
 
-          if ($article_topics['total'] == '0') {
-           tep_db_query("delete from articles where articles_id = " . (int)$article_id);
+          if ($Check[0]['total'] == '0') {
+ 			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("delete from articles where articles_id = " . (int)$article_id);
           }
 		  EventManager::attachActionResponse(array(
 			'success' => true

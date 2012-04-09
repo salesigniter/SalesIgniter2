@@ -187,7 +187,7 @@ function popupWindowEditReservation(type, rID, barcode_id, selectedBarcodes, pro
                             Tooltip2 = showToolTipAttr({
                                             offsetTop: offSet2.top - $(this).height() - 10,
                                             offsetLeft: offSet2.left,
-                                            tipText: '<img align="center" src="'+DIR_WS_CATALOG+'ext/jQuery/themes/icons/ajax_loader_xlarge.gif"/>'
+                                            tipText: '<img align="center" src="'+jsConfig.get('DIR_WS_CATALOG')+'ext/jQuery/themes/icons/ajax_loader_xlarge.gif"/>'
                              });
                             $self.data('toolTip2', Tooltip2);
 

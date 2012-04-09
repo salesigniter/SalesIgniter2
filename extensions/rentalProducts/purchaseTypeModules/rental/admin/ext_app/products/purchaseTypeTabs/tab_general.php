@@ -33,7 +33,7 @@ class PurchaseTypeTabRental_tab_general
 		$pricingTypeText = $PurchaseType->getTitle();
 
 		$enabledInput = htmlBase::newElement('checkbox')
-			->setName('products_type[]')
+			->setName('purchase_type[]')
 			->setChecked($PurchaseType->getData('status') == 1)
 			->val($pricingTypeName);
 

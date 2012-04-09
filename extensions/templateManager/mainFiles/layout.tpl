@@ -20,21 +20,42 @@ foreach($contents as $html){
 echo '		' . $html . "\n";
 }
 }
+
+	$stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/stylesheet.php?' .
+	'layout_id=' . $templateLayoutId .
+	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
+	'&import=' . implode(',', $stylesheets) .
+	(isset($_GET['noCache']) ? '&noCache' : '');
+
+	$javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/javascript.php?' .
+	'layout_id=' . $templateLayoutId .
+	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
+	'&import=' . implode(',', $javascriptFiles) .
+	(isset($_GET['noCache']) ? '&noCache' : '');
+
+	global $currencies;
+	$CurrencyInfo = $currencies->get(Session::get('currency'));
 	?>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo sysLanguage::getCharset();?>" />
-	<base href="<?php echo (($request_type == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . sysConfig::getDirWsCatalog(); ?>" />
-	<link rel="stylesheet" type="text/css" href="<?php echo sysConfig::getDirWsCatalog();?>extensions/templateManager/catalog/globalFiles/stylesheet.php?import=<?php echo implode(',', $stylesheets);?>&layout_id=<?php echo $templateLayoutId;?>" />
+	<base href="<?php echo ((sysConfig::get('REQUEST_TYPE') == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . sysConfig::getDirWsCatalog(); ?>" />
+	<link rel="stylesheet" type="text/css" href="<?php echo $stylesheetLink;?>" />
 	<script type="text/javascript">
 		var thisFile = '<?php echo basename($_SERVER['PHP_SELF']);?>';
-		var serverName = '<?php echo sysConfig::get('HTTP_HOST');?>';
-		var DIR_WS_CATALOG = '<?php echo DIR_WS_CATALOG;?>';
-		var ENABLE_SSL = '<?php echo sysConfig::get('ENABLE_SSL');?>';
 		var SID = '<?php echo SID;?>';
 		var sessionId = '<?php echo Session::getSessionId();?>';
 		var sessionName = '<?php echo Session::getSessionName();?>';
-		var request_type = '<?php echo $request_type;?>';
 	</script>
-	<script type="text/javascript" src="<?php echo sysConfig::getDirWsCatalog();?>extensions/templateManager/catalog/globalFiles/javascript.php?import=<?php echo implode(',', $javascriptFiles);?>&layout_id=<?php echo $templateLayoutId;?>"></script>
+	<script type="text/javascript" src="<?php echo $javascriptLink;?>"></script>
+	<script>
+		jsCurrencies.setCode('<?php echo $CurrencyInfo['code'];?>');
+		jsCurrencies.setTitle('<?php echo $CurrencyInfo['title'];?>');
+		jsCurrencies.setSymbolLeft('<?php echo $CurrencyInfo['symbol_left'];?>');
+		jsCurrencies.setSymbolRight('<?php echo $CurrencyInfo['symbol_right'];?>');
+		jsCurrencies.setDecimalPoint('<?php echo $CurrencyInfo['decimal_point'];?>');
+		jsCurrencies.setThousandsPoint('<?php echo $CurrencyInfo['thousands_point'];?>');
+		jsCurrencies.setDecimalPlaces(<?php echo $CurrencyInfo['decimal_places'];?>);
+		jsCurrencies.setValue(<?php echo $CurrencyInfo['value'];?>);
+	</script>
 </head>
 <body>
 <noscript>
@@ -58,7 +79,7 @@ This is a DEMO of Sales Igniter Rental Software. For more info <a href="http://w
 <?php
 }
 	
-echo $templateLayoutContent;
+    echo $templateLayoutContent;
 ?>
 </body>
 </html>

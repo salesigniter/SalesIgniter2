@@ -1,6 +1,6 @@
 <?php
-	if (isset($_GET['post_id'])){
-		$Posts = Doctrine_Core::getTable('BlogPosts')->findOneByPostId($_GET['post_id']);
+	if (isset($_GET['pID'])){
+		$Posts = Doctrine_Core::getTable('BlogPosts')->findOneByPostId($_GET['pID']);
 		if ($Posts){
 			$Posts->delete();
 			$messageStack->addSession('pageStack', 'Post has been removed', 'success');

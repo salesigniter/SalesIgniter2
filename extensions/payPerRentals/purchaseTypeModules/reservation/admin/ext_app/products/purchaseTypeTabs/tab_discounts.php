@@ -23,14 +23,13 @@
 		$this->displayOrder = $val;
 	}
 
-	public function addTab(&$TabsObj, Product $Product) {
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType) {
 		global $appExtension;
-		$PurchaseTypeCls = PurchaseTypeModules::getModule('reservation');
 		$PayPerRentalTypes = Doctrine_Query::create()
 			->from('PayPerRentalTypes')
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-		$typeName = $PurchaseTypeCls->getCode();
+		$typeName = $PurchaseType->getCode();
 
 		$DiscountTabInfo = array(
 			array('id' => 0, 'text' => 'Standard')

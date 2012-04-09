@@ -18,7 +18,7 @@ class OrderTotalShipping extends OrderTotalModuleBase
 		}
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order, $shippingModules, $ShoppingCart, $onePageCheckout;
 
 		$userAccount = &Session::getReference('userAccount');
@@ -91,13 +91,11 @@ class OrderTotalShipping extends OrderTotalModuleBase
 				}
 			}
 
-			$this->addOutput(array(
-					'module' => $module->getCode(),
-					'method' => substr($shippingModule, strpos($shippingModule, '_') + 1),
-					'title' => $shippingTitle . ':',
-					'text' => $this->formatAmount($shippingCost),
-					'value' => $shippingCost
-				));
+			$outputData['module'] = $module->getCode();
+			$outputData['method'] = substr($shippingModule, strpos($shippingModule, '_') + 1);
+			$outputData['title'] = $shippingTitle . ':';
+			$outputData['text'] = $this->formatAmount($shippingCost);
+			$outputData['value'] = $shippingCost;
 		}
 
 		$totalShippingCost = 0;

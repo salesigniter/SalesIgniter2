@@ -17,7 +17,7 @@ class OrderTotalPaymentfee extends OrderTotalModuleBase
 		}
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order, $appExtension, $userAccount, $onePageCheckout;
 
 		if ($this->allowPaymentFee == 'True' && isset($onePageCheckout->onePage['info']['payment']['id'])){
@@ -42,11 +42,9 @@ class OrderTotalPaymentfee extends OrderTotalModuleBase
 			$order->info['total'] += $fee;
 
 			if ($fee > 0 && ($this->showPaymentFee == 'True')){
-				$this->addOutput(array(
-						'title' => $this->getTitle() . ':',
-						'text' => $this->formatAmount($fee),
-						'value' => $fee
-					));
+				$outputData['title'] = $this->getTitle() . ':';
+				$outputData['text'] = $this->formatAmount($fee);
+				$outputData['value'] = $fee;
 			}
 		}
 	}

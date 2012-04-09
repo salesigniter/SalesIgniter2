@@ -679,26 +679,38 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
      *
      * @param boolean $overwrite                whether or not to overwrite the already set values
      * @return boolean
+	 *
+	 * sw45859 modified for SaleIgniter 2, Do Not Overwrite
      */
-    public function assignDefaultValues($overwrite = false)
-    {
-        if ( ! $this->_table->hasDefaultValues()) {
-            return false;
-        }
-        foreach ($this->_data as $column => $value) {
-            $default = $this->_table->getDefaultValueOf($column);
+	public function assignDefaultValues($overwrite = false) {
+		if (!$this->_table->hasDefaultValues()){
+			return false;
+		}
+		foreach($this->_data as $column => $value){
+			$default = $this->_table->getDefaultValueOf($column);
+			$columnType = $this->_table->getTypeOfColumn($column);
 
-            if ($default === null) {
-                continue;
-            }
+			$setAnyway = array('timestamp', 'datetime');
+			if ($default === null && !in_array($columnType, $setAnyway)){
+				continue;
+			}
 
-            if ($value === self::$_null || $overwrite) {
-                $this->_data[$column] = $default;
-                $this->_modified[]    = $column;
-                $this->_state = Doctrine_Record::STATE_TDIRTY;
-            }
-        }
-    }
+			if ($value === self::$_null || $overwrite){
+				switch($columnType){
+					case 'timestamp':
+					case 'datetime':
+						$this->_data[$column] = new SesDateTime();
+						$this->_data[$column]->setTimestamp(0);
+						break;
+					default:
+						$this->_data[$column] = $default;
+						break;
+				}
+				$this->_modified[] = $column;
+				$this->_state = Doctrine_Record::STATE_TDIRTY;
+			}
+		}
+	}
 
     /**
      * cleanData
@@ -1544,8 +1556,26 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
         } else if (in_array($type, array('integer', 'int')) && is_numeric($old) && is_numeric($new)) {
             return $old != $new;
         } else if ($type == 'timestamp' || $type == 'date') {
-            $oldStrToTime = strtotime($old);
-            $newStrToTime = strtotime($new);
+			if (is_object($old)){
+				if ($old instanceof SesDateTime){
+					return true;
+				}else{
+					die('Date is an object, but bot from SesDateTime');
+				}
+			}else{
+				$oldStrToTime = strtotime($old);
+			}
+
+			if (is_object($new)){
+				if ($new instanceof SesDateTime){
+					return true;
+				}else{
+					die('Date is an object, but bot from SesDateTime');
+				}
+			}else{
+				$newStrToTime = strtotime($new);
+			}
+
             if ($oldStrToTime && $newStrToTime) {
                 return $oldStrToTime !== $newStrToTime;
             } else {
@@ -1841,6 +1871,14 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
                         $a[$field] = $this->_data[$field];
                     }
                 break;
+				case 'timestamp':
+				case 'datetime':
+					if ($this->_data[$field] instanceof SesDateTime){
+						$a[$field] = $this->_data[$field]->format(DATE_TIMESTAMP);
+					}else{
+						$a[$field] = $this->_data[$field];
+					}
+				break;
                 default:
                     if ($this->_data[$field] instanceof Doctrine_Record) {
                         $a[$field] = $this->_data[$field]->getIncremented();
@@ -1921,7 +1959,7 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
 
         if ($deep) {
             foreach ($this->_references as $key => $relation) {
-                if ( is_object($relation) && ! $relation instanceof Doctrine_Null) {
+                if ( ! $relation instanceof Doctrine_Null) {
                     $a[$key] = $relation->toArray($deep, $prefixKey);
                 }
             }

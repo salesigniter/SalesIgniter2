@@ -20,7 +20,7 @@ class OrderTotalPprdiscount extends OrderTotalModuleBase
 		}
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order, $appExtension, $userAccount, $ShoppingCart;
 		$pprExt = $appExtension->getExtension('payPerRentals');
 
@@ -71,11 +71,9 @@ class OrderTotalPprdiscount extends OrderTotalModuleBase
 				$order->info['total'] = 0;
 			}
 			if ($discount > 0 && ($this->showpprDiscount == 'True')){
-				$this->addOutput(array(
-						'title' => $this->getTitle() . ':',
-						'text' => '-' . $this->formatAmount($discount),
-						'value' => -$discount
-					));
+				$outputData['title'] = $this->getTitle() . ':';
+				$outputData['text'] = '-' . $this->formatAmount($discount);
+				$outputData['value'] = -$discount;
 			}
 		}
 	}

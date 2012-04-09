@@ -46,6 +46,7 @@ if ($category_depth == 'nested') {
 			if(!empty($categoryImage)) {
 				$tableColumns[] = array(
 					'addCls' => 'main',
+					'css' => array('padding' => '15px'),
 					'align' => 'center',
 					'text' => '<a href="' .  itw_app_link($cPath_new, 'index', 'default') . '">' .
 							  '<img src="imagick_thumb.php?path=rel&imgSrc=' . 'images/'. $categoryImage . '&width=100&height=100" alt="' . $categoryName . '" />' .
@@ -73,7 +74,7 @@ if ($category_depth == 'nested') {
 
 	echo '<div>';
 	if (sysConfig::get('NEW_PRODUCTS_ON_NESTED_CATEGORIES') == 'true'){
-		include(DIR_WS_MODULES . FILENAME_NEW_PRODUCTS);
+		include(sysConfig::getDirFsCatalog() . 'includes/modules/new_products.php');
 	}
 	echo '</div>';
 	

@@ -1,5 +1,76 @@
+function addOption(el){
+	var nextId = parseInt($(el).data('next_id'));
+	$(el).data('next_id', nextId+1);
+
+	var sortOrder = parseInt($(el).data('next_sort'));
+	$(el).data('next_sort', sortOrder+1);
+
+	$(el).parentsUntil('#selectOptions').last().find('tbody').append('<tr>' +
+		'<td>' +
+		'<input class="text" type="text" name="option_name[' + nextId + ']" value="">' +
+		'</td>' +
+		'<td>' +
+		'<span class="ui-icon ui-icon-wrench editData" tooltip="Edit Data"></span>' +
+		'<span class="ui-icon ui-icon-arrowthick-1-n moveOptionUp" tooltip="Move Up"></span>' +
+		'<span class="ui-icon ui-icon-arrowthick-1-s moveOptionDown" tooltip="Move Down"></span>' +
+		'<span class="ui-icon ui-icon-circle-minus removeOption" tooltip="Remove Option"></span>' +
+		'<input class="sort" type="hidden" name="option_sort[' + nextId + ']" value="' + sortOrder + '">' +
+		'<input class="data" type="hidden" name="option_data[' + nextId + ']" value="">' +
+		'</td>' +
+		'</tr>');
+}
+
+function removeOption(el){
+	var nextTd = $(el).parentsUntil('tbody').last().next();
+	while(nextTd.size() > 0){
+		nextTd.find('.sort').val(parseInt(nextTd.find('.sort').val()) - 1);
+		nextTd = nextTd.next();
+	}
+	$(el).parentsUntil('tbody').last().remove();
+}
+
+function editOptionData(el){
+	var $tr = $(el).parentsUntil('tbody').last();
+	var optionData = $.parseJSON(urldecode($tr.find('.data').val()));
+	var dialogHtml = $('<div>' + $('#addressDialog').html() + '</div>');
+	if (optionData){
+		$.each(optionData, function (k, v){
+			dialogHtml.find('[name=' + k + ']').val(v);
+		});
+	}
+	$(dialogHtml).dialog({
+		title: 'Edit Option Data',
+		width: '28em',
+		buttons: {
+			'Save': function (){
+				$tr.find('.data').val($(this).find('*').serialize());
+				$(this).dialog('close').remove();
+			},
+			'Cancel': function (){
+				$(this).dialog('close').remove();
+			}
+		}
+	});
+}
+
+function moveOptionUp(el){
+	var Row = $(el).parentsUntil('tbody').last();
+	var SortField = Row.find('.sort');
+	Row.prev().find('.sort').val(SortField.val());
+	SortField.val(parseInt(SortField.val()) - 1);
+	Row.insertBefore(Row.prev());
+}
+
+function moveOptionDown(el){
+	var Row = $(el).parentsUntil('tbody').last();
+	var SortField = Row.find('.sort');
+	Row.next().find('.sort').val(SortField.val());
+	SortField.val(parseInt(SortField.val()) + 1);
+	Row.insertAfter(Row.next());
+}
+
 function showOptionEntry(el){
-	if (el.value != 'select' && el.value != 'select_other'){
+	if (el.value != 'select' && el.value != 'select_other' && el.value != 'select_address'){
 		$('#selectOptions').hide();
 	}else{
 		$('#selectOptions').show();
@@ -74,6 +145,7 @@ function makeFieldEditable($el){
 				autoOpen: true,
 				title: 'Edit Field',
 				position: 'top',
+				width: '25em',
 				close: function (){
 					if ($icon.parent().data('ajaxOverlay')){
 						hideAjaxLoader($icon.parent());
@@ -133,11 +205,32 @@ function makeFieldEditable($el){
 }
 
 $(document).ready(function (){
+	$('.addSelectOption').live('click', function (){
+		addOption(this);
+	});
+
+	$('.removeOption').live('click', function (){
+		removeOption(this);
+	});
+
+	$('.moveOptionUp').live('click', function (){
+		moveOptionUp(this);
+	});
+
+	$('.moveOptionDown').live('click', function (){
+		moveOptionDown(this);
+	});
+
+	$('.editData').live('click', function (){
+		editOptionData(this);
+	});
+
 	$('#newField').click(function (){
 		$('<div></div>').dialog({
 			autoOpen: true,
 			title: 'Create New Field',
 			position: 'top',
+			width: '25em',
 			open: function (e, ui){
 				var $el = $(this);
 				$el.html('<div class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></div>');

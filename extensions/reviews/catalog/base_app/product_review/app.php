@@ -11,7 +11,6 @@
 */
 
 	$appContent = $App->getAppContentFile();
- 	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
     $App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');
 	$App->addJavascriptFile('ext/jQuery/external/jqzoom/jquery.jqzoom.js');
 

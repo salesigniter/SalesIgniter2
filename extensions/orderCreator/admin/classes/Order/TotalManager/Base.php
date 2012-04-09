@@ -1,9 +1,21 @@
 <?php
+/**
+ * Order total manager class for the order creator
+ *
+ * @package OrderCreator
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
+
 require(dirname(__FILE__) . '/Total.php');
 
-class OrderCreatorTotalManager extends OrderTotalManager {
+class OrderCreatorTotalManager extends OrderTotalManager
+{
 
-	public function __construct($orderTotals = null){
+	/**
+	 * @param array|null $orderTotals
+	 */
+	public function __construct(array $orderTotals = null) {
 		if (is_null($orderTotals) === false){
 			foreach($orderTotals as $i => $tInfo){
 				$orderTotal = new OrderCreatorTotal($tInfo);
@@ -12,14 +24,20 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 		}
 	}
 
-	public function remove($moduleType){
+	/**
+	 * @param string $moduleType
+	 */
+	public function remove($moduleType) {
 		$orderTotal = $this->getTotal($moduleType);
 		if (is_null($orderTotal) === false){
 			$this->detach($orderTotal);
 		}
 	}
-	
-	public function updateFromPost(){
+
+	/**
+	 *
+	 */
+	public function updateFromPost() {
 		global $currencies, $Editor;
 		foreach($_POST['order_total'] as $id => $tInfo){
 			$OrderTotal = $this->get($tInfo['type']);
@@ -32,21 +50,21 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 			}
 
 			$OrderTotal->setSortOrder($tInfo['sort_order']);
-			$OrderTotal->setTitle((isset($tInfo['title'])?$tInfo['title']:ucfirst($tInfo['type'])));
+			$OrderTotal->setTitle($tInfo['title']);
 			$OrderTotal->setValue($tInfo['value']);
 			$OrderTotal->setText($currencies->format($tInfo['value'], true, $Editor->getCurrency(), $Editor->getCurrencyValue()));
 			$OrderTotal->setModule($tInfo['type']);
 			$OrderTotal->setMethod(null);
-			
+
 			if ($addTotal === true){
 				$this->add($OrderTotal);
 			}
-			
+
 			if ($tInfo['type'] == 'shipping'){
 				$shipModule = explode('_', $tInfo['title']);
 				$OrderTotal->setModule($shipModule[0]);
 				$OrderTotal->setMethod($shipModule[1]);
-				
+
 				$Module = OrderShippingModules::getModule($shipModule[0]);
 				$Quote = $Module->quote($shipModule[1]);
 				$OrderTotal->setTitle($Quote['module'] . ' ( ' . $Quote['methods'][0]['title'] . ' ) ');
@@ -54,13 +72,16 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 			}
 		}
 	}
-	
-	public function addAllToCollection(&$CollectionObj){
+
+	/**
+	 * @param Doctrine_Collection $CollectionObj
+	 */
+	public function addAllToCollection(Doctrine_Collection &$CollectionObj) {
 		$CollectionObj->clear();
 		$this->rewind();
 		while($this->valid()){
 			$orderTotal = $this->current();
-			
+
 			$OrdersTotal = new OrdersTotal();
 			$OrdersTotal->title = $orderTotal->getTitle();
 			$OrdersTotal->text = $orderTotal->getText();
@@ -75,46 +96,33 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 		}
 	}
 
-	public function edit(){
+	/**
+	 * @return htmlElement_table
+	 */
+	public function edit() {
 		global $Editor, $currencies, $total_weight;
-		$orderTotalTable = htmlBase::newElement('table')
-		->addClass('orderTotalTable')
-		->setCellPadding(2)
-		->setCellSpacing(0)
-		->css(array(
-			'width' => '100%'
+		$orderTotalTable = htmlBase::newElement('newGrid')
+			->addClass('orderTotalTable');
+
+		$orderTotalTable->addButtons(array(
+			htmlBase::newElement('button')->addClass('addOrderTotalButton')->usePreset('new'),
+			htmlBase::newElement('button')->addClass('deleteOrderTotalButton')->usePreset('delete')->disable(),
+			htmlBase::newElement('button')->addClass('moveOrderTotalButton')->attr('data-direction', 'up')
+				->usePreset('moveup')->setText('Move Up')->disable(),
+			htmlBase::newElement('button')->addClass('moveOrderTotalButton')->attr('data-direction', 'down')
+				->usePreset('movedown')->setText('Move Down')->disable()
 		));
 
 		$orderTotalTable->addHeaderRow(array(
 			'columns' => array(
+				array('text' => 'Title'),
 				array(
-					'addCls' => 'main ui-widget-header',
-					'text' => 'Title'
-				),
-				array(
-					'addCls' => 'main ui-widget-header',
-					'css' => array(
-						'border-left' => 'none',
-						'width' => '120px'
-					),
+					'css'  => array('width' => '150px'),
 					'text' => 'Value'
 				),
 				array(
-					'addCls' => 'main ui-widget-header',
-					'css' => array(
-						'border-left' => 'none',
-						'width' => '200px'
-					),
+					'css'  => array('width' => '225px'),
 					'text' => 'Type'
-				),
-				array(
-					'addCls' => 'main ui-widget-header',
-					'css' => array(
-						'border-left' => 'none',
-						'width' => '40px'
-					),
-					'align' => 'center',
-					'text' => '<span class="ui-icon ui-icon-plusthick insertTotalIcon"></span>'
 				)
 			)
 		));
@@ -124,16 +132,15 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 			$totals[] = $this->current();
 			$this->next();
 		}
-		usort($totals, function (OrderCreatorTotal $a, OrderCreatorTotal $b){
-				return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
-			});
+		usort($totals, function (OrderCreatorTotal $a, OrderCreatorTotal $b) {
+			return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
+		});
 		$count = 0;
 		$totalTypes = array();
 		foreach(OrderTotalModules::getModules() as $Module){
 			$totalTypes[$Module->getCode()] = $Module->getTitle();
 		}
 		$totalTypes['custom'] = 'Custom';
-		$totalTypes['late_fee'] = 'Lafe Fee';
 
 		foreach($totals as $orderTotal){
 			$editable = $orderTotal->isEditable();
@@ -164,7 +171,7 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 			if ($totalType == 'shipping'){
 				$total_weight = $Editor->ProductManager->getTotalWeight();
 				OrderShippingModules::setDeliveryAddress($Editor->AddressManager->getAddress('delivery'));
-	
+
 				$titleField = '<select name="order_total[' . $count . '][title]" style="width:98%;">';
 				$Quotes = OrderShippingModules::quote();
 				//print_r($Quotes);
@@ -175,66 +182,58 @@ class OrderCreatorTotalManager extends OrderTotalManager {
 					}
 					$titleField .= '</optgroup>';
 				}
-	
+
 				$titleField .= '</select>';
-			}else{
+			}
+			else {
 				if ($editable === true){
 					$titleField = '<input class="ui-widget-content" type="text" style="width:98%;" name="order_total[' . $count . '][title]" value="' . $orderTotal->getTitle() . '">';
-				}else{
-					$titleField = '<div style="width:98%;text-align:left;">' . $orderTotal->getTitle() . '</div>';
+				}
+				else {
+					$titleField = '<div style="width:98%;text-align:left;">' . $orderTotal->getTitle() . '<input type="hidden" name="order_total[' . $count . '][title]" value="' . $orderTotal->getTitle() . '"></div>';
 				}
 			}
-			
+
 			$orderTotalTable->addBodyRow(array(
-				'attr' => array(
+				'attr'    => array(
 					'data-count' => $count,
-					'data-code' => $totalType
+					'data-code'  => $totalType
 				),
 				'columns' => array(
 					array(
-						'addCls' => 'ui-widget-content',
-						'css' => array(
-							'border-top' => 'none'
-						),
 						'align' => 'center',
-						'text' => $hiddenField . $titleField
+						'text'  => $hiddenField . $titleField
 					),
 					array(
-						'addCls' => 'ui-widget-content',
-						'css' => array(
-							'border-top' => 'none',
-							'border-left' => 'none'
-						),
 						'align' => 'center',
-						'text' => $totalValue . '<input type="hidden" name="order_total[' . $count . '][sort_order]" class="totalSortOrder" value="' . $count . '"></span>'
+						'text'  => $totalValue . '<input type="hidden" name="order_total[' . $count . '][sort_order]" class="totalSortOrder" value="' . $count . '"></span>'
 					),
 					array(
-						'addCls' => 'ui-widget-content',
-						'css' => array(
-							'border-top' => 'none',
-							'border-left' => 'none'
-						),
 						'align' => 'right',
-						'text' => $typeMenu
-					),
-					array(
-						'addCls' => 'ui-widget-content',
-						'css' => array(
-							'border-top' => 'none',
-							'border-left' => 'none'
-						),
-						'align' => 'center',
-						'text' => ($editable === true ?
-							'<span class="ui-icon ui-icon-closethick deleteIcon" tooltip="Remove From Order"></span>'
-								: '') .
-							'<span class="ui-icon ui-icon-arrow-4 moveTotalIcon" tooltip="Drag To Reorder"></span>'
+						'text'  => $typeMenu
 					)
 				)
 			));
 			$count++;
 		}
-		$orderTotalTable->attr('data-nextId', $count);
+		$orderTotalTable->attr('data-next_id', $count);
 		return $orderTotalTable;
 	}
+
+	/**
+	 * @param string $key
+	 * @param float $amount
+	 */
+	public function addToTotal($key, $amount) {
+		$this->rewind();
+		while($this->valid()){
+			$orderTotal = $this->current();
+			if ($orderTotal->getModuleType() == $key){
+				$orderTotal->setValue($orderTotal->getValue() + $amount);
+			}
+			$this->next();
+		}
+	}
 }
+
 ?>

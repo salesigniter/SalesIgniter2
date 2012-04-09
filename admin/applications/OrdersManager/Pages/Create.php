@@ -66,9 +66,9 @@
 			if ($Editor->hasStatusHistory()){
 				foreach($Editor->getStatusHistory() as $history){
 					if ($history['customer_notified'] == '1'){
-						$icon = tep_image(DIR_WS_ICONS . 'tick.gif', ICON_TICK);
+						$icon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'tick.gif', sysLanguage::get('ICON_TICK'));
 					}else{
-						$icon = tep_image(DIR_WS_ICONS . 'cross.gif', ICON_CROSS);
+						$icon = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'cross.gif', sysLanguage::get('ICON_CROSS'));
 					}
 
 					$historyTable->addBodyRow(array(

@@ -502,9 +502,16 @@ class Doctrine_Core
 	/**
 	 * Path to the models directory
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private static $_extModelsDirectory = array();
+
+	/**
+	 * Aliases to use for loading models that don't use the table name as the accessor
+	 *
+	 * @var array
+	 */
+	private static $_extModelsAlias = array();
 
     /**
      * __construct
@@ -613,6 +620,11 @@ class Doctrine_Core
 	public static function addExtModelsDirectory($className, $directory)
 	{
 		self::$_extModelsDirectory[$className] = $directory;
+	}
+
+	public static function addExtModelsAlias($alias, $className)
+	{
+		self::$_extModelsAlias[$alias] = $className;
 	}
 
     /**
@@ -1144,10 +1156,16 @@ class Doctrine_Core
 
     public static function modelsAutoload($className)
     {
+		if (isset(self::$_extModelsAlias[$className])){
+			$className = self::$_extModelsAlias[$className];
+		}
+
         if (class_exists($className, false) || interface_exists($className, false)) {
             return false;
         }
-if (!isset(self::$_modelsDirectory) && !isset(self::$_loadedModelFiles)) return false;
+
+		if (!isset(self::$_modelsDirectory) && !isset(self::$_loadedModelFiles)) return false;
+
         if ( ! self::$_modelsDirectory) {
             $loadedModels = self::$_loadedModelFiles;
 

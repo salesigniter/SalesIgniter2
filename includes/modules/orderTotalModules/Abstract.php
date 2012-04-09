@@ -2,8 +2,6 @@
 class OrderTotalModuleBase extends ModuleBase
 {
 
-	private $output = array();
-
 	public function init($code, $forceEnable = false, $moduleDir = false) {
 		$this->import(new Installable);
 		$this->import(new SortedDisplay);
@@ -13,19 +11,11 @@ class OrderTotalModuleBase extends ModuleBase
 
 	}
 
-	public function addOutput($data) {
-		$this->output[] = $data;
-	}
-
 	public function getStatus() {
 		return $this->isEnabled();
 	}
 
-	public function getOutput() {
-		return $this->output;
-	}
-
-	public function process() {
+	public function process(array &$outputData) {
 		die('Process function not overwritten.');
 	}
 

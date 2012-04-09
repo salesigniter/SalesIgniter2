@@ -26,6 +26,12 @@ class ProductsPayPerRental extends Doctrine_Record {
 				'foreign' => 'ppr_id',
 				'cascade' => array('delete')
 			));
+
+		$this->hasMany('PricePerRentalPerProducts', array(
+			'local' => 'pay_per_rental_id',
+			'foreign' => 'pay_per_rental_id',
+			'cascade' => array('delete')
+		));
 	}
 	
 	public function setUpParent(){

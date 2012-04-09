@@ -7,19 +7,10 @@ if (!isset($_GET['pID']) && isset($_GET['productType'])){
 	$Product->setProductType($_GET['productType']);
 }
 
-$manufacturers_array = array(array('id' => '', 'text' => sysLanguage::get('TEXT_NONE')));
-$Qmanufacturers = Doctrine_Manager::getInstance()
-	->getCurrentConnection()
-	->fetchAssoc("select manufacturers_id, manufacturers_name from " . TABLE_MANUFACTURERS . " order by manufacturers_name");
-foreach($Qmanufacturers as $manufacturers){
-	$manufacturers_array[] = array('id' => $manufacturers['manufacturers_id'],
-		'text' => $manufacturers['manufacturers_name']);
-}
-
 $tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
 $QtaxClass = Doctrine_Manager::getInstance()
 	->getCurrentConnection()
-	->fetchAssoc("select tax_class_id, tax_class_title from " . TABLE_TAX_CLASS . " order by tax_class_title");
+	->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
 foreach($QtaxClass as $tax_class){
 	$tax_class_array[] = array('id' => $tax_class['tax_class_id'],
 		'text' => $tax_class['tax_class_title']);
@@ -103,10 +94,13 @@ EventManager::notify('NewProductAddDefaultTabs', $Product, $ProductType, &$admin
 $Tabs = htmlBase::newElement('tabs')
 	->setId('tab_container');
 
+/*
+ * This handles the replacement of the original default tabs with tabs stored with the product type module
+ */
 foreach($adminTabs as $k => $v){
 	ob_start();
-	if (file_exists($ProductType->getPath() . 'admin/applications/products/pages_tabs/' . basename($k))){
-		require($ProductType->getPath() . 'admin/applications/products/pages_tabs/' . basename($k));
+	if (file_exists($ProductType->getPath() . $k)){
+		require($ProductType->getPath() . $k);
 	}else{
 		require(sysConfig::getDirFsCatalog() . $k);
 	}
@@ -117,8 +111,11 @@ foreach($adminTabs as $k => $v){
 		->addTabPage(basename($k, '.php'), array('text' => $TabContent));
 }
 
-if (file_exists(sysConfig::getDirFsCatalog() . 'includes/modules/productTypeModules/' . $ProductType->getCode() . '/admin/applications/products/pages/new_product.php')){
-	require(sysConfig::getDirFsCatalog() . 'includes/modules/productTypeModules/' . $ProductType->getCode() . '/admin/applications/products/pages/new_product.php');
+/*
+ * This handles adding tabs from the product type module
+ */
+if (file_exists($ProductType->getPath() . 'admin/applications/products/pages/new_product.php')){
+	require($ProductType->getPath() . 'admin/applications/products/pages/new_product.php');
 
 	$className = 'ProductType' . ucfirst($ProductType->getCode()) . '_admin_products_new_product';
 	$PageTabs = new $className;
@@ -152,4 +149,5 @@ EventManager::notify('NewProductAddTabs', $Product, $ProductType, $Tabs);
 		<div class="smallText" style="text-align:left;width:315px;position:absolute;right:.5em;top:3em;">*Image upload fields do not work with ajax save<br>So you'll need to use the normal save button for uploads
 		</div>
 	</div>
+	<input type="hidden" name="products_type" value="<?php echo $ProductType->getCode();?>">
 </form>

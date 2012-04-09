@@ -8,7 +8,7 @@ if ($Rental && $Rental->count() > 0){
 	$PurchaseType = PurchaseTypeModules::getModule('rental');
 	
 	$Rental->rental_state = $PurchaseType->getConfigData('RENTAL_STATUS_OUT');
-	$Rental->date_shipped = date(DATE_RSS);
+	$Rental->date_shipped = date(DATE_TIMESTAMP);
 	if ($Rental->barcode_id > 0){
 		$Rental->ProductsInventoryBarcodes->status = 'O';
 	}else{

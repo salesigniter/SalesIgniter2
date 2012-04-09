@@ -10,10 +10,10 @@
   Released under the GNU General Public License
 */
 
-?>
-<?php
-  $expected_query = tep_db_query("select a.articles_id, a.articles_date_added, a.articles_date_available as date_expected, ad.articles_name, ad.articles_head_desc_tag, td.topics_id, td.topics_name from " . TABLE_ARTICLES . " a, " . TABLE_ARTICLES_TO_TOPICS . " a2t, " . TABLE_TOPICS_DESCRIPTION . " td, " . TABLE_ARTICLES_DESCRIPTION . " ad where to_days(a.articles_date_available) > to_days(now()) and a.articles_id = a2t.articles_id and a2t.topics_id = td.topics_id and a.articles_status = '1' and a.articles_id = ad.articles_id and ad.language_id = '" . (int)Session::get('languages_id') . "' and td.language_id = '" . (int)Session::get('languages_id') . "' order by date_expected limit " . MAX_DISPLAY_UPCOMING_ARTICLES);
-  if (tep_db_num_rows($expected_query) > 0) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select a.articles_id, a.articles_date_added, a.articles_date_available as date_expected, ad.articles_name, ad.articles_head_desc_tag, td.topics_id, td.topics_name from " . TABLE_ARTICLES . " a, " . TABLE_ARTICLES_TO_TOPICS . " a2t, " . TABLE_TOPICS_DESCRIPTION . " td, " . TABLE_ARTICLES_DESCRIPTION . " ad where to_days(a.articles_date_available) > to_days(now()) and a.articles_id = a2t.articles_id and a2t.topics_id = td.topics_id and a.articles_status = '1' and a.articles_id = ad.articles_id and ad.language_id = '" . (int)Session::get('languages_id') . "' and td.language_id = '" . (int)Session::get('languages_id') . "' order by date_expected limit " . MAX_DISPLAY_UPCOMING_ARTICLES);
+  if (sizeof($ResultSet) > 0) {
 ?>
 <!-- upcoming_articles //-->
       <tr>
@@ -25,7 +25,7 @@
         <td><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>
       </tr>
 <?php
-    while ($articles_expected = tep_db_fetch_array($expected_query)) {
+    foreach ($ResultSet as $articles_expected) {
 ?>
           <tr>
             <td valign="top" class="main" width="75%">

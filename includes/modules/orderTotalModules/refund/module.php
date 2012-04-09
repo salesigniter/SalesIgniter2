@@ -12,14 +12,12 @@ class OrderTotalRefund extends OrderTotalModuleBase
 		$this->init('refund');
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order;
 
-		$this->addOutput(array(
-				'title' => $this->getTitle() . ':',
-				'text' => $this->formatAmount($order->info['refund']),
-				'value' => $order->info['refund']
-			));
+		$outputData['title'] = $this->getTitle() . ':';
+		$outputData['text'] = $this->formatAmount($order->info['refund']);
+		$outputData['value'] = $order->info['refund'];
 	}
 }
 

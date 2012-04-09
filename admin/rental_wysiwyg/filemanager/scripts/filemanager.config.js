@@ -1,6 +1,6 @@
 /*---------------------------------------------------------
-  Configuration
----------------------------------------------------------*/
+ Configuration
+ ---------------------------------------------------------*/
 
 // Set culture to display localized messages
 var culture = 'en';
@@ -23,9 +23,10 @@ var am = document.location.pathname.substring(1, document.location.pathname.last
 // Set this to the directory you wish to manage.
 if (typeof window.opener.templateSwitcher != 'undefined'){
 	var fileRoot = DIR_WS_CATALOG + 'templates/' + $(window.opener.templateSwitcher).val() + '/images/';
-}else if (typeof window.opener.currentFolder == 'undefined'){
+} else if (typeof window.opener.currentFolder == 'undefined'){
 	var fileRoot = DIR_WS_CATALOG + 'images/';
-}else{
+}
+else {
 	var fileRoot = DIR_WS_CATALOG + window.opener.currentFolder + '/';
 }
 

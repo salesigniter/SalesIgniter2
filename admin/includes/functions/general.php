@@ -1,14 +1,15 @@
 <?php
 /*
-$Id: general.php,v 1.160 2003/07/12 08:32:47 hpdl Exp $
-
-osCommerce, Open Source E-Commerce Solutions
-http://www.oscommerce.com
-
-Copyright (c) 2003 osCommerce
-
-Released under the GNU General Public License
-*/
+ * Sales Igniter E-Commerce System
+ * Version: 2.0
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) 2011 I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written conscent of I.T. Web Experts
+ */
 
 function itwExit(){
 	Session::stop();
@@ -84,34 +85,27 @@ function tep_get_country_list($name, $selected = '', $parameters = '', $only = '
 function tep_get_countriesArray($countries_id = '', $with_iso_codes = false)
 {
 	$countries_array = array();
-	if (tep_not_null($countries_id))
+	if ($countries_id != '')
 	{
 		if ($with_iso_codes == true)
 		{
-			$countries = tep_db_query("select countries_name, countries_iso_code_2, countries_iso_code_3 from " . TABLE_COUNTRIES . " where countries_id = '" . (int)$countries_id . "' order by countries_name");
-			$countries_values = tep_db_fetch_array($countries);
-			$countries_array = array('countries_name' => $countries_values['countries_name'],
-				'countries_iso_code_2' => $countries_values['countries_iso_code_2'],
-				'countries_iso_code_3' => $countries_values['countries_iso_code_3']);
+			$query = "select countries_name, countries_iso_code_2, countries_iso_code_3 from countries where countries_id = '" . (int)$countries_id . "' order by countries_name";
 		}
 		else
 		{
-			$countries = tep_db_query("select countries_name from " . TABLE_COUNTRIES . " where countries_id = '" . (int)$countries_id . "'");
-			$countries_values = tep_db_fetch_array($countries);
-			$countries_array = array('countries_name' => $countries_values['countries_name']);
+			$query = "select countries_name from countries where countries_id = '" . (int)$countries_id . "'";
 		}
 	}
 	else
 	{
-		$countries = tep_db_query("select countries_id, countries_name from " . TABLE_COUNTRIES . " order by countries_name");
-		while ($countries_values = tep_db_fetch_array($countries))
-		{
-			$countries_array[] = array('countries_id' => $countries_values['countries_id'],
-				'countries_name' => $countries_values['countries_name']);
-		}
+		$query = "select countries_id, countries_name from countries order by countries_name";
 	}
+	
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc($query);
 
-	return $countries_array;
+	return $ResultSet;
 }
 
 
@@ -308,8 +302,8 @@ function tep_get_category_tree($parent_id = '0', $spacing = '', $exclude = '', $
 }
 
 function tep_info_image($image, $alt, $width = '', $height = '') {
-	if (tep_not_null($image) && (file_exists(sysConfig::get('DIR_FS_CATALOG_IMAGES') . $image)) ) {
-		$image = tep_image(sysConfig::get('DIR_WS_CATALOG_IMAGES') . $image, $alt, $width, $height);
+	if (tep_not_null($image) && (file_exists(sysConfig::get('DIR_FS_TEMPLATE_IMAGES') . $image)) ) {
+		$image = tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . $image, $alt, $width, $height);
 	} else {
 		$image = sysLanguage::get('TEXT_IMAGE_NONEXISTENT');
 	}
@@ -366,8 +360,10 @@ function tep_not_null($value) {
 
 function tep_tax_classes_pull_down($parameters, $selected = '') {
 	$select_string = '<select ' . $parameters . '>';
-	$classes_query = tep_db_query("select tax_class_id, tax_class_title from " . TABLE_TAX_CLASS . " order by tax_class_title");
-	while ($classes = tep_db_fetch_array($classes_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
+	foreach ($ResultSet as $classes) {
 		$select_string .= '<option value="' . $classes['tax_class_id'] . '"';
 		if ($selected == $classes['tax_class_id']) $select_string .= ' SELECTED';
 		$select_string .= '>' . $classes['tax_class_title'] . '</option>';
@@ -379,8 +375,10 @@ function tep_tax_classes_pull_down($parameters, $selected = '') {
 
 function tep_geo_zones_pull_down($parameters, $selected = '') {
 	$select_string = '<select ' . $parameters . '>';
-	$zones_query = tep_db_query("select geo_zone_id, geo_zone_name from " . TABLE_GEO_ZONES . " order by geo_zone_name");
-	while ($zones = tep_db_fetch_array($zones_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select geo_zone_id, geo_zone_name from geo_zones order by geo_zone_name");
+	foreach ($ResultSet as $zones) {
 		$select_string .= '<option value="' . $zones['geo_zone_id'] . '"';
 		if ($selected == $zones['geo_zone_id']) $select_string .= ' SELECTED';
 		$select_string .= '>' . $zones['geo_zone_name'] . '</option>';
@@ -391,13 +389,14 @@ function tep_geo_zones_pull_down($parameters, $selected = '') {
 }
 
 function tep_get_geo_zone_name($geo_zone_id) {
-	$zones_query = tep_db_query("select geo_zone_name from " . TABLE_GEO_ZONES . " where geo_zone_id = '" . (int)$geo_zone_id . "'");
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select geo_zone_name from geo_zones where geo_zone_id = '" . (int)$geo_zone_id . "'");
 
-	if (!tep_db_num_rows($zones_query)) {
+	if (sizeof($ResultSet) <= 0) {
 		$geo_zone_name = $geo_zone_id;
 	} else {
-		$zones = tep_db_fetch_array($zones_query);
-		$geo_zone_name = $zones['geo_zone_name'];
+		$geo_zone_name = $ResultSet[0]['geo_zone_name'];
 	}
 
 	return $geo_zone_name;
@@ -414,7 +413,9 @@ function tep_address_format($address_format_id, $address, $html, $boln, $eoln, $
 	}else{
 		$fmt = $QAddressAformat[0]['address_summary'];
 	}
-	$fmt = nl2br($fmt);
+	if ($html === true){
+		$fmt = nl2br($fmt);
+	}
 	$company = $address['entry_company'];
 	if (isset($address['entry_firstname']) && tep_not_null($address['entry_firstname'])) {
 		$firstname = $address['entry_firstname'];
@@ -454,10 +455,11 @@ function tep_address_format($address_format_id, $address, $html, $boln, $eoln, $
 // Returns the address_format_id for the given country
 // TABLES: countries;
 function tep_get_address_format_id($country_id) {
-	$address_format_query = tep_db_query("select address_format_id as format_id from " . TABLE_COUNTRIES . " where countries_id = '" . (int)$country_id . "'");
-	if (tep_db_num_rows($address_format_query)) {
-		$address_format = tep_db_fetch_array($address_format_query);
-		return $address_format['format_id'];
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select address_format_id as format_id from countries where countries_id = '" . (int)$country_id . "'");
+	if (sizeof($ResultSet) > 0) {
+		return $ResultSet[0]['format_id'];
 	} else {
 		return '1';
 	}
@@ -466,10 +468,11 @@ function tep_get_address_format_id($country_id) {
 // Return a formatted address
 // TABLES: customers, address_book
 function tep_address_label($customers_id, $address_id = 1, $html = false, $boln = '', $eoln = "\n") {
-	$address_query = tep_db_query("select entry_firstname as firstname, entry_lastname as lastname, entry_company as company, entry_street_address as street_address, entry_suburb as suburb, entry_city as city, entry_postcode as postcode, entry_state as state, entry_zone_id as zone_id, entry_country_id as country_id from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$customers_id . "' and address_book_id = '" . (int)$address_id . "'");
-	$address = tep_db_fetch_array($address_query);
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select entry_firstname as firstname, entry_lastname as lastname, entry_company as company, entry_street_address as street_address, entry_suburb as suburb, entry_city as city, entry_postcode as postcode, entry_state as state, entry_zone_id as zone_id, entry_country_id as country_id from address_book where customers_id = '" . (int)$customers_id . "' and address_book_id = '" . (int)$address_id . "'");
 
-	$format_id = tep_get_address_format_id($address['country_id']);
+	$format_id = tep_get_address_format_id($ResultSet[0]['country_id']);
 
 	return tep_address_format($format_id, $address, $html, $boln, $eoln);
 }
@@ -478,10 +481,12 @@ function tep_address_label($customers_id, $address_id = 1, $html = false, $boln 
 // Return the tax description for a zone / class
 // TABLES: tax_rates;
 function tep_get_tax_description($class_id, $country_id, $zone_id) {
-	$tax_query = tep_db_query("select tax_description from " . TABLE_TAX_RATES . " tr left join " . TABLE_ZONES_TO_GEO_ZONES . " za on (tr.tax_zone_id = za.geo_zone_id) left join " . TABLE_GEO_ZONES . " tz on (tz.geo_zone_id = tr.tax_zone_id) where (za.zone_country_id is null or za.zone_country_id = '0' or za.zone_country_id = '" . (int)$country_id . "') and (za.zone_id is null or za.zone_id = '0' or za.zone_id = '" . (int)$zone_id . "') and tr.tax_class_id = '" . (int)$class_id . "' order by tr.tax_priority");
-	if (tep_db_num_rows($tax_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select tax_description from tax_rates tr left join zones_to_geo_zones za on (tr.tax_zone_id = za.geo_zone_id) left join geo_zones tz on (tz.geo_zone_id = tr.tax_zone_id) where (za.zone_country_id is null or za.zone_country_id = '0' or za.zone_country_id = '" . (int)$country_id . "') and (za.zone_id is null or za.zone_id = '0' or za.zone_id = '" . (int)$zone_id . "') and tr.tax_class_id = '" . (int)$class_id . "' order by tr.tax_priority");
+	if (sizeof($ResultSet) > 0) {
 		$tax_description = '';
-		while ($tax = tep_db_fetch_array($tax_query)) {
+		foreach ($ResultSet as $tax) {
 			$tax_description .= $tax['tax_description'] . ' + ';
 		}
 		$tax_description = substr($tax_description, 0, -3);
@@ -507,14 +512,15 @@ function tep_get_tax_description($class_id, $country_id, $zone_id) {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 function tep_get_zone_code($country, $zone, $def_state) {
 
-	$state_prov_query = tep_db_query("select zone_code from " . TABLE_ZONES . " where zone_country_id = '" . (int)$country . "' and zone_id = '" . (int)$zone . "'");
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select zone_code from zones where zone_country_id = '" . (int)$country . "' and zone_id = '" . (int)$zone . "'");
 
-	if (!tep_db_num_rows($state_prov_query)) {
+	if (sizeof($ResultSet) <= 0) {
 		$state_prov_code = $def_state;
 	}
 	else {
-		$state_prov_values = tep_db_fetch_array($state_prov_query);
-		$state_prov_code = $state_prov_values['zone_code'];
+		$state_prov_code = $ResultSet[0]['zone_code'];
 	}
 
 	return $state_prov_code;
@@ -537,19 +543,6 @@ function tep_get_prid($uprid) {
 	return $pieces[0];
 }
 
-function tep_get_languages() {
-	$languages_query = tep_db_query("select languages_id, name, code, image, directory from " . TABLE_LANGUAGES . " where status = '1' order by sort_order");
-	while ($languages = tep_db_fetch_array($languages_query)) {
-		$languages_array[] = array('id' => $languages['languages_id'],
-		'name' => $languages['name'],
-		'code' => $languages['code'],
-		'image' => $languages['image'],
-		'directory' => $languages['directory']);
-	}
-
-	return $languages_array;
-}
-
 function tep_get_orders_status_name($orders_status_id, $language_id = '') {
 	if (!$language_id) $language_id = Session::get('languages_id');
 
@@ -558,10 +551,11 @@ function tep_get_orders_status_name($orders_status_id, $language_id = '') {
 
 function tep_get_products_name($product_id, $language_id = 0) {
 	if ($language_id == 0) $language_id = Session::get('languages_id');
-	$product_query = tep_db_query("select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language_id . "'");
-	$product = tep_db_fetch_array($product_query);
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select products_name from products_description where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language_id . "'");
 
-	return $product['products_name'];
+	return $ResultSet[0]['products_name'];
 }
 
 ////
@@ -578,18 +572,22 @@ function tep_products_in_category_count($categories_id, $include_deactivated = f
 	$products_count = 0;
 
 	if ($include_deactivated) {
-		$products_query = tep_db_query("select count(*) as total from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_TO_CATEGORIES . " p2c where p.products_id = p2c.products_id and p2c.categories_id = '" . (int)$categories_id . "'");
+		$query = "select count(*) as total from products p, products_to_categories p2c where p.products_id = p2c.products_id and p2c.categories_id = '" . (int)$categories_id . "'";
 	} else {
-		$products_query = tep_db_query("select count(*) as total from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_TO_CATEGORIES . " p2c where p.products_id = p2c.products_id and p.products_status = '1' and p2c.categories_id = '" . (int)$categories_id . "'");
+		$query = "select count(*) as total from products p, products_to_categories p2c where p.products_id = p2c.products_id and p.products_status = '1' and p2c.categories_id = '" . (int)$categories_id . "'";
 	}
 
-	$products = tep_db_fetch_array($products_query);
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray($query);
 
-	$products_count += $products['total'];
+	$products_count += $ResultSet[0]['total'];
 
-	$childs_query = tep_db_query("select categories_id from " . TABLE_CATEGORIES . " where parent_id = '" . (int)$categories_id . "'");
-	if (tep_db_num_rows($childs_query)) {
-		while ($childs = tep_db_fetch_array($childs_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select categories_id from categories where parent_id = '" . (int)$categories_id . "'");
+	if (sizeof($ResultSet) > 0) {
+		foreach ($ResultSet as $childs) {
 			$products_count += tep_products_in_category_count($childs['categories_id'], $include_deactivated);
 		}
 	}
@@ -603,8 +601,10 @@ function tep_products_in_category_count($categories_id, $include_deactivated = f
 function tep_childs_in_category_count($categories_id) {
 	$categories_count = 0;
 
-	$categories_query = tep_db_query("select categories_id from " . TABLE_CATEGORIES . " where parent_id = '" . (int)$categories_id . "'");
-	while ($categories = tep_db_fetch_array($categories_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select categories_id from categories where parent_id = '" . (int)$categories_id . "'");
+	foreach ($ResultSet as $categories) {
 		$categories_count++;
 		$categories_count += tep_childs_in_category_count($categories['categories_id']);
 	}
@@ -612,58 +612,28 @@ function tep_childs_in_category_count($categories_id) {
 	return $categories_count;
 }
 
-/*
-* @todo: Make this work better
-*/
-if (basename($_SERVER['PHP_SELF']) == 'point_of_sale.php'){
-	function tep_get_countries($countries_id = '', $with_iso_codes = false){
-		$countries_array = array();
-		if (tep_not_null($countries_id)){
-			if ($with_iso_codes == true){
-				$countries = tep_db_query("select countries_name, countries_iso_code_2, countries_iso_code_3 from " . TABLE_COUNTRIES . " where countries_id = '" . (int)$countries_id . "' order by countries_name");
-				$countries_values = tep_db_fetch_array($countries);
-				$countries_array = array(
-				'countries_name'       => $countries_values['countries_name'],
-				'countries_iso_code_2' => $countries_values['countries_iso_code_2'],
-				'countries_iso_code_3' => $countries_values['countries_iso_code_3']
-				);
-			}else{
-				$countries = tep_db_query("select countries_name from " . TABLE_COUNTRIES . " where countries_id = '" . (int)$countries_id . "'");
-				$countries_values = tep_db_fetch_array($countries);
-				$countries_array = array('countries_name' => $countries_values['countries_name']);
-			}
-		}else{
-			$countries = tep_db_query("select countries_id, countries_name from " . TABLE_COUNTRIES . " order by countries_name");
-			while ($countries_values = tep_db_fetch_array($countries)){
-				$countries_array[] = array(
-				'countries_id' => $countries_values['countries_id'],
-				'countries_name' => $countries_values['countries_name']
-				);
-			}
-		}
-		return $countries_array;
-	}
-}else{
 	////
 	// Returns an array with countries
 	// TABLES: countries
-	function tep_get_countries($default = '') {
-		$countries_array = array();
-		if ($default) {
-			$countries_array[] = array('id' => '',
-			'text' => $default);
-		}
-		$countries_query = tep_db_query("select countries_id, countries_name, countries_iso_code_2, countries_iso_code_3 from " . TABLE_COUNTRIES . " order by countries_name");
-		while ($countries = tep_db_fetch_array($countries_query)) {
-			$countries_array[] = array('id' => $countries['countries_id'],
-			'text' => $countries['countries_name'],
-			'countries_iso_code_2' => $countries['countries_iso_code_2'],
-			'countries_iso_code_3' => $countries['countries_iso_code_3']);
-		}
-
-		return $countries_array;
+function tep_get_countries($default = '') {
+	$countries_array = array();
+	if ($default) {
+		$countries_array[] = array('id' => '',
+		'text' => $default);
 	}
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select countries_id, countries_name, countries_iso_code_2, countries_iso_code_3 from countries order by countries_name");
+	foreach ($ResultSet as $countries) {
+		$countries_array[] = array('id' => $countries['countries_id'],
+		'text' => $countries['countries_name'],
+		'countries_iso_code_2' => $countries['countries_iso_code_2'],
+		'countries_iso_code_3' => $countries['countries_iso_code_3']);
+	}
+
+	return $countries_array;
 }
+
 function hex2bin($h){
 	if (!is_string($h)) return null;
 	$r='';
@@ -675,8 +645,10 @@ function hex2bin($h){
 // return an array with country zones
 function tep_get_country_zones($country_id) {
 	$zones_array = array();
-	$zones_query = tep_db_query("select zone_id, zone_name from " . TABLE_ZONES . " where zone_country_id = '" . (int)$country_id . "' order by zone_name");
-	while ($zones = tep_db_fetch_array($zones_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select zone_id, zone_name from zones where zone_country_id = '" . (int)$country_id . "' order by zone_name");
+	foreach ($ResultSet as $zones) {
 		$zones_array[] = array('id' => $zones['zone_id'],
 		'text' => $zones['zone_name']);
 	}
@@ -717,9 +689,13 @@ function tep_prepare_country_zones_pull_down($country_id = '') {
 // Sets the status of a product
 function tep_set_product_status($products_id, $status) {
 	if ($status == '1') {
-		return tep_db_query("update " . TABLE_PRODUCTS . " set products_status = '1', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
+		return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update products set products_status = '1', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
 	} elseif ($status == '0') {
-		return tep_db_query("update " . TABLE_PRODUCTS . " set products_status = '0', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
+		return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update products set products_status = '0', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
 	} else {
 		return -1;
 	}
@@ -729,9 +705,13 @@ function tep_set_product_status($products_id, $status) {
 // Sets a product as featured
 function tep_set_product_featured($products_id, $status) {
 	if ($status == '1') {
-		return tep_db_query("update " . TABLE_PRODUCTS . " set products_featured = '1', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
+		return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update products set products_featured = '1', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
 	} elseif ($status == '0') {
-		return tep_db_query("update " . TABLE_PRODUCTS . " set products_featured = '0', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
+		return Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update products set products_featured = '0', products_last_modified = now() where products_id = '" . (int)$products_id . "'");
 	} else {
 		return -1;
 	}
@@ -741,10 +721,11 @@ function tep_set_product_featured($products_id, $status) {
 // Return a product's special price (returns nothing if there is no offer)
 // TABLES: products
 function tep_get_products_special_price($product_id) {
-	$product_query = tep_db_query("select specials_new_products_price from " . TABLE_SPECIALS . "  where products_id = '" . $product_id . "'");
-	$product = tep_db_fetch_array($product_query);
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select specials_new_products_price from specials  where products_id = '" . $product_id . "'");
 
-	return $product['specials_new_products_price'];
+	return $ResultSet[0]['specials_new_products_price'];
 }
 
 ////
@@ -759,8 +740,9 @@ function tep_set_time_limit($limit) {
 ////
 // Retreive server information
 function tep_get_system_information() {
-	$db_query = tep_db_query("select now() as datetime");
-	$db = tep_db_fetch_array($db_query);
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchArray("select now() as datetime");
 
 	list($system, $host, $kernel) = preg_split('/[\s,]+/', @exec('uname -a'), 5);
 
@@ -776,31 +758,35 @@ function tep_get_system_information() {
 	'db_server' => DB_SERVER,
 	'db_ip' => gethostbyname(DB_SERVER),
 	'db_version' => 'MySQL ' . (function_exists('mysql_get_server_info') ? mysql_get_server_info() : ''),
-	'db_date' => tep_datetime_short($db['datetime']));
+	'db_date' => tep_datetime_short($ResultSet[0]['datetime']));
 }
 
 function tep_generate_category_path($id, $from = 'category', $categories_array = '', $index = 0) {
 	if (!is_array($categories_array)) $categories_array = array();
 
 	if ($from == 'product') {
-		$categories_query = tep_db_query("select categories_id from " . TABLE_PRODUCTS_TO_CATEGORIES . " where products_id = '" . (int)$id . "'");
-		while ($categories = tep_db_fetch_array($categories_query)) {
+		$QCategories = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select categories_id from products_to_categories where products_id = '" . (int)$id . "'");
+		foreach ($QCategories as $categories) {
 			if ($categories['categories_id'] == '0') {
 				$categories_array[$index][] = array('id' => '0', 'text' => sysLanguage::get('TEXT_TOP'));
 			} else {
-				$category_query = tep_db_query("select cd.categories_name, c.parent_id from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = '" . (int)$categories['categories_id'] . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "'");
-				$category = tep_db_fetch_array($category_query);
-				$categories_array[$index][] = array('id' => $categories['categories_id'], 'text' => $category['categories_name']);
-				if ( (tep_not_null($category['parent_id'])) && ($category['parent_id'] != '0') ) $categories_array = tep_generate_category_path($category['parent_id'], 'category', $categories_array, $index);
+				$Category = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchArray("select cd.categories_name, c.parent_id from categories c, categories_description cd where c.categories_id = '" . (int)$categories['categories_id'] . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "'");
+				$categories_array[$index][] = array('id' => $categories['categories_id'], 'text' => $Category[0]['categories_name']);
+				if ( (tep_not_null($Category[0]['parent_id'])) && ($Category[0]['parent_id'] != '0') ) $categories_array = tep_generate_category_path($Category[0]['parent_id'], 'category', $categories_array, $index);
 				$categories_array[$index] = array_reverse($categories_array[$index]);
 			}
 			$index++;
 		}
 	} elseif ($from == 'category') {
-		$category_query = tep_db_query("select cd.categories_name, c.parent_id from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = '" . (int)$id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "'");
-		$category = tep_db_fetch_array($category_query);
-		$categories_array[$index][] = array('id' => $id, 'text' => $category['categories_name']);
-		if ( (tep_not_null($category['parent_id'])) && ($category['parent_id'] != '0') ) $categories_array = tep_generate_category_path($category['parent_id'], 'category', $categories_array, $index);
+		$Category = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchArray("select cd.categories_name, c.parent_id from categories c, categories_description cd where c.categories_id = '" . (int)$id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)Session::get('languages_id') . "'");
+		$categories_array[$index][] = array('id' => $id, 'text' => $Category[0]['categories_name']);
+		if ( (tep_not_null($Category[0]['parent_id'])) && ($Category[0]['parent_id'] != '0') ) $categories_array = tep_generate_category_path($Category[0]['parent_id'], 'category', $categories_array, $index);
 	}
 
 	return $categories_array;
@@ -836,38 +822,6 @@ function tep_get_generated_category_path_ids($id, $from = 'category') {
 	if (strlen($calculated_category_path_string) < 1) $calculated_category_path_string = sysLanguage::get('TEXT_TOP');
 
 	return $calculated_category_path_string;
-}
-
-function tep_reset_cache_block($cache_block) {
-	global $cache_blocks;
-
-	for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
-		if ($cache_blocks[$i]['code'] == $cache_block) {
-			if ($cache_blocks[$i]['multiple']) {
-				if ($dir = @opendir(DIR_FS_CACHE)) {
-					while ($cache_file = readdir($dir)) {
-						$cached_file = $cache_blocks[$i]['file'];
-						$languages = tep_get_languages();
-						for ($j=0, $k=sizeof($languages); $j<$k; $j++) {
-							$cached_file_unlink = preg_replace('/-language/', '-' . $languages[$j]['directory'], $cached_file);
-							if (ereg('^' . $cached_file_unlink, $cache_file)) {
-								@unlink(DIR_FS_CACHE . $cache_file);
-							}
-						}
-					}
-					closedir($dir);
-				}
-			} else {
-				$cached_file = $cache_blocks[$i]['file'];
-				$languages = tep_get_languages();
-				for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-					$cached_file = preg_replace('/-language/', '-' . $languages[$i]['directory'], $cached_file);
-					@unlink(DIR_FS_CACHE . $cached_file);
-				}
-			}
-			break;
-		}
-	}
 }
 
 function tep_remove($source) {
@@ -973,10 +927,11 @@ function tep_get_tax_class_title($tax_class_id) {
 	if ($tax_class_id == '0') {
 		return sysLanguage::get('TEXT_NONE');
 	} else {
-		$classes_query = tep_db_query("select tax_class_title from " . TABLE_TAX_CLASS . " where tax_class_id = '" . (int)$tax_class_id . "'");
-		$classes = tep_db_fetch_array($classes_query);
+		$ResultSet = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchArray("select tax_class_title from tax_class where tax_class_id = '" . (int)$tax_class_id . "'");
 
-		return $classes['tax_class_title'];
+		return $ResultSet[0]['tax_class_title'];
 	}
 }
 
@@ -1066,10 +1021,12 @@ function tep_get_tax_rate($class_id, $country_id = -1, $zone_id = -1) {
 // Returns the tax rate for a tax class
 // TABLES: tax_rates
 function tep_get_tax_rate_value($class_id) {
-	$tax_query = tep_db_query("select SUM(tax_rate) as tax_rate from " . TABLE_TAX_RATES . " where tax_class_id = '" . (int)$class_id . "' group by tax_priority");
-	if (tep_db_num_rows($tax_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select SUM(tax_rate) as tax_rate from tax_rates where tax_class_id = '" . (int)$class_id . "' group by tax_priority");
+	if (sizeof($ResultSet) > 0) {
 		$tax_multiplier = 0;
-		while ($tax = tep_db_fetch_array($tax_query)) {
+		foreach ($ResultSet as $tax) {
 			$tax_multiplier += $tax['tax_rate'];
 		}
 		return $tax_multiplier;
@@ -1160,122 +1117,6 @@ function tep_get_ip_address() {
 	return $ip;
 }
 
-/// ----------------------- FUNWAYS ------------------------ ///
-
-function tep_get_funways_category_tree($parent_id = '0', $spacing = '', $exclude = '', $category_tree_array = '', $include_itself = false) {
-	if (!is_array($category_tree_array)) $category_tree_array = array();
-	if ( (sizeof($category_tree_array) < 1) && ($exclude != '0') ) $category_tree_array[] = array('id' => '0', 'text' => sysLanguage::get('TEXT_TOP'));
-
-	if ($include_itself) {
-		$category_query = tep_db_query("select c.categories_name from " . TABLE_FUNWAYS_CATEGORIES . " c where c.categories_id = '" . (int)$parent_id . "'");
-		$category = tep_db_fetch_array($category_query);
-		$category_tree_array[] = array('id' => $parent_id, 'text' => $category['categories_name']);
-	}
-
-	$categories_query = tep_db_query("select c.categories_id, c.categories_name, c.parent_id from " . TABLE_FUNWAYS_CATEGORIES . " c where c.parent_id = '" . (int)$parent_id . "' order by c.sort_order, c.categories_name");
-	while ($categories = tep_db_fetch_array($categories_query)) {
-		if ($exclude != $categories['categories_id']) $category_tree_array[] = array('id' => $categories['categories_id'], 'text' => $spacing . $categories['categories_name']);
-		$category_tree_array = tep_get_funways_category_tree($categories['categories_id'], $spacing . '&nbsp;&nbsp;&nbsp;', $exclude, $category_tree_array);
-	}
-
-	return $category_tree_array;
-}
-
-function tep_generate_funways_category_path($id, $from = 'category', $categories_array = '', $index = 0) {
-	if (!is_array($categories_array)) $categories_array = array();
-
-	if ($from == 'product') {
-		$categories_query = tep_db_query("select categories_id from " . TABLE_FUNWAYS_PTC . " where products_id = '" . (int)$id . "'");
-		while ($categories = tep_db_fetch_array($categories_query)) {
-			if ($categories['categories_id'] == '0') {
-				$categories_array[$index][] = array('id' => '0', 'text' => sysLanguage::get('TEXT_TOP'));
-			} else {
-				$category_query = tep_db_query("select c.categories_name, c.parent_id from " . TABLE_FUNWAYS_CATEGORIES . " c where c.categories_id = '" . (int)$categories['categories_id'] . "'");
-				$category = tep_db_fetch_array($category_query);
-				$categories_array[$index][] = array('id' => $categories['categories_id'], 'text' => $category['categories_name']);
-				if ( (tep_not_null($category['parent_id'])) && ($category['parent_id'] != '0') ) $categories_array = tep_generate_funways_category_path($category['parent_id'], 'category', $categories_array, $index);
-				$categories_array[$index] = array_reverse($categories_array[$index]);
-			}
-			$index++;
-		}
-	} elseif ($from == 'category') {
-		$category_query = tep_db_query("select c.categories_name, c.parent_id from " . TABLE_FUNWAYS_CATEGORIES . " c where c.categories_id = '" . (int)$id . "'");
-		$category = tep_db_fetch_array($category_query);
-		$categories_array[$index][] = array('id' => $id, 'text' => $category['categories_name']);
-		if ( (tep_not_null($category['parent_id'])) && ($category['parent_id'] != '0') ) $categories_array = tep_generate_funways_category_path($category['parent_id'], 'category', $categories_array, $index);
-	}
-
-	return $categories_array;
-}
-
-function tep_remove_funways_category($category_id) {
-	$category_image_query = tep_db_query("select categories_image from " . TABLE_FUNWAYS_CATEGORIES . " where categories_id = '" . (int)$category_id . "'");
-	$category_image = tep_db_fetch_array($category_image_query);
-
-	$duplicate_image_query = tep_db_query("select count(*) as total from " . TABLE_FUNWAYS_CATEGORIES . " where categories_image = '" . tep_db_input($category_image['categories_image']) . "'");
-	$duplicate_image = tep_db_fetch_array($duplicate_image_query);
-
-	if ($duplicate_image['total'] < 2) {
-		if (file_exists(DIR_FS_CATALOG_IMAGES . $category_image['categories_image'])) {
-			@unlink(DIR_FS_CATALOG_IMAGES . $category_image['categories_image']);
-		}
-	}
-
-	tep_db_query("delete from " . TABLE_FUNWAYS_CATEGORIES . " where categories_id = '" . (int)$category_id . "'");
-	tep_db_query("delete from " . TABLE_FUNWAYS_PTC . " where categories_id = '" . (int)$category_id . "'");
-}
-
-function tep_remove_funways_product($product_id) {
-	$product_image_query = tep_db_query("select products_image from " . TABLE_FUNWAYS_PRODUCTS . " where products_id = '" . (int)$product_id . "'");
-	$product_image = tep_db_fetch_array($product_image_query);
-
-	$duplicate_image_query = tep_db_query("select count(*) as total from " . TABLE_FUNWAYS_PRODUCTS . " where products_image = '" . tep_db_input($product_image['products_image']) . "'");
-	$duplicate_image = tep_db_fetch_array($duplicate_image_query);
-
-	if ($duplicate_image['total'] < 2) {
-		if (file_exists(DIR_FS_CATALOG_IMAGES . $product_image['products_image'])) {
-			@unlink(DIR_FS_CATALOG_IMAGES . $product_image['products_image']);
-		}
-	}
-
-	tep_db_query("delete from " . TABLE_FUNWAYS_PRODUCTS . " where products_id = '" . (int)$product_id . "'");
-	tep_db_query("delete from " . TABLE_FUNWAYS_PTC . " where products_id = '" . (int)$product_id . "'");
-}
-
-////
-// Return the number of products in a category
-// TABLES: products, products_to_categories, categories
-function tep_count_funways_products_in_category($category_id, $include_inactive = false) {
-	$products_count = 0;
-	$products_query = tep_db_query("select count(*) as total from " . TABLE_FUNWAYS_PRODUCTS . " p, " . TABLE_FUNWAYS_PTC . " p2c where p.products_id = p2c.products_id and p2c.categories_id = '" . (int)$category_id . "'");
-	$products = tep_db_fetch_array($products_query);
-	$products_count += $products['total'];
-
-	$child_categories_query = tep_db_query("select categories_id from " . TABLE_FUNWAYS_CATEGORIES . " where parent_id = '" . (int)$category_id . "'");
-	if (tep_db_num_rows($child_categories_query)) {
-		while ($child_categories = tep_db_fetch_array($child_categories_query)) {
-			$products_count += tep_count_funways_products_in_category($child_categories['categories_id'], $include_inactive);
-		}
-	}
-
-	return $products_count;
-}
-
-////
-// Count how many subcategories exist in a category
-// TABLES: categories
-function tep_funways_childs_in_category_count($categories_id) {
-	$categories_count = 0;
-
-	$categories_query = tep_db_query("select categories_id from " . TABLE_FUNWAYS_CATEGORIES . " where parent_id = '" . (int)$categories_id . "'");
-	while ($categories = tep_db_fetch_array($categories_query)) {
-		$categories_count++;
-		$categories_count += tep_funways_childs_in_category_count($categories['categories_id']);
-	}
-
-	return $categories_count;
-}
-
 function tep_draw_products_down($name, $parameters = '', $exclude = '', $selected = 0) {
 	global $currencies;
 
@@ -1291,8 +1132,10 @@ function tep_draw_products_down($name, $parameters = '', $exclude = '', $selecte
 
 	$select_string .= '>';
 
-	$products_query = tep_db_query("select p.products_id, pd.products_name from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by products_name");
-	while ($products = tep_db_fetch_array($products_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select p.products_id, pd.products_name from products p, products_description pd where p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by products_name");
+	foreach ($ResultSet as $products) {
 		if (!in_array($products['products_id'], $exclude)) {
 			if ($selected == $products['products_id']) $sel = 'selected'; else $sel='';
 			$select_string .= '<option value="' . $products['products_id'] . '" '.$sel.'>' . $products['products_name'] . '</option>';
@@ -1322,7 +1165,7 @@ function print_DYMO_labels($orders_query, &$pdf)
 	if ($orders)
 	{
 		$stpos = $pos;
-		$product_info_query = tep_db_query("select pd.products_name, pd.products_description, p.products_time from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_status = '1' and p.products_id = '" . (int)$orders['products_id'] . "' and pd.products_id = p.products_id and pd.language_id = 1");
+		$product_info_query = tep_db_query("select pd.products_name, pd.products_description, p.products_time from products p, products_description pd where p.products_status = '1' and p.products_id = '" . (int)$orders['products_id'] . "' and pd.products_id = p.products_id and pd.language_id = 1");
 		$product_info = tep_db_fetch_array($product_info_query);
 
 		$file_name_src = 'images/barcode/'.$orders['products_barcode'].'.png';
@@ -1539,6 +1382,23 @@ function tep_cfg_pull_down_order_status_list($status_id, $key = '') {
 	return '<br>' . $htmlSelect->draw();
 }
 
+function itw_get_templates_array(){
+	$templates = new fileSystemBrowser(sysConfig::getDirFsCatalog()  . 'templates/');
+	$directories = $templates->getDirectories(array('email', 'help', 'help-text'));
+	$templatesArray = array();
+	foreach($directories as $dirInfo){
+		$templatesArray[] = array(
+			'id' => $dirInfo['basename'],
+			'text' => ucfirst($dirInfo['basename'])
+		);
+	}
+
+	usort($templatesArray, function ($a, $b){
+		return ($a['id']{0} > $b['id']{0} ? 1 : -1);
+	});
+
+	return $templatesArray;
+}
 
 function tep_cfg_pull_down_template_list($templateName){
 	$templates = new fileSystemBrowser(sysConfig::getDirFsCatalog()  . 'templates/');
@@ -1555,7 +1415,9 @@ function tep_cfg_pull_down_template_list($templateName){
 	->selectOptionByValue($templateName);
 	foreach($templatesArray as $dir){
 		$lowered = strtolower($dir);
-		$switcher->addOption($lowered, $dir);
+		if (file_exists(sysConfig::getDirFsCatalog().'templates/'.$lowered.'/templateData.tms')){
+			$switcher->addOption($lowered, $dir);
+		}
 	}
 	return $switcher->draw();
 }
@@ -1568,8 +1430,10 @@ function tep_cfg_pull_down_tax_classes($tax_class_id, $key = '') {
 	$name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
 
 	$tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
-	$tax_class_query = tep_db_query("select tax_class_id, tax_class_title from " . TABLE_TAX_CLASS . " order by tax_class_title");
-	while ($tax_class = tep_db_fetch_array($tax_class_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
+	foreach ($ResultSet as $tax_class) {
 		$tax_class_array[] = array('id' => $tax_class['tax_class_id'],
 		'text' => $tax_class['tax_class_title']);
 	}
@@ -1759,8 +1623,10 @@ function tep_cfg_pull_down_zone_classes($zone_class_id, $key = '') {
 	$name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
 
 	$zone_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
-	$zone_class_query = tep_db_query("select geo_zone_id, geo_zone_name from " . TABLE_GEO_ZONES . " order by geo_zone_name");
-	while ($zone_class = tep_db_fetch_array($zone_class_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select geo_zone_id, geo_zone_name from geo_zones order by geo_zone_name");
+	foreach ($ResultSet as $zone_class) {
 		$zone_class_array[] = array('id' => $zone_class['geo_zone_id'],
 		'text' => $zone_class['geo_zone_name']);
 	}
@@ -1773,8 +1639,10 @@ function tep_cfg_pull_down_zone_classes_element($zone_class_id, $key = '') {
 	->setName((($key) ? 'configuration[' . $key . ']' : 'configuration_value'));
 
 	$selectBox->addOption('0', sysLanguage::get('TEXT_NONE'));
-	$zone_class_query = tep_db_query("select geo_zone_id, geo_zone_name from " . TABLE_GEO_ZONES . " order by geo_zone_name");
-	while ($zone_class = tep_db_fetch_array($zone_class_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select geo_zone_id, geo_zone_name from geo_zones order by geo_zone_name");
+	foreach ($ResultSet as $zone_class) {
 		$selectBox->addOption($zone_class['geo_zone_id'], $zone_class['geo_zone_name']);
 	}
 	$selectBox->selectOptionByValue($zone_class_id);
@@ -1835,90 +1703,6 @@ function tep_cfg_pull_down_order_statuses_element($order_status_id, $key = '') {
 
 //////create a pull down for all payment installed payment methods for Order Editor configuration
 
-// Get list of all payment modules available
-function tep_cfg_pull_down_payment_methods() {
-	$enabled_payment = array();
-	$module_directory = DIR_FS_CATALOG_MODULES . 'payment/';
-	$file_extension = '.php';
-
-	if ($dir = @dir($module_directory)) {
-		while ($file = $dir->read()) {
-			if (!is_dir( $module_directory . $file)) {
-				if (substr($file, strrpos($file, '.')) == $file_extension) {
-					$directory_array[] = $file;
-				}
-			}
-		}
-		sort($directory_array);
-		$dir->close();
-	}
-
-	// For each available payment module, check if enabled
-	for ($i=0, $n=sizeof($directory_array); $i<$n; $i++) {
-		$file = $directory_array[$i];
-
-		include(DIR_FS_CATALOG_LANGUAGES . Session::get('language') . '/modules/payment/' . $file);
-		include($module_directory . $file);
-
-		$class = substr($file, 0, strrpos($file, '.'));
-		if (tep_class_exists($class)) {
-			$module = new $class;
-			if ($module->check() > 0) {
-				// If module enabled create array of titles
-				$enabled_payment[] = array('id' => $module->title, 'text' => $module->title);
-
-			}
-		}
-	}
-
-	$enabled_payment[] = array('id' => 'Other', 'text' => 'Other');
-
-	//draw the dropdown menu for payment methods and default to the order value
-	return tep_draw_pull_down_menu('configuration_value', $enabled_payment, '', '');
-}
-function tep_cfg_pull_down_res_shipping($method, $key = '') {
-	$name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
-
-	$array = array(
-	array(
-	'id'   => 'method1',
-	'text' => MODULE_SHIPPING_RESERVATION_TEXT1
-	),
-	array(
-	'id'   => 'method2',
-	'text' => MODULE_SHIPPING_RESERVATION_TEXT2
-	),
-	array(
-	'id'   => 'method3',
-	'text' => MODULE_SHIPPING_RESERVATION_TEXT3
-	),
-	array(
-	'id'   => 'method4',
-	'text' => MODULE_SHIPPING_RESERVATION_TEXT4
-	),
-	array(
-	'id'   => 'method5',
-	'text' => MODULE_SHIPPING_RESERVATION_TEXT5
-	)
-	);
-
-	return tep_draw_pull_down_menu($name, $array, $method);
-}
-
-function tep_cfg_pull_down_custom_shipping($method, $key = '') {
-	$name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
-
-	$array = array();
-	for($i=1; $i<=MODULE_SHIPPING_CUSTOM_NUM_METHODS; $i++){
-		$array[] = array(
-			'id' => 'method' . $i,
-			'text' => constant('MODULE_SHIPPING_CUSTOM_METHOD_TEXT' . $i)
-		);
-	}
-
-	return tep_draw_pull_down_menu($name, $array, $method);
-}
-
 function tep_cfg_pull_down_inventorycenter_shipping($method, $key = '') {
 	$name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
 
@@ -1972,10 +1756,11 @@ function tep_get_zone_class_title($zone_class_id) {
 	if ($zone_class_id == '0') {
 		return sysLanguage::get('TEXT_NONE');
 	} else {
-		$classes_query = tep_db_query("select geo_zone_name from " . TABLE_GEO_ZONES . " where geo_zone_id = '" . (int)$zone_class_id . "'");
-		$classes = tep_db_fetch_array($classes_query);
+		$ResultSet = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchArray("select geo_zone_name from geo_zones where geo_zone_id = '" . (int)$zone_class_id . "'");
 
-		return $classes['geo_zone_name'];
+		return $ResultSet[0]['geo_zone_name'];
 	}
 }
 
@@ -2028,8 +1813,10 @@ function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
 
 	$select_string .= '>';
 
-	$products_query = tep_db_query("select p.products_id, pd.products_name, p.products_price from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by products_name");
-	while ($products = tep_db_fetch_array($products_query)) {
+	$ResultSet = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc("select p.products_id, pd.products_name, p.products_price from products p, products_description pd where p.products_id = pd.products_id and pd.language_id = '" . (int)Session::get('languages_id') . "' order by products_name");
+	foreach ($ResultSet as $products) {
 		if (!in_array($products['products_id'], $exclude)) {
 			$select_string .= '<option value="' . $products['products_id'] . '">' . $products['products_name'] . ' (' . $currencies->format($products['products_price']) . ')</option>';
 		}
@@ -2041,7 +1828,7 @@ function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
 }
 
 	function getJsDateFormat(){
-		echo 'mm/dd/yy';
+		echo 'mm/dd/yyyy';
 	}
 
 	function isMasterPassword($password){
@@ -2051,7 +1838,7 @@ function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
 				'clientPassword' => $password,
 				'username' => sysConfig::get('SYSTEM_UPGRADE_USERNAME'),
 				'password' => sysConfig::get('SYSTEM_UPGRADE_PASSWORD'),
-				'domain' => sysConfig::get('HTTP_HOST')
+				'domain' => $_SERVER['HTTP_HOST']
 			));
 
 		$ResponseObj = $RequestObj->execute();

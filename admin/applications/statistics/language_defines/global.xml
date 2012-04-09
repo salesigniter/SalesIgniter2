@@ -53,20 +53,6 @@
 	<define key="TABLE_HEADING_REFERRED"><![CDATA[Referred]]></define>
 	<define key="TEXT_OTHER"><![CDATA[Other]]></define>
 	
-	<define key="HEADING_TITLE_RECOVERED_CARTS"><![CDATA[Statistics: Recover Cart Sales]]></define>
-	<define key="TEXT_DAYS_FILTER_PREFIX"><![CDATA[Show for last ]]></define>
-	<define key="TEXT_DAYS_FILTER_POSTFIX"><![CDATA[ days ]]></define>
-	<define key="TABLE_HEADING_SCART_ID"><![CDATA[SCart ID]]></define>
-	<define key="TABLE_HEADING_SCART_DATE"><![CDATA[Date Added]]></define>
-	<define key="TABLE_HEADING_CUSTOMER"><![CDATA[Customer Name]]></define>
-	<define key="TABLE_HEADING_ORDER_DATE"><![CDATA[Order Date]]></define>
-	<define key="TABLE_HEADING_ORDER_STATUS"><![CDATA[Status]]></define>
-	<define key="TABLE_HEADING_ORDER_AMOUNT"><![CDATA[Amount]]></define>
-	<define key="TOTAL_RECORDS"><![CDATA[Examined Records:]]></define>
-	<define key="TOTAL_SALES"><![CDATA[Recovered Sales:]]></define>
-	<define key="TOTAL_SALES_EXPLANATION"><![CDATA[ (Possible sales from customers who abanoned carts & were notified via RCS)]]></define>
-	<define key="TOTAL_RECOVERED"><![CDATA[Total Recovered:]]></define>
-
 	<define key="HEADING_TITLE_SALES_REPORT"><![CDATA[Statistics: Sales Report]]></define>
 	<define key="TABLE_HEADING_DATE"><![CDATA[Date]]></define>
 	<define key="TABLE_HEADING_SALES"><![CDATA[Total Rentals]]></define>

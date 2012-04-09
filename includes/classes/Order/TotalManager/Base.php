@@ -4,14 +4,18 @@
  *
  * @package Order
  * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2010, I.T. Web Experts
+ * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
 require(dirname(__FILE__) . '/Total.php');
 
-class OrderTotalManager extends SplObjectStorage {
+class OrderTotalManager extends SplObjectStorage
+{
 
-	public function __construct($orderTotals = null){
+	/**
+	 * @param array|null $orderTotals
+	 */
+	public function __construct(array $orderTotals = null) {
 		if (is_null($orderTotals) === false){
 			foreach($orderTotals as $i => $tInfo){
 				$orderTotal = new OrderTotal($tInfo);
@@ -20,23 +24,37 @@ class OrderTotalManager extends SplObjectStorage {
 		}
 	}
 
-	public function setOrderId($val){
-		$this->orderId = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setOrderId($val) {
+		$this->orderId = (int) $val;
 	}
 
-	public function add($orderTotal){
+	/**
+	 * @param OrderTotal $orderTotal
+	 */
+	public function add(OrderTotal $orderTotal) {
 		$this->attach($orderTotal);
 	}
 
-	public function getTotalValue($type){
+	/**
+	 * @param string $type
+	 * @return float|null
+	 */
+	public function getTotalValue($type) {
 		$OrderTotal = $this->get($type);
 		if (is_null($OrderTotal) === false){
-			return $OrderTotal->getValue();
+			return (float) $OrderTotal->getValue();
 		}
 		return null;
 	}
 
-	public function get($moduleType){
+	/**
+	 * @param string $moduleType
+	 * @return null|OrderTotal
+	 */
+	public function get($moduleType) {
 		$orderTotal = null;
 		$this->rewind();
 		while($this->valid()){
@@ -50,10 +68,13 @@ class OrderTotalManager extends SplObjectStorage {
 		return $orderTotal;
 	}
 
-	public function show(){
+	/**
+	 * @return htmlElement_table
+	 */
+	public function show() {
 		$orderTotalTable = htmlBase::newElement('table')
-		->setCellPadding(2)
-		->setCellSpacing(0);
+			->setCellPadding(2)
+			->setCellSpacing(0);
 
 		$this->rewind();
 		while($this->valid()){
@@ -61,8 +82,14 @@ class OrderTotalManager extends SplObjectStorage {
 
 			$orderTotalTable->addBodyRow(array(
 				'columns' => array(
-					array('align' => 'right', 'text' => $orderTotal->getTitle()),
-					array('align' => 'right', 'text' => $orderTotal->getText())
+					array(
+						'align' => 'right',
+						'text'  => $orderTotal->getTitle()
+					),
+					array(
+						'align' => 'right',
+						'text'  => $orderTotal->getText()
+					)
 				)
 			));
 			$this->next();
@@ -71,4 +98,5 @@ class OrderTotalManager extends SplObjectStorage {
 		return $orderTotalTable;
 	}
 }
+
 ?>

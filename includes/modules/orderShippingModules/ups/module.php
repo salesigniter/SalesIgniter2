@@ -85,7 +85,7 @@ class OrderShippingUps extends OrderShippingModuleBase
 		$this->quotes = array(
 			'id' => $this->getCode(),
 			'module' => $this->getTitle(),
-			'icon' => tep_image(DIR_WS_ICONS . 'shipping_ups.gif', $this->getTitle()),
+			'icon' => tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'shipping_ups.gif', $this->getTitle()),
 			'methods' => array()
 		);
 

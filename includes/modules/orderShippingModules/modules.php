@@ -19,15 +19,39 @@
 		private static $selectedMethod = null;
 		private static $deliveryAddress = null;
 
+		/**
+		 * @static
+		 * @param string $moduleName
+		 * @param bool $ignoreStatus
+		 * @return OrderShippingModuleBase
+		 */
+		public static function getModule($moduleName, $ignoreStatus = false){
+			return parent::getModule($moduleName, $ignoreStatus);
+		}
+
+		/**
+		 * @static
+		 * @param string $module
+		 * @param string $method
+		 */
 		public static function setSelected($module, $method){
 			self::$selectedModule = $module;
 			self::$selectedMethod = $method;
 		}
 
+		/**
+		 * @static
+		 * @return OrderShippingModuleBase
+		 */
 		public static function getSelected(){
 			return self::getModule(self::$selectedModule);
 		}
 
+		/**
+		 * @static
+		 * @param bool $includeDisabled
+		 * @return array
+		 */
 		public static function getDropMenuArray($includeDisabled = false){
 			$modules = self::getModules($includeDisabled);
 			
@@ -43,7 +67,13 @@
 			}
 			return $dropMenuArray;
 		}
-		
+
+		/**
+		 * @static
+		 * @param string $method
+		 * @param string $module
+		 * @return array
+		 */
 		public static function quote($method = '', $module = ''){
 			$quotes_array = array();
 			if (self::hasModules() === true) {
@@ -59,7 +89,11 @@
 			}
 			return $quotes_array;
 		}
-		
+
+		/**
+		 * @static
+		 *
+		 */
 		public static function calculateWeight(){
 			global $total_weight, $shipping_weight, $shipping_num_boxes;
 			
@@ -82,7 +116,11 @@
 				$shipping_weight = $shipping_weight/$shipping_num_boxes;
 			}
 		}
-		
+
+		/**
+		 * @static
+		 * @return void|array
+		 */
 		public static function getCheapestMethod(){
 			if (self::hasModules() === true) {
 				$rates = array();
@@ -116,7 +154,12 @@
 				return $cheapest;
 			}
 		}
-		
+
+		/**
+		 * @static
+		 * @param $cID
+		 * @return Doctrine_Collection
+		 */
 		public static function getCountryInfo($cID){
 			$Qcountry = Doctrine_Query::create()
 			->from('Countries c')
@@ -127,6 +170,10 @@
 			return $Qcountry[0];
 		}
 
+		/**
+		 * @static
+		 * @return RentalStoreUser
+		 */
 		public static function &getUserAccount(){
 			global $onePageCheckout, $membershipUpdate;
 			if (isset($onePageCheckout) && is_object($onePageCheckout)){
@@ -140,10 +187,18 @@
 			return $userAccount;
 		}
 
+		/**
+		 * @static
+		 * @param $addressObj
+		 */
 		public static function setDeliveryAddress($addressObj){
 			self::$deliveryAddress = $addressObj;
 		}
 
+		/**
+		 * @static
+		 * @return null
+		 */
 		public static function getDeliveryAddress(){
 			return self::$deliveryAddress;
 		}

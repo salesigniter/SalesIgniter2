@@ -10,14 +10,7 @@ $tabsArr = array(
 	)
 );
 
-if (sysConfig::get('ALLOW_RENTALS') == 'true'){
-	$tabsArr['tabNewRentAccount'] = array(
-		'heading' => sysLanguage::get('HEADING_NEW_RENTAL_CUSTOMER'),
-		'contentFile' => sysConfig::getDirFsCatalog() . 'applications/account/pages_tabs/login/rental.php'
-	);
-}
-
-EventManager::notify('AccountLoginAddTabs', $tabsArr);
+EventManager::notify('AccountLoginAddTabs', &$tabsArr);
 
 $TabsObj = htmlBase::newElement('tabs')
 	->setId('tabs');
@@ -35,12 +28,13 @@ foreach($tabsArr as $tabId => $tInfo){
 }
 
 $pageTitle = sysLanguage::get('HEADING_TITLE_LOGIN');
-	
-$pageContent->set('pageForm', array(
-		'name' => 'login',
-		'action' => itw_app_link('action=processLogin', 'account', 'login', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=processLogin', 'account', 'login', 'SSL'))
+	->setName('login')
+	->setMethod('post')
+	->html($TabsObj->draw())
+	->draw();
+
 $pageContent->set('pageTitle', $pageTitle);
-$pageContent->set('pageContent', $TabsObj->draw());
+$pageContent->set('pageContent', $pageContents);

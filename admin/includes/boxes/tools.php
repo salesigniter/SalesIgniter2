@@ -72,17 +72,10 @@
 		);
 	}
 
-	if (sysPermissions::adminAccessAllowed('tools', 'cleardb') === true){
+	if (sysPermissions::adminAccessAllowed('cleardb', 'default') === true){
 		$contents['children'][] = array(
-			'link' => itw_app_link(null, 'tools', 'cleardb'),
+			'link' => itw_app_link(null, 'cleardb', 'default'),
 			'text' => 'Clear Database'
-		);
-	}
-
-	if (sysPermissions::adminAccessAllowed('tools', 'update_configs') === true){
-		$contents['children'][] = array(
-			'link' => itw_app_link(null, 'tools', 'update_configs'),
-			'text' => 'Update Configs'
 		);
 	}
 

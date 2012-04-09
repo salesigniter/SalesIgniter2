@@ -16,15 +16,15 @@ class OrderTotalGiftvoucher extends OrderTotalModuleBase
 			$this->include_tax = $this->getConfigData('MODULE_ORDER_TOTAL_GV_INC_TAX');
 			$this->calculate_tax = $this->getConfigData('MODULE_ORDER_TOTAL_GV_CALC_TAX');
 			$this->credit_tax = $this->getConfigData('MODULE_ORDER_TOTAL_GV_CREDIT_TAX');
-			$this->tax_class = $this->getConfigData('MODULE_ORDER_TOTAL_GV_TAX_CLASS');
-			$this->user_prompt = $this->getConfigData('MODULE_ORDER_TOTAL_GV_USER_PROMPT');
-			$this->header = $this->getConfigData('MODULE_ORDER_TOTAL_GV_HEADER');
+			$this->tax_class = $this->getConfigData('TAX_CLASS');
+			$this->user_prompt = sysLanguage::get('MODULE_ORDER_TOTAL_GV_USER_PROMPT');
+			$this->header = sysLanguage::get('MODULE_ORDER_TOTAL_GV_HEADER');
 			$this->checkbox = htmlBase::newElement('checkbox')->setId('voucherPayment')
 				->setName('c' . $this->getCode());
 		}
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order;
 		if (Session::exists('cot_gv') === true){
 			$order_total = $this->get_order_total();
@@ -38,11 +38,9 @@ class OrderTotalGiftvoucher extends OrderTotalModuleBase
 			$this->deduction = $od_amount;
 			$order->info['total'] = $order->info['total'] - $od_amount;
 			if ($od_amount > 0){
-				$this->addOutput(array(
-						'title' => $this->getTitle() . ':',
-						'text' => '<b>' . $this->formatAmount($od_amount) . '</b>',
-						'value' => $od_amount
-					));
+				$outputData['title'] = $this->getTitle() . ':';
+				$outputData['text'] = '<b>' . $this->formatAmount($od_amount) . '</b>';
+				$outputData['value'] = $od_amount;
 			}
 		}
 	}

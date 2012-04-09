@@ -411,7 +411,7 @@
          var $totalsRows = $('tr', $totalsTable);
          var nextIndex = (($totalsRows.size() - 1) + 1);
          $newRow = jQuery('<tr sort_order="' + nextIndex + '">' +
-           '<td class="main"><?php echo tep_image(DIR_WS_IMAGES . 'icons/cross.gif', 'Remove Order Total', '', '', 'id="delete"') . tep_image(DIR_WS_IMAGES . 'up.gif', 'Move Up', '', '', 'id="up"') . tep_image(DIR_WS_IMAGES . 'down.gif', 'Move Down', '', '', 'id="down"');?>&nbsp;<input id="customTotalText" name="customTotal[' + nextIndex + '][text]" type="text"></td>' +
+           '<td class="main"><?php echo tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'icons/cross.gif', 'Remove Order Total', '', '', 'id="delete"') . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'up.gif', 'Move Up', '', '', 'id="up"') . tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'down.gif', 'Move Down', '', '', 'id="down"');?>&nbsp;<input id="customTotalText" name="customTotal[' + nextIndex + '][text]" type="text"></td>' +
            '<td class="main">$<input size="6" id="customTotalVal" name="customTotal[' + nextIndex + '][value]" type="text"></td>' +
          '</tr>');
 

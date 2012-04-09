@@ -4,5 +4,5 @@
 	<define key="TEXT_INFO_CURRENT_GROUP"><![CDATA[Current Group]]></define>
 
 	<define key="TEXT_BUTTON_NEW_OPTION"><![CDATA[Add Option]]></define>
-	<define key="TEXT_BUTTON_LOAD_SET"><![CDATA[Load Set]]></define>
+	<define key="TEXT_BUTTON_LOAD_SET"><![CDATA[Load Group]]></define>
 </definitions>

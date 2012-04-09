@@ -5,13 +5,14 @@
 	->usePreset('continue')
 	->setHref(itw_app_link(null, 'index', 'default'))
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'create_account',
-		'action' => itw_app_link('action=createAccount', 'account', 'create', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=createAccount', 'account', 'create', 'SSL'))
+	->setName('create_account')
+	->setMethod('post')
+	->html(sysLanguage::get('TEXT_MAIN_LOGOFF'))
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
-	$pageContent->set('pageContent', sysLanguage::get('TEXT_MAIN_LOGOFF'));
+	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

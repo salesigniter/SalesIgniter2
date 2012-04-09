@@ -4,20 +4,39 @@
  *
  * @package Order
  * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2010, I.T. Web Experts
+ * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
 require(dirname(__FILE__) . '/Address.php');
 
-class OrderAddressManager {
-	protected $addresses = array();
-	protected $addressHeadings = array();
-	protected $orderId = null;
+/**
+ * @package Order
+ */
+class OrderAddressManager
+{
 
-	public function __construct($addressArray = null){
+	/**
+	 * @var array
+	 */
+	protected $addresses = array();
+
+	/**
+	 * @var array
+	 */
+	protected $addressHeadings = array();
+
+	/**
+	 * @var int
+	 */
+	protected $orderId = 0;
+
+	/**
+	 * @param array|null $addressArray
+	 */
+	public function __construct(array $addressArray = null) {
 		$this->addressHeadings = array(
 			'customer' => 'Customer Address',
-			'billing' => 'Billing Address',
+			'billing'  => 'Billing Address',
 			'delivery' => 'Shipping Address'
 		);
 
@@ -29,7 +48,8 @@ class OrderAddressManager {
 			foreach($addressArray as $type => $aInfo){
 				$this->addresses[$type] = new OrderAddress($aInfo);
 			}
-		}else{
+		}
+		else {
 			foreach($this->addressHeadings as $type => $heading){
 				$this->addresses[$type] = new OrderAddress(array(
 					'address_type' => $type
@@ -38,11 +58,25 @@ class OrderAddressManager {
 		}
 	}
 
-	public function setOrderId($val){
-		$this->orderId = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setOrderId($val) {
+		$this->orderId = (int) $val;
 	}
-	
-	public function getAddress($rType){
+
+	/**
+	 * @return OrderAddress[]
+	 */
+	public function getAddresses(){
+		return $this->addresses;
+	}
+
+	/**
+	 * @param $rType
+	 * @return OrderAddress|null
+	 */
+	public function getAddress($rType) {
 		$return = null;
 		foreach($this->addresses as $type => $addressObj){
 			if ($type == $rType){
@@ -53,26 +87,29 @@ class OrderAddressManager {
 		return $return;
 	}
 
-	public function listAll(){
+	/**
+	 * @return string
+	 */
+	public function listAll() {
 		$addressesTable = htmlBase::newElement('table')
-				->setCellPadding(2)
-				->setCellSpacing(0)
-				->css('width', '100%');
+			->setCellPadding(2)
+			->setCellSpacing(0)
+			->css('width', '100%');
 
 		$addressesRow = array();
 		foreach($this->addresses as $type => $addressObj){
 			if (isset($this->addressHeadings[$addressObj->getAddressType()])){
 				$addressTable = htmlBase::newElement('table')
-						->setCellPadding(2)
-						->setCellSpacing(0)
-						->css('width', '100%');
+					->setCellPadding(2)
+					->setCellSpacing(0)
+					->css('width', '100%');
 
 				$addressTable->addBodyRow(array(
 					'columns' => array(
 						array(
 							'addCls' => 'main',
 							'valign' => 'top',
-							'text' => '<b>' . $this->addressHeadings[$addressObj->getAddressType()] . '</b>'
+							'text'   => '<b>' . $this->addressHeadings[$addressObj->getAddressType()] . '</b>'
 						)
 					)
 				));
@@ -82,14 +119,14 @@ class OrderAddressManager {
 						array(
 							'addCls' => 'main ' . $addressObj->getAddressType() . 'Address',
 							'valign' => 'top',
-							'text' => $this->showAddress($addressObj)
+							'text'   => $this->showAddress($addressObj)
 						)
 					)
 				));
 
 				$addressesRow[] = array(
 					'valign' => 'top',
-					'text' => $addressTable
+					'text'   => $addressTable
 				);
 			}
 		}
@@ -99,17 +136,26 @@ class OrderAddressManager {
 
 		return $addressesTable->draw();
 	}
-	
-	public function getFormattedAddress($type){
-		$Address = null;
+
+	/**
+	 * @param $type
+	 * @return string
+	 */
+	public function getFormattedAddress($type) {
+		$Address = '';
 		if (isset($this->addresses[$type])){
 			$Address = $this->showAddress($this->addresses[$type], true);
 		}
 		return $Address;
 	}
 
-	public function showAddress($Address, $html = true){
-		if(sysConfig::get('ACCOUNT_COMPANY') == 'true'){
+	/**
+	 * @param OrderAddress $Address
+	 * @param bool $html
+	 * @return mixed
+	 */
+	public function showAddress(OrderAddress $Address, $html = true) {
+		if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 			$company = htmlspecialchars($Address->getCompany());
 		}
 		$firstname = htmlspecialchars($Address->getName());
@@ -125,7 +171,7 @@ class OrderAddressManager {
 		$cif = htmlspecialchars($Address->getCIF());
 		$city_birth = htmlspecialchars($Address->getCityBirth());
 		$fmt = $Address->getFormat();
-		if($html){
+		if ($html){
 			$fmt = nl2br($fmt);
 		}
 		eval("\$address = \"$fmt\";");
@@ -133,4 +179,5 @@ class OrderAddressManager {
 		return $address;
 	}
 }
+
 ?>

@@ -52,17 +52,6 @@ class OrdersProductsRentals extends Doctrine_Record {
 		));
 	}
 
-	public function preInsert($event){
-	}
-
-	public function preUpdate($event){
-		if ($this->rental_state == 'out'){
-			$this->date_shipped = date(DATE_RSS, time());
-		}elseif ($this->rental_state == 'returned'){
-			$this->date_returned = date(DATE_RSS, time());
-		}
-	}
-
 	public function setTableDefinition(){
 		$this->setTableName('orders_products_rentals');
 
@@ -82,44 +71,21 @@ class OrdersProductsRentals extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('start_date', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
-		$this->hasColumn('end_date', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+		$this->hasColumn('start_date', 'timestamp');
+		$this->hasColumn('end_date', 'timestamp');
 				
-		$this->hasColumn('rental_state', 'string', 32, array(
-			'type' => 'string',
-			'length' => 32,
+		$this->hasColumn('rental_state', 'integer', 4, array(
+			'type' => 'integer',
+			'length' => 4,
 			'fixed' => false,
 			'primary' => false,
-			'default' => 'reserved',
+			'default' => '1',
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		$this->hasColumn('date_shipped', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
-		$this->hasColumn('date_returned', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+		$this->hasColumn('date_shipped', 'timestamp');
+		$this->hasColumn('date_returned', 'timestamp');
+		$this->hasColumn('date_expires', 'timestamp');
 		$this->hasColumn('broken', 'integer', 1, array(
 			'type' => 'integer',
 			'length' => 1,

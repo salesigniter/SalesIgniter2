@@ -12,15 +12,8 @@
  */
 class OrdersPaymentsHistory extends Doctrine_Record {
 
-	public function setUp(){
-		$this->setUpParent();
-	}
-
-	public function setUpParent(){
-	}
-	
 	public function preInsert($event){
-		$this->date_added = date('Y-m-d h:i:s');
+		$this->date_added = date(DATE_TIMESTAMP);
 	}
 	
 	public function preUpdate($event){
@@ -44,12 +37,7 @@ class OrdersPaymentsHistory extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		$this->hasColumn('date_added', 'date', null, array(
-			'type' => 'date',
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+		$this->hasColumn('date_added', 'timestamp');
 		$this->hasColumn('gateway_message', 'string', null, array(
 			'type' => 'string',
 			'fixed' => false,
@@ -64,7 +52,7 @@ class OrdersPaymentsHistory extends Doctrine_Record {
 			'primary' => false,
 			'notnull' => true,
 			'autoincrement' => false,
-			'scale' => false,
+			'scale' => 4,
 		));
 		$this->hasColumn('payment_module', 'string', 64, array(
 			'type' => 'string',
@@ -96,6 +84,12 @@ class OrdersPaymentsHistory extends Doctrine_Record {
 		));
 		$this->hasColumn('can_reuse', 'integer', 1, array(
 			'type' => 'integer',
+			'length' => 1,
+			'unsigned' => 0
+		));
+		$this->hasColumn('is_refund', 'integer', 1, array(
+			'type' => 'integer',
+			'default' => '0',
 			'length' => 1,
 			'unsigned' => 0
 		));

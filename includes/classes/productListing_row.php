@@ -102,9 +102,14 @@ class productListing_row extends productListing
 
 	function draw() {
 		$rows = 1;
+		$isMobile = (Session::get('layoutType') == 'smartphone');
 
+		$headerClass = 'ui-widget-header';
+		if ($isMobile === true){
+			$headerClass = 'ui-bar-b';
+		}
 		$this->templateData = array(
-			'headerSettings' => array('addCls' => 'ui-widget-header'),
+			'headerSettings' => array('addCls' => $headerClass),
 			'listingHeaders' => array(),
 			'rowSettings' => array(),
 			'listingColumns' => array()
@@ -161,13 +166,13 @@ class productListing_row extends productListing
 						$this->listedProductsIDS[] = $pInfo['products_id'];
 
 						if (($rows / 2) == floor($rows / 2)){
-							$class = 'even';
+							$class = ($isMobile === true ? 'ui-bar-d' : 'productListingRow-even');
 						}
 						else {
-							$class = 'odd';
+							$class = ($isMobile === true ? 'ui-bar-c' : 'productListingRow-odd');
 						}
 						$this->templateData['rowSettings'][$rows] = array(
-							'addCls' => 'productListingRow-' . $class
+							'addCls' => $class
 						);
 
 						foreach($this->templateData['listingHeaders'] as $idx => $header){

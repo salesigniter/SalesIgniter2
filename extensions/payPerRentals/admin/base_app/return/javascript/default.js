@@ -1,4 +1,37 @@
 var dayShortNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+
+function showAjaxLoader1(){
+	$('#ajaxLoader').dialog({
+		modal: true,
+		resizable: false,
+		draggable: false,
+		position: 'center'
+	}).show();
+}
+
+function removeAjaxLoader1(){
+	$('#ajaxLoader').dialog('close');
+}
+function updateRes(valType){
+	var dataArr = new Object();
+	dataArr.start_date = $('#start_date').val();
+	dataArr.end_date = $('#end_date').val();
+
+	$.ajax({
+		cache: false,
+		dataType: 'html',
+		data: dataArr,
+		beforeSend: showAjaxLoader1,
+		complete: removeAjaxLoader1,
+		url: js_app_link('appExt=payPerRentals&app=return&appPage=default&action=getReservations'),
+		success: function (data){
+			$('tbody', $('#reservationsTable')).html(data);
+
+		}
+	});
+}
+
 $(document).ready(function (){
 	$('#DP_startDate').datepicker({
 		dateFormat: 'yy-mm-dd',
@@ -6,6 +39,7 @@ $(document).ready(function (){
 		altField: '#start_date',
 		dayNamesMin: dayShortNames
 	});
+	$('#ajaxLoader').hide();
 
 	$('#DP_endDate').datepicker({
 		dateFormat: 'yy-mm-dd',
@@ -14,12 +48,17 @@ $(document).ready(function (){
 		dayNamesMin: dayShortNames
 	});
 
+	$('#filter_apply').click(function(){
+		updateRes();
+		return false;
+	});
+
 	$('.returnButton').click(function(){
 
 			$.ajax({
 				cache: false,
 				dataType: 'json',
-				data: $('#returnReservation').serialize(),
+				data: $('#reservationsTable *').serialize(),
 				type:'post',
 
 				url: js_app_link('appExt=payPerRentals&app=return&appPage=default&action=return'),
@@ -29,7 +68,7 @@ $(document).ready(function (){
 					$.ajax({
 						cache: false,
 						dataType: 'json',
-						data: $('#returnReservation').serialize(),
+						data: $('#reservationsTable *').serialize(),
 						type:'post',
 						url: js_app_link('appExt=payPerRentals&app=return_barcode&appPage=default&action=checkReservationsForMaintenance&lastBarcode='+data.lastBarcode),//js_app_link('appExt=payPerRentals&app=send&appPage=default&action=sendReservations'),
 						success: function (data){
@@ -137,19 +176,7 @@ $(document).ready(function (){
 												$('#commentID').hide();
 												$('.isB').click(function(){
 													CKEDITOR.replace('commentID', {
-														toolbar :
-															[
-																['Cut','Copy','Paste','PasteText','PasteFromWord','-'],
-																['Undo','Redo','-'],
-																['Image','Table','SpecialChar','PageBreak'],
-																'/',
-																['Styles','Format'],
-																['Bold','Italic','Strike'],
-																['NumberedList','BulletedList','-'],
-																['Link','Unlink','Anchor']
-
-															],
-														filebrowserBrowseUrl: DIR_WS_ADMIN + 'rentalwysiwyg/editor/filemanager/browser/default/browser.php'
+														toolbar : 'Simple'
 													});
 													//disable save button
 													$('.saveButton').attr('disabled', 'disabled');

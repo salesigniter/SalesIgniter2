@@ -13,8 +13,6 @@
 		$headingTitle = sysLanguage::get('HEADING_TITLE_NEW');
 	}
 
-	$languages = tep_get_languages();
-
 	switch ($Article->articles_status){
 		case '0': $in_status = false; $out_status = true; break;
 		case '1':

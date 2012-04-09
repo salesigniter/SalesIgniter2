@@ -58,12 +58,14 @@
 	$pageContents .= $contactTable->draw();
 	
 	$pageButtons = htmlBase::newElement('button')->usePreset('continue')->setType('submit')->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'contact_us',
-		'action' => itw_app_link('action=send'),
-		'method' => 'post'
-	));
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=send'))
+	->setName('contact_us')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', sysLanguage::get('HEADING_TITLE'));
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

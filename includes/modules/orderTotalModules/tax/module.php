@@ -12,16 +12,14 @@ class OrderTotalTax extends OrderTotalModuleBase
 		$this->init('tax');
 	}
 
-	public function process() {
+	public function process(array &$outputData) {
 		global $order, $currencies;
 		reset($order->info['tax_groups']);
 		foreach($order->info['tax_groups'] as $key => $value){
 			if ($value > 0){
-				$this->addOutput(array(
-						'title' => $key . ':',
-						'text' => $this->formatAmount($value),
-						'value' => $value
-					));
+				$outputData['title'] = $key . ':';
+				$outputData['text'] = $this->formatAmount($value);
+				$outputData['value'] = $value;
 			}
 		}
 	}

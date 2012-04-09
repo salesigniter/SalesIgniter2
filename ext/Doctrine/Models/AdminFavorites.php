@@ -28,9 +28,9 @@ class AdminFavorites extends Doctrine_Record {
 			'autoincrement' => true
 		));
 		
-		$this->hasColumn('admin_favs_name', 'string', null, array(
+		$this->hasColumn('admin_favs_name', 'string', 255, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 255,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',
@@ -38,18 +38,18 @@ class AdminFavorites extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('favorites_links', 'string', null, array(
+		$this->hasColumn('favorites_links', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',
 			'notnull' => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('favorites_names', 'string', null, array(
+		$this->hasColumn('favorites_names', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',

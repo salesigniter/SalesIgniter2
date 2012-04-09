@@ -108,7 +108,7 @@ class OrderShippingUsps extends OrderShippingModuleBase
 			'id'      => $this->getCode(),
 			'module'  => $this->getTitle(),
 			'methods' => array(),
-			'icon'    => tep_image(DIR_WS_ICONS . 'shipping_usps.gif', $this->getTitle())
+			'icon'    => tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'shipping_usps.gif', $this->getTitle())
 		);
 		
 		if (is_array($uspsQuote)){

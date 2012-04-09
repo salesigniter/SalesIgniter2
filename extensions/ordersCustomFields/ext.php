@@ -18,7 +18,7 @@ class Extension_ordersCustomFields extends ExtensionBase {
 
 	public function init(){
 		global $App, $appExtension, $Template;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'OrderInfoAddBlock',
@@ -95,6 +95,17 @@ class Extension_ordersCustomFields extends ExtensionBase {
 				->execute();
 			}
 		}
+	}
+
+	public function getCustomFieldByType($type){
+		$Qfields = Doctrine_Query::create()
+			->select('f.field_id, f.input_type, f.input_required, fd.field_name')
+			->from('OrdersCustomFields f')
+			->leftJoin('f.OrdersCustomFieldsDescription fd')
+			->where('fd.language_id = ?', Session::get('languages_id'))
+			->andWhere('f.input_type = ?', $type)
+			->execute();
+		return $Qfields[0];
 	}
 	
 	public function CheckoutAddBlock(){

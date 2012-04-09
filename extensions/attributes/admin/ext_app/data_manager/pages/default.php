@@ -17,7 +17,7 @@ class attributes_admin_data_manager_default extends Extension_attributes {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'DataExportFullQueryBeforeExecute',
@@ -30,7 +30,7 @@ class attributes_admin_data_manager_default extends Extension_attributes {
 	public function DataExportFullQueryBeforeExecute(&$query){
 	}
 	
-	public function DataExportFullQueryFileLayoutHeader(&$dataExport){
+	public function DataExportFullQueryFileLayoutHeader(&$HeaderRow){
 		$mostAttributes = 0;
 		$Qattributes = Doctrine_Query::create()
 		->select('count(products_attributes_id) as total')
@@ -44,17 +44,15 @@ class attributes_admin_data_manager_default extends Extension_attributes {
 		}
 			
 		for($i=1; $i<$mostAttributes+1; $i++){
-			$dataExport->setHeaders(array(
-				'v_attribute_' . $i,
-				'v_attribute_' . $i . '_image',
-				'v_attribute_' . $i . '_views',
-				'v_attribute_' . $i . '_price',
-				'v_attribute_' . $i . '_sort'
-			));
+			$HeaderRow->addColumn('v_attribute_' . $i);
+			$HeaderRow->addColumn('v_attribute_' . $i . '_image');
+			$HeaderRow->addColumn('v_attribute_' . $i . '_views');
+			$HeaderRow->addColumn('v_attribute_' . $i . '_price');
+			$HeaderRow->addColumn('v_attribute_' . $i . '_sort');
 		}
 	}
 	
-	public function DataExportBeforeFileLineCommit(&$productRow){
+	public function DataExportBeforeFileLineCommit(&$CurrentRow, $pInfo){
 		$Qattributes = Doctrine_Query::create()
 		->from('ProductsAttributes a')
 		->leftJoin('a.ProductsAttributesViews av')
@@ -63,7 +61,7 @@ class attributes_admin_data_manager_default extends Extension_attributes {
 		->leftJoin('o.ProductsOptionsDescription od')
 		->leftJoin('a.ProductsOptionsValues ov')
 		->leftJoin('ov.ProductsOptionsValuesDescription ovd')
-		->where('a.products_id = ?', $productRow['products_id'])
+		->where('a.products_id = ?', $pInfo['v_products_id'])
 		->execute()->toArray();
 		if ($Qattributes){
 
@@ -80,11 +78,11 @@ class attributes_admin_data_manager_default extends Extension_attributes {
 					}
 
 					$realCount = $i+1;
-					$productRow['v_attribute_' . $realCount] = $crumb;
-					$productRow['v_attribute_' . $realCount . '_image'] = $attribute['options_values_image'];
-					$productRow['v_attribute_' . $realCount . '_views'] = implode(';', $views);
-					$productRow['v_attribute_' . $realCount . '_price'] = $attribute['options_values_price'];
-					$productRow['v_attribute_' . $realCount . '_sort'] = $attribute['sort_order'];
+					$CurrentRow->addColumn($crumb, 'v_attribute_' . $realCount);
+					$CurrentRow->addColumn($attribute['options_values_image'], 'v_attribute_' . $realCount . '_image');
+					$CurrentRow->addColumn(implode(';', $views), 'v_attribute_' . $realCount . '_views');
+					$CurrentRow->addColumn($attribute['options_values_price'], 'v_attribute_' . $realCount . '_price');
+					$CurrentRow->addColumn($attribute['sort_order'], 'v_attribute_' . $realCount . '_sort');
 				}
 			}
 		}

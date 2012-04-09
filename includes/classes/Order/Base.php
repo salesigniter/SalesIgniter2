@@ -1,43 +1,88 @@
 <?php
+/**
+ * Main order class
+ *
+ * @package Order
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
+
 require(dirname(__FILE__) . '/AddressManager/Base.php');
 require(dirname(__FILE__) . '/ProductManager/Base.php');
 require(dirname(__FILE__) . '/TotalManager/Base.php');
 require(dirname(__FILE__) . '/PaymentManager/Base.php');
 
-/**
- * Order Class
- * @package Order
- */
-class Order {
-	protected $mode = 'details';
-	protected $Order = null;
-	protected $orderId = null;
-	protected $customerId = null;
+class Order
+{
 
-	public function __construct($orderId = null){
-		if (is_null($orderId) === false){
+	/**
+	 * @var string
+	 */
+	public $mode = 'details';
+
+	/**
+	 * @var array
+	 */
+	public $Order = array();
+
+	/**
+	 * @var int
+	 */
+	public $orderId = 0;
+
+	/**
+	 * @var int
+	 */
+	public $customerId = 0;
+
+	/**
+	 * @var OrderAddressManager
+	 */
+	public $AddressManager;
+
+	/**
+	 * @var OrderProductManager
+	 */
+	public $ProductManager;
+
+	/**
+	 * @var OrderTotalManager
+	 */
+	public $TotalManager;
+
+	/**
+	 * @var OrderPaymentManager
+	 */
+	public $PaymentManager;
+
+	/**
+	 * @param int $orderId
+	 */
+	public function __construct($orderId = 0) {
+		if ($orderId > 0){
 			$this->setOrderId($orderId);
 
 			$Qorder = Doctrine_Query::create()
-			->from('Orders o')
-			->leftJoin('o.OrdersAddresses oa')
-			->leftJoin('oa.Zones z')
-			->leftJoin('oa.Countries c')
-			->leftJoin('c.AddressFormat af')
-			->leftJoin('o.OrdersTotal ot')
-			->leftJoin('o.OrdersPaymentsHistory oph')
-			->leftJoin('o.OrdersStatusHistory osh')
-			->leftJoin('osh.OrdersStatus s')
-			->leftJoin('s.OrdersStatusDescription sd')
-			->leftJoin('o.OrdersProducts op')
-			->where('o.orders_id = ?', $orderId)
-			->andWhere('sd.language_id = ?', Session::get('languages_id'))
-			->orderBy('ot.sort_order ASC, osh.date_added DESC');
+				->from('Orders o')
+				->leftJoin('o.OrdersAddresses oa')
+				->leftJoin('oa.Zones z')
+				->leftJoin('oa.Countries c')
+				->leftJoin('c.AddressFormat af')
+				->leftJoin('o.OrdersTotal ot')
+				->leftJoin('o.OrdersPaymentsHistory oph')
+				->leftJoin('o.OrdersStatusHistory osh')
+				->leftJoin('osh.OrdersStatus s')
+				->leftJoin('s.OrdersStatusDescription sd')
+				->leftJoin('o.OrdersProducts op')
+				->where('o.orders_id = ?', $orderId)
+				->andWhere('sd.language_id = ?', Session::get('languages_id'))
+				->orderBy('ot.sort_order ASC, osh.date_added DESC');
 
 			EventManager::notify('OrderQueryBeforeExecute', &$Qorder);
 
 			//echo $Qorder->getSqlQuery();
 			$Order = $Qorder->execute()->toArray();
+			//echo '<pre>';print_r($Order);
 			$this->Order = $Order[0];
 			$this->customerId = $this->Order['customers_id'];
 
@@ -55,144 +100,258 @@ class Order {
 		}
 	}
 
-	public function setOrderId($val){
-		$this->orderId = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setOrderId($val) {
+		$this->orderId = (int) $val;
 	}
-	
-	public function getOrderId(){
+
+	/**
+	 * @return int
+	 */
+	public function getOrderId() {
 		return $this->orderId;
 	}
 
-	public function getCustomerId(){
-		return $this->customerId;
+	/**
+	 * @return int
+	 */
+	public function getCustomerId() {
+		return (int)$this->customerId;
 	}
 
-	public function getOrderInfo(){
+	/**
+	 * @return array
+	 */
+	public function getOrderInfo() {
 		return $this->Order;
 	}
-	
-	public function getCurrency(){
-		return $this->Order['currency'];
-	}
-	
-	public function getCurrencyValue(){
-		return $this->Order['currency_value'];
-	}
-	
-	public function hasTaxes(){
-		return ($this->TotalManager->getTotalValue('tax') > 0);
-	}
-	
-	public function hasShippingMethod(){
-		return (empty($this->Order['shipping_method']) === false);
-	}
-	
-	public function getShippingMethod(){
-		return $this->Order['shipping_method'];
-	}
-	
-	public function getTotal(){
-		return $this->TotalManager->getTotalValue('total');
+
+	/**
+	 * @return string
+	 */
+	public function getCurrency() {
+		return (string)$this->Order['currency'];
 	}
 
-	public function getCurrentStatus($isID = false){
+	/**
+	 * @return float
+	 */
+	public function getCurrencyValue() {
+		return (float)$this->Order['currency_value'];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasTaxes() {
+		return ($this->TotalManager->getTotalValue('tax') > 0);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasShippingMethod() {
+		return (empty($this->Order['shipping_method']) === false);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getShippingMethod() {
+		return (string)$this->Order['shipping_method'];
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotal() {
+		return (float)$this->TotalManager->getTotalValue('total');
+	}
+
+	/**
+	 * @param bool $isID
+	 * @return int|string
+	 */
+	public function getCurrentStatus($isID = false) {
 		/*
 		 * DO NOT CHANGE FROM 0, IT IS ORDERED DESC SO 0 WILL ALWAYS ME THE MOST RECENT
 		 */
 		if (isset($this->Order['OrdersStatusHistory'][0])){
-			if($isID === false){
-				return $this->Order['OrdersStatusHistory'][0]['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'];
-			}else{
-				return $this->Order['OrdersStatusHistory'][0]['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_id'];
+			if ($isID === false){
+				return (string)$this->Order['OrdersStatusHistory'][0]['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'];
+			}
+			else {
+				return (int)$this->Order['OrdersStatusHistory'][0]['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_id'];
 			}
 		}
-		return null;
-		//return $this->Order['orders_status'];
+		return ($isID === false ? '' : 0);
 	}
-	
-	public function getDatePurchased(){
+
+	/**
+	 * @return SesDateTime
+	 */
+	public function getDatePurchased() {
 		return $this->Order['date_purchased'];
 	}
 
-	public function hasStatusHistory(){
+	/**
+	 * @return bool
+	 */
+	public function hasStatusHistory() {
 		$history = $this->getStatusHistory();
 		return (!empty($history));
 	}
 
-	public function getStatusHistory(){
+	/**
+	 * @return array
+	 */
+	public function getStatusHistory() {
 		return $this->Order['OrdersStatusHistory'];
 	}
 
-	public function listPaymentHistory($cardData = true){
+	/**
+	 * @param bool $cardData
+	 * @return htmlElement_table
+	 */
+	public function listPaymentHistory($cardData = true) {
 		return $this->PaymentManager->show($cardData);
 	}
 
-	public function listTotals(){
+	/**
+	 * @return htmlElement_table
+	 */
+	public function listTotals() {
 		return $this->TotalManager->show();
 	}
 
-	public function getFormattedAddress($type){
-		return $this->AddressManager->getFormattedAddress($type, true);
-	}
-	
-	public function listAddresses(){
-		return $this->AddressManager->listAll();
+	/**
+	 * @param $type
+	 * @return string
+	 */
+	public function getFormattedAddress($type) {
+		return (string)$this->AddressManager->getFormattedAddress($type, true);
 	}
 
-	public function getProducts(){
+	/**
+	 * @return string
+	 */
+	public function listAddresses() {
+		return (string)$this->AddressManager->listAll();
+	}
+
+	/**
+	 * @return OrderProduct[]
+	 */
+	public function getProducts() {
 		return $this->ProductManager->getContents();
 	}
 
+	/**
+	 * @param bool $showTableHeading
+	 * @param bool $showQty
+	 * @param bool $showBarcode
+	 * @param bool $showModel
+	 * @param bool $showName
+	 * @param bool $showExtraInfo
+	 * @param bool $showPrice
+	 * @param bool $showPriceWithTax
+	 * @param bool $showTotal
+	 * @param bool $showTotalWithTax
+	 * @param bool $showTax
+	 * @return htmlElement_table
+	 */
 	public function listProducts($showTableHeading = true, $showQty = true, $showBarcode = true, $showModel = true, $showName = true, $showExtraInfo = true, $showPrice = true, $showPriceWithTax = true, $showTotal = true, $showTotalWithTax = true, $showTax = true) {
 		return $this->ProductManager->listProducts($showTableHeading, $showQty, $showBarcode, $showModel, $showName, $showExtraInfo, $showPrice, $showPriceWithTax, $showTotal, $showTotalWithTax, $showTax, $this);
 	}
 
-	public function getTelephone(){
+	/**
+	 * @param bool $mask
+	 * @return string
+	 */
+	public function getCreditCard($mask = true) {
+		$Payment = $this->PaymentManager->getPaymentHistory();
+		$cardInfo = unserialize(cc_decrypt($Payment[0]['card_details']));
+		return str_repeat('*', 12) . substr($cardInfo['cardNumber'], 12);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTelephone() {
 		$telephone = '';
 		if (isset($this->Order['customers_telephone'])){
 			$telephone = $this->Order['customers_telephone'];
 		}
-		return $telephone;
+		return (string)$telephone;
 	}
 
-	public function getIPAddress(){
+	/**
+	 * @return string
+	 */
+	public function getCellTelephone() {
+		$cellphone = '';
+		if (isset($this->Order['customers_cellphone'])){
+			$cellphone = $this->Order['customers_cellphone'];
+		}
+		return (string)$cellphone;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIPAddress() {
 		$ip = '';
 		if (isset($this->Order['ip_address'])){
 			$ip = $this->Order['ip_address'];
 		}
-		return $ip;
+		return (string)$ip;
 	}
 
-	public function getEmailAddress(){
+	/**
+	 * @return string
+	 */
+	public function getEmailAddress() {
 		$email = '';
 		if (isset($this->Order['customers_email_address'])){
 			$email = $this->Order['customers_email_address'];
 		}
-		return $email;
+		return (string)$email;
 	}
 
-	public function getDriversLicense(){
+	/**
+	 * @return string
+	 */
+	public function getDriversLicense() {
 		$num = '';
 		if (isset($this->Order['customers_drivers_license'])){
 			$num = $this->Order['customers_drivers_license'];
 		}
-		return $num;
+		return (string)$num;
 	}
 
-	public function getPassPort(){
+	/**
+	 * @return string
+	 */
+	public function getPassPort() {
 		$passport = '';
 		if (isset($this->Order['customers_passport'])){
 			$passport = $this->Order['customers_passport'];
 		}
-		return $passport;
+		return (string)$passport;
 	}
 
-	public function getRoomNumber(){
+	/**
+	 * @return string
+	 */
+	public function getRoomNumber() {
 		$room_number = '';
 		if (isset($this->Order['customers_room_number'])){
 			$room_number = $this->Order['customers_room_number'];
 		}
-		return $room_number;
+		return (string)$room_number;
 	}
 }
+
 ?>

@@ -1,50 +1,90 @@
 <?php
-class OrderCreatorTotal extends OrderTotal implements Serializable {
+/**
+ * Order total class for the order creator order total manager
+ *
+ * @package OrderCreator
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
 
-	public function serialize(){
+class OrderCreatorTotal extends OrderTotal implements Serializable
+{
+
+	/**
+	 * @return string
+	 */
+	public function serialize() {
 		$data = array(
 			'totalInfo' => $this->totalInfo
 		);
 		return serialize($data);
 	}
 
-	public function unserialize($data){
+	/**
+	 * @param string $data
+	 */
+	public function unserialize($data) {
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
 			$this->$key = $dInfo;
 		}
 	}
 
-	public function isEditable(){
+	/**
+	 * @return bool
+	 */
+	public function isEditable() {
 		return (isset($this->totalInfo['editable']) && $this->totalInfo['editable'] === false ? false : true);
 	}
 
-	public function setModuleType($val){
-		$this->totalInfo['module_type'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setModuleType($val) {
+		$this->totalInfo['module_type'] = (string) $val;
 	}
 
-	public function setTitle($val){
-		$this->totalInfo['title'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setTitle($val) {
+		$this->totalInfo['title'] = (string) $val;
 	}
 
-	public function setText($val){
-		$this->totalInfo['text'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setText($val) {
+		$this->totalInfo['text'] = (string) $val;
 	}
 
-	public function setValue($val){
-		$this->totalInfo['value'] = $val;
+	/**
+	 * @param float $val
+	 */
+	public function setValue($val) {
+		$this->totalInfo['value'] = (float) $val;
 	}
 
-	public function setSortOrder($val){
-		$this->totalInfo['sort_order'] = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setSortOrder($val) {
+		$this->totalInfo['sort_order'] = (int) $val;
 	}
 
-	public function setModule($val){
-		$this->totalInfo['module'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setModule($val) {
+		$this->totalInfo['module'] = (string) $val;
 	}
 
-	public function setMethod($val){
-		$this->totalInfo['method'] = $val;
+	/**
+	 * @param string $val
+	 */
+	public function setMethod($val) {
+		$this->totalInfo['method'] = (string) $val;
 	}
 }
+
 ?>

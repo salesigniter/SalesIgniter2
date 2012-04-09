@@ -431,6 +431,6 @@ $events_vars[TALK_TO_US_EMAIL] = array(
     )
 );
 
-$TEMP_PATH = DIR_FS_CATALOG.'templates/email/';
+$TEMP_PATH = sysConfig::getDirFsCatalog() . 'templates/email/';
 // Email Template Manager End
 ?>

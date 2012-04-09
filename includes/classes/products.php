@@ -27,7 +27,7 @@ class storeProducts {
 		if ($Result){
 			$return = array();
 			foreach($Result->toArray() as $pInfo){
-				$product = new product($pInfo['products_id']);
+				$product = new Product($pInfo['products_id']);
 				if ($product->isValid()){
 					$image = $product->getImage();
 
@@ -51,8 +51,8 @@ class storeProducts {
 					if (sizeof($product->productInfo['typeArr']) == 1 && in_array('reservation', $product->productInfo['typeArr'])){
 						$price = false;
 					}else{
-						$purchaseTypeCls = $product->getPurchaseType('new');
-						$price = $purchaseTypeCls->getPrice();
+						$ProductTypeCls = $product->getProductTypeClass();
+						$price = $ProductTypeCls->getProductPrice('new');
 						if ($price <= 0){
 							$price = false;
 						}
@@ -62,7 +62,7 @@ class storeProducts {
 						'image' => $imageHtml->draw(),
 						'name'  => $product->getName(),
 						'price' => $price,
-						'taxRate' => $product->getTaxRate()
+						'taxRate' => $ProductTypeCls->getTaxRate('new')
 					);
 				}
 			}

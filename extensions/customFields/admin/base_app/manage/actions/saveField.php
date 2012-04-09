@@ -79,7 +79,7 @@
 		'padding' => '4px',
 		'margin'  => '3px'
 	))->addClass('ui-widget ui-widget-content ui-corner-all draggableField')
-	->html('<b><span class="fieldName" field_id="' . $Field->field_id . '">' . $Field->ProductsCustomFieldsDescription[Session::get('languages_id')]['field_name'] . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . TEXT_TYPE . '<span class="fieldType">' . $Field->input_type . '</span><br />' . sysLanguage::get('TEXT_SHOWN_ON_SITE') . ($Field->show_on_site == '1' ? 'Yes' : 'No'));
+	->html('<b><span class="fieldName" field_id="' . $Field->field_id . '">' . $Field->ProductsCustomFieldsDescription[Session::get('languages_id')]['field_name'] . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . sysLanguage::get('TEXT_TYPE') . '<span class="fieldType">' . $Field->input_type . '</span><br />' . sysLanguage::get('TEXT_SHOWN_ON_SITE') . ($Field->show_on_site == '1' ? 'Yes' : 'No'));
 
 	EventManager::attachActionResponse($newFieldWrapper->draw(), 'html');
 ?>

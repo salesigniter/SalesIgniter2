@@ -64,7 +64,7 @@ class metaTags_admin_products_new_product extends Extension_metaTags {
 	 * @return void
 	 */
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
 			'ProductsFormMiddle',
@@ -75,12 +75,11 @@ class metaTags_admin_products_new_product extends Extension_metaTags {
 
 	public function ProductInfoClassConstruct(&$ProductClass, $Product){
 		$ProductClass->import(new MetaTagsProductClassImport);
-		if(is_object($Product->ProductsDescription)){
-			foreach($Product->ProductsDescription->toArray() as $dInfo){
-				$ProductClass->setHeadTitle($dInfo['products_head_title_tag'], $dInfo['language_id']);
-				$ProductClass->setHeadDesc($dInfo['products_head_desc_tag'], $dInfo['language_id']);
-				$ProductClass->setHeadKeywords($dInfo['products_head_keywords_tag'], $dInfo['language_id']);
-			}
+
+		foreach($Product->ProductsDescription->toArray() as $dInfo){
+			$ProductClass->setHeadTitle($dInfo['products_head_title_tag'], $dInfo['language_id']);
+			$ProductClass->setHeadDesc($dInfo['products_head_desc_tag'], $dInfo['language_id']);
+			$ProductClass->setHeadKeywords($dInfo['products_head_keywords_tag'], $dInfo['language_id']);
 		}
 	}
 

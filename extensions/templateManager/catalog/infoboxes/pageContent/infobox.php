@@ -8,7 +8,7 @@ class InfoBoxpageContent extends InfoBoxAbstract {
 	public function show(){
 		global $App, $Template;
 		/* @TODO: Make This Work
-		$templateDir = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir');
+		$templateDir = sysConfig::get('DIR_FS_TEMPLATE');
 
 		$pageContent = new Template('pageContent.tpl', $templateDir);
 
@@ -35,7 +35,7 @@ class InfoBoxpageContent extends InfoBoxAbstract {
 */
 		/* Page Content is the only widget that parses directly into its tpl file */
 		$PageContent = $Template->getVar('pageContent');
-		$this->setBoxContent($PageContent->parse());
+		$this->setBoxContent($PageContent->getVar('pageContent'));
 		
 		return $this->draw();
 	}

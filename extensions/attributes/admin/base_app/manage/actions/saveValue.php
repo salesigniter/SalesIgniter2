@@ -35,20 +35,20 @@
 		);
 	
 	 	$deleteIcon = htmlBase::newElement('icon')->setType('circleClose')->setTooltip('Click to delete value')
-	 	->setHref(itw_app_link('action=removeValue&value_id=' . $vID))
+	 	->setHref(itw_app_link('appExt=attributes&action=removeValue&value_id=' . $vID))
 	 	->css($iconCss);
 
 	 	$editIcon = htmlBase::newElement('icon')->setType('wrench')->setTooltip('Click to edit value')
-	 	->setHref(itw_app_link('windowAction=edit&action=getValueWindow&value_id=' . $vID))
+	 	->setHref(itw_app_link('appExt=attributes&windowAction=edit&action=getValueWindow&value_id=' . $vID))
 	 	->css($iconCss);
 
 		$newValueWrapper = new htmlElement('div');
 		$newValueWrapper->css(array(
 			'float'   => 'left',
-			'width'   => '150px',
-			'height'  => '50px',
-			'padding' => '4px',
-			'margin'  => '3px'
+			'width'   => '10em',
+			'height'  => '3em',
+			'padding' => '.3em',
+			'margin'  => '.3em'
 		))->addClass('ui-widget ui-widget-content ui-corner-all draggableValue')
 		->html('<b><span class="valueName" value_id="' . $vID . '">' . $outputName . '</span></b>' . $deleteIcon->draw() . $editIcon->draw());
 	

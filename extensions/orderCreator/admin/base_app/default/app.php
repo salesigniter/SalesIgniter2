@@ -1,39 +1,40 @@
 <?php
 	$appContent = $App->getAppContentFile();
 
-	//require(sysConfig::getDirFsCatalog() . 'includes/classes/product.php');
 	require(sysConfig::getDirFsCatalog() . 'includes/functions/crypt.php');
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/http_client.php');
 
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-	$currencies = new currencies();
-	
 	if ($App->getAppPage() == 'new'){
-		if (Session::exists('OrderCreator') === false){
+		$runInit = false;
+		if (!isset($_GET['action'])){
 			if (isset($_GET['oID'])){
 				$Editor = new OrderCreator((int) $_GET['oID']);
 			}else{
-				$Editor = new OrderCreator;
+				$Editor = new OrderCreator();
 			}
 			Session::set('OrderCreator', $Editor);
 		}else{
-			$Editor = Session::get('OrderCreator');
-			if (!isset($_GET['action']) && isset($_GET['oID']) && $Editor->getOrderId() != $_GET['oID']){
-				$Editor = new OrderCreator((int) $_GET['oID']);
-				Session::set('OrderCreator', $Editor);
+			if (isset($_GET['oID'])){
+				$EditorCheck =& Session::getReference('OrderCreator');
+				if ($EditorCheck->getOrderId() != $_GET['oID']){
+					$Editor = new OrderCreator((int) $_GET['oID']);
+					Session::set('OrderCreator', $Editor);
+				}else{
+					$runInit = true;
+				}
 			}else{
-				//$Editor = new Order((int) $_GET['oID']);
-				//Session::set('OrderEditor', $Editor);
-				$Editor->init();
+				$runInit = true;
 			}
 		}
+
+		$Editor =& Session::getReference('OrderCreator');
+		if ($runInit === true){
+			$Editor->init();
+		}
+
     	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.autocomplete.js');
 		$App->addStylesheetFile('ext/jQuery/themes/smoothness/ui.autocomplete.css');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.core.js');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.slide.js');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fold.js');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fade.js');
 	}
 	
 	$orders_statuses = array();

@@ -13,10 +13,12 @@
 class OrderPaymentAuthorizenet extends CreditCardModule
 {
 
+	private $params = array();
+
 	public function __construct() {
 		/*
-					 * Default title and description for modules that are not yet installed
-					 */
+		 * Default title and description for modules that are not yet installed
+		 */
 		$this->setTitle('Credit Card Via Authorize.net');
 		$this->setDescription('Credit Card Via Authorize.net');
 
@@ -29,13 +31,13 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$this->testMode = ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_TESTMODE') == 'Test' || $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_TESTMODE') == 'Test And Debug');
 			$this->cim_mode = ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CIM') == 'True');
 			$this->curlCompiled = ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CURL') != 'Not Compiled');
-				$this->can_reuse = $this->getReuses();
+			$this->can_reuse = $this->getReuses();
 
-				$this->startNumbersRejected = explode(',', $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_REJECTED_CC'));
+			$this->startNumbersRejected = explode(',', $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_REJECTED_CC'));
 			$this->allowedTypes = array();
 
 			// Credit card pulldown list
-			$cc_array = explode(',', $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_ACCEPTED_CC'));
+			$cc_array = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_ACCEPTED_CC');
 			foreach($cc_array as $k => $v){
 				$this->allowedTypes[trim($v)] = $this->cardTypes[trim($v)];
 			}
@@ -58,29 +60,29 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$this->params['taxExempt'] = 'false';
 			$this->params['recurringBilling'] = 'false';
 			/*
-							 * Use Authorize.net's param dump to show what they are recieving from the server
-							 */
+			 * Use Authorize.net's param dump to show what they are recieving from the server
+			 */
 			//$this->gatewayUrl = 'https://developer.authorize.net/param_dump.asp';
 		}
 	}
 
-		public function getReuses(){
+	public function getReuses() {
 
-			$userAccount = OrderPaymentModules::getUserAccount();
-			if(is_object($userAccount)){
-				$Qhistory = Doctrine_Query::create()
+		$userAccount = OrderPaymentModules::getUserAccount();
+		if (is_object($userAccount)){
+			$Qhistory = Doctrine_Query::create()
 				->from('Orders o')
 				->leftJoin('o.OrdersPaymentsHistory oph')
 				->where('o.customers_id=?', $userAccount->getCustomerId())
 				->orderBy('payment_history_id DESC')
 				->limit(1)
 				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-				if($Qhistory[0]['OrdersPaymentsHistory'][0]['can_reuse'] == 1){
-					return true;
-				}
+			if (sizeof($Qhistory) > 0 && sizeof($Qhistory[0]['OrdersPaymentsHistory']) > 0 && $Qhistory[0]['OrdersPaymentsHistory'][0]['can_reuse'] == 1){
+				return true;
 			}
-			return false;
 		}
+		return false;
+	}
 
 	public function getCreatorRow($Editor, &$headerPaymentCols) {
 		parent::getCreatorRow($Editor, &$headerPaymentCols);
@@ -163,7 +165,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			}
 		}
 
-			if($this->cim_mode === true && count($paymentCards) > 0 && $this->can_reuse === true){
+		if ($this->cim_mode === true && count($paymentCards) > 0 && $this->can_reuse === true){
 			$htmlSelect = htmlBase::newElement('selectbox')
 				->setName('payment_profile');
 			$htmlSelect->addOption('-1', sysLanguage::get('TEXT_PLEASE_SELECT_PAYMENT_PROFILE'));
@@ -234,18 +236,17 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 					'field' => $this->getCreditCardCvvField()
 				);
 			}
-				if($this->cim_mode === true){
-				   $htmlCheck = htmlBase::newElement('checkbox')
-				   ->setName('canReuse');
-				   if(isset($onePageCheckout->onePage['info']['payment']['cardDetails']['canReuse'])){
-					   $htmlCheck->setChecked(true);
-				   }
-				   $fieldsArray[] = array(
-					   'title' => sysLanguage::get('MODULE_PAYMENT_AUTHORIZENET_CAN_REUSE'),
-					   'field' => $htmlCheck->draw()
-				   );
-
+			if ($this->cim_mode === true){
+				$htmlCheck = htmlBase::newElement('checkbox')
+					->setName('canReuse');
+				if (isset($onePageCheckout->onePage['info']['payment']['cardDetails']['canReuse'])){
+					$htmlCheck->setChecked(true);
 				}
+				$fieldsArray[] = array(
+					'title' => sysLanguage::get('MODULE_PAYMENT_AUTHORIZENET_CAN_REUSE'),
+					'field' => $htmlCheck->draw()
+				);
+			}
 		}
 
 		$return = parent::onSelect();
@@ -258,15 +259,15 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 	public function refundPayment($requestData) {
 		if ($this->cim_mode == false){
 			$dataArray = array(
-				'x_login' => $this->login,
-				'x_tran_key' => $this->transkey,
+				'x_login'          => $this->login,
+				'x_tran_key'       => $this->transkey,
 				'x_relay_response' => 'FALSE',
-				'x_delim_data' => 'TRUE',
-				'x_version' => '3.1',
-				'x_type' => 'CREDIT',
-				'x_card_num' => trim($requestData['cardDetails']['cardNumber']),
-				'x_amount' => number_format($requestData['amount'], 2),
-				'x_trans_id' => trim($requestData['cardDetails']['transId'])
+				'x_delim_data'     => 'TRUE',
+				'x_version'        => '3.1',
+				'x_type'           => 'CREDIT',
+				'x_card_num'       => trim($requestData['cardDetails']['cardNumber']),
+				'x_amount'         => number_format($requestData['amount'], 2),
+				'x_trans_id'       => trim($requestData['cardDetails']['transId'])
 			);
 			$CurlRequest = new CurlRequest($this->gatewayUrl);
 			$CurlRequest->setData($dataArray);
@@ -289,144 +290,147 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 	}
 
-		public function processPayment($orderID = null, $amount = null){
-			global $order, $onePageCheckout, $ShoppingCart, $Editor;
+	public function processPayment($orderID = null, $amount = null) {
+		global $order, $onePageCheckout, $ShoppingCart, $Editor;
 
 		$this->removeOrderOnFail = true;
 		if (isset($_POST['canReuse'])){
 			$onePageCheckout->onePage['info']['payment']['cardDetails']['canReuse'] = true;
 		}
 
-			if($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only'){
-				$xType = 'AUTH_ONLY';
-			}elseif($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize And Capture'){
+		if ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only'){
+			$xType = 'AUTH_ONLY';
+		}
+		elseif ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize And Capture') {
+			$xType = 'AUTH_CAPTURE';
+		}
+		else {
+			$xType = 'PRIOR_AUTH_CAPTURE';
+		}
+
+		$paymentInfo = OrderPaymentModules::getPaymentInfo();
+		$xExpDate = $paymentInfo['cardDetails']['cardExpMonth'] . $paymentInfo['cardDetails']['cardExpYear'];
+		$expirationDate = $paymentInfo['cardDetails']['cardExpYear'] . '-' . $paymentInfo['cardDetails']['cardExpMonth'];
+
+		/*For each product i calculate deposit amount and make the sum for auth type and then substract for auth and sale*/
+		/*if on editor i get all product from editor too*/
+		$totalDeposit = 0;
+		if (isset($ShoppingCart) && !is_null($ShoppingCart) && is_object($ShoppingCart)){
+			foreach($ShoppingCart->getProducts() as $iProduct){
+				$resInfo = $iProduct->getInfo();
+				if (isset($resInfo['reservationInfo']['deposit_amount'])){
+					$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
+				}
+				//can be for insurance too
+			}
+		}
+		elseif (isset($Editor)) {
+			foreach($Editor->ProductManager->getContents() as $iProduct){
+				$resInfo = $iProduct->getInfo();
+				if (isset($resInfo['reservationInfo']['deposit_amount'])){
+					$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
+				}
+			}
+		}
+
+		if (is_null($orderID)){
+			$userAccount = OrderPaymentModules::getUserAccount();
+
+			$addressBook =& $userAccount->plugins['addressBook'];
+			$billingAddress = $addressBook->getAddress('billing');
+			$countryInfo = $userAccount->plugins['addressBook']->getCountryInfo($billingAddress['entry_country_id']);
+
+			$total = $order->info['total'];
+			$dataArray = array(
+				'currencyCode'          => $order->info['currency'],
+				'orderID'               => $order->newOrder['orderID'],
+				'description'           => 'description',
+				'cardNum'               => $paymentInfo['cardDetails']['cardNumber'],
+				'cardExpDate'           => $xExpDate,
+				'cardExpDateCIM'        => $expirationDate,
+				'customerId'            => $userAccount->getCustomerId(),
+				'customerEmail'         => $userAccount->getEmailAddress(),
+				'customerIp'            => $_SERVER['REMOTE_ADDR'],
+				'customerFirstName'     => $billingAddress['entry_firstname'],
+				'customerLastName'      => $billingAddress['entry_lastname'],
+				'customerCompany'       => (isset($billingAddress['entry_company']) ? $billingAddress['entry_company'] : ''),
+				'customerStreetAddress' => $billingAddress['entry_street_address'],
+				'customerPostcode'      => $billingAddress['entry_postcode'],
+				'customerCity'          => $billingAddress['entry_city'],
+				'customerState'         => $billingAddress['entry_state'],
+				'customerTelephone'     => $userAccount->getTelephoneNumber(),
+				'customerFax'           => $userAccount->getFaxNumber(),
+				'customerCountry'       => $countryInfo['countries_name'],
+				'cardCvv'               => $paymentInfo['cardDetails']['cardCvvNumber']
+			);
+		}
+		else {
+			$Qorder = Doctrine_Query::create()
+				->from('Orders o')
+				->leftJoin('o.OrdersPaymentsHistory oph')
+				->leftJoin('o.Customers c')
+				->leftJoin('o.OrdersAddresses oa')
+				->leftJoin('o.OrdersTotal ot')
+				->where('o.orders_id = ?', $orderID)
+				->andWhere('oa.address_type = ?', 'billing')
+				->andWhereIn('ot.module_type', array('total', 'ot_total'))
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+			if (!is_null($amount)){
+				$total = $amount;
+			}
+			else {
+				$total = $Qorder[0]['OrdersTotal'][0]['value'];
+			}
+			$cardDetails = unserialize(cc_decrypt($Qorder[0]['OrdersPaymentsHistory'][0]['card_details']));
+			$xExpDate = $cardDetails['cardExpMonth'] . $cardDetails['cardExpYear'];
+			$dataArray = array(
+				'currencyCode'          => $Qorder[0]['currency'],
+				'orderID'               => $orderID,
+				'description'           => sysConfig::get('STORE_NAME') . ' Subscription Payment',
+				'cardNum'               => $cardDetails['cardNumber'],
+				'cardExpDate'           => $xExpDate,
+				'customerId'            => $Qorder[0]['customers_id'],
+				'customerEmail'         => $Qorder[0]['customers_email_address'],
+				'customerFirstName'     => $Qorder[0]['Customers']['customers_firstname'],
+				'customerLastName'      => $Qorder[0]['Customers']['customers_lastname'],
+				'customerCompany'       => $Qorder[0]['OrdersAddresses'][0]['entry_company'],
+				'customerStreetAddress' => $Qorder[0]['OrdersAddresses'][0]['entry_street_address'],
+				'customerPostcode'      => $Qorder[0]['OrdersAddresses'][0]['entry_postcode'],
+				'customerCity'          => $Qorder[0]['OrdersAddresses'][0]['entry_city'],
+				'customerState'         => $Qorder[0]['OrdersAddresses'][0]['entry_state'],
+				'customerTelephone'     => $Qorder[0]['customers_telephone'],
+				'customerCountry'       => $Qorder[0]['OrdersAddresses'][0]['entry_country'],
+				'cardCvv'               => $cardDetails['cardCvvNumber']
+			);
+		}
+
+		if ($totalDeposit > 0){
+			$xType = 'AUTH_ONLY';
+			$dataArray['amount'] = $totalDeposit;
+			$dataArray['xType'] = $xType;
+
+			$f = $this->sendPaymentRequest($dataArray);
+			if ($f){
+				$restAmount = $total - $totalDeposit;
+
 				$xType = 'AUTH_CAPTURE';
-			}else{
-				$xType = 'PRIOR_AUTH_CAPTURE';
-			}
-
-			$paymentInfo = OrderPaymentModules::getPaymentInfo();
-			$xExpDate = $paymentInfo['cardDetails']['cardExpMonth'] . $paymentInfo['cardDetails']['cardExpYear'];
-			$expirationDate = $paymentInfo['cardDetails']['cardExpYear'].'-'. $paymentInfo['cardDetails']['cardExpMonth'];
-
-			/*For each product i calculate deposit amount and make the sum for auth type and then substract for auth and sale*/
-			/*if on editor i get all product from editor too*/
-			$totalDeposit = 0;
-			if(isset($ShoppingCart) && !is_null($ShoppingCart) && is_object($ShoppingCart)){
-				foreach($ShoppingCart->getProducts() as $iProduct){
-					$resInfo = $iProduct->getInfo();
-					if(isset($resInfo['reservationInfo']['deposit_amount'])){
-						$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
-					}
-					//can be for insurance too
-				}
-			}elseif(isset($Editor)){
-				foreach($Editor->ProductManager->getContents() as $iProduct){
-					$resInfo = $iProduct->getPInfo();
-					if(isset($resInfo['reservationInfo']['deposit_amount'])){
-						$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
-					}
-				}
-			}
-
-			if(is_null($orderID)){
-				$userAccount = OrderPaymentModules::getUserAccount();
-
-				$addressBook =& $userAccount->plugins['addressBook'];
-				$billingAddress = $addressBook->getAddress('billing');
-				$countryInfo = $userAccount->plugins['addressBook']->getCountryInfo($billingAddress['entry_country_id']);
-
-				$total = $order->info['total'];
-				$dataArray = array(
-					'currencyCode' => $order->info['currency'],
-					'orderID' => $order->newOrder['orderID'],
-					'description' => 'description',
-					'cardNum' => $paymentInfo['cardDetails']['cardNumber'],
-					'cardExpDate' => $xExpDate,
-					'cardExpDateCIM' => $expirationDate,
-					'customerId' => $userAccount->getCustomerId(),
-					'customerEmail' => $userAccount->getEmailAddress(),
-					'customerIp' => $_SERVER['REMOTE_ADDR'],
-					'customerFirstName' => $billingAddress['entry_firstname'],
-					'customerLastName' => $billingAddress['entry_lastname'],
-					'customerCompany' => $billingAddress['entry_company'],
-					'customerStreetAddress' => $billingAddress['entry_street_address'],
-					'customerPostcode' => $billingAddress['entry_postcode'],
-					'customerCity' => $billingAddress['entry_city'],
-					'customerState' => $billingAddress['entry_state'],
-					'customerTelephone' => $userAccount->getTelephoneNumber(),
-					'customerFax' => $userAccount->getFaxNumber(),
-					'customerCountry' => $countryInfo['countries_name'],
-					'cardCvv' => $paymentInfo['cardDetails']['cardCvvNumber']
-				);
-			}else{
-				$Qorder = Doctrine_Query::create()
-					->from('Orders o')
-					->leftJoin('o.OrdersPaymentsHistory oph')
-					->leftJoin('o.Customers c')
-					->leftJoin('o.OrdersAddresses oa')
-					->leftJoin('o.OrdersTotal ot')
-					->where('o.orders_id = ?', $orderID)
-					->andWhere('oa.address_type = ?', 'billing')
-					->andWhereIn('ot.module_type', array('total', 'ot_total'))
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-				if(!is_null($amount)){
-					$total = $amount;
-				}else{
-					$total = $Qorder[0]['OrdersTotal'][0]['value'];
-				}
-				$cardDetails = unserialize(cc_decrypt($Qorder[0]['OrdersPaymentsHistory'][0]['card_details']));
-				$xExpDate = $cardDetails['cardExpMonth']. $cardDetails['cardExpYear'];
-				$dataArray = array(
-					'currencyCode' => $Qorder[0]['currency'],
-					'orderID' => $orderID,
-					'description' => sysConfig::get('STORE_NAME') . ' Subscription Payment',
-					'cardNum' => $cardDetails['cardNumber'],
-					'cardExpDate' => $xExpDate,
-					'customerId' => $Qorder[0]['customers_id'],
-					'customerEmail' => $Qorder[0]['customers_email_address'],
-					'customerFirstName' => $Qorder[0]['Customers']['customers_firstname'],
-					'customerLastName' => $Qorder[0]['Customers']['customers_lastname'],
-					'customerCompany' => $Qorder[0]['OrdersAddresses'][0]['entry_company'],
-					'customerStreetAddress' => $Qorder[0]['OrdersAddresses'][0]['entry_street_address'],
-					'customerPostcode' => $Qorder[0]['OrdersAddresses'][0]['entry_postcode'],
-					'customerCity' => $Qorder[0]['OrdersAddresses'][0]['entry_city'],
-					'customerState' => $Qorder[0]['OrdersAddresses'][0]['entry_state'],
-					'customerTelephone' => $Qorder[0]['customers_telephone'],
-					'customerCountry' => $Qorder[0]['OrdersAddresses'][0]['entry_country'],
-					'cardCvv' => $cardDetails['cardCvvNumber']
-				);
-
-			}
-
-			if($totalDeposit > 0){
-				$xType = 'AUTH_ONLY';
-				$dataArray['amount'] = $totalDeposit;
+				$dataArray['amount'] = $restAmount;
 				$dataArray['xType'] = $xType;
-
 
 				$f = $this->sendPaymentRequest($dataArray);
-				if($f){
-					$restAmount = $total - $totalDeposit;
-
-					$xType = 'AUTH_CAPTURE';
-					$dataArray['amount'] = $restAmount;
-					$dataArray['xType'] = $xType;
-
-					$f = $this->sendPaymentRequest($dataArray);
-				}
-				return $f;
-			}else{
-				$dataArray['amount'] =  $total;
-				$dataArray['xType'] = $xType;
-				return $this->sendPaymentRequest($dataArray);
 			}
-
+			return $f;
 		}
-		
-		public function processPaymentCron($orderID){
-			$this->removeOrderOnFail = false;
+		else {
+			$dataArray['amount'] = $total;
+			$dataArray['xType'] = $xType;
+			return $this->sendPaymentRequest($dataArray);
+		}
+	}
+
+	public function processPaymentCron($orderID) {
+		$this->removeOrderOnFail = false;
 
 		$Qorder = Doctrine_Query::create()
 			->from('Orders o')
@@ -439,61 +443,63 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-			$xType = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only' ? 'AUTH_ONLY' : 'AUTH_CAPTURE';
-			$xMethod = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_METHOD') == 'Credit Card' ? 'CC' : 'ECHECK';
-			$xEmailCustomer = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER') == 'True' ? 'TRUE': 'FALSE';
-			$xEmailMerchant = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_MERCHANT') == 'True' ? 'TRUE': 'FALSE';
-			$xExpDate = cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['exp_date']);
+		$xType = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only' ? 'AUTH_ONLY' : 'AUTH_CAPTURE';
+		$xMethod = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_METHOD') == 'Credit Card' ? 'CC' : 'ECHECK';
+		$xEmailCustomer = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER') == 'True' ? 'TRUE' : 'FALSE';
+		$xEmailMerchant = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_MERCHANT') == 'True' ? 'TRUE' : 'FALSE';
+		$xExpDate = cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['exp_date']);
 
-			if($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only'){
-				$xType = 'AUTH_ONLY';
-			}elseif($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize And Capture'){
-				$xType = 'AUTH_CAPTURE';
-			}else{
-				$xType = 'PRIOR_AUTH_CAPTURE';
-			}
-
-			$dataArray = array(
-				'amount' => $Qorder[0]['OrdersTotal'][0]['value'],
-				'currencyCode' => $Qorder[0]['currency'],
-				'orderID' => $orderID,
-				'description' => sysConfig::get('STORE_NAME') . ' Subscription Payment',
-				'cardNum' => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
-				'cardExpDate' => $xExpDate,
-				'customerId' => $Qorder[0]['customers_id'],
-				'customerEmail' => $Qorder[0]['customers_email_address'],
-				'customerFirstName' => $Qorder[0]['Customers']['customers_firstname'],
-				'customerLastName' => $Qorder[0]['Customers']['customers_lastname'],
-				'customerCompany' => $Qorder[0]['OrdersAddresses'][0]['entry_company'],
-				'customerStreetAddress' => $Qorder[0]['OrdersAddresses'][0]['entry_street_address'],
-				'customerPostcode' => $Qorder[0]['OrdersAddresses'][0]['entry_postcode'],
-				'customerCity' => $Qorder[0]['OrdersAddresses'][0]['entry_city'],
-				'customerState' => $Qorder[0]['OrdersAddresses'][0]['entry_state'],
-				'customerTelephone' => $Qorder[0]['customers_telephone'],
-				'customerCountry' => $Qorder[0]['OrdersAddresses'][0]['entry_country'],
-				'cardCvv' => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_cvv']),
-				'xType' => $xType
-			);
-
-			return $this->sendPaymentRequest($dataArray, true);
+		if ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only'){
+			$xType = 'AUTH_ONLY';
+		}
+		elseif ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize And Capture') {
+			$xType = 'AUTH_CAPTURE';
+		}
+		else {
+			$xType = 'PRIOR_AUTH_CAPTURE';
 		}
 
-		public function sendPaymentRequest($requestParams, $isCron = false){
-			global $messageStack;
+		$dataArray = array(
+			'amount'                => $Qorder[0]['OrdersTotal'][0]['value'],
+			'currencyCode'          => $Qorder[0]['currency'],
+			'orderID'               => $orderID,
+			'description'           => sysConfig::get('STORE_NAME') . ' Subscription Payment',
+			'cardNum'               => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
+			'cardExpDate'           => $xExpDate,
+			'customerId'            => $Qorder[0]['customers_id'],
+			'customerEmail'         => $Qorder[0]['customers_email_address'],
+			'customerFirstName'     => $Qorder[0]['Customers']['customers_firstname'],
+			'customerLastName'      => $Qorder[0]['Customers']['customers_lastname'],
+			'customerCompany'       => $Qorder[0]['OrdersAddresses'][0]['entry_company'],
+			'customerStreetAddress' => $Qorder[0]['OrdersAddresses'][0]['entry_street_address'],
+			'customerPostcode'      => $Qorder[0]['OrdersAddresses'][0]['entry_postcode'],
+			'customerCity'          => $Qorder[0]['OrdersAddresses'][0]['entry_city'],
+			'customerState'         => $Qorder[0]['OrdersAddresses'][0]['entry_state'],
+			'customerTelephone'     => $Qorder[0]['customers_telephone'],
+			'customerCountry'       => $Qorder[0]['OrdersAddresses'][0]['entry_country'],
+			'cardCvv'               => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_cvv']),
+			'xType'                 => $xType
+		);
 
-			$xMethod = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_METHOD') == 'Credit Card' ? 'CC' : 'ECHECK';
-			$xEmailCustomer = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER') == 'True' ? 'TRUE': 'FALSE';
-			$xEmailMerchant = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_MERCHANT') == 'True' ? 'TRUE': 'FALSE';
-			$xType = $requestParams['xType'];
+		return $this->sendPaymentRequest($dataArray, true);
+	}
+
+	public function sendPaymentRequest($requestParams, $isCron = false) {
+		global $messageStack, $order;
+
+		$xMethod = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_METHOD') == 'Credit Card' ? 'CC' : 'ECHECK';
+		$xEmailCustomer = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER') == 'True' ? 'TRUE' : 'FALSE';
+		$xEmailMerchant = $this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_EMAIL_MERCHANT') == 'True' ? 'TRUE' : 'FALSE';
+		$xType = $requestParams['xType'];
 
 		$dataArray = array(
-			'x_login' => $this->login,
-			'x_tran_key' => $this->transkey,
+			'x_login'          => $this->login,
+			'x_tran_key'       => $this->transkey,
 			'x_relay_response' => 'FALSE',
-			'x_delim_data' => 'TRUE',
-			'x_version' => '3.1',
-			'x_type' => $xType,
-			'x_method' => $xMethod,
+			'x_delim_data'     => 'TRUE',
+			'x_version'        => '3.1',
+			'x_type'           => $xType,
+			'x_method'         => $xMethod,
 			'x_email_customer' => $xEmailCustomer,
 			'x_email_merchant' => 'FALSE'
 		);
@@ -605,48 +611,47 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 					$this->setParameter('customerProfileId', $profile_id);
 				}
 
-					$this->createCustomerPaymentProfile();
-					if(strpos($this->getResponse(), 'A duplicate customer payment profile already exists') !== false){
-						$this->createCustomerProfile();
-						$profileID = '';
-						if(strpos($this->getResponse(), 'A duplicate record with ID') !== false){
-							$profileID = substr($this->getResponse(),strlen('A duplicate record with ID '), strpos($this->getResponse(),' already') - strlen('A duplicate record with ID '));
-							$this->profileId = $profileID;
-							$this->setParameter('customerProfileId', $profileID);
-						}
-						$paymentCardsArr = array();
-						$paymentProfilesArr = array();
-						if($profileID != ''){
-							$this->getCustomerProfile();
-							if(isset($this->paymentProfiles)){
-								foreach($this->paymentProfiles as $profile){
-									$paymentCardsArr[] = (string)$profile->payment->creditCard->cardNumber;
-									$paymentProfilesArr[] = (string)$profile->customerPaymentProfileId;
-								}
-							}
-						}
-
-						$payment_profile_id = -1;
-						foreach($paymentCardsArr as $key => $card){
-							if(substr($paymentCardsArr[$key], -4, 4) == substr($requestParams['cardNum'], -4, 4)){
-								$payment_profile_id = $paymentProfilesArr[$key];
-								break;
-							}
-
-						}
-						if($payment_profile_id == -1){
-							$this->setErrorMessage('Payment Profile already exists');
-							$messageStack->addSession('pageStack', 'Payment Profile already exists', 'error');
-							return false;
-						}
-
-					}else{
-						$payment_profile_id = $this->getPaymentProfileId();
+				$this->createCustomerPaymentProfile();
+				if (strpos($this->getResponse(), 'A duplicate customer payment profile already exists') !== false){
+					$this->createCustomerProfile();
+					$profileID = '';
+					if (strpos($this->getResponse(), 'A duplicate record with ID') !== false){
+						$profileID = substr($this->getResponse(), strlen('A duplicate record with ID '), strpos($this->getResponse(), ' already') - strlen('A duplicate record with ID '));
+						$this->profileId = $profileID;
+						$this->setParameter('customerProfileId', $profileID);
 					}
+					$paymentCardsArr = array();
+					$paymentProfilesArr = array();
+					if ($profileID != ''){
+						$this->getCustomerProfile();
+						if (isset($this->paymentProfiles)){
+							foreach($this->paymentProfiles as $profile){
+								$paymentCardsArr[] = (string)$profile->payment->creditCard->cardNumber;
+								$paymentProfilesArr[] = (string)$profile->customerPaymentProfileId;
+							}
+						}
+					}
+
+					$payment_profile_id = -1;
+					foreach($paymentCardsArr as $key => $card){
+						if (substr($paymentCardsArr[$key], -4, 4) == substr($requestParams['cardNum'], -4, 4)){
+							$payment_profile_id = $paymentProfilesArr[$key];
+							break;
+						}
+					}
+					if ($payment_profile_id == -1){
+						$this->setErrorMessage('Payment Profile already exists');
+						$messageStack->addSession('pageStack', 'Payment Profile already exists', 'error');
+						return false;
+					}
+				}
+				else {
+					$payment_profile_id = $this->getPaymentProfileId();
+				}
 
 				$this->setParameter('customerPaymentProfileId', $payment_profile_id);
 				//$this->setParameter('customerShippingAddressId', $shipping_profile_id);
-					$this->createCustomerProfileTransaction((($xType == 'AUTH_ONLY')?'profileTransAuthOnly':'profileTransAuthCapture'));
+				$this->createCustomerProfileTransaction((($xType == 'AUTH_ONLY') ? 'profileTransAuthOnly' : 'profileTransAuthCapture'));
 				$message = $this->getResponse();
 				//echo 'gs'.$message;
 				if (isset($this->params['orderInvoiceNumber'])){
@@ -677,18 +682,19 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 					$info['amount'] = '';
 				}
 
-					if($message == 'Successful.' || (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0)){
-						if(isset($order) &&sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0){
-							$info['message'] = 'Payment on hold';
-						}else{
-							$info['message'] = 'Approval Code:'.$this->getAuthCode();
-						}
-						$info['transId'] = (isset($this->transactionId)?$this->transactionId:'');
-						return $this->CIMSuccess($info, $isCron);
+				if ($message == 'Successful.' || (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0)){
+					if (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0){
+						$info['message'] = 'Payment on hold';
+					}
+					else {
+						$info['message'] = 'Approval Code:' . $this->getAuthCode();
+					}
+					$info['transId'] = (isset($this->transactionId) ? $this->transactionId : '');
+					return $this->CIMSuccess($info, $isCron);
 				}
 				else {
 					$info['message'] = $this->getResponse();
-						return $this->CIMFail($info, $isCron);
+					return $this->CIMFail($info, $isCron);
 				}
 			}
 			else {
@@ -703,7 +709,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				$this->setParameter('customerProfileId', $profile_id);
 				$this->setParameter('customerPaymentProfileId', $payment_profile_id);
 				//$this->setParameter('customerShippingAddressId', $shipping_profile_id);
-					$this->createCustomerProfileTransaction((($xType == 'AUTH_ONLY')?'profileTransAuthOnly':'profileTransAuthCapture'));
+				$this->createCustomerProfileTransaction((($xType == 'AUTH_ONLY') ? 'profileTransAuthOnly' : 'profileTransAuthCapture'));
 				$message = $this->getResponse();
 
 				if (isset($this->params['orderInvoiceNumber'])){
@@ -737,11 +743,11 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				if ($message == 'Successful.'){
 					$info['message'] = 'Approval Code:' . $this->getAuthCode();
 					$info['transId'] = (isset($this->transactionId) ? $this->transactionId : '');
-						return $this->CIMSuccess($info, $isCron);
+					return $this->CIMSuccess($info, $isCron);
 				}
 				else {
 					$info['message'] = $this->getResponse();
-						return $this->CIMFail($info, $isCron);
+					return $this->CIMFail($info, $isCron);
 				}
 			}
 		}
@@ -750,21 +756,21 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$CurlRequest->setData($dataArray);
 			$CurlResponse = $CurlRequest->execute();
 
-				return $this->onResponse($CurlResponse, $isCron);
+			return $this->onResponse($CurlResponse, $isCron);
 		}
 	}
 
-		private function onResponse($CurlResponse, $isCron = false){
-			global $order;
-			$response = $CurlResponse->getResponse();
-			$response = explode(',', $response);
+	private function onResponse($CurlResponse, $isCron = false) {
+		global $order;
+		$response = $CurlResponse->getResponse();
+		$response = explode(',', $response);
 
-		$code = $response[0];
-		$subCode = $response[1];
-		$reasonCode = $response[2];
-		$reasonText = $response[3];
+		$code = /*$response[0]*/1;
+		$subCode = /*$response[1]*/2;
+		$reasonCode = /*$response[2]*/2;
+		$reasonText = /*$response[3]*/2;
 
-		$this->transactionId = $response[6];
+		$this->transactionId = /*$response[6]*/4324123432;
 		$success = true;
 		$errMsg = $reasonText;
 		if ($code != 1){
@@ -789,51 +795,51 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$this->cronMsg = $errMsg;
 		}
 
-			if ($success === true || (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0)){
-				if(isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0){
-					$errMsg = 'Payment on hold';
-				}
-				$this->onSuccess(array(
-					'curlResponse' => $CurlResponse,
-					'message' => $errMsg
-				));
+		if ($success === true || (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0)){
+			if (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0){
+				$errMsg = 'Payment on hold';
+			}
+			$this->onSuccess(array(
+				'curlResponse' => $CurlResponse,
+				'message'      => $errMsg
+			));
 		}
 		else {
 			$this->onFail(array(
-					'curlResponse' => $CurlResponse,
-					'message' => $errMsg
-				));
+				'curlResponse' => $CurlResponse,
+				'message'      => $errMsg
+			));
 		}
 		return $success;
 	}
 
-		private function CIMSuccess($info, $isCron = false){
+	private function CIMSuccess($info, $isCron = false) {
 		$cardDetails = array(
 			'customerProfile' => $info['profileID'],
-			'paymentProfile' => $info['paymentProfile'],
-			'transId' => $info['transId']
+			'paymentProfile'  => $info['paymentProfile'],
+			'transId'         => $info['transId']
 		);
-			if ($isCron === true){
-				$this->cronMsg = 'Successful Transaction';
-			}
+		if ($isCron === true){
+			$this->cronMsg = 'Successful Transaction';
+		}
 
 		$this->logPayment(array(
-				'orderID' => $info['orderID'],
-				'amount' => $info['amount'],
-				'message' => $info['message'],
-				'success' => 1,
-				'can_reuse' => (isset($_POST['canReuse']) ? 1 : 0),
-				'cardDetails' => $cardDetails
-			));
+			'orderID'     => $info['orderID'],
+			'amount'      => $info['amount'],
+			'message'     => $info['message'],
+			'success'     => 1,
+			'can_reuse'   => (isset($_POST['canReuse']) ? 1 : 0),
+			'cardDetails' => $cardDetails
+		));
 		return true;
 	}
 
-		private function CIMFail($info, $isCron = false){
+	private function CIMFail($info, $isCron = false) {
 		global $messageStack;
 		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
-			if ($isCron === true){
-				$this->cronMsg = $this->getTitle() . ' : ' . $info['message'];
-			}
+		if ($isCron === true){
+			$this->cronMsg = $this->getTitle() . ' : ' . $info['message'];
+		}
 		$orderId = $info['orderID'];
 		if ($this->removeOrderOnFail === true){
 			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
@@ -845,15 +851,15 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-					'orderID' => $orderId,
-					'amount' => $info['amount'],
-					'message' => $info['message'],
-					'success' => 0,
-					'cardDetails' => array(
-						'customerProfile' => $info['profileID'],
-						'paymentProfile' => $info['paymentProfile']
-					)
-				));
+				'orderID'     => $orderId,
+				'amount'      => $info['amount'],
+				'message'     => $info['message'],
+				'success'     => 0,
+				'cardDetails' => array(
+					'customerProfile' => $info['profileID'],
+					'paymentProfile'  => $info['paymentProfile']
+				)
+			));
 		}
 		return false;
 	}
@@ -862,23 +868,22 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		$RequestData = $info['curlResponse']->getDataRaw();
 		$orderId = $RequestData['x_invoice_num'];
 
-			$cardDetails = array(
-					'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
-					'cardNumber'   => $RequestData['x_card_num'],
-					'cardExpMonth' => substr($RequestData['x_exp_date'], 0, 2),
-					'cardExpYear'  => substr($RequestData['x_exp_date'], 2),
-					'cardCvvNumber'  => $RequestData['x_card_code'],
-					'transId'      => (isset($this->transactionId)?$this->transactionId:'')
-			);
+		$cardDetails = array(
+			'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
+			'cardNumber'   => $RequestData['x_card_num'],
+			'cardExpMonth' => substr($RequestData['x_exp_date'], 0, 2),
+			'cardExpYear'  => substr($RequestData['x_exp_date'], 2),
+			'transId'      => (isset($this->transactionId) ? $this->transactionId : '')
+		);
 
 		$this->logPayment(array(
-				'orderID' => $orderId,
-				'amount' => $RequestData['x_amount'],
-				'message' => $info['message'],
-				'success' => 1,
-				'can_reuse' => (isset($_POST['canReuse']) ? 1 : 0),
-				'cardDetails' => $cardDetails
-			));
+			'orderID'     => $orderId,
+			'amount'      => $RequestData['x_amount'],
+			'message'     => $info['message'],
+			'success'     => 1,
+			'can_reuse'   => (isset($_POST['canReuse']) ? 1 : 0),
+			'cardDetails' => $cardDetails
+		));
 	}
 
 	private function onFail($info) {
@@ -896,17 +901,17 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-					'orderID' => $orderId,
-					'amount' => $RequestData['x_amount'],
-					'message' => $info['message'],
-					'success' => 0,
-					'cardDetails' => array(
-						'cardOwner' => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
-						'cardNumber' => $RequestData['x_card_num'],
-						'cardExpMonth' => $RequestData['x_exp_date'],
-						'cardExpYear' => $RequestData['x_exp_date']
-					)
-				));
+				'orderID'     => $orderId,
+				'amount'      => $RequestData['x_amount'],
+				'message'     => $info['message'],
+				'success'     => 0,
+				'cardDetails' => array(
+					'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
+					'cardNumber'   => $RequestData['x_card_num'],
+					'cardExpMonth' => $RequestData['x_exp_date'],
+					'cardExpYear'  => $RequestData['x_exp_date']
+				)
+			));
 		}
 	}
 
@@ -965,14 +970,14 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                   <billTo>
                                       <firstName>' . $this->params['billToFirstName'] . '</firstName>
                                       <lastName>' . $this->params['billToLastName'] . '</lastName>
-                                      <company>'. (isset($this->params['billToCompany'])?$this->params['billToCompany']:'') .'</company>
+                                      <company>' . (isset($this->params['billToCompany']) ? $this->params['billToCompany'] : '') . '</company>
                                       <address>' . $this->params['billToAddress'] . '</address>
                                       <city>' . $this->params['billToCity'] . '</city>
                                       <state>' . $this->params['billToState'] . '</state>
                                       <zip>' . $this->params['billToZip'] . '</zip>
                                       <country>' . $this->params['billToCountry'] . '</country>
-                                      <phoneNumber>'. (isset($this->params['billToPhoneNumber'])?$this->params['billToPhoneNumber']:'').'</phoneNumber>
-                                      <faxNumber>'. (isset($this->params['billToFaxNumber'])?$this->params['billToFaxNumber']:'').'</faxNumber>
+                                      <phoneNumber>' . (isset($this->params['billToPhoneNumber']) ? $this->params['billToPhoneNumber'] : '') . '</phoneNumber>
+                                      <faxNumber>' . (isset($this->params['billToFaxNumber']) ? $this->params['billToFaxNumber'] : '') . '</faxNumber>
                                   </billTo>
                                   <payment>';
 			if ($type === 'credit'){
@@ -981,9 +986,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                           <cardNumber>' . $this->params['cardNumber'] . '</cardNumber>
                                           <expirationDate>' . $this->params['expirationDate'] . '</expirationDate>
                                       </creditCard>';
-            }
-            else if ($type === 'check'){
-                $this->xml .= '
+			}
+			else {
+				if ($type === 'check'){
+					$this->xml .= '
                                       <bankAccount>
                                           <accountType>' . $this->params['accountType'] . '</accountType>
                                           <nameOnAccount>' . $this->params['nameOnAccount'] . '</nameOnAccount>
@@ -997,8 +1003,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                           <dlNumber>' . $this->params['dlNumber'] . '</dlNumber>
                                           <dlDateOfBirth>' . $this->params['dlDateOfBirth'] . '</dlDateOfBirth>
                                       </driversLicense>';
-            }
-            $this->xml .= '
+				}
+			}
+			$this->xml .= '
                                   </payment>
                               </paymentProfiles>
                               <shipToList>
@@ -1035,14 +1042,14 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                               <billTo>
                                   <firstName>' . $this->params['billToFirstName'] . '</firstName>
                                   <lastName>' . $this->params['billToLastName'] . '</lastName>
-                                  <company>'. (isset($this->params['billToCompany'])?$this->params['billToCompany']:'') .'</company>
+                                  <company>' . (isset($this->params['billToCompany']) ? $this->params['billToCompany'] : '') . '</company>
                                   <address>' . $this->params['billToAddress'] . '</address>
                                   <city>' . $this->params['billToCity'] . '</city>
                                   <state>' . $this->params['billToState'] . '</state>
                                   <zip>' . $this->params['billToZip'] . '</zip>
                                   <country>' . $this->params['billToCountry'] . '</country>
-                                  <phoneNumber>'. (isset($this->params['billToPhoneNumber'])?$this->params['billToPhoneNumber']:'').'</phoneNumber>
-                                  <faxNumber>'. (isset($this->params['billToFaxNumber'])?$this->params['billToFaxNumber']:'').'</faxNumber>
+                                  <phoneNumber>' . (isset($this->params['billToPhoneNumber']) ? $this->params['billToPhoneNumber'] : '') . '</phoneNumber>
+                                  <faxNumber>' . (isset($this->params['billToFaxNumber']) ? $this->params['billToFaxNumber'] : '') . '</faxNumber>
                               </billTo>
                               <payment>';
 		if ($type === 'credit'){
@@ -1051,9 +1058,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <cardNumber>' . $this->params['cardNumber'] . '</cardNumber>
                                       <expirationDate>' . $this->params['expirationDate'] . '</expirationDate>
                                   </creditCard>';
-        }
-        else if ($type === 'check'){
-            $this->xml .= '
+		}
+		else {
+			if ($type === 'check'){
+				$this->xml .= '
                                   <bankAccount>
                                       <accountType>' . $this->params['accountType'] . '</accountType>
                                       <nameOnAccount>' . $this->params['nameOnAccount'] . '</nameOnAccount>
@@ -1067,8 +1075,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <dlNumber>' . $this->params['dlNumber'] . '</dlNumber>
                                       <dlDateOfBirth>' . $this->params['dlDateOfBirth'] . '</dlDateOfBirth>
                                   </driversLicense>';
-        }
-        $this->xml .= '
+			}
+		}
+		$this->xml .= '
                               </payment>
                           </paymentProfile>
                           <validationMode>' . $this->params['validationMode'] . '</validationMode>
@@ -1303,7 +1312,8 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <expirationDate>' . $this->params['expirationDate'] . '</expirationDate>
                                   </creditCard>';
 		}
-        else if ($type === 'check'){
+		else {
+			if ($type === 'check'){
 				$this->xml .= '
                                   <bankAccount>
                                       <accountType>' . $this->params['accountType'] . '</accountType>
@@ -1318,8 +1328,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
                                       <dlNumber>' . $this->params['dlNumber'] . '</dlNumber>
                                       <dlDateOfBirth>' . $this->params['dlDateOfBirth'] . '</dlDateOfBirth>
                                   </driversLicense>';
-        }
-        $this->xml .= '
+			}
+		}
+		$this->xml .= '
                               </payment>
                               <customerPaymentProfileId>' . $this->params['customerPaymentProfileId'] . '</customerPaymentProfileId>
                           </paymentProfile>
@@ -1400,7 +1411,14 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 	}
 
 	public function setLineItem($itemId, $name, $description, $quantity, $unitprice, $taxable = 'false') {
-		$this->items[] = array('itemId' => $itemId, 'name' => $name, 'description' => $description, 'quantity' => $quantity, 'unitPrice' => $unitprice, 'taxable' => $taxable);
+		$this->items[] = array(
+			'itemId'      => $itemId,
+			'name'        => $name,
+			'description' => $description,
+			'quantity'    => $quantity,
+			'unitPrice'   => $unitprice,
+			'taxable'     => $taxable
+		);
 	}
 
 	public function setParameter($field = '', $value = null) {

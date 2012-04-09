@@ -54,21 +54,24 @@
  
  if ($canView === true){
      if (isset($_GET['oID'])){
-         $QproductID = tep_db_query('select products_id from ' . TABLE_ORDERS_PRODUCTS . ' where orders_products_id = "' . (int)$_GET['opID'] . '"');
-         $productID = tep_db_fetch_array($QproductID);
-         $pID = $productID['products_id'];
+		$ProductId = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select products_id from ' . TABLE_ORDERS_PRODUCTS . ' where orders_products_id = "' . (int)$_GET['opID'] . '"');
+         $pID = $ProductId[0]['products_id'];
      }else{
          $pID = (int)$_GET['pID'];
      }
      
      if (isset($_GET['fID'])){
-         $Qfile = tep_db_query('select * from products_uploads where products_id = "' . $pID . '" and upload_id = "' . (int)$_GET['fID'] . '"');
+         $query = 'select * from products_uploads where products_id = "' . $pID . '" and upload_id = "' . (int)$_GET['fID'] . '"';
      }else{
-         $Qfile = tep_db_query('select * from products_uploads where products_id = "' . $pID . '" and type="stream"');
+         $query = 'select * from products_uploads where products_id = "' . $pID . '" and type="stream"';
      }
-     if (tep_db_num_rows($Qfile) == 1){
+	$file = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc($query);
+     if (sizeof($file) == 1){
          $multipleFiles = false;
-         $file = tep_db_fetch_array($Qfile);
          
          $ext = substr($file['file_name'], strpos($file['file_name'], '.'));
          $movieName = 'loaded_stream_' . $file['upload_id'] . $ext;

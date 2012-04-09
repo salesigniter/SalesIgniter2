@@ -64,13 +64,14 @@
 	->setName('checkAddress')
 	->setText(sysLanguage::get('TEXT_BUTTON_CHECK_ADDRESS'))
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'addressCheck',
-		'action' => itw_app_link('appExt=payPerRentals&products_id=' . $_GET['products_id'], 'build_reservation', 'default'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('appExt=payPerRentals&products_id=' . $_GET['products_id'], 'build_reservation', 'default'))
+	->setName('addressCheck')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

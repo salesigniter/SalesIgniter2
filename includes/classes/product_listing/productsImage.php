@@ -9,11 +9,7 @@ class productListing_productsImage {
 
 	public function show(&$productClass){
 		global $cPath;
-		if (isset($_GET['manufacturers_id'])) {
-			$addedGetVar = '&manufacturers_id=' . $_GET['manufacturers_id'];
-		} else {
-			$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
-		}
+		$addedGetVar = ($cPath ? '&cPath=' . $cPath : '');
 
 		if ($productClass->hasImage()){
 			$image = $productClass->getImage();

@@ -6,8 +6,6 @@
 	}else{
 		$Category = $Categories->getRecord();
 	}
-
-	$languages = tep_get_languages();
 ?>
 <form name="new_category" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) . 'action=saveCategory');?>" method="post" enctype="multipart/form-data">
 <div class="pageHeading"><?php

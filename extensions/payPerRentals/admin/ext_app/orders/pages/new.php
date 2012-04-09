@@ -17,7 +17,7 @@ class payPerRentals_admin_orders_new extends Extension_payPerRentals {
 
 	public function load(){
 		global $App;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 
 		$App->addJavascriptFile('ext/jQuery/external/datepick/jquery.datepick.js');
 		$App->addStylesheetFile('ext/jQuery/external/datepick/css/jquery.datepick.css');

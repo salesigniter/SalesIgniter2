@@ -19,15 +19,28 @@ class SystemCacheFile {
 	}
 
 	public function hasData($key){
-		return array_key_exists($key, $this->data);
+		if (isset($this->data['addedHeaders'][$key])){
+			return true;
+		}
+		elseif (isset($this->data[$key])){
+			return true;
+		}
+		return false;
 	}
 
 	public function hasExpired(){
-		return (empty($this->data) || time() > $this->data['expires']);
+		if ($this->hasData('Expires') === true){
+			$Expires = DateTime::createFromFormat('D, d M Y H:i:s \G\M\T', $this->getData('Expires'));
+			return (time() > $Expires->getTimestamp());
+		}
+		return true;
 	}
 
 	public function getData($key){
-		if (isset($this->data[$key])){
+		if (isset($this->data['addedHeaders'][$key])){
+			return $this->data['addedHeaders'][$key];
+		}
+		elseif (isset($this->data[$key])){
 			return $this->data[$key];
 		}
 		return false;
@@ -45,7 +58,9 @@ class SystemCacheFile {
 	}
 
 	public function clear(){
-		unlink($this->realPath . $this->fileName);
+		if (file_exists($this->realPath . $this->fileName)){
+			unlink($this->realPath . $this->fileName);
+		}
 	}
 }
 
@@ -61,14 +76,10 @@ class SystemCache {
 	private $cacheDriver = 'file';
 	private $cacheKey = false;
 	private $cachePath = false;
-	private $contentType = false;
 	private $CacheClass = false;
-	private $expires = false;
-	private $lastModified = false;
-	private $cacheContent = '';
 	private $addedHeaders = array();
 
-	public function __construct($key = '', $path = ''){
+	public function __construct($key = '', $path = '', $driver = 'file'){
 		if (!empty($key)){
 			$this->cacheKey = $key;
 		}else{
@@ -76,10 +87,14 @@ class SystemCache {
 		}
 
 		if (!empty($path)){
-			$this->cachePath = $path;
+			$this->cachePath = realpath(dirname(__FILE__) . '/../../') . '/' . $path;
 		}else{
 			$this->cachePath = realpath(dirname(__FILE__) . '/../../') . '/cache/';
 		}
+
+		$this->cacheDriver = $driver;
+		$className = 'SystemCache' . ucfirst($this->cacheDriver);
+		$this->CacheClass = new $className($this->cacheKey, $this->cachePath);
 	}
 
 	public function setDriver($driver){
@@ -87,82 +102,46 @@ class SystemCache {
 	}
 
 	public function setAddedHeaders($headers){
-		$this->addedHeaders = $headers;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('addedHeaders', $headers);
-		}
+		$this->CacheClass->setData('addedHeaders', $headers);
 	}
 
 	public function setContentType($type){
-		$this->contentType = $type;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('contentType', $type);
-		}
+		$this->CacheClass->setData('contentType', $type);
 	}
 
 	public function setExpires($time){
-		$this->expires = $time;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('expires', $time);
-		}
+		$this->CacheClass->setData('expires', $time);
 	}
 
 	public function setKey($key){
-		$this->cacheKey = $key;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('key', $key);
-		}
+		$this->CacheClass->setData('key', $key);
 	}
 
 	public function setPath($path){
-		$this->cachePath = $path;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('path', $path);
-		}
+		$this->CacheClass->setData('path', $path);
 	}
 
 	public function setContent($content){
-		$this->cacheContent = $content;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('content', $content);
-		}
+		$this->CacheClass->setData('content', $content);
 	}
 
 	public function setLastModified($time){
-		$this->lastModified = $time;
-		if ($this->CacheClass){
-			$this->CacheClass->setData('lastModified', $time);
-		}
+		$this->CacheClass->setData('lastModified', $time);
 	}
 
 	public function loadData(){
-		$className = 'SystemCache' . ucfirst($this->cacheDriver);
-		$this->CacheClass = new $className($this->cacheKey, $this->cachePath);
-		if ($this->contentType !== false) $this->CacheClass->setData('contentType', $this->contentType);
-		if ($this->expires !== false) $this->CacheClass->setData('expires', $this->expires);
-		if ($this->lastModified !== false) $this->CacheClass->setData('lastModified', $this->lastModified);
-		//if ($this->cacheKey !== false) $this->CacheClass->setData('key', $this->cacheKey);
-		//if ($this->cachePath !== false) $this->CacheClass->setData('path', $this->cachePath);
-		if ($this->cacheContent != '') $this->CacheClass->setData('content', $this->cacheContent);
-
-		$expired = $this->CacheClass->hasExpired();
-		if ($expired === true){
-			if (file_exists($this->cachePath . $this->cacheKey . '.cache')){
-				$this->CacheClass->clear();
-			}
+		if ($this->CacheClass->hasExpired() === true){
+			$this->CacheClass->clear();
+			return false;
 		}
-		return ($expired === false);
+		return true;
 	}
 
 	public function store(){
-		if (!$this->CacheClass) $this->loadData();
-
 		$this->CacheClass->save();
 	}
 
 	public function output($return = false, $wHeaders = false){
-		if (!$this->CacheClass) $this->loadData();
-
 		if ($wHeaders === true){
 			$this->serveHeaders();
 		}
@@ -176,48 +155,35 @@ class SystemCache {
 
 	public function clear($key, $path = ''){
 		$className = 'SystemCache' . ucfirst($this->cacheDriver);
-		$Cache = new $className($key);
-		if (!empty($path)){
-			$Cache->setPath($path);
-		}
+		$Cache = new $className($key, $path);
 		$Cache->clear();
 	}
 
 	private function serveHeaders(){
 		header("Cache-Control: public");
-		if ($this->CacheClass->hasData('expires')){
-			header("Expires: " . date(DATE_RFC822, $this->CacheClass->getData('expires')));
-		}else
-		if ($this->expires !== false){
-			header("Expires: 0");
-		}
-
-		if ($this->CacheClass->hasData('contentType')){
-			header('Content-Type: ' . $this->CacheClass->getData('contentType') . ';');
-		}else
-		if ($this->contentType !== false){
-			header('Content-Type: ' . $this->contentType . ';');
-		}
+		header('Content-Length: ' . strlen($this->CacheClass->getData('content')));
 
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){
 		//echo $_SERVER['HTTP_IF_MODIFIED_SINCE'] . ' :: ' . strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) . '<br>';
-			if ($this->CacheClass->hasData('lastModified')){
-				//echo $this->CacheClass->getData('lastModified') . ' :: ' . strtotime($this->CacheClass->getData('lastModified'));
-				$lastModified = strtotime($this->CacheClass->getData('lastModified'));
-				if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $lastModified){
-					header('Last-Modified: ' . $_SERVER['HTTP_IF_MODIFIED_SINCE'], true, 304);
+			if ($this->CacheClass->hasData('Last-Modified')){
+				$ServerLastModified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+				if (substr($ServerLastModified, -1) == ';'){
+					$ServerLastModified = substr($ServerLastModified, 0, -1);
+				}
+				//echo $this->CacheClass->getData('Last-Modified') . ' :: ' . strtotime($this->CacheClass->getData('Last-Modified'));
+				$modifiedCheck = DateTime::createFromFormat('D, d M Y H:i:s \G\M\T', $ServerLastModified);
+				$lastModified = DateTime::createFromFormat('D, d M Y H:i:s \G\M\T', $this->CacheClass->getData('Last-Modified'));
+				if ($modifiedCheck->getTimestamp() >= $lastModified->getTimestamp()){
+					header('Last-Modified: ' . $lastModified->format('D, d M Y H:i:s \G\M\T'), true, 304);
 					exit;
 				}
 			}
 		}
 
-		if ($this->CacheClass->hasData('lastModified')){
-			header('Last-Modified: ' . $this->CacheClass->getData('lastModified'));
-		}
-
 		if ($this->CacheClass->hasData('addedHeaders')){
+			//echo '<pre>';print_r($this->CacheClass->getData('addedHeaders'));
 			foreach($this->CacheClass->getData('addedHeaders') as $k => $v){
-				header($k . ': ' . $v);
+				header($k . ': ' . $v . ';');
 			}
 		}
 	}

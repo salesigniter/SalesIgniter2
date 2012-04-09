@@ -1,86 +1,148 @@
 <?php
+/**
+ * Product class for the order creator product manager class
+ *
+ * @package OrderCreator
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
+
 require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/product/Base.php');
 
-class OrderCreatorProduct extends OrderProduct implements Serializable {
+class OrderCreatorProduct extends OrderProduct implements Serializable
+{
 
-	public function __construct($pInfo = null){
-		parent::__construct($pInfo);
+	/**
+	 * @var
+	 */
+	private $ProductTypeClass;
+
+	/**
+	 * @param array|null $pInfo
+	 */
+	public function __construct(array $pInfo = null) {
 		if (is_null($pInfo) === false){
+			$this->setProductId($pInfo['products_id']);
+
 			$ProductType =& $this->getProductTypeClass();
 			if (method_exists($ProductType, 'processAddToOrder')){
-				$ProductType->processAddToOrder($pInfo);
+				$ProductType->processAddToOrder(&$pInfo);
 			}
-			/*$this->pInfo = $pInfo;
-			$this->productClass = new OrderCreatorProductProduct((int) $this->pInfo['products_id']);
-			$this->pInfo['products_weight'] = $this->productClass->getWeight();
-			$this->purchaseTypeClass = $this->productClass->getPurchaseType($this->pInfo['purchase_type']);
-			$this->purchaseTypeClass->processAddToOrder($this->pInfo);
 
-			EventManager::notify('OrderEditorProductAddToCart', $this->pInfo, $this->productClass, $this->purchaseTypeClass);*/
+			$this->updateInfo($pInfo);
 		}
 	}
 
-	public function init(){
-		/*$this->productClass = new OrderCreatorProductProduct((int) $this->pInfo['products_id']);
-		$this->purchaseTypeClass = $this->productClass->getPurchaseType($this->pInfo['purchase_type']);*/
-		$this->productClass = new Product((int)$this->pInfo['products_id']);
+	/**
+	 * @param string $type
+	 */
+	private function loadProductTypeClass($type) {
+		$className = 'OrderCreatorProductType' . ucfirst($type);
+		if (class_exists($className) === false){
+			$fileName = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $type . '.php';
+			if (file_exists($fileName)){
+				require($fileName);
+			}
+		}
+
+		if (class_exists($className)){
+			$this->ProductTypeClass = new $className;
+		}
+		else {
+			$this->ProductTypeClass = $this->getProductClass()->getProductTypeClass();
+		}
+	}
+
+	/**
+	 * @return OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
+	 */
+	public function &getProductTypeClass() {
+		return $this->ProductTypeClass;
+	}
+
+	/**
+	 *
+	 */
+	public function init() {
+		$this->setProductId((int)$this->pInfo['products_id']);
 
 		$ProductType =& $this->getProductTypeClass();
-		$ProductType->setProductId($this->pInfo['products_id']);
-		if (method_exists($ProductType, 'OrderProductOnInit')){
-			$ProductType->OrderProductOnInit($this->pInfo);
+		if (method_exists($ProductType, 'OrderCreatorProductOnInit')){
+			$ProductType->OrderCreatorProductOnInit(&$this->pInfo);
 		}
-		$this->setWeight($this->getProductClass()->getWeight());
 	}
 
-	public function serialize(){
+	/**
+	 * @return string
+	 */
+	public function serialize() {
 		$data = array(
-			'id' => $this->id,
+			'id'	=> $this->id,
 			'pInfo' => $this->pInfo
 		);
 		return serialize($data);
 	}
 
-	public function unserialize($data){
+	/**
+	 * @param string $data
+	 */
+	public function unserialize($data) {
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
 			$this->$key = $dInfo;
 		}
 	}
-	
-	public function setProductsId($pID){
+
+	/**
+	 * @param int $pID
+	 */
+	public function setProductId($pID) {
 		global $Editor;
 		$this->productClass = new Product($pID);
+		$this->loadProductTypeClass($this->productClass->getProductType());
 
 		$this->pInfo['products_id'] = $pID;
 		$this->pInfo['products_name'] = $this->getProductClass()->getName();
 		$this->pInfo['products_weight'] = $this->getProductClass()->getWeight();
 		$this->pInfo['products_model'] = $this->getProductClass()->getModel();
-		
-		$taxAddress = $Editor->AddressManager->getAddress('billing');
+
+		$taxAddress = null;
+		if (is_object($Editor->AddressManager)){
+			$taxAddress = $Editor->AddressManager->getAddress('billing');
+		}
 		$this->setTaxRate(tep_get_tax_rate(
-				$this->getProductClass()->getProductTypeClass()->getTaxClassId(),
+			$this->getProductTypeClass()->getTaxClassId(),
 			(is_object($taxAddress) ? $taxAddress->getCountryId() : -1),
-				(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
+			(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
 		));
+
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'setProductId')){
+			$ProductType->setProductId($this->pInfo['products_id']);
+		}
 	}
 
-
-	public function updateProductInfo(){
+	/**
+	 *
+	 */
+	public function OrderCreatorUpdateProductInfo() {
 		$updateAllowed = true;
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'OrderCreatorAllowProductUpdate')){
 			$updateAllowed = $ProductType->OrderCreatorAllowProductUpdate($this);
 		}
 
-		if ($updateAllowed === true && method_exists($ProductType, 'updateOrderCreatorProductInfo')){
+		if ($updateAllowed === true && method_exists($ProductType, 'OrderCreatorUpdateProductInfo')){
 			$pInfo = $this->pInfo;
-			$ProductType->updateOrderCreatorProductInfo(&$pInfo);
+			$ProductType->OrderCreatorUpdateProductInfo(&$pInfo);
 			$this->pInfo = $pInfo;
 		}
 	}
 
-	public function OrderCreatorAllowAddToContents(){
+	/**
+	 * @return bool
+	 */
+	public function OrderCreatorAllowAddToContents() {
 		$addAllowed = true;
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'OrderCreatorAllowAddToContents')){
@@ -88,56 +150,102 @@ class OrderCreatorProduct extends OrderProduct implements Serializable {
 		}
 		return $addAllowed;
 	}
-	
-	public function setTaxRate($val){
-		$this->pInfo['products_tax'] = $val;
+
+	/**
+	 *
+	 */
+	public function OrderCreatorOnAddToContents() {
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'OrderCreatorOnAddToContents')){
+			$ProductType->OrderCreatorOnAddToContents($this);
+		}
 	}
 
-	public function setQuantity($val){
-		$this->pInfo['products_quantity'] = $val;
-	}
-	
-	public function setPrice($val){
-		$this->pInfo['products_price'] = $val;
-		$this->pInfo['final_price'] = $val;
+	/**
+	 * @param float $val
+	 */
+	public function setTaxRate($val) {
+		$this->pInfo['products_tax'] = (float) $val;
 	}
 
-	public function setBarcodeId($val){
-		$this->pInfo['barcode_id'] = $val;
+	/**
+	 * @param int $val
+	 */
+	public function setQuantity($val) {
+		$this->pInfo['products_quantity'] = (int) $val;
 	}
 
-	public function getBarcodeId(){
-		return $this->pInfo['barcode_id'];
+	/**
+	 * @param float $val
+	 */
+	public function setPrice($val) {
+		$this->pInfo['products_price'] = (float) $val;
+		$this->pInfo['final_price'] = (float) $val;
 	}
 
-	public function hasBarcodeId(){
-		return (isset($this->pInfo['barcode_id']));
+	/**
+	 * @param array $val
+	 */
+	public function setBarcodes(array $val) {
+		$this->pInfo['Barcodes'] = $val;
 	}
 
-	public function getTaxRateEdit(){
+	/**
+	 * @return array
+	 */
+	public function getBarcodes() {
+		return $this->pInfo['Barcodes'];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasBarcodes() {
+		return (isset($this->pInfo['Barcodes']));
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTaxRateEdit() {
 		return '<input type="text" size="5" class="ui-widget-content taxRate" name="product[' . $this->id . '][tax_rate]" value="' . $this->getTaxRate() . '">%';
 	}
 
-	public function getPriceEdit($incQty = false, $incTax = false){
+	/**
+	 * @param bool $incQty
+	 * @param bool $incTax
+	 * @return string
+	 */
+	public function getPriceEdit($incQty = false, $incTax = false) {
 		global $Editor, $currencies;
 		$html = '';
 		if ($incQty === false && $incTax === false){
 			$html = '<input type="text" size="5" class="ui-widget-content priceEx" name="product[' . $this->id . '][price]" value="' . $this->getFinalPrice($incQty, $incTax) . '">';
-		}elseif ($incQty === true && $incTax === false){
+		}
+		elseif ($incQty === true && $incTax === false) {
 			$html = '<b class="priceExTotal">' . $currencies->format($this->getFinalPrice($incQty, $incTax), true, $Editor->getCurrency(), $Editor->getCurrencyValue()) . '</b>';
-		}elseif ($incQty === false && $incTax === true){
+		}
+		elseif ($incQty === false && $incTax === true) {
 			$html = '<b class="priceIn">' . $currencies->format($this->getFinalPrice($incQty, $incTax), true, $Editor->getCurrency(), $Editor->getCurrencyValue()) . '</b>';
-		}elseif ($incQty === true && $incTax === true){
+		}
+		elseif ($incQty === true && $incTax === true) {
 			$html = '<b class="priceInTotal">' . $currencies->format($this->getFinalPrice($incQty, $incTax), true, $Editor->getCurrency(), $Editor->getCurrencyValue()) . '</b>';
 		}
 		return $html;
 	}
 
-	public function getQuantityEdit(){
+	/**
+	 * @return string
+	 */
+	public function getQuantityEdit() {
 		return '<input type="text" size="3" class="ui-widget-content productQty" name="product[' . $this->id . '][qty]" value="' . $this->getQuantity() . '">&nbsp;x';
 	}
 
-	public function getNameEdit($excludedPurchaseTypes = array()){
+	/**
+	 * @param array $excludedPurchaseTypes
+	 * @return string
+	 */
+	public function getNameEdit($excludedPurchaseTypes = array()) {
 		$ProductType = $this->getProductTypeClass();
 		$productsName = $this->getName();
 		if (method_exists($ProductType, 'OrderCreatorAfterProductName')){
@@ -151,7 +259,10 @@ class OrderCreatorProduct extends OrderProduct implements Serializable {
 		return $productsName;
 	}
 
-	public function getBarcodeEdit(){
+	/**
+	 * @return string
+	 */
+	public function getBarcodeEdit() {
 		$barcodeDrop = '';
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'OrderCreatorBarcodeEdit')){
@@ -160,22 +271,40 @@ class OrderCreatorProduct extends OrderProduct implements Serializable {
 		return $barcodeDrop;
 	}
 
-	public function updateInfo($newInfo){
+	/**
+	 * @param array $newInfo
+	 */
+	public function updateInfo(array $newInfo) {
 		$newProductInfo = $this->pInfo;
 		foreach($newInfo as $k => $v){
 			$newProductInfo[$k] = $v;
 		}
 		$this->pInfo = $newProductInfo;
-		$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
+		//$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
 	}
 
-	public function onAddToCollection(&$OrderedProduct){
-		$ProductType =& $this->productClass->getProductTypeClass();
+	public function onUpdateOrderProduct(){
+		$this->updateInfo(array(
+			'purchase_type' => $_GET['purchase_type']
+		));
+
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'onUpdateOrderProduct')){
+			$ProductType->onUpdateOrderProduct($this);
+		}
+	}
+
+	/**
+	 * @param OrdersProducts $OrderedProduct
+	 */
+	public function onAddToCollection(OrdersProducts &$OrderedProduct) {
+		$ProductType =& $this->getProductTypeClass();
 		if (method_exists($ProductType, 'addToOrdersProductCollection')){
 			$ProductType->addToOrdersProductCollection($this, $OrderedProduct);
 		}
-		//print_r($this);
-		EventManager::notify('OrderCreatorProductAddToCollection', $this, &$OrderedProduct);
+
+		EventManager::notify('OrderCreatorProductAddToCollection', $this, $OrderedProduct);
 	}
 }
+
 ?>

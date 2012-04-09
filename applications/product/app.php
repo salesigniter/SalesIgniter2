@@ -3,7 +3,6 @@
 
 	$appContent = $App->getAppContentFile();
 
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
 	$App->addJavascriptFile('streamer/flowplayer/flowplayer-3.2.4.min.js');
 	$App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');
 	$App->addJavascriptFile('ext/jQuery/external/jqzoom/jquery.jqzoom.js');
@@ -27,8 +26,9 @@
 	
 	if (isset($_GET['products_id'])){
 		$Product = new Product((int)$_GET['products_id']);
-		if (file_exists(sysConfig::getDirFsCatalog() . 'includes/modules/productTypeModules/' . $Product->getProductTypeClass()->getCode() . '/catalog/ext_app/product/pages/' . $App->getPageName() . '.php')){
-			$appContent = sysConfig::getDirFsCatalog() . 'includes/modules/productTypeModules/' . $Product->getProductTypeClass()->getCode() . '/catalog/ext_app/product/pages/' . $App->getPageName() . '.php';
+		if (file_exists($Product->getProductTypeClass()->getPath() . '/catalog/ext_app/product/pages/' . $App->getPageName() . '.php')){
+			$appContent = $Product->getProductTypeClass()->getPath() . '/catalog/ext_app/product/pages/' . $App->getPageName() . '.php';
+			$pageTabsFolder = $Product->getProductTypeClass()->getPath() . '/catalog/ext_app/product/pages_tabs/';
 		}
 	}else{
 		tep_redirect(itw_app_link(null,'products', 'all'));

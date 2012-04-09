@@ -45,5 +45,6 @@ class OrdersCustomFieldsOptions extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
+		$this->hasColumn('extra_data', 'string', 999);
 	}
 }

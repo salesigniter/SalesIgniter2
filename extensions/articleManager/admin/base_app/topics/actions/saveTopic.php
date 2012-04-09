@@ -11,10 +11,9 @@
 	
 	$Topic->sort_order = (int)$_POST['sort_order'];
 	
-	$languages = tep_get_languages();
 	$TopicsDescription =& $Topic->TopicsDescription;
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
-		$lID = $languages[$i]['id'];
+foreach (sysLanguage::getLanguages() as $lInfo) {
+		$lID = $lInfo['id'];
 
 		$TopicsDescription[$lID]->language_id = $lID;
 		$TopicsDescription[$lID]->topics_name = $_POST['topics_name'][$lID];

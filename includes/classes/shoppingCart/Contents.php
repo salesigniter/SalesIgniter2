@@ -10,15 +10,42 @@
 	This script and it's source is not redistributable
 */
 
+class ShoppingCartContentsIterator extends ArrayIterator {
+
+	/**
+	 * @return ShoppingCartProduct
+	 */
+	public function current(){
+		return parent::current();
+	}
+}
+
 class ShoppingCartContents extends ArrayObject
 {
 
+	public function __construct($input=null, $flags=0, $iterator_class="ArrayIterator"){
+		parent::__construct($input, $flags, 'ShoppingCartContentsIterator');
+	}
+
+	/**
+	 * @return ShoppingCartContentsIterator
+	 */
+	public function getIterator(){
+		return parent::getIterator();
+	}
+
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
 	public function add(ShoppingCartProduct &$CartProduct) {
 		$this->offsetSet($CartProduct->getId(), $CartProduct);
 
 		$this->cleanUp();
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
 	public function remove(ShoppingCartProduct &$CartProduct) {
 		if ($this->offsetExists($CartProduct->getId())){
 			$this->offsetUnset($CartProduct->getId());

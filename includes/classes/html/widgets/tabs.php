@@ -3,97 +3,125 @@
  * Html Tabs Widget Class
  * @package Html
  */
-class htmlWidget_tabs implements htmlWidgetPlugin {
-	protected $tabElement, $tabPages, $tabHeaders;
-	
-	public function __construct(){
+class htmlWidget_tabs implements htmlWidgetPlugin
+{
+
+	protected $tabHeaderElement;
+	protected $tabElement;
+	protected $tabPages = array();
+	protected $tabHeaders = array();
+	protected $selectedTab = 0;
+	protected $disabledTabs = array();
+
+	public function __construct() {
 		$this->tabHeaderElement = htmlBase::newElement('list');
 		$this->tabElement = htmlBase::newElement('div')->addClass('makeTabs');
 		$this->tabPages = array();
 		$this->tabHeaders = array();
 	}
-	
-	public function __call($function, $args){
+
+	public function __call($function, $args) {
 		$return = call_user_func_array(array($this->tabElement, $function), $args);
 		if (!is_object($return)){
 			return $return;
 		}
 		return $this;
 	}
-	
+
 	/* Required Functions From Interface: htmlElementPlugin --BEGIN-- */
-	public function startChain(){
+	public function startChain() {
 		return $this;
 	}
-	
-	public function setId($val){
+
+	public function setId($val) {
 		$this->tabElement->attr('id', $val);
 		return $this;
 	}
-	
-	public function setName($val){
+
+	public function setName($val) {
 		$this->tabElement->attr('name', $val);
 		return $this;
 	}
-	
-	public function hide(){
+
+	public function hide() {
 		$this->tabElement->css('display', 'none');
 		return $this;
 	}
-	
-	public function addClass($className){
+
+	public function addClass($className) {
 		$this->tabElement->addClass($className);
 		return $this;
 	}
-	
-	public function draw(){
+
+	public function draw() {
 		foreach($this->tabHeaders as $id => $obj){
 			if (isset($this->tabPages[$id])){
+				if (!empty($this->selectedTab) && $this->selectedTab == $id){
+					$obj->addClass('ui-tabs-selected');
+				}
+				if (in_array($id, $this->disabledTabs)){
+					$obj->addClass('ui-state-disabled');
+				}
 				$this->tabHeaderElement->addItemObj($obj);
 			}
 		}
-		
+
 		$this->tabElement->append($this->tabHeaderElement);
-		
+
 		foreach($this->tabPages as $id => $obj){
 			if (isset($this->tabHeaders[$id])){
+				if (in_array($id, $this->disabledTabs)){
+					$obj->addClass('ui-state-disabled');
+				}
 				$this->tabElement->append($obj);
 			}
 		}
 		return $this->tabElement->draw();
 	}
+
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
-	
-	public function addTabHeader($id, $settings){
+
+	public function addTabHeader($id, $settings) {
 		$aObj = htmlBase::newElement('a')
-		->setHref('#' . $id)
-		->html($settings['text']);
-		
+			->setHref('#' . $id)
+			->html($settings['text']);
+
 		$liObj = new htmlElement('li');
 		$liObj->append($aObj);
 		$this->tabHeaders[$id] = $liObj;
 		return $this;
 	}
-	
-	public function addTabPage($id, $settings, $after = null){
+
+	public function addTabPage($id, $settings, $after = null) {
 		$this->tabPages[$id] = new htmlElement('div');
 		$this->tabPages[$id]->attr('id', $id);
-		
+
 		if (is_object($settings['text'])){
 			$this->tabPages[$id]->append($settings['text']);
-		}else{
+		}
+		else {
 			$this->tabPages[$id]->html($settings['text']);
 		}
 		return $this;
 	}
-	
-	public function &getTabPages($id = false){
+
+	public function &getTabPages($id = false) {
 		if ($id === false){
 			return $this->tabPages;
-		}else{
+		}
+		else {
 			return $this->tabPages[$id];
 		}
 		return false;
 	}
+
+	public function setSelected($id) {
+		$this->selectedTab = $id;
+		return $this;
+	}
+
+	public function disableTab($id){
+		$this->disabledTabs[] = $id;
+		return $this;
+	}
 }
-?>

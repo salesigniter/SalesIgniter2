@@ -215,11 +215,30 @@ function parseElement(&$el, &$parent) {
 			$Layout->Containers->add($Container);
 			$Container->parent_id = 0;
 		}
+
+		if ($el->attr('data-link_id')){
+			$Container->link_id = (int)$el->attr('data-link_id');
+			$Container->sort_order = (int)$el->attr('data-sort_order');
+			return;
+		}
 	}
 	elseif ($el->hasClass('container')) {
 		if ($el->attr('data-container_id')){
 			$containerId = $el->attr('data-container_id');
 			$Container = $parent->Children->getTable()->find($containerId);
+			if ($Container->parent_id == 0){
+				$parent->Children->add($Container);
+			}
+		}
+		else {
+			$Container = $parent->Children->getTable()->create();
+			$parent->Children->add($Container);
+		}
+	}
+	elseif ($el->hasClass('column') && $parent instanceof TemplateManagerLayoutsColumns){
+		if ($el->attr('data-column_id')){
+			$columnId = $el->attr('data-column_id');
+			$Container = $parent->Children->getTable()->find($columnId);
 			if ($Container->parent_id == 0){
 				$parent->Children->add($Container);
 			}
@@ -282,13 +301,15 @@ function parseElement(&$el, &$parent) {
 				$Widget->sort_order = $wInfo->attr('data-sort_order');
 				$Widget->Configuration['widget_settings']->configuration_value = $wInfo->attr('data-widget_settings');
 
+				parseElementSettings($wInfo, $Widget);
+
 				if ($wInfo->attr('tmid')){
 					$newElementHolder[$wInfo->attr('tmid')] = $Widget;
 				}
 			}
 		}
 		else {
-			$newParent = ($el->hasClass('column') ? null : (isset($Container) ? $Container : null));
+			$newParent = (isset($Container) ? $Container : null);
 			parseElement($childObj, $newParent);
 		}
 	}
@@ -313,6 +334,11 @@ function deleteRemovedElements(&$Element, $existingContainers, $existingColumns,
 	elseif (isset($Element->container_id) && isset($Element->column_id)) {
 		if (!in_array($Element->column_id, $existingColumns)){
 			$Element->delete();
+		}
+		elseif ($Element->Children->count() > 0) {
+			foreach($Element->Children as $childObj){
+				deleteRemovedElements($childObj, $existingContainers, $existingColumns, $existingWidgets);
+			}
 		}
 		elseif ($Element->Widgets->count() > 0) {
 			foreach($Element->Widgets as $widgetObj){
@@ -376,6 +402,7 @@ if ($_GET['layout_id'] != 'null'){
 			$parent = null;
 			parseElement($childObj, $parent);
 		}
+		//echo '<pre>';print_r($Layout->toArray());itwExit();
 		$Layout->save();
 	}
 

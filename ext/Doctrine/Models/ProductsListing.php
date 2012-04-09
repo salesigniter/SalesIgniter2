@@ -116,9 +116,9 @@ class ProductsListing extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('products_listing_template', 'string', 1000, array(
+		$this->hasColumn('products_listing_template', 'string', 999, array(
 		'type' => 'string',
-		'length' => 1000,
+		'length' => 999,
 		'fixed' => false,
 		'primary' => false,
 		'default' => '',

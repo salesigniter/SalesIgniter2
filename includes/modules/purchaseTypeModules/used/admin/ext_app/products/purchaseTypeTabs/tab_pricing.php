@@ -29,8 +29,6 @@ class PurchaseTypeTabUsed_tab_pricing
 	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
 		global $tax_class_array, $appExtension;
 		if ($PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
-			$PurchaseType->loadData($Product->getId());
-
 			$pricingTypeName = $PurchaseType->getCode();
 			$pricingTypeText = $PurchaseType->getTitle();
 

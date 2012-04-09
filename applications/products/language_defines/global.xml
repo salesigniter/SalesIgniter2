@@ -24,7 +24,6 @@
 	<define key="TABLE_HEADING_IMAGE"><![CDATA[]]></define>
 	<define key="TABLE_HEADING_MODEL"><![CDATA[Model]]></define>
 	<define key="TABLE_HEADING_PRODUCTS"><![CDATA[Product Name]]></define>
-	<define key="TABLE_HEADING_MANUFACTURER"><![CDATA[Manufacturer]]></define>
 	<define key="TABLE_HEADING_QUANTITY"><![CDATA[Quantity]]></define>
 	<define key="TABLE_HEADING_PRICE"><![CDATA[Price]]></define>
 	<define key="TABLE_HEADING_WEIGHT"><![CDATA[Weight]]></define>
@@ -35,10 +34,8 @@
 
 	<define key="TEXT_AVAILABLITY"><![CDATA[<strong>Availability:</strong> ]]></define>
 	<define key="TEXT_ALL_CATEGORIES"><![CDATA[All Categories]]></define>
-	<define key="TEXT_ALL_MANUFACTURERS"><![CDATA[All Manufacturers]]></define>
 
 	<define key="TEXT_DATE_ADDED"><![CDATA[Date Added:]]></define>
-	<define key="TEXT_MANUFACTURER"><![CDATA[Manufacturer:]]></define>
 	<define key="TEXT_PRICE"><![CDATA[Price:]]></define>
 	<define key="TEXT_SEARCH_HELP_LINK"><![CDATA[<u>Search Help</u> [?]]]></define>
 	<define key="TEXT_SEARCH_IN_DESCRIPTION"><![CDATA[Search In Product Descriptions]]></define>
@@ -52,7 +49,6 @@
 
 	<define key="ENTRY_CATEGORIES"><![CDATA[Categories:]]></define>
 	<define key="ENTRY_INCLUDE_SUBCATEGORIES"><![CDATA[Include Subcategories]]></define>
-	<define key="ENTRY_MANUFACTURERS"><![CDATA[Manufacturer:]]></define>
 	<define key="ENTRY_PRICE_FROM"><![CDATA[Price From:]]></define>
 	<define key="ENTRY_PRICE_TO"><![CDATA[Price To:]]></define>
 	<define key="ENTRY_DATE_FROM"><![CDATA[Date From:]]></define>

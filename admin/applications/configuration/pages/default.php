@@ -31,6 +31,11 @@ foreach($Configuration->getConfig() as $tabKey => $tabInfo){
 		$tabs[$tabKey]['panelTable']->addBodyRow(array(
 			'columns' => array(
 				array(
+					'text'   => '<span class="ui-icon ui-icon-blue ui-icon-alert" style="display:none" tooltip="This field has been edited"></span>',
+					'addCls' => 'editedInfo',
+					'valign' => 'top'
+				),
+				array(
 					'text'   => '<b>' . $Config->getTitle() . '</b>',
 					'addCls' => 'main',
 					'valign' => 'top'
@@ -68,13 +73,9 @@ foreach($tabs as $pInfo){
 	echo $Configuration->getDescription();
 	?></div>
 <div style="margin:.5em;text-align: right;"><?php
-	echo htmlBase::newElement('button')->addClass('saveButton')->usePreset('save')->setText('Save Changes')->hide()->draw();
+	echo htmlBase::newElement('button')->addClass('saveButton')->usePreset('save')->setText('Save Changes')->draw();
 	?></div>
 <br />
-<div class="gridContainer">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tabPanel->draw();?></div>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tabPanel->draw();?></div>
 </div>

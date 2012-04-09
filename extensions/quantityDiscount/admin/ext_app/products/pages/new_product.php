@@ -18,7 +18,7 @@ class quantityDiscount_admin_products_new_product extends Extension_quantityDisc
 	}
 
 	public function load() {
-		if ($this->enabled === false) {
+		if ($this->isEnabled() === false) {
 			return;
 		}
 

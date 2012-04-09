@@ -38,7 +38,6 @@
 	<div class="pricingTable" style="display:block;">
         <?php echo $purchaseTypeClass->getPricingTable();?>
 	</div>
-	<div class="periodsInsurance">
 <?php
 	//this part needs redone
 	 if ($maxRentalPeriod > 0){
@@ -83,19 +82,21 @@ if ($insurancePrice > 0){
 <?php
 }
 ?>
-	</div>
-	<div class="beforeCalendar"></div>
     <div class="calendarTable" style="display:block;">
 		<?php
-				echo ReservationUtilities::getCalendar($_GET['products_id'], $purchaseTypeClasses, 1, true);
+				echo ReservationUtilities::getCalendar(array(
+					'purchaseTypeClasses' => $purchaseTypeClasses,
+					'calanderMonths' => 5
+				));
 		?>
+		<input type="hidden" name="purchase_type" value="reservation">
 	</div>
 
    <?php
 	   $pageContents = ob_get_contents();
 	   ob_end_clean();
 
-	   $pageTitle = '<span class="pprText">'.$product->getName().'</span>';
+	   $pageTitle = sysLanguage::get('TEXT_CREATE_RESERVATION');
 
 	   $pageButtons = '';
 	   if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_CALENDAR_PRODUCT_INFO') == 'False') {
@@ -106,12 +107,39 @@ if ($insurancePrice > 0){
 		    ->draw();
 
 
+		   if (isset($_POST['id'])){
+			   function traverseAttributePost($arr, &$name){
+				   foreach($arr as $k => $v){
+					   $name .= '[' . $k . ']';
+					   if (is_array($v)){
+						   traverseAttributePost($name, $v);
+					   }else{
+						   return $v;
+					   }
+				   }
+			   }
+			   foreach($_POST['id'] as $k => $v){
+				   $name = 'id[' . $k . ']';
+				   if (is_array($v)){
+					   $value = traverseAttributePost($v, &$name);
+				   }else{
+					   $value = $v;
+				   }
 
-		   $pageContent->set('pageForm', array(
-			   'name' => 'build_reservation',
-			   'action' => itw_app_link(tep_get_all_get_params(array('action'))),
-			   'method' => 'post'
-		   ));
+				   $pageContents .= htmlBase::newElement('input')
+					   ->setType('hidden')
+					   ->setName($name)
+					   ->val($value)
+					   ->draw();
+			   }
+		   }
+
+		   $pageContents = htmlBase::newElement('form')
+			   ->setAction(itw_app_link('action=addCartProduct&products_id=' . $pID_string, 'shoppingCart', 'default'))
+			   ->setName('build_reservation')
+			   ->setMethod('post')
+			   ->html($pageContents)
+			   ->draw();
 
 		   $pageContent->set('pageTitle', $pageTitle);
 		   $pageContent->set('pageContent', $pageContents);
@@ -119,7 +147,7 @@ if ($insurancePrice > 0){
 	   }else{
 		   $htmlForm = htmlBase::newElement('form')
 			->attr('name', 'build_reservation')
-			->attr('action', itw_app_link(tep_get_all_get_params(array('action'))))
+			->attr('action', itw_app_link('action=addCartProduct&products_id=' . $pID_string, 'shoppingCart', 'default'))
 			->attr('method', 'post');
 		   $htmlDiv = htmlBase::newElement('div')
 			->html($pageContents);

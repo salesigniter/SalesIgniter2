@@ -2,11 +2,11 @@
 class MI_Importable
 {
 
-	private $base = null;
+	protected $base = null;
 
 	/**
 	 * Registers this Object with the Base class
-	 * @param Base $base
+	 * @param MI_Base $base
 	 */
 	final public function register(MI_Base $base) {
 		$this->base = $base;
@@ -33,6 +33,7 @@ class MI_Importable
 	/**
 	 * @param string $var name of attribute
 	 * @param mixed $value
+	 * @return mixed
 	 */
 	final public function __set($var, $value) {
 		return $this->base->__set_var($this, $var, $value);
@@ -92,6 +93,42 @@ class MI_Base
 		// make sure the function exists
 		if (isset($this->imported_functions[$method])){
 			return call_user_func_array(array($this->imported_functions[$method], $method), $args);
+		}else{
+			if ($this->imported('Bindable') && $this->hasBoundMethod($method) === true){
+				return $this->executeBoundMethod($method, $args);
+			}
+			else {
+				if ($this->debug === true){
+					$backtrace = debug_backtrace();
+					$debugInfo = array(
+						'calledMethod' => $method,
+						'calledFromFile' => $backtrace[0]['file'],
+						'calledFromLine' => $backtrace[0]['line'],
+						'callArgs' => $backtrace[0]['args'][1]
+					);
+
+					$this->debugInfo[] = $debugInfo;
+				}
+				$methodType = substr($method, 0, 3);
+				$infoKey = preg_replace_callback('/([A-Z]{1})/', function ($m){
+					return strtolower('_' . $m[0]);
+				}, $method);
+				$infoKey = substr($infoKey, 3);
+
+				if ($methodType == 'set'){
+					$this->info[$infoKey] = $args[0];
+					return $args[0];
+				}
+				elseif ($methodType == 'get'){
+					$fncCall = 'has' . substr($method, 3);
+					if ($this->$fncCall($args[0])){
+						return $this->info[$args[0]];
+					}
+				}
+				elseif ($methodType == 'has'){
+					return isset($this->info[$args[0]]);
+				}
+			}
 		}
 		throw new Exception ('Call to undefined method/class function: ' . $method);
 	}

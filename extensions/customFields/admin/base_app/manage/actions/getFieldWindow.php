@@ -9,14 +9,9 @@
 		$header = '<b>' . $FieldDescription[Session::get('languages_id')]['field_name'] . '</b>';
 	}
 
-	$languages = tep_get_languages();
 	$fieldNames = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0');
-	for ($i=0, $n=sizeof($languages); $i<$n; $i++){
-		$langId = $languages[$i]['id'];
-				
-		$langImage = htmlBase::newElement('image')
-		->setSource(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'])
-		->setTitle($languages[$i]['name']);
+	foreach(sysLanguage::getLanguages() as $lInfo){
+		$langId = $lInfo['id'];
 				
 		$fieldNameInput = htmlBase::newElement('input')->setName('field_name[' . $langId . ']');
 		
@@ -72,7 +67,8 @@
 	->addOption('textarea', 'Textarea')
 	->addOption('select', 'Select Box')
 	->addOption('upload', 'Image Upload')
-	->addOption('search', 'Click To Search');
+	->addOption('search', 'Click To Search')
+	->addOption('movie', 'Movie');
 			
 	$showSiteCheckbox = htmlBase::newElement('checkbox')
 	->setId('showOnSite_' . $windowAction)

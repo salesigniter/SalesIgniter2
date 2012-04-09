@@ -19,8 +19,10 @@
 // class constructor
     function currencies() {
       $this->currencies = array();
-      $currencies_query = tep_db_query("select code, title, symbol_left, symbol_right, decimal_point, thousands_point, decimal_places, value from " . TABLE_CURRENCIES);
-      while ($currencies = tep_db_fetch_array($currencies_query)) {
+		$Qcurrencies = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select code, title, symbol_left, symbol_right, decimal_point, thousands_point, decimal_places, value from " . TABLE_CURRENCIES);
+      foreach ($Qcurrencies as $currencies) {
 	    $this->currencies[$currencies['code']] = array('title' => $currencies['title'],
                                                        'symbol_left' => $currencies['symbol_left'],
                                                        'symbol_right' => $currencies['symbol_right'],

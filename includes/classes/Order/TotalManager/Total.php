@@ -1,47 +1,91 @@
 <?php
-class OrderTotal {
+/**
+ * Total for the total manager class
+ *
+ * @package Order
+ * @author Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
+
+class OrderTotal
+{
+
+	/**
+	 * @var array|null
+	 */
 	protected $totalInfo = array();
-	
-	public function __construct($tInfo = null){
+
+	/**
+	 * @param array|null $tInfo
+	 */
+	public function __construct(array $tInfo = null) {
 		if (is_null($tInfo) === false){
 			$this->totalInfo = $tInfo;
 		}
 	}
 
-	public function hasOrderTotalId(){
+	/**
+	 * @return bool
+	 */
+	public function hasOrderTotalId() {
 		return array_key_exists('orders_total_id', $this->totalInfo);
 	}
-	
-	public function getOrderTotalId(){
-		return $this->totalInfo['orders_total_id'];
+
+	/**
+	 * @return int
+	 */
+	public function getOrderTotalId() {
+		return (int) $this->totalInfo['orders_total_id'];
 	}
 
-	public function getModuleType(){
-		return $this->totalInfo['module_type'];
+	/**
+	 * @return string
+	 */
+	public function getModuleType() {
+		return (string) $this->totalInfo['module_type'];
 	}
 
-	public function getTitle(){
-		return $this->totalInfo['title'];
+	/**
+	 * @return string
+	 */
+	public function getTitle() {
+		return (string) $this->totalInfo['title'];
 	}
 
-	public function getText(){
-		return $this->totalInfo['text'];
+	/**
+	 * @return string
+	 */
+	public function getText() {
+		return (string) $this->totalInfo['text'];
 	}
 
-	public function getValue(){
-		return $this->totalInfo['value'];
+	/**
+	 * @return float
+	 */
+	public function getValue() {
+		return (float) $this->totalInfo['value'];
 	}
 
-	public function getSortOrder(){
-		return $this->totalInfo['sort_order'];
+	/**
+	 * @return int
+	 */
+	public function getSortOrder() {
+		return (int) $this->totalInfo['sort_order'];
 	}
 
-	public function getModule(){
-		return $this->totalInfo['module'];
+	/**
+	 * @return string
+	 */
+	public function getModule() {
+		return (string) $this->totalInfo['module'];
 	}
 
-	public function getMethod(){
-		return $this->totalInfo['method'];
+	/**
+	 * @return string
+	 */
+	public function getMethod() {
+		return (string) $this->totalInfo['method'];
 	}
 }
+
 ?>

@@ -24,8 +24,8 @@
 			global $messageStack;
 			$pID = $CartProductData['product_id'];
 			$purchaseType = false;
-			if (isset($CartProductData['purchaseType'])){
-				$purchaseType = $CartProductData['purchaseType'];
+			if (isset($CartProductData['purchase_type'])){
+				$purchaseType = $CartProductData['purchase_type'];
 			}
 
 			if (isset($_POST[$this->inputKey])){

@@ -2,14 +2,14 @@
 	<Categories>
 		<related_products>
 			<type>string</type>
-			<length>1000</length>
+			<length>999</length>
 			<notnull>false</notnull>
 		</related_products>
 	</Categories>
 	<Products>
 		<related_products>
 			<type>string</type>
-			<length>1000</length>
+			<length>999</length>
 			<notnull>false</notnull>
 		</related_products>
 	</Products>

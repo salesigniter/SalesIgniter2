@@ -2,7 +2,9 @@
 class ExtensionBase
 {
 
-	private $_isInstalled = '';
+	private $_isInstalled = false;
+
+	private $enabled = false;
 
 	public function __construct($extensionKey) {
 		$this->extName = $extensionKey;
@@ -12,16 +14,26 @@ class ExtensionBase
 		$this->addColumns = $this->loadXmlFile($this->dir . 'data/base/add_columns.xml');
 		$this->config = array();
 
-		$configXml = $this->loadXmlFile($this->dir . 'data/base/configuration.xml');
-		if (is_null($configXml) === false){
-			$this->parseConfigXmlToArray($configXml->Configuration);
+		$Config = new ExtensionConfigReader($this->extName);
+
+		$Installed = $Config->getConfig((string)$this->info->installed_key);
+		if (is_object($Installed)){
+			$this->_isInstalled = (bool)($Installed->getValue() == 'True' ? true : false);;
+		}else{
+			$this->_isInstalled = false;
 		}
 
-		if ($this->isInstalled() === false){
-			$this->enabled = (bool)false;
-		}
-		else {
-			$this->enabled = (bool)(sysConfig::get((string)$this->info->status_key) == 'True' ? true : false);
+		if ($this->_isInstalled === true){
+			$Status = $Config->getConfig((string)$this->info->status_key);
+			if (is_object($Status)){
+				$this->enabled = (bool)($Status->getValue() == 'True' ? true : false);
+			}else{
+				$this->enabled = false;
+			}
+
+			if ($this->enabled === true){
+				$Config->loadToSystem();
+			}
 		}
 	}
 
@@ -32,29 +44,7 @@ class ExtensionBase
 		return null;
 	}
 
-	public function parseConfigXmlToArray($data) {
-		foreach((array)$data as $configKey => $configSettings){
-			$this->config[] = $configKey;
-		}
-	}
-
-	public function getOtherExtensionsConfig() {
-		global $appExtension;
-		foreach($appExtension->extensionDirs as $dir){
-			$curPath = $dir['pathname'] . '/data/ext/' . $this->extName . '/';
-			if (file_exists($curPath . 'configuration.xml')){
-				$configData = $this->loadXmlFile($curPath . 'configuration.xml');
-				if (sizeof($configData) > 0){
-					$this->parseConfigXmlToArray($configData->Configuration);
-				}
-			}
-		}
-	}
-
 	public function isInstalled() {
-		if ($this->_isInstalled == ''){
-			$this->_isInstalled = sysConfig::exists((string)$this->info->status_key, false);
-		}
 		return $this->_isInstalled;
 	}
 
@@ -78,6 +68,14 @@ class ExtensionBase
 		return (string)$this->info->name;
 	}
 
+	public function getExtensionDescription(){
+		return (string)$this->info->description;
+	}
+
+	public function getExtensionAuthor(){
+		return (string)$this->info->author;
+	}
+
 	public function getExtensionDir() {
 		return $this->dir;
 	}
@@ -99,19 +97,20 @@ class ExtensionBase
 
 					foreach((array)$cols as $colName => $colSettings){
 						$colSettings = (array)$colSettings;
-								
+
 						$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
 						if (!isset($tableColumns[$colName])){
-							ExceptionManager::report('Database table column does not exist.', E_USER_ERROR, array(
-									'Extension Name' => $this->extName,
-									'Table Name' => $tableName,
-									'Column Name' => $colName,
-									'Resoultion' => '<a href="' . itw_app_link('action=fixMissingColumns&extName=' . $this->extName, 'extensions', 'default') . '">Click here to resolve</a>'
-								));
+							Session::set('DatabaseError', true, $tableName . '-' . $colName);
+							$colSettings['exists'] = false;
+						}else{
+							if (Session::exists('DatabaseError', $tableName . '-' . $colName)){
+								Session::remove('DatabaseError', $tableName . '-' . $colName);
+								if (Session::sizeOf('DatabaseError') == 0){
+									Session::remove('DatabaseError');
+								}
+							}
 						}
-						else {
-							$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
-						}
+						$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
 					}
 				}
 			}
@@ -135,19 +134,20 @@ class ExtensionBase
 
 							foreach((array)$cols as $colName => $colSettings){
 								$colSettings = (array)$colSettings;
-								
+
 								$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
 								if (!isset($tableColumns[$colName])){
-									ExceptionManager::report('Database table column does not exist.', E_USER_ERROR, array(
-											'Extension Name' => $this->extName,
-											'Table Name' => $tableName,
-											'Column Name' => $colName,
-											'Resoultion' => '<a href="' . itw_app_link('action=fixMissingColumns&extName=' . $this->extName, 'extensions', 'default') . '">Click here to resolve</a>'
-										));
+									Session::set('DatabaseError', true, $tableName . '-' . $colName);
+									$colSettings['exists'] = false;
+								}else{
+									if (Session::exists('DatabaseError', $tableName . '-' . $colName)){
+										Session::remove('DatabaseError', $tableName . '-' . $colName);
+										if (Session::sizeOf('DatabaseError') == 0){
+											Session::remove('DatabaseError');
+										}
+									}
 								}
-								else {
-									$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
-								}
+								$tableObjRecord->hasColumn($colName, $colSettings['type'], $length, $colSettings);
 							}
 						}
 					}
@@ -159,25 +159,17 @@ class ExtensionBase
 	public function setUpDoctrine() {
 		global $App;
 		if ($this->hasDoctrine()){
+			$initModels = array();
 			$extObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/' . $this->extName . '/Doctrine/base/');
 			foreach($extObj as $eInfo){
-				if ($eInfo->isDot() || $eInfo->isDir()) {
+				if ($eInfo->isDot() || $eInfo->isDir()){
 					continue;
 				}
-				Doctrine_Core::addExtModelsDirectory($eInfo->getBasename('.php'), $eInfo->getPath() . '/');
+				$initModels[] = $eInfo->getBasename('.php');
+				require($eInfo->getPathname());
+				Doctrine_Core::loadModel($eInfo->getBasename('.php'), $eInfo->getPath() . '/');
 			}
-			//Doctrine_Core::loadModels(sysConfig::getDirFsCatalog() . 'extensions/' . $this->extName . '/Doctrine/base/', Doctrine_Core::MODEL_LOADING_CONSERVATIVE);
-
-			if (isset($_GET['verifyModels'])){
-				$extObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/' . $this->extName . '/Doctrine/base/');
-				foreach($extObj as $eInfo){
-					if ($eInfo->isDot() || $eInfo->isDir()) {
-						continue;
-					}
-
-					$App->checkModel($eInfo->getBasename('.php'), $this->extName);
-				}
-			}
+			Doctrine_Core::initializeModels($initModels);
 		}
 	}
 
@@ -187,92 +179,17 @@ class ExtensionBase
 			if (is_dir($dir['pathname'] . '/Doctrine/ext/' . $this->extName)){
 				$extCheck = $appExtension->getExtension($dir['basename']);
 				if ($extCheck !== false && $extCheck->isInstalled() === true){
+					$initModels = array();
 					$exteObj = new DirectoryIterator($dir['pathname'] . '/Doctrine/ext/' . $this->extName);
 					foreach($exteObj as $eeInfo){
-						if ($eeInfo->isDot() || $eeInfo->isDir()) {
+						if ($eeInfo->isDot() || $eeInfo->isDir()){
 							continue;
 						}
-
-						Doctrine_Core::addExtModelsDirectory($eeInfo->getBasename('.php'), $eeInfo->getPath() . '/');
+						$initModels[] = $eeInfo->getBasename('.php');
+						require($eeInfo->getPathname());
+						Doctrine_Core::loadModel($eeInfo->getBasename('.php'), $eeInfo->getPath() . '/');
 					}
-					//Doctrine_Core::loadModels($eInfo->getPathname() . '/Doctrine/ext/' . $this->extName, Doctrine_Core::MODEL_LOADING_CONSERVATIVE);
-
-					if (isset($_GET['verifyModels'])){
-						$extObj = new DirectoryIterator($dir['pathname'] . '/Doctrine/ext/' . $this->extName);
-						foreach($extObj as $eeInfo){
-							if ($eeInfo->isDot() || $eeInfo->isDir()) {
-								continue;
-							}
-
-							$App->checkModel($eeInfo->getBasename('.php'), $this->extName);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	public function fixMissingColumns() {
-		global $manager, $App, $appExtension, $messageStack;
-		$dbConn = $manager->getCurrentConnection();
-
-		if ($this->hasDoctrine()){
-			$extObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/' . $this->extName . '/Doctrine/base/');
-			foreach($extObj as $eInfo){
-				if ($eInfo->isDot() || $eInfo->isDir()) {
-					continue;
-				}
-				$App->addMissingModelColumns($eInfo->getBasename('.php'), $this->extName);
-			}
-		}
-
-		if ($this->enabled && sizeof($this->addColumns) > 0){
-			foreach((array)$this->addColumns as $tableName => $cols){
-				if (Doctrine_Core::isValidModelClass($tableName)){
-					$tableObj = Doctrine_Core::getTable($tableName);
-
-					$tableColumns = $dbConn->import->listTableColumns($tableObj->getTableName());
-
-					foreach((array)$cols as $colName => $colSettings){
-						$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
-						if (!isset($tableColumns[$colName])){
-							$dbConn->export->alterTable($tableObj->getTableName(), array(
-									'add' => array(
-										$colName => (array)$colSettings
-									)
-								));
-							$messageStack->addSession('pageStack', '<table><tr><td><b>Server Message:</b></td><td>Database table column added.</td></tr><tr><td><b>Extension Key:</b></td><td>' . $this->extName . '</td></tr><tr><td><b>Table Name:</b></td><td>' . $tableName . '</td></tr><tr><td><b>Column Name:</b></td><td>' . $colName . '</td></tr></table>', 'success');
-						}
-					}
-				}
-			}
-		}
-
-		foreach($appExtension->extensionDirs as $dir){
-			$extCheck = $appExtension->getExtension($dir['basename']);
-			if ($extCheck !== false && $extCheck->isInstalled() === true){
-				if (is_dir($dir['pathname'] . '/data/ext/' . $this->extName)){
-					$addColumns = simplexml_load_file($dir['pathname'] . '/data/ext/' . $this->extName . '/add_columns.xml', 'SimpleXMLElement', LIBXML_NOCDATA);
-					foreach((array)$addColumns as $tableName => $cols){
-						if (Doctrine_Core::isValidModelClass($tableName)){
-							$tableObj = Doctrine_Core::getTable($tableName);
-							$tableObjRecord = $tableObj->getRecordInstance();
-
-							$tableColumns = $dbConn->import->listTableColumns($tableObj->getTableName());
-
-							foreach((array)$cols as $colName => $colSettings){
-								$length = (isset($colSettings['length']) ? $colSettings['length'] : null);
-								if (!isset($tableColumns[$colName])){
-									$dbConn->export->alterTable($tableObj->getTableName(), array(
-											'add' => array(
-												$colName => (array)$colSettings
-											)
-										));
-									$messageStack->addSession('pageStack', '<table><tr><td><b>Server Message:</b></td><td>Database table column added.</td></tr><tr><td><b>Extension Key:</b></td><td>' . $this->extName . '</td></tr><tr><td><b>Table Name:</b></td><td>' . $tableName . '</td></tr><tr><td><b>Column Name:</b></td><td>' . $colName . '</td></tr></table>', 'success');
-								}
-							}
-						}
-					}
+					Doctrine_Core::initializeModels($initModels);
 				}
 			}
 		}
@@ -304,6 +221,7 @@ class Extension
 
 			$dirObj->next();
 		}
+		$this->loadExtensionClasses();
 	}
 
 	private function loadExtensionClasses() {
@@ -330,10 +248,6 @@ class Extension
 	}
 
 	public function preSessionInit() {
-		if (sizeof($this->extensions) == 0) {
-			$this->loadExtensionClasses();
-		}
-
 		foreach($this->extensions as $extension => $extCls){
 			if (method_exists($extCls, 'preSessionInit') === true){
 				$extCls->preSessionInit();
@@ -342,10 +256,6 @@ class Extension
 	}
 
 	public function postSessionInit() {
-		if (sizeof($this->extensions) == 0) {
-			$this->loadExtensionClasses();
-		}
-
 		foreach($this->extensions as $extension => $extCls){
 			if (method_exists($extCls, 'postSessionInit') === true){
 				$extCls->postSessionInit();
@@ -364,9 +274,6 @@ class Extension
 	}
 
 	public function loadExtensions() {
-		if (sizeof($this->extensions) == 0) {
-			$this->loadExtensionClasses();
-		}
 		/*
 		 * Must be separate from the foreach below in order for the ext doctrine and add columns to work
 		 */
@@ -378,9 +285,11 @@ class Extension
 			$extCls->setUpExtDoctrine();
 			$extCls->setUpAddColumns();
 			$extCls->setUpExtAddColumns();
-		}
 
-		$this->initExtensions();
+			if (method_exists($extCls, 'onLoad')){
+				$extCls->onLoad();
+			}
+		}
 	}
 
 	public function bindMethods(&$class) {
@@ -531,16 +440,16 @@ class Extension
 		}
 	}
 
-	public function initExtensions() {
+	public function initApplicationPlugins() {
 		global $App;
 		$pagePlugins = array();
 		$this->getAppFiles('pages', array(
-				'env' => $App->getEnv(),
-				'appExt' => (isset($_GET['appExt']) ? $_GET['appExt'] : false),
-				'appName' => $App->getAppName(),
-				'appFile' => $App->getAppPage() . '.php',
-				'format' => 'absolute'
-			), &$pagePlugins);
+			'env'     => $App->getEnv(),
+			'appExt'  => (isset($_GET['appExt']) ? $_GET['appExt'] : false),
+			'appName' => $App->getAppName(),
+			'appFile' => $App->getAppPage() . '.php',
+			'format'  => 'absolute'
+		), &$pagePlugins);
 
 		foreach($pagePlugins as $filePath){
 			require($filePath);
@@ -562,6 +471,14 @@ class Extension
 				}
 
 				unset($className);
+			}
+		}
+	}
+
+	public function onLoadApplication(&$App){
+		foreach($this->extensions as $extName => $clsObj){
+			if (method_exists($clsObj, 'onLoadApplication')){
+				$clsObj->onLoadApplication($App);
 			}
 		}
 	}

@@ -36,6 +36,32 @@ class OrdersProductsReservation extends Doctrine_Record {
 		));
 	}
 
+	public function preDelete($event){
+		if (is_numeric($this->barcode_id)){
+			if ($this->rental_state != 'returned'){
+				Doctrine_Query::create()
+					->update('ProductsInventoryBarcodes')
+					->set('status', '?', 'A')
+					->where('barcode_id = ?', $this->barcode_id)
+					->execute();
+			}
+		}
+		elseif (is_numeric($this->quantity_id)){
+			$qtyUpdate = Doctrine_Query::create()
+				->update('ProductsInventoryQuantity')
+				->set('available = available+1')
+				->where('quantity_id = ?', $this->quantity_id);
+
+			if ($this->rental_state == 'reserved'){
+				$qtyUpdate->set('reserved = reserved-1');
+			}
+			elseif ($this->rental_state == 'out'){
+				$qtyUpdate->set('qty_out = qty_out-1');
+			}
+			$qtyUpdate->execute();
+		}
+	}
+
 	public function setUpParent(){
 		$OrdersProducts = Doctrine_Core::getTable('OrdersProducts')->getRecordInstance();
 		$ProductsInventoryBarcodes = Doctrine_Core::getTable('ProductsInventoryBarcodes')->getRecordInstance();
@@ -57,17 +83,6 @@ class OrdersProductsReservation extends Doctrine_Record {
 		));
 	}
 
-	public function preInsert($event){
-	}
-
-	public function preUpdate($event){
-		if ($this->rental_state == 'out'){
-			$this->date_shipped = date('Y-m-d H:i:s');
-		}elseif ($this->rental_state == 'returned'){
-			$this->date_returned = date('Y-m-d H:i:s');
-		}
-	}
-
 	public function setTableDefinition(){
 		$this->setTableName('orders_products_reservation');
 
@@ -87,18 +102,10 @@ class OrdersProductsReservation extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('start_date', 'datetime', null, array(
-			'type' => 'datetime',
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
-		$this->hasColumn('event_date', 'datetime', null, array(
-			'type' => 'datetime',
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+		$this->hasColumn('start_date', 'timestamp');
+		$this->hasColumn('end_date', 'timestamp');
+		$this->hasColumn('event_date', 'timestamp');
+
 		$this->hasColumn('event_name', 'string', 250, array(
 			'type' => 'string',
 			'length' => 250,
@@ -115,13 +122,7 @@ class OrdersProductsReservation extends Doctrine_Record {
 				'notnull' => true,
 				'autoincrement' => false,
 		));
-		$this->hasColumn('end_date', 'datetime', null, array(
-			'type' => 'datetime',
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
-		));
-				
+
 		$this->hasColumn('insurance', 'decimal', 15, array(
 			'type' => 'decimal',
 			'scale' => 4,
@@ -149,20 +150,10 @@ class OrdersProductsReservation extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		$this->hasColumn('date_shipped', 'date', null, array(
-			'type' => 'date',
-			'primary' => false,
-			'default' => '0000-00-00',
-			'notnull' => true,
-			'autoincrement' => false,
-		));
-		$this->hasColumn('date_returned', 'date', null, array(
-			'type' => 'date',
-			'primary' => false,
-			'default' => '0000-00-00',
-			'notnull' => true,
-			'autoincrement' => false,
-		));
+
+		$this->hasColumn('date_shipped', 'timestamp');
+		$this->hasColumn('date_returned', 'timestamp');
+
 		$this->hasColumn('broken', 'integer', 1, array(
 			'type' => 'integer',
 			'length' => 1,
@@ -196,7 +187,7 @@ class OrdersProductsReservation extends Doctrine_Record {
 			'default' => '0.0000',
 			'notnull' => true,
 			'autoincrement' => false,
-			'scale' => false,
+			'scale' => 4,
 		));
 
 		$this->hasColumn('amount_payed', 'decimal', 15, array(
@@ -207,7 +198,7 @@ class OrdersProductsReservation extends Doctrine_Record {
 				'default' => '0.0000',
 				'notnull' => true,
 				'autoincrement' => false,
-				'scale' => false,
+				'scale' => 4,
 		));
 
 		$this->hasColumn('shipping_days_before', 'integer', 4, array(

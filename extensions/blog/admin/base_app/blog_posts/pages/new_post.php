@@ -7,8 +7,6 @@
 	}
 
 
-	$languages = tep_get_languages();
-
 	if (!isset($Post['post_status'])) $Post['post_status'] = '1';
 	switch ($Post['post_status']) {
 		case '0': $in_status = false; $out_status = true; break;

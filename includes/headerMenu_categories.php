@@ -5,7 +5,7 @@
 
 		$childLinkEl = htmlBase::newElement('a')
 		->addClass('ui-corner-all')
-		->html('<img src="' . DIR_WS_TEMPLATES . 'images/header_menu_bullet.png" valign="middle" hspace="2" vspace="2" />' . $child['CategoriesDescription'][Session::get('languages_id')]['categories_name'])
+		->html('<img src="' . sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'header_menu_bullet.png" valign="middle" hspace="2" vspace="2" />' . $child['CategoriesDescription'][Session::get('languages_id')]['categories_name'])
 		->setHref(itw_app_link('cPath=' . $currentPath, 'index', 'default'));
 
 		if ($child['categories_id'] == $current_category_id){
@@ -26,7 +26,7 @@
 		$children = false;
 		if ($currentParentChildren->count() > 0){
 			$childLinkEl->addClass('ui-menu-indicator')
-			->html('<span><img src="' . DIR_WS_TEMPLATES . 'images/header_menu_bullet.png" valign="middle" hspace="2" vspace="2" />' . $child['CategoriesDescription'][Session::get('languages_id')]['categories_name'] . '</span><span style="float:right;" class="ui-icon ui-icon-triangle-1-e"></span>');
+			->html('<span><img src="' . sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'header_menu_bullet.png" valign="middle" hspace="2" vspace="2" />' . $child['CategoriesDescription'][Session::get('languages_id')]['categories_name'] . '</span><span style="float:right;" class="ui-icon ui-icon-triangle-1-e"></span>');
 
 			$children = htmlBase::newElement('list')->addClass('ui-widget ui-corner-all ui-menu-flyout');
 			foreach($currentParentChildren->toArray(true) as $childInfo){
@@ -69,7 +69,7 @@
 
 	$linkEl = htmlBase::newElement('a')
 	->addClass('ui-corner-all headerMenuHeading')
-	->html(sysLanguage:.get('HEADER_LINK_HOME'))
+	->html(sysLanguage::get('HEADER_LINK_HOME'))
 	->setHref(itw_app_link(null, 'index', 'default'));
 
 	$homeBlock = htmlBase::newElement('div')

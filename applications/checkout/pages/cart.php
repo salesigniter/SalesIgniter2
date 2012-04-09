@@ -1,26 +1,31 @@
 <?php
-	$productRows = array();
-	foreach($ShoppingCart->getProducts() as $cartProduct) {
-		$pID_string = $cartProduct->getIdString();
-		$productPrice = $cartProduct->getPrice();
-		$productFinalPrice = $cartProduct->getFinalPrice();
-		$productTax = $cartProduct->getTaxRate();
-		$productQuantity = $cartProduct->getQuantity();
-		$productsName = $cartProduct->getNameHtml();
-		$productsModel = $cartProduct->getModel();
-		$quantity = $cartProduct->getCartQuantityHtml();
-		$ProductType = $cartProduct->getProductClass()->getProductTypeClass();
+$productRows = array();
 
-		$productRows[] = array(
-			array('text' => $productsName, 'align' => 'left'),
-			array('text' => $quantity, 'align' => 'left'),
-			array('text' => $currencies->display_price($productPrice, $productTax), 'align' => 'right'),
-			array('text' => $currencies->display_price($productFinalPrice, $productTax, $productQuantity), 'align' => 'right'),
-			array('text' => '<a pID="'.$cartProduct->getId().'" href="#" class="ui-icon ui-icon-closethick removeFromCart"></a>', 'align' => 'right')
-		);
+$CartProducts = $ShoppingCart->getProducts()->getIterator();
+while($CartProducts->valid() === true){
+	$CartProduct = $CartProducts->current();
 
-		EventManager::notify('ShoppingCartListingAddBodyColumn', &$productRows, $cartProduct);
-	}
+	$pID_string = $CartProduct->getIdString();
+	$productPrice = $CartProduct->getPrice();
+	$productFinalPrice = $CartProduct->getFinalPrice();
+	$productTax = $CartProduct->getTaxRate();
+	$productQuantity = $CartProduct->getQuantity();
+	$productsName = $CartProduct->getNameHtml();
+	$productsModel = $CartProduct->getModel();
+	$quantity = $CartProduct->getCartQuantityHtml();
+
+	$productRows[] = array(
+		array('text' => $productsName, 'align' => 'left'),
+		array('text' => $quantity, 'align' => 'left'),
+		array('text' => $currencies->display_price($productPrice, $productTax), 'align' => 'right'),
+		array('text' => $currencies->display_price($productFinalPrice, $productTax, $productQuantity), 'align' => 'right'),
+		array('text' => '<a pID="'.$pID_string.'" href="#" class="ui-icon ui-icon-closethick removeFromCart"></a>', 'align' => 'right')
+	);
+
+	EventManager::notify('ShoppingCartListingAddBodyColumn', &$productRows, $CartProduct);
+
+	$CartProducts->next();
+}
 ?>
 <div id="checkoutShoppingCart" style="padding:.3em;"><?php
 	$productTable = htmlBase::newElement('table')
@@ -51,8 +56,6 @@
 				'text'   => $colInfo['text']
 			);
 		}
-
-		EventManager::notify('ShoppingCartListingAddBodyColumn', &$shoppingCartBodyRow, $cartProduct);
 
 		foreach($shoppingCartBodyRow as $k => $rInfo){
 			$shoppingCartBodyRow[$k]['addCls'] = 'ui-widget-content';

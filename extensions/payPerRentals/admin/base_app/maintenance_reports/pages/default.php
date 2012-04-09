@@ -33,8 +33,10 @@ $gridHeaderColumns = array(
 	array('text' => sysLanguage::get('TABLE_HEADING_TYPE')),
 	array('text' => sysLanguage::get('TABLE_HEADING_ADMIN')),
 	array('text' => sysLanguage::get('TABLE_HEADING_DATE')),
+	array('text' => sysLanguage::get('TABLE_HEADING_NEXT_DATE')),
 	array('text' => sysLanguage::get('TABLE_HEADING_PRICE')),
 	array('text' => sysLanguage::get('TABLE_HEADING_PARTS_USED')),
+	array('text' => sysLanguage::get('TABLE_HEADING_REPAIR_DESC')),
 	array('text' => sysLanguage::get('TABLE_HEADING_PARTS_PRICE'))
 
 );
@@ -103,8 +105,23 @@ if ($maintenances){
 				$priceParts = 0;
 				$admin = '';
 				$parts = '';
+				$repairDesc = '';
+		        $mNext = 0;
+				$QMaintenancePeriodDays = Doctrine_Query::create()
+					->from('PayPerRentalMaintenancePeriods')
+					->where('before_send = ?', '0')
+					->andWhere('after_return = ?', '0')
+					->andWhere('is_repair = ?', '0')
+					->andWhere('show_number_days > 0')
+					->orderBy('show_number_days')
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+				if(isset($QMaintenancePeriodDays[0])){
+					$mNext = $QMaintenancePeriodDays[0]['show_number_days'];
+				}
+
 				foreach($maintenance['ProductsInventoryBarcodes']['PayPerRentalMaintenanceRepairs'] as $repair){
 					$price += $repair['price'];
+					$repairDesc .= $repair['comments'];
 					foreach($repair['PayPerRentalMaintenanceRepairParts'] as $part){
 						$priceParts += $part['part_price'];
 						$parts .= $part['part_name'].'; ';
@@ -123,8 +140,10 @@ if ($maintenances){
 					array('text' => $eventType),
 					array('text' => $admin),
 					array('text' => strftime(sysLanguage::getDateFormat('long'), strtotime($maintenance['last_maintenance_date']))),
+					array('text' => strftime(sysLanguage::getDateFormat('long'), strtotime('+'.$mNext.' DAY',strtotime($maintenance['last_maintenance_date'])))),
 					array('text' => $currencies->format($price)),
 					array('text' => $parts),
+					array('text' => $repairDesc),
 					array('text' => $currencies->format($priceParts))
 
 				);

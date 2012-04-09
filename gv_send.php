@@ -102,7 +102,7 @@ if (!empty($action)){
 					$message = stripslashes($_POST['message']);
 				}
 				
-				require_once(DIR_WS_CLASSES . 'email_events.php');
+				require_once(sysConfig::getDirFsCatalog() . 'includes/classes/email_events.php');
 				$email_event = new email_event(GIFT_VOUCHER_SEND_EMAIL);
 				$email_event->sendEmail(array(
 					'email' => $_POST['email'],
@@ -115,12 +115,12 @@ if (!empty($action)){
 
 $breadcrumb->add(sysLanguage::get('NAVBAR_TITLE'));
 
-$content = CONTENT_GV_SEND;
+$content = sysLanguage::get('CONTENT_GV_SEND');
 if (isset($_GET['dialog']) && $_GET['dialog'] == 'true'){
-	require(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/popup.tpl.php');
+	require(sysConfig::get('DIR_FS_TEMPLATE') . '/popup.tpl.php');
 }else{
-	require(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/main_page.tpl.php');
+	require(sysConfig::get('DIR_FS_TEMPLATE') . '/main_page.tpl.php');
 }
 
-require(DIR_WS_INCLUDES . 'application_bottom.php');
+require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
 ?>

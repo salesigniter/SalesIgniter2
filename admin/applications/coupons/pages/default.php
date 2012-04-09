@@ -175,10 +175,6 @@
 		echo sysLanguage::get('HEADING_TITLE_STATUS') . ' ' . tep_draw_pull_down_menu('status', $status_array, $status, 'onChange="this.form.submit();"');
 	?></form>
 </div>
-<div class="gridContainer">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>

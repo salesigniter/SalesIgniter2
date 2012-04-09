@@ -51,10 +51,11 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 	}
 
 	/**
-	 * Called from the checkout to send any requests required
+	 * @param null $orderID
+	 * @param null $amount
 	 * @return bool
 	 */
-	public function processPayment() {
+	public function processPayment($orderID = null, $amount = null) {
 		global $order, $onePageCheckout;
 		$paymentInfo = OrderPaymentModules::getPaymentInfo();
 

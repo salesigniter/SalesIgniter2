@@ -1,6 +1,4 @@
 <?php
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
-	
 	class OrderCreatorProductProduct extends Product {
 		
 		public function getPurchaseType($typeName, $forceEnable = false){

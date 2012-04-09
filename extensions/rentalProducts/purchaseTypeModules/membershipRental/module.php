@@ -1,11 +1,11 @@
 <?php
 /*
-	Product Purchase Type: Rental
+	Product Purchase Type: Membership Rental
 
 	I.T. Web Experts, Rental Store v2
 	http://www.itwebexperts.com
 
-	Copyright (c) 2009 I.T. Web Experts
+	Copyright (c) 2011 I.T. Web Experts
 
 	This script and it's source is not redistributable
 */
@@ -42,18 +42,37 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 		$return = null;
 		switch($key){
 			case 'product_info':
-				$button = htmlBase::newElement('button')->setType('submit');
-					//print_r($this->getProduct);
-					$Product = new Product($this->productInfo['id']);
-				if ($Product->isBox() === false){
-					$button->setText(sysLanguage::get('TEXT_BUTTON_IN_QUEUE'))->setName('add_queue');
-					if ($rentalQueue->in_queue($this->productInfo['id']) === true){
-						$button->disable();
-					}
-				}
-				elseif ($Product->isBox() === true) {
+				$button = htmlBase::newElement('button')
+					->setType('submit')
+					->setText(sysLanguage::get('TEXT_BUTTON_IN_QUEUE'))
+					->setName('add_queue');
+				if (isset($this->productInfo['isBox']) && $this->productInfo['isBox'] === true) {
 					$button->setText(sysLanguage::get('TEXT_BUTTON_IN_QUEUE_SERIES'))->setName('add_queue_all');
 				}
+
+				if ($this->existsInQueue() === true){
+					switch($this->getConfigData('EXISTS_IN_QUEUE_PRODUCT_INFO_DISPLAY')){
+						case 'disable':
+							$button->disable();
+							break;
+						case 'in_queue_text':
+							$button = htmlBase::newElement('span')
+								->addClass('existsInQueue')
+								->html(sysLanguage::get('TEXT_EXISTS_IN_QUEUE'));
+							break;
+						case 'Hide Box':
+							return null;
+							break;
+					}
+				}
+
+				if ($userAccount->isLoggedIn() === false){
+					$allowQty = false;
+					$button = htmlBase::newElement('button')
+						->setHref(itw_app_link(null, 'account', 'login'))
+						->setText(sysLanguage::get('TEXT_BUTTON_LOGIN_REQUIRED'));
+				}
+
 				$content = '';
 				if ($this->showRentalAvailability()){
 					$content = '<table cellpadding="1" cellspacing="0" border="0"><tr>
@@ -65,7 +84,7 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 				$return = array(
 					'form_action' => itw_app_link(tep_get_all_get_params(array('action'))),
 					'purchase_type' => $this->getCode(),
-					'allowQty' => ($this->getConfigData('ALLOW_MULTIPLE_IN_CART') == 'True' && $this->getConfigData('ALLOWED_PRODUCT_INFO_QUANTITY_FIELD') == 'True'),
+					'allowQty' => false,
 					'header' => $this->getTitle(),
 					'content' => $content,
 					'button' => $button
@@ -75,62 +94,8 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 		return $return;
 	}
 
-	/**
-	 * @param array $CartProductData
-	 * @return bool
-	 */
-	public function allowAddToCart($CartProductData){
-		global $messageStack, $userAccount;
-		return true;
-	}
-
-	public function addToCartPrepare(&$pInfo){
-		$ProdClass = new Product($this->getProductId());
-		$pInfo['price'] = $ProdClass->getKeepPrice();
-		$pInfo['final_price'] = $ProdClass->getKeepPrice();
-		$pInfo['queue_id'] = $_POST['queue_id'];
-	}
-
-	public function processAddToCart(&$pInfo) {
-		EventManager::notify('PurchaseTypeAddToCart', $this->getCode(), &$pInfo, $this->productInfo);
-	}
-
-	public function updateStock($orderId, $orderProductId, &$cartProduct) {
-		return false;
-	}
-
-	public function onInsertOrderedProduct($cartProduct, $orderId, &$orderedProduct, &$products_ordered) {
-		$pID = (int)$cartProduct->getIdString();
-		$pInfo = $cartProduct->getInfo();
-		$queueID = $pInfo['queue_id'];
-		$InventoryCls =& $this->getInventoryClass();
-
-		$Qrented = Doctrine_Query::create()
-		->from('RentedQueue')
-		->where('customers_queue_id = ?', $queueID)
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-		$Barcode = Doctrine_Core::getTable('ProductsInventoryBarcodes')->find($Qrented[0]['products_barcode']);
-		if ($Barcode){
-			$Barcode->status = 'P';
-			$Barcode->save();
-		}
-
-		Doctrine_Query::create()
-		->delete('RentedQueue')
-		->where('customers_queue_id = ?', $queueID)
-		->execute();
-		$orderedProduct->purchase_type = $this->getCode();
-		$orderedProduct->save();
-
-	}
-
-
 	function showRentalAvailability() {
-		if (sysConfig::get('ALLOW_RENTALS') == 'false' || sysConfig::get('RENTAL_AVAILABILITY_PRODUCT_INFO') == 'false'){
-			return false;
-		}
-		return (sysConfig::get('RENTAL_AVAILABILITY_PRODUCT_INFO') == 'true');
+		return ($this->getConfigData('PRODUCT_INFO_SHOW_AVAILABILITY') == 'True');
 	}
 
 	function getAvailabilityName() {
@@ -179,6 +144,34 @@ class PurchaseType_MembershipRental extends PurchaseTypeBase
 			}
 		}
 		return $return;
+	}
+
+	function rentalAllowed(){
+		global $userAccount;
+
+		if ($userAccount->isRentalMember()){
+			if ($userAccount->membershipIsActivated()){
+				$membership =& $userAccount->plugins['membership'];
+				if($membership->isPastDue()){
+					return 'pastdue';
+				}else{
+					return true;
+				}
+			}else{
+				return 'inactive';
+			}
+		}else{
+			return 'membership';
+		}
+	}
+
+	public function existsInQueue(){
+		$RentalQueue =& Session::getReference('RentalQueue');
+		return $RentalQueue->inQueue($this->getProductId());
+	}
+
+	public function addToQueuePrepare(array &$QueueProductData){
+
 	}
 }
 

@@ -14,17 +14,12 @@
 		$userAccount->loadPlugins();
 
 		$Order = new Order($oID);
-		
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
 	}
     $App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 
 	include_once(sysConfig::getDirFsCatalog() . 'includes/functions/crypt.php');
 	include_once(sysConfig::getDirFsCatalog() . 'includes/classes/http_client.php');
 
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-	$currencies = new currencies();
-	
 	$orders_statuses = array();
 	$orders_status_array = array();
 	$Qstatus = Doctrine_Query::create()

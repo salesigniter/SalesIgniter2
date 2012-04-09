@@ -10,7 +10,7 @@
   Released under the GNU General Public License
 */
 
-  class rentalQueue {
+  class rentalQueueOLD {
       var $contents, $queueID;
       
       function rentalQueue() {
@@ -39,20 +39,6 @@
 	      }else{
 		      return 'membership';
 	      }
-	      /*$Qcheck = Doctrine_Query::create()
-		      ->select('activate')
-		      ->from('CustomersMembership')
-		      ->where('ismember = ?', 'M')
-		      ->andWhere('customers_id = ?', $cID)
-		      ->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-          if ($Qcheck){
-              if ($Qcheck[0]['activate'] == 'Y'){
-                  return true;
-              }else{
-                  return 'inactive';
-              }
-          }
-        return 'membership'; */
       }
       
       function updatePriority($pID_string, $priority, $prevPriority = '', $attributes = ''){

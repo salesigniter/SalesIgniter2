@@ -26,7 +26,7 @@ $trackingCompanies = array(
             <td class="main" colspan="2"><b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'), $_GET['order_id']) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b></td>
           </tr>
           <tr>
-            <td class="smallText"><?php echo sysLanguage::get('HEADING_ORDER_DATE') . ' ' . tep_date_long($Order->getDatePurchased()); ?></td>
+            <td class="smallText"><?php echo sysLanguage::get('HEADING_ORDER_DATE') . ' ' . $Order->getDatePurchased()->format(sysLanguage::getDateTimeFormat()); ?></td>
             <td class="smallText" align="right"><?php echo sysLanguage::get('HEADING_ORDER_TOTAL') . ' ' . $currencies->format($Order->getTotal()); ?></td>
           </tr>
         </table></td>
@@ -211,7 +211,7 @@ $contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $_GET['order_id'
 <?php
 foreach($Order->getStatusHistory() as $statusEntry){
 	echo '              <tr>' . "\n" .
-	'                <td class="main" valign="top" width="70">' . tep_date_short($statusEntry['date_added']) . '</td>' . "\n" .
+	'                <td class="main" valign="top" width="70">' . $statusEntry['date_added']->format(sysLanguage::getDateTimeFormat()) . '</td>' . "\n" .
 	'                <td class="main" valign="top" width="70">' . $statusEntry['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'] . '</td>' . "\n" .
 	'                <td class="main" valign="top">' . (empty($statusEntry['comments']) ? '&nbsp;' : nl2br($statusEntry['comments'])) . '</td>' . "\n" .
 	'              </tr>' . "\n";

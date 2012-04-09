@@ -119,10 +119,7 @@ if ($pickupr){
 	echo $searchForm->draw();
 	?></div>
 <br />
-<div style="width:100%;float:left;">
-	<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-		<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-		<br style="clear:both;"/> <br/>
+	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+		<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 	</div>
-</div>
 <script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=<?php echo sysConfig::get('GOOGLE_MAPS_API_KEY');?>"></script>

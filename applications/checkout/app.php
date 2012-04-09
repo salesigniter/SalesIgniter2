@@ -1,6 +1,9 @@
 <?php
 	$appPage = $App->getAppPage();
 	$appContent = $App->getAppContentFile();
+if ($appPage == 'success' && $userAccount->isLoggedIn()){
+
+}else{
 
 	$App->addJavascriptFile('ext/jQuery/external/pass_strength/jQuery.pstrength.js');
 
@@ -82,7 +85,7 @@
 
 		$onePageCheckout->setShippingStatus();
 	}
-	
+
 	if ($onePageCheckout->onePage['shippingEnabled'] === true){
 		if ($onePageCheckout->isNormalCheckout() === true){
 			$total_weight = $ShoppingCart->showWeight();
@@ -116,7 +119,8 @@
 	} else if($onePageCheckout->isGiftCertificateCheckout() === true){
             $onePageCheckout->loadGiftCertificates();
         }
-	
+
 	$breadcrumb->add('Checkout');
 	$breadcrumb->add('Address Entry');
+}
 ?>

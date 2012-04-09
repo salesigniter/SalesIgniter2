@@ -77,15 +77,23 @@ class ProductsDescription extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false
 		));
-		
-		$this->hasColumn('products_description', 'string', null, array(
+
+		$this->hasColumn('products_short_description', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,
 			'notnull' => false,
 			'autoincrement' => false
 		));
-		
+
+		$this->hasColumn('products_description', 'string', 999, array(
+			'type' => 'string',
+			'fixed' => false,
+			'primary' => false,
+			'notnull' => false,
+			'autoincrement' => false
+		));
+
 		$this->hasColumn('products_url', 'string', 255, array(
 			'type' => 'string',
 			'length' => 255,

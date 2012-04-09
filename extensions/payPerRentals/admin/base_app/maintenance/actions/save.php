@@ -14,6 +14,53 @@
 	$cond = (($_POST['cond'] == 'g')?1:2);
 	$admin = Session::get('login_id');
 	$date = date('Y-m-d H:i:s');
+    $removed = -1;
+$QMaintenancePeriods = Doctrine_Query::create()
+	->from('PayPerRentalMaintenancePeriods')
+	->where('maintenance_period_id = ?', $_GET['type'])
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+if ($QMaintenancePeriods[0]['is_repair'] == '1') {
+		$comments = $_POST['comments'];
+		$price = $_POST['price'];
+		$admin = Session::get('login_id');
+		$date = date('Y-m-d H:i:s');
+
+		/*$Maintenances = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairs');
+	 $Maintenance = $Maintenances->findOneByBarcodeId((int) $_GET['mID']);
+	 if(!$Maintenance){*/
+		$Maintenance = new PayPerRentalMaintenanceRepairs;
+		//}
+		$Maintenance->comments = $comments;
+		$Maintenance->price = $price;
+		$Maintenance->barcode_id = $_GET['mID'];
+		$Maintenance->admin_id = $admin;
+		$Maintenance->repair_date = $date;
+
+
+		$BarcodeHistoryRented = Doctrine_Core::getTable('BarcodeHistoryRented')->find((int) $_GET['mID']);
+		$BarcodeHistoryRented->current_maintenance_cond = '3';
+		$BarcodeHistoryRented->save();
+		$Maintenance->maintenance_date = $BarcodeHistoryRented->last_maintenance_date;
+		$Maintenance->maintenance_period_id = $BarcodeHistoryRented->last_maintenance_type;
+		$Maintenance->save();
+
+		$PayPerRentalMaintenanceRepairParts = Doctrine_Core::getTable('PayPerRentalMaintenanceRepairParts');
+		Doctrine_Query::create()
+			->delete('PayPerRentalMaintenanceRepairParts')
+			->andWhere('pay_per_rental_maintenance_repairs_id =?', $Maintenance->pay_per_rental_maintenance_repairs_id)
+			->execute();
+
+		if(isset($_POST['parts'])){
+			foreach($_POST['parts'] as $prodevid => $iprodev){
+				$PayPerRentalMaintenanceRepairPart = $PayPerRentalMaintenanceRepairParts->create();
+				$PayPerRentalMaintenanceRepairPart->part_name = $iprodev['part_name'];
+				$PayPerRentalMaintenanceRepairPart->part_price = $iprodev['part_price'];
+				$PayPerRentalMaintenanceRepairPart->pay_per_rental_maintenance_repairs_id = $Maintenance->pay_per_rental_maintenance_repairs_id;
+				$PayPerRentalMaintenanceRepairPart->save();
+			}
+		}
+	}else{
 
     $BarcodeHistoryRented = Doctrine_Core::getTable('BarcodeHistoryRented')->find((int) $_GET['mID']);
 	$curMaintenance = $BarcodeHistoryRented->current_maintenance_type;
@@ -76,6 +123,7 @@
 				}
 			}
 		}
+		$removed = $_GET['mID'];
 
 	}else{
 		$ProductsInventoryBarcodes = Doctrine_Core::getTable('ProductsInventoryBarcodes')->find((int) $_GET['mID']);
@@ -84,6 +132,8 @@
 	}
 	$BarcodeHistoryRented->save();
 	$removed = $_GET['mID'];
+	}
+
 	//$link = itw_app_link(tep_get_all_get_params(array('action', 'mID')) . 'mID=' . $_GET['mID'], null, 'default');
 	EventManager::attachActionResponse(array(
 		'success' => true,

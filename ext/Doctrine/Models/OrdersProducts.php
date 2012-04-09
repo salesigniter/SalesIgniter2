@@ -13,7 +13,7 @@
 class OrdersProducts extends Doctrine_Record {
 
 	public function setUp(){
-		$this->setUpParent();
+		parent::setUp();
 		
 		$this->hasOne('Orders', array(
 			'local' => 'orders_id',
@@ -25,9 +25,10 @@ class OrdersProducts extends Doctrine_Record {
 			'foreign' => 'products_id'
 		));
 
-		$this->hasOne('ProductsInventoryBarcodes', array(
-			'local' => 'barcode_id',
-			'foreign' => 'barcode_id'
+		$this->hasMany('OrdersProductsBarcodes as Barcodes', array(
+			'local' => 'orders_products_id',
+			'foreign' => 'orders_products_id',
+			'cascade' => array('delete')
 		));
 		
 		$this->hasOne('ProductsInventoryQuantity', array(
@@ -36,13 +37,22 @@ class OrdersProducts extends Doctrine_Record {
 		));
 	}
 
-	public function setUpParent(){
-		$Products = Doctrine::getTable('Products')->getRecordInstance();
-
-		$Products->hasMany('OrdersProducts', array(
-			'local' => 'products_id',
-			'foreign' => 'products_id'
-		));
+	public function preDelete($event){
+		if (is_numeric($this->barcode_id)){
+			Doctrine_Query::create()
+				->update('ProductsInventoryBarcodes')
+				->set('status', '?', 'A')
+				->where('barcode_id = ?', $this->barcode_id)
+				->execute();
+		}
+		elseif (is_numeric($this->quantity_id)){
+			Doctrine_Query::create()
+				->update('ProductsInventoryQuantity')
+				->set('available = available+1')
+				->set('purchased = purchased-1')
+				->where('quantity_id = ?', $this->quantity_id)
+				->execute();
+		}
 	}
 
 	public function setTableDefinition(){
@@ -97,7 +107,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => false,
+		'scale' => 4,
 		));
 		$this->hasColumn('final_price', 'decimal', 15, array(
 		'type' => 'decimal',
@@ -107,7 +117,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => false,
+		'scale' => 4,
 		));
 		$this->hasColumn('products_tax', 'decimal', 7, array(
 		'type' => 'decimal',
@@ -117,7 +127,7 @@ class OrdersProducts extends Doctrine_Record {
 		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => false,
+		'scale' => 4,
 		));
 		$this->hasColumn('products_quantity', 'integer', 4, array(
 		'type' => 'integer',
@@ -135,9 +145,9 @@ class OrdersProducts extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('purchase_type', 'string', 30, array(
+		$this->hasColumn('purchase_type', 'string', 12, array(
 		'type' => 'string',
-		'length' => 30,
+		'length' => 12,
 		'fixed' => false,
 		'primary' => false,
 		'notnull' => true,
@@ -159,5 +169,21 @@ class OrdersProducts extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
+	}
+
+	public function getOrder(){
+		if ($this->hasRelation('PackageProduct')){
+			if ($this->PackageProduct->isModified() === false){
+				$Order = $this->PackageProduct->Orders;
+			}
+			else{
+				$this->clearRelated('PackageProduct');
+				$Order = $this->Orders;
+			}
+		}
+		else{
+			$Order = $this->Orders;
+		}
+		return $Order;
 	}
 }

@@ -18,6 +18,7 @@ class Extension_royaltiesSystem extends ExtensionBase {
 	
 	public function init(){
 		global $appExtension;
+		if ($this->isEnabled() === false) return;
 
 		if ($appExtension->isAdmin()){
 			EventManager::attachEvents(array('BoxMarketingAddLink',

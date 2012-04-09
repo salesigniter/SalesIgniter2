@@ -19,14 +19,37 @@
 		public static $classPrefix = 'OrderPayment';
 		private static $selected = null;
 
+		/**
+		 * @static
+		 * @param string $moduleName
+		 * @param bool $ignoreStatus
+		 * @return OrderPaymentModuleBase
+		 */
+		public static function getModule($moduleName, $ignoreStatus = false){
+			return parent::getModule($moduleName, $ignoreStatus);
+		}
+
+		/**
+		 * @static
+		 * @param string $moduleName
+		 */
 		public static function setSelected($moduleName){
 			self::$selected = $moduleName;
 		}
 
+		/**
+		 * @static
+		 * @return OrderPaymentModuleBase
+		 */
 		public static function getSelected(){
 			return self::getModule(self::$selected);
 		}
-		
+
+		/**
+		 * @static
+		 * @param bool $includeDisabled
+		 * @return array
+		 */
 		public static function getDropMenuArray($includeDisabled = false){
 			$modules = self::getModules($includeDisabled);
 			
@@ -42,7 +65,11 @@
 			}
 			return $dropMenuArray;
 		}
-		
+
+		/**
+		 * @static
+		 * @return RentalStoreUser
+		 */
 		public static function &getUserAccount(){
 			global $onePageCheckout, $membershipUpdate;
 			if (isset($onePageCheckout) && is_object($onePageCheckout)){
@@ -52,7 +79,11 @@
 			}
 			return $userAccount;
 		}
-		
+
+		/**
+		 * @static
+		 * @return array
+		 */
 		public static function &getPaymentInfo(){
 			global $onePageCheckout;
 			if (isset($onePageCheckout) && is_object($onePageCheckout)){

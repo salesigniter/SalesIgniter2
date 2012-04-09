@@ -23,12 +23,12 @@
 		$notEnabledMemberships = explode(';',$QProduct->membership_enabled);
 	}
 
-	$Qsum = dataAccess::setQuery('select sum(membership_months) as months_sum, sum(membership_days) as days_sum from {members}');
-	$Qsum->setTable('{members}', TABLE_MEMBER);
-	$Qsum->runQuery();
+	$Sum = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select sum(membership_months) as months_sum, sum(membership_days) as days_sum from membership');
 
-	$months = $Qsum->getVal('months_sum');
-	$days = $Qsum->getVal('days_sum');
+	$months = $Sum[0]['months_sum'];
+	$days = $Sum[0]['days_sum'];
 
 	$sep = tep_draw_separator('pixel_trans.gif', '100%', '10');
 
@@ -59,53 +59,47 @@
 		'columns' => $tableColumns
 	));
 
-	if(!isset($_GET['selectedPlan'])){
-		$Qcheck = dataAccess::setQuery('select plan_id from {membership} where default_plan = "1"')
-		->setTable('{membership}', TABLE_MEMBER)
-		->runQuery();
-		$hasDefault = false;
-		if ($Qcheck->numberOfRows() > 0){
-			$hasDefault = true;
-			$default = $Qcheck->getVal('plan_id');
-		}
-	}else{
+	$Check = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select plan_id from membership where default_plan = "1"');
+	$hasDefault = false;
+	if (sizeof($Check) > 0){
 		$hasDefault = true;
-		$default = $_GET['selectedPlan'];
+		$default = $Check[0]['plan_id'];
 	}
-	$Qplan = dataAccess::setQuery('select tm.*,tmd.name as package_name, tt.tax_rate as tax from {membership} tm left join {membershipdescription} tmd on tmd.plan_id=tm.plan_id left join {tax_rates} tt on tt.tax_rates_id = tm.rent_tax_class_id where tmd.language_id = '.Session::get('languages_id').' order by tm.sort_order asc')
-	->setTable('{membership}', TABLE_MEMBER)
-	->setTable('{membershipdescription}', 'membership_plan_description')
-	->setTable('{tax_rates}', TABLE_TAX_RATES);
+
+	$Plan = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select tm.*,tmd.name as package_name, tt.tax_rate as tax from membership tm left join membership_plan_description tmd on tmd.plan_id=tm.plan_id left join tax_rates tt on tt.tax_rates_id = tm.rent_tax_class_id where tmd.language_id = '.Session::get('languages_id').' order by tm.sort_order asc');
 	$i=1;
-	while($Qplan->next() !== false) {
-		if(in_array($Qplan->getVal('plan_id'), $notEnabledMemberships)){
-			continue;
-		}
-		if (($hasDefault === false && $i == 1) || ($hasDefault === true && $Qplan->getVal('plan_id') == $default)) {
+	foreach($Plan as $pInfo) {
+		$planId = $pInfo['plan_id'];
+		if(in_array($planId, $notEnabledMemberships)) continue;
+		if (($hasDefault === false && $i == 1) || ($hasDefault === true && $planId == $default)) {
 			$chk = true;
 		} else {
 			$chk = false;
 		}
 
 		$tableColumns = array();
-		$tableColumns[] = array('addCls' => 'main', 'text' => tep_draw_radio_field('plan_id', $Qplan->getVal('plan_id'), $chk, 'class="rentalPlans"'), 'align' => 'center');
-		$tableColumns[] = array('addCls' => 'main', 'text' => $Qplan->getVal('package_name'));
+		$tableColumns[] = array('addCls' => 'main', 'text' => tep_draw_radio_field('plan_id', $planId, $chk, 'class="rentalPlans"'), 'align' => 'center');
+		$tableColumns[] = array('addCls' => 'main', 'text' => $pInfo['package_name']);
 		if ($months > 0){
-			$tableColumns[] = array('addCls' => 'main', 'text' => $Qplan->getVal('membership_months'), 'align' => 'center');
+			$tableColumns[] = array('addCls' => 'main', 'text' => $pInfo['membership_months'], 'align' => 'center');
 		}
 		if ($days > 0){
-			$tableColumns[] = array('addCls' => 'main', 'text' => $Qplan->getVal('membership_days'), 'align' => 'center');
+			$tableColumns[] = array('addCls' => 'main', 'text' => $pInfo['membership_days'], 'align' => 'center');
 		}
-		$tableColumns[] = array('addCls' => 'main', 'text' => $Qplan->getVal('no_of_titles'), 'align' => 'center');
+		$tableColumns[] = array('addCls' => 'main', 'text' => $pInfo['no_of_titles'], 'align' => 'center');
 		if (sysConfig::get('RENTAL_SHOW_TAX_COLUMN') == 'true'){
-			$tableColumns[] = array('addCls' => 'main', 'text' => tep_display_tax_value($Qplan->getVal('tax'), 0) . '%', 'align' => 'center');
+			$tableColumns[] = array('addCls' => 'main', 'text' => tep_display_tax_value($pInfo['tax'], 0) . '%', 'align' => 'center');
 		}
-		$tableColumns[] = array('addCls' => 'main', 'text' => $currencies->format($Qplan->getVal('price'), true, $order->info['currency'], $order->info['currency_value']), 'align' => 'center');
+		$tableColumns[] = array('addCls' => 'main', 'text' => $currencies->format($pInfo['price'], true, $order->info['currency'], $order->info['currency_value']), 'align' => 'center');
 		if (sysConfig::get('RENTAL_SHOW_TOTAL_PRICE_COLUMN') == 'true'){
-			$tableColumns[] = array('addCls' => 'main', 'text' => $currencies->format(tep_add_tax($Qplan->getVal('price'), $Qplan->getVal('tax')), true, $order->info['currency'], $order->info['currency_value']), 'align' => 'center');
+			$tableColumns[] = array('addCls' => 'main', 'text' => $currencies->format(tep_add_tax($pInfo['price'], $pInfo['tax']), true, $order->info['currency'], $order->info['currency_value']), 'align' => 'center');
 		}
 		if (sysConfig::get('RENTAL_SHOW_TRIAL_COLUMN') == 'true'){
-			$tableColumns[] = array('addCls' => 'main', 'text' => $Qplan->getVal('free_trial'), 'align' => 'center');
+			$tableColumns[] = array('addCls' => 'main', 'text' => $pInfo['free_trial'], 'align' => 'center');
 		}
 
 		$productTable->addBodyRow(array(
@@ -113,10 +107,6 @@
 		));
 		$i++;
 	}
-		if($i == 1){
-			$messageStack->addSession('pageStack','There is no membership enabled for the product you added to queue');
-			tep_redirect(itw_app_link(null,'products','all'));
-		}
 	echo $productTable->draw();
 ?></div>
 <?php
@@ -163,8 +153,8 @@
 			echo '<tr><td>' . tep_draw_separator('pixel_trans.gif', '100%', '10') . '</td></tr>';
 		}
 	}
-	
-	$totalModules = OrderPaymentModules::countEnabled();
+
+$totalModules = OrderPaymentModules::countEnabled();
 ?>
 <div class="ui-widget">
 	<div class="ui-widget-content ui-corner-all">
@@ -196,7 +186,7 @@
 				echo '<div class="moduleRow paymentRow' . $addClass . '">';
 				echo '<div class="smallText">';
 				
-				if ($totalModules > 0){
+				if ($totalModules > 1){
 					echo tep_draw_radio_field('payment_method', $code, (isset($onePageCheckout->onePage['info']['payment']['id']) && $mInfo['id'] == $onePageCheckout->onePage['info']['payment']['id']));
 				}else{
 					echo tep_draw_hidden_field('payment_method', $code);
@@ -272,14 +262,13 @@
 						echo $content;
 					}
 				}
-				if(sizeof($quotes[$i]['methods']) > 0){
-					echo '<div class="smallText">';
-					echo '<b>' . $quotes[$i]['module'] . '</b>';
-					if (isset($quotes[$i]['icon']) && tep_not_null($quotes[$i]['icon'])){
-						echo $quotes[$i]['icon'];
-					}
-					echo '</div>';
+				
+				echo '<div class="smallText">';
+				echo '<b>' . $quotes[$i]['module'] . '</b>';
+				if (isset($quotes[$i]['icon']) && tep_not_null($quotes[$i]['icon'])){
+					echo $quotes[$i]['icon'];
 				}
+				echo '</div>';
 				
 				if (isset($quotes[$i]['error'])){
 					echo '<div>' . $quotes[$i]['error'] . '</div>';

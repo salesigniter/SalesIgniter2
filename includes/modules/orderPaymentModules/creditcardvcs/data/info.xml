@@ -8,4 +8,5 @@
 	<checkout_method_key>CHECKOUT_METHOD</checkout_method_key>
 	<display_order_key>DISPLAY_ORDER</display_order_key>
 	<order_status_key>ORDER_STATUS_ID</order_status_key>
+	<visible_key>VISIBLE</visible_key>
 </info>

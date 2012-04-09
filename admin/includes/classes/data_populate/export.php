@@ -55,10 +55,12 @@ class dataExport {
 				$this->fileString .= $this->endOfRow;
 			}
 		}else{
-			$Qproducts = dataAccess::setQuery($this->sqlQuery);
-			while($Qproducts->next() !== false){
+			$Products = Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->fetchAssoc($this->sqlQuery);
+			foreach($Products as $Product){
 				foreach($this->fileHeaders as $key => $value){
-					$this->fileString .= $this->readyColumn($Qproducts->getVal($key));
+					$this->fileString .= $this->readyColumn($Product[$key]);
 				}
 				$this->fileString .= $this->endOfRow;
 			}
@@ -68,7 +70,7 @@ class dataExport {
 	
 	private function readyColumn($colText){
 		// kill the carriage returns and tabs in the descriptions, they're killing me!
-		$colText = str_replace(array("\r", "\n", "\t"), ' ', $colText);
+		$colText = '"' . str_replace(array("\r", "\n", "\t"), ' ', $colText) . '"';
 
 		// and put the text into the output separated by tabs
 		$colText .= $this->colSeparator;
@@ -76,7 +78,6 @@ class dataExport {
 	}
 	
 	public function output($direct = false){
-		global $request_type;
 		$EXPORT_TIME = 'BP' . strftime('%Y%b%d-%H%I');
 
 		/*
@@ -91,7 +92,7 @@ class dataExport {
 		header("Content-disposition: attachment; filename=$EXPORT_TIME.xls");
 		// Changed if using SSL, helps prevent program delay/timeout (add to backup.php also)
 		//	header("Pragma: no-cache");
-		if ($request_type== 'NONSSL'){
+		if (sysConfig::get('REQUEST_TYPE') == 'NONSSL'){
 			header("Pragma: no-cache");
 		} else {
 			header("Pragma: ");

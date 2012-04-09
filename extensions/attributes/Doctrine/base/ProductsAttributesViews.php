@@ -37,9 +37,9 @@ class ProductsAttributesViews extends Doctrine_Record {
 			'autoincrement' => true
 		));
 		
-		$this->hasColumn('products_attributes_id', 'integer', 11, array(
+		$this->hasColumn('products_attributes_id', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 11,
+			'length'        => 4,
 			'unsigned'      => 0,
 			'primary'       => false,
 			'autoincrement' => false

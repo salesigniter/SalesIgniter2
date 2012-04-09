@@ -17,7 +17,7 @@ class customFields_admin_products_new_product extends Extension_customFields {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'NewProductAddTabs',
@@ -31,11 +31,9 @@ class customFields_admin_products_new_product extends Extension_customFields {
 	}
 
 	public function NewProductAddTabs(Product $Product, $ProductType, htmlWidget_tabs &$Tabs) {
-		if ($ProductType->getCode() == 'standard'){
-			$Tabs
-				->addTabHeader('tab_' . $this->getExtensionKey(), array('text' => sysLanguage::get('TAB_CUSTOM_FIELDS')))
-				->addTabPage('tab_' . $this->getExtensionKey(), array('text' => $this->NewProductTabBody($Product)));
-		}
+		$Tabs
+			->addTabHeader('tab_' . $this->getExtensionKey(), array('text' => sysLanguage::get('TAB_CUSTOM_FIELDS')))
+			->addTabPage('tab_' . $this->getExtensionKey(), array('text' => $this->NewProductTabBody($Product)));
 	}
 
 	public function NewProductTabBody(Product &$Product){

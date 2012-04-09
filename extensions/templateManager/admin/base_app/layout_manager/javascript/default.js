@@ -27,6 +27,67 @@ $(document).ready(function () {
 		.data('template_id')));
 	});
 
+	$('.stylesheetButton').click(function (){
+		var getVars = getLinkParams([
+			'rType=ajax',
+			'action=getActionWindow',
+			'window=editTemplateStylesheet'
+		]);
+
+		gridWindow({
+			buttonEl: this,
+			gridEl: $('.gridContainer'),
+			contentUrl: js_app_link(getVars),
+			onShow: function () {
+				var self = this;
+
+				$(self).find('.cancelButton').click(function () {
+					$(self).effect('fade', {
+						mode: 'hide'
+					}, function () {
+						$('.gridContainer').effect('fade', {
+							mode: 'show'
+						}, function () {
+							$(self).remove();
+						});
+					});
+				});
+
+				$(self).find('.saveButton').click(function () {
+					var getVars = getLinkParams([
+						'rType=ajax',
+						'action=saveTemplateStylesheet'
+					]);
+
+					$.ajax({
+						cache: false,
+						url: js_app_link(getVars),
+						dataType: 'json',
+						data: $(self).find('*').serialize(),
+						type: 'post',
+						success: function (data) {
+							if (data.success){
+								$(self).effect('fade', {
+									mode: 'hide'
+								}, function () {
+									$('.gridContainer').effect('fade', {
+										mode: 'show'
+									}, function () {
+										$(self).remove();
+									});
+								});
+							}
+						}
+					});
+				});
+
+				if (typeof newWindowOnLoad != 'undefined'){
+					newWindowOnLoad.apply(self);
+				}
+			}
+		});
+	});
+
 	$('.newButton').click(function () {
 		var getVars = getLinkParams([
 			'rType=ajax',

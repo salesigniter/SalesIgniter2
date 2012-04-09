@@ -1,60 +1,79 @@
-<configurations>
-	<configuration>
-		<title><![CDATA[Enable Heartland Module]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_STATUS]]></key>
-		<value><![CDATA[True]]></value>
-		<description><![CDATA[Do you want to accept heartland payments?]]></description>
-		<sort_order>1</sort_order>
-		<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Sort order of display]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_SORT_ORDER]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Sort order of display. Lowest is displayed first.]]></description>
-		<sort_order>2</sort_order>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Payment method visible]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_VISIBLE]]></key>
-		<value><![CDATA[Both]]></value>
-		<description><![CDATA[Where is this payment method visible: Admin, Catalog or Both )]]></description>
-		<sort_order>5</sort_order>
-		<set_function><![CDATA[tep_cfg_select_option(array('Admin','Catalog','Both'),]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Payment Zone]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_ZONE]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[If a zone is selected, only enable this payment method for that zone.]]></description>
-		<sort_order>3</sort_order>
-		<use_function><![CDATA[tep_get_zone_class_title]]></use_function>
-		<set_function><![CDATA[tep_cfg_pull_down_zone_classes(]]></set_function>
-	</configuration>
-	<configuration>
-		<title><![CDATA[Set Order Status]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_ORDER_STATUS_ID]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Set the status of orders made with this payment module to this value]]></description>
-		<sort_order>4</sort_order>
-		<use_function><![CDATA[tep_get_order_status_name]]></use_function>
-		<set_function><![CDATA[tep_cfg_pull_down_order_statuses(]]></set_function>
-	</configuration>
-    <configuration>
-		<title><![CDATA[heartlandID]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_USERNAME]]></key>
-		<value><![CDATA[42515]]></value>
-		<description><![CDATA[heartlandID]]></description>
-		<sort_order>4</sort_order>
-	</configuration>
-    <configuration>
-		<title><![CDATA[Set heartland Completed Order Status]]></title>
-		<key><![CDATA[MODULE_PAYMENT_HEARTLAND_COMP_ORDER_STATUS_ID]]></key>
-		<value><![CDATA[0]]></value>
-		<description><![CDATA[Set the status of orders which are confirmed as paid (completed) to this value]]></description>
-		<sort_order>12</sort_order>
-		<use_function><![CDATA[tep_get_order_status_name]]></use_function>
-		<set_function><![CDATA[tep_cfg_pull_down_order_statuses(]]></set_function>
-	</configuration>
-
-</configurations>
+<ConfigurationGroup>
+	<title>Heartland</title>
+	<key>orderPaymentHeartland</key>
+	<description>Configuration Settings For The Heartland Payment Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Payment Module Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<STATUS>
+					<title><![CDATA[Enable Heartland Module]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to accept heartland payments?]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+				</STATUS>
+				<DISPLAY_ORDER>
+					<title><![CDATA[Display Order]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+				</DISPLAY_ORDER>
+			</configurations>
+		</general>
+		<cart>
+			<title>SalesIgniter Settings</title>
+			<description>Settings special to SalesIgniter</description>
+			<configurations>
+				<ZONE>
+					<title><![CDATA[Payment Zone]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[If a zone is selected, only enable this payment method for that zone.]]></description>
+					<use_function><![CDATA[tep_get_zone_class_title]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_zone_classes(]]></set_function>
+				</ZONE>
+				<ORDER_STATUS_ID>
+					<title><![CDATA[Set Order Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Set the status of orders made with this payment module to this value]]></description>
+					<use_function><![CDATA[tep_get_order_status_name]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_order_statuses(]]></set_function>
+				</ORDER_STATUS_ID>
+				<CHECKOUT_METHOD>
+					<title><![CDATA[Accepted Checkout Method]]></title>
+					<value><![CDATA[Normal]]></value>
+					<description><![CDATA[Allow this payment module to be used for (Rental membership signup, Normal checkout or Both )]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('Membership','Normal','Both'),]]></set_function>
+				</CHECKOUT_METHOD>
+				<VISIBLE>
+					<title><![CDATA[Payment method visible]]></title>
+					<value><![CDATA[Both]]></value>
+					<description><![CDATA[Where is this payment method visible: Admin, Catalog or Both )]]></description>
+					<set_function><![CDATA[tep_cfg_select_option(array('Admin','Catalog','Both'),]]></set_function>
+				</VISIBLE>
+			</configurations>
+		</cart>
+		<gateway>
+			<title>Gateway Settings</title>
+			<description>Settings special to the gateway</description>
+			<configurations>
+				<MODULE_PAYMENT_HEARTLAND_USERNAME>
+					<title><![CDATA[heartlandID]]></title>
+					<value><![CDATA[42515]]></value>
+					<description><![CDATA[heartlandID]]></description>
+				</MODULE_PAYMENT_HEARTLAND_USERNAME>
+				<MODULE_PAYMENT_HEARTLAND_COMP_ORDER_STATUS_ID>
+					<title><![CDATA[Set heartland Completed Order Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Set the status of orders which are confirmed as paid (completed) to this value]]></description>
+					<use_function><![CDATA[tep_get_order_status_name]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_order_statuses(]]></set_function>
+				</MODULE_PAYMENT_HEARTLAND_COMP_ORDER_STATUS_ID>
+			</configurations>
+		</gateway>
+	</tabs>
+</ConfigurationGroup>

@@ -84,4 +84,4 @@
             return F
         }
     })
-})(jQuery)
+})(jQuery);

@@ -52,8 +52,10 @@
             <td valign="top"><fieldset>
              <legend><?php echo LEGEND_BLACKOUT_DATES;?></legend>
              <?php
-              $Qdates = tep_db_query('select * from blackout_dates');
-              while($dates = tep_db_fetch_array($Qdates)){
+				$Qdates = Doctrine_Manager::getInstance()
+					->getCurrentConnection()
+					->fetchAssoc('select * from blackout_dates');
+              foreach($Qdates as $dates){
                   $dArr[] = array(
                       'from'    => $dates['date_from'],
                       'to'      => $dates['date_to'],

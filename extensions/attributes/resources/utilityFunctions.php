@@ -1,16 +1,38 @@
 <?php
 	class attributesUtil {
 
-		public static function getAttributes($pId = null, $optionId = null, $valueId = null, $purchaseType = null, $usesInventory = null){
-			$Query = Doctrine_Query::create()
-			->from('ProductsAttributes a')
-			->leftJoin('a.ProductsAttributesViews v')
-			->leftJoin('a.ProductsOptions o')
-			->leftJoin('o.ProductsOptionsDescription od')
-			->leftJoin('a.ProductsOptionsValues ov')
-			->leftJoin('ov.ProductsOptionsValuesDescription ovd')
-			->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
-			->orderBy('a.sort_order, v2o.sort_order');
+		private static function getAttributesQueryBase(){
+			return Doctrine_Query::create()
+				->from('ProductsAttributes a')
+				->leftJoin('a.ProductsAttributesViews v')
+				->leftJoin('a.ProductsOptions o')
+				->leftJoin('o.ProductsOptionsDescription od')
+				->leftJoin('a.ProductsOptionsValues ov')
+				->leftJoin('ov.ProductsOptionsValuesDescription ovd')
+				->leftJoin('ov.ProductsOptionsValuesToProductsOptions v2o')
+				->orderBy('a.sort_order, v2o.sort_order');
+		}
+
+		public static function getAttributesByProductType(ProductTypeBase $ProductType){
+			$Query = self::getAttributesQueryBase();
+			$Query->andWhere('a.products_id = ?', $ProductType->getProductId());
+			$Query->andWhere('a.product_type = ?', $ProductType->getCode());
+
+			$Result = $Query->execute()->toArray();
+			return $Result;
+		}
+
+		public static function getAttributesByPurchaseType(PurchaseTypeBase $PurchaseType){
+			$Query = self::getAttributesQueryBase();
+			$Query->andWhere('a.products_id = ?', $PurchaseType->getProductId());
+			$Query->andWhere('FIND_IN_SET("' . $PurchaseType->getCode() . '", a.purchase_types) > 0');
+
+			$Result = $Query->execute()->toArray();
+			return $Result;
+		}
+
+		public static function getAttributes($pId = null, $optionId = null, $valueId = null, $productType = null, $usesInventory = null){
+			$Query = self::getAttributesQueryBase();
 
 			if (is_null($pId) === false){
 				$Query->andWhere('a.products_id = ?', (int)$pId);
@@ -24,8 +46,10 @@
 				$Query->andWhere('a.options_values_id = ?', (int)$valueId);
 			}
 
-			if (is_null($purchaseType) === false){
-				$Query->andWhere('FIND_IN_SET("' . $purchaseType . '", a.purchase_types) > 0');
+			if (is_null($productType) === false){
+				if (method_exists($productType, 'getPurchaseTypeCode')){
+					$Query->andWhere('FIND_IN_SET("' . $productType->getPurchaseTypeCode() . '", a.purchase_types) > 0');
+				}
 			}
 
 			if (is_null($usesInventory) === false){

@@ -6,22 +6,21 @@
  *	filemanager.config.php
  *	config for the filemanager.php connector
  *
- *	@license	MIT License
- *	@author		Riaan Los <mail (at) riaanlos (dot) nl>
- *	@author		Simon Georget <simon (at) linea21 (dot) com>
- *	@copyright	Authors
+ * @license	MIT License
+ * @author		Riaan Los <mail (at) riaanlos (dot) nl>
+ * @author		Simon Georget <simon (at) linea21 (dot) com>
+ * @copyright	Authors
  */
-
 
 /**
  *	Check if user is authorized
  *
- *	@return boolean true is access granted, false if no access
+ * @return boolean true is access granted, false if no access
  */
 function auth() {
-  // You can insert your own code over here to check if the user is authorized.
-  // If you use a session variable, you've got to start the session first (session_start())
-  return true;
+	// You can insert your own code over here to check if the user is authorized.
+	// If you use a session variable, you've got to start the session first (session_start())
+	return true;
 }
 
 /**
@@ -53,22 +52,20 @@ $config['upload']['imagesonly'] = false; // true or false; Only allow images (jp
  *	Images array
  *	used to display image thumbnails
  */
-$config['images'] = array('jpg', 'jpeg','gif','png');
-
+$config['images'] = array('jpg', 'jpeg', 'gif', 'png');
 
 /**
  *	Files and folders
  *	excluded from filtree
  */
-$config['unallowed_files']= array('.htaccess');
-$config['unallowed_dirs']= array('_thumbs');
+$config['unallowed_files'] = array('.htaccess');
+$config['unallowed_dirs'] = array('_thumbs');
 
 /**
  *	FEATURED OPTIONS
  *	for Vhost or outside files folder
  */
 // $config['doc_root'] = '/home/simon/userfiles'; // No end slash
-
 
 //	not working yet
 //$config['upload']['suffix'] = '_'; // string; if overwrite is false, the suffix will be added after the filename (before .ext)

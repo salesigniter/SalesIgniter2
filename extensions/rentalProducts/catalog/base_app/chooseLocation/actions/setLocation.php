@@ -1,5 +1,6 @@
 <?php
 Session::set('current_store_id', $_GET['location_id']);
+Session::set('chosen_location', $_GET['location_id']);
 
 $MultiStore = $appExtension->getExtension('multiStore');
 $MultiStore->loadStoreInfo();

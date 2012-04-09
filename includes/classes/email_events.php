@@ -2,8 +2,6 @@
 if (!class_exists('sysConfig')){
 	require_once('includes/application_top.php');
 }
-// require_once(DIR_WS_CLASSES . 'order.php');
-// require_once(DIR_WS_CLASSES . 'shopping_cart.php');
 
 class emailEvent {
 	private $eventName = null;

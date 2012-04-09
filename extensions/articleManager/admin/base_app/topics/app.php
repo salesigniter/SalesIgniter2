@@ -12,13 +12,7 @@
 
 	$appContent = $App->getAppContentFile();
 
-	// check if the catalog image directory exists
-	if (is_dir(DIR_FS_CATALOG_IMAGES)){
-		if (!is_writeable(DIR_FS_CATALOG_IMAGES)) $messageStack->add(sysLanguage::get('ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE'), 'error');
-	}else{
-		$messageStack->add(sysLanguage::get('ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST'), 'error');
-	}
-	
 	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 ?>

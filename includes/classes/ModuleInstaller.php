@@ -57,23 +57,15 @@ class ModuleInstaller {
 			$moduleConfig->modules_status = '1';
 			$moduleConfig->modules_type = $this->moduleType;
 
-			$moduleConfiguration =& $moduleConfig->ModulesConfiguration;
-			$k = 0;
-			foreach($this->configData->configuration as $cInfo){
-				$ConfigValue = (string) $cInfo->value;
-				if ((string) $cInfo->key == (string) $this->moduleInfo->installed_key){
-					$ConfigValue = 'True';
-				}
-				$moduleConfiguration[$k]->configuration_key = (string) $cInfo->key;
-				$moduleConfiguration[$k]->configuration_value = $ConfigValue;
-				$k++;
-			}
+			$installedKey = (string) $this->moduleInfo->installed_key;
+			$moduleConfig->ModulesConfiguration[$installedKey]->configuration_key = $installedKey;
+			$moduleConfig->ModulesConfiguration[$installedKey]->configuration_value = 'True';
 
 			$moduleConfig->save();
 
 			/*
-							 * @TODO: Translate module language files for installed languages
-							 */
+			 * @TODO: Translate module language files for installed languages
+			 */
 
 			$this->moduleCls->onInstall(&$this, &$moduleConfig);
 		}
@@ -138,8 +130,8 @@ class ModuleInstaller {
 			}
 
 			/*
-							 * @TODO: Remove translated language files for the module
-							 */
+			 * @TODO: Remove translated language files for the module
+			 */
 		}
 	}
 }

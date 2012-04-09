@@ -162,8 +162,21 @@
 									$attributeV = '('.$optionVal . ' ->'. $attributeVal.')';
 								}
 							}
-
-							$rowProducts[$line][0] = array('text' => $htmlCheckbox->draw() . ' '. $pibInfo['barcode']. $attributeV,'addCls' =>'b'.generateSlug($pibInfo['barcode']),'attr' =>array('product_id' =>$productId, 'type'=>'reservation', 'barcode_id'=>$pibInfo['barcode_id'],'barcode_name' =>'b'.generateSlug($pibInfo['barcode'])));
+							if($pibInfo['status'] == 'M'){
+								$QMaintenanceRentalStatus = Doctrine_Query::create()
+									->select('rental_status_color')
+									->from('RentalStatus')
+									->where('rental_status_id = ?', '10')
+									->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+								if(isset($QMaintenanceRentalStatus[0]['rental_status_color'])){
+									$myStyle = array('background-color' => '#' . $QMaintenanceRentalStatus[0]['rental_status_color']);
+								}else{
+									$myStyle = array('background-color' => '#ff0000');
+								}
+							}else{
+								$myStyle = array();
+							}
+							$rowProducts[$line][0] = array('text' => $htmlCheckbox->draw() . ' '. $pibInfo['barcode']. $attributeV,'css' => $myStyle,'addCls' =>'b'.generateSlug($pibInfo['barcode']),'attr' =>array('product_id' =>$productId, 'type'=>'reservation', 'barcode_id'=>$pibInfo['barcode_id'],'barcode_name' =>'b'.generateSlug($pibInfo['barcode'])));
 							$barcodesArr[] = '"'.'b'.generateSlug($pibInfo['barcode']).'"';
 
 							foreach($pibInfo['OrdersProductsReservation'] as $oprInfo){
@@ -614,10 +627,11 @@ var startSec = 0;
 var startCal = 0;
 var viewType = 'day';
 var startArray =[<?php echo implode(',', $timeBooked);?>];
-		$(document).ready(function (){
+		$(window).load(function (){
 			//$('#calendarTime').height($('#prodTable').height()-50);
 			startCal = $('#calendarTime').css('width');
 			startSec = $('#secWindow').css('width');
+			startHeight = -$('.adminHeader').height()-88;
 			$('.ui-grid-row').each(function(){
 				if( $(this).attr('class').indexOf('ui-grid-heading-row') >0){
 
@@ -694,7 +708,7 @@ var startArray =[<?php echo implode(',', $timeBooked);?>];
 							$('.'+barcodesArr[i]).each(function(){
 								if($(this).parent().get(0).tagName == 'TR'){
 									var pos = $(this).offset();
-									$('.'+barcodesArr[i]).css('top', (pos.top-157)+'px');
+									$('.'+barcodesArr[i]).css('top', (pos.top+startHeight)+'px');
 									$('.'+barcodesArr[i]).css('height', '16px');
 								}
 							});
@@ -707,7 +721,7 @@ var startArray =[<?php echo implode(',', $timeBooked);?>];
 						posy = 40;
 
 						pos = element.position();
-						element.css('top', (barcodePos[element.attr('barcode_name')]-173)+'px');
+						element.css('top', (barcodePos[element.attr('barcode_name')]+startHeight)+'px');
 						element.css('width', (element.height()*posy/posx)+'px');
 						element.css('left', (pos.top*posy/posx)+'px');
 						element.css('height', '16px');
@@ -720,7 +734,7 @@ var startArray =[<?php echo implode(',', $timeBooked);?>];
 							  {
 								 content: {
 									// Set the text to an image HTML string with the correct src URL to the loading image you want to use
-									 text: '<img align="center" src="'+DIR_WS_CATALOG+'ext/jQuery/themes/icons/ajax_loader_xlarge.gif"/>',
+									 text: '<img align="center" src="'+jsConfig.get('DIR_WS_CATALOG')+'ext/jQuery/themes/icons/ajax_loader_xlarge.gif"/>',
 									 ajax: {
 											 url:$('#editWindowForm').attr('action') + '?action=getResInfo' + '&type=' + type + '&rID=' + rID,  // Use the rel attribute of each element for the url to load
 											 type: 'GET', // POST or GET
@@ -804,10 +818,10 @@ var startArray =[<?php echo implode(',', $timeBooked);?>];
 					}
 					$('#calendarTime').fullCalendar( 'changeView','agendaDay');
 					$('.fc-agenda-body table').tableTranspose();
-					$('.fc-agenda-body').height($('#prodTable').height()-50);
+					$('.fc-agenda-body').height($('#prodTable').height()-50+startHeight);
 					$('.fc-agenda-body table th:first').css('width','40px');
 					$('.fc-agenda-body table tr:nth-child(2)').each(function(){
-						$(this).height($('#prodTable').height()-83);
+						$(this).height($('#prodTable').height()-83+startHeight);
 
 					});
 					$('.fc-content table td').css('cursor','pointer');

@@ -59,13 +59,14 @@
 	->usePreset('continue')
 	->setType('submit')
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'account_password',
-		'action' => itw_app_link('action=savePassword', 'account', 'password', 'SSL'),
-		'method' => 'post'
-	));
-	
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=savePassword', 'account', 'password', 'SSL'))
+	->setName('account_password')
+	->setMethod('post')
+	->html($pageContents)
+	->draw();
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

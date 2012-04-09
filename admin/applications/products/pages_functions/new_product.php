@@ -33,13 +33,19 @@
 				array('addCls' => 'main', 'text' => tep_draw_pull_down_menu('label_type', $labelTypes, '', 'id="labelsType"'))
 			)
 		));
-		
+
+		$labelTable->addBodyRow(array(
+			'columns' => array(
+				array('addCls' => 'main', 'colspan' => 2, 'text' => '<input type="checkbox" name="use_dymo" value="1"> Use Dymo Label Printer')
+			)
+		));
+
 		$labelTable->addBodyRow(array(
 			'columns' => array(
 				array('addCls' => 'main', 'colspan' => 2, 'text' => $printButton)
 			)
 		));
-		
+
 		$labelTableContainer->addBodyRow(array(
 			'columns' => array(
 				array('addCls' => 'main', 'text' => ''),

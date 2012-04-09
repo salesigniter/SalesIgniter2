@@ -13,11 +13,11 @@
 class CustomersInfo extends Doctrine_Record {
 	
 	public function preInsert($event){
-		$this->customers_info_date_account_created = date('Y-m-d H:i:s');
+		$this->customers_info_date_account_created = date(DATE_TIMESTAMP);
 	}
 	
 	public function preUpdate($event){
-		$this->customers_info_date_account_last_modified = date('Y-m-d H:i:s');
+		$this->customers_info_date_account_last_modified = date(DATE_TIMESTAMP);
 	}
 	
 	public function setTableDefinition(){

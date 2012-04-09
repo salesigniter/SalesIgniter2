@@ -25,7 +25,7 @@ class OrderPaymentMoneyorder extends StandardPaymentModule
 		return $this->onResponse(array(
 				'orderID' => $requestData['orderID'],
 				'amount' => $requestData['amount'],
-				'message' => sysLanguage::get('PAYMENT_MODULE_MO_AWAITING_PAYMENT'),
+			'message' => sysLanguage::get('PAYMENT_MODULE_MO_AWAITING_PAYMENT'),
 				'success' => /*2*/
 				1
 			));
@@ -55,15 +55,6 @@ class OrderPaymentMoneyorder extends StandardPaymentModule
 		return true;
 	}
 
-	public function getCreatorRow($Editor, &$headerPaymentCols){
-		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
-		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
-
-		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '<input type="text" class="ui-widget-content" name="payment_amount" size="10">' . '</td>';
-
-		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">'.($Editor->getOrderId() ? htmlBase::newElement('button')->addClass('paymentProcessButton')->setText('Process')->draw() : 'Will process on save').'</td>';
-
-	}
 	private function onResponse($logData) {
 		$this->onSuccess($logData);
 		return true;

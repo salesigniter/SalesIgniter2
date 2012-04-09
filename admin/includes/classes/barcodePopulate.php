@@ -3,34 +3,71 @@
 
 class barcodePopulate{
 
-	function barcodePopulate(){
+	public $fileHeaders = array();
+
+	public function __construct(){
 		$this->version = '1.0';
 		$this->languageID = Session::get('languages_id');
-		$this->colSeparator = "\t";
+		$this->colSeparator = ",";
 		$this->endOfRow = 'EOREOR' . "\n";
 		$this->tempDir = sysConfig::getDirFsCatalog() . 'temp/';
 	}
 
-	function buildFile(){
+	public function buildFile(){
 		$this->fileHeaders = array(
-			'v_products_model',
-			'v_barcode',
-			'v_inventory_store_center',
-			'v_purchase_type',
-			'v_barcode_status',
-			'v_quantity_available',
-			'v_quantity_broken',
-			'v_quantity_out',
-			'v_quantity_purchased',
-			'v_quantity_reserved',
-			'v_use_center',
-			'v_comments'
+			'v_products_model'//,
+			//'v_barcode',
+			//'v_inventory_store_center',
+			//'v_purchase_type',
+			//'v_barcode_status',
+			//'v_quantity_available',
+			//'v_quantity_broken',
+			//'v_quantity_out',
+			//'v_quantity_purchased',
+			//'v_quantity_reserved',
+			//'v_use_center',
+			//'v_comments'
 		);
+
+		ProductTypeModules::loadModules();
+		foreach(ProductTypeModules::getModules() as $Module){
+			if (method_exists($Module, 'addInventoryExportHeaders')){
+				$Module->addInventoryExportHeaders(&$this->fileHeaders);
+			}
+		}
+
+		EventManager::notify('InventoryExportAddHeaderColumns', &$this->fileHeaders);
 	}
 	  /*TODO
 	   * change variable names and move to app
 	  */
-	function getQuery($productModel = false, $productsID = false, $barcode = false){
+	public function getQuery($productModel = false, $productsID = false, $barcode = false){
+		$QProducts = Doctrine_Query::create()
+			->from('Products p')
+			->where('p.products_id > ?', '0')
+			->orderBy('p.products_id');
+
+		if (isset($_POST['start_num']) && $_POST['start_num'] >= 0){
+			$QProducts->limit((int) $_POST['start_num']);
+		}
+
+		if (isset($_POST['num_items']) && $_POST['num_items'] >= 0){
+			$QProducts->offset((int) $_POST['num_items']);
+		}
+
+		EventManager::notify('InventoryExportGetDataQueryBeforeExecute', $QProducts);
+
+		$Products = $QProducts->execute();
+		$ExportRows = array();
+		foreach($Products as $Product){
+			$ProductTypeCls = ProductTypeModules::getModule($Product->products_type);
+			if (method_exists($ProductTypeCls, 'addInventoryExportData')){
+				$ProductTypeCls->addInventoryExportData($Product->products_id, $Product->products_model, &$ExportRows);
+			}
+		}
+
+		return $ExportRows;
+		/*
 		global $appExtension;
 		$multiStore = $appExtension->getExtension('multiStore');
 		$invext = $appExtension->getExtension('inventoryCenters');
@@ -113,8 +150,8 @@ class barcodePopulate{
 					$QInv = Doctrine_Query::create()
 							->from('ProductsInventoryQuantity')
 							->where('inventory_id = ?', $iID)
-							->andWhere('available > 0 OR qty_out > 0 OR broken > 0 OR purchased > 0 OR reserved > 0');
-					
+							->andWhere('available > 0 OR qty_out > 0 OR broken > 0 OR purchased > 0');
+					//OR reserved > 0
 					if ($usecenter == 1){
 						if ($isStore == 1){
 							$QInv->andWhere('inventory_store_id > 0');
@@ -142,7 +179,7 @@ class barcodePopulate{
 							$pr['v_quantity_out'] = $qi['qty_out'];
 							$pr['v_quantity_broken'] = $qi['broken'];
 							$pr['v_quantity_purchased'] = $qi['purchased'];
-							$pr['v_quantity_reserved'] = $qi['reserved'];
+							//$pr['v_quantity_reserved'] = $qi['reserved'];
 							$pr['v_purchase_type'] = $purtype;
 							$pr['v_use_center'] = $usecenter;
 
@@ -197,7 +234,7 @@ class barcodePopulate{
 							$pr['v_quantity_out'] = '';
 							$pr['v_quantity_broken'] = '';
 							$pr['v_quantity_purchased'] = '';
-							$pr['v_quantity_reserved'] = '';
+							//$pr['v_quantity_reserved'] = '';
 							$pr['v_purchase_type'] = $purtype;
 							$pr['v_use_center'] = $usecenter;
 							$Qcom = Doctrine_Query::create()
@@ -251,10 +288,10 @@ class barcodePopulate{
 
 		}
 		
-		return $mydata;
+		return $mydata;*/
 	}
 
-	function export(){
+	public function export(){
 		if (empty($this->fileHeaders)){
 			$this->buildFile();
 		}
@@ -268,7 +305,63 @@ class barcodePopulate{
 		->output();
 	}
 
-	function importFile($fileName){
+	public function importFile($fileName){
+		require(sysConfig::getDirFsCatalog() . 'includes/classes/FileParser/csv.php');
+		$ImportFile = new FileParserCsv($this->tempDir . $fileName);
+		$ImportFile->rewind();
+		$ImportFile->parseHeaderLine();
+
+		$DataParsed = array();
+
+		$Products = Doctrine_Core::getTable('Products');
+		ProductTypeModules::loadModules();
+		while($ImportFile->valid()){
+			$CurrentRow = $ImportFile->currentRow();
+			$item = array();
+			while($CurrentRow->valid()){
+				$CurrentColumn = $CurrentRow->current();
+
+				$item[$CurrentColumn->key()] = $CurrentColumn->getText();
+
+				$CurrentRow->next();
+			}
+
+			if (!empty($item['v_products_model'])){
+				$ProductModel = $item['v_products_model'];
+				if (!isset($DataParsed[$ProductModel])){
+					$Product = $Products->findOneByProductsModel($ProductModel);
+					if ($Product){
+						$DataParsed[$ProductModel] = array(
+							'productId'   => $Product->products_id,
+							'productType' => $Product->products_type
+						);
+					}else{
+						//Error Log: Product Not Found
+					}
+				}
+
+				if (isset($DataParsed[$ProductModel])){
+					$ProductType = ProductTypeModules::getModule($DataParsed[$ProductModel]['productType']);
+					if (method_exists($ProductType, 'ImportInventoryParseLine')){
+						$ProductType->ImportInventoryParseLine($item, &$DataParsed[$ProductModel]);
+					}
+				}else{
+					//Error Log: Product Model Not Parsed
+				}
+			}
+			$ImportFile->next();
+		}
+
+		if (!empty($DataParsed)){
+			foreach($DataParsed as $lInfo){
+				$ProductType = ProductTypeModules::getModule($lInfo['productType']);
+				if (method_exists($ProductType, 'ImportInventoryProcessData')){
+					$ProductType->ImportInventoryProcessData($lInfo);
+				}
+			}
+		}
+
+/*
 		global $appExtension;
 		$fileString = file($this->tempDir . $fileName);
 		$new_fileString = '';
@@ -494,7 +587,7 @@ class barcodePopulate{
 							$qi->qty_out = $qty_out;
 							$qi->broken = $qty_broken;
 							$qi->purchased = $qty_purchased;
-							$qi->reserved = $qty_reserved;
+							//$qi->reserved = $qty_reserved;
 							$qi->save();
 							$ist = false;
 						}
@@ -507,7 +600,7 @@ class barcodePopulate{
 						$myInvq->broken = $qty_broken;
 						$myInvq->purchased = $qty_purchased;
 						$myInvq->inventory_id = $inventory_id;
-						$myInvq->reserved = $qty_reserved;
+						//$myInvq->reserved = $qty_reserved;
 						$myInvq->save();
 						$quantity_id = $myInvq->quantity_id;
 						logNew('product_quantity', array_merge($commonLog, array(
@@ -740,10 +833,10 @@ class barcodePopulate{
 					)));
 				}
 			}
-		}
+		}*/
 	}
 
-	function splitFile($fileName){
+	public function splitFile($fileName){
 		$infp = fopen($this->tempDir . $fileName, "r");
 
 		//toprow has the field headers
@@ -800,7 +893,7 @@ class barcodePopulate{
 		));
 	}
 
-	function cleanupValues($arr){
+	public function cleanupValues($arr){
 		/*foreach($arr as $key => $value){
 			if (function_exists('ini_get')) {
 				if (substr($value,-1) == '"'){

@@ -84,10 +84,10 @@ class Membership extends Doctrine_Record {
 		'length' => 9,
 		'unsigned' => 0,
 		'primary' => false,
-		'default' => '0.00',
+		'default' => '0.0000',
 		'notnull' => true,
 		'autoincrement' => false,
-		'scale' => false,
+		'scale' => 4,
 		));
 		$this->hasColumn('rent_tax_class_id', 'integer', 4, array(
 		'type' => 'integer',
@@ -121,15 +121,10 @@ class Membership extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('free_trial_flag', 'enum', 1, array(
-		'type' => 'enum',
+		$this->hasColumn('free_trial_flag', 'string', 1, array(
+		'type' => 'string',
 		'length' => 1,
 		'fixed' => false,
-		'values' =>
-		array(
-		0 => 'Y',
-		1 => 'N',
-		),
 		'primary' => false,
 		'default' => 'N',
 		'notnull' => true,
@@ -170,6 +165,15 @@ class Membership extends Doctrine_Record {
 		'default' => '0',
 		'notnull' => true,
 		'autoincrement' => false,
+		));
+		$this->hasColumn('reccurring', 'integer', 1, array(
+				'type' => 'integer',
+				'length' => 1,
+				'unsigned' => 0,
+				'primary' => false,
+				'default' => '1',
+				'notnull' => true,
+				'autoincrement' => false,
 		));
 	}
 }

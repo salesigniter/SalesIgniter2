@@ -1,4 +1,9 @@
 <?php
+$Qreservations = Doctrine_Query::create()
+	->from('OrdersProductsReservation')
+	->whereIn('rental_state', array('out', 'reserved'))
+	->andWhere('parent_id IS NULL');
+/*
 	$Qorders = Doctrine_Query::create()
 	->from('Orders o')
 	->leftJoin('o.Customers c')
@@ -77,90 +82,68 @@ if($f == false){
 	$Qorders->orderBy('opr.start_date '.$_GET['sortDateReserved']);
 	$Qorders->orderBy('c.customers_lastname '.$_GET['sortLastname']);
 }
-
-
-$tableGrid = htmlBase::newElement('newGrid')
-	->usePagination(true)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit'] : 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1))
-	->setQuery($Qorders);
-
-$gridHeaderColumns = array(
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortEvent='.(isset($_GET['sortEvent'])?($_GET['sortEvent'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_EVENT').'</a>'),
-	//array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortDate='.(isset($_GET['sortDate'])?($_GET['sortDate'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_DATE').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortDateReserved='.(isset($_GET['sortDateReserved'])?($_GET['sortDateReserved'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_DATE_RESERVED').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortGate='.(isset($_GET['sortGate'])?($_GET['sortGate'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_GATE').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortLastname='.(isset($_GET['sortLastname'])?($_GET['sortLastname'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_LASTNAME').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortFirstname='.(isset($_GET['sortFirstname'])?($_GET['sortFirstname'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_FIRSTNAME').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortProduct='.(isset($_GET['sortProduct'])?($_GET['sortProduct'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_PRODUCT_NAME').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortQty='.(isset($_GET['sortQty'])?($_GET['sortQty'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_QUANTITY').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortInsurance='.(isset($_GET['sortInsurance'])?($_GET['sortInsurance'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_INSURANCE').'</a>'),
-	array('text' => '<a href="'.itw_app_link('appExt=payPerRentals&sortPrice='.(isset($_GET['sortPrice'])?($_GET['sortPrice'] == 'ASC'?'DESC':'ASC'):'ASC').(isset($_GET['event_name'])?'&event_name='.$_GET['event_name']:''),null,null).'">'.sysLanguage::get('TABLE_HEADING_PRICE').'</a>')
-);
-
-$limitField = htmlBase::newElement('selectbox')
-	->setName('limit')
-	->setLabel('Orders per Page: ')
-	->setLabelPosition('before');
-
-$limitField->addOption('25','25');
-$limitField->addOption('100','100');
-$limitField->addOption('250','250');
-
-if (isset($_GET['limit']) && !empty($_GET['limit'])){
-	$limitField->selectOptionByValue($_GET['limit']);
-}
-
-$searchForm = htmlBase::newElement('form')
-	->attr('name', 'search')
-	->attr('id', 'searchFormOrders')
-	->attr('action', itw_app_link('appExt=payPerRentals','event_reports', 'default'))
-	->attr('method', 'get');
-
-$startdateField = htmlBase::newElement('input')->setName('start_date')
-	->setLabel(sysLanguage::get('HEADING_TITLE_START_DATE'))->setLabelPosition('before')->setId('start_date');
-
-if (isset($_GET['start_date'])){
-	$startdateField->setValue($_GET['start_date']);
-}
+*/
+$Qevents = Doctrine_Query::create()
+	->from('PayPerRentalEvents')
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 $eventSelect = htmlBase::newElement('selectbox')
-	->setName('event_name')
-	->setLabel('Event Name: ')
-	->setLabelPosition('before');
-
-/*$startdateField = htmlBase::newElement('input')
-	->setName('start_date')
-	->setLabel('Event Date: ')
-	->setLabelPosition('before')
-	->setId('start_date');
-
-if (isset($_GET['start_date']) && !empty($_GET['start_date'])){
-	$startdateField->val($_GET['start_date']);
-} */
-if (isset($_GET['event_name']) && !empty($_GET['event_name'])){
-	$eventSelect->selectOptionByValue($_GET['event_name']);
-}
-
-$Qevents = Doctrine_Query::create()
-->from('PayPerRentalEvents')
-->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	->setName('event_name');
 
 $eventSelect->addOption('','all');
 foreach($Qevents as $iEvent){
 	$eventSelect->addOption($iEvent['events_name'], $iEvent['events_name']);
 }
 
-$submitButton = htmlBase::newElement('button')
-	->setType('submit')
-	->usePreset('save')
-	->setText('Search');
+$tableGrid = htmlBase::newElement('newGrid')
+	->useSorting(true)
+	->useSearching(true)
+	->usePagination(true)
+	->setQuery($Qreservations);
 
-$searchForm
-->append($limitField)
-->append($eventSelect)
-->append($startdateField)
-->append($submitButton);
+$gridHeaderColumns = array(
+	array(
+		'text'      => sysLanguage::get('TABLE_HEADING_EVENT'),
+		'useSort'   => true,
+		'sortKey'   => 'opr.event_name',
+		'useSearch' => true,
+		'searchObj' => GridSearchObj::Equal()
+			->useFieldObj($eventSelect)
+			->setDatabaseColumn('opr.event_name')
+	),
+	array(
+		'text'      => sysLanguage::get('TABLE_HEADING_DATE_RESERVED'),
+		'useSort'   => true,
+		'sortKey'   => 'opr.start_date',
+		'useSearch' => true,
+		'searchObj' => GridSearchObj::Between()
+			->useFieldObj(htmlBase::newElement('input')->attr('size', 10)->addClass('makeDatepicker')->setName('search_start_date'))
+			->setDatabaseColumn('opr.start_date')
+	),
+	array(
+		'text'    => sysLanguage::get('TABLE_HEADING_GATE'),
+		'useSort' => true,
+		'sortKey' => 'opr.event_gate'
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_LASTNAME')
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_FIRSTNAME')
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_PRODUCT_NAME')
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_QUANTITY')
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_INSURANCE')
+	),
+	array(
+		'text' => sysLanguage::get('TABLE_HEADING_PRICE')
+	)
+);
 
 $tableGrid->addHeaderRow(array(
 		'columns' => $gridHeaderColumns
@@ -168,42 +151,47 @@ $tableGrid->addHeaderRow(array(
 
 $rentedProd = array();
 
-$orders = &$tableGrid->getResults();
+$Reservations = &$tableGrid->getResults(false);
 $total = 0;
-if ($orders){
-	foreach($orders as $order){
-		$orderId = $order['orders_id'];
+if ($Reservations){
+	foreach($Reservations as $Reservation){
+		$OrderProduct = $Reservation->OrdersProducts;
+		$Order = $OrderProduct->getOrder();
+		$Customer = $Order->Customers;
 
-		foreach($order['OrdersProducts'] as $orderp) {
-			//foreach($orderp['OrdersProductsReservation'] as $ores){
-				$ores = $orderp['OrdersProductsReservation'][0];
-				$gridBodyColumns = array(
-					array('text' => $ores['event_name']),
-					//array('text' => $order['date_purchased']),
-					array('text' => $ores['start_date']),
-					array('text' => $ores['event_gate']),
-					array('text' => $order['Customers']['customers_lastname']),
-					array('text' => $order['Customers']['customers_firstname']),
-					array('text' => $orderp['Products']['ProductsDescription'][Session::get('languages_id')]['products_name']),
-					array('text' => $orderp['products_quantity']),
-					array('text' => $ores['insurance']),
-					array('text' => $currencies->format($orderp['final_price']*$orderp['products_quantity']))
+		$OrderId = $Order->orders_id;
+		$EventName = $Reservation->event_name;
+		$ProductModel = $OrderProduct->Products->products_model;
+		$OrderedQuantity = $OrderProduct->products_quantity;
+		$OrderedFinalPrice = $OrderProduct->final_price;
+		$OrderedCalculatedCost = $OrderedFinalPrice * $OrderedQuantity;
 
-				);
-				$total += $orderp['final_price']*$orderp['products_quantity'];
-				if(!isset($rentedProd[$orderp['Products']['products_model']])){
-					$rentedProd[$orderp['Products']['products_model']][$ores['event_name']] = 0;
-				}
-				$rentedProd[$orderp['Products']['products_model']][$ores['event_name']] += $orderp['products_quantity'];
-				$tableGrid->addBodyRow(array(
-						'rowAttr' => array(
-							'data-order_id' => $orderId
-						),
-						'columns' => $gridBodyColumns
-					));
-			//}
+		$gridBodyColumns = array(
+			array('text' => $EventName),
+			//array('text' => $Order->date_purchased->format(sysLanguage::getDateFormat('short'))),
+			array('text' => $Reservation->start_date->format(sysLanguage::getDateFormat('short'))),
+			array('text' => $Reservation->event_gate),
+			array('text' => $Customer->customers_lastname),
+			array('text' => $Customer->customers_firstname),
+			array('text' => $OrderProduct->products_name),
+			array('text' => $OrderedQuantity),
+			array('text' => $Reservation->insurance),
+			array('text' => $currencies->format($OrderedCalculatedCost))
+
+		);
+		$total += $OrderedCalculatedCost;
+		if (!isset($rentedProd[$ProductModel])){
+			$rentedProd[$ProductModel][$EventName] = 0;
 		}
+		$rentedProd[$ProductModel][$EventName] += $OrderedQuantity;
+		$tableGrid->addBodyRow(array(
+			'rowAttr' => array(
+				'data-order_id' => $OrderId
+			),
+			'columns' => $gridBodyColumns
+		));
 
+		$orderId = $order['orders_id'];
 	}
 }
 
@@ -268,15 +256,11 @@ $tableGrid->addBodyRow(array(
 
 ?>
 <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<div style="width:100%"><?php
-	echo $searchForm->draw();
-	?></div>
-<br />
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-			<div style="margin-left:30px;margin-top:10px;"><?php echo $avail;?></div>
-			<br style="clear:both;"/> <br/>
-		</div>
+<br>
+<div>
+	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+		<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
+		<div style="margin-left:30px;margin-top:10px;"><?php echo $avail;?></div>
 	</div>
+</div>
 

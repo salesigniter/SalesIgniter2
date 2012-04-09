@@ -55,12 +55,11 @@ buildCategoryBoxes($CatArr, 0, $selectBox);
   <tr>
    <td class="main" valign="top"><?php echo sysLanguage::get('TEXT_CATEGORIES_IMAGE'); ?></td>
    <td class="main"><?php
-    echo tep_draw_file_field('categories_image');
-    if (isset($_GET['cID']) && ($Category->categories_image != '')){
-    	echo '<br />' . tep_image(sysConfig::getDirWsCatalog().'images/' . $Category->categories_image, '', 200, 200) .
-    	     '<br />' . sysConfig::getDirWsCatalog().'images/' .
-    	     '<br /><b>' . $Category->categories_image . '</b>';
-    }
+    $categories_image = htmlBase::newElement('fileManager')
+	   ->setName('categories_image')
+		->val($Category->categories_image);
+
+	   echo $categories_image->draw();
    ?></td>
   </tr>
   <tr>

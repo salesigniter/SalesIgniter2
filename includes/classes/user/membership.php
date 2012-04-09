@@ -172,6 +172,8 @@ class rentalStoreUser_membership extends StandardClass {
 	}
 
 	public function updateActivationStatus($newStatus){
+		$this->setActivationStatus($newStatus);
+
 		Doctrine_Query::create()
 		->update('CustomersMembership')
 		->set('activate', '?', $newStatus)
@@ -273,7 +275,7 @@ class rentalStoreUser_membership extends StandardClass {
 		$addressBook = $userAccount->plugins['addressBook'];
 		$billingAddress = $addressBook->getAddress('billing');
 
-		$CustomersMembership = Doctrine_Core::getTable('CustomersMembership')->findOneByCustomersId($this->customerId);
+		$CustomersMembership = Doctrine_Core::getTable('CustomersMembership')->findOneByCustomersId($userAccount->getCustomerId());
 		if(isset($this->membershipInfo['next_bill_date']) && !empty($this->membershipInfo['next_bill_date'])){
 			$CustomersMembership->plan_id = $this->planInfo['plan_id'];
 		}
@@ -541,20 +543,20 @@ class rentalStoreUser_membership extends StandardClass {
 
 	public function getPlanTaxRate($country_id = -1, $zone_id = -1){
 		if ($country_id == -1){
-			$country_id = STORE_COUNTRY;
+			$country_id = sysConfig::get('STORE_COUNTRY');
 		}
 		if ($zone_id == -1){
-			$zone_id = STORE_ZONE;
+			$zone_id = sysConfig::get('STORE_ZONE');
 		}
 		return tep_get_tax_rate($this->planInfo['rent_tax_class_id'], $country_id, $zone_id);
 	}
 
 	public function getMembershipTaxRate($country_id = -1, $zone_id = -1){
 		if ($country_id == -1){
-			$country_id = STORE_COUNTRY;
+			$country_id = sysConfig::get('STORE_COUNTRY');
 		}
 		if ($zone_id == -1){
-			$zone_id = STORE_ZONE;
+			$zone_id = sysConfig::get('STORE_ZONE');
 		}
 		return tep_get_tax_rate($this->membershipInfo['plan_tax_class_id'], $country_id, $zone_id);
 	}

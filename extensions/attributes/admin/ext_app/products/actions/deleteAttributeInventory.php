@@ -6,11 +6,17 @@
 	->from('ProductsInventory')
 	->where('controller = ?', 'attribute')
 	->andWhere('type = ?', $_GET['purchaseType'])
-	//->andWhere('track_method = ?', $_GET['track_method'])
+	->andWhere('products_id = ?', $_GET['product_id'])
+	->andWhere('track_method = ?', $_GET['trackMethod'])
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($Qinventory){
 		$extAttributes = $appExtension->getExtension('attributes');
-		$attributePermutations = attributesUtil::permutateAttributesFromString($_GET['aID_string']);
+		if(!empty($_GET['aID_string'])){
+			$attributePermutations = attributesUtil::permutateAttributesFromString($_GET['aID_string']);
+		}else{
+			$attributePermutations = array();
+		}
+
 		if ($_GET['trackMethod'] == 'barcode'){
 			$Qcheck = Doctrine_Query::create()
 			->select('inventory_id')

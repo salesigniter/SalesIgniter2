@@ -9,7 +9,7 @@
    <td class="main" width="50%" valign="top"><?php echo sysLanguage::get('DELETE_ADDRESS_DESCRIPTION'); ?></td>
    <td align="right" width="50%" valign="top"><table border="0" cellspacing="0" cellpadding="2">
     <tr>
-     <td class="main" align="center" valign="top"><b><?php echo sysLanguage::get('SELECTED_ADDRESS'); ?></b><br><?php echo tep_image(DIR_WS_IMAGES . 'arrow_south_east.gif'); ?></td>
+     <td class="main" align="center" valign="top"><b><?php echo sysLanguage::get('SELECTED_ADDRESS'); ?></b><br><?php echo tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . 'arrow_south_east.gif'); ?></td>
      <td><?php echo tep_draw_separator('pixel_trans.gif', '10', '1'); ?></td>
      <td class="main" valign="top"><?php echo $addressBook->formatAddress($_GET['delete'], true); ?></td>
     </tr>
@@ -70,11 +70,12 @@
 	}
 	
 	if (!isset($_GET['delete'])){
-		$pageContent->set('pageForm', array(
-			'name' => 'addressbook',
-			'action' => itw_app_link('action=saveAddress' . (isset($_GET['edit']) ? '&edit=' . $_GET['edit'] : ''), 'account', 'address_book_process', 'SSL'),
-			'method' => 'post'
-		));
+		$pageContents = htmlBase::newElement('form')
+			->setAction(itw_app_link('action=saveAddress' . (isset($_GET['edit']) ? '&edit=' . $_GET['edit'] : ''), 'account', 'address_book_process', 'SSL'))
+			->setName('addressbook')
+			->setMethod('post')
+			->html($pageContents)
+			->draw();
 	}
 	
 	$pageContent->set('pageTitle', $pageTitle);

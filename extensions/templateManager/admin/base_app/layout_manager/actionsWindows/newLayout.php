@@ -28,15 +28,18 @@ if (isset($_GET['lID'])){
 	foreach($QselApps as $sInfo){
 		$layouts = explode(',', $sInfo['layout_id']);
 		$pageType = explode(',', $sInfo['page_type']);
+		$assocurls = explode(',', $sInfo['associative_url']);
 		if (in_array($layoutId, $layouts)){
 			if (!empty($sInfo['extension'])){
 				$selApps['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = true;
 				$pageTypes['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $pageType[array_search($layoutId,$layouts)];
+				$assocurl['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $assocurls[array_search($layoutId,$layouts)];
 
 			}
 			else {
 				$selApps[$sInfo['application']][$sInfo['page']] = true;
 				$pageTypes[$sInfo['application']][$sInfo['page']] = $pageType[array_search($layoutId,$layouts)];
+				$assocurl[$sInfo['application']][$sInfo['page']] = $assocurls[array_search($layoutId,$layouts)];
 			}
 		}
 	}
@@ -46,15 +49,15 @@ $SettingsTable = htmlBase::newElement('table')
 ->setCellSpacing(0);
 
 $SettingsTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => 'Layout Name:'),
-			array('text' => htmlBase::newElement('input')
-				->setName('layoutName')
-				->attr('id', 'layoutName')
-				->val($layoutName)
-				->draw())
-		)
-	));
+	'columns' => array(
+		array('text' => 'Layout Name:'),
+		array('text' => htmlBase::newElement('input')
+		->setName('layoutName')
+		->attr('id', 'layoutName')
+		->val($layoutName)
+		->draw())
+	)
+));
 
 $SettingsTable->addBodyRow(array(
 		'columns' => array(
@@ -69,6 +72,68 @@ $SettingsTable->addBodyRow(array(
 		)
 	));
 
+$iTemplate = Doctrine_Query::create()
+	->from('TemplateManagerTemplates')
+	->where('template_id = ?', $_GET['tID'])
+	->fetchOne();
+
+if($iTemplate->Configuration['NAME']->configuration_value == 'codeGeneration'){
+	$associativeUrl = htmlBase::newElement('input')
+		->setLabel('Show in page:');
+
+}
+
+function makeCategoriesArray($parentId = 0){
+	$catArr = array();
+	$Qcategories = Doctrine_Query::create()
+		->from('Categories c')
+		->leftJoin('c.CategoriesDescription cd')
+		->where('parent_id = ?', $parentId)
+		->andWhere('language_id = ?', Session::get('languages_id'))
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	foreach($Qcategories as $category){
+		$catArr[$category['categories_id']] = array(
+			'name' => $category['CategoriesDescription'][0]['categories_seo_url']
+		);
+
+		$Children = makeCategoriesArray($category['categories_id']);
+		if (!empty($Children)){
+			$catArr[$category['categories_id']]['children'] = $Children;
+		}
+	}
+
+	return $catArr;
+}
+$CatArr = makeCategoriesArray(0);
+
+function buildCategorisPages($CatArr, &$AppArray, $appName){
+	global $selApps;
+	foreach($CatArr as $cat){
+		$pageName = $cat['name'];
+		$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+		if (isset($cat['children']) && sizeof($cat['children']) > 0){
+			buildCategorisPages($cat['children'], $AppArray, $appName, $pageName);
+		}
+	}
+}
+
+function buildProductPages(&$AppArray, $appName){
+	global $selApps;
+	$QProducts = Doctrine_Query::create()
+	->from('Products p')
+	->leftJoin('p.ProductsDescription pd')
+	->where('pd.language_id = ?', Session::get('languages_id'));
+
+	EventManager::notify('AdminProductListingTemplateQueryBeforeExecute', &$QProducts);
+
+	$QProducts = $QProducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	foreach($QProducts as $prod){
+		$pageName = $prod['products_id'];
+		$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+	}
+}
+
 $Applications = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'applications/');
 $AppArray = array();
 foreach($Applications as $AppDir){
@@ -78,7 +143,12 @@ foreach($Applications as $AppDir){
 	$appName = $AppDir->getBasename();
 
 	$AppArray[$appName] = array();
-
+	if($appName == 'index'){
+		buildCategorisPages($CatArr, $AppArray, $appName);
+	}
+	if($appName == 'product' && isset($associativeUrl)){
+		buildProductPages($AppArray, $appName);
+	}
 	if (is_dir($AppDir->getPathname() . '/pages/')){
 		$Pages = new DirectoryIterator($AppDir->getPathname() . '/pages/');
 		foreach($Pages as $Page){
@@ -112,8 +182,34 @@ foreach($Extensions as $Extension){
 			$appName = $ExtApplication->getBasename();
 
 			$AppArray['ext'][$extName][$appName] = array();
+			if ($Extension->getBasename() == 'infoPages'){
+				$Qpages = Doctrine_Query::create()
+					->select('page_key')
+					->from('Pages')
+					->where('page_type = ?', 'page')
+					->orderBy('page_key asc')
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+				if ($Qpages){
+					foreach($Qpages as $pInfo){
+						$pageName = $pInfo['page_key'];
 
-			if (is_dir($ExtApplication->getPathname() . '/pages/')){
+						$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+					}
+				}
+			}elseif ($Extension->getBasename() == 'categoriesPages' && $appExtension->isInstalled('categoriesPages') && $appExtension->isEnabled('categoriesPages')){
+				$Qpages = Doctrine_Query::create()
+					->select('page_key')
+					->from('CategoriesPages')
+					->orderBy('page_key asc')
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+				if ($Qpages){
+					foreach($Qpages as $pInfo){
+						$pageName = $pInfo['page_key'];
+
+						$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+					}
+				}
+			}elseif (is_dir($ExtApplication->getPathname() . '/pages/')){
 				$ExtPages = new DirectoryIterator($ExtApplication->getPathname() . '/pages/');
 				foreach($ExtPages as $ExtPage){
 					if ($ExtPage->isDot() || $ExtPage->isDir()){
@@ -189,6 +285,33 @@ foreach($Extensions as $Extension){
 	}
 }
 
+if (is_dir(sysConfig::getDirFsCatalog() . 'templates/kingdom/applications/')){
+	$TemplateApps = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/kingdom/applications/');
+	foreach($TemplateApps as $Application){
+		if ($Application->isDot() || $Application->isFile()){
+			continue;
+		}
+
+		$appName = $Application->getBasename();
+		if (!isset($AppArray[$appName])){
+			$AppArray[$appName] = array();
+		}
+
+		if (is_dir($Application->getPathname() . '/pages/')){
+			$Pages = new DirectoryIterator($Application->getPathname() . '/pages/');
+			foreach($Pages as $Page){
+				if ($Page->isDot() || $Page->isDir()){
+					continue;
+				}
+				$pageName = $Page->getBasename('.php');
+
+				$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+			}
+		}
+		ksort($AppArray[$appName]);
+	}
+}
+
 ksort($AppArray);
 
 $BoxesContainer = htmlBase::newElement('div');
@@ -215,17 +338,34 @@ foreach($AppArray as $appName => $aInfo){
 
 		$checkboxes = '<div class="ui-widget-header"><input type="checkbox" class="appBox checkAllPages"> ' . $appName . '</div>';
 		foreach($aInfo as $pageName => $pageChecked){
+			$pageName1 = $pageName;
+			if($appName == 'product' && is_numeric($pageName) && isset($associativeUrl)){
+				$QProducts = Doctrine_Query::create()
+					->from('Products p')
+					->leftJoin('p.ProductsDescription pd')
+					->where('pd.language_id = ?', Session::get('languages_id'))
+					->andWhere('p.products_id = ?', $pageName)
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+				$pageName1 = $QProducts[0]['ProductsDescription'][0]['products_name'];
+			}
 			$rentalMemberCheckbox
 					->setName('pagetype[' . $appName . '][' . $pageName . ']')
-					->setChecked(($pageTypes[$appName][$pageName] == 'R') ? true : false);
+					->setChecked((isset($pageTypes[$appName][$pageName]) && $pageTypes[$appName][$pageName] == 'R') ? true : false);
 
 			$nonRentalMemberCheckbox
 					->setName('pagetype[' . $appName . '][' . $pageName . ']')
-					->setChecked(($pageTypes[$appName][$pageName] == 'N') ? true : false);
+					->setChecked((isset($pageTypes[$appName][$pageName]) && $pageTypes[$appName][$pageName] == 'N') ? true : false);
 
-			$checkboxes .= '<div style="margin: 0 0 0 1em;"><input class="pageBox" type="checkbox" name="applications[' . $appName . '][]" value="' . $pageName . '"' . ($pageChecked === true ? ' checked="checked"' : '') . '> ' . $pageName;
+			$checkboxes .= '<div style="margin: 0 0 0 1em;"><input class="pageBox" type="checkbox" name="applications[' . $appName . '][]" value="' . $pageName . '"' . ($pageChecked === true ? ' checked="checked"' : '') . '> ' . $pageName1;
 			$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$nonRentalMemberCheckbox->draw();
-			$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw(). '</div>';
+			$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw();
+			if(isset($associativeUrl)){
+				$associativeUrl->setName('assocurl['. $appName . '][' . $pageName . ']')
+				->setValue(isset($assocurl[$appName][$pageName])?$assocurl[$appName][$pageName]:'');
+				$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$associativeUrl->draw();
+			}
+			$checkboxes .= '</div>';
 
 		}
 
@@ -252,15 +392,22 @@ foreach($AppArray['ext'] as $ExtName => $eInfo){
 			foreach($aInfo as $pageName => $pageChecked){
 				$rentalMemberCheckbox
 						->setName('pagetype[ext][' . $ExtName . '][' . $appName . '][' . $pageName . ']')
-						->setChecked(($pageTypes[ext][$ExtName][$appName][$pageName] == 'R') ? true : false);
+						->setChecked((isset($pageTypes['ext'][$ExtName][$appName][$pageName]) && $pageTypes['ext'][$ExtName][$appName][$pageName] == 'R') ? true : false);
 
 				$nonRentalMemberCheckbox
 						->setName('pagetype[ext][' . $ExtName . '][' . $appName . '][' . $pageName . ']')
-						->setChecked(($pageTypes[ext][$ExtName][$appName][$pageName] == 'N') ? true : false);
+						->setChecked((isset($pageTypes['ext'][$ExtName][$appName][$pageName]) && $pageTypes['ext'][$ExtName][$appName][$pageName] == 'N') ? true : false);
 
 				$checkboxes .= '<div style="margin: 0 0 0 1em;"><input type="checkbox" class="pageBox" name="applications[ext][' . $ExtName . '][' . $appName . '][]" value="' . $pageName . '"' . ($pageChecked === true ? ' checked="checked"' : '') . '> ' . $pageName;
 				$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$nonRentalMemberCheckbox->draw();
-				$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw(). '</div>';
+				$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw();
+
+				if(isset($associativeUrl)){
+					$associativeUrl->setName('assocurl[ext][' . $ExtName . '][' . $appName . '][' . $pageName . ']')
+						->setValue(isset($assocurl['ext'][$ExtName][$appName][$pageName])?$assocurl['ext'][$ExtName][$appName][$pageName]:'');
+					$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$associativeUrl->draw();
+				}
+				$checkboxes .= '</div>';
 			}
 			$checkboxes .= '</div>';
 		}

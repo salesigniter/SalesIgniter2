@@ -19,8 +19,8 @@ $thisAppPage = $App->getAppPage() . '.php';
 $thisExtension = (isset($_GET['appExt']) ? $_GET['appExt'] : '');
 
 $layoutPath = sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles';
-if (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/popup.tpl')){
-	$layoutPath = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir');
+if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/popup.tpl')){
+	$layoutPath = sysConfig::get('DIR_FS_TEMPLATE');
 }
 
 $Template = new Template('popup.tpl', $layoutPath);
@@ -43,16 +43,9 @@ $Qpages = Doctrine_Query::create()
 	->fetchOne();
 $layoutArr = explode(',', $Qpages->layout_id);
 
-$QtemplateId = Doctrine_Query::create()
-	->select('template_id')
-	->from('TemplateManagerTemplatesConfiguration')
-	->where('configuration_key = ?', 'DIRECTORY')
-	->andWhere('configuration_value = ?', Session::get('tplDir'))
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
 $QtemplateLayouts = Doctrine_Query::create()
 	->from('TemplateManagerLayouts')
-	->where('template_id = ?', $QtemplateId[0]['template_id'])
+	->where('template_id = ?', sysConfig::get('TEMPLATE_ID'))
 	->andWhereIn('layout_id', $layoutArr)
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
@@ -169,14 +162,14 @@ function processContainerColumns(&$Container, $Columns) {
 }
 
 $pageContentPath = sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgetTemplates';
-if (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/popup.tpl')){
-	$pageContentPath = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir');
+if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'popup.tpl')){
+	$pageContentPath = sysConfig::get('DIR_FS_TEMPLATE');
 }
 
 $pageContent = new Template('popup.tpl', $pageContentPath);
 
 $checkFiles = array(
-	sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/applications/' . $App->getAppName() . '/' . $App->getPageName() . '.php',
+	sysConfig::get('DIR_FS_TEMPLATE') . '/applications/' . $App->getAppName() . '/' . $App->getPageName() . '.php',
 	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
 	sysConfig::getDirFsCatalog() . 'applications/' . $appContent,
 	(isset($appContent) ? $appContent : false)

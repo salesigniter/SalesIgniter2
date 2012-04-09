@@ -18,7 +18,7 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 	
 	public function load(){
 		global $appExtension;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'DataExportFullQueryBeforeExecute',
@@ -68,7 +68,7 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 
 	}
 	
-	public function DataExportFullQueryFileLayoutHeader(&$dataExport){
+	public function DataExportFullQueryFileLayoutHeader(&$HeaderRow){
 
 		/*export hidden dates*/
 		$QHiddenDatesMAX = Doctrine_Query::create()
@@ -86,10 +86,8 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 		}
 
 		for($j=0;$j<$maxVal;$j++){
-			$dataExport->setHeaders(array(
-				'v_pay_per_rental_hidden_start_date_'. $j,
-				'v_pay_per_rental_hidden_end_date_'. $j
-			));
+			$HeaderRow->addColumn('v_pay_per_rental_hidden_start_date_'. $j);
+			$HeaderRow->addColumn('v_pay_per_rental_hidden_end_date_'. $j);
 		}
 		/*end of export*/
 
@@ -109,55 +107,48 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 		}
 
 		for($j=0;$j<$maxVal;$j++){
-			$dataExport->setHeaders(array(
-				'v_pay_per_rental_time_period_number_of_'. $j,
-				'v_pay_per_rental_time_period_type_name_'. $j,
-				'v_pay_per_rental_time_period_price_'. $j
-			));
+			$HeaderRow->addColumn('v_pay_per_rental_time_period_number_of_'. $j);
+			$HeaderRow->addColumn('v_pay_per_rental_time_period_type_name_'. $j);
+			$HeaderRow->addColumn('v_pay_per_rental_time_period_price_'. $j);
 			foreach(sysLanguage::getLanguages() as $lInfo){
-				$dataExport->setHeaders(array(
-					'v_pay_per_rental_time_period_desc_'.$lInfo['id'].'_'. $j
-				));
+				$HeaderRow->addColumn('v_pay_per_rental_time_period_desc_'.$lInfo['id'].'_'. $j);
 			}
 		}
 
-		$dataExport->setHeaders(array(
-			//'v_pay_per_rental_price_daily',
-			//'v_pay_per_rental_price_weekly',
-			//'v_pay_per_rental_price_monthly',
-			//'v_pay_per_rental_price_six_month',
-			//'v_pay_per_rental_price_year',
-			//'v_pay_per_rental_price_three_year',
-			'v_pay_per_rental_deposit_amount',
-//			'v_pay_per_rental_auth_method',
-//			'v_pay_per_rental_auth_charge',
-			'v_pay_per_rental_shipping',
-			'v_pay_per_rental_max_days',
-			'v_pay_per_rental_max_months',
-			'v_pay_per_rental_insurance',
-			'v_pay_per_rental_overbooking'
-		));
+		//$HeaderRow->addColumn('v_pay_per_rental_price_daily');
+		//$HeaderRow->addColumn('v_pay_per_rental_price_weekly');
+		//$HeaderRow->addColumn('v_pay_per_rental_price_monthly');
+		//$HeaderRow->addColumn('v_pay_per_rental_price_six_month');
+		//$HeaderRow->addColumn('v_pay_per_rental_price_year');
+		//$HeaderRow->addColumn('v_pay_per_rental_price_three_year');
+		$HeaderRow->addColumn('v_pay_per_rental_deposit_amount');
+		//$HeaderRow->addColumn('v_pay_per_rental_auth_method');
+		//$HeaderRow->addColumn('v_pay_per_rental_auth_charge');
+		$HeaderRow->addColumn('v_pay_per_rental_shipping');
+		$HeaderRow->addColumn('v_pay_per_rental_max_days');
+		$HeaderRow->addColumn('v_pay_per_rental_max_months');
+		$HeaderRow->addColumn('v_pay_per_rental_insurance');
+		$HeaderRow->addColumn('v_pay_per_rental_overbooking');
+
 		$QPeriods = Doctrine_Query::create()
 		->from('PayPerRentalPeriods')
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		$i = 0;
 		foreach($QPeriods as $iPeriod){
-			$dataExport->setHeaders(array(
-				'v_pay_per_rental_period_'. $i,
-				'v_pay_per_rental_period_price_'. $i
-			));
+			$HeaderRow->addColumn('v_pay_per_rental_period_'. $i);
+			$HeaderRow->addColumn('v_pay_per_rental_period_price_'. $i);
 			$i++;
 		}
 
 	}
 	
-	public function DataExportBeforeFileLineCommit(&$productRow){
-		if ($productRow['v_pay_per_rental_overbooking'] == '0'){
-			$productRow['v_pay_per_rental_overbooking'] = 'No';
+	public function DataExportBeforeFileLineCommit(&$CurrentRow, $pInfo){
+		if ($pInfo['v_pay_per_rental_overbooking'] == '0'){
+			$CurrentRow->addColumn('No', 'v_pay_per_rental_overbooking');
 		}else{
-			$productRow['v_pay_per_rental_overbooking'] = 'Yes';
+			$CurrentRow->addColumn('Yes', 'v_pay_per_rental_overbooking');
 		}
-		$product_id = $productRow['products_id'];
+		$product_id = $pInfo['products_id'];
 
 		/*export hidden dates*/
 		$QHiddsenDates = Doctrine_Query::create()
@@ -166,8 +157,8 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 		->execute(array(),  Doctrine_Core::HYDRATE_ARRAY);
 		$j = 0;
 		foreach($QHiddsenDates as $iHidden){
-			$productRow['v_pay_per_rental_hidden_start_date_'.$j] = $iHidden['hidden_start_date'];
-			$productRow['v_pay_per_rental_hidden_end_date_'.$j] = $iHidden['hidden_end_date'];
+			$CurrentRow->addColumn($iHidden['hidden_start_date'], 'v_pay_per_rental_hidden_start_date_'.$j);
+			$CurrentRow->addColumn($iHidden['hidden_end_date'], 'v_pay_per_rental_hidden_end_date_'.$j);
 			$j++;
 		}
 
@@ -194,14 +185,15 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 				$htypes[$iType['pay_per_rental_types_id']] = $iType['pay_per_rental_types_name'];
 			}
 			foreach($QPricePerRentalProducts as $iPrice){
-				$productRow['v_pay_per_rental_time_period_number_of_'.$j] = $iPrice['number_of'];
-				$productRow['v_pay_per_rental_time_period_type_name_'.$j] = $htypes[$iPrice['pay_per_rental_types_id']];
-				$productRow['v_pay_per_rental_time_period_price_'.$j] = $iPrice['price'];
+				$CurrentRow->addColumn($iPrice['number_of'], 'v_pay_per_rental_time_period_number_of_'.$j);
+				$CurrentRow->addColumn($htypes[$iPrice['pay_per_rental_types_id']], 'v_pay_per_rental_time_period_type_name_'.$j);
+				$CurrentRow->addColumn($iPrice['price'], 'v_pay_per_rental_time_period_price_'.$j);
+
 				foreach(sysLanguage::getLanguages() as $lInfo){
 
 					foreach($iPrice['PricePayPerRentalPerProductsDescription'] as $desc){
 						if($lInfo['id'] == $desc['language_id']){
-							$productRow['v_pay_per_rental_time_period_desc_'.$lInfo['id'].'_'. $j] = $desc['price_per_rental_per_products_name'];
+							$CurrentRow->addColumn($desc['price_per_rental_per_products_name'], 'v_pay_per_rental_time_period_desc_'.$lInfo['id'].'_'. $j);
 						}
 					}
 				}
@@ -225,8 +217,8 @@ class payPerRentals_admin_data_manager_default extends Extension_payPerRentals {
 
 		$i = 0;
 		foreach($QPeriods as $iPeriod){
-			$productRow['v_pay_per_rental_period_'.$i] = $periodNames[$iPeriod['period_id']];
-			$productRow['v_pay_per_rental_period_price_'.$i] = $iPeriod['price'];
+			$CurrentRow->addColumn($periodNames[$iPeriod['period_id']], 'v_pay_per_rental_period_'.$i);
+			$CurrentRow->addColumn($iPeriod['price'], 'v_pay_per_rental_period_price_'.$i);
 			$i++;
 		}
 		/*while($i < count($periodNames)){

@@ -1,41 +1,4 @@
 <?php
-class RelatedProductsProductClassImport extends MI_Importable
-{
-
-	private $_hasRelated = false;
-
-	private $RelatedProducts = array();
-
-	public function initRelatedProducts() {
-		$Qdata = Doctrine_Query::create()
-			->select('related_products')
-			->from('Products')
-			->where('products_id = ?', $this->getId())
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		if ($Qdata && sizeof($Qdata) > 0){
-			$Data = $Qdata[0];
-			$this->_hasRelated = true;
-
-			$products = explode(',', $Data['related_products']);
-			foreach($products as $pID){
-				$this->addRelatedProduct($pID);
-			}
-		}
-	}
-
-	public function hasRelatedProducts(){
-		return $this->_hasRelated;
-	}
-
-	public function addRelatedProduct($id){
-		$this->RelatedProducts[] = new Product($id);
-	}
-
-	public function getRelatedProducts(){
-		return $this->RelatedProducts;
-	}
-}
-
 /*
 	Related Products Extension Version 1
 	
@@ -54,17 +17,11 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
-			'NewProductAddTabs',
-			'ProductInfoClassConstruct'
+			'NewProductAddTabs'
 		), null, $this);
-	}
-
-	public function ProductInfoClassConstruct(Product &$ProductClass, $Product) {
-		$ProductClass->import(new RelatedProductsProductClassImport);
-		$ProductClass->initRelatedProducts();
 	}
 
 	public function get_category_tree_list($parent_id = '0', $checked = false, $include_itself = true){
@@ -106,11 +63,11 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 	}
 
 	public function NewProductAddTabs(Product $Product, $ProductType, htmlWidget_tabs &$Tabs) {
-		if ($ProductType->getCode() == 'standard'){
+		//if ($ProductType->getCode() == 'standard'){
 			$Tabs
 				->addTabHeader('tab_' . $this->getExtensionKey(), array('text' => sysLanguage::get('TAB_PAY_RELATED_PRODUCTS')))
 				->addTabPage('tab_' . $this->getExtensionKey(), array('text' => $this->NewProductTabBody($Product)));
-		}
+		//}
 	}
 
 	public function NewProductTabBody(Product $Product){
@@ -129,11 +86,13 @@ class relatedProducts_admin_products_new_product extends Extension_relatedProduc
 		
 		$relatedProducts = '';
 		//print_r($pInfo);
+		$Product->initRelatedProducts();
         if ($Product->hasRelatedProducts() === true){
             foreach($Product->getRelatedProducts() as $RelatedProduct){
                 $relatedProducts .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . $RelatedProduct->getName() . '</span>' . tep_draw_hidden_field('related_products[]', $RelatedProduct->getId()) . '</div>';
             }
         }
+	$relatedProductsGlobal = '';
 		$QrelatedGlobal = Doctrine_Query::create()			
 			->from('ProductsRelatedGlobal ')
 			->where('type = "P"')

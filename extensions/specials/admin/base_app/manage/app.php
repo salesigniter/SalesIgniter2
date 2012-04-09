@@ -15,7 +15,4 @@
 	if ($App->getAppPage() == 'new'){
 			$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 	}
-
-	require('includes/classes/currencies.php');
-	$currencies = new currencies();
 ?>

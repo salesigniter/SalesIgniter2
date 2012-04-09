@@ -129,13 +129,13 @@ class Admin extends Doctrine_Record {
 		));
 
 		$this->hasColumn('admin_favs_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
+			'type' => 'integer',
+			'length' => 4,
+			'unsigned' => 0,
+			'primary' => false,
+			'default' => '0',
+			'notnull' => true,
+			'autoincrement' => false
 		));
 
 		$this->hasColumn('admin_simple_admin', 'integer', 1, array(
@@ -148,28 +148,27 @@ class Admin extends Doctrine_Record {
 				'autoincrement' => false
 		));
 
-		$this->hasColumn('config_home', 'string', null, array(
+		$this->hasColumn('config_home', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',
 			'notnull' => true,
 			'autoincrement' => false
 		));
-
-		$this->hasColumn('favorites_links', 'string', null, array(
+		$this->hasColumn('favorites_links', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',
 			'notnull' => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('favorites_names', 'string', null, array(
+		$this->hasColumn('favorites_names', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed' => false,
 			'primary' => false,
 			'default' => '',

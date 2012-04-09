@@ -1,12 +1,16 @@
 <?php
-	$numberInput = htmlBase::newElement('input')
+$numberInput = htmlBase::newElement('input')
 	->setName('customers_number')
 	->setRequired(false)
 	->attr('size', 12)
 	->attr('maxlength', 12)
 	->val($Customer->customers_number);
-	
-	$frozenInput = htmlBase::newElement('checkbox')
+
+$passwordInput = htmlBase::newElement('input')
+	->setName('customers_password')
+	->setRequired(false);
+
+$frozenInput = htmlBase::newElement('checkbox')
 	->setName('customers_account_frozen')
 	->setRequired(false)
 	->setChecked(($Customer->customers_account_frozen == 1))
@@ -32,10 +36,6 @@
 	->attr('size', 96)
 	->attr('maxlength', 96)
 	->val($Customer->customers_email_address);
-
-	$passInput = htmlBase::newElement('input')
-	->setName('customers_password')
-	->setRequired(false);
 	
 	$streetAddressInput = htmlBase::newElement('input')
 	->setName('entry_street_address')
@@ -63,6 +63,10 @@
 	->attr('size', 32)
 	->attr('maxlength', 32)
 	->val($Customer->customers_telephone);
+
+	$notesInput = htmlBase::newElement('textarea')
+	->setName('customers_notes')
+	->val($Customer->customers_notes);
 	
 	$faxInput = htmlBase::newElement('input')
 	->setName('customers_fax')
@@ -73,7 +77,7 @@
 	$countryInput = htmlBase::newElement('selectbox')->setName('country')
 	->setRequired(true)
 	->selectOptionByValue($Customer->AddressBook[0]->entry_country_id);
-	$countryInput->addOption('', sysLanguage::get('PULL_DOWN_DEFAULT'));
+	//$countryInput->addOption('', sysLanguage::get('PULL_DOWN_DEFAULT'));
 	$countries = tep_get_countries();
 	for($i = 0, $n = sizeof($countries); $i < $n; $i++){
 		$countryInput->addOption($countries[$i]['id'], $countries[$i]['text']);
@@ -102,6 +106,7 @@
 	if (sysConfig::get('ACCOUNT_STATE') == 'true'){
 		$stateInput = htmlBase::newElement('input')
 		->setName('entry_state')
+		->attr('id', 'state')
 		->val($Customer->AddressBook[0]->entry_state);
 	}
 	
@@ -109,15 +114,8 @@
 		$dobInput = htmlBase::newElement('input')
 		->setName('customers_dob')
 		->setId('customers_dob')
-		->val(strftime(sysLanguage::getDateFormat('short'),strtotime($Customer->customers_dob)));
+		->val($Customer->customers_dob);
 	}
-
-if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
-	$cityBirthInput = htmlBase::newElement('input')
-		->setName('customers_city_birth')
-		->setId('customers_city_birth')
-		->val($Customer->customers_city_birth);
-}
 	
 	if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 		$companyInput = htmlBase::newElement('input')
@@ -135,6 +133,12 @@ if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
 	$cifInput = htmlBase::newElement('input')
 		->setName('entry_cif')
 		->val($Customer->AddressBook[0]->entry_cif);
+}
+
+if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
+	$cityBirthInput = htmlBase::newElement('input')
+		->setName('entry_city_birth')
+		->val($Customer->AddressBook[0]->entry_city_birth);
 }
 	
 	if (sysConfig::get('ACCOUNT_SUBURB') == 'true'){
@@ -239,7 +243,6 @@ if (isset($vatInput)){
 	$addressTableRows[7] = array(sysLanguage::get('ENTRY_VAT') => $vatInput);
 }
 
-	
 	$addressTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
 	foreach($addressTableRows as $key => $rInfo){
 		$cols = each($rInfo);
@@ -265,7 +268,8 @@ if (isset($vatInput)){
 	 */
 	$contactTableRows = array(
 		0 => array(sysLanguage::get('ENTRY_TELEPHONE_NUMBER') => $telephoneInput),
-		1 => array(sysLanguage::get('ENTRY_FAX_NUMBER') => $faxInput)
+		1 => array(sysLanguage::get('ENTRY_FAX_NUMBER') => $faxInput),
+		2 => array(sysLanguage::get('ENTRY_NOTES_INPUT') => $notesInput)
 	);
 	
 	$contactTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
@@ -310,16 +314,6 @@ if (isset($vatInput)){
 ?>
 <div class="main" style="font-weight:bold;"><?php echo sysLanguage::get('CATEGORY_PERSONAL');?></div>
 <?php echo $personalTableContainer->draw();
-/*
-    <tr>
-     <td class="main">Inventory Center:</td>
-     <td class="main"><?php 
-      $QinventoryName = tep_db_query('select inventory_center_name from ' . TABLE_PRODUCTS_INVENTORY_CENTERS . ' where inventory_center_id = "' . $cInfo->inventory_center_id . '"');
-      $inventoryName = tep_db_fetch_array($QinventoryName);
-      echo $inventoryName['inventory_center_name'];
-     ?></td>
-    </tr>
-*/
 ?>
 
 <?php if (isset($companyInput)){ ?>

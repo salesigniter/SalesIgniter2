@@ -4,6 +4,7 @@
 	<define key="TABLE_HEADING_CUSTOMER"><![CDATA[Customer]]></define>
 	<define key="TABLE_HEADING_PRODUCTS"><![CDATA[Product]]></define>
 	<define key="TABLE_HEADING_BARCODE"><![CDATA[Assigned Barcode]]></define>
+	<define key="TABLE_HEADING_BARCODE_TYPE"><![CDATA[Barcode Type]]></define>
 	<define key="TABLE_HEADING_DATE_RESERVED"><![CDATA[Date Reserved]]></define>
 	<define key="TABLE_HEADING_DATE_PICKED_UP"><![CDATA[Date Picked Up]]></define>
 	<define key="TABLE_HEADING_DATE_RETURNED"><![CDATA[Date Returned]]></define>
@@ -17,7 +18,7 @@
 	<define key="TEXT_APPLY_FILTER"><![CDATA[Apply]]></define>
 	<define key="TEXT_CLEAR_FILTER"><![CDATA[Clear]]></define>
 	
-	<define key="TEXT_BUTTON_SEND_RENTAL"><![CDATA[Send]]></define>
+	<define key="TEXT_BUTTON_SEND_RENTAL"><![CDATA[Checkout]]></define>
 	<define key="TEXT_BUTTON_RETURN_RENTAL"><![CDATA[Return]]></define>
 	
 	<define key="TEXT_SUCCESS_RENTAL_SENT"><![CDATA[The rental has been sent to the customer]]></define>

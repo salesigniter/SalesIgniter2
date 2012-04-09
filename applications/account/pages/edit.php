@@ -12,7 +12,8 @@
 		->setValue('f')
 		->setLabel(sysLanguage::get('FEMALE'));
 		
-		if ((isset($gender) && $gender == 'f') || ($userAccount->getGender() == 'f')){			$femaleInput->setChecked(true);
+		if ((isset($gender) && $gender == 'f') || ($userAccount->getCustomerGender() == 'f')){
+			$femaleInput->setChecked(true);
 		}else{
 			$maleInput->setChecked(true);
 		}
@@ -56,19 +57,6 @@
 			'columns' => array(
 				array('addCls' => 'main', 'text' => sprintf(sysLanguage::get('ENTRY_DATE_OF_BIRTH'),'('.str_replace('%Y','yy',str_replace('%m','mm',str_replace('%d','dd',sysLanguage::getDateFormat('short')))).')')),
 				array('addCls' => 'main', 'text' => $dobInput->draw())
-			)
-		));
-	}
-
-if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true') {
-	$cityBirthInput = htmlBase::newElement('input')
-		->setName('city_birth')
-		->setValue($userAccount->getCityBirth());
-
-	$formTable->addBodyRow(array(
-			'columns' => array(
-				array('addCls' => 'main', 'text' => sysLanguage::get('ENTRY_CITY_BIRTH')),
-				array('addCls' => 'main', 'text' => $cityBirthInput->draw())
 			)
 		));
 	}
@@ -136,7 +124,6 @@ if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true') {
 	
 	$pageButtons = htmlBase::newElement('button')
 	->usePreset('continue')
-	->css(array('float' => 'right'))
 	->setType('submit')
 	->draw() . 
 	htmlBase::newElement('button')
@@ -145,18 +132,14 @@ if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true') {
 	->draw();
 	
 	$pageTitle = sysLanguage::get('HEADING_TITLE_CREATE');
-	
-	$pageButtons = htmlBase::newElement('button')
-	->usePreset('continue')
-	->setType('submit')
+
+$pageContents = htmlBase::newElement('form')
+	->setAction(itw_app_link('action=saveAccount', 'account', 'edit', 'SSL'))
+	->setName('account_edit')
+	->setMethod('post')
+	->html($pageContents)
 	->draw();
-	
-	$pageContent->set('pageForm', array(
-		'name' => 'account_edit',
-		'action' => itw_app_link('action=saveAccount', 'account', 'edit', 'SSL'),
-		'method' => 'post'
-	));
-	
+
 	$pageContent->set('pageTitle', $pageTitle);
 	$pageContent->set('pageContent', $pageContents);
 	$pageContent->set('pageButtons', $pageButtons);

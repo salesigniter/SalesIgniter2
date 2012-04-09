@@ -18,7 +18,7 @@ class Extension_specials extends ExtensionBase {
 	
 	public function init(){
 		global $appExtension;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'ProductQueryBeforeExecute',
@@ -35,7 +35,9 @@ class Extension_specials extends ExtensionBase {
 			), null, $this);
 		}
 
-		mysql_query('update specials set status = 0, date_status_change = now() where status = 1 and expires_date > 0 and expires_date <= now()');
+		Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->exec('update specials set status = 0, date_status_change = now() where status = 1 and expires_date > 0 and expires_date <= now()');
 	}
 	
 	public function BoxCatalogAddLink(&$contents){

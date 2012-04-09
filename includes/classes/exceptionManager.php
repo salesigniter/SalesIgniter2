@@ -275,7 +275,7 @@ class ExceptionManager {
 				break;
 			}
 		}
-		if ($addedToSession === false && Session::exists('ExceptionManagerMessages') === true){
+		if ($addedToSession === false && class_exists('Session') && Session::exists('ExceptionManagerMessages') === true){
 			Session::remove('ExceptionManagerMessages');
 		}
 	}

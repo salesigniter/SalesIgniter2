@@ -13,7 +13,7 @@ This script and it's source is not redistributable
 class PricePerRentalPerProducts extends Doctrine_Record {
 	
 	public function setUp(){
-		$this->setUpParent();
+		parent::setUp();
 		
 		$this->hasOne('ProductsPayPerRental', array(
 			'local' => 'pay_per_rental_id',
@@ -22,16 +22,6 @@ class PricePerRentalPerProducts extends Doctrine_Record {
 		 $this->hasMany('PricePayPerRentalPerProductsDescription', array(
 			'local' => 'price_per_rental_per_products_id',
 			'foreign' => 'price_per_rental_per_products_id',
-			'cascade' => array('delete')
-		));
-	}
-	
-	public function setUpParent(){
-		$Products = Doctrine::getTable('ProductsPayPerRental')->getRecordInstance();
-		
-		$Products->hasOne('PricePerRentalPerProducts', array(
-			'local' => 'pay_per_rental_id',
-			'foreign' => 'pay_per_rental_id',
 			'cascade' => array('delete')
 		));
 	}

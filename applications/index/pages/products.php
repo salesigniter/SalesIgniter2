@@ -1,9 +1,9 @@
 <?php
 
-if ($category_depth == 'products' || isset($_GET['manufacturers_id'])) {
+if ($category_depth == 'products') {
 	ob_start();
 	$new_products_category_id = $current_category_id; //For new products module
-	if (RENTAL_SHOW_FEATURED_TITLE == 'true'){
+	if (sysConfig::get('RENTAL_SHOW_FEATURED_TITLE') == 'true'){
 		$QfeaturedProducts = Doctrine_Query::create()
 		->select('p.products_id')
 		->from('Products p')
@@ -51,7 +51,7 @@ if ($category_depth == 'products' || isset($_GET['manufacturers_id'])) {
 
 	$pageTitle = $categoryName;
 	if (!empty($categoryImage)){
-		//echo '<div>' . tep_image(DIR_WS_IMAGES . $categoryImage, $categoryName) . '</div>';
+		//echo '<div>' . tep_image($categoryImage, $categoryName) . '</div>';
 	}
 	if (!empty($categoryDescription)){
 		echo '<div class="pageHeadingSub">' . $categoryDescription . '</div>';
@@ -62,6 +62,7 @@ if ($category_depth == 'products' || isset($_GET['manufacturers_id'])) {
 	->from('Categories c')
 	->leftJoin('c.CategoriesDescription cd')
 	->where('c.parent_id = ?', (int)$current_category_id)
+	->andWhere('cd.language_id = ?', Session::get('languages_id'))
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 	if ($Qchildren){
 		echo '<table border="0" width="100%" cellspacing="0" cellpadding="2"><tr>';
@@ -77,7 +78,7 @@ if ($category_depth == 'products' || isset($_GET['manufacturers_id'])) {
 
 			$cPath_new = tep_get_path($categoryId);
 			$width = (int)(100 / sysConfig::get('MAX_DISPLAY_CATEGORIES_PER_ROW')) . '%';
-			echo '  <td align="center" class="smallText" width="' . $width . '" valign="top"><a href="' . itw_app_link($cPath_new, 'index', 'default') . '">' .
+			echo '  <td align="center" class="smallText" width="' . $width . '" valign="top" style="padding:15px;"><a href="' . itw_app_link($cPath_new, 'index', 'default') . '">' .
 			$categoryImageLink . $categoryName .'</a></td>' . "\n";
 
 			$col++;
@@ -99,21 +100,7 @@ if ($category_depth == 'products' || isset($_GET['manufacturers_id'])) {
 	->andWhere('p2b.products_id is null')
 	->andWhere('pd.language_id = ?', (int)Session::get('languages_id'));
 
-	if (isset($_GET['manufacturers_id'])){
-		$Qproducts->addFrom('p.Manufacturers m')->andWhere('m.manufacturers_id = ?', (int)$_GET['manufacturers_id']);
-
-		if (isset($_GET['filter_id']) && tep_not_null($_GET['filter_id'])){
-			$Qproducts->leftJoin('p.ProductsToCategories p2c')->andWhere('p2c.categories_id = ?', (int)$_GET['filter_id']);
-		}
-	}else{
-		$Qproducts->leftJoin('p.ProductsToCategories p2c')->andWhere('p2c.categories_id = ?', (int)$current_category_id);
-
-		if (isset($_GET['filter_id']) && tep_not_null($_GET['filter_id'])){
-			$Qproducts->addFrom('Manufacturers m')->andWhere('m.manufacturers_id = ?', (int)$_GET['filter_id']);;
-		}else{
-			$Qproducts->leftJoin('p.Manufacturers m');
-		}
-	}
+	$Qproducts->leftJoin('p.ProductsToCategories p2c')->andWhere('p2c.categories_id = ?', (int)$current_category_id);
 
 	if (isset($ids)){
 		$Qproducts->andWhereNotIn('p.products_id', $ids);

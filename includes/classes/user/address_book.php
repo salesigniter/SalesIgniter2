@@ -1,6 +1,10 @@
 <?php
 class rentalStoreUser_addressBook {
-	public $customerId, $addresses;
+	public $customerId;
+	
+	public $addresses;
+	
+	public $defaultAddress = 0;
 
 	public function __construct($customerId){
 		$this->customerId = $customerId;
@@ -43,7 +47,7 @@ class rentalStoreUser_addressBook {
 	}
 
 	public function getDefaultAddressId(){
-		if (!isset($this->defaultAddress)){
+		if ($this->defaultAddress == 0){
 			$userAccount = &$this->getUserAccount();
 			$this->defaultAddress = $userAccount->getDefaultAddressId();
 		}
@@ -85,14 +89,18 @@ class rentalStoreUser_addressBook {
 		if ($updateDB === true){
 			$Customers = Doctrine::getTable('Customers')->find($this->customerId);
 			$Customers->customers_default_address_id = $this->defaultAddress;
-			$Customers->customers_gender = $this->addresses[$this->defaultAddress]['entry_gender'];
+			if (isset($this->addresses[$this->defaultAddress]['entry_gender'])){
+				$Customers->customers_gender = $this->addresses[$this->defaultAddress]['entry_gender'];
+			}
 			$Customers->customers_firstname = $this->addresses[$this->defaultAddress]['entry_firstname'];
 			$Customers->customers_lastname = $this->addresses[$this->defaultAddress]['entry_lastname'];
 			$Customers->save();
 
 			$userAccount->setFirstName($this->addresses[$this->defaultAddress]['entry_firstname']);
 			$userAccount->setLastName($this->addresses[$this->defaultAddress]['entry_lastname']);
-			$userAccount->setGender($this->addresses[$this->defaultAddress]['entry_gender']);
+			if (isset($this->addresses[$this->defaultAddress]['entry_gender'])){
+				$userAccount->setGender($this->addresses[$this->defaultAddress]['entry_gender']);
+			}
 		}
 	}
 
@@ -116,11 +124,11 @@ class rentalStoreUser_addressBook {
 		$newAddress->entry_postcode = $addressArray['entry_postcode'];
 		$newAddress->entry_city = $addressArray['entry_city'];
 		$newAddress->entry_country_id = (int)$addressArray['entry_country_id'];
-		$newAddress->entry_gender = $addressArray['entry_gender'];
-		$newAddress->entry_company = $addressArray['entry_company'];
-		$newAddress->entry_cif = $addressArray['entry_cif'];
-		$newAddress->entry_vat = $addressArray['entry_vat'];
-		$newAddress->entry_suburb = $addressArray['entry_suburb'];
+		if (isset($addressArray['entry_gender'])) $newAddress->entry_gender = $addressArray['entry_gender'];
+		if (isset($addressArray['entry_company'])) $newAddress->entry_company = $addressArray['entry_company'];
+		if (isset($addressArray['entry_cif'])) $newAddress->entry_cif = $addressArray['entry_cif'];
+		if (isset($addressArray['entry_vat'])) $newAddress->entry_vat = $addressArray['entry_vat'];
+		if (isset($addressArray['entry_entry_suburb'])) $newAddress->entry_suburb = $addressArray['entry_suburb'];
 		$newAddress->entry_state = $addressArray['entry_state'];
 		if (!is_numeric($addressArray['entry_state'])){
 			$Qcheck = Doctrine_Query::create()
@@ -135,7 +143,7 @@ class rentalStoreUser_addressBook {
 		}
 		
 		/* @TODO: getinto extension */
-		if (defined('EXTENSION_INVENTORY_CENTERS_ENABLED')){
+		if ($appExtension->isEnabled('inventoryCenters') === true){
 			$centerId = $this->getAddressInventoryCenter($addressArray);
 			if ($centerId > 0){
 				$newAddress->inventory_center_id = $centerId;
@@ -181,7 +189,7 @@ class rentalStoreUser_addressBook {
 		}
 
 		/* @TODO: getinto extension */
-		if (defined('EXTENSION_INVENTORY_CENTERS_ENABLED')){
+		if ($appExtension->isEnabled('inventoryCenters') === true){
 			$centerId = $this->getAddressInventoryCenter($aID);
 			if ($centerId > 0){
 				$Address->inventory_center_id = $centerId;
@@ -225,7 +233,7 @@ class rentalStoreUser_addressBook {
 		);
 
 		/* @TODO: getinto extension */
-		if (defined('EXTENSION_INVENTORY_CENTERS_ENABLED') && !isset($address['inventory_center_id'])){
+		if ($appExtension->isEnabled('inventoryCenters') === true && !isset($address['inventory_center_id'])){
 			$this->addresses[$aID]['inventory_center_id'] = $this->getAddressInventoryCenter($aID);
 		}
 	}
@@ -346,7 +354,7 @@ class rentalStoreUser_addressBook {
 		if($html){
 			$fmt = nl2br($fmt);
 		}
-		$company = $address['entry_company'];
+		$company = (isset($address['entry_company']) ? $address['entry_company'] : '');
 		if (isset($address['entry_firstname']) && tep_not_null($address['entry_firstname'])) {
 			$firstname = $address['entry_firstname'];
 			$lastname = $address['entry_lastname'];
@@ -359,11 +367,11 @@ class rentalStoreUser_addressBook {
 		}
 
 		$street_address = $address['entry_street_address'];
-		$suburb = $address['entry_suburb'];
+		$suburb = (isset($address['entry_suburb']) ? $address['entry_suburb'] : '');
 		$city = $address['entry_city'];
-		$vat = $address['entry_vat'];
-		$cif = $address['entry_cif'];
-		$city_birth = $address['entry_city_birth'];
+		$vat = (isset($address['entry_vat']) ? $address['entry_vat'] : '');
+		$cif = (isset($address['entry_cif']) ? $address['entry_cif'] : '');
+		$city_birth = (isset($address['entry_city_birth']) ? $address['entry_city_birth'] : '');
 		$state = $address['entry_state'];
 		$country = '';
 		$abbrstate = '';
@@ -467,12 +475,12 @@ class rentalStoreUser_addressBook {
 		$zone_id = -1;
 		$Check = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
-			->fetchAssoc('select count(*) as total from ' . TABLE_ZONES . ' where zone_country_id = "' . $countryId . '"');
+			->fetchAssoc('select count(*) as total from zones where zone_country_id = "' . $countryId . '"');
 		if ($Check[0]['total'] > 0) {
 			$zone_id = 0;
 			$Zone = Doctrine_Manager::getInstance()
 				->getCurrentConnection()
-				->fetchAssoc('select distinct zone_id from ' . TABLE_ZONES . ' where zone_country_id = "' . $countryId . '" and (zone_name = "' . $state . '" or zone_code = "' . $state . '")');
+				->fetchAssoc('select distinct zone_id from zones where zone_country_id = "' . $countryId . '" and (zone_name = "' . $state . '" or zone_code = "' . $state . '")');
 			if (sizeof($Zone) == 1){
 				$zone_id = $Zone[0]['zone_id'];
 			}

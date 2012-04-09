@@ -28,6 +28,8 @@
 	if (array_key_exists('gender', $_POST)) $accountValidation['entry_gender'] = $_POST['gender'];
 	if (array_key_exists('newsletter', $_POST)) $accountValidation['newsletter'] = $_POST['newsletter'];
 	if (array_key_exists('telephone', $_POST)) $accountValidation['telephone'] = $_POST['telephone'];
+	if (array_key_exists('cellphone', $_POST)) $accountValidation['cellphone'] = $_POST['cellphone'];
+	if (array_key_exists('cellphone_carrier', $_POST)) $accountValidation['cellphone_carrier'] = $_POST['cellphone_carrier'];
 	if (array_key_exists('fax', $_POST)) $accountValidation['fax'] = $_POST['fax'];
 	if (array_key_exists('dob', $_POST)) $accountValidation['dob'] = $_POST['dob'];
 	
@@ -41,10 +43,11 @@
 		$userAccount->setLanguageId(Session::get('languages_id'));
 		
 		if (array_key_exists('telephone', $_POST)) $userAccount->setTelephoneNumber($accountValidation['telephone']);
+		if (array_key_exists('cellphone', $_POST)) $userAccount->setCellphoneNumber($accountValidation['cellphone']);
+		if (array_key_exists('cellphone_carrier', $_POST)) $userAccount->setCellphoneCarrier($accountValidation['cellphone_carrier']);
 		if (array_key_exists('fax', $_POST)) $userAccount->setFaxNumber($accountValidation['fax']);
 		if (array_key_exists('gender', $_POST)) $userAccount->setGender($accountValidation['entry_gender']);
-		if (array_key_exists('dob', $_POST)) $userAccount->setDateOfBirth($accountValidation['dob']);
-		if (array_key_exists('city_birth', $_POST)) $userAccount->setCityBirth($accountValidation['entry_city_birth']);
+		if (array_key_exists('dob', $_POST)) $userAccount->setDateOfBirth($accountValidation['dob']);		
 
 		$customerId = $userAccount->createNewAccount();
 
@@ -74,6 +77,15 @@
 			}
 		}
 
-		EventManager::attachActionResponse($link, 'redirect');
+		if (isset($_GET['mobile']) && $_GET['mobile'] == 'true'){
+			EventManager::attachActionResponse(itw_app_link(null, 'mobile', 'myAccount'), 'redirect');
+		}else{
+			EventManager::attachActionResponse($link, 'redirect');
+		}
+	}else{
+		if (isset($_GET['mobile']) && $_GET['mobile'] == 'true'){
+			Session::set('mobilePost', $_POST);
+			EventManager::attachActionResponse(itw_app_link(null, 'mobile', 'createAccount'), 'redirect');
+		}
 	}
 ?>

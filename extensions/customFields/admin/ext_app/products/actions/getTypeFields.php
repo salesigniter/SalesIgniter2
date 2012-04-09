@@ -47,6 +47,7 @@
 					}
 					$input = tep_draw_pull_down_menu('fields[' . $fieldId . ']', $oArr, $value);
 					break;
+				case 'movie':
 				case 'text':
 					$input = tep_draw_input_field('fields[' . $fieldId . ']', $value);
 					break;

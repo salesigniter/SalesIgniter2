@@ -12,7 +12,7 @@
 */
 
 	require('includes/application_top.php');
-	
+
 	$action = (isset($_GET['action']) ? $_GET['action'] : '');
 	
 	$pageFunctionFiles = $App->getFunctionFiles($App->getAppPage());
@@ -37,9 +37,9 @@
 	
 	EventManager::notify('ApplicationTemplateBeforeInclude');
 
-	require(sysConfig::getDirFsAdmin() . 'template/' . sysConfig::get('ADMIN_TEMPLATE_NAME') . '/main_page.tpl.php');
+	require(sysConfig::get('DIR_FS_TEMPLATE') . '/main_page.tpl.php');
 	
 	EventManager::notify('ApplicationTemplateAfterInclude');
 
-	require(sysConfig::get('DIR_WS_INCLUDES') . 'application_bottom.php');
+	require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
 ?>

@@ -11,16 +11,14 @@ class Template {
 			$baseDir = '/';
 		}
 
-		if (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/' . $baseDir . $fileName)){
-			$this->baseDir = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/' . $baseDir;
-		}elseif (file_exists(sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/' . $fileName)){
-			$this->baseDir = sysConfig::getDirFsCatalog() . 'templates/' . Session::get('tplDir') . '/';
-		}elseif (file_exists(sysConfig::getDirFsCatalog() . 'templates/fallback/' . $baseDir . $fileName)){
-			$this->baseDir = sysConfig::getDirFsCatalog() . 'templates/fallback/' . $baseDir;
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $baseDir . $fileName)){
+			$this->baseDir = sysConfig::get('DIR_FS_TEMPLATE') . $baseDir;
+		}elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $fileName)){
+			$this->baseDir = sysConfig::get('DIR_FS_TEMPLATE');
 		}elseif (file_exists($baseDir . $fileName)){
 			$this->baseDir = $baseDir;
 		}else{
-			$this->baseDir = sysConfig::getDirFsCatalog() . 'templates/fallback/';
+			$this->baseDir = sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/';
 		}
 		
 		$this->setTemplateFile($fileName);
@@ -84,7 +82,7 @@ class Template {
 	}
 	
 	public function parse($useFile = null){
-		global $App, $appExtension, $messageStack, $ExceptionManager, $request_type;
+		global $App, $appExtension, $messageStack, $ExceptionManager;
 		$userAccount = &Session::getReference('userAccount');
 		
 		$file = $this->layoutFile;

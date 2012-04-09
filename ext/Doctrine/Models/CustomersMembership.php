@@ -17,6 +17,11 @@ class CustomersMembership extends Doctrine_Record {
 			'local' => 'customers_id',
 			'foreign' => 'customers_id'
 		));
+
+		$this->hasOne('Membership', array(
+			'local' => 'plan_id',
+			'foreign' => 'plan_id'
+		));
 	}
 	
 	public function preInsert($event){
@@ -65,29 +70,19 @@ class CustomersMembership extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('ismember', 'enum', 1, array(
-		'type' => 'enum',
+		$this->hasColumn('ismember', 'string', 1, array(
+		'type' => 'string',
 		'length' => 1,
 		'fixed' => false,
-		'values' =>
-		array(
-		0 => 'M',
-		1 => 'U',
-		),
 		'primary' => false,
 		'default' => 'U',
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('activate', 'enum', 1, array(
-		'type' => 'enum',
+		$this->hasColumn('activate', 'string', 1, array(
+		'type' => 'string',
 		'length' => 1,
 		'fixed' => false,
-		'values' =>
-		array(
-		0 => 'Y',
-		1 => 'N',
-		),
 		'primary' => false,
 		'default' => 'N',
 		'notnull' => true,

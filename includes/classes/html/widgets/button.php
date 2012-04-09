@@ -3,10 +3,12 @@
  * Button Widget Class
  * @package Html
  */
-class htmlWidget_button implements htmlWidgetPlugin {
+class htmlWidget_button implements htmlWidgetPlugin
+{
+
 	protected $buttonElement, $textElement, $iconElement;
-	
-	public function __construct(){
+
+	public function __construct() {
 		$this->buttonElement = new htmlElement('button');
 		//$this->textElement = new htmlElement('span');
 
@@ -15,89 +17,91 @@ class htmlWidget_button implements htmlWidgetPlugin {
 		//->addClass('ui-widget')
 		//->addClass('ui-state-default')
 		//->addClass('ui-corner-all')
-		->attr('type', 'button');
-		
+			->attr('type', 'button');
+
 		$this->settings = array(
-		'text'    => 'Submit Query',
-		'icon'    => false,
-		'href'    => false,
-		'tooltip' => false
+			'text'    => 'Submit Query',
+			'icon'    => false,
+			'href'    => false,
+			'tooltip' => false
 		);
 	}
-	
-	public function __call($function, $args){
+
+	public function __call($function, $args) {
 		$return = call_user_func_array(array($this->buttonElement, $function), $args);
 		if (!is_object($return)){
 			return $return;
 		}
 		return $this;
 	}
-	
+
 	/* Required Classes From Interface: htmlElementPlugin --BEGIN-- */
-	public function startChain(){
+	public function startChain() {
 		return $this;
 	}
-	
-	public function setId($val){
+
+	public function setId($val) {
 		$this->buttonElement->attr('id', $val);
 		return $this;
 	}
-	
-	public function setName($val){
+
+	public function setName($val) {
 		$this->buttonElement->attr('name', $val);
 		return $this;
 	}
-	
-	public function draw(){
+
+	public function draw() {
 		$button = $this->settings;
 		//$this->textElement->html($button['text']);
 		$this->buttonElement->html($button['text']);
 		if ($button['icon'] !== false){
 			$this->buttonElement->attr('icon', $button['icon']);
 		}
-		
+
 		//$this->buttonElement->append($this->textElement);
-		
+
 		if ($button['tooltip'] !== false){
 			$this->buttonElement->attr('tooltip', $button['tooltip']);
 		}
-		
+
 		if ($button['href'] !== false && $this->buttonElement->hasClass('ui-state-disabled') === false){
 			$this->buttonElement
-			->attr('href', $button['href'])
-			->css('text-decoration', 'none');
+				->attr('href', $button['href'])
+				->css('text-decoration', 'none');
 		}
-		
+
 		return $this->buttonElement->draw();
 	}
+
 	/* Required Classes From Interface: htmlElementPlugin --END-- */
-	
-	public function disable(){
+
+	public function disable() {
 		$this->buttonElement->addClass('ui-state-disabled');
 		return $this;
 	}
-	
-	public function setType($val){
+
+	public function setType($val) {
 		$this->buttonElement->attr('type', $val);
 		return $this;
 	}
-	
-	public function setText($val){
+
+	public function setText($val) {
 		$this->settings['text'] = $val;
 		return $this;
 	}
-	
-	public function setIcon($type){
+
+	public function setIcon($type) {
 		$iconObj = htmlBase::newElement('icon');
 
 		$this->settings['icon'] = $iconObj->getIconClassFromType($type);
 		return $this;
 	}
-	
-	public function setHref($val, $encode = false, $target = null){
+
+	public function setHref($val, $encode = false, $target = null) {
 		if ($encode === true){
 			$this->settings['href'] = htmlspecialchars($val);
-		}else{
+		}
+		else {
 			$this->settings['href'] = $val;
 		}
 		$this->buttonElement->changeElement('a');
@@ -106,86 +110,117 @@ class htmlWidget_button implements htmlWidgetPlugin {
 		}
 		return $this;
 	}
-	
-	public function setTooltip($val){
+
+	public function setTooltip($val) {
 		$this->settings['tooltip'] = $val;
 		return $this;
 	}
-	
-	public function usePreset($preset){
+
+	public function usePreset($preset) {
 		switch($preset){
 			case 'back':
 				$this->setIcon('circleTriangleWest')
-				->setText(sysLanguage::get('TEXT_BUTTON_BACK'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_BACK'));
+					->setText(sysLanguage::get('TEXT_BUTTON_BACK'));
 				break;
 			case 'new':
 				$this->setIcon('circlePlus')
-				->setText(sysLanguage::get('TEXT_BUTTON_NEW'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_NEW'));
+					->setText(sysLanguage::get('TEXT_BUTTON_NEW'));
 				break;
 			case 'edit':
 				$this->setIcon('wrench')
-				->setText(sysLanguage::get('TEXT_BUTTON_EDIT'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_EDIT'));
+					->setText(sysLanguage::get('TEXT_BUTTON_EDIT'));
 				break;
 			case 'delete':
 				$this->setIcon('closeThick')
-				->setText(sysLanguage::get('TEXT_BUTTON_DELETE'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_DELETE'));
+					->setText(sysLanguage::get('TEXT_BUTTON_DELETE'));
 				break;
 			case 'cancel':
 				$this->setIcon('cancel')
-				->setText(sysLanguage::get('TEXT_BUTTON_CANCEL'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_CANCEL'));
+					->setText(sysLanguage::get('TEXT_BUTTON_CANCEL'));
 				break;
 			case 'next':
 				$this->setIcon('next')
-				->setText(sysLanguage::get('TEXT_BUTTON_NEXT'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_NEXT'));
+					->setText(sysLanguage::get('TEXT_BUTTON_NEXT'));
 				break;
 			case 'save':
 				$this->setIcon('save')
-				->setText(sysLanguage::get('TEXT_BUTTON_SAVE'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_SAVE'));
+					->setText(sysLanguage::get('TEXT_BUTTON_SAVE'));
 				break;
 			case 'install':
 				$this->setIcon('plusThick')
-				->setText(sysLanguage::get('TEXT_BUTTON_INSTALL'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_INSTALL'));
+					->setText(sysLanguage::get('TEXT_BUTTON_INSTALL'));
 				break;
 			case 'uninstall':
 				$this->setIcon('closeThick')
-				->setText(sysLanguage::get('TEXT_BUTTON_UNINSTALL'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_UNINSTALL'));
+					->setText(sysLanguage::get('TEXT_BUTTON_UNINSTALL'));
 				break;
 			case 'continue':
 				$this->setIcon('circleTriangleEast')
-				->setText(sysLanguage::get('TEXT_BUTTON_CONTINUE'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_CONTINUE'));
+					->setText(sysLanguage::get('TEXT_BUTTON_CONTINUE'));
 				break;
 			case 'load':
 				$this->setIcon('disc')
-				->setText(sysLanguage::get('TEXT_BUTTON_LOAD'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_LOAD'));
+					->setText(sysLanguage::get('TEXT_BUTTON_LOAD'));
 				break;
 			case 'trash':
 				$this->setIcon('trash')
-				->setText(sysLanguage::get('TEXT_BUTTON_TRASH'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_TRASH'));
+					->setText(sysLanguage::get('TEXT_BUTTON_TRASH'));
 				break;
 			case 'print':
 				$this->setIcon('print')
-				->setText(sysLanguage::get('TEXT_BUTTON_PRINT'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_PRINT'));
+					->setText(sysLanguage::get('TEXT_BUTTON_PRINT'));
 				break;
 			case 'help':
 				$this->setIcon('help')
-				->setText(sysLanguage::get('TEXT_BUTTON_HELP'))
-				->setTooltip(sysLanguage::get('TEXT_BUTTON_HELP'));
+					->setText(sysLanguage::get('TEXT_BUTTON_HELP'));
+				break;
+			case 'search':
+				$this->setIcon('search')
+					->setText(sysLanguage::get('TEXT_BUTTON_SEARCH'));
+				break;
+			case 'email':
+				$this->setIcon('email')
+					->setText(sysLanguage::get('TEXT_BUTTON_EMAIL'));
+				break;
+			case 'orders':
+				$this->setIcon('orders')
+					->setText(sysLanguage::get('TEXT_BUTTON_ORDERS'));
+				break;
+			case 'login':
+				$this->setIcon('login')
+					->setText(sysLanguage::get('TEXT_BUTTON_LOGIN'));
+				break;
+			case 'copy':
+				$this->setIcon('copy')
+					->setText(sysLanguage::get('TEXT_BUTTON_COPY'));
+				break;
+			case 'invoice':
+				$this->setIcon('invoice')
+					->setText(sysLanguage::get('TEXT_BUTTON_INVOICE'));
+				break;
+			case 'details':
+				$this->setIcon('info')
+					->setText(sysLanguage::get('TEXT_BUTTON_DETAILS'));
+				break;
+			case 'process':
+				$this->setIcon('process')
+					->setText(sysLanguage::get('TEXT_BUTTON_PROCESS'));
+				break;
+			case 'comment':
+				$this->setIcon('comment')
+					->setText(sysLanguage::get('TEXT_BUTTON_COMMENT'));
+				break;
+			case 'moveup':
+				$this->setIcon('thickArrowNorth')
+					->setText('Move Up');
+				break;
+			case 'movedown':
+				$this->setIcon('thickArrowSouth')
+					->setText('Move Down');
 				break;
 		}
 		return $this;
 	}
 }
+
 ?>

@@ -31,6 +31,40 @@ $(document).ready(function () {
 		js_redirect(js_app_link('appExt=templateManager&app=layout_manager&appPage=editLayout&lID=' + $('.gridBodyRow.state-active').data('layout_id')));
 	});
 
+	$('.generateCode').click(function(){
+		$.ajax({
+			cache: false,
+			url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&lID=' + $('.gridBodyRow.state-active').data('layout_id')),
+			dataType: 'json',
+			type: 'post',
+			success: function (data) {
+				$('<div title="Javascript generated Code"></div>').html(data.html )
+					.dialog({
+						height: 500,
+						width: 600,
+						close: function(event, ui)
+						{
+							$(this).dialog('destroy').remove();
+						}
+					});
+				$('.genType, .genTemplate, .genProduct').change(function(){
+					$.ajax({
+						cache: false,
+						url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&lID=' + $('.gridBodyRow.state-active').data('layout_id')),
+						dataType: 'json',
+						data:'onlyCode=1&type='+$('.genType').val()+'&templateName='+$('.genTemplate').val()+'&products_id='+$('.genProduct option:selected').val(),
+						type: 'post',
+						success: function (data) {
+							$('.genCode').html(data.html);
+						}
+					});
+				});
+			}
+		});
+
+
+	});
+
 	$('.newButton, .configureButton').click(function () {
 		if ($(this).hasClass('newButton')){
 			$('.gridBodyRow.state-active').removeClass('state-active');
@@ -135,9 +169,15 @@ $(document).ready(function () {
 					success: function (data) {
 						//alert('Updated/Added, Want To Edit Now?');
 						if (data.success){
-							$('.grid tbody').append('<tr class="gridBodyRow" data-layout_id="' + data.layoutId + '">' +
-							'<td class="gridBodyRowColumn">' + data.layoutName + '</td>' +
-							'</tr>');
+							$('.gridContainer').newGrid('addBodyRow', {
+								rowAttr: {
+									'data-layout_id': data.layoutId
+								},
+								columns: [
+									{ text: data.layoutName },
+									{ text: data.layoutType }
+								]
+							});
 
 							$(dialogEl).dialog('close').remove();
 						}

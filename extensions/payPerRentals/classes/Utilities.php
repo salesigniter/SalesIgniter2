@@ -41,14 +41,18 @@ class ReservationUtilities {
 
 
 	public static function addReservationProductToCart($productID, $rQty){
-		global $ShoppingCart;
+		global $ShoppingCart, $messageStack;
 		//global variable with all the attributes per product which will get the POST[id] changed and then cleaned based on the product id
 		$_POST['rental_qty'] = $rQty;
 		$_POST['purchase_type'] = 'reservation';
-		//here i check for multiple dates and see if i can add the same product in different dates in a for...if the same product already exists i remove it and add it again with the new dates
-		//input a series of dates from which i exclude the noInvDates then transform them in start-end?
-		if(Session::exists('isppr_event_multiple_dates')){
-			$datesArr = Session::get('isppr_event_multiple_dates');
+
+		$product = new Product($productID);
+		$productType = $product->getProductTypeClass();
+		$purchaseTypeClass = $productType->getPurchaseType('reservation');
+		//if($purchaseTypeClass->hasInventory($rQty)){
+			if(Session::exists('isppr_event_multiple_dates')){
+				$datesArr = Session::get('isppr_event_multiple_dates');
+
 				if(Session::exists('noInvDates')){
 					$myNoInvDates = Session::get('noInvDates');
 					if(isset($myNoInvDates[$productID]) && is_array($myNoInvDates[$productID]) && count($myNoInvDates[$productID]) > 0){
@@ -63,17 +67,20 @@ class ReservationUtilities {
 						}
 					}
 				}
-			foreach($datesArr as $iDate){
-				$_POST['start_date'] = $iDate;
-				$_POST['end_date'] = $iDate;
-				$_POST['event_date'] = $iDate;
 
-				$ShoppingCart->add($productID);//make a for the qty
+
+				foreach($datesArr as $iDate){
+					$_POST['start_date'] = $iDate;
+					$_POST['end_date'] = $iDate;
+					$_POST['event_date'] = $iDate;
+					$ShoppingCart->add($productID);
+				}
+			} else{
+				$ShoppingCart->add($productID);
 			}
-		} else{
-			$ShoppingCart->add($productID);
-		}
-
+		/*} else{
+			$messageStack->addSession('pageStack', 'Not enough inventory for one or multiple selected dates for the selected quantity');
+		}*/
 	}
 
 	public static function getPeriodTime($period, $type){
@@ -113,12 +120,38 @@ class ReservationUtilities {
 		return $QProduct[0]['ProductsDescription'][0]['products_name'];
 	}
 
-	public static function getCalendar($productsId, $purchaseTypeClasses, $rQty = 1, $showShipping = true, $callType = 'catalog', $usableBarcodes = array(), $hasButton = true)
+	public static function getCalendar($settings = array())
 	{
 		global $App;
-		if($callType == 'catalog'){
-			$callLink = 'js_catalog_app_link(\'rType=ajax&appExt=payPerRentals&app=build_reservation&appPage=default\')';
-			$callAction = 'getReservedDates';
+
+		$defaults = array(
+			'purchaseTypeClasses'  => array(),
+			'quantity'             => 1,
+			'showShipping'         => true,
+			'callType'             => 'catalog',
+			'usableBarcodes'       => array(),
+			'hasButton'            => true,
+			'calanderMonths'       => sysConfig::get('EXTENSION_PAY_PER_RENTALS_NUMBER_OF_MONTHS_CALENDARS'),
+			'showResetButton'      => true,
+			'showPriceInfo'        => true,
+			'showQuantityBox'      => true,
+			'showDateSelectStatus' => true,
+			'selectedDate'         => null,
+			'showSelectedInputs'   => true,
+			'shippingDays'         => null
+		);
+
+		$options = array_merge($defaults, $settings);
+
+		if($options['callType'] == 'catalog'){
+			if($App->getEnv() == 'catalog'){
+				$callLink = 'js_catalog_app_link(\'rType=ajax&appExt=payPerRentals&app=build_reservation&appPage=default\')';
+				$callAction = 'getReservedDates';
+			}else{
+				$callLink = 'js_app_link(\'rType=ajax&appExt=orderCreator&app=default&appPage=new&action=getReservedDates\')';
+				$callAction = '';
+			}
+
 		} else {
 			$callLink = 'js_app_link(\'rType=ajax&appExt=orderCreator&app=default&appPage=new&action=loadReservationData\')';
 			$callAction = '';
@@ -132,15 +165,20 @@ class ReservationUtilities {
 		}
 
 		$countryZones = 'js_catalog_app_link(\'appExt=payPerRentals&app=build_reservation&appPage=default&action=getCountryZones\')';
-		if(!is_array($productsId)){
-			$pID_string =  array();
-			$pID_string[] = $productsId;
+		$pID_string =  array();
+		if (!is_array($options['purchaseTypeClasses'])){
+			$pID_string[] = $options['purchaseTypeClasses']->getProductId();
+			$purchaseTypeClass = $options['purchaseTypeClasses'];
 		}else{
-			$pID_string = $productsId;
+			foreach($options['purchaseTypeClasses'] as $pType){
+				$pID_string[] = $pType->getProductId();
+			}
+			$purchaseTypeClass = $options['purchaseTypeClasses'][0];
 		}
 
-		$purchaseTypeClass = $purchaseTypeClasses[0];
-		$pprTable = Doctrine_Core::getTable('ProductsPayPerRental')->findOneByProductsId($pID_string[0]);//only for first product
+		$pprTable = Doctrine_Core::getTable('ProductsPayPerRental')
+			->findOneByProductsId($purchaseTypeClass->getProductId());//only for first product
+
 		$QPeriods = Doctrine_Query::create()
 		->from('ProductsPayPerPeriods')
 		->whereIn('products_id', $pID_string)
@@ -205,7 +243,7 @@ class ReservationUtilities {
 
 			$reservArr = array();
 			$barcodesBooked = array();
-			$bookingsF = $purchaseTypeClasses[$nr]->getBookedDaysArray(date('Y-m-d', $startTime), $rQty, &$reservArr, &$barcodesBooked, $usableBarcodes);
+			$bookingsF = $options['purchaseTypeClasses'][$nr]->getBookedDaysArray(date('Y-m-d', $startTime), $options['quantity'], &$reservArr, &$barcodesBooked, $options['usableBarcodes']);
 			if($bookingsF === false){
 				$isDisabled = true;
 				$disabledBy = '"'. ReservationUtilities::getProductName($pID_stringElem) . '"';
@@ -214,7 +252,7 @@ class ReservationUtilities {
 			for($i=0;$i<count($bookings);$i++){
 				$popArr[] =  '"' .ReservationUtilities::getProductName($pID_stringElem) .'"';
 			}
-			$timeBookingsF = $purchaseTypeClasses[$nr]->getBookedTimeDaysArray(date('Y-m-d', $startTime), $rQty, $minTime, $reservArr, $barcodesBooked);
+			$timeBookingsF = $options['purchaseTypeClasses'][$nr]->getBookedTimeDaysArray(date('Y-m-d', $startTime), $options['quantity'], $minTime, $reservArr, $barcodesBooked);
 
 			$bookings = array_merge($bookings, $bookingsF);
 			$timeBookings = array_merge($timeBookings, $timeBookingsF);
@@ -224,7 +262,7 @@ class ReservationUtilities {
 		$maxShippingDays = -1;
 		$shippingTable = '';
 		if ($purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false) {
-			if($showShipping){
+			if($options['showShipping']){
 				$shippingTable = $purchaseTypeClass->buildShippingTable();
 			}
 			$maxShippingDays = $purchaseTypeClass->getMaxShippingDays(date('Y-m-d', $startTime));
@@ -408,11 +446,11 @@ class ReservationUtilities {
 
 	var startArray = [<?php echo implode(',', $timeBooked);?>];
 	var bookedTimesArr = [<?php echo implode(',', $timeBookedDate);?>];
-
+    var isCatalog = <?php echo ($App->getEnv() == 'catalog')?'true':'false';?>;
 	var selected = '';
 	var selectedDate;
-	var days_before = 0;
-	var days_after = 0;
+	var days_before = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['before'] : 0);?>;
+	var days_after = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['after'] : 0);?>;
 	var isStart = false;
 	//var autoChanged = false;
 	var isHour = false;
@@ -497,35 +535,372 @@ class ReservationUtilities {
 			});
 		}
 
+		$.extend($.datepick, {
+			getDateTableColumn: function (date){
+				var $TableColumn = $('a.dp' + date.getTime()).parent();
+				return $TableColumn;
+			},
+			onHover : function (date, selectable) {
+				if (selectable){
+					var $curTd = $.datepick.getDateTableColumn(date);
+					var shippingDaysBefore = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
+					var shippingDaysAfter = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
+					var prevTD = $curTd;
+					var nextTD = $curTd;
+
+					allowSelectionBefore = true;
+					allowSelectionAfter = true;
+
+					if (isStart === false){
+						var sEnd = shippingDaysBefore;
+						while(sEnd > 0){
+							if (prevTD.prev().size() <= 0){
+								if (prevTD.find('a').html() == '1' || prevTD.html() == '1'){
+									prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+								}
+								else {
+									prevTD = prevTD.parent().prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+								}
+							}
+							else {
+								prevTD = prevTD.prev();
+							}
+
+							if (prevTD.hasClass('ui-datepicker-other-month')){
+								prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+							}
+
+							$('a', prevTD).addClass('ui-datepicker-shipping-day-hover');
+							if (prevTD.hasClass('ui-state-disabled') && !prevTD.hasClass('ui-datepicker-shipable')){
+								allowSelectionBefore = false;
+							}
+							if (prevTD.hasClass('ui-state-disabled')){
+								sEnd++;
+							}
+							sEnd = sEnd - 1;
+						}
+					}
+					else {
+						var sEnd2 = shippingDaysAfter;
+						while(sEnd2 > 0){
+							if (nextTD.next().size() <= 0){
+								nextTD = nextTD.parent().next().find('td').first();
+							}
+							else {
+								nextTD = nextTD.next();
+							}
+
+							if (nextTD.hasClass('ui-datepicker-other-month')){
+								nextTD = nextTD.closest('.ui-datepicker-group').next().find('td').filter(':not(.ui-datepicker-other-month)').first();
+							}
+
+							$('a', nextTD).addClass('ui-datepicker-shipping-day-hover');
+
+							if (nextTD.hasClass('ui-state-disabled') && !nextTD.hasClass('ui-datepicker-shipable')){
+								allowSelectionAfter = false;
+							}
+
+							if (nextTD.hasClass('ui-state-disabled')){
+								sEnd2++;
+							}
+							sEnd2 = sEnd2 - 1;
+						}
+					}
+				}else{
+					$('.ui-datepicker-shipping-day-hover').removeClass('ui-datepicker-shipping-day-hover');
+				}
+			},
+			allowDateSelection: function (target, el){
+				var inst = $.data(target, this.dataName),
+					$curTd = $(el).parentsUntil('tr').last(),
+					date = $.datepick.retrieveDate(target, el),
+					shippingLabel,
+					myclass = $curTd.attr('class'),
+					sDay = 0,
+					words,
+					sDaysArr;
+
+				minRentalPeriod = minRentalPeriod1;
+				minRentalPeriodMessage = minRentalPeriodMessage1;
+				if ($selfID.find('input[name=rental_shipping]:checked').attr('min_rental')){
+					minRentalPeriod = $selfID.find('input[name=rental_shipping]:checked').attr('min_rental');
+					minRentalPeriodMessage = $('#' + minRentalPeriod).html();
+				}
+
+				if (myclass){
+					words = myclass.split(' ');
+					sDay = 1000;
+					for(var j = 0; j < words.length; j++){
+						if (words[j].indexOf('dayto') >= 0){
+							sDaysArr = words[j].split('-');
+							sDay = parseInt(sDaysArr[1]);
+							break;
+						}
+					}
+
+					if (!isStart){
+						if (sDay - shippingDaysBefore <= 0){
+							allowSelectionBefore = false;
+						}
+					}
+					else {
+						if (sDay != 1000){
+							if (shippingDaysAfter > sDay){
+								allowSelectionAfter = false;
+							}
+						}
+					}
+				}
+
+				if (inst.pickingRange){
+					allowSelection = true;
+					for(var k = 0; k < bookedDates.length; k++){
+						bDateArr = bookedDates[k].split('-');
+						bDate = new Date(parseInt(bDateArr[0]), parseInt(bDateArr[1]) - 1, parseInt(bDateArr[2]));
+						if (selectedDate.getTime() <= bDate.getTime() && date.getTime() >= bDate.getTime()){
+							allowSelection = false;
+						}
+					}
+					allowSelectionMin = true;
+					if ((date.getTime() - selectedDate.getTime() + 24 * 60 * 60 * 1000) < ((minRentalPeriod))){
+						allowSelectionMin = false;
+					}
+					allowSelectionMax = true;
+					if (((date.getTime() - selectedDate.getTime() + 24 * 60 * 60 * 1000) > (maxRentalPeriod)) && maxRentalPeriod != -1){
+						allowSelectionMax = false;
+					}
+				}
+
+				//end check here
+				var error = false;
+				var errMsg = '';
+				if (allowSelectionMin == false){
+					error = true;
+					errMsg = minRentalPeriodMessage;
+				}else if (allowSelectionMax == false){
+					error = true;
+					errMsg = maxRentalPeriodMessage;
+				}else if (allowSelection == false){
+					error = true;
+					errMsg = '<?php echo sysLanguage::get('PPR_ERR_RESERVATION_BETWEEN'); ?>';
+				}else if (allowSelectionBefore == false){
+					error = true;
+					errMsg = '<?php echo sysLanguage::get('PPR_ERR_SHIP_METHOD'); ?> ' +
+						$selfID.find('input[name=rental_shipping]:checked').parent().parent().find('td').first().html() + ', ' +
+						'<?php echo sysLanguage::get('PPR_ERR_NEED_TO_ALLOW'); ?> ' +
+						$selfID.find('input[name=rental_shipping]:checked').attr('days_before') +
+						' <?php echo sysLanguage::get('PPR_ERR_SHIP_DAYS_BEFORE_RESERVATION'); ?>';
+				}else if (allowSelectionAfter == false){
+					error = true;
+					errMsg = '<?php echo sysLanguage::get('PPR_ERR_SHIP_METHOD'); ?> ' +
+						$selfID.find('input[name=rental_shipping]:checked').parent().parent().find('td').first().html() + ', ' +
+						'<?php echo sysLanguage::get('PPR_ERR_NEED_TO_ALLOW'); ?> ' +
+						$selfID.find('input[name=rental_shipping]:checked').attr('days_after') +
+						' <?php echo sysLanguage::get('PPR_ERR_SHIP_DAYS_AFTER_RESERVATION'); ?>';
+				}
+
+				if (error === true){
+					alert(errMsg);
+					return false;
+				}
+				return true;
+			},
+			onClick : function (picker, inst) {
+				var target = this;
+				var renderer = inst.get('renderer');
+				picker.find(renderer.daySelector + ' a').unbind('click').click(function () {
+					if ($.datepick.allowDateSelection(target, this) === false){
+						return false;
+					}
+
+					$.datepick.selectDate(target, this);
+
+					var $curTd = $(this).parentsUntil('tr').last();
+					var date = $.datepick.retrieveDate(target, this);
+
+					var shippingDaysBefore = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
+					var shippingDaysAfter = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
+
+					selected = (selected == '' || selected == 'end' ? 'start' : 'end');
+					if (inst.pickingRange){
+						days_before = shippingDaysBefore;
+						selectedDate = date;
+						<?php if ($options['showDateSelectStatus'] === true){ ?>
+							//inst.set('defaultStatus', '<?php echo sysLanguage::get('PPR_SELECT_END_DATE'); ?>');
+						<?php } ?>
+						$selfID.parent().find('.inCart').hide();
+
+						days_before = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
+
+						var prevTD = $curTd;
+
+						var sEnd = days_before;
+						while(sEnd > 0){
+							if (prevTD.prev().size() <= 0){
+								if (prevTD.find('a').html() == '1' || prevTD.html() == '1'){
+									prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+								}
+								else {
+									prevTD = prevTD.parent().prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+								}
+							}
+							else {
+								prevTD = prevTD.prev();
+							}
+
+							if (prevTD.hasClass('ui-datepicker-other-month')){
+								prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
+							}
+
+							$('a', prevTD).addClass('ui-datepicker-shipping-day-hover');
+
+							if (prevTD.hasClass('ui-state-disabled')){
+								sEnd++;
+								days_before++;
+							}
+							sEnd = sEnd - 1;
+						}
+					} else {
+						days_after = shippingDaysAfter;
+						var nextTD = $curTd;
+						var sEnd2 = shippingDaysAfter;
+						while(sEnd2 > 0){
+							if (nextTD.next().size() <= 0){
+								nextTD = nextTD.parent().next().find('td').first();
+							}
+							else {
+								nextTD = nextTD.next();
+							}
+
+							if (nextTD.hasClass('ui-datepicker-other-month')){
+								nextTD = nextTD.closest('.ui-datepicker-group').next().find('td').filter(':not(.ui-datepicker-other-month)').first();
+							}
+
+							$('a', nextTD).addClass('ui-datepicker-shipping-day-hover');
+
+							if (nextTD.hasClass('ui-state-disabled') && !nextTD.hasClass('ui-datepicker-shipable')){
+								allowSelectionAfter = false;
+							}
+
+							if (nextTD.hasClass('ui-state-disabled')){
+								sEnd2++;
+								days_after++;
+							}
+							sEnd2 = sEnd2 - 1;
+						}
+						<?php if ($options['showDateSelectStatus'] === true){ ?>
+							//inst.set('defaultStatus', "<?php echo sysLanguage::get('PPR_DATES_SELECTED');?>. <?php echo sysLanguage::get('PPR_CLICK_RESTART_PROCESS'); ?>");
+							<?php } ?>
+						$selfID.find('.days_before').val(days_before);
+						$selfID.find('.days_after').val(days_after);
+						var $this = $selfID.find('.datePicker');
+						var $sDate = $.datepick.parseDate('<?php echo getJsDateFormat();?>', $selfID.find('.start_date').val());
+						var $eDate = $.datepick.parseDate('<?php echo getJsDateFormat();?>', $selfID.find('.end_date').val());
+						//alert($sDate + '   '+$eDate +' '+$('#start_date').val()+'  '+$('#end_date').val());
+						if ($sDate.getTime() != $eDate.getTime()){
+							showAjaxLoader($this, 'xlarge');
+							$.ajax({
+								cache : false,
+								dataType : 'json',
+								type : 'post',
+								url : <?php echo $checkRes;?>,
+								data : $selfID.parent().find('.reservationTable *, .ui-widget-footer-box *, .pprButttons *').serialize(),
+								success : function (data) {
+									if (data.success == true){
+										var qty = ($('.rental_qty').size() > 0 ? $('.rental_qty').val() : 1)
+										$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
+										$selfID.parent().find('.priceQuote').trigger('EventAfterPriceQuote');
+										if (isCatalog && $selfID.parent().find('.inCart').size() > 0){
+											$selfID.parent().find('.inCart').show();
+											$selfID.parent().find('.inCart').button();
+										}
+
+									} else if (data.success == 'not_supported'){
+										$selfID.parent().find('.priceQuote').html(data.price);
+									}
+									else {
+										alert('<?php echo sysLanguage::get('PPR_NOTICE_RESERVATION_NOT_AVAILABLE'); ?>.');
+									}
+									removeAjaxLoader($this);
+								}
+							});
+						}
+					}
+					<?php
+					if ($allowHourly && sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'){
+						?>
+						$selfID.find('.calendarTime').show();
+						$selfID.find('.calendarTime').fullCalendar('gotoDate', date);
+						$sDate = new Date($selfID.find('.start_date').val());
+						$eDate = new Date($selfID.find('.end_date').val());
+
+						if ($sDate.getTime() != $eDate.getTime() || !inst.pickingRange){
+							if (selectedStartTimeTd != null){
+								selectedStartTimeTd.data('element').remove();
+							}
+							if (selectedEndTimeTd != null){
+								selectedEndTimeTd.data('element').remove();
+							}
+						}
+						if ($sDate.getTime() != $eDate.getTime()){
+							$selfID.find('.calendarTime').hide();
+						}
+						<?php
+					}
+					?>
+				});
+			}
+		});
+
+		var isFirstClick = true;
 		$selfID.find('.datePicker').datepick({
-			useThemeRoller: true,
-			minDate: '-1',
+			renderer: $.datepick.themeRollerRenderer,
+			minDate: '+1',
 			dateFormat: '<?php echo getJsDateFormat();?>',
 			rangeSelect: <?php echo ((sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True') ? 'false' : 'true');?>,
-			rangeSeparator: ',',
+			//rangeSeparator: ',',
+			//multiSelect: 2,
+			//multiSeparator: ',',
 			changeMonth: false,
 			firstDay:0,
 			changeYear: false,
-			numberOfMonths: <?php echo sysConfig::get('EXTENSION_PAY_PER_RENTALS_NUMBER_OF_MONTHS_CALENDARS');?>,
-			prevText: '<span class="ui-icon ui-icon-circle-triangle-w"></span>',
+			monthsToShow: <?php echo $options['calanderMonths'];?>,
+			prevText: '<span class="ui-icon ui-icon-circle-triangle-w" style="float:left;"></span>',
 			prevStatus: '<?php echo sysLanguage::get('PPR_PREV_MONTH'); ?>',
-			nextText: '<span class="ui-icon ui-icon-circle-triangle-e"></span>',
+			nextText: '<span class="ui-icon ui-icon-circle-triangle-e" style="float:right;"></span>',
 			nextStatus: '<?php echo sysLanguage::get('PPR_NEXT_MONTH'); ?>',
 			clearText: '<?php echo sysLanguage::get('PPR_RESET'); ?>',
 			clearStatus: '<?php echo sysLanguage::get('PPR_RESET_SELECTED'); ?>',
-			initStatus: '<?php echo sysLanguage::get('PPR_SELECT_START_DATE'); ?>',
-			showStatus: true,
-			beforeShowDay: function (dateObj) {
+			//defaultStatus: '<?php echo sysLanguage::get('PPR_SELECT_START_DATE'); ?>',
+			todayText: '',
+			showStatus: <?php echo ($options['showDateSelectStatus'] === true ? 'true' : 'false'); ?>,
+			onDate: function (dateObj) {
 				dateObj.setHours(0, 0, 0, 0);
-				var dateFormatted = $.datepick.formatDate('yy-m-d', dateObj);
+				var dateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dateObj);
 				if ($.inArray(dayShortNames[dateObj.getDay()], disabledDays) > -1) {
-					return [false, 'ui-datepicker-disabled ui-datepicker-shipable', 'Disabled By Admin'];
+					return {
+						selectable: false,
+						dateClass: 'ui-datepicker-disabled ui-datepicker-shipable',
+						title: 'Disabled By Admin'
+					};
 				} else if ($.inArray(dateFormatted, bookedDates) > -1 || isDisabled == true) {
-					return [false, 'ui-datepicker-reserved', 'Reserved for '+ ((isDisabled == false)?popArr[$.inArray(dateFormatted, bookedDates)]:disabledBy)];
+					return {
+						selectable: false,
+						dateClass: 'ui-datepicker-reserved',
+						title: 'Reserved for '+ ((isDisabled == false)?popArr[$.inArray(dateFormatted, bookedDates)]:disabledBy)
+					};
 				} else if ($.inArray(dateFormatted, disabledDatesPadding) > -1) {
-					return [false, 'ui-datepicker-disabled', 'Disabled by Admin'];
+					return {
+						selectable: false,
+						dateClass: 'ui-datepicker-disabled',
+						title: 'Disabled By Admin'
+					};
 				} else if ($.inArray(dateFormatted, shippingDaysPadding) > -1) {
-					return [true, 'hasd dayto-' + shippingDaysArray[$.inArray(dateFormatted, shippingDaysPadding)], 'Available'];
+					return {
+						selectable: true,
+						dateClass: 'hasd dayto-' + shippingDaysArray[$.inArray(dateFormatted, shippingDaysPadding)],
+						title: 'Available'
+					};
 				} else {
 					if (disabledDates.length > 0) {
 						for (var i = 0; i < disabledDates.length; i++) {
@@ -546,368 +921,49 @@ class ReservationUtilities {
 							dateTo.setHours(0, 0, 0, 0);
 
 							if (dateObj >= dateFrom && dateObj <= dateTo) {
-								return [false, 'ui-datepicker-disabled', '<?php echo sysLanguage::get('PPR_DISABLED_BY_ADMIN'); ?>'];
+								return {
+									selectable: false,
+									dateClass: 'ui-datepicker-disabled',
+									title: '<?php echo sysLanguage::get('PPR_DISABLED_BY_ADMIN'); ?>'
+								};
 							}
 						}
 					}
 				}
-				return [true, '', '<?php echo sysLanguage::get('PPR_AVAILABLE'); ?>'];
+				return {
+					selectable: true,
+					dateClass: '',
+					title: '<?php echo sysLanguage::get('PPR_AVAILABLE'); ?>'
+				};
 			},
-			onHover: function (value, date, inst, curTd) {
-				if (date == null) {
-					$('.ui-datepicker-shipping-day-hover').removeClass('ui-datepicker-shipping-day-hover');
-					$(curTd).removeClass('ui-datepicker-start_date');
-				} else {
-					$(curTd).addClass('ui-datepicker-start_date');
-					var shippingDaysBefore = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
-					var shippingDaysAfter = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
-					var prevTD = $(curTd);
-					var nextTD = $(curTd);
+			onShow: $.datepick.multipleEvents(
+				$.datepick.onClick,
+				$.datepick.hoverCallback($.datepick.onHover)
+				<?php echo ($options['showDateSelectStatus'] === true ? ', $.datepick.showStatus' : '');?>
+			),
+			onSelect: function (dates) {
+				var forceStartDate = <?php echo (sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True' ? 'true' : 'false');?>;
+				var startDateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dates[0]);
+				var endDateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dates[1]);
+				$selfID.find('.days_before').val(days_before);
+				$selfID.find('.days_after').val(days_after);
 
-					allowSelectionBefore = true;
-					allowSelectionAfter = true;
-
-					if (!isStart) {
-						//for (var i = 0; i < shippingDaysBefore; i++) {
-
-						var sEnd = shippingDaysBefore;
-						while(sEnd > 0){
-							if (prevTD.prev().size() <= 0) {
-								if (prevTD.find('a').html() == '1' || prevTD.html() == '1') {
-									prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-								} else {
-									prevTD = prevTD.parent().prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-								}
-							} else {
-								prevTD = prevTD.prev();
-							}
-
-							if (prevTD.hasClass('ui-datepicker-other-month')) {
-								prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-							}
-
-							$('a', prevTD).addClass('ui-datepicker-shipping-day-hover');
-							if (prevTD.hasClass('ui-state-disabled') && !prevTD.hasClass('ui-datepicker-shipable')) {
-								allowSelectionBefore = false;
-							}
-							if (prevTD.hasClass('ui-state-disabled')){
-								sEnd ++;
-							}
-							sEnd = sEnd - 1;
-						}
-					} else {
-						var sEnd2 = shippingDaysAfter;
-						while(sEnd2 > 0){
-							if (nextTD.next().size() <= 0) {
-								nextTD = nextTD.parent().next().find('td').first();
-							} else {
-								nextTD = nextTD.next();
-							}
-
-							if (nextTD.hasClass('ui-datepicker-other-month')) {
-								nextTD = nextTD.closest('.ui-datepicker-group').next().find('td').filter(':not(.ui-datepicker-other-month)').first();
-							}
-
-							$('a', nextTD).addClass('ui-datepicker-shipping-day-hover');
-
-							if (nextTD.hasClass('ui-state-disabled') && !nextTD.hasClass('ui-datepicker-shipable')) {
-								allowSelectionAfter = false;
-							}
-
-							if (nextTD.hasClass('ui-state-disabled')){
-								sEnd2 ++;
-							}
-							sEnd2 = sEnd2 - 1;
-						}
+				if (isFirstClick === true){
+					isFirstClick = false;
+					if (forceStartDate === false){
+						$selfID.find('.start_date').val(startDateFormatted).trigger('change');
 					}
-
-				}
-			},
-			onDayClick: function (date, inst, td) {
-				var shippingLabel;
-				var myclass = '';
-				var sDay = 0;
-				var words;
-				var sDaysArr;
-				var shippingDaysBefore = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
-				var shippingDaysAfter = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
-				if($selfID.find('input[name=rental_shipping]:checked').attr('min_rental')){
-					minRentalPeriod = $selfID.find('input[name=rental_shipping]:checked').attr('min_rental');
-					minRentalPeriodMessage = $('#'+minRentalPeriod).html();
 				}else{
-					minRentalPeriod = minRentalPeriod1;
-					minRentalPeriodMessage = minRentalPeriodMessage1;
+					isFirstClick = true;
+					$selfID.find('.end_date').val(endDateFormatted).trigger('change');
+					$selfID.find('.datePicker').datepick('option', 'maxDate', null);
 				}
-
-				myclass = $(td).attr('class');
-				if (myclass) {
-					words = myclass.split(' ');
-					sDay = 1000;
-					for (var j = 0; j < words.length; j++) {
-						if (words[j].indexOf('dayto') >= 0) {
-							sDaysArr = words[j].split('-');
-							sDay = parseInt(sDaysArr[1]);
-							break;
-						}
-					}
-
-					if (!isStart) {
-						if (sDay - shippingDaysBefore <= 0) {
-							allowSelectionBefore = false;
-						}
-					} else {
-						if (sDay != 1000)
-							if (shippingDaysAfter > sDay) {
-								allowSelectionAfter = false;
-							}
-					}
-				}
-				if (selected == 'start') {
-					allowSelection = true;
-					for (var k = 0; k < bookedDates.length; k++) {
-						bDateArr = bookedDates[k].split('-');
-						bDate = new Date(parseInt(bDateArr[0]), parseInt(bDateArr[1]) - 1, parseInt(bDateArr[2]));
-						if (selectedDate.getTime() <= bDate.getTime() && date.getTime() >= bDate.getTime()) {
-							allowSelection = false;
-						}
-					}
-					allowSelectionMin = true;
-					if ((date.getTime() - selectedDate.getTime()) < ((minRentalPeriod))) {
-						allowSelectionMin = false;
-					}
-					allowSelectionMax = true;
-					if (((date.getTime() - selectedDate.getTime()) > (maxRentalPeriod)) && maxRentalPeriod != -1) {
-						allowSelectionMax = false;
-					}
-				}
-
-				//end check here
-				if (allowSelectionMin == false) {
-					alert(minRentalPeriodMessage);
-					return false;
-				}
-				if (allowSelectionMax == false) {
-					alert(maxRentalPeriodMessage);
-					return false;
-				}
-				if (allowSelection == false) {
-					alert('<?php echo sysLanguage::get('PPR_ERR_RESERVATION_BETWEEN'); ?>');
-					return false;
-				}
-				if (allowSelectionBefore == false) {
-					var shippingDaysBefore = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
-					shippingLabel = $selfID.find('input[name=rental_shipping]:checked').parent().parent().find('td').first().html();
-					alert('<?php echo sysLanguage::get('PPR_ERR_SHIP_METHOD'); ?> ' + shippingLabel + ', <?php echo sysLanguage::get('PPR_ERR_NEED_TO_ALLOW'); ?> ' + shippingDaysBefore + ' <?php echo sysLanguage::get('PPR_ERR_SHIP_DAYS_BEFORE_RESERVATION'); ?>');
-					return false;
-				}
-				if (allowSelectionAfter == false) {
-					var shippingDaysAfter = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
-					shippingLabel = $selfID.find('input[name=rental_shipping]:checked').parent().parent().find('td').first().html();
-					alert('<?php echo sysLanguage::get('PPR_ERR_SHIP_METHOD'); ?> ' + shippingLabel + ', <?php echo sysLanguage::get('PPR_ERR_NEED_TO_ALLOW'); ?> ' + shippingDaysBefore + ' <?php echo sysLanguage::get('PPR_ERR_SHIP_DAYS_AFTER_RESERVATION'); ?>');
-					return false;
-				}
-
-				selected = (selected == '' || selected == 'end' ? 'start' : 'end');
-
-				if (selected == 'start') {
-					selectedDate = date;
-					$selfID.find('.datePicker').datepick('option', 'initStatus', '<?php echo sysLanguage::get('PPR_SELECT_END_DATE'); ?>');
-					$selfID.parent().find('.inCart').hide();
-
-					days_before = $selfID.find('input[name=rental_shipping]:checked').attr('days_before');
-
-					var prevTD = $(td);
-
-
-						var sEnd = shippingDaysBefore;
-						while(sEnd > 0){
-							if (prevTD.prev().size() <= 0) {
-								if (prevTD.find('a').html() == '1' || prevTD.html() == '1') {
-									prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-								} else {
-									prevTD = prevTD.parent().prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-								}
-							} else {
-								prevTD = prevTD.prev();
-							}
-
-							if (prevTD.hasClass('ui-datepicker-other-month')) {
-								prevTD = prevTD.closest('.ui-datepicker-group').prev().find('td').filter(':not(.ui-datepicker-other-month)').last();
-							}
-
-							$('a', prevTD).addClass('ui-datepicker-shipping-day-hover');
-
-							if (prevTD.hasClass('ui-state-disabled')){
-								sEnd ++;
-								days_before ++;
-							}
-							sEnd = sEnd - 1;
-						}
-
-
-				} else if (selected == 'end') {
-
-
-
-					days_after = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
-					var nextTD = $(td);
-					var sEnd2 = $selfID.find('input[name=rental_shipping]:checked').attr('days_after');
-						while(sEnd2 > 0){
-							if (nextTD.next().size() <= 0) {
-								nextTD = nextTD.parent().next().find('td').first();
-							} else {
-								nextTD = nextTD.next();
-							}
-
-							if (nextTD.hasClass('ui-datepicker-other-month')) {
-								nextTD = nextTD.closest('.ui-datepicker-group').next().find('td').filter(':not(.ui-datepicker-other-month)').first();
-							}
-
-							$('a', nextTD).addClass('ui-datepicker-shipping-day-hover');
-
-							if (nextTD.hasClass('ui-state-disabled') && !nextTD.hasClass('ui-datepicker-shipable')) {
-								allowSelectionAfter = false;
-							}
-
-							if (nextTD.hasClass('ui-state-disabled')){
-								sEnd2 ++;
-								days_after ++;
-							}
-							sEnd2 = sEnd2 - 1;
-						}
-					$selfID.find('.datePicker').datepick('option', 'initStatus', '<?php echo sysLanguage::get('PPR_DATES_SELECTED'); ?>.<br /><?php echo sysLanguage::get('PPR_CLICK_RESTART_PROCESS'); ?>');
-					var monthT = date.getMonth() + 1;
-					var daysT = date.getDate();
-					var daysTs = '';
-					var monthTs = '';
-					if (daysT < 10) {
-						daysTs = '0' + daysT;
-					} else {
-						daysTs = daysT + '';
-					}
-					if (monthT < 10) {
-						monthTs = '0' + monthT;
-					} else {
-						monthTs = monthT + '';
-					}
-					$selfID.find('.end_date').val(monthTs + '/' + daysTs + '/' + date.getFullYear()).trigger('change');
-					$selfID.find('.days_before').val(days_before);
-					$selfID.find('.days_after').val(days_after);
-					var $this = $selfID.find('.datePicker');
-					$sDate = new Date($selfID.find('.start_date').val());
-					$eDate = new Date($selfID.find('.end_date').val());
-					//alert($sDate + '   '+$eDate +' '+$('#start_date').val()+'  '+$('#end_date').val());
-					if ($sDate.getTime() != $eDate.getTime()) {
-						showAjaxLoader($this, 'xlarge');
-						$.ajax({
-							cache: false,
-							dataType: 'json',
-							type: 'post',
-							url: <?php echo $checkRes;?>,
-							data: $selfID.parent().find('.reservationTable *, .pprButttons *').serialize(),
-							success: function (data) {
-								if (data.success == true) {
-									$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
-									$selfID.parent().find('.priceQuote').trigger('EventAfterPriceQuote');
-									$selfID.parent().find('.inCart').show();
-									$selfID.parent().find('.inCart').button();
-									$selfID.parent().find('.inCart').css('position','absolute');
-									//$selfID.parent().find('.inCart').css('display','inline-block');
-									$selfID.parent().find('.inCart').css('top',(pos.top-40)+'px');
-									$selfID.parent().find('.inCart').css('left',(pos.left)+'px');*/
-									$selfID.parent().find('.inCart').position({
-										my:        "left bottom",
-										at:        "left top",
-										offset:    "-20, -25",
-										of:        $selfID.find('.refreshCal'), // or $("#otherdiv)
-										collision: "fit"
-									});
-									//$('#checkAvail').hide();
-								} else if (data.success == 'not_supported') {
-									$selfID.parent().find('.priceQuote').html(data.price);
-								} else {
-									alert('<?php echo sysLanguage::get('PPR_NOTICE_RESERVATION_NOT_AVAILABLE'); ?>.');
-								}
-								removeAjaxLoader($this);
-							}
-						});
-					}
-				} else {
-					$selfID.find('.datePicker').datepick('option', 'initStatus', '<?php echo sysLanguage::get('PPR_SELECT_START_DATE'); ?>');
-				}
-			<?php
-   		if ($allowHourly) {
-					?>
-					$selfID.find('.calendarTime').show();
-					$selfID.find('.calendarTime').fullCalendar('gotoDate', date);
-					$sDate = new Date($selfID.find('.start_date').val());
-					$eDate = new Date($selfID.find('.end_date').val());
-
-					if ($sDate.getTime() != $eDate.getTime() || selected == 'end') {
-						if (selectedStartTimeTd != null) {
-							selectedStartTimeTd.data('element').remove();
-						}
-						if (selectedEndTimeTd != null) {
-							selectedEndTimeTd.data('element').remove();
-						}
-					}
-					if ($sDate.getTime() != $eDate.getTime()) {
-						$selfID.find('.calendarTime').hide();
-					}
-					<?php
-
-				}
-				?>
-			},
-			onSelect: function (value, date, inst) {
-				var dates = value.split(',');
-			<?php
-   	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True') {
-					?>
-					if ($selfID.find('.start_date').val() == '' && isStart) {
-						$selfID.find('.start_date').val(dates[0]).trigger('change');
-						$selfID.find('.end_date').val(dates[1]).trigger('change');
-
-						$selfID.find('.days_before').val(days_before);
-						$selfID.find('.days_after').val(days_after);
-
-						isStart = false;
-						if (dates[0] != dates[1]) {
-							$selfID.find('.datePicker').datepick('option', 'maxDate', null);
-						} else {
-							isStart = true;
-						}
-					} else {
-						var todayDate = new Date();
-						$selfID.find('.end_date').val(dates[0]).trigger('change');
-						$selfID.find('.days_before').val(days_before);
-						$selfID.find('.days_after').val(days_after);
-						selected = 'start';
-						selectedDate = todayDate;
-						isStart = true;
-
-					}
-					<?php
-
-				} else {
-					?>
-					var dates = value.split(',');
-					$selfID.find('.start_date').val(dates[0]).trigger('change');
-					$selfID.find('.end_date').val(dates[1]).trigger('change');
-					$selfID.find('.days_before').val(days_before);
-					$selfID.find('.days_after').val(days_after);
-					isStart = false;
-					if (dates[0] != dates[1]) {
-						$selfID.find('.datePicker').datepick('option', 'maxDate', null);
-					} else {
-						isStart = true;
-					}
-					<?php
-				}
-				?>
 			}
 		});
 			<?php
+		if ($options['selectedDate'] != null){
+			echo '$selfID.find(\'.datePicker\').datepick(\'setDate\', [\'' . (is_array($options['selectedDate']) ? implode('\',\'', $options['selectedDate']): $options['selectedDate']) . '\']);' . "\n";
+		}
    	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True') {
 			?>
 			var todayDate = new Date();
@@ -948,6 +1004,7 @@ class ReservationUtilities {
 					if (data.success == true) {
 						removeAjaxLoader($calLoader);
 						$selfID.parent().html(data.calendar);
+						$('.dateSelectedCalendar button').button();
 						$calLoader.trigger('EventAfterLoadedCalendar');
 					}
 				}
@@ -980,19 +1037,10 @@ class ReservationUtilities {
 					success: function (data) {
 						if (data.success == true) {
 							$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
-							$selfID.parent().find('.inCart').show();
-							$selfID.parent().find('.inCart').button();
-							$selfID.parent().find('.inCart').css('position','absolute');
-							//$selfID.parent().find('.inCart').css('display','inline-block');
-							$selfID.parent().find('.inCart').css('top',(pos.top-40)+'px');
-							$selfID.parent().find('.inCart').css('left',(pos.left)+'px');*/
-							$selfID.parent().find('.inCart').position({
-								my:        "left bottom",
-								at:        "left top",
-								offset:    "-20, -25",
-								of:        $selfID.find('.refreshCal'), // or $("#otherdiv)
-								collision: "fit"
-							});
+							if(isCatalog){
+								$selfID.parent().find('.inCart').show();
+								$selfID.parent().find('.inCart').button();
+							}
 						} else if (data.success == 'not_supported') {
 							$selfID.parent().find('.priceQuote').html(data.price);
 						} else {
@@ -1138,19 +1186,10 @@ class ReservationUtilities {
 								if (data.success == true) {
 									removeAjaxLoader($this);
 									$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
-									$selfID.parent().find('.inCart').show();
-									$selfID.parent().find('.inCart').button();
-									$selfID.parent().find('.inCart').css('position','absolute');
-									//$selfID.parent().find('.inCart').css('display','inline-block');
-									$selfID.parent().find('.inCart').css('top',(pos.top-40)+'px');
-									$selfID.parent().find('.inCart').css('left',(pos.left)+'px'); */
-									$selfID.parent().find('.inCart').position({
-										my:        "left bottom",
-										at:        "left top",
-										offset:    "-20, -25",
-										of:        $selfID.find('.refreshCal'), // or $("#otherdiv)
-										collision: "fit"
-									});
+									if(isCatalog){
+										$selfID.parent().find('.inCart').show();
+										$selfID.parent().find('.inCart').button();
+									}
 								} else if (data.success == 'not_supported') {
 									$selfID.parent().find('.priceQuote').html(data.price);
 								} else {
@@ -1163,6 +1202,65 @@ class ReservationUtilities {
 					//reset selected td;
 				}
 
+			}
+		});
+
+		$selfID.find('.end_time').change(function(){
+			if($selfID.find('.start_date').val() != '' && $selfID.find('.end_date').val() != ''){
+				var $this = $selfID.find('.datePicker');
+
+				showAjaxLoader($this, 'xlarge');
+				$.ajax({
+					cache: false,
+					dataType: 'json',
+					type: 'post',
+					url: <?php echo $checkRes;?>,
+					data: $selfID.parent().find('.reservationTable *, .pprButttons *').serialize(),
+					success: function (data) {
+						if (data.success == true) {
+							removeAjaxLoader($this);
+							$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
+							if(isCatalog){
+								$selfID.parent().find('.inCart').show();
+								$selfID.parent().find('.inCart').button();
+							}
+						} else if (data.success == 'not_supported') {
+							$selfID.parent().find('.priceQuote').html(data.price);
+						} else {
+							alert('<?php echo sysLanguage::get('PPR_NOTICE_RESERVATION_NOT_AVAILABLE'); ?>.');
+						}
+
+					}
+				});
+			}
+		});
+		$selfID.find('.start_time').change(function(){
+			if($selfID.find('.start_date').val() != '' && $selfID.find('.end_date').val() != ''){
+				var $this = $selfID.find('.datePicker');
+
+				showAjaxLoader($this, 'xlarge');
+				$.ajax({
+					cache: false,
+					dataType: 'json',
+					type: 'post',
+					url: <?php echo $checkRes;?>,
+					data: $selfID.parent().find('.reservationTable *, .pprButttons *').serialize(),
+					success: function (data) {
+						if (data.success == true) {
+							removeAjaxLoader($this);
+							$selfID.parent().find('.priceQuote').html(data.price + ' ' + data.message);
+							if(isCatalog){
+								$selfID.parent().find('.inCart').show();
+								$selfID.parent().find('.inCart').button();
+							}
+						} else if (data.success == 'not_supported') {
+							$selfID.parent().find('.priceQuote').html(data.price);
+						} else {
+							alert('<?php echo sysLanguage::get('PPR_NOTICE_RESERVATION_NOT_AVAILABLE'); ?>.');
+						}
+
+					}
+				});
 			}
 		});
 
@@ -1210,7 +1308,7 @@ class ReservationUtilities {
    		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'True' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHECK_GOOGLE_ZONES_BEFORE') == 'False') {
 			?>
 			var $calLoader2 = $selfID.find('.datePicker');
-
+			showAjaxLoader($calLoader2, 'noloader');
 			$('#getQuotes').click(function(){
 			 showAjaxLoader($('#getQuotes'), 'xlarge');
 			 $('#shipMethods').hide();
@@ -1229,13 +1327,15 @@ class ReservationUtilities {
 								$('#fullAddress').show();
 								removeAjaxLoader($calLoader2);
 								showAjaxLoader($calLoader2,'noloader');
-								$calLoader2.datepick('option', 'initStatus', '');
+								$calLoader2.datepick('option', 'defaultStatus', '');
 							} else{
 								$('#shipMethods').show();
 								$('#rowquotes').html(data.html);
 								$('#zipAddress').show();
 								$('#fullAddress').hide();
-								$calLoader2.datepick('option', 'initStatus', 'Please select a start date');
+								<?php if ($options['showDateSelectStatus'] === true){ ?>
+								$calLoader2.datepick('option', 'defaultStatus', 'Please select a start date');
+								<?php } ?>
 								removeAjaxLoader($calLoader2);
 							}
 						}
@@ -1259,72 +1359,26 @@ class ReservationUtilities {
 				}
 			})
 		});
-		$(window).load(function () {
-			showAjaxLoader($calLoader2, 'noloader');
-		});
-
 		$('#countryDrop').val('223').trigger('change');
 		$('#fullAddress').hide();
 		$('#shipMethods').hide();
 		$('#zipAddress').show();
 
+
+
+		/*$selfID.find('.datePicker').bind('EventAfterLoadedCalendar', function(){
+			$('#countryDrop').val('223').trigger('change');
+			$('#fullAddress').hide();
+			$('#shipMethods').hide();
+			$('#zipAddress').show();
+			var $calLoader2 = $selfID.find('.datePicker');
+			showAjaxLoader($calLoader2, 'noloader');
+
+		});*/
 		<?php
 
 		}
 		?>
-
-		$('.start_date, .end_date').change(function(){
-			var dd1 = new Date($(this).closest('form').find('.start_date').val());
-			var dd2 = new Date($(this).closest('form').find('.end_date').val());
-
-			if(dd1 == 'Invalid Date' || dd2 == 'Invalid Date'){
-				$('.dateQuotes').html('');
-			}else{
-				var dd1_day = '';
-				var dd2_day = '';
-				if(dd1.getDate() < 10){
-					dd1_day = '0'+dd1.getDate();
-				}else{
-					dd1_day = dd1.getDate();
-				}
-				if(dd2.getDate() < 10){
-					dd2_day = '0'+dd2.getDate();
-				}else{
-					dd2_day = dd2.getDate();
-				}
-
-				var m_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-
-				$('.dateQuotes').html(m_names[dd1.getMonth()] + ' ' +dd1_day + ', ' +dd1.getFullYear() + '&nbsp;&nbsp;&nbsp;To&nbsp;&nbsp;&nbsp;' + m_names[dd2.getMonth()] + ' ' +dd2_day + ', ' +dd2.getFullYear());
-			}
-		});
-		var $priceText = $('<div class="priceText">Price: </div>');
-
-		$('.priceQuote').wrap('<div class="divPriceWrap"></div>');
-		var $divPrice = $('.divPriceWrap');
-		$divPrice.addClass('ui-widget ui-widget-content ui-corner-all ui-state-error');
-		$priceText.insertBefore($divPrice);
-		$('.divPriceWrap, .priceText').wrapAll('<div class="wrapPrice"></div>');
-
-		var $dateText = $('<div class="dateText">Dates Selected: </div>');
-		var $divDate = $('<div class="dateQuotesWrap"></div>');
-		var $dateQuotes = $('<span class="dateQuotes"></span>');
-		$divDate.addClass('ui-widget ui-widget-content ui-corner-all ui-state-error');
-		$divDate.append($dateQuotes);
-		$divDate.insertBefore($('.wrapPrice'));
-		$dateText.insertBefore($('.dateQuotesWrap'));
-		$('.dateText, .dateQuotesWrap').wrapAll('<div class="wrapDates"></div>');
-		$('.shippingDiv').css('top','-'+($('.periodsInsurance').height()+12)+'px');
-		$('.dateRow').css('top','-'+($('.periodsInsurance').height()+12-30)+'px');
-		$('.pprButttons').css('top','-'+($('.periodsInsurance').height()+12-45)+'px');
-		$('.pprButttons_wrapper').css('height',($('.pprButttons').height() - $('.periodsInsurance').height()+24)+'px');
-		$('.refreshCal').css('top',($('.pprButttons').position().top + 58)+'px');
-		var firstColumnWidth = $('.calendarTable').width()*5/100;
-		var secColumnWidth = $('.calendarTable').width()*80/100;
-
-		$('.pprButttons').css('left',firstColumnWidth+'px');
-		$('.refreshCal').css('left',secColumnWidth+'px');
-		//$('.calendarTable').css('height', ($('.calendarTable').height()-50) + 'px');
 	});
 	</script>
 	<style>
@@ -1363,114 +1417,6 @@ class ReservationUtilities {
 
 		}
 
-		.dateRow{
-			position:relative;
-		}
-
-		.pricingTable{
-			float:right;
-			font-size:13px;
-			width:25%;
-		}
-
-		.minPeriod{
-			width:100%;
-			font-size:13px;
-			margin-bottom:5px;
-		}
-		.maxPeriod{
-			width:100%;
-			font-size:13px;
-			margin-bottom:5px;
-		}
-
-		.pprButttons_wrapper{
-			position:relative;
-			display: inline-block;
-		}
-
-		.pprButttons{
-			position:absolute;
-		}
-
-
-		.insurancePrice{
-			width:100%;
-			font-size:13px;
-			margin-bottom:10px
-		}
-
-		.quantityDiv div{
-			width:25%;
-			font-size:13px;
-		}
-		.shippingInfoDiv{
-			float:left;
-			width:25%;
-			font-size:11px;
-		}
-		.shippingDiv{
-			width:75%;
-			position:relative;
-			left:-4%;
-			font-size:11px;
-		}
-		.estimatedPricing{
-			display:none;
-		}
-		.divPriceWrap, .dateQuotesWrap{
-			height:25px !important;
-			border:0;
-			width:350px;
-			font-size:11px !important;
-			padding:0 !important;
-			line-height:25px;
-			display:inline-block;
-			margin-top:10px !important;
-		}
-		.datesInputs{
-			display:none;
-		}
-		.refreshCal_wrapper{
-			position:relative;
-		}
-		.refreshCal{
-			position:absolute;
-		}
-		.priceText{
-			display:inline-block;
-			line-height:50px;vertical-align:top;
-			margin-right:10px;
-		}
-		.wrapPrice{
-			width:500px;
-			text-align:center;
-			padding-left:31px;
-		}
-		.dateText{
-			display:inline-block;
-			line-height:50px;vertical-align:top;
-			margin-right:10px;
-		}
-		.wrapDates{
-			text-align:center;
-			width:500px;
-		}
-		.divPriceWrap{
-			height:25px !important;
-			line-height:25px;
-		}
-		.ui-datepicker-current label{
-			display:none;
-		}
-		.ui-datepicker-current{
-			line-height:18px;
-			height:20px;
-		}
-		.datePicker{
-			padding-left:0px;
-		}
-
 		.calendarTime {
 			width: 540px;
 		}
@@ -1489,21 +1435,20 @@ class ReservationUtilities {
 		.ui-datepicker-shipping-day-hover, .ui-datepicker-shipping-day-hover-info {
 			background: #F7C8D3;
 		}
-		.ui-datepicker-start_date_info{
-			background: #3a6036;
-		}
 
 		.datePicker .ui-state-active {
 			background: #CACEE6;
 		}
 	</style>
 	<div id="reserv<?php echo $pID_string[0]; ?>" class="reservationTable">
+		<?php if ($options['showQuantityBox'] === true){ ?>
 		<div class="quantityDiv">
             <div>
-	            <?php echo sysLanguage::get('ENTRY_QUANTITY');?><input type="text" size="3" class="rental_qty" name="rental_qty" value="<?php echo $rQty;?>">
+	            <?php echo sysLanguage::get('ENTRY_QUANTITY');?><input type="text" size="3" class="rental_qty" name="rental_qty" value="<?php echo $options['quantity'];?>">
             </div>
         </div>
 		<?php
+	}
 		if($App->getEnv() == 'catalog'){
 			if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_INSURE_ALL_PRODUCTS_AUTO') == 'True'){
 			?>
@@ -1528,13 +1473,13 @@ class ReservationUtilities {
 				<td style="font-size:.8em"> - Unavailable Days.</td>
 				</tr>
 			    <tr>
-				<td style="width:10px;height:10px;" class="ui-datepicker-start_date_info">&nbsp;</td>
+				<td style="width:10px;height:10px;" class="ui-datepicker-shipping-day-hover-info">&nbsp;</td>
 				<td style="font-size:.8em"> - Selected Days.</td>
 			    </tr>
 
 			<?php if ($purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false){ ?>
 				<tr>
-				<td style="width:10px;height:10px;" class="ui-datepicker-shipping-day-hover-info">&nbsp;</td>
+				<td style="width:10px;height:10px;background: #F7C8D3;">&nbsp;</td>
 				<td style="font-size:.8em"> - Shipping Days.</td>
 		        </tr>
 			<?php } ?>
@@ -1575,8 +1520,13 @@ class ReservationUtilities {
      </div>
 
      <div class="dateSelectedCalendar">
-      <div class="datesInputs"><?php echo sysLanguage::get('ENTRY_RENTAL_DATES_SELECTED');?>
-      <input type="text" name="start_date" class="start_date" value="<?php echo (isset($rInfo) ? $rInfo['reservationInfo']['start_date'] : '');?>" readonly="readonly">
+      <div class="datesInputs">
+		  <?php
+		if ($options['showSelectedInputs'] === true){
+			echo sysLanguage::get('ENTRY_RENTAL_DATES_SELECTED');
+		}
+		  ?>
+      <input type="text" name="start_date" class="start_date" value="<?php echo ($options['selectedDate'] != null ? $options['selectedDate'][0] : '');?>" readonly="readonly" <?php echo ($options['showSelectedInputs'] === false ? 'style="display:none;"': '');?>>
      <?php
 		if(sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_TIMES') == 'True'){
 		      $starttimeVal = (int) sysConfig::get('EXTENSION_PAY_PER_RENTALS_START_TIME');
@@ -1593,7 +1543,11 @@ class ReservationUtilities {
 		      ->addClass('start_time');
 		      $hourEnd = htmlBase::newElement('selectbox')
 			  ->setName('end_time')
-			  ->addClass('end_time');;
+			  ->addClass('end_time');
+			if ($options['showSelectedInputs'] === false){
+				$hourStart->css('display', 'none');
+				$hourEnd->css('display', 'none');
+			}
 
 		      for($i=$starttimeVal;$i<=$endtimeVal;$i++){
 			    if((int)$i < 10){
@@ -1624,17 +1578,20 @@ class ReservationUtilities {
 		      }
 		      echo $hourStart->draw();
 	    }
+		if ($options['showSelectedInputs'] === true){
+			echo sysLanguage::get('PAYPERRENTALS_TO');
+		}
 	 ?>
-	      <?php echo sysLanguage::get('PAYPERRENTALS_TO');?> <input type="text" name="end_date" class="end_date" value="<?php echo (isset($rInfo) ? $rInfo['reservationInfo']['end_date'] : '');?>" readonly="readonly">
+		  <input type="text" name="end_date" class="end_date" value="<?php echo ($options['selectedDate'] != null ? $options['selectedDate'][1] : '');?>" readonly="readonly" <?php echo ($options['showSelectedInputs'] === false ? 'style="display:none;"': '');?>>
      <?php
 	       if(sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_TIMES') == 'True'){
 		      echo $hourEnd->draw();
 	      }
 	      ?>
 
-	  <input type="hidden" name="days_before" class="days_before" value="<?php echo (isset($rInfo['reservationInfo']['days_before']) ? $rInfo['reservationInfo']['days_before'] : '');?>"> <input type="hidden" name="days_after" class="days_after" value="<?php echo (isset($rInfo['reservationInfo']['days_after']) ? $rInfo['reservationInfo']['days_after'] : '');?>">
+	  <input type="hidden" name="days_before" class="days_before" value="<?php echo ($options['shippingDays'] != null ? $options['shippingDays']['before'] : '');?>"> <input type="hidden" name="days_after" class="days_after" value="<?php echo ($options['shippingDays'] != null ? $options['shippingDays']['after'] : '');?>">
       </div>
-	     <div class="refreshCal_wrapper">
+		 <?php if ($options['showResetButton'] === true){ ?>
 	  <?php
         echo htmlBase::newElement('button')
              ->addClass('refreshCal')
@@ -1642,37 +1599,40 @@ class ReservationUtilities {
              ->setText(sysLanguage::get('PPR_CALENDAR_RESET'))
              ->draw();
       ?>
+			 <?php } ?>
+		 <?php
+		 if($options['hasButton'] === true){
+			 echo  htmlBase::newElement('button')
+			 	->setType('submit')
+				 ->addClass('inCart')
+				 ->css(array(
+				 'width' => '150px'
+			 ))
+				 ->setText(sysLanguage::get('TEXT_BUTTON_IN_CART'))
+				 ->draw();
+		 }
+?>
 	     </div>
-     </div>
 	</div>
-		<div class="pprButttons_wrapper">
 	<div class="pprButttons">
 			<?php
-	   $pprButtons = '<span class="estimatedPricing">' . sysLanguage::get('TEXT_ESTIMATED_PRICING') . '</span>' . '<span class="priceQuote"></span>'.'&nbsp;&nbsp;&nbsp;';
+		   $pprButtons = '';
+		   if ($options['showPriceInfo'] === true){
+			   $pprButtons .= '<span class="estimatedPricing">' . sysLanguage::get('TEXT_ESTIMATED_PRICING') . '</span>' . '<span class="priceQuote"></span>'.'&nbsp;&nbsp;&nbsp;';
+		   }
 
 	   foreach($pID_string as $nr => $pElem){
-	        $pprButtons .= '<input type="hidden" name="products_id[]" class="pID" value="' . $pElem . '">';
+	        $pprButtons .= '<input type="hidden" name="reservation_products_id[]" class="pID" value="' . $pElem . '">';
 	   }
 
-	   foreach($usableBarcodes as $bElem){
+	   foreach($options['usableBarcodes'] as $bElem){
 	        $pprButtons .= '<input type="hidden" name="barcode" value="' . $bElem . '">';
 	   }
 
 	   $pprButtons .= $purchaseTypeClass->getHiddenFields();
-	   if($hasButton){
-		   $pprButtons .= htmlBase::newElement('div')
-		   ->addClass('inCart')
-		   ->css(array(
-			   'display'   => 'inline-block',
-			   'width' => '150px'
-		   ))
-		   ->html(sysLanguage::get('TEXT_BUTTON_IN_CART'))
-		   ->draw();
-	   }
 
 		echo $pprButtons;
 			?>
-		</div>
 		</div>
 			<?php
    		$calendar = ob_get_contents();
@@ -1728,7 +1688,6 @@ class ReservationUtilities {
 			EventManager::notify('OrdersProductsReservationListingBeforeExecuteUtilities', &$Qcheck);
 
 			$Qcheck = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-			//print_r($Qcheck);
 
 			foreach($Qcheck as $iReservation){
 					$reservationArr = array();
@@ -2022,11 +1981,11 @@ class ReservationUtilities {
 							$curDateNow = date('Y-m-d H:i:s');
 							//get the minimum amount of minutes for the product
 							$pprTypes = array();
-							foreach($PurchaseType->getRentalTypes() as $iType){
+							foreach(PurchaseType_reservation_utilities::getRentalTypes() as $iType){
 								$pprTypes[$iType['pay_per_rental_types_id']] = $iType['minutes'];
 							}
 
-							foreach ($PurchaseType->getRentalPricing() as $iPrices) {
+							foreach (PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId()) as $iPrices) {
 								$minutesArray[$iPrices['number_of']*$pprTypes[$iPrices['pay_per_rental_types_id']]] = $iPrices['price'];
 							}
 
@@ -2045,10 +2004,6 @@ class ReservationUtilities {
 								->andWhereIn('module_type', array('ot_total','total'))
 								->fetchOne();
 
-								if(!class_exists('currencies')){
-									require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-									$currencies = new currencies();
-								}
 								$QOrderTotal->value = $QOrderTotal->value - $diffPrice['price'];
 								$QOrderTotal->text = '<b>'.$currencies->format($QOrderTotal->value).'</b>';
 
@@ -2088,11 +2043,12 @@ class ReservationUtilities {
 							'email_address' => $oInfo->customers_email_address,
 							'rented_product' => $pInfo->products_name
 						));
-
-						$emailEvent->sendEmail(array(
-							'email' => $oInfo->customers_email_address,
-							'name' => $oInfo->OrdersAddresses['customer']->entry_name
-						));
+					    if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SEND_EMAIL_RETURN') == 'True'){
+							$emailEvent->sendEmail(array(
+								'email' => $oInfo->customers_email_address,
+								'name' => $oInfo->OrdersAddresses['customer']->entry_name
+							));
+						}
 					}
 				}
 			}

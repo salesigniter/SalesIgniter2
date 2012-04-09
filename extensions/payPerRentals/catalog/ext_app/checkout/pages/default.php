@@ -17,7 +17,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 	}
 	
 	public function load(){
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		EventManager::attachEvents(array(
 			'CheckoutSetShippingStatus',
@@ -31,7 +31,15 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 		if (!isset($this->hasReservation)){
 			$this->hasReservation = false;
 			foreach($ShoppingCart->getProducts() as $cartProduct){
-				if ($cartProduct->hasInfo('reservationInfo')){
+				if ($cartProduct->hasInfo('PackagedProducts')){
+					foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
+						if ($PackageCartProduct->hasInfo('reservationInfo')){
+							$this->hasReservation = true;
+							break 2;
+						}
+					}
+				}
+				elseif ($cartProduct->hasInfo('reservationInfo')){
 					$this->hasReservation = true;
 					break;
 				}
@@ -41,7 +49,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 	}
 
 	public function CheckoutAddBlockAfterCart(){
-		global $ShoppingCart, $currencies, $request_type;
+		global $ShoppingCart, $currencies;
 		$htmlCheckboxAll = htmlBase::newElement('checkbox')
 						   ->setName('insure_all_products')
 						   ->setId('insure_all_product');
@@ -55,43 +63,57 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 		$isRemove = false;
 		$insuranceTotal = 0;
 		$rows = array();
-		foreach ($ShoppingCart->getProducts() as $cartProduct){
-			if ($cartProduct->hasInfo('reservationInfo')){
-				$pInfo = $cartProduct->getInfo();
-				$pID = $cartProduct->getIdString();
-
-					$payPerRentals = Doctrine_Query::create()
-									->select('insurance')
-									->from('ProductsPayPerRental')
-									->where('products_id = ?', $pID)
-									->fetchOne();
-
-					if ($payPerRentals->insurance > 0){
-						$insuranceTotal += (float)$payPerRentals->insurance;
-						if (!isset($pInfo['reservationInfo']['insurance']) || $pInfo['reservationInfo']['insurance'] == 0){
-							$insuranceText = '(Insurance: ' . $currencies->format($payPerRentals->insurance) .')';
-						}else{
-							$insuranceText = 'Remove Insurance';
-							$isRemove = true;
-						}
-
-						$htmlCheckbox = htmlBase::newElement('checkbox')
-										->setName('insure_product[]')
-										->addClass('insure_product')
-										->setValue($cartProduct->getIdString());
-
-						if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_INSURE_ALL_PRODUCTS_ON_ORDER') == 'False'){
-							$rows[] = '<tr>
-										<td class="main" valign="top">' . $htmlCheckbox->draw() . '</td>
-										<td class="main" valign="top"><b>' . $cartProduct->getName() . '</b></td>
-										<td class="main" valign="top"><small>'.$insuranceText.'</small></td>
-							</tr>';
-						}else{
-							$isAll = true;
-						}
+		$Reservations = array();
+		foreach($ShoppingCart->getProducts() as $cartProduct){
+			if ($cartProduct->hasInfo('PackagedProducts')){
+				foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
+					if ($PackageCartProduct->hasInfo('reservationInfo')){
+						$Reservations[] = $PackageCartProduct;
 					}
 				}
 			}
+			elseif ($cartProduct->hasInfo('reservationInfo')) {
+				$Reservations[] = $cartProduct;
+			}
+		}
+
+		foreach($Reservations as $cartProduct){
+			$pID = $cartProduct->getIdString();
+			$pInfo = $cartProduct->getInfo();
+
+			$payPerRentals = Doctrine_Query::create()
+				->select('insurance')
+				->from('ProductsPayPerRental')
+				->where('products_id = ?', $pID)
+				->fetchOne();
+
+			if ($payPerRentals->insurance > 0){
+				$insuranceTotal += (float)$payPerRentals->insurance;
+				if (!isset($pInfo['reservationInfo']['insurance']) || $pInfo['reservationInfo']['insurance'] == 0){
+					$insuranceText = '(Insurance: ' . $currencies->format($payPerRentals->insurance) . ')';
+				}
+				else {
+					$insuranceText = 'Remove Insurance';
+					$isRemove = true;
+				}
+
+				$htmlCheckbox = htmlBase::newElement('checkbox')
+					->setName('insure_product[]')
+					->addClass('insure_product')
+					->setValue($cartProduct->getIdString());
+
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_INSURE_ALL_PRODUCTS_ON_ORDER') == 'False'){
+					$rows[] = '<tr>
+										<td class="main" valign="top">' . $htmlCheckbox->draw() . '</td>
+										<td class="main" valign="top"><b>' . $cartProduct->getName() . '</b></td>
+										<td class="main" valign="top"><small>' . $insuranceText . '</small></td>
+							</tr>';
+				}
+				else {
+					$isAll = true;
+				}
+			}
+		}
 
 		if ($isAll){
 			$insuranceText = '<span id="insuranceTextRemove" style="display:'.(($isRemove == true)? '':'none').'">'.sysLanguage::get('TEXT_REMOVE_INSURANCE_ALL').'</span>'. '<span id="insuranceText"style="display:'.(($isRemove == false)? '':'none').'">'.sysLanguage::get('TEXT_INSURE_ALL').'</span>';
@@ -128,7 +150,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 
 	public function CheckoutSetShippingStatus(){
 		global $appExtension, $order, $ShoppingCart, $onePageCheckout;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 		
 		$reservationProducts = 0;
 
@@ -141,7 +163,21 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 		//if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') == 'Before'){
 			$hasShipping = false;
 			foreach($ShoppingCart->getProducts() as $cartProduct){
-				if ($cartProduct->hasInfo('reservationInfo') === false){
+				if ($cartProduct->hasInfo('PackagedProducts')){
+					foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
+						if ($PackageCartProduct->hasInfo('reservationInfo') === false){
+							$onlyReservations = false;
+						}else{
+							$ResInfo = $PackageCartProduct->getInfo('reservationInfo');
+							if (isset($resInfo['shipping'])){
+								if ($hasShipping === false){
+									$hasShipping = true;
+								}
+							}
+						}
+					}
+				}
+				elseif ($cartProduct->hasInfo('reservationInfo') === false){
 					$onlyReservations = false;
 				}else{
 					$resInfo = $cartProduct->getInfo('reservationInfo');
@@ -167,57 +203,82 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 			Session::set('onlyReservations', $onlyReservations);
 		//}
 	}
+
+	private function showShippingData($shippingInfo, $productName, &$tableRows){
+		global $order, $currencies, $ShoppingCart, $messageStack;
+		$Module = OrderShippingModules::getModule($shippingInfo['module'], true);
+		if(isset($shippingInfo['module']) && $shippingInfo['module'] == 'upsreservation'){
+			$quote = $Module->quote($shippingInfo['id']);
+			if (!isset($quote['error'])){
+				$pInfo['reservationInfo']['shipping']['cost'] = (float)$quote['methods'][0]['cost'];
+			}else{
+				$messageStack->addSession('pageStack','Your have changed the shipping address for a reservation product and the new address is not available.','error');
+			}
+			$ShoppingCart->updateProduct($pID, $pInfo);
+		}
+		if($Module->getType() == 'Product' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_SHIPPING') == 'True'){
+			$tableRows[] = array(
+				'columns' => array(
+					array('text' => '<b>' . $productName . '</b>'),
+					array('text' => ' - ' . $shippingInfo['title']),
+					array('text' => '(' . $currencies->format($shippingInfo['cost'], true, $order->info['currency'], $order->info['currency_value']) . ')')
+				)
+			);
+		}
+	}
 	
 	public function CheckoutShippingMethodsBeforeList(&$showStoreMethods){
-		global $order, $currencies, $ShoppingCart, $messageStack;
-		
+		global $ShoppingCart;
+
 		$tableRows = array();
 		$showStoreMethods = false;
 		foreach($ShoppingCart->getProducts() as $cartProduct){
 			$ProductType = $cartProduct->getProductClass()->getProductTypeClass();
-			if (method_exists($ProductType, 'getPurchaseType')){
-				$PurchaseType = $ProductType->getPurchaseType();
-				if ($PurchaseType->getCode() != 'reservation'){
-					$showStoreMethods = true;
-					continue;
-				}
-			}
+			if ($cartProduct->hasInfo('PackagedProducts')){
+				foreach($cartProduct->getData('PackagedProducts') as $PackageCartProduct){
+					if ($PackageCartProduct->hasInfo('purchase_type')){
+						if ($PackageCartProduct->getInfo('purchase_type') != 'reservation'){
+							$showStoreMethods = true;
+							continue;
+						}
 
-			$pInfo = $cartProduct->getInfo();
-			$pID = $cartProduct->getIdString();
-			$reservationInfo = $pInfo['reservationInfo'];
+						if ($PackageCartProduct->hasInfo('reservationInfo')){
+							$reservationInfo = $PackageCartProduct->getInfo('reservationInfo');
 
-			if (isset($reservationInfo['shipping']) && $reservationInfo['shipping'] !== false){
-				$shippingInfo = $reservationInfo['shipping'];
-				$Module = OrderShippingModules::getModule($shippingInfo['module'], true);
-				if(isset($shippingInfo['module']) && $shippingInfo['module'] == 'upsreservation'){
-					$quote = $Module->quote($shippingInfo['id']);
-					if (!isset($quote['error'])){
-						$pInfo['reservationInfo']['shipping']['cost'] = (float)$quote['methods'][0]['cost'];
-					}else{
-						$messageStack->addSession('pageStack','Your have changed the shipping address for a reservation product and the new address is not available.','error');
+							if (isset($reservationInfo['shipping']) && $reservationInfo['shipping'] !== false){
+								$this->showShippingData($reservationInfo['shipping'], $cartProduct->getName() . ' - ' . $PackageCartProduct->getName(), &$tableRows);
+							}else{
+								$showStoreMethods = true;
+							}
+						}
 					}
-					$ShoppingCart->updateProduct($pID, $pInfo);
-				}
-				if($Module->getType() == 'Product' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_SHIPPING') == 'True'){
-					$tableRows[] = array(
-						'columns' => array(
-							array('text' => '<b>' . $cartProduct->getName() . '</b>'),
-							array('text' => ' - ' . $shippingInfo['title']),
-							array('text' => '(' . $currencies->format($shippingInfo['cost'], true, $order->info['currency'], $order->info['currency_value']) . ')')
-						)
-					);
 				}
 			}else{
-				$showStoreMethods = true;
+				if (method_exists($ProductType, 'getPurchaseType')){
+					$PurchaseType = $ProductType->getPurchaseType();
+					if ($PurchaseType->getCode() != 'reservation'){
+						$showStoreMethods = true;
+						continue;
+					}
+				}
+
+				$pInfo = $cartProduct->getInfo();
+				$pID = $cartProduct->getIdString();
+				$reservationInfo = $pInfo['reservationInfo'];
+
+				if (isset($reservationInfo['shipping']) && $reservationInfo['shipping'] !== false){
+					$this->showShippingData($reservationInfo['shipping'], $cartProduct->getName(), &$tableRows);
+				}else{
+					$showStoreMethods = true;
+				}
 			}
 		}
-		
+
 		if (sizeof($tableRows) > 0){
 			$htmlTable = htmlBase::newElement('table')
 			->setCellPadding(2)
 			->setCellSpacing(0);
-			
+
 			foreach($tableRows as $rowInfo){
 				$htmlTable->addBodyRow($rowInfo);
 			}

@@ -20,14 +20,13 @@ class OrderShippingZonereservation extends OrderShippingModuleBase
 		if (isset($_GET['app']) && $_GET['app'] == 'checkout' && (!Session::exists('onlyReservations') || Session::get('onlyReservations') == false)){
 			$this->setEnabled(false);
 		}
-		if(class_exists('ModulesShippingZoneReservationMethods')){
-
+		if ($this->isInstalled()){
 			$Qmethods = Doctrine_Query::create()
 				->from('ModulesShippingZoneReservationMethods m')
 				->leftJoin('m.ModulesShippingZoneReservationMethodsDescription md')
-				->orderBy('sort_order');
-			try{
-			$Qmethods = $Qmethods->execute();
+				->orderBy('sort_order')
+				->execute()
+				->toArray(true);
 			if ($Qmethods){
 				foreach($Qmethods as $mInfo){
 					$this->methods[$mInfo['method_id']] = array(
@@ -53,9 +52,6 @@ class OrderShippingZonereservation extends OrderShippingModuleBase
 						}
 					}
 				}
-			}
-			}catch(Doctrine_Connection_Exception $e){
-
 			}
 		}
 	}

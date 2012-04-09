@@ -20,13 +20,18 @@
 	}
 
 	if ($error == false) {
-		$check_customer_query = tep_db_query("select customers_password from " . TABLE_CUSTOMERS . " where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
-		$check_customer = tep_db_fetch_array($check_customer_query);
+		$Check = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select customers_password from " . TABLE_CUSTOMERS . " where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
 
-		if (tep_validate_password($password_current, $check_customer['customers_password'])) {
-			tep_db_query("update " . TABLE_CUSTOMERS . " set customers_password = '" . tep_encrypt_password($password_new) . "' where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
+		if (tep_validate_password($password_current, $Check[0]['customers_password'])) {
+			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update " . TABLE_CUSTOMERS . " set customers_password = '" . tep_encrypt_password($password_new) . "' where customers_id = '" . (int)$userAccount->getCustomerId() . "'");
 
-			tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_account_last_modified = now() where customers_info_id = '" . (int)$userAccount->getCustomerId() . "'");
+			Doctrine_Manager::getInstance()
+				->getCurrentConnection()
+				->exec("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_account_last_modified = now() where customers_info_id = '" . (int)$userAccount->getCustomerId() . "'");
 
 			$messageStack->addSession('pageStack', sysLanguage::get('SUCCESS_PASSWORD_UPDATED'), 'success');
 

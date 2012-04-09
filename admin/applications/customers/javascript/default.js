@@ -1,7 +1,4 @@
 $(document).ready(function (){
-	$('#limit').change(function(){
-		$('#search').submit();
-	});
 	$('.gridBody > .gridBodyRow').click(function (){
 		if ($(this).hasClass('state-active')) return;
 
@@ -10,25 +7,7 @@ $(document).ready(function (){
 			$('.gridButtonBar').find('.ordersButton').button('disable');
 		}
 	});
-	$('#csvFieldsTable').hide();
-	$('#showFields').click(function(){
-		if ($('#csvFieldsTable').is(':visible')){
-			$('#csvFieldsTable').hide();
-		}else{
-			$('#csvFieldsTable').show();
-		}
-		return false;
-	});
-	$('#selectAllCustomers').change(function(){
-		$('.selectedCustomer').each(function(){
-			if ($(this).is(':checked')){
-				$(this).attr('checked', false);
-			}else{
-				$(this).attr('checked', true);
-			}
-		});
-	});
-	
+
 	$('.gridButtonBar').find('.ordersButton').click(function (){
 		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
 		js_redirect(js_app_link('app=orders&appPage=default&cID=' + customerId));
@@ -48,6 +27,11 @@ $(document).ready(function (){
 		js_redirect(js_app_link('app=customers&appPage=edit'));
 	});
 
+	$('.gridButtonBar').find('.loginAsCustomerButton').click(function (){
+		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
+		js_redirect(js_app_link('app=customers&appPage=default&action=loginAs&cID=' + customerId));
+	});
+
 	$('.gridButtonBar').find('.deleteButton').click(function (){
 		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
 		
@@ -59,5 +43,28 @@ $(document).ready(function (){
 				js_redirect(js_app_link('app=customers&appPage=default'));
 			}
 		});
+	});
+
+	$('#csvFieldsTable').hide();
+	$('#showFields').click(function(){
+		if ($('#csvFieldsTable').is(':visible')){
+			$('#csvFieldsTable').hide();
+		}else{
+			$('#csvFieldsTable').show();
+		}
+		return false;
+	});
+	$('#selectAllCustomers').change(function(){
+		$('.selectedCustomer').each(function(){
+			if ($(this).is(':checked')){
+				$(this).attr('checked', false);
+			}else{
+				$(this).attr('checked', true);
+			}
+		});
+	});
+
+	$('#saveCvs').click(function (){
+		js_redirect(js_app_link('app=customers&appPage=default&action=exportCustomers&' + $('.selectedCustomer, #csvFieldsTable :checked').serialize()))
 	});
 });

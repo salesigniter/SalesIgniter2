@@ -18,7 +18,7 @@ class royaltiesSystem_admin_products_new_product extends Extension_royaltiesSyst
 	}
 
 	public function load() {
-		if ($this->enabled === false){
+		if ($this->isEnabled() === false){
 			return;
 		}
 
@@ -208,7 +208,7 @@ class royaltiesSystem_admin_products_new_product extends Extension_royaltiesSyst
 	}
 
 	public function NewProductPricingTabBottom($tInfo, Product &$Product, &$inputTable, PurchaseTypeBase &$PurchaseType) {
-		if ($PurchaseType->getConfigData('ROYALTIES_SYSTEM_ENABLED') == 'True'){
+		if ($PurchaseType->hasData('ROYALTIES_SYSTEM_ENABLED') && $PurchaseType->getConfigData('ROYALTIES_SYSTEM_ENABLED') == 'True'){
 			if (in_array($PurchaseType->getCode(), $this->exemptedPurchaseTypes())){
 				return false;
 			}

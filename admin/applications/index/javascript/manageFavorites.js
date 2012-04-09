@@ -81,6 +81,24 @@ $(document).ready(function () {
 		return false;
 	});
 
+	$('.loadSetButton').click(function () {
+		var getVars = getLinkParams([
+			'rType=ajax',
+			'action=loadSet',
+			'mID=' + $('.gridBodyRow.state-active').attr('data-admin_id')
+		]);
+
+		confirmDialog({
+			confirmUrl: js_app_link(getVars),
+			title: 'Confirm Load as My set',
+			content: 'Are you sure you want to load as your set. The set will be overwritten with your current ones?',
+			errorMessage: 'This set could not be loaded.',
+			success: function () {
+				js_redirect(js_app_link('app=' + thisApp + '&appPage=' + thisAppPage));
+			}
+		});
+	});
+
 	$('.deleteButton').click(function () {
 		var getVars = getLinkParams([
 			'rType=ajax',
