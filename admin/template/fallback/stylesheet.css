@@ -25,10 +25,10 @@ td span { vertical-align: middle; }
 	position: relative;
 	right: 0;
 	top: 0;
-	width: 32px;
+	width: 24px;
 	margin: 0;
 	padding: 0;
-	height: 32px;
+	height: 24px;
 	float: right;
 	vertical-align: middle;
 }
@@ -37,7 +37,7 @@ td span { vertical-align: middle; }
 .ui-dialog .ui-dialog-buttonpane { padding-right: 3em; }
 
 .ui-icon { vertical-align: middle; }
-.ui-button-text-icon-primary { line-height: 32px;padding: 0.3em 1em 0.3em 1em; }
+.ui-button-text-icon-primary { line-height: 2em;padding: 0.3em 1em 0.3em 1em; }
 .ui-button-icon-primary { margin-right: .5em; }
 .ui-button-icon-only .ui-icon, .ui-button-text-icon-primary .ui-icon, .ui-button-text-icon-secondary .ui-icon, .ui-button-text-icons .ui-icon, .ui-button-icons-only .ui-icon {
 	position: relative;
@@ -53,59 +53,59 @@ td span { vertical-align: middle; }
 	display: inline-block;
 	vertical-align: middle;
 }
-.ui-icon { width:32px;height:32px;display: inline-block; }
+.ui-icon { width:24px;height:24px;display: inline-block; }
 .ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
 
-.ui-icon-favorites-add { background-position: -204px -4px; }
-.ui-icon-trash { background-position: -284px -4px; }
-.ui-icon-arrowthick-1-s { background-position: -324px -4px; }
-.ui-icon-folder-collapsed { background-position: -364px -4px; }
+.ui-icon-favorites-add { background-position: -142px -2px; }
+.ui-icon-trash { background-position: -198px -2px; }
+.ui-icon-arrowthick-1-s { background-position: -226px -2px; }
+.ui-icon-folder-collapsed { background-position: -254px -2px; }
 
-.ui-icon-circle-triangle-e { background-position: -4px -44px; }
-.ui-icon-window-close, .ui-dialog-titlebar-close .ui-icon-closethick { background-position: -164px -44px; }
-.ui-icon-home { background-position: -204px -44px; }
-.ui-icon-back, .ui-icon-circle-triangle-w { background-position: -284px -44px; }
-.ui-icon-arrowthick-1-n { background-position: -324px -44px; }
-.ui-icon-seek-end { background-position: -364px -44px; }
+.ui-icon-circle-triangle-e { background-position: -2px -30px; }
+.ui-icon-window-close, .ui-dialog-titlebar-close .ui-icon-closethick { background-position: -114px -30px; }
+.ui-icon-home { background-position: -142px -30px; }
+.ui-icon-back, .ui-icon-circle-triangle-w { background-position: -198px -30px; }
+.ui-icon-arrowthick-1-n { background-position: -226px -30px; }
+.ui-icon-seek-end { background-position: -254px -30px; }
 
-.ui-icon-info { background-position: -4px -84px; }
-.ui-icon-search { background-position: -124px -84px; }
-.ui-icon-seek-next { background-position: -164px -84px; }
-.ui-icon-circle-plus { background-position: -204px -84px; }
-.ui-icon-circle-minus { background-position: -244px -84px; }
-.ui-icon-seek-first { background-position: -364px -84px; }
+.ui-icon-info { background-position: -2px -58px; }
+.ui-icon-search { background-position: -86px -58px; }
+.ui-icon-seek-next { background-position: -114px -58px; }
+.ui-icon-circle-plus { background-position: -142px -58px; }
+.ui-icon-circle-minus { background-position: -170px -58px; }
+.ui-icon-seek-first { background-position: -254px -58px; }
 
-.ui-icon-copy {	background-position: -4px -124px; }
-.ui-icon-import, .ui-icon-arrowreturnthick-1-n { background-position: -44px -124px; }
-.ui-icon-seek-prev { background-position: -124px -124px; }
-.ui-icon-sort-asc, .ui-icon-sort-none { background-position: -164px -124px; }
-.ui-icon-sort-desc { background-position: -204px -124px; }
-.ui-icon-css-document, .editElement { background-position: -244px -124px; }
-.ui-icon-comment { background-position: -284px -124px; }
-.ui-icon-check, .ui-icon-circle-check { background-position: -324px -124px; }
-.ui-icon-logoff { background-position: -364px -124px; }
+.ui-icon-copy {	background-position: -2px -86px; }
+.ui-icon-import, .ui-icon-arrowreturnthick-1-n { background-position: -30px -86px; }
+.ui-icon-seek-prev { background-position: -86px -86px; }
+.ui-icon-sort-asc, .ui-icon-sort-none { background-position: -114px -86px; }
+.ui-icon-sort-desc { background-position: -142px -86px; }
+.ui-icon-css-document, .editElement { background-position: -170px -86px; }
+.ui-icon-comment { background-position: -198px -86px; }
+.ui-icon-check, .ui-icon-circle-check { background-position: -226px -86px; }
+.ui-icon-logoff { background-position: -254px -86px; }
 
-.ui-icon-disk { background-position: -4px -164px; }
-.ui-icon-triangle-1-s { background-position: -44px -164px }
-.ui-icon-plusthick { background-position: -124px -164px; }
-.ui-icon-circle-close { background-position: -244px -164px; }
-.ui-icon-cancel { background-position: -164px -164px; }
-.ui-icon-wrench { background-position: -204px -164px; }
-.ui-icon-closethick { background-position: -244px -164px; }
-.ui-icon-triangle-1-e { background-position: -324px -164px; }
+.ui-icon-disk { background-position: -2px -114px; }
+.ui-icon-triangle-1-s { background-position: -30px -114px }
+.ui-icon-plusthick { background-position: -86px -114px; }
+.ui-icon-cancel { background-position: -114px -114px; }
+.ui-icon-wrench { background-position: -142px -114px; }
+.ui-icon-closethick { background-position: -170px -114px; }
+.ui-icon-circle-close { background-position: -198px -114px; }
+.ui-icon-triangle-1-e { background-position: -226px -114px; }
 
-.ui-icon-document { background-position: -4px -204px; }
-.ui-icon-arrowreturnthick-1-s { background-position: -44px -204px;}
-.ui-icon-link { background-position: -84px -204px; }
-.ui-icon-arrowreturnthick-1-w { background-position: -124px -204px; }
-.ui-icon-wrap, .wrapElement { background-position: -164px -204px; }
-.ui-icon-unwrap, .removeWrapper { background-position: -164px -204px; }
-.ui-icon-transferthick-e-w { background-position: -204px -204px; }
-.ui-icon-alert { background-position: -244px -204px; }
-.ui-icon-myaccount { background-position: -284px -204px; }
-.ui-dialog .ui-resizable-se { width:32px;height:32px;background-position: -324px -204px; }
+.ui-icon-document { background-position: -2px -142px; }
+.ui-icon-arrowreturnthick-1-s { background-position: -30px -142px;}
+.ui-icon-link { background-position: -58px -142px; }
+.ui-icon-arrowreturnthick-1-w { background-position: -86px -142px; }
+.ui-icon-wrap, .wrapElement { background-position: -86px -142px; }
+.ui-icon-unwrap, .removeWrapper { background-position: -114px -142px; }
+.ui-icon-transferthick-e-w { background-position: -142px -142px; }
+.ui-icon-alert { background-position: -170px -142px; }
+.ui-icon-myaccount { background-position: -198px -142px; }
+.ui-dialog .ui-resizable-se { width:24px;height:24px;background-position: -226px -142px; }
 
-.ui-icon-arrow-4 { background-position: -284px -244px; }
+.ui-icon-arrow-4 { background-position: -198px -170px; }
 
 .iconBlock .ui-icon { margin: 0 .4em; }
 
@@ -150,7 +150,7 @@ a.linkAreaTitle { font-family: Tahoma, Verdana, Arial, sans-serif; font-size: 12
 .headerMenuHeading { border: 1px solid transparent; display:inline-block; padding:.4em; text-decoration:none; }
 .headerMenuHeadingBlock { float:left; padding:.4em; }
 */
-#headerMenu { line-height:2.5em; font-size: .8em; font-family: Verdana, Arial, sans-serif; }
+#headerMenu { line-height:2em; font-size: 1em; font-family: Verdana, Arial, sans-serif; }
 .headerMenuHeading { border: 1px solid transparent; text-decoration:none;vertical-align:middle;line-height:2.8em;margin:0em .2em;padding:0em .5em;display:block; }
 .headerMenuHeadingBlock { float:left;line-height:3em; }
 
@@ -161,7 +161,7 @@ a.linkAreaTitle { font-family: Tahoma, Verdana, Arial, sans-serif; font-size: 12
 .ui-navigation-menu ol { background-color:transparent;list-style:none;padding:0;margin:0;border:none;line-height:inherit;z-index: 100; }
 .ui-navigation-menu li { position:relative;display:block;border:none;background:none;line-height:inherit;text-align:left; }
 .ui-navigation-menu li a { width:100%;background-color:transparent;display:inline-block;text-decoration:none;white-space:nowrap; }
-.ui-navigation-menu li a span { background-color:transparent;display:inline-block;vertical-align:middle; }
+.ui-navigation-menu li a span { background-color:transparent;display:inline-block;vertical-align:top; }
 .ui-navigation-menu li a .menu_text { padding-left:1em; padding-right:3em; }
 .ui-navigation-menu li ol { display:none;position:absolute; }
 .ui-navigation-menu li.root { display:inline-block;text-align:center;border-top:none;border-bottom:none;border-left-color:#ffffff;border-right-color:#a3cfee; }
@@ -401,21 +401,21 @@ input.error, select.error, textarea.error { background: red; }
 .ui-filemanager-icon-breadcrumb.ui-state-active,
 .ui-widget-content .ui-filemanager-icon-breadcrumb.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
 
-.ui-filemanager-icon-action-edit, .ui-filemanager-icon-action-edit.ui-state-hover, .ui-filemanager-icon-action-edit.ui-state-active   { background-position: -364px   -204px; }
-.ui-filemanager-icon-action-delete, .ui-filemanager-icon-action-delete.ui-state-hover, .ui-filemanager-icon-action-delete.ui-state-active  { background-position: -284px   -4px; }
-.ui-filemanager-icon-action-upload, .ui-filemanager-icon-action-upload.ui-state-hover, .ui-filemanager-icon-action-upload.ui-state-active  { background-position: -4px   -244px; }
-.ui-filemanager-icon-action-saveas, .ui-filemanager-icon-action-saveas.ui-state-hover, .ui-filemanager-icon-action-saveas.ui-state-active  { background-position: -4px   -164px; }
-.ui-filemanager-icon-action-newdir, .ui-filemanager-icon-action-newdir.ui-state-hover, .ui-filemanager-icon-action-newdir.ui-state-active  { background-position: -44px   -44px; }
-.ui-filemanager-icon-action-preview, .ui-filemanager-icon-action-preview.ui-state-hover, .ui-filemanager-icon-action-preview.ui-state-active  { background-position: -244px   -244px; }
-.ui-filemanager-icon-action-refresh, .ui-filemanager-icon-action-refresh.ui-state-hover, .ui-filemanager-icon-action-refresh.ui-state-active  { background-position: -324px   -84px; }
-.ui-filemanager-icon-view-columns, .ui-filemanager-icon-view-columns.ui-state-hover, .ui-filemanager-icon-view-columns.ui-state-active { background-position: -204px -244px; }
-.ui-filemanager-icon-view-detail, .ui-filemanager-icon-view-detail.ui-state-hover, .ui-filemanager-icon-view-detail.ui-state-active { background-position: -124px -244px; }
-.ui-filemanager-icon-view-icons, .ui-filemanager-icon-view-icons.ui-state-hover, .ui-filemanager-icon-view-icons.ui-state-active  { background-position: -84px -244px; }
-.ui-filemanager-icon-view-list, .ui-filemanager-icon-view-list.ui-state-hover, .ui-filemanager-icon-view-list.ui-state-active   { background-position: -44px -244px; }
-.ui-filemanager-icon-view-tile, .ui-filemanager-icon-view-tile.ui-state-hover, .ui-filemanager-icon-view-tile.ui-state-active   { background-position: -164px -244px; }
-.ui-filemanager-icon-view-choose, .ui-filemanager-icon-view-choose.ui-state-hover, .ui-filemanager-icon-view-choose.ui-state-active   { background-position: -324px -244px; }
-.ui-filemanager-icon-breadcrumb-prev, .ui-filemanager-icon-breadcrumb-prev.ui-state-hover, .ui-filemanager-icon-breadcrumb-prev.ui-state-active { background-position: -284px -44px; }
-.ui-filemanager-icon-breadcrumb-next, .ui-filemanager-icon-breadcrumb-next.ui-state-hover, .ui-filemanager-icon-breadcrumb-next.ui-state-active { background-position: -4px -44px; }
+.ui-filemanager-icon-action-edit, .ui-filemanager-icon-action-edit.ui-state-hover, .ui-filemanager-icon-action-edit.ui-state-active   { background-position: -142px   -114px; }
+.ui-filemanager-icon-action-delete, .ui-filemanager-icon-action-delete.ui-state-hover, .ui-filemanager-icon-action-delete.ui-state-active  { background-position: -198px   -2px; }
+.ui-filemanager-icon-action-upload, .ui-filemanager-icon-action-upload.ui-state-hover, .ui-filemanager-icon-action-upload.ui-state-active  { background-position: -2px   -170px; }
+.ui-filemanager-icon-action-saveas, .ui-filemanager-icon-action-saveas.ui-state-hover, .ui-filemanager-icon-action-saveas.ui-state-active  { background-position: -2px   -114px; }
+.ui-filemanager-icon-action-newdir, .ui-filemanager-icon-action-newdir.ui-state-hover, .ui-filemanager-icon-action-newdir.ui-state-active  { background-position: -30px   -30px; }
+.ui-filemanager-icon-action-preview, .ui-filemanager-icon-action-preview.ui-state-hover, .ui-filemanager-icon-action-preview.ui-state-active  { background-position: -170px   -170px; }
+.ui-filemanager-icon-action-refresh, .ui-filemanager-icon-action-refresh.ui-state-hover, .ui-filemanager-icon-action-refresh.ui-state-active  { background-position: -226px   -58px; }
+.ui-filemanager-icon-view-columns, .ui-filemanager-icon-view-columns.ui-state-hover, .ui-filemanager-icon-view-columns.ui-state-active { background-position: -142px -170px; }
+.ui-filemanager-icon-view-detail, .ui-filemanager-icon-view-detail.ui-state-hover, .ui-filemanager-icon-view-detail.ui-state-active { background-position: -30px -170px; }
+.ui-filemanager-icon-view-icons, .ui-filemanager-icon-view-icons.ui-state-hover, .ui-filemanager-icon-view-icons.ui-state-active  { background-position: -58px -170px; }
+.ui-filemanager-icon-view-list, .ui-filemanager-icon-view-list.ui-state-hover, .ui-filemanager-icon-view-list.ui-state-active   { background-position: -30px -170px; }
+.ui-filemanager-icon-view-tile, .ui-filemanager-icon-view-tile.ui-state-hover, .ui-filemanager-icon-view-tile.ui-state-active   { background-position: -114px -170px; }
+.ui-filemanager-icon-view-choose, .ui-filemanager-icon-view-choose.ui-state-hover, .ui-filemanager-icon-view-choose.ui-state-active   { background-position: -226px -170px; }
+.ui-filemanager-icon-breadcrumb-prev, .ui-filemanager-icon-breadcrumb-prev.ui-state-hover, .ui-filemanager-icon-breadcrumb-prev.ui-state-active { background-position: -198px -30px; }
+.ui-filemanager-icon-breadcrumb-next, .ui-filemanager-icon-breadcrumb-next.ui-state-hover, .ui-filemanager-icon-breadcrumb-next.ui-state-active { background-position: -2px -30px; }
 
 .ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next {
 	width: 3.2em;
