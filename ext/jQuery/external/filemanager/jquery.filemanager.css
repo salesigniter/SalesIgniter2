@@ -2,8 +2,8 @@
 .ui-filemanager-icon, .ui-filemanager-icon.ui-state-hover, .ui-filemanager-icon.ui-state-active {
 	display: inline-block;
 	vertical-align:middle;
-	width:32px;
-	height:32px;
+	width:24px;
+	height:24px;
 
 	background-image: url(/ext/jQuery/external/filemanager/images/icons-128.png);
 	background-repeat: no-repeat;
