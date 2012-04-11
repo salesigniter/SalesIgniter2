@@ -1,6 +1,28 @@
 <?php
 	require(sysConfig::getDirFsCatalog() . 'includes/javascript/classes.js');
 ?>
+function getUrlVars() {
+var vars = [], hash;
+var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+
+for(var i = 0; i < hashes.length; i++){
+if (hashes[i] == 'showErrors'){
+hashes[i] = 'showErrors=true';
+}
+if (hashes[i] == 'noCache'){
+hashes[i] = 'noCache=true';
+}
+hash = hashes[i].split('=');
+vars.push(hash[0]);
+vars[hash[0]] = hash[1];
+}
+return vars;
+}
+
+/* Declare Global Variables For All Javascript Access -- BEGIN -- */
+var $_GET = getUrlVars();
+/* Declare Global Variables For All Javascript Access -- END -- */
+
 var CKEDITOR_BASEPATH = '<?php echo sysConfig::getDirWsAdmin() . 'rental_wysiwyg/';?>';
 var allGetParams = '<?php echo substr(tep_get_all_get_params(), 0, -1);?>';
 var SID = '<?php echo SID;?>';

@@ -423,7 +423,7 @@ $(document).ready(function () {
 	 */
 	//$('select[name=payment_method]').trigger('change');
 	//$('.purchaseType').trigger('change');
-	$('select.barcode').combobox();
+	//$('select.barcode').combobox();
 
 	$('.paymentSection .gridBodyRow').click(function (){
 		if ($(this).hasClass('state-active')) return;

@@ -28,8 +28,8 @@ else {
 	include('includes/application_top.php');
 
 	$sources = array();
-	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.core.css';
-	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.theme.css';
+	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.core.css';
+	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.theme.css';
 
 	ob_start();
 
@@ -72,18 +72,18 @@ h4 { font-size: inherit;color: inherit;font-weight: inherit; }
 	/* Overwrites for the core css framework --END-- */
 
 	$sources = array(
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.accordion.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.datepicker.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.dialog.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.progressbar.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.resizable.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.slider.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.tabs.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.tooltip.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.autocomplete.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.button.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.stars.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/ui.menu.css'
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.accordion.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.datepicker.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.dialog.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.progressbar.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.resizable.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.slider.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.tabs.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.tooltip.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.autocomplete.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.button.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.stars.css',
+		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.menu.css'
 	);
 
 	if ($App->getEnv() == 'admin'){

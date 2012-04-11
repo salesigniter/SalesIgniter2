@@ -34,7 +34,6 @@
 
     	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.autocomplete.js');
-		$App->addStylesheetFile('ext/jQuery/themes/smoothness/ui.autocomplete.css');
 	}
 	
 	$orders_statuses = array();

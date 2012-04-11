@@ -33,18 +33,26 @@ if ($noCache === false && $JavascriptCache->loadData() === true){
 else {
 	include('includes/application_top.php');
 
+	$addToFileName = '.min';
+	$jQueryFile = sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery-min.js';
+	$jqueryUiPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/';
+	if ($noMin === true){
+		$addToFileName = '';
+		$jQueryFile = sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery.js';
+		$jqueryUiPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/';
+	}
 	$sources = array(
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery-min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.core.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.widget.min.js',
-		//sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.mouse.min.js',
+		$jQueryFile,
+		$jqueryUiPath . 'jquery.ui.core' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.widget' . $addToFileName . '.js',
+		//$jqueryUiPath . 'jquery.ui.mouse.min.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.mouse.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.position.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.draggable.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.droppable.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.sortable.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.resizable.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.ui.tabs.min.js',
+		$jqueryUiPath . 'jquery.ui.position' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.draggable' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.droppable' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.sortable' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.resizable' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.tabs' . $addToFileName . '.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.button.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.dialog.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.datepicker.js',
@@ -52,21 +60,21 @@ else {
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.stars.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.progressbar.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.newGrid.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.core.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.blind.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.bounce.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.clip.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.core.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.drop.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.explode.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.fade.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.fold.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.highlight.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.pulsate.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.scale.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.shake.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.slide.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/jquery.effects.transfer.min.js'
+		$jqueryUiPath . 'jquery.effects.core' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.blind' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.bounce' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.clip' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.core' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.drop' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.explode' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.fade' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.fold' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.highlight' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.pulsate' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.scale' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.shake' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.slide' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.effects.transfer' . $addToFileName . '.js'
 	);
 
 	if ($env == 'admin'){

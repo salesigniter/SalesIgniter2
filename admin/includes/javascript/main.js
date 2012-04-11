@@ -43,24 +43,6 @@ function getActionLinkParams(addVars, isAjax) {
 	return getVars.join('&');
 }
 
-function getUrlVars() {
-	var vars = [], hash;
-	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-
-	for(var i = 0; i < hashes.length; i++){
-		if (hashes[i] == 'showErrors'){
-			hashes[i] = 'showErrors=true';
-		}
-		if (hashes[i] == 'noCache'){
-			hashes[i] = 'noCache=true';
-		}
-		hash = hashes[i].split('=');
-		vars.push(hash[0]);
-		vars[hash[0]] = hash[1];
-	}
-	return vars;
-}
-
 function print_r(array, return_val) {
 	// Prints out or returns information about the specified variable
 	//
@@ -1013,10 +995,6 @@ function setConfirmUnload(on, callback) {
 		callback.apply();
 	}
 }
-
-/* Declare Global Variables For All Javascript Access -- BEGIN -- */
-var $_GET = getUrlVars();
-/* Declare Global Variables For All Javascript Access -- END -- */
 
 $(document).ready(function () {
 	$('#addToFavorites').click(function () {

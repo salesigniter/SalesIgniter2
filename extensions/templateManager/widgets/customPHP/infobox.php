@@ -16,9 +16,10 @@ class InfoBoxCustomPHP extends InfoBoxAbstract {
 	}
 
 	public function show(){
-			global $appExtension;
+			global $appExtension, $shoppingCart;
 			$boxWidgetProperties = $this->getWidgetProperties();
 			$htmlCode = $boxWidgetProperties->php_text;
+
 			ob_start();
 			eval("?>".$htmlCode);
 			$htmlText = ob_get_contents();

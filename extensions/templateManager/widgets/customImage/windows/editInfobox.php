@@ -205,7 +205,7 @@ $LinkTargets = array(
 	}
 </style>
 <script src="<?php echo sysConfig::getDirWsCatalog();?>ext/jQuery/ui/jquery.ui.selectmenu.js"></script>
-<link rel="stylesheet" href="<?php echo sysConfig::getDirWsCatalog();?>ext/jQuery/themes/smoothness/ui.selectmenu.css" type="text/css" media="screen,projection" />
+<link rel="stylesheet" href="<?php echo sysConfig::getDirWsCatalog();?>ext/jQuery/themes/smoothness/jquery.ui.selectmenu.css" type="text/css" media="screen,projection" />
 <script type="text/javascript">
 var appJson = <?php echo json_encode($AppArray);?>;
 var catJson = <?php echo json_encode($CatArr);?>;

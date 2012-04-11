@@ -260,8 +260,14 @@ class Application {
 	public function getActionFiles($action){
 		global $appExtension;
 		$actionFiles = array();
-		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
-			$actionFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/actions/' . $action . '.php';
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
+			$actionFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . 'applications/' . $this->appName . '/actions/' . $action . '.php';
+		}
+		elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')){
+			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
+		}
+		elseif (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')){
+			$actionFiles[] = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
 		}
 		elseif (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')){
 			$actionFiles[] = $this->appDir['absolute'] . 'actions/' . $action . '.php';
