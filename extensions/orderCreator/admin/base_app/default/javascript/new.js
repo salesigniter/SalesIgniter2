@@ -127,7 +127,7 @@ $(document).ready(function () {
 					$('input[name=account_password]').attr('disabled', 'disabled');
 					$('input[name=member_number]').attr('disabled', 'disabled');
 
-					$('.productSection, .totalSection, .paymentSection, .commentSection').show();
+					$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').show();
 
 					if (data.productTable){
 						$('.productTable').replaceWith(data.productTable);
@@ -156,7 +156,7 @@ $(document).ready(function () {
 		$('input[name=telephone]').val('');
 		$('input[name=account_password]').removeAttr('disabled');
 
-		$('.productSection, .totalSection, .paymentSection, .commentSection').hide();
+		$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
 	});
 
 	$('.purchaseType').live('change', function () {
@@ -587,7 +587,7 @@ $(document).ready(function () {
 			data : $('.customerSection *').serialize(),
 			type : 'post',
 			success : function (data) {
-				$('.productSection, .totalSection, .paymentSection, .commentSection').show();
+				$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').show();
 				removeAjaxLoader($('.customerSection'));
 			}
 		});
@@ -627,6 +627,6 @@ $(document).ready(function () {
 	});
 
 	if (!$_GET['error'] && !$_GET['oID']){
-		$('.productSection, .totalSection, .paymentSection, .commentSection').hide();
+		$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
 	}
 });

@@ -258,20 +258,6 @@ class OrderCreator extends Order implements Serializable
 	}
 
 	/**
-	 * @return htmlElement_table
-	 */
-	public function editPaymentHistory() {
-		return $this->PaymentManager->edit();
-	}
-
-	/**
-	 * @return htmlElement_table
-	 */
-	public function editTotals() {
-		return $this->TotalManager->edit();
-	}
-
-	/**
 	 * @return string
 	 */
 	public function editAddresses() {
@@ -284,13 +270,6 @@ class OrderCreator extends Order implements Serializable
 	 */
 	public function editAddress($type) {
 		return $this->AddressManager->editAddress($type);
-	}
-
-	/**
-	 * @return htmlElement_table
-	 */
-	public function editProducts() {
-		return $this->ProductManager->editProducts();
 	}
 
 	/**

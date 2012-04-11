@@ -1,8 +1,9 @@
 $(document).ready(function (){
-	$('.gridBody > .gridBodyRow').click(function (){
-		if ($(this).hasClass('state-active')) return;
-
+	$('.gridContainer').newGrid('option', 'onRowClick', function (e){
 		$('.gridButtonBar').find('button').button('enable');
+		if (e.ctrlKey){
+			$('.gridButtonBar').find('.editButton, .invButton, .copyButton').button('disable');
+		}
 	});
 
 	var productTypes = [];
@@ -57,12 +58,21 @@ $(document).ready(function (){
 	});
 
 	$('.gridButtonBar').find('.deleteButton').click(function (){
-		var productId = $('.gridBodyRow.state-active').attr('data-product_id');
+		var productIds = [];
+		$('.gridBodyRow.state-active').each(function (){
+			productIds.push('products_id[]=' + $(this).data('product_id'));
+		});
+
+		var contentHtml = 'Are you sure you want to delete this product?';
+		if (productIds.length > 1){
+			contentHtml = 'Are you sure you want to delete these products?';
+		}
 
 		confirmDialog({
-			confirmUrl: js_app_link('app=products&appPage=default&action=deleteProductConfirm&products_id=' + productId),
+			confirmUrl: js_app_link('app=products&appPage=default&action=deleteProductConfirm'),
 			title: 'Confirm Delete',
-			content: 'Are you sure you want to delete this product?',
+			content: contentHtml,
+			data: productIds.join('&'),
 			success: function (){
 				js_redirect(js_app_link('app=products&appPage=default'));
 			}

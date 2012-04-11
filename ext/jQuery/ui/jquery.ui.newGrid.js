@@ -45,7 +45,7 @@
 							}
 						}
 						else {
-							if ($(this).hasClass('state-active')){
+							if ($(this).hasClass('state-active') && $(this).parent().find('.state-active').size() == 1){
 								return;
 							}
 
@@ -54,7 +54,7 @@
 						}
 
 						if (self.options.onRowClick){
-							self.options.onRowClick.apply(this);
+							self.options.onRowClick.apply(this, [e]);
 						}
 						showInfoBox($(this).attr('infobox_id'));
 						break;
