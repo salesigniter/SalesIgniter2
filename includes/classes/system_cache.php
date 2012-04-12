@@ -46,11 +46,15 @@ class SystemCacheFile {
 		return false;
 	}
 
-	public function save(){
+	public function save($includeCacheInfo = true){
 		$file = fopen($this->realPath . $this->fileName,'w');
 		if (!$file) throw new Exception('Could not write to cache');
 		// Serializing along with the TTL
-		$data = serialize($this->data);
+		if ($includeCacheInfo === true){
+			$data = serialize($this->data);
+		}else{
+			$data = $this->data['content'];
+		}
 		if (fwrite($file, $data)===false) {
 			throw new Exception('Could not write to cache');
 		}
@@ -137,8 +141,8 @@ class SystemCache {
 		return true;
 	}
 
-	public function store(){
-		$this->CacheClass->save();
+	public function store($includeCacheInfo = true){
+		$this->CacheClass->save($includeCacheInfo);
 	}
 
 	public function output($return = false, $wHeaders = false){
@@ -183,7 +187,9 @@ class SystemCache {
 		if ($this->CacheClass->hasData('addedHeaders')){
 			//echo '<pre>';print_r($this->CacheClass->getData('addedHeaders'));
 			foreach($this->CacheClass->getData('addedHeaders') as $k => $v){
-				header($k . ': ' . $v . ';');
+				if ($k != 'Content-Length'){
+					header($k . ': ' . $v . ';');
+				}
 			}
 		}
 	}

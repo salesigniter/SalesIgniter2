@@ -1,6 +1,5 @@
 <?php
 chdir('../../../../');
-
 if (isset($_GET['env'])){
 	$env = $_GET['env'];
 	$layoutId = (isset($_GET['layout_id']) ? $_GET['layout_id'] : '9999');
@@ -32,6 +31,22 @@ if ($noCache === false && $JavascriptCache->loadData() === true){
 }
 else {
 	include('includes/application_top.php');
+	require(sysConfig::getDirFsCatalog() . 'min/lib/JSMin.php');
+
+	function getSourceFile($fileName, $filePath){
+		$cacheFileName = md5($filePath . $fileName);
+		if (
+			file_exists(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') === false ||
+			(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache'))
+		){
+			$minifiedJs = JSMin::minify(file_get_contents($filePath . $fileName));
+
+			$cachedFile = new SystemCache($cacheFileName, 'cache/preminified/');
+			$cachedFile->setContent($minifiedJs);
+			$cachedFile->store(false);
+		}
+		return sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache';
+	}
 
 	$addToFileName = '';
 	$jQueryPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/';
@@ -43,55 +58,54 @@ else {
 		//$jqueryUiPath .= 'minified/';
 	}
 	$sources = array(
-		$jQueryFile . '.js',
-		$jqueryUiPath . 'jquery.ui.core' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.widget' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.mouse' . $addToFileName . '.js',
-		//sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.mouse.js',
-		$jqueryUiPath . 'jquery.ui.position' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.draggable' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.droppable' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.selectable' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.sortable' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.resizable' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.tabs' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.button' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.dialog' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.datepicker' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.accordion' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.stars' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.progressbar' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.autocomplete' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.menu' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.slider' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.ui.tooltip' . $addToFileName . '.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.newGrid.js',
-		$jqueryUiPath . 'jquery.effects.core' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.blind' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.bounce' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.clip' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.core' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.drop' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.explode' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.fade' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.fold' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.highlight' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.pulsate' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.scale' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.shake' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.slide' . $addToFileName . '.js',
-		$jqueryUiPath . 'jquery.effects.transfer' . $addToFileName . '.js'
+		getSourceFile('jQuery.js', $jQueryPath),
+		getSourceFile('jquery.ui.core.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.widget.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.mouse.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.position.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.draggable.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.droppable.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.selectable.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.sortable.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.resizable.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.tabs.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.button.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.dialog.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.datepicker.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.accordion.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.stars.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.progressbar.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.autocomplete.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.menu.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.slider.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.tooltip.js', $jqueryUiPath),
+		getSourceFile('jquery.ui.newGrid.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.core.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.blind.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.bounce.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.clip.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.core.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.drop.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.explode.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.fade.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.fold.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.highlight.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.pulsate.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.scale.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.shake.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.slide.js', $jqueryUiPath),
+		getSourceFile('jquery.effects.transfer.js', $jqueryUiPath)
 	);
 
 	if ($env == 'admin'){
-		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/filemanager/jquery.filemanager.js';
-		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/external/fileuploader/jquery.fileuploader.js';
-		$sources[] = sysConfig::getDirFsAdmin() . 'includes/javascript/main.js';
-		$sources[] = sysConfig::getDirFsAdmin() . 'includes/general.js';
+		$sources[] = getSourceFile('jquery.filemanager.js', sysConfig::getDirFsCatalog() . 'ext/jQuery/external/filemanager/');
+		$sources[] = getSourceFile('jquery.fileuploader.js', sysConfig::getDirFsCatalog() . 'ext/jQuery/external/fileuploader/');
+		$sources[] = getSourceFile('main.js', sysConfig::getDirFsAdmin() . 'includes/javascript/');
+		$sources[] = getSourceFile('general.js', sysConfig::getDirFsAdmin() . 'includes/');
 	}
 	else {
-		$sources[] = sysConfig::getDirFsCatalog() . 'includes/javascript/functions.js';
-		$sources[] = sysConfig::getDirFsCatalog() . 'includes/javascript/general.js';
+		$sources[] = getSourceFile('functions.js', sysConfig::getDirFsCatalog() . 'includes/javascript/');
+		$sources[] = getSourceFile('general.js', sysConfig::getDirFsCatalog() . 'includes/javascript/');
 	}
 
 	if (isset($_GET['import']) && !empty($_GET['import'])){
@@ -101,22 +115,22 @@ else {
 			}
 
 			if (file_exists($filePath)){
-				$sources[] = $filePath;
+				$sources[] = getSourceFile(basename($filePath), dirname($filePath) . '/');
 			}
 			elseif (file_exists(sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath)) {
-				$sources[] = sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath;
+				$sources[] = getSourceFile(basename($filePath), sysConfig::get('DIR_FS_DOCUMENT_ROOT') . dirname($filePath) . '/');
 			}
 			elseif (file_exists(sysConfig::getDirFsCatalog() . $filePath)) {
-				$sources[] = sysConfig::getDirFsCatalog() . $filePath;
+				$sources[] = getSourceFile(basename($filePath), sysConfig::getDirFsCatalog() . dirname($filePath) . '/');
 			}
 			elseif (file_exists(sysConfig::getDirFsAdmin() . $filePath)) {
-				$sources[] = sysConfig::getDirFsAdmin() . $filePath;
+				$sources[] = getSourceFile(basename($filePath), sysConfig::getDirFsAdmin() . dirname($filePath) . '/');
 			}
 		}
 	}
 
 	if (file_exists(sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/i18n/' . Session::get('languages_code') . '.js')){
-		$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/i18n/' . Session::get('languages_code') . '.js';
+		$sources[] = getSourceFile(Session::get('languages_code') . '.js', sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/i18n/');
 	}
 
 	ob_start();
@@ -135,7 +149,10 @@ else {
 				' */' . "\n";
 		}
 	}
+	$preMinified = ob_get_contents();
+	ob_end_clean();
 
+	ob_start();
 	if ($env == 'catalog'){
 		$TemplateManager = $appExtension->getExtension('templateManager');
 		$TemplateManager->loadWidgets($templateDir);
@@ -343,7 +360,7 @@ else {
 		$Result = Minify::serve('Files', $serveArr);
 	}
 
-	$JavascriptCache->setContent($Result['content']);
+	$JavascriptCache->setContent($preMinified . $Result['content']);
 	$JavascriptCache->setAddedHeaders($Result['headers']);
 	if ($noCache === false && sysConfig::get('TEMPLATE_JAVASCRIPT_CACHE') == 1){
 		$JavascriptCache->store();
