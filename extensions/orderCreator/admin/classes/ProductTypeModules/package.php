@@ -147,6 +147,8 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 		$OrderProduct->updateInfo(array(
 			'PackagedProducts' => $PackageProducts
 		));
+
+		$this->loadReservationPricing($OrderProduct->getInfo('PackagedProducts'));
 	}
 
 	/**

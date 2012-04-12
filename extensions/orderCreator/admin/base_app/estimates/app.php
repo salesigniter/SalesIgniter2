@@ -15,7 +15,6 @@
 
 		$Order = new Order($oID);
 	}
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 
 	include_once(sysConfig::getDirFsCatalog() . 'includes/functions/crypt.php');
 	include_once(sysConfig::getDirFsCatalog() . 'includes/classes/http_client.php');

@@ -23,9 +23,7 @@
 				$Product->setProductType($_GET['productType']);
 			}
 
-			$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 			$App->addJavascriptFile('ext/jQuery/external/datepick/jquery.datepick.js');
-			$App->addJavascriptFile('ext/jQuery/external/autocomplete/jquery.autocomplete.js');
 			$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
 			$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 			$App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');

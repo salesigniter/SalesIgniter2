@@ -291,26 +291,28 @@ $(document).ready(function (){
 		productsArr.push(obj);
 	});
 
-	$('#packageProductName').autocomplete(productsArr, {
-		formatItem: function(row, i, max) {
-			return row.text;
-		},
-		formatMatch: function(row, i, max) {
-			return row.text;
-		},
-		formatResult: function(row) {
-			return row.text;
-		}
-	});
-	$('#packageProductName').result(function (event, data, formatted){
-		$('option', $('#packageProductType')).remove();
-		var productTypes = data.types.split(';');
-		$(productTypes).each(function (){
-			var tInfo = this.split(',');
-			$('#packageProductType').append('<option value="' + tInfo[0] + '">' + tInfo[1] + '</option>');
+	if ($('#packageProductName').size() > 0){
+		$('#packageProductName').autocomplete(productsArr, {
+			formatItem: function(row, i, max) {
+				return row.text;
+			},
+			formatMatch: function(row, i, max) {
+				return row.text;
+			},
+			formatResult: function(row) {
+				return row.text;
+			}
 		});
-		$('#packageProductName').attr('selectedProduct', data.id);
-	});
+		$('#packageProductName').result(function (event, data, formatted){
+			$('option', $('#packageProductType')).remove();
+			var productTypes = data.types.split(';');
+			$(productTypes).each(function (){
+				var tInfo = this.split(',');
+				$('#packageProductType').append('<option value="' + tInfo[0] + '">' + tInfo[1] + '</option>');
+			});
+			$('#packageProductName').attr('selectedProduct', data.id);
+		});
+	}
 
 	$('.addBarcode').live('click', function (){
 		var $thisRow = $(this).parent().parent();

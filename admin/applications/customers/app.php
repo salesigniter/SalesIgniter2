@@ -9,7 +9,6 @@
 	$appContent = $App->getAppContentFile();
 
 	if ($App->getAppPage() == 'edit'){
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 		$userAccount = new rentalStoreUser($cID);
 		$userAccount->loadPlugins();
 	}

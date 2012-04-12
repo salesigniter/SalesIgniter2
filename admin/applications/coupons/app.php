@@ -4,6 +4,4 @@
 	require(sysConfig::getDirFsAdmin() . 'includes/classes/split_page_results.php');
 
 	$appContent = $App->getAppContentFile();
-
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 ?>

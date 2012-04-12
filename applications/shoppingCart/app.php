@@ -1,6 +1,5 @@
 <?php
 $appContent = $App->getAppContentFile();
-$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 
 if (Session::exists('payment_rental') === true){
 	$payment_rental = false;

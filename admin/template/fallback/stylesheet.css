@@ -117,7 +117,7 @@ td span { vertical-align: middle; }
 a:visited, a:active, a:hover, a:link { color: #555555; text-decoration:none; }
 
 a img { border:none; }
-checkbox, input, radio, select, textarea, file { font-size: 1em; }
+input, select, textarea { font-size: 1em; }
 form { display: inline; }
 
 .pageHeading { font-size: 1.5em; color: #42a3e3; font-weight: bold; }
@@ -420,16 +420,16 @@ input.error, select.error, textarea.error { background: red; }
 .ui-filemanager-icon-breadcrumb-next, .ui-filemanager-icon-breadcrumb-next.ui-state-hover, .ui-filemanager-icon-breadcrumb-next.ui-state-active { background-position: -2px -30px; }
 
 .ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next {
-	width: 3.2em;
-	height: 3.2em;
+	width: 24px;
+	height: 24px;
 }
 .ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span {
 	position: relative;
 	left: 0;
 	margin-left: 0;
-	top: 0;
+	top: 2px;
 	margin-top: 0;
 }
 .ui-datepicker .ui-datepicker-title {
-	line-height: 3.2em;
+	line-height: 2em;
 }

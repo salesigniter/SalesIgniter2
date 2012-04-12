@@ -27,9 +27,11 @@ if ($noCache === false && $StylesheetCache->loadData() === true){
 else {
 	include('includes/application_top.php');
 
+	$themeFolder = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/';
+
 	$sources = array();
-	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.core.css';
-	$sources[] = sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.theme.css';
+	$sources[] = $themeFolder . 'jquery.ui.core.css';
+	$sources[] = $themeFolder . 'jquery.ui.theme.css';
 
 	ob_start();
 
@@ -72,18 +74,17 @@ h4 { font-size: inherit;color: inherit;font-weight: inherit; }
 	/* Overwrites for the core css framework --END-- */
 
 	$sources = array(
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.accordion.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.datepicker.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.dialog.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.progressbar.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.resizable.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.slider.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.tabs.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.tooltip.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.autocomplete.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.button.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.stars.css',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/themes/smoothness/jquery.ui.menu.css'
+		$themeFolder . 'jquery.ui.accordion.css',
+		$themeFolder . 'jquery.ui.datepicker.css',
+		$themeFolder . 'jquery.ui.dialog.css',
+		$themeFolder . 'jquery.ui.progressbar.css',
+		$themeFolder . 'jquery.ui.resizable.css',
+		$themeFolder . 'jquery.ui.slider.css',
+		$themeFolder . 'jquery.ui.tabs.css',
+		$themeFolder . 'jquery.ui.tooltip.css',
+		$themeFolder . 'jquery.ui.autocomplete.css',
+		$themeFolder . 'jquery.ui.button.css',
+		$themeFolder . 'jquery.ui.stars.css'
 	);
 
 	if ($App->getEnv() == 'admin'){

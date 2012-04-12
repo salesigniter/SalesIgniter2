@@ -33,32 +33,38 @@ if ($noCache === false && $JavascriptCache->loadData() === true){
 else {
 	include('includes/application_top.php');
 
-	$addToFileName = '.min';
-	$jQueryFile = sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery-min.js';
-	$jqueryUiPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/minified/';
-	if ($noMin === true){
-		$addToFileName = '';
-		$jQueryFile = sysConfig::getDirFsCatalog() . 'ext/jQuery/jQuery.js';
-		$jqueryUiPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/';
+	$addToFileName = '';
+	$jQueryPath = sysConfig::getDirFsCatalog() . 'ext/jQuery/';
+	$jQueryFile = $jQueryPath . 'jQuery';
+	$jqueryUiPath = $jQueryPath . 'ui/';
+	if ($noMin === false){
+		//$addToFileName = '.min';
+		//$jQueryFile .= '-min';
+		//$jqueryUiPath .= 'minified/';
 	}
 	$sources = array(
-		$jQueryFile,
+		$jQueryFile . '.js',
 		$jqueryUiPath . 'jquery.ui.core' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.widget' . $addToFileName . '.js',
-		//$jqueryUiPath . 'jquery.ui.mouse.min.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.mouse.js',
+		$jqueryUiPath . 'jquery.ui.mouse' . $addToFileName . '.js',
+		//sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.mouse.js',
 		$jqueryUiPath . 'jquery.ui.position' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.draggable' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.droppable' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.selectable' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.sortable' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.resizable' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.ui.tabs' . $addToFileName . '.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.button.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.dialog.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.datepicker.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.accordion.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.stars.js',
-		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.progressbar.js',
+		$jqueryUiPath . 'jquery.ui.button' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.dialog' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.datepicker' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.accordion' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.stars' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.progressbar' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.autocomplete' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.menu' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.slider' . $addToFileName . '.js',
+		$jqueryUiPath . 'jquery.ui.tooltip' . $addToFileName . '.js',
 		sysConfig::getDirFsCatalog() . 'ext/jQuery/ui/jquery.ui.newGrid.js',
 		$jqueryUiPath . 'jquery.effects.core' . $addToFileName . '.js',
 		$jqueryUiPath . 'jquery.effects.blind' . $addToFileName . '.js',

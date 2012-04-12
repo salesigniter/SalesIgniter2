@@ -258,8 +258,11 @@ class sysLanguage
 			);
 
 			self::$settings['date_format'] = (string)$langData->date_format;
+			self::$settings['date_format_js'] = (string)$langData->date_format_js;
 			self::$settings['date_format_short'] = (string)$langData->date_format_short;
+			self::$settings['date_format_short_js'] = (string)$langData->date_format_short_js;
 			self::$settings['date_format_long'] = (string)$langData->date_format_long;
+			self::$settings['date_format_long_js'] = (string)$langData->date_format_long_js;
 			self::$settings['date_time_format'] = (string)$langData->date_time_format;
 			self::$settings['default_currency'] = (string)$langData->default_currency;
 			self::$settings['html_params'] = (string)$langData->html_params;
@@ -333,6 +336,24 @@ class sysLanguage
 		}
 		elseif ($type == 'long') {
 			return self::$settings['date_format_long'];
+		}
+		return null;
+	}
+
+	/**
+	 * @static
+	 * @param string $type
+	 * @return string|null
+	 */
+	public static function getJsDateFormat($type = '') {
+		if ($type == ''){
+			return self::$settings['date_format_js'];
+		}
+		elseif ($type == 'short') {
+			return self::$settings['date_format_short_js'];
+		}
+		elseif ($type == 'long') {
+			return self::$settings['date_format_long_js'];
 		}
 		return null;
 	}

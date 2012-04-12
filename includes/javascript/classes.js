@@ -1,10 +1,16 @@
 var jsLanguage = {
 	defines: [],
+	setDateFormat: function (v){
+		this.dateFormat = v;
+	},
 	set: function (k, v){
 		this.defines[k] = v;
 	},
 	get: function (key){
 		return this.defines[key] || '';
+	},
+	getDateFormat: function (type){
+		return this.dateFormat[type];
 	}
 };
 

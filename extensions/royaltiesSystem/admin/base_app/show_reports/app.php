@@ -1,6 +1,5 @@
 <?php
 $appContent = $App->getAppContentFile();
-$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
 
 $RoyaltiesSystemRoyaltiesEarnedOrders = Doctrine_Query::create()
 		->select('orders_id')

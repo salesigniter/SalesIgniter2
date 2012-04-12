@@ -12,18 +12,13 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 .productImageGallery a { border:1px solid transparent;display:inline-block;vertical-align:middle;margin:.2em; }
 </style>
 <?php
-	$productsImage = '<div style="text-align:center;float:left;margin:1em;margin-right:2em;" class="ui-widget ui-widget-content ui-corner-all">' .
-                     '<div style="margin:.5em;text-align:center;">';
-	if(sysConfig::get('SHOW_ENLAGE_IMAGE_TEXT') == 'true') {
-		$productsImage .= '<a id="productsImage" class="fancyBox" href="' . $image . '">' .
-						  '<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' .
-						  sysLanguage::get('TEXT_CLICK_TO_ENLARGE') .
-						  '</a>';
-	} else {
-		$productsImage .= '<img src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />';
-	}
-	$productsImage .= rating_bar($productName,$productID) .
-                  '</div>';
+	$productsImage = '<div style="text-align:center;float:left;margin:1em;margin-right:2em;" class="ui-widget ui-widget-content ui-corner-all">' . 
+		'<div style="margin:.5em;text-align:center;"><a id="productsImage" class="fancyBox" href="<?php echo $image;?>">' . 
+			'<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' . 
+			sysLanguage::get('TEXT_CLICK_TO_ENLARGE') . 
+		'</a>' . 
+		rating_bar($productName,$productID) . 
+		'</div>';
 
 	$AdditionalImages = $Product->getAdditionalImages();
 	if (sizeof($AdditionalImages) > 0){
@@ -48,9 +43,6 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 	}else{
 		$productsImage .= '<a class="fancyBox ui-state-active" style="display:none" index="0" rel="gallery" href="' . $image . '"><img class="additionalImage" imgSrc="' . $image . '&width=250&height=250" src="' . $image . '&width=50&height=50"></a>';
 	}
-
-	EventManager::notify('ProductInfoAfterShowImages', $product, &$productsImage);
-
 	$productsImage .= '</div>';
 	
 	echo $productsImage;
@@ -129,8 +121,9 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 		))
 		->css('width', 'auto')->removeCss('margin-left')->removeCss('margin-right')
 		->setHeader($boxInfo['header'])
-		->setButtonBarLocation('bottom');
-
+		->setButtonBarLocation('bottom')
+		->addContentRow($boxInfo['content']);
+		
 		if ($boxInfo['allowQty'] === true){
 			$qtyInput = htmlBase::newElement('input')
 			->css('margin-right', '1em')
@@ -142,14 +135,9 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 			
 			$boxObj->addButton($qtyInput);
 		}
-		if(isset($boxInfo['button']) && is_object($boxInfo['button'])){
-			$boxObj->addButton($boxInfo['button']);
-		}
-
-		EventManager::notifyWithReturn('ProductInfoTabImageBeforeDrawPurchaseType', &$Product, &$boxObj, &$boxInfo);
-
-		$boxObj->addContentRow($boxInfo['content']);
-
+		
+		$boxObj->addButton($boxInfo['button']);
+		
 		$columns[] = array(
 			'align' => 'center',
 			'valign' => 'top',

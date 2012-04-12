@@ -2,21 +2,21 @@
 	require(sysConfig::getDirFsCatalog() . 'includes/javascript/classes.js');
 ?>
 function getUrlVars() {
-var vars = [], hash;
-var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+	var vars = [], hash;
+	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
 
-for(var i = 0; i < hashes.length; i++){
-if (hashes[i] == 'showErrors'){
-hashes[i] = 'showErrors=true';
-}
-if (hashes[i] == 'noCache'){
-hashes[i] = 'noCache=true';
-}
-hash = hashes[i].split('=');
-vars.push(hash[0]);
-vars[hash[0]] = hash[1];
-}
-return vars;
+	for(var i = 0; i < hashes.length; i++){
+		if (hashes[i] == 'showErrors'){
+			hashes[i] = 'showErrors=true';
+		}
+		if (hashes[i] == 'noCache'){
+			hashes[i] = 'noCache=true';
+		}
+		hash = hashes[i].split('=');
+		vars.push(hash[0]);
+		vars[hash[0]] = hash[1];
+	}
+	return vars;
 }
 
 /* Declare Global Variables For All Javascript Access -- BEGIN -- */
@@ -44,6 +44,10 @@ jsCurrencies.setThousandsPoint('<?php echo $CurrencyInfo['thousands_point'];?>')
 jsCurrencies.setDecimalPlaces(<?php echo $CurrencyInfo['decimal_places'];?>);
 jsCurrencies.setValue(<?php echo $CurrencyInfo['value'];?>);
 
+jsLanguage.setDateFormat({
+	short: '<?php echo sysLanguage::getJsDateFormat('short');?>',
+	long: '<?php echo sysLanguage::getJsDateFormat('long');?>'
+});
 <?php
 if (sysLanguage::hasJavascriptDefines() === true){
 	foreach(sysLanguage::getJavascriptDefines() as $k => $v){

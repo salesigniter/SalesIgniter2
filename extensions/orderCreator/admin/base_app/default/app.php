@@ -31,9 +31,6 @@
 		if ($runInit === true){
 			$Editor->init();
 		}
-
-    	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.autocomplete.js');
 	}
 	
 	$orders_statuses = array();

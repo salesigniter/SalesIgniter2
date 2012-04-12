@@ -24,6 +24,4 @@ if (!class_exists('UpgradeDatabase')){
 }
 
 	$appContent = $App->getAppContentFile();
-
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.progressbar.js');
 ?>

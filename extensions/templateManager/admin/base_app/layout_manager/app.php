@@ -28,7 +28,6 @@ elseif (isset($_GET['lID'])) {
 if ($App->getPageName() == 'editLayout'){
 
 	$App->addJavascriptFile('ext/jQuery/external/stickyBar/jquery.stickyBar.js');
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.slider.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/backgroundBuilder.js');
 

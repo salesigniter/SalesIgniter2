@@ -21,8 +21,6 @@
 	
 	$appContent = $App->getAppContentFile();
 
-	$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.progressbar.js');
-	
 	$App->addJavascriptFile('admin/applications/ses_update/javascript/jsdifflib.js');
 	$App->addJavascriptFile('admin/applications/ses_update/javascript/jsdifflibview.js');
 	$App->addStylesheetFile('admin/applications/ses_update/javascript/jsdifflibview.css');

@@ -161,9 +161,7 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 				$orderedProduct->regenerateId();
 			}
 
-			if ($orderedProduct->getPrice() <= 0){
-				$orderedProduct->OrderCreatorOnAddToContents();
-			}
+			$orderedProduct->OrderCreatorOnAddToContents();
 			$this->Contents[$orderedProduct->getId()] = $orderedProduct;
 			$this->cleanUp();
 		}

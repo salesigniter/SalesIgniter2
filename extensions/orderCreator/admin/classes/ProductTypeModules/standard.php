@@ -210,7 +210,15 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	 * @param OrderCreatorProduct $OrderProduct
 	 * @return bool
 	 */
-	public function OrderCreatorAllowAddToContents(OrderCreatorProduct $OrderProduct) {
+	public function OrderCreatorAllowAddToContents(OrderCreatorProduct &$OrderProduct) {
+		if (isset($_GET['purchase_type']) && !empty($_GET['purchase_type'])){
+			$OrderProduct->updateInfo(array(
+				'purchase_type' => $_GET['purchase_type']
+			));
+
+			$this->setPurchaseType($pInfo['purchase_type']);
+		}
+
 		$return = true;
 		if ($OrderProduct->hasInfo('purchase_type')){
 			$PurchaseType = $this->getPurchaseType($OrderProduct->getInfo('purchase_type'));

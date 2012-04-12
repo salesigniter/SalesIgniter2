@@ -13,31 +13,7 @@ if (sysconfig::get('EXTENSION_PAY_PER_RENTALS_SHORT_PRICE') == 'True'){
 }
 
 if ($OrderProduct->getProductTypeClass()->getCode() == 'package'){
-	$PackageProducts = $OrderProduct->getInfo('PackagedProducts');
-	foreach($PackageProducts as $PackagedProduct){
-		$PackageData = $PackagedProduct->getInfo('PackageData');
-		if ($PackageData->purchase_type == 'reservation'){
-			if (in_array($PackagedProduct->getProductsId(), $_POST['reservation_products_id'])){
-				$PurchaseType = $PackagedProduct->getProductTypeClass()->getPurchaseType();
-				if (isset($PackageData->price) && is_object($PackageData->price)){
-					PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId());
-					$CachedPrice =& PurchaseType_reservation_utilities::$RentalPricingCache[$PurchaseType->getPayPerRentalId()];
-					foreach($CachedPrice as $k => $pInfo){
-						$Price = (array)$PackageData->price;
-						if (isset($Price[$pInfo['pay_per_rental_id']])){
-							$Type = (array)$Price[$pInfo['pay_per_rental_id']];
-							if (isset($Type[$pInfo['pay_per_rental_types_id']])){
-								$NumOf = (array)$Type[$pInfo['pay_per_rental_types_id']];
-								if (isset($NumOf[$pInfo['number_of']])){
-									$CachedPrice[$k]['price'] = $NumOf[$pInfo['number_of']];
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	$OrderProduct->getProductTypeClass()->loadReservationPricing($OrderProduct->getInfo('PackagedProducts'));
 }
 
 foreach($_POST['reservation_products_id'] as $pElem){
