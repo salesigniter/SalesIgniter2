@@ -97,6 +97,16 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	protected $insertAfterHeaderBar = '';
 
 	/**
+	 * @var bool
+	 */
+	protected $useJquerySortable = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $disableRowSelection = false;
+
+	/**
 	 * @var Doctrine_Query
 	 */
 	protected $dataQuery;
@@ -159,8 +169,11 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	 * @return mixed
 	 */
 	public function draw() {
-		if ($this->useSearch === true){
-
+		if ($this->useJquerySortable === true){
+			$this->mainElement->addClass('useSortables');
+		}
+		if ($this->disableRowSelection === true){
+			$this->mainElement->addClass('noRowSelect')->addClass('noRowHover');
 		}
 
 		$this->gridElement->append($this->gridHeaderElement)->append($this->gridBodyElement);
@@ -256,6 +269,10 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 
 		if (isset($settings['click'])){
 			$row->click($settings['click']);
+		}
+
+		if ($this->disableRowSelection === true){
+			$row->addClass('noHover')->addClass('noSelect');
 		}
 		return $row;
 	}
@@ -508,6 +525,23 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 		$this->gridBodyElement->append($tr);
 		$this->bodyRowNum++;
 		//		return $this;
+	}
+
+	/**
+	 * @return htmlWidget_newGrid
+	 */
+	public function disableRowSelect(){
+		$this->disableRowSelection = true;
+		return $this;
+	}
+
+	/**
+	 * @param $val
+	 * @return htmlWidget_newGrid
+	 */
+	public function useDNDSort($val){
+		$this->useJquerySortable = $val;
+		return $this;
 	}
 
 	/**

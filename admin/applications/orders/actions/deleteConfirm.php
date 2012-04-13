@@ -1,8 +1,8 @@
 <?php
-$Order = Doctrine_Core::getTable('Orders')->find((int)$_GET['oID']);
-
-foreach($Order->OrdersProducts as $opInfo){
-	if (isset($_POST['deleteReservationRestock']) && $_POST['deleteReservationRestock'] == '1'){
+$Orders = Doctrine_Core::getTable('Orders');
+foreach($_POST['orders'] as $oID){
+	$Order = $Orders->find($oID);
+	if (isset($_POST['deleteReservationRestock'][$oID]) && $_POST['deleteReservationRestock'][$oID] == '1'){
 		/*
 		 * Commented out because the OrdersProductsReservation model covers the status updates
 		 * The only issue is this flag, is there a reason to not restock reservations that
@@ -25,7 +25,7 @@ foreach($Order->OrdersProducts as $opInfo){
 		*/
 	}
 
-	if (isset($_POST['deleteRestockNoReservation']) && $_POST['deleteRestockNoReservation'] == '1'){
+	if (isset($_POST['deleteRestockNoReservation'][$oID]) && $_POST['deleteRestockNoReservation'][$oID] == '1'){
 		/*
 		 * Commented out because the OrdersProducts model covers the status updates
 		 * The only issue is this flag, is there a reason to not restock reservations that
@@ -58,10 +58,10 @@ foreach($Order->OrdersProducts as $opInfo){
 		}
 		*/
 	}
-}
-$Order->delete();
-$messageStack->addSession('pageStack', 'The order has been deleted.', 'success');
 
+	$Order->delete();
+	$messageStack->addSession('pageStack', 'Order #' . $oID . ' Has Been Deleted.', 'success');
+}
 
 EventManager::attachActionResponse(array(
 	'success' => true

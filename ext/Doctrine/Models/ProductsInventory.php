@@ -15,6 +15,7 @@ class ProductsInventory extends Doctrine_Record
 
 	public function setUp() {
 		parent::setUp();
+		$this->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'inventory_id');
 
 		$this->hasOne('Products', array(
 				'local' => 'products_id',

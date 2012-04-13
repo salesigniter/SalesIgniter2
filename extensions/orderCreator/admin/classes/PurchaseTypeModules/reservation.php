@@ -93,6 +93,10 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 
 		$OrderProduct->updateInfo($ProductInfo);
 		$OrderProduct->setPrice($newPrice);
+
+		if ($this->getAvailableBarcode($OrderProduct, array()) == -1){
+			$OrderProduct->needsConfirmation(true);
+		}
 	}
 
 	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct){
@@ -358,5 +362,13 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 
 		EventManager::notify('ParseReservationInfoEdit', $return, $resInfo);
 		return $return;
+	}
+
+	public function hasEnoughInventory(OrderCreatorProduct &$Product){
+		if ($this->checkAvailableBarcodes($Product) === false){
+			$Product->setConfirmationMessage('This Product Does Not have Enough Inventory For The Selected Dates.');
+			return false;
+		}
+		return true;
 	}
 }

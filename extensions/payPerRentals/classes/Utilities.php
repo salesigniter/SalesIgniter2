@@ -1762,11 +1762,13 @@ class ReservationUtilities {
 			}else{
 				$Qcheck->where('quantity_id = ?', $settings['item_id']);
 			}
-
+			/*if (!is_object($settings['start_date'])){
+				debug_print_backtrace();
+			}*/
 			$Qcheck->andWhere('
 					(
 						(
-							(CAST("' . date('Y-m-d H:i:s', $settings['start_date']) . '" as DATETIME)
+							(CAST("' . $settings['start_date']->format(DATE_TIMESTAMP) . '" as DATETIME)
 								between
 									DATE_SUB(CAST(start_date as DATETIME), INTERVAL shipping_days_before DAY)
 										AND
@@ -1775,7 +1777,7 @@ class ReservationUtilities {
 						AND TRUE)
 								OR
 						(
-							(CAST("' . date('Y-m-d H:i:s', $settings['end_date']) . '" as DATETIME)
+							(CAST("' . $settings['end_date']->format(DATE_TIMESTAMP) . '" as DATETIME)
 								between
 									DATE_SUB(CAST(start_date as DATETIME), INTERVAL shipping_days_before DAY)
 										AND
@@ -1785,9 +1787,9 @@ class ReservationUtilities {
 								OR
 						(
 							(
-							CAST("' . date('Y-m-d H:i:s', $settings['start_date']) . '" as DATETIME) <= DATE_SUB(CAST(start_date as DATETIME), INTERVAL shipping_days_before DAY)
+							CAST("' . $settings['start_date']->format(DATE_TIMESTAMP) . '" as DATETIME) <= DATE_SUB(CAST(start_date as DATETIME), INTERVAL shipping_days_before DAY)
 								AND
-							CAST("' . date('Y-m-d H:i:s', $settings['end_date']) . '" as DATETIME) >= DATE_ADD(CAST(end_date as DATETIME), INTERVAL shipping_days_after DAY)
+							CAST("' . $settings['end_date']->format(DATE_TIMESTAMP) . '" as DATETIME) >= DATE_ADD(CAST(end_date as DATETIME), INTERVAL shipping_days_after DAY)
 							)
 						AND TRUE)
 					AND TRUE)

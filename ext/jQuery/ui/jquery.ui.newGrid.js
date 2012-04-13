@@ -1,39 +1,52 @@
 (function ($) {
 
 	$.widget("ui.newGrid", {
-		GridElement: null,
-		GridButtonElement: null,
-		GridPagerElement: null,
-		options: {
-			onRowClick: null
+		GridElement : null,
+		GridButtonElement : null,
+		GridPagerElement : null,
+		options : {
+			onRowClick : null
 		},
-		_create: function (){
+		_create : function () {
 			this.GridElement = $(this.element).find('.grid');
 			this.GridButtonElement = $(this.element).find('.gridButtonBar');
 			this.GridPagerElement = $(this.element).find('gridPagerBar');
+			this.useSortable = $(this.element).hasClass('useSortables');
 
 			var self = this;
 
 			$('.gridInfoRow').hide();
 		},
-		_init: function (){
+		_init : function () {
 			var self = this;
 
 			$(this.GridElement).find('.gridBodyRow').live('mouseover mouseout click refresh', function (e, isRefresh) {
 				switch(e.type){
 					case 'mouseover':
+						if ($(this).hasClass('noHover')){
+							return false;
+						}
+
 						if (!$(this).hasClass('state-active')){
 							$(this).addClass('state-hover');
 							this.style.cursor = 'pointer';
 						}
 						break;
 					case 'mouseout':
+						if ($(this).hasClass('noHover')){
+							return false;
+						}
+
 						if (!$(this).hasClass('state-active')){
 							$(this).removeClass('state-hover');
 							this.style.cursor = 'default';
 						}
 						break;
 					case 'click':
+						if ($(this).hasClass('noSelect')){
+							return false;
+						}
+
 						$(self.GridButtonElement).find('button').button('enable');
 
 						if (e.ctrlKey && e.type == 'click'){
@@ -130,22 +143,75 @@
 
 				$(this).append(sortArrow);
 			});
+
+			if (this.useSortable === true){
+				$(this.GridElement).find('thead > tr').prepend('<th class="gridHeaderRowColumn" style="width:2em;">*</th>');
+				$(this.GridElement).find('tbody > tr').each(function (k, v){
+					$(this).attr('id', 'gridsort_' + k);
+					$(this).prepend('<td class="gridBodyRowColumn gridSortNumber" style="width:2em;">' + (k+1) + '</td>');
+				});
+
+				$(this.GridElement).find('tbody').bind('rowAdded', function (){
+					var $LastRow = $(this).find('tr').last();
+					$LastRow.attr('id', 'gridsort_' + $LastRow.index()).prepend('<td class="gridBodyRowColumn gridSortNumber" style="width:2em;">' + ($LastRow.index()+1) + '</td>');
+				});
+				
+				$(this.GridElement).sortable({
+					items : 'tr',
+					helper : function (e, item) {
+						var $originals = item.children();
+						var $helper = item.clone();
+						$helper.children().each(function (index) {
+							// Set helper cell sizes to match the original sizes
+							$(this).width($originals.eq(index).width())
+						});
+						return $helper;
+					},
+					update: function (e, ui){
+						$(ui.item).parentsUntil('table').last().find('.gridSortNumber').each(function (k, v){
+							$(this).html(k+1);
+						});
+					},
+					forcePlaceholderSize : true,
+					forceHelperSize : true,
+					containment : $(this.GridElement).find('tbody'),
+					axis : 'y',
+					tolerance : 'pointer'
+				});
+
+				$(this.element).parents('form').last().submit(function (){
+					var value = $(self.GridElement).sortable('serialize');
+					$(this).append('<input type="hidden" name="gridSortable" value="' + value + '">');
+				});
+			}
 		},
-		addBodyRow: function (data){
+		addBodyRow : function (data) {
 			var $Row = $('<tr class="gridBodyRow"></tr>');
 			if (data.rowAttr){
-				$.each(data.rowAttr, function (k, v){
+				$.each(data.rowAttr, function (k, v) {
 					$Row.attr(k, v);
 				});
+			}
+			if ($(this.element).hasClass('noRowSelect')){
+				$Row.addClass('noSelect');
+			}
+			if ($(this.element).hasClass('noRowHover')){
+				$Row.addClass('noHover');
 			}
 			$.each(data.columns, function () {
 				$Row.append('<td class="gridBodyRowColumn">' + this.text + '</td>');
 			});
 
 			$(this.GridElement).find('tbody').append($Row);
+			$(this.GridElement).find('tbody').trigger('rowAdded');
+			return $Row;
 		},
-		getSelectedData: function (dataName){
-			return $(this.GridElement).find('.gridBodyRow.state-active').data(dataName);
+		getSelectedData : function (dataName) {
+			var data = [];
+			$(this.GridElement).find('.gridBodyRow.state-active').each(function () {
+				data.push($(this).data(dataName));
+			});
+			return data.join(',');
 		}
 	});
 })(jQuery);

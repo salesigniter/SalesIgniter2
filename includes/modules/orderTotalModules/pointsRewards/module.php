@@ -14,7 +14,7 @@ class OrderTotalPointsRewards extends OrderTotalModuleBase {
 			//$this->calculate_tax = $this->getConfigData('MODULE_ORDER_TOTAL_COUPON_CALC_TAX');
 			//$this->tax_class = $this->getConfigData('MODULE_ORDER_TOTAL_COUPON_TAX_CLASS');
 			$this->user_prompt = '';
-			$this->header = $this->getConfigData('MODULE_ORDER_TOTAL_POINTSREWARDS_HEADER');
+			$this->header = sysLanguage::get('MODULE_ORDER_TOTAL_POINTSREWARDS_HEADER');
 		}
 	}
 

@@ -33,8 +33,15 @@ else {
 	include('includes/application_top.php');
 	require(sysConfig::getDirFsCatalog() . 'min/lib/JSMin.php');
 
+	$sourceInfo = '';
 	function getSourceFile($fileName, $filePath){
+		global $sourceInfo;
 		$cacheFileName = md5($filePath . $fileName);
+		$sourceInfo .= '/**' . "\n";
+		$sourceInfo .= 'Real Filename: ' . $filePath . $fileName . "\n";
+		$sourceInfo .= 'Cache Filename: ' . sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache' . "\n";
+		$sourceInfo .= filemtime($filePath . $fileName) . ' > ' . filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') . ' = ' . (int)(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache')) . "\n";
+		$sourceInfo .= '*/' . "\n\n";
 		if (
 			file_exists(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') === false ||
 			(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache'))
@@ -360,7 +367,7 @@ else {
 		$Result = Minify::serve('Files', $serveArr);
 	}
 
-	$JavascriptCache->setContent($preMinified . $Result['content']);
+	$JavascriptCache->setContent($sourceInfo . $preMinified . $Result['content']);
 	$JavascriptCache->setAddedHeaders($Result['headers']);
 	if ($noCache === false && sysConfig::get('TEMPLATE_JAVASCRIPT_CACHE') == 1){
 		$JavascriptCache->store();

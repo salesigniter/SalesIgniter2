@@ -26,26 +26,27 @@ $(document).ready(function (){
 			}
 		});
 	});
-	
-	$('.gridBody > .gridBodyRow').click(function (){
-		if ($(this).hasClass('state-active')) return;
 
+	$('.gridContainer').newGrid('option', 'onRowClick', function (e){
 		$('.gridButtonBar').find('button').button('enable');
+		if (e.ctrlKey){
+			$('.gridButtonBar').find('.detailsButton, .invoiceButton, .editButton').button('disable');
+		}
 	});
-	
+
 	$('.gridButtonBar').find('.detailsButton').click(function (){
 		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
 		js_redirect(js_app_link('app=orders&appPage=details&oID=' + orderId));
 	});
 
 	$('.gridButtonBar').find('.cancelButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		$self = $(this);
+		var orders = $('.gridContainer').newGrid('getSelectedData', 'order_id');
+		var $self = $(this);
 		showAjaxLoader($self, 'x-large');
 		$.ajax({
 			cache: false,
 			dataType: 'json',
-			url: js_app_link('app=orders&appPage=default&action=cancelOrder&oID=' + orderId),
+			url: js_app_link('app=orders&appPage=default&action=cancelOrder&oID=' + orders),
 			success: function (data) {
 				removeAjaxLoader($self);
 				js_redirect(js_app_link('app=orders&appPage=default'));
@@ -69,13 +70,13 @@ $(document).ready(function (){
 	});
 	
 	$('.gridButtonBar').find('.deleteButton').live('click', function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		$self = $(this);
+		var orders = $('.gridContainer').newGrid('getSelectedData', 'order_id');
+		var $self = $(this);
 		showAjaxLoader($self, 'x-large');
 		$.ajax({
 			cache: false,
 			dataType: 'json',
-			url: js_app_link('app=orders&appPage=default&action=getDeleteOptions&oID=' + orderId),
+			url: js_app_link('app=orders&appPage=default&action=getDeleteOptions&oID=' + orders),
 			success: function (data) {
 				removeAjaxLoader($self);
 				if(data.success == true){
@@ -89,8 +90,8 @@ $(document).ready(function (){
 									cache: false,
 									dataType: 'json',
 									type:'post',
-									data:'deleteRestockNoReservation='+$('#deleteRestockNoReservation').val()+'&deleteReservationRestock='+$('#deleteReservationRestock').val(),
-									url: js_app_link('app=orders&appPage=default&action=deleteConfirm&oID=' + orderId),
+									data:$(this).find('*').serialize(),
+									url: js_app_link('app=orders&appPage=default&action=deleteConfirm'),
 									success: function (data) {
 										js_redirect(js_app_link('app=orders&appPage=default'));
 									}

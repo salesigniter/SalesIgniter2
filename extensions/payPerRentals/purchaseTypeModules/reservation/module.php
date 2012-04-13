@@ -438,8 +438,8 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 							'item_type' => 'barcode',
 							'item_id' => $invInfo['id']
 						);
-						$bookingInfo['start_date'] = $iTime['start_date'];
-						$bookingInfo['end_date'] = $iTime['end_date'];
+						$bookingInfo['start_date'] = new SesDateTime($iTime['start_date']);
+						$bookingInfo['end_date'] = new SesDateTime($iTime['end_date']);
 
 						if (Session::exists('isppr_inventory_pickup')){
 							$pickupCheck = Session::get('isppr_inventory_pickup');
@@ -452,10 +452,10 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 						}
 
 						if (Session::exists('isppr_shipping_days_before')){
-							$bookingInfo['start_date'] = strtotime('- ' . Session::get('isppr_shipping_days_before') . ' days', $bookingInfo['start_date']);
+							$bookingInfo['start_date'] = $bookingInfo['start_date']->modify('- ' . Session::get('isppr_shipping_days_before') . ' Day');
 						}
 						if (Session::exists('isppr_shipping_days_after')){
-							$bookingInfo['end_date'] = strtotime('+ ' . Session::get('isppr_shipping_days_after') . ' days', $bookingInfo['end_date']);
+							$bookingInfo['end_date'] = $bookingInfo['end_date']->modify('+ ' . Session::get('isppr_shipping_days_after') . ' Day');
 						}
 
 						$numBookings = ReservationUtilities::CheckBooking($bookingInfo);
@@ -3187,6 +3187,25 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 			$CurrentRow->addColumn($iPeriod['price'], 'v_' . $colNameAdd . '_period_price_'.$i);
 			$i++;
 		}
+	}
+
+	public function productImportAppendLog(&$Product, &$productLogArr){
+		$productLogArr = array_merge($productLogArr, array(
+			'Pay Per Rental Price Daily:'         => $Product->ProductsPayPerRental->price_daily,
+			'Pay Per Rental Price Weekly:'        => $Product->ProductsPayPerRental->price_weekly,
+			'Pay Per Rental Price Monthly:'       => $Product->ProductsPayPerRental->price_monthly,
+			'Pay Per Rental Price 6 Month:'       => $Product->ProductsPayPerRental->price_six_month,
+			'Pay Per Rental Price Year:'          => $Product->ProductsPayPerRental->price_year,
+			'Pay Per Rental Price 3 Year:'        => $Product->ProductsPayPerRental->price_three_year,
+			//'Pay Per Rental Auth Method:'         => $Product->products_auth_method,
+			'Pay Per Rental Insurance:'           => $Product->ProductsPayPerRental->insurance,
+			'Pay Per Rental Deposit Amount:'      => $Product->ProductsPayPerRental->deposit_amount,
+			'Pay Per Rental Shipping Methods:'    => $Product->ProductsPayPerRental->shipping,
+			'Pay Per Rental Max Days:'            => $Product->ProductsPayPerRental->max_days,
+			'Pay Per Rental Max Months:'          => $Product->ProductsPayPerRental->max_months,
+			'Pay Per Rental Overbooking Allowed:' => $Product->ProductsPayPerRental->overbooking,
+		));
+
 	}
 }
 

@@ -40,6 +40,10 @@ $HeaderRow->addColumn('v_status');
 
 EventManager::notify('DataExportFullQueryFileLayoutHeader', &$HeaderRow);
 
+foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
+	$HeaderRow->addColumn('v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
+}
+
 $QfileLayout = Doctrine_Query::create()
 	->select(
 	'p.products_id, ' .
@@ -161,6 +165,10 @@ foreach($Result as $pInfo){
 	$CurrentRow->addColumn(($pInfo['v_status'] == '1' ? $active : $inactive), 'v_status');
 
 	EventManager::notify('DataExportBeforeFileLineCommit', $CurrentRow, $pInfo);
+
+	foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
+		$CurrentRow->addColumn(0, 'v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
+	}
 }
 //print_r($ExportFile);
 $ExportFile->output();

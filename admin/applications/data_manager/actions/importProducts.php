@@ -101,6 +101,97 @@ function logSection($divID, $lArr) {
 
 /* New Tabbed Logging - END*/
 
+function generateBarcodes(&$Product, $type, $numOfBarcodes){
+	$Qinventory = Doctrine_Query::create()
+		->select('i.inventory_id')
+		->from('ProductsInventory i')
+		->where('products_id = ?', $Product->products_id)
+		->andWhere('type = ?', $type)
+		->andWhere('track_method = ?', 'barcode')
+		->andWhere('controller = ?', 'normal')
+		->fetchOne();
+	if (!$Qinventory){
+		$Qmax = Doctrine_Query::create()
+			->select('MAX(inventory_id) as next_id')
+			->from('ProductsInventory')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		$ProductsInventory = new ProductsInventory();
+		$ProductsInventory->inventory_id = $Qmax[0]['next_id'] + 1;
+		$ProductsInventory->type = $type;
+		$ProductsInventory->track_method = 'barcode';
+		$ProductsInventory->controller = 'normal';
+
+		$Product->ProductsInventory->add($ProductsInventory);
+	}else{
+		$ProductsInventory = $Product->ProductsInventory[$Qinventory->inventory_id];
+	}
+	$Barcodes = $ProductsInventory->ProductsInventoryBarcodes;
+	$nextIndex = $Barcodes->key() + 1;
+
+	$productName = $Product->ProductsDescription[Session::get('languages_id')]->products_name;
+	$nameFix = strtolower(substr(str_replace(' ', '_', strip_tags($productName)), 0, 4));
+	if (substr($nameFix, -1) == '_'){
+		while(substr($nameFix, -1) == '_'){
+			$nameFix = substr($nameFix, 0, -1);
+		}
+	}
+	$nameFix .= '_' . $Product->products_id;
+	$Qcheck = Doctrine_Query::create()
+		->select('barcode')
+		->from('ProductsInventoryBarcodes')
+		->where('barcode like ?', $nameFix . '_' . $type . '_%')
+		->orderBy('barcode desc')
+		->limit('1')
+		->execute(array(), Doctrine::HYDRATE_ARRAY);
+	if ($Qcheck){
+		$bCode = $Qcheck[0]['barcode'];
+		$start = (int)substr($bCode, strrpos($bCode, '_') + 1) + 1;
+	}
+	else {
+		$start = 1;
+	}
+
+	$total = (int)$numOfBarcodes;
+	$endNumber = $start;
+
+	for($i = 0; $i < $total; $i++){
+		$numberString = $endNumber;
+		if ($numberString < 100){
+			if (strlen($numberString) == 2){
+				$numberString = '0' . $numberString;
+			}
+			elseif (strlen($numberString) == 1) {
+				$numberString = '00' . $numberString;
+			}
+		}
+		$genBarcode = $nameFix . '_' . $type . '_' . $numberString;
+		if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 39'){
+			$genBarcode = strtoupper($genBarcode);
+			$genBarcode = str_replace('_', '-', $genBarcode);
+		}
+		if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25' || sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25 Interleaved'){
+			$genBarcode = strtotime(date('Y-m-d H:i:s')) . $endNumber;
+			if (strlen($genBarcode) % 2 == 1){
+				$genBarcode = '0' . $genBarcode;
+			}
+		}
+		$endNumber++;
+
+		$Barcodes[$nextIndex]->barcode = $genBarcode;
+		$Barcodes[$nextIndex]->status = $status;
+
+		/* ????Put in extension???? */
+		if (isset($aID_string)){
+			$Barcodes[$nextIndex]->attributes = $aID_string;
+		}
+
+		EventManager::notify('ProductBarcodeNewBeforeExecute', &$Barcodes[$nextIndex]);
+
+		$newBarcodes[] = $nextIndex;
+		$nextIndex++;
+	}
+}
+
 class dataImportHeaderIterator extends ArrayIterator
 {
 
@@ -155,51 +246,10 @@ class dataImportColumnIterator extends ArrayIterator
 	}
 }
 
-function tep_get_uploaded_file($filename) {
-	if (isset($_FILES[$filename])){
-		$uploaded_file = array(
-			'name'     => $_FILES[$filename]['name'],
-			'type'     => $_FILES[$filename]['type'],
-			'size'     => $_FILES[$filename]['size'],
-			'tmp_name' => $_FILES[$filename]['tmp_name']
-		);
-	}
-	else {
-		$uploaded_file = array(
-			'name'     => $GLOBALS[$filename . '_name'],
-			'type'     => $GLOBALS[$filename . '_type'],
-			'size'     => $GLOBALS[$filename . '_size'],
-			'tmp_name' => $GLOBALS[$filename]
-		);
-	}
-	return $uploaded_file;
-}
+if ($uploaded === true){
+	$fileName = $upload->filename;
 
-// the $filename parameter is an array with the following elements:
-// name, type, size, tmp_name
-function tep_copy_uploaded_file($filename, $target) {
-	if (substr($target, -1) != '/') {
-		$target .= '/';
-	}
-	$target .= $filename['name'];
-	move_uploaded_file($filename['tmp_name'], $target);
-}
-
-if ((isset($localfile) && $localfile) || $uploaded === true){
-	if ($uploaded === true){
-		$fileName = $upload->filename;
-
-		$messageStack->addSession('pageStack', '<p>File uploaded.<br />Temporary filename: ' . $upload->tmp_filename . '<br />User filename: ' . $fileName . '<br />Size: ' . $upload->file_size . '<br /></p>', 'success');
-	}
-	elseif (isset($localfile) && $localfile) {
-		$file = tep_get_uploaded_file('usrfl');
-		if (is_uploaded_file($file['tmp_name'])){
-			tep_copy_uploaded_file($file, sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $tempdir);
-		}
-
-		$fileName = $localfile;
-		$messageStack->addSession('pageStack', '<p>File uploaded.<br />Filename: ' . $fileName . '</p>', 'success');
-	}
+	$messageStack->addSession('pageStack', '<p>File uploaded.<br />Temporary filename: ' . $upload->tmp_filename . '<br />User filename: ' . $fileName . '<br />Size: ' . $upload->file_size . '<br /></p>', 'success');
 
 	require(sysConfig::getDirFsCatalog() . 'includes/classes/FileParser/csv.php');
 	$ImportFile = new FileParserCsv($dataExport->tempDir . $fileName);
@@ -348,6 +398,14 @@ if ((isset($localfile) && $localfile) || $uploaded === true){
 			EventManager::notify('DataImportBeforeSave', $item, $Product);
 
 			//echo '<pre>';print_r($Product->toArray(true));echo '</pre>';itwExit();
+			$Product->save();
+
+			foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
+				$code = $PurchaseTypeModule->getCode();
+				if (isset($item['v_autogenerate_barcodes_' . $code]) && $item['v_autogenerate_barcodes_' . $code] > 0){
+					generateBarcodes($Product, $code, $item['v_autogenerate_barcodes_' . $code]);
+				}
+			}
 			$Product->save();
 
 			if (isset($item['v_status']) && $item['v_status'] == $deleteStatus){

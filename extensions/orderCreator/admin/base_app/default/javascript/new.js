@@ -4,6 +4,43 @@ function number_format(number) {
 	) / 100;
 }
 
+function removeFromCart(options){
+	$.ajax({
+		cache : false,
+		dataType : 'json',
+		url : js_app_link('rType=ajax&appExt=orderCreator&app=default&appPage=new&action=removeProductRow&id=' + options.id),
+		beforeSend : options.beforeSend || function () {
+		},
+		success : options.onSuccess || function (data) {
+		}
+	});
+}
+
+function recheckInventory(id){
+	var $Row = $('.productsTable').find('tr[data-id="' + id + '"]');
+	$.ajax({
+		cache : false,
+		dataType : 'json',
+		url : js_app_link('rType=ajax&appExt=orderCreator&app=default&appPage=new&action=checkInventory&id=' + id),
+		beforeSend : function () {
+			showAjaxLoader($Row, 'small');
+		},
+		success : function (data) {
+			removeAjaxLoader($Row);
+			if (data.hasInventory === false){
+				if (confirm(data.confirmMessage) === false){
+					removeFromCart({
+						id: id,
+						onSuccess: function (){
+							$Row.remove();
+						}
+					});
+				}
+			}
+		}
+	});
+}
+
 $(document).ready(function () {
 	$.addslashes = function (str) {
 		return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
@@ -143,8 +180,9 @@ $(document).ready(function () {
 					//$('.purchaseType').trigger('change');
 				}
 			});
-			$('input[name=customer_search]').val('');
-			return true;
+			var Label = $('<div>' + ui.item.label + '</div>');
+			$(this).val(Label.find('span').eq(2).html() + ' ' + Label.find('span').eq(3).html());
+			return false;
 		}
 	});
 

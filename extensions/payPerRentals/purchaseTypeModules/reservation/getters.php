@@ -127,8 +127,8 @@ class PurchaseType_reservation_getters extends PurchaseType_reservation_setters
 			$shippingDaysAfter = 0;
 		}
 
-		$startDate = $resInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day')->getTimestamp();
-		$endDate = $resInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day')->getTimestamp();
+		$startDate = $resInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day');
+		$endDate = $resInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
 
 		$barcodeID = -1;
 		foreach($invItems as $barcodeInfo){

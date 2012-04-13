@@ -12,7 +12,7 @@ class OrderTotalGiftCertificate extends OrderTotalModuleBase
 		if ($this->isInstalled() === true){
 			$this->credit_class = true;
 			$this->user_prompt = '';
-			$this->header = $this->getConfigData('MODULE_ORDER_TOTAL_GIFT_CERTIFICATES_HEADER');
+			$this->header = sysLanguage::get('MODULE_ORDER_TOTAL_GIFT_CERTIFICATES_HEADER');
 		}
 	}
 

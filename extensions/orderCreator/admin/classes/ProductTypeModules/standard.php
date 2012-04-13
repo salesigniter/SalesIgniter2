@@ -298,4 +298,12 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 			$PurchaseType->OrderCreatorProductManagerUpdateFromPost($Product);
 		}
 	}
+
+	public function hasEnoughInventory(OrderCreatorProduct &$Product){
+		$PurchaseType = $this->getPurchaseType($Product->getInfo('purchase_type'));
+		if (method_exists($PurchaseType, 'hasEnoughInventory')){
+			return $PurchaseType->hasEnoughInventory($Product);
+		}
+		return true;
+	}
 }

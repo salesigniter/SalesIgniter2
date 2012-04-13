@@ -76,7 +76,7 @@ class htmlWidget_button implements htmlWidgetPlugin
 	/* Required Classes From Interface: htmlElementPlugin --END-- */
 
 	public function disable() {
-		$this->buttonElement->addClass('ui-state-disabled');
+		$this->buttonElement->attr('disabled', 'true')->addClass('ui-state-disabled');
 		return $this;
 	}
 

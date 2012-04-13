@@ -11,7 +11,7 @@ class OrderTotalReservationshipping extends OrderTotalModuleBase {
 		$this->init('reservationshipping');
 
 		if ($this->isInstalled() === true){
-			$this->showReservationShipping = $this->getConfigData('MODULE_ORDER_TOTAL_RESERVATIONSHIPPING_STATUS');
+			$this->showReservationShipping = $this->getConfigData('STATUS');
 			$this->allowReservationShipping = $this->getConfigData('MODULE_ORDER_TOTAL_RESERVATION_SHIPPING_ENABLE');
 		}
 

@@ -18,6 +18,16 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 	private $ProductTypeClass;
 
 	/**
+	 * @var bool
+	 */
+	private $requireConfirm = false;
+
+	/**
+	 * @var string
+	 */
+	private $confirmationMessage = '';
+
+	/**
 	 * @param array|null $pInfo
 	 */
 	public function __construct(array $pInfo = null) {
@@ -31,6 +41,36 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 
 			$this->updateInfo($pInfo);
 		}
+	}
+
+	/**
+	 * @param null|bool $val
+	 * @return bool
+	 */
+	public function needsConfirmation($val = null){
+		if ($val !== null){
+			$this->requireConfirm = $val;
+		}
+		return $this->requireConfirm;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getConfirmationMessage(){
+		$message = 'This product does not have enough inventory available.';
+		if ($this->confirmationMessage != ''){
+			$message = $this->confirmationMessage;
+		}
+		$message .= "\n\n" . 'Would you like to add it anyway?';
+		return $message;
+	}
+
+	/**
+	 * @param string $val
+	 */
+	public function setConfirmationMessage($val = ''){
+		$this->confirmationMessage = $val;
 	}
 
 	/**
@@ -304,6 +344,14 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 		}
 
 		EventManager::notify('OrderCreatorProductAddToCollection', $this, $OrderedProduct);
+	}
+
+	public function hasEnoughInventory(){
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'hasEnoughInventory')){
+			return $ProductType->hasEnoughInventory($this);
+		}
+		return true;
 	}
 }
 

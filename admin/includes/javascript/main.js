@@ -638,7 +638,14 @@ function confirmDialog(options) {
 		};
 	}
 
-	$('<div></div>').html(o.content).attr('title', o.title).dialog({
+	if (o.onCancel){
+		var onCancel = function () {
+			o.onCancel.apply(this);
+			$(this).dialog('close').remove();
+		};
+	}
+
+	$('<div></div>').html(o.content).attr('title', o.title || 'Please Confirm').dialog({
 		resizable : false,
 		allowClose : false,
 		modal : true,
@@ -678,44 +685,11 @@ function confirmDialog(options) {
 			{
 				text : jsLanguage.get('TEXT_BUTTON_CANCEL'),
 				icon : 'ui-icon-closethick',
-				click : o.onCancel || function () {
+				click : onCancel || function () {
 					$(this).dialog('close').remove();
 				}
 			}
-		]/*,
-		 buttons : {
-		 Confirm : onConfirm || function () {
-		 var dialogEl = this;
-		 showAjaxLoader($(dialogEl), 'large', false);
-		 $.ajax({
-		 cache : false,
-		 url : o.confirmUrl,
-		 dataType : o.dataType || 'json',
-		 type : o.type || 'get',
-		 data : o.data || null,
-		 success : function (data) {
-		 if (data.success == true){
-		 if (o.success){
-		 o.success.apply(dialogEl, [data]);
-		 }
-		 }
-		 else {
-		 if (data.errorMessage){
-		 alert(data.errorMessage);
-		 }
-		 else {
-		 alert(o.errorMessage);
-		 }
-		 }
-		 removeAjaxLoader($(dialogEl));
-		 $(dialogEl).dialog('close').remove();
-		 }
-		 });
-		 },
-		 Cancel : o.onCancel || function () {
-		 $(this).dialog('close').remove();
-		 }
-		 }*/
+		]
 	});
 }
 
