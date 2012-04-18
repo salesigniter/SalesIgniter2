@@ -13,7 +13,7 @@ elseif (isset($_GET['layout_id'])) {
 else {
 	$env = 'admin';
 	$layoutId = '9999';
-	$templateDir = 'administration';
+	$templateDir = 'fallback';
 }
 $import = '';
 if (isset($_GET['import']) && !empty($_GET['import'])){

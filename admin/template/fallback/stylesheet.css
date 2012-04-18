@@ -109,6 +109,7 @@ td span { vertical-align: middle; }
 .ui-icon-arrow-4 { background-position: -198px -170px; }
 .ui-icon-arrow-apply-all { background-position: -254px -170px; }
 
+.ui-icon-required { background-position: -2px -198px; }
 .iconBlock .ui-icon { margin: 0 .4em; }
 
 .tableRowOdd { background-color: #F0F0F0; }

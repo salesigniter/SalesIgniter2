@@ -171,7 +171,7 @@ if ($Customer->isValid(true) === false){
 		$userAccount->setEmailAddress($accountValidation['email_address']);
 		$userAccount->setPassword($accountValidation['password']);
 		$userAccount->setTelephoneNumber($accountValidation['telephone']);
-		$userAccount->setNotes($accountValidation['notes']);
+		//$userAccount->setNotes($accountValidation['notes']);
 		$userAccount->setFaxNumber($accountValidation['fax']);
 		$userAccount->setNewsLetter($accountValidation['newsletter']);
 		if (isset($accountValidation['entry_gender'])){

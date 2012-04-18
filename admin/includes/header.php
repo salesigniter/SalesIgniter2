@@ -110,7 +110,7 @@ if (Session::exists('login_id') === true){
 			$favorites_names = explode(';', $Admin->favorites_names);
 		}
 
-		echo '<div id="headerMenu" class="ui-navigation-menu ui-widget-content ui-corner-all"><ol>';
+		echo '<div id="headerMenu" class="ui-widget-content ui-navigation-menu"><ol>';
 		for($i = 0;$i < sizeof($favorites_links); $i++){
 			if(!empty($favorites_links[$i])){
 				echo parseMenuItem(array(
@@ -134,7 +134,7 @@ if (Session::exists('login_id') === true){
 
 		EventManager::notify('AdminNavMenuAddBox', &$boxes);
 
-		echo '<div id="headerMenu" class="ui-navigation-menu ui-widget-content ui-corner-all"><ol>';
+		echo '<div id="headerMenu" class="ui-widget-content ui-navigation-menu"><ol>';
 		foreach($boxes as $boxIdx => $boxFileName){
 			if (strstr($boxFileName, '/') || strstr($boxFileName, '\\')){
 				require($boxFileName);

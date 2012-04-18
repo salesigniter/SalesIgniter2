@@ -466,9 +466,11 @@ class RentalStoreUser implements Serializable {
 		$Customer->save();
 
 		$AddressBook = Doctrine::getTable('AddressBook')->find($this->plugins['addressBook']->getDefaultAddressId());
-		$AddressBook->entry_firstname = $this->customerInfo['firstName'];
-		$AddressBook->entry_lastname = $this->customerInfo['lastName'];
-		$AddressBook->save();
+		if ($AddressBook && $AddressBook->count() == 1){
+			$AddressBook->entry_firstname = $this->customerInfo['firstName'];
+			$AddressBook->entry_lastname = $this->customerInfo['lastName'];
+			$AddressBook->save();
+		}
 	}
 
 	public function sendNewCustomerEmail(){

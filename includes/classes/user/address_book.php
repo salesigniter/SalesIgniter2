@@ -116,6 +116,7 @@ class rentalStoreUser_addressBook {
 	}
 
 	public function insertAddress($addressArray, $setAsDefault = false, $setAsShipping = false){
+		global $appExtension;
 		$newAddress = new AddressBook();
 		$newAddress->customers_id = (int)$this->customerId;
 		$newAddress->entry_firstname = $addressArray['entry_firstname'];
@@ -166,7 +167,12 @@ class rentalStoreUser_addressBook {
 	}
 
 	public function updateAddress($aID, $addressArray){
-		$Address = Doctrine::getTable('AddressBook')->find($aID);
+		global $appExtension;
+		$AddressBook = Doctrine::getTable('AddressBook');
+		$Address = $AddressBook->find($aID);
+		if (!$Address){
+			$Address = $AddressBook->getRecord();
+		}
 		
 		if (isset($addressArray['entry_firstname'])) $Address->entry_firstname = $addressArray['entry_firstname'];
 		if (isset($addressArray['entry_lastname'])) $Address->entry_lastname = $addressArray['entry_lastname'];
@@ -211,6 +217,7 @@ class rentalStoreUser_addressBook {
 	}
 
 	public function addAddressEntry($aID, $address){
+		global $appExtension;
 		$cInfo = $this->getCountryInfo($address['entry_country_id']);
 
 		$this->addresses[$aID] = $address;
