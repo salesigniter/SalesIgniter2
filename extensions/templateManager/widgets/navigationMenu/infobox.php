@@ -48,48 +48,49 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 
 	private function parseMenuItem($item, $isRoot = false, $isLast = false) {
 		global $App;
-		if (isset($item->condition) && $this->checkCondition($item->condition) === false){
+		if (isset($item->link->condition) && $this->checkCondition($item->link->condition) === false){
 			return '';
 		}
 
+		$Data = $item->link;
 		$icon = '';
-		if ($item->icon == 'jquery'){
-			$icon = '<span class="ui-icon ' . $item->icon_src . '"></span>';
+		if ($Data->icon == 'jquery'){
+			$icon = '<span class="ui-icon ' . $Data->icon_src . '"></span>';
 		}
 		elseif ($item->icon == 'custom') {
-			$icon = '<img src="' . $item->icon_src . '">';
+			$icon = '<img src="' . $Data->icon_src . '">';
 		}
 
-		$menuText = '<span class="menu_text">' . $item->{Session::get('languages_id')}->text . '</span>';
+		$menuText = '<span class="menu_text">' . $Data->text->{Session::get('languages_id')} . '</span>';
 
 		$itemLink = htmlBase::newElement('a')
 			->addClass('ui-corner-all');
-		if ($item->link !== false){
-			if ($item->link->type == 'app'){
+		if ($Data !== false){
+			if ($Data->type == 'app'){
 				$getParams = null;
-				if (stristr($item->link->application, '/')){
-					$extInfo = explode('/', $item->link->application);
+				if (stristr($Data->app->name, '/')){
+					$extInfo = explode('/', $Data->app->name);
 					$application = $extInfo[1];
 					$getParams = 'appExt=' . $extInfo[0];
 				}
 				else {
-					$application = $item->link->application;
+					$application = $Data->app->name;
 				}
 
-				$itemLink->setHref(itw_app_link($getParams, $application, $item->link->page));
+				$itemLink->setHref(itw_app_link($getParams, $application, $Data->app->page));
 			}
-			elseif ($item->link->type == 'category'){
-				$itemLink->setHref(itw_app_link($item->link->get_vars, $item->link->application, $item->link->page));
+			elseif ($Data->type == 'category'){
+				$itemLink->setHref(itw_app_link('cPath=' . str_replace('_none', '', implode('_', $Data->category->id)), $Data->app->name, $Data->app->page));
 			}
-			elseif ($item->link->type == 'custom') {
-				$itemLink->setHref($item->link->url);
+			elseif ($Data->type == 'custom') {
+				$itemLink->setHref($Data->url);
 			}
 
-			if ($item->link->type != 'none'){
-				if ($item->link->target == 'new'){
+			if ($Data->type != 'none'){
+				if ($Data->target == 'new'){
 					$itemLink->attr('target', '_blank');
 				}
-				elseif ($item->link->target == 'dialog') {
+				elseif ($Data->target == 'dialog') {
 					$itemLink->attr('onclick', 'Javascript:popupWindow(this.href);');
 				}
 			}
@@ -112,16 +113,16 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 			$addCls .= ' middle';
 		}
 
-		if (isset($_GET['cPath']) && $item->link->type == 'category'){
-			$path = str_replace('cPath=', '', $item->link->get_vars);
+		if (isset($_GET['cPath']) && $Data->type == 'category'){
+			$path = str_replace('_none', '', implode('_', $Data->category->id));
 			if ($_GET['cPath'] == $path){
 				$addCls .= ' ui-state-active';
 			}
 		}
-		elseif (isset($application) && $App->getAppName() == $application && $App->getPageName() == $item->link->page){
+		elseif (isset($application) && $App->getAppName() == $application && $App->getPageName() == $Data->app->page){
 			$addCls .= ' ui-state-active';
 		}
-		elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $item->link->page){
+		elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $Data->app->page){
 			if ($application != 'index' || ($application == 'index' && !isset($_GET['cPath']))){
 				$addCls .= ' ui-state-active';
 			}
@@ -288,7 +289,7 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 			//echo '<pre>';print_r($boxWidgetProperties['menuSettings']);
 			$MenuSettings = array();
 			foreach($WidgetProperties->menuSettings as $mInfo){
-				if (isset($mInfo->condition) && $this->checkCondition($mInfo->condition) === true){
+				if (isset($mInfo->link->condition) && $this->checkCondition($mInfo->link->condition) === true){
 					$MenuSettings[] = $mInfo;
 				}
 			}

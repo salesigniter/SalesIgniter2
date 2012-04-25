@@ -83,7 +83,7 @@ function buildAppLink($o){
 				$categoryName = implode('/', $categoryName);
 				$categoryNameResults[$vars['cPath']]['categories_name'] = $categoryName;
 			}else{
-				$categoryName = $categoryNameResults[(int)$vars['cPath']]['categories_name'];
+				$categoryName = $categoryNameResults[$vars['cPath']]['categories_name'];
 			}
 
 			if (!empty($categoryName)){

@@ -233,9 +233,9 @@
 					.val(values.shadow_color)
 					.keyup(function () { thisCls.processInputs.apply(parentCls); });
 
-				$newShadow.find('.makeColorPicker').ColorPicker({
-					onChange: function (hsb, hex, rgb, el) {
-						$(el).val('#' + hex);
+				$newShadow.find('.makeColorPicker').miniColors({
+					change: function (hex, rgb) {
+						$(this).val(hex);
 						thisCls.processInputs.apply(parentCls);
 					}
 				});

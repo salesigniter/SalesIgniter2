@@ -13,7 +13,7 @@
 	<define key="TEXT_INFO_LOGNUM"><![CDATA[<b>Log Number: </b>]]></define>
 	<define key="TEXT_INFO_GROUP"><![CDATA[<b>Group Level: </b>]]></define>
 	<define key="TEXT_INFO_ERROR"><![CDATA[<font color="red">Email address has already been used! Please try again.</font>]]></define>
-	<define key="TEXT_INFO_MODIFIED"><![CDATA[Modified: ]]></define>
+	<define key="TEXT_INFO_MODIFIED"><![CDATA[<b>Last Modified: </b>]]></define>
 	<define key="TEXT_INFO_HEADING_DEFAULT"><![CDATA[Edit Account ]]></define>
 	<define key="TEXT_INFO_HEADING_CONFIRM_PASSWORD"><![CDATA[Password Confirmation ]]></define>
 	<define key="TEXT_INFO_INTRO_CONFIRM_PASSWORD"><![CDATA[Password:]]></define>

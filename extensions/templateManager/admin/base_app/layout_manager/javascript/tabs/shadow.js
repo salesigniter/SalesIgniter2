@@ -94,12 +94,18 @@
 					$newShadow.find('input[name=shadow_inset]:checkbox').removeAttr('checked');
 				}
 
-				$newShadow.find('.makeColorPicker').ColorPicker({
+				$newShadow.find('.makeColorPicker').miniColors({
+					change: function (hex, rgb) {
+						$(this).val('#' + hex);
+						thisCls.processInputs.apply(parentCls);
+					}
+				});
+				/*$newShadow.find('.makeColorPicker').ColorPicker({
 					onChange: function (hsb, hex, rgb, el) {
 						$(el).val('#' + hex);
 						thisCls.processInputs.apply(parentCls);
 					}
-				});
+				});*/
 
 				thisCls.createShadowSliders.apply(parentCls, [$newShadow]);
 

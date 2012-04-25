@@ -4,8 +4,7 @@ $selectedPage = (isset($WidgetSettings->selected_page) ? $WidgetSettings->select
 $cssId = (isset($WidgetSettings->id) ? $WidgetSettings->id : '');
 $customText = (isset($WidgetSettings->custom_text) ? $WidgetSettings->custom_text : '');
 $javascript = '<script>' .
-	'$(document).ready(function (){' .
-	'$(\'textarea[name=custom_text]\').each(function (){ makeHtmlEditor(this); });';
+	'$(document).ready(function (){';
 
 if ($infoPageExt && $infoPageExt->isEnabled()){
 	$Qpages = Doctrine_Query::create()
@@ -94,6 +93,6 @@ $WidgetSettingsTable->addBodyRow(array(
 			'valign' => 'top',
 			'text'   => 'Enter Text:'
 		),
-		array('text' => '<textarea name="custom_text" style="width:300px;height:200px;">' . $customText . '</textarea>' . $javascript)
+		array('text' => '<textarea class="makeHtmlEditor" name="custom_text" style="width:300px;height:200px;">' . $customText . '</textarea>' . $javascript)
 	)
 ));

@@ -65,10 +65,10 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 				'children' => $pages
 			);
 		}
-		if ($k % 7 == 0 && count($extensionPages) > 0){
+		if ($k % 5 == 0 && count($extensionPages) > 0){
 			$contents['children'][] = array(
 				'link' => itw_app_link(null, 'extensions', 'default', 'SSL'),
-				'text' => 'Extensions' . ($k / 7),
+				'text' => 'Extensions' . ($k / 5 == 1 ? '' : ' Cont.'),
 				'children' => $extensionPages
 			);
 			unset($pages);
@@ -78,36 +78,48 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 	if (isset($extensionPages)){
 		$contents['children'][] = array(
 			'link' => itw_app_link(null, 'extensions', 'default', 'SSL'),
-			'text' => 'Extensions' . ((int)($k / 7) + 1),
+			'text' => 'Extensions Cont.',
 			'children' => $extensionPages
 		);
 	}
 }
 
 if (sysPermissions::adminAccessAllowed('modules') === true){
-	$contents['children'][] = array(
+	$orderModules[] = array(
 		'link' => itw_app_link('moduleType=orderPayment', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_PAYMENT')
 	);
 
-	$contents['children'][] = array(
+	$orderModules[] = array(
 		'link' => itw_app_link('moduleType=orderShipping', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_SHIPPING')
 	);
 
-	$contents['children'][] = array(
+	$orderModules[] = array(
 		'link' => itw_app_link('moduleType=orderTotal', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_ORDER_TOTAL')
 	);
 
-	$contents['children'][] = array(
+	$productModules[] = array(
 		'link' => itw_app_link('moduleType=purchaseType', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_PURCHASETYPES')
 	);
 
-	$contents['children'][] = array(
+	$productModules[] = array(
 		'link' => itw_app_link('moduleType=productType', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_PRODUCTTYPES')
+	);
+
+	$contents['children'][] = array(
+		'link' => false,
+		'text' => 'Order Modules',
+		'children' => $orderModules
+	);
+
+	$contents['children'][] = array(
+		'link' => false,
+		'text' => 'Product Modules',
+		'children' => $productModules
 	);
 }
 

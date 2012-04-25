@@ -238,6 +238,7 @@ if (sysPermissions::adminAccessAllowed('configuration', 'default') === true){
 	);
 
 	$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'includes/configs');
+	$configMenu = array();
 	foreach($Dir as $cfgFilePath){
 		if ($cfgFilePath->isDot() || $cfgFilePath->isDir()) {
 			continue;
@@ -250,11 +251,16 @@ if (sysPermissions::adminAccessAllowed('configuration', 'default') === true){
 			continue;
 		}
 
-		$contents['children'][] = array(
+		$configMenu[] = array(
 			'link' => itw_app_link('key=' . $Configuration->getKey(), 'configuration', 'default', 'SSL'),
 			'text' => $Configuration->getTitle()
 		);
 	}
+	$contents['children'][] = array(
+		'link' => false,
+		'text' => 'Sales Igniter',
+		'children' => $configMenu
+	);
 }
 if (count($contents['children']) == 0){
 	$contents = array();

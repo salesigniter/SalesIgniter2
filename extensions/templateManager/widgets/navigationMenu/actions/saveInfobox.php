@@ -1,9 +1,9 @@
 <?php
-function parseItemLink($itemId) {
-	if ($_POST['menu_item_link'][$itemId] == 'app'){
+function parseItemLink($menuItem) {
+	if ($menuItem['type'] == 'app'){
 		$itemLink = array(
 			'type' => 'app',
-			'application' => $_POST['menu_item_link_app'][$itemId],
+			'application' => $menuItem['app']['name'],
 			'page' => $_POST['menu_item_link_app_page'][$itemId],
 			'target' => $_POST['menu_item_link_app_target'][$itemId]
 		);
@@ -68,17 +68,12 @@ if (!isset($_POST['linked_to']) || $_POST['linked_to'] == 'none'){
 		$i = 0;
 		foreach($items['menu_item'] as $itemId => $parent){
 			if ($parent == 'root'){
+				$menuItem = $_POST['menu_item_link'][$itemId];
+
 				$menuConfig[$i] = array(
-					'icon' => $_POST['menu_item_icon'][$itemId],
-					'icon_src' => (isset($_POST['menu_item_icon_src'][$itemId]) ? $_POST['menu_item_icon_src'][$itemId] : ''),
-					'link' => parseItemLink($itemId),
-					'condition' => $_POST['menu_item_condition'][$itemId],
+					'link' => $menuItem,
 					'children' => array()
 				);
-
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$menuConfig[$i][$lInfo['id']]['text'] = $_POST['menu_item_text'][$lInfo['id']][$itemId];
-				}
 
 				if (in_array($itemId, $items['menu_item'])){
 					parseChildren($itemId, $items['menu_item'], $menuConfig[$i]['children']);

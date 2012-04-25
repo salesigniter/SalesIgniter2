@@ -27,7 +27,8 @@ elseif (isset($_GET['lID'])) {
 
 if ($App->getPageName() == 'editLayout'){
 
-	$App->addJavascriptFile('ext/jQuery/external/stickyBar/jquery.stickyBar.js');
+    $App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+    $App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/backgroundBuilder.js');
 
@@ -64,8 +65,8 @@ if ($App->getPageName() == 'editLayout'){
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct-parser.js');
 	$App->addStylesheetFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct.css');
 
-	$App->addJavascriptFile('ext/jQuery/external/colorPicker/jquery.colorpicker.js');
-	$App->addStylesheetFile('ext/jQuery/external/colorPicker/jquery.colorpicker.css');
+	$App->addJavascriptFile('ext/jQuery/external/miniColors/jquery.miniColors.js');
+	$App->addStylesheetFile('ext/jQuery/external/miniColors/jquery.miniColors.css');
 
 	$TemplateManager->loadWidgets($templateName);
 }

@@ -27,7 +27,7 @@ class InfoBoxCategoryProductListing extends InfoBoxAbstract {
 		foreach($Qcategories as $Category){
 			$catList .= '<li>';
 			$catList .= $Category->CategoriesDescription[Session::get('languages_id')]->categories_name;
-			if ($Category->ProductsToCategories->count() > 0){
+			if ($Category->ProductsToCategories->count() > 0 || $Category->Children->count() > 0){
 				if (
 					$Category->ProductsToCategories->count() <= $WidgetProperties->max_products ||
 					$WidgetProperties->when_max_products == 'limit_products'

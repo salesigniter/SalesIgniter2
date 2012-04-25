@@ -1,20 +1,34 @@
 <?php
-class Application {
+class Application
+{
+
 	private $env;
+
 	private $envDir;
+
 	private $appName;
+
 	private $appPage;
+
 	private $appLocation = false;
+
 	private $envDirs = array();
+
 	private $appDir = array();
+
 	private $addedStylesheetFiles = array();
+
 	private $addedJavascriptFiles = array();
 
-	public function __construct(){
+	private $addedRawJavascript = array();
+
+	private $applicationsArr = array();
+
+	public function __construct() {
 		$this->env = APPLICATION_ENVIRONMENT;
 	}
 
-	public function loadApplication($appName, $appPage){
+	public function loadApplication($appName, $appPage) {
 		global $appExtension;
 		$this->appName = $appName;
 		$this->appPage = $appPage;
@@ -24,9 +38,12 @@ class Application {
 
 		if ($this->env == 'admin'){
 			$this->envDirs = array(sysConfig::getDirFsAdmin() . 'applications/' . $this->appName . '/');
-		}else{
-			$this->envDirs = array(sysConfig::getDirFsCatalog() . 'applications/' . $this->appName . '/');
-			$this->envDirs[] = sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/';
+		}
+		else {
+			$this->envDirs = array(
+				sysConfig::get('DIR_FS_TEMPLATE') . '/' . $this->env . '/applications/' . $this->appName . '/',
+				sysConfig::getDirFsCatalog() . 'applications/' . $this->appName . '/'
+			);
 		}
 
 		if (isset($_GET['appExt'])){
@@ -49,75 +66,91 @@ class Application {
 		);
 	}
 
-	public function isValid(){
+	public function isValid() {
 		if (!isset($_GET['app'])){
 			return true;
 		}
 		return ($this->appLocation !== false);
 	}
 
-	public function setInfoBoxId($val){
+	public function setInfoBoxId($val) {
 		$this->infoBoxId = $val;
 	}
 
-	public function getInfoBoxId(){
+	public function getInfoBoxId() {
 		return $this->infoBoxId;
 	}
 
-	public function getAppPage(){
+	public function getAppPage() {
 		return $this->appPage;
 	}
+
 	/* To replace function above */
 
-	public function getPageName(){
+	public function getPageName() {
 		return $this->appPage;
 	}
 
-	public function setAppPage($pageName){
+	public function setAppPage($pageName) {
 		$this->appPage = $pageName;
 	}
 
-	public function getAppName(){
+	public function getAppName() {
 		return $this->appName;
 	}
 
-	public function getAppLocation($type = 'absolute'){
+	public function getAppLocation($type = 'absolute') {
 		if ($type == 'relative'){
 			if ($this->env == 'admin'){
 				return str_replace(array(sysConfig::getDirFsAdmin(), sysConfig::getDirFsCatalog()), array(sysConfig::getDirWsAdmin(), sysConfig::getDirWsCatalog()), $this->appLocation);
-			}else{
+			}
+			else {
 				return str_replace(array(sysConfig::getDirFsAdmin(), sysConfig::getDirFsCatalog()), '', $this->appLocation);
 			}
-		}else{
+		}
+		else {
 			return $this->appLocation;
 		}
 	}
 
-	public function getAppFile(){
+	public function getAppFile() {
 		return $this->getAppLocation() . 'app.php';
 	}
 
-	private function getEnvDirs(){
+	private function getEnvDirs() {
 		return $this->envDirs;
 	}
 
-	public function getEnv(){
+	public function getEnv() {
 		return $this->env;
 	}
 
-	public function getAppContentFile($useFile = false){
+	public function getAppContentFile($useFile = false) {
 		if ($useFile !== false){
-			return $this->appDir['absolute'] . 'pages/' . $useFile;
+			if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages/' . $useFile)){
+				$requireFile = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . 'applications/' . $this->appName . '/pages/' . $useFile;
+			}
+			else {
+				$requireFile = $this->appDir['absolute'] . 'pages/' . $useFile;
+			}
+			return $requireFile;
 		}
-		return $this->appDir['absolute'] . 'pages/' . $this->getAppPage() . '.php';
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages/' . $this->getAppPage() . '.php')){
+			$requireFile = sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages/' . $this->getAppPage() . '.php';
+		}
+		else {
+			$requireFile = $this->appDir['absolute'] . 'pages/' . $this->getAppPage() . '.php';
+		}
+		return $requireFile;
 	}
 
-	public function loadLanguageDefines(){
+	public function loadLanguageDefines() {
 		global $appExtension;
 
 		/* TODO: Remove when all applications are built */
-		if (!isset($_GET['app']))
+		if (!isset($_GET['app'])){
 			return;
+		}
 
 		/*
 		 * Load application fallback file
@@ -134,9 +167,9 @@ class Application {
 		 * Load extension files for application
 		 */
 		$appExtension->getLanguageFiles(array(
-				'env' => $this->env,
-				'appName' => $this->getAppName()
-			), &$languageFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName()
+		), $languageFiles);
 
 		/*
 		 * Application definitions overwrite file path
@@ -147,9 +180,9 @@ class Application {
 		 * Application extension definitions overwrite file path
 		 */
 		$appExtension->getOverwriteLanguageFiles(array(
-				'env' => $this->env,
-				'appName' => $this->getAppName()
-			), &$languageFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName()
+		), $languageFiles);
 
 		/*
 		 * Load all definition files and overwrite definitions
@@ -159,39 +192,41 @@ class Application {
 		}
 	}
 
-	public function getAppBaseJsFiles(){
+	public function getAppBaseJsFiles() {
 		global $appExtension;
 		$javascriptFiles = array();
 
 		$appExtension->getGlobalFiles('javascript', array(
-				'env' => $this->env,
-				'format' => 'relative'
-			), &$javascriptFiles);
+			'env'    => $this->env,
+			'format' => 'relative'
+		), $javascriptFiles);
 
 		$pageJsFile = $this->getAppPage() . '.js';
-		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/javascript/' . $pageJsFile)){
-			$javascriptFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/javascript/' . $pageJsFile;
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/javascript/' . $pageJsFile)){
+			$javascriptFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/javascript/' . $pageJsFile;
 		}
-		elseif (file_exists($this->appDir['absolute'] . 'javascript/' . $pageJsFile)){
+		elseif (file_exists($this->appDir['absolute'] . 'javascript/' . $pageJsFile)) {
 			if ($this->env == 'admin'){
 				$javascriptFiles[] = $this->appDir['relative'] . 'javascript/' . $pageJsFile;
-			}else{
+			}
+			else {
 				$javascriptFiles[] = sysConfig::getDirWsCatalog() . $this->appDir['relative'] . 'javascript/' . $pageJsFile;
 			}
 		}
 
 		$appExtension->getAppFiles('javascript', array(
-				'env' => $this->env,
-				'appName' => $this->getAppName(),
-				'appFile' => $pageJsFile,
-				'format' => 'relative'
-			), &$javascriptFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName(),
+			'appFile' => $pageJsFile,
+			'format'  => 'relative'
+		), $javascriptFiles);
 
 		if (!empty($this->addedJavascriptFiles)){
 			foreach($this->addedJavascriptFiles as $file){
 				if (substr($file, 0, 7) != 'http://'){
 					$javascriptFiles[] = sysConfig::getDirWsCatalog() . $file;
-				}else{
+				}
+				else {
 					$javascriptFiles[] = $file;
 				}
 			}
@@ -200,25 +235,25 @@ class Application {
 		return $javascriptFiles;
 	}
 
-	public function getAppBaseStylesheetFiles(){
+	public function getAppBaseStylesheetFiles() {
 		global $appExtension;
 
 		$stylesheetFiles = array();
 
 		$pageCssFile = $this->getAppPage() . '.css';
-		if ($this->env == 'catalog' && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'applications/' . $this->appName . '/stylesheets/' . $pageCssFile)){
-			$javascriptFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . 'applications/' . $this->appName . '/stylesheets/' . $pageCssFile;
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/stylesheets/' . $pageCssFile)){
+			$stylesheetFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/stylesheets/' . $pageCssFile;
 		}
-		elseif (file_exists($this->appDir['absolute'] . 'stylesheets/' . $pageCssFile)){
+		elseif (file_exists($this->appDir['absolute'] . 'stylesheets/' . $pageCssFile)) {
 			$stylesheetFiles[] = $this->appDir['relative'] . 'stylesheets/' . $pageCssFile;
 		}
 
 		$appExtension->getAppFiles('stylesheets', array(
-				'env' => $this->env,
-				'appName' => $this->getAppName(),
-				'appFile' => $pageCssFile,
-				'format' => 'relative'
-			), &$stylesheetFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName(),
+			'appFile' => $pageCssFile,
+			'format'  => 'relative'
+		), $stylesheetFiles);
 
 		if (!empty($this->addedStylesheetFiles)){
 			foreach($this->addedStylesheetFiles as $file){
@@ -229,78 +264,101 @@ class Application {
 		return $stylesheetFiles;
 	}
 
-	function addJavascriptFile($file){
+	function addJavascriptFile($file) {
 		$this->addedJavascriptFiles[] = $file;
 	}
 
-	function hasJavascriptFiles(){
+	function hasJavascriptFiles() {
 		$files = $this->getAppBaseJsFiles();
 		return (!empty($files));
 	}
 
-	function getJavascriptFiles(){
+	function getJavascriptFiles() {
 		$files = $this->getAppBaseJsFiles();
 		return $files;
 	}
 
-	function addStylesheetFile($file){
+	function addStylesheetFile($file) {
 		$this->addedStylesheetFiles[] = $file;
 	}
 
-	function hasStylesheetFiles(){
+	function hasStylesheetFiles() {
 		$files = $this->getAppBaseStylesheetFiles();
 		return (!empty($files));
 	}
 
-	function getStylesheetFiles(){
+	function getStylesheetFiles() {
 		$files = $this->getAppBaseStylesheetFiles();
 		return $files;
 	}
 
-	public function getActionFiles($action){
+	public function getActionFiles($action) {
 		global $appExtension;
 		$actionFiles = array();
 		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
-			$actionFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . 'applications/' . $this->appName . '/actions/' . $action . '.php';
+			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php';
 		}
-		elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')){
+		elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
 			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
 		}
-		elseif (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')){
+		elseif (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
 			$actionFiles[] = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
 		}
-		elseif (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')){
+		elseif (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')) {
 			$actionFiles[] = $this->appDir['absolute'] . 'actions/' . $action . '.php';
 		}
 
 		$appExtension->getAppFiles('actions', array(
-				'env' => $this->env,
-				'appName' => $this->getAppName(),
-				'appFile' => $action . '.php'
-			), &$actionFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName(),
+			'appFile' => $action . '.php'
+		), $actionFiles);
 
 		return $actionFiles;
 	}
 
-	public function getFunctionFiles(){
+	public function getFunctionFiles() {
 		global $appExtension;
 		$functionFiles = array();
 		$pageFunctionFile = $this->getAppPage() . '.php';
 
-		if (file_exists($this->appDir['absolute'] . 'pages_functions/' . $pageFunctionFile)){
+		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages_functions/' . $pageFunctionFile)){
+			$functionFiles[] = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages_functions/' . $pageFunctionFile;
+		}
+		elseif (file_exists($this->appDir['absolute'] . 'pages_functions/' . $pageFunctionFile)) {
 			$functionFiles[] = $this->appDir['absolute'] . 'pages_functions/' . $pageFunctionFile;
 		}
 
 		$appExtension->getAppFiles('pages_functions', array(
-				'env' => $this->env,
-				'appName' => $this->getAppName(),
-				'appFile' => $pageFunctionFile
-			), &$functionFiles);
+			'env'     => $this->env,
+			'appName' => $this->getAppName(),
+			'appFile' => $pageFunctionFile
+		), $functionFiles);
 
 		return $functionFiles;
 	}
 
-	public function checkModel($modelName, $extName = null){
+	public function hasAddedJavascript($id) {
+		return isset($this->addedRawJavascript[$id]);
+	}
+
+	public function addJavascript($id, $js) {
+		$this->addedRawJavascript[$id] = $js;
+	}
+
+	public function appendAddedJavascript($id, $js) {
+		$this->addedRawJavascript[$id] .= $js;
+	}
+
+	public function getAddedJavascript() {
+		$source = '';
+		foreach($this->addedRawJavascript as $id => $src){
+			$source .= $src . "\n";
+		}
+		return $source;
+	}
+
+	public function checkModel($modelName, $extName = null) {
 		global $manager, $messageStack;
 		$dbConn = $manager->getCurrentConnection();
 		$tableObj = Doctrine_Core::getTable($modelName);
@@ -321,14 +379,16 @@ class Application {
 			}
 			$modelColumns = $tableObj->getColumns();
 			foreach($modelColumns as $colName => $colSettings){
-				if ($colName == 'id')
+				if ($colName == 'id'){
 					continue;
+				}
 
 				if (!isset($tableColumns[$colName])){
 					$resolutionLinkParams = 'action=fixMissingColumns';
 					if (is_null($extName) === false){
 						$resolutionLinkParams .= '&extName=' . $extName;
-					}else{
+					}
+					else {
 						$resolutionLinkParams .= '&Model=' . $modelName;
 					}
 
@@ -338,14 +398,14 @@ class Application {
 				}
 			}
 			unset($reportInfo['Resoultion']);
-
 			/* foreach($tableColumns as $colName => $colSettings){
-			  if (array_key_exists($colName, $modelColumns) === false){
-			  $reportInfo['Column Name'] = $colName;
-			  ExceptionManager::report('Database column does not exist in model.', E_USER_ERROR, $reportInfo);
-			  }
-			  } */
-		}else{
+						  if (array_key_exists($colName, $modelColumns) === false){
+						  $reportInfo['Column Name'] = $colName;
+						  ExceptionManager::report('Database column does not exist in model.', E_USER_ERROR, $reportInfo);
+						  }
+						  } */
+		}
+		else {
 			$resolutionLinkParams = 'action=fixMissingTables';
 			$resolutionLinkParams .= '&Model=' . $modelName;
 			if (is_null($extName) === false){
@@ -356,19 +416,20 @@ class Application {
 		}
 	}
 
-	public function addMissingModelTable($modelName, $extName = null){
+	public function addMissingModelTable($modelName, $extName = null) {
 		global $manager, $messageStack;
 		$dbConn = $manager->getCurrentConnection();
 
 		if (is_null($extName) === false){
 			$modelPath = sysConfig::getDirFsCatalog() . 'extensions/' . $extName . '/Doctrine/base/';
-		}else{
+		}
+		else {
 			$modelPath = sysConfig::getDirFsCatalog() . 'ext/Doctrine/Models/';
 		}
 
 		Doctrine_Core::createTablesFromArray(array(
-				$modelName
-			));
+			$modelName
+		));
 
 		$tableObj = Doctrine_Core::getTable($modelName);
 		if ($dbConn->import->tableExists($tableObj->getTableName())){
@@ -390,7 +451,7 @@ class Application {
 		}
 	}
 
-	public function addMissingModelColumns($modelName, $extName = null){
+	public function addMissingModelColumns($modelName, $extName = null) {
 		global $manager, $messageStack;
 		$dbConn = $manager->getCurrentConnection();
 
@@ -403,10 +464,10 @@ class Application {
 		foreach($modelColumns as $colName => $colSettings){
 			if (!isset($tableColumns[$colName])){
 				$dbConn->export->alterTable($tableObj->getTableName(), array(
-						'add' => array(
-							$colName => (array) $colSettings
-						)
-					));
+					'add' => array(
+						$colName => (array)$colSettings
+					)
+				));
 
 				$message = '<table>' .
 					'<tr>' .
@@ -430,5 +491,193 @@ class Application {
 			}
 		}
 	}
+
+	public function getApplications($excluded = array()) {
+		global $appExtension;
+
+		if (empty($this->applicationsArr)){
+			$Applications = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'applications/');
+			$AppArray = array();
+			foreach($Applications as $AppDir){
+				if ($AppDir->isDot() || $AppDir->isFile()){
+					continue;
+				}
+				$appName = $AppDir->getBasename();
+
+				$AppArray[$appName] = array();
+
+				if (is_dir($AppDir->getPathname() . '/pages/')){
+					$Pages = new DirectoryIterator($AppDir->getPathname() . '/pages/');
+					foreach($Pages as $Page){
+						if ($Page->isDot() || $Page->isDir()){
+							continue;
+						}
+						$pageName = $Page->getBasename('.php');
+
+						$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+					}
+				}
+				ksort($AppArray[$appName]);
+			}
+
+			$Extensions = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
+			foreach($Extensions as $Extension){
+				if ($Extension->isDot() || $Extension->isFile()){
+					continue;
+				}
+
+				$ExtCls = $appExtension->getExtension($Extension->getBasename());
+				if ($ExtCls && $ExtCls->isEnabled() && is_dir($Extension->getPathName() . '/catalog/base_app/')){
+					$extName = $Extension->getBasename();
+
+					$AppArray['ext'][$extName] = array();
+
+					$ExtApplications = new DirectoryIterator($Extension->getPathname() . '/catalog/base_app/');
+					foreach($ExtApplications as $ExtApplication){
+						if ($ExtApplication->isDot() || $ExtApplication->isFile()){
+							continue;
+						}
+						$appName = $ExtApplication->getBasename();
+
+						$AppArray['ext'][$extName][$appName] = array();
+
+						if ($Extension->getBasename() == 'infoPages'){
+							$Qpages = Doctrine_Query::create()
+								->select('page_key')
+								->from('Pages')
+								->where('page_type = ?', 'page')
+								->orderBy('page_key asc')
+								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+							if ($Qpages){
+								foreach($Qpages as $pInfo){
+									$pageName = $pInfo['page_key'];
+
+									$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+								}
+							}
+						}
+						elseif ($Extension->getBasename() == 'categoriesPages') {
+							$Qpages = Doctrine_Query::create()
+								->select('page_key')
+								->from('CategoriesPages')
+								->orderBy('page_key asc')
+								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+							if ($Qpages){
+								foreach($Qpages as $pInfo){
+									$pageName = $pInfo['page_key'];
+
+									$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+								}
+							}
+						}
+						elseif (is_dir($ExtApplication->getPathname() . '/pages/')) {
+							$ExtPages = new DirectoryIterator($ExtApplication->getPathname() . '/pages/');
+							foreach($ExtPages as $ExtPage){
+								if ($ExtPage->isDot() || $ExtPage->isDir()){
+									continue;
+								}
+								$pageName = $ExtPage->getBasename('.php');
+
+								$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+							}
+						}
+						ksort($AppArray['ext'][$extName][$appName]);
+					}
+					ksort($AppArray['ext']);
+				}
+			}
+
+			$Extensions = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
+			foreach($Extensions as $Extension){
+				if ($Extension->isDot() || $Extension->isFile()){
+					continue;
+				}
+
+				if (is_dir($Extension->getPathName() . '/catalog/ext_app/')){
+					$ExtCheck = new DirectoryIterator($Extension->getPathname() . '/catalog/ext_app/');
+					foreach($ExtCheck as $eInfo){
+						if ($eInfo->isDot() || $eInfo->isFile()){
+							continue;
+						}
+
+						if (is_dir($eInfo->getPathName() . '/pages')){
+							$appName = $eInfo->getBasename();
+
+							$Pages = new DirectoryIterator($eInfo->getPathname() . '/pages/');
+							foreach($Pages as $Page){
+								if ($Page->isDot() || $Page->isDir()){
+									continue;
+								}
+								$pageName = $Page->getBasename('.php');
+
+								if (!isset($AppArray[$appName][$pageName])){
+									$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+								}
+							}
+						}
+						elseif (isset($AppArray['ext'][$eInfo->getBasename()])) {
+							$Apps = new DirectoryIterator($eInfo->getPathName());
+							$extName = $eInfo->getBasename();
+
+							foreach($Apps as $App){
+								if ($App->isDot() || $App->isFile()){
+									continue;
+								}
+								$appName = $App->getBasename();
+
+								if (is_dir($App->getPathname() . '/pages')){
+									$Pages = new DirectoryIterator($App->getPathname() . '/pages/');
+									foreach($Pages as $Page){
+										if ($Page->isDot() || $Page->isDir()){
+											continue;
+										}
+										$pageName = $Page->getBasename('.php');
+
+										if (!isset($AppArray['ext'][$extName][$App->getBasename()])){
+											$AppArray['ext'][$extName][$App->getBasename()] = array();
+										}
+
+										$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (is_dir(sysConfig::getDirFsCatalog() . 'templates/kingdom/catalog/applications/')){
+				$TemplateApps = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/kingdom/catalog/applications/');
+				foreach($TemplateApps as $Application){
+					if ($Application->isDot() || $Application->isFile()){
+						continue;
+					}
+
+					$appName = $Application->getBasename();
+					if (!isset($AppArray[$appName])){
+						$AppArray[$appName] = array();
+					}
+
+					if (is_dir($Application->getPathname() . '/pages/')){
+						$Pages = new DirectoryIterator($Application->getPathname() . '/pages/');
+						foreach($Pages as $Page){
+							if ($Page->isDot() || $Page->isDir()){
+								continue;
+							}
+							$pageName = $Page->getBasename('.php');
+
+							$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+						}
+					}
+					ksort($AppArray[$appName]);
+				}
+			}
+
+			ksort($AppArray);
+			$this->applicationsArr = $AppArray;
+		}
+		return $this->applicationsArr;
+	}
 }
+
 ?>

@@ -30,6 +30,7 @@ $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 			var thisApp = '<?php echo $App->getAppName();?>';
 			var thisAppPage = '<?php echo $App->getAppPage();?>';
 		</script>
+		<script><?php require('includes/javascript/jsAppTop.php');?></script>
 		<script type="text/javascript" src="<?php echo $javascriptLink;?>"></script>
 		<script>
 			$(document).ready(function () {

@@ -57,7 +57,7 @@ foreach($Configuration->getConfig() as $tabKey => $tabInfo){
 
 EventManager::notify(
 	'ExtensionConfigureWindowAddFields',
-	&$tabs,
+	$tabs,
 	$_GET['extension']
 );
 
@@ -71,7 +71,7 @@ foreach($tabs as $pInfo){
 
 EventManager::notify(
 	'ExtensionConfigureWindowBeforeDraw',
-	&$tabPanel,
+	$tabPanel,
 	$_GET['extension']
 );
 

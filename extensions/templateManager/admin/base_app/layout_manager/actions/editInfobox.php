@@ -64,14 +64,26 @@ if ($Widget !== false){
 		));
 	}
 
-	$WidgetSettingsTable->addBodyRow(array(
-		'columns' => array(
-			array('valign' => 'top', 'css' => array('width' => '100px'), 'text' => 'Widget Title: '),
-			array('valign' => 'top', 'text' => $TitleInputTable->draw())
-		)
-	));
+    $WidgetSettingsTable->addBodyRow(array(
+        'columns' => array(
+            array('valign' => 'top', 'css' => array('width' => '100px'), 'text' => 'Widget Title: '),
+            array('valign' => 'top', 'text' => $TitleInputTable->draw())
+        )
+    ));
 
-	if (file_exists($Widget->getPath() . 'windows/editInfobox.php')){
+	$WidgetTitleLink = htmlBase::newElement('systemLinkMenu', array(
+		'data' => isset($WidgetSettings->widget_title_link) ? $WidgetSettings->widget_title_link : false
+	))
+	->setName('widget_title_link');
+
+    $WidgetSettingsTable->addBodyRow(array(
+        'columns' => array(
+            array('valign' => 'top', 'css' => array('width' => '100px'), 'text' => 'Widget Title Link: '),
+            array('valign' => 'top', 'text' => $WidgetTitleLink->draw())
+        )
+    ));
+
+    if (file_exists($Widget->getPath() . 'windows/editInfobox.php')){
 		require($Widget->getPath() . 'windows/editInfobox.php');
 	}
 
@@ -89,7 +101,7 @@ if ($Widget !== false){
 		->addButton($cancelButton)
 		->addContentRow($WidgetSettingsTable);
 
-	$Response = $infoBoxEdit->draw();
+	$Response = $App->getAddedJavascript() . $infoBoxEdit->draw();
 }else{
 	$Response = 'Unknown Widget';
 }

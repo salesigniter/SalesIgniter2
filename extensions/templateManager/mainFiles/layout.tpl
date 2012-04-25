@@ -41,6 +41,18 @@ echo '		' . $html . "\n";
 	<link rel="stylesheet" type="text/css" href="<?php echo $stylesheetLink;?>" />
 	<script><?php require('includes/javascript/jsAppTop.php');?></script>
 	<script type="text/javascript" src="<?php echo $javascriptLink;?>"></script>
+	<script type="text/javascript">
+		$(document).ready(function (){
+			if ($.browser.msie === true){
+				$('[style*="IE8_gradient"]').each(function (){
+					var current = $(this).css('background-image');
+					current = current.replace('height=100', 'height=' + $(this).outerHeight());
+					//alert($(this).outerHeight() + "\n" + $(this).css('background-image') + "\n" + current);
+					$(this).css('background-image', current);
+				});
+			}
+		});
+	</script>
 </head>
 <body>
 <noscript>

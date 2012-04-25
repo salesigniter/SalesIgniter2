@@ -361,7 +361,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				'customerTelephone'     => $userAccount->getTelephoneNumber(),
 				'customerFax'           => $userAccount->getFaxNumber(),
 				'customerCountry'       => $countryInfo['countries_name'],
-				'cardCvv'               => $paymentInfo['cardDetails']['cardCvvNumber']
+				'cardCvv'               => (isset($paymentInfo['cardDetails']['cardCvvNumber']) ? $paymentInfo['cardDetails']['cardCvvNumber'] : '')
 			);
 		}
 		else {

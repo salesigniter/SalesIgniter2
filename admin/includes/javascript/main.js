@@ -877,9 +877,11 @@ function configurationGridWindow(options) {
 				var processChange = function () {
 					var edited = false;
 					if (typeof origValues[inputName] == 'object'){
-						if ($.inArray($(this).val(), origValues[inputName]) == -1){
+						if (this.checked && $.inArray($(this).val(), origValues[inputName]) == -1){
 							edited = true;
-						}
+						}else if (this.checked === false && $.inArray($(this).val(), origValues[inputName]) > -1){
+                            edited = true;
+                        }
 					} else if (origValues[inputName] != $(this).val()){
 						edited = true;
 					}
@@ -933,11 +935,31 @@ function configurationGridWindow(options) {
 			});
 
 			$(self).find('.saveButton').click(function () {
-				showAjaxLoader($('.edited'), 'small');
-				$.post(options.saveUrl, $('.edited').serialize(), function (data, textStatus, jqXHR) {
+				showAjaxLoader($(self).find('.edited'), 'small');
+                var emptyCheckboxes = [];
+                $(self).find('.edited').each(function(){
+                    if ($(this).attr('type') == 'checkbox'){
+                        if (this.checked === false){
+                            if ($.inArray($(this).attr('name'), emptyCheckboxes) == -1){
+                                emptyCheckboxes.push($(this).attr('name'));
+                            }
+                        }else if ($.inArray($(this).attr('name'), emptyCheckboxes) > -1){
+                            emptyCheckboxes[$.inArray($(this).attr('name'), emptyCheckboxes)] = null;
+                            delete emptyCheckboxes[$.inArray($(this).attr('name'), emptyCheckboxes)];
+                        }
+                    }
+                });
+
+                var addPost = '';
+                if (emptyCheckboxes.length > 0){
+                    $.each(emptyCheckboxes, function (){
+                        addPost += this + '=&';
+                    });
+                }
+				$.post(options.saveUrl, addPost + $(self).find('.edited').serialize(), function (data, textStatus, jqXHR) {
 					if (data.success === true){
-						removeAjaxLoader($('.edited'));
-						$('.edited').removeClass('edited').addClass('notEdited');
+						removeAjaxLoader($(self).find('.edited'));
+                        $(self).find('.edited').removeClass('edited').addClass('notEdited');
 						if (options.onSaveSuccess){
 							options.onSaveSuccess.apply();
 						}
@@ -1105,7 +1127,7 @@ $(document).ready(function () {
 
 	$('.gridContainer').newGrid();
 	$('.fileManager').filemanager();
-	$('.fileManager').live('click', function (){
+	$('.fileManager, .fileManagerInput').live('click', function (){
 		if ($(this).hasClass('ui-filemanager-input') === false){
 			$(this).filemanager();
 			$(this).click();

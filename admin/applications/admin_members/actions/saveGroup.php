@@ -37,10 +37,8 @@
 		$group->admin_groups_name = $admin_groups_name;
 		$group->customer_login_allowed = (isset($_POST['customer_login']) ? '1' : '0');
 		$group->save();
-
-		$link = itw_app_link(tep_get_all_get_params(array('action', 'gID')) . 'gID=' . $group->admin_groups_id);
-	}else{
-		$link = itw_app_link(tep_get_all_get_params(array('action')) . 'action=' . $oldAction);
 	}
-	EventManager::attachActionResponse($link, 'redirect');
+	EventManager::attachActionResponse(array(
+        'success' => true
+    ), 'json');
 ?>

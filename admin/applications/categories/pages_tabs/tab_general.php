@@ -28,7 +28,7 @@ $CatArr = makeCategoriesArray(0);
 
 $selectBox = htmlBase::newElement('selectbox')
 	->setName('parent_id')
-	->selectOptionByValue($Categories->parent_id);
+	->selectOptionByValue($Category->parent_id);
 
 $selectBox->addOption('-1','--Please Select--');
 $selectBox->addOption('0','--Root--');
@@ -63,7 +63,7 @@ buildCategoryBoxes($CatArr, 0, $selectBox);
    ?></td>
   </tr>
   <tr>
-   <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+   <td colspan="2">&nbsp;</td>
   </tr>
   <?php if (!isset($cPath_array) || sizeof($cPath_array) <= 0){ ?>
   <tr>
@@ -84,7 +84,7 @@ buildCategoryBoxes($CatArr, 0, $selectBox);
    ?></td>
   </tr>
   <tr>
-   <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+   <td colspan="2">&nbsp;</td>
   </tr>
   <?php } ?>
   <tr>

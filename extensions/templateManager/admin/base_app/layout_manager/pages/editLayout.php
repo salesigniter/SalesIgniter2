@@ -44,7 +44,7 @@
 </div>
 <div id="widgetsForm" style="display:none;">
 	<div class="ui-widget-header">
-		<a id="hideWidgets" class="ui-icon ui-icon-closethick"></a>
+		<a id="hideWidgets" class="ui-icon ui-icon-window-close"></a>
 	</div>
 	<div class="editWindow centerColumn" style="display:none; position: relative; ;"></div>
 	<div class="boxListing centerColumn" style="position: relative;">
@@ -162,6 +162,9 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Id:</td>
 			<td><input type="text" name="id"></td>
 		</tr>
+	</table>
+	<br>
+	<table cellpadding="2" cellspacing="0" border="0">
 		<tr>
 			<td>Width:</td>
 			<td><input type="text" name="width" size="5"> <select name="width_unit">
@@ -173,6 +176,18 @@ echo '<div id="zoomOverlay"></div>'
 		</tr>
 	</table>
 	<div class="widthSlider"></div>
+	<table cellpadding="2" cellspacing="0" border="0">
+		<tr>
+			<td>Height:</td>
+			<td><input type="text" name="height" size="5"> <select name="height_unit">
+				<option value="auto">Auto</option>
+				<option value="px" selected>Pixels</option>
+				<!--<option value="em">Em</option>-->
+				<option value="%">Percent</option>
+			</td>
+		</tr>
+	</table>
+	<div class="heightSlider"></div>
 </div>
 
 <div id="font">

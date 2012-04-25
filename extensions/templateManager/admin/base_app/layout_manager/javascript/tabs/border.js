@@ -101,9 +101,9 @@
 					borderData[pos].color = colorVal;
 					borderData[pos].style = styleVal;
 
-					ActiveEl.css('border-' + pos + '_width', widthVal + widthUnitVal);
-					ActiveEl.css('border-' + pos + '_color', colorVal);
-					ActiveEl.css('border-' + pos + '_style', styleVal);
+					ActiveEl.css('border-' + pos + '-width', widthVal + widthUnitVal);
+					ActiveEl.css('border-' + pos + '-color', colorVal);
+					ActiveEl.css('border-' + pos + '-style', styleVal);
 				});
 				thisCls.updateInputVal('border', borderData);
 				thisCls.updateStylesVal('border', borderData, true);

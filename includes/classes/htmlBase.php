@@ -9,11 +9,11 @@ class htmlBase {
 	/**
 	 * Initializes html element/widget based on the element type
 	 * @param string $elementType The element type or widget name to use
-	 * @param string $html [optional] Html contents to attach to the element
+	 * @param array $options [optional] Configuration settings to send to the element
 	 * @return htmlElement
 	 * @return htmlWidget
 	 */
-  	public static function newElement($elementType, $html = ''){
+  	public static function newElement($elementType, $options = array()){
   		$elementClassName = 'htmlElement_' . $elementType;
   		$widgetClassName = 'htmlWidget_' . $elementType;
 		$elementDir = sysConfig::getDirFsCatalog() . 'includes/classes/html/elements/';
@@ -23,17 +23,14 @@ class htmlBase {
  	 		if (!class_exists($elementClassName, false)){
  	 			require($elementDir . $elementType . '.php');
 	  		}
-	  		$element = new $elementClassName($html);
+	  		$element = new $elementClassName($options);
    		}elseif (file_exists($widgetDir . $elementType . '.php')){
  	 		if (!class_exists($widgetClassName, false)){
  	 			require($widgetDir . $elementType . '.php');
 	  		}
-	  		$element = new $widgetClassName($html);
+	  		$element = new $widgetClassName($options);
   		}else{
   			$element = new htmlElement($elementType);
-  			if (!empty($html)){
-  				$element->html($html);
-  			}
   		}
 		return $element->startChain();
   	}

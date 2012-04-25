@@ -2392,7 +2392,7 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 			$rInfo =& $pID_string;
 		}
 
-		$pricing = $this->getReservationPrice($rInfo['start_date'], $rInfo['end_date'], &$rInfo,(isset($_POST['semester_name'])?$_POST['semester_name']:''),(isset($_POST['hasInsurance'])?true:false));
+		$pricing = $this->getReservationPrice($rInfo['start_date'], $rInfo['end_date'], $rInfo,(isset($_POST['semester_name'])?$_POST['semester_name']:''),(isset($_POST['hasInsurance'])?true:false));
 
 		return $pricing;
 	}

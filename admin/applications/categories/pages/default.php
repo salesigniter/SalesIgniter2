@@ -112,9 +112,8 @@
 ?>
  <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
  <br />
- <div style="width:75%;float:left;">
-  <div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-   <div style="width:99%;margin:5px;">
+  <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+   <div style="margin:5px;">
    <?php echo $tableGrid->draw();?>
    </div>
   </div>
@@ -128,11 +127,3 @@
    	->setHref(itw_app_link(tep_get_all_get_params(array('action', 'cID')), null, 'new_category', 'SSL'))
    	->draw();
   ?></div>
- </div>
- <div style="width:25%;float:right;"><?php
- 	if (sizeof($infoBoxes) > 0){
- 		foreach($infoBoxes as $infoBoxId => $html){
- 			echo '<div class="infoboxContainer" id="infobox_' . $infoBoxId . '" style="display:none;">' . $html . '</div>';
- 		}
- 	}
- ?></div>

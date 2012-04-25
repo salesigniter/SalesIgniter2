@@ -19,59 +19,76 @@
 
 	if (sysPermissions::adminAccessAllowed('membership', 'billing_report') === true){
 		$contents['children'][] = array(
-			'link' => itw_app_link(null, 'membership', 'billing_report', 'SSL'),
-			'text' => sysLanguage::get('BOX_CUSTOMERS_MEMBERSHIP_BILLING_REPORT')
+			'link' => false,
+			'text' => 'Recurring Sales Reports',
+			'children' => array(
+				array(
+					'link' => itw_app_link(null, 'membership', 'billing_report', 'SSL'),
+					'text' => sysLanguage::get('BOX_CUSTOMERS_MEMBERSHIP_BILLING_REPORT')
+				)
+			)
 		);
 	}
 	
 	if (sysPermissions::adminAccessAllowed('statistics') === true){
+		$salesReports = array();
+		$miscReports = array();
+		$productReports = array();
 		if (sysPermissions::adminAccessAllowed('statistics', 'customers') === true){
-			$contents['children'][] = array(
+			$miscReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'customers', 'SSL'),
 				'text' => 'Customers Orders'
 			);
 		}
 		
 		if (sysPermissions::adminAccessAllowed('statistics', 'keywords') === true){
-			$contents['children'][] = array(
+			$miscReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'keywords', 'SSL'),
 				'text' => 'Search Keywords'
 			);
 		}
 		
 		if (sysPermissions::adminAccessAllowed('statistics', 'monthlySales') === true){
-			$contents['children'][] = array(
+			$salesReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'monthlySales', 'SSL'),
 				'text' => 'Monthly Sales'
 			);
 		}
 		
 		if (sysPermissions::adminAccessAllowed('statistics', 'purchasedProducts') === true){
-			$contents['children'][] = array(
+			$productReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'purchasedProducts', 'SSL'),
 				'text' => 'Purchased Products'
 			);
 		}
 		
-		if (sysPermissions::adminAccessAllowed('statistics', 'recoverCartSales') === true){
-			$contents['children'][] = array(
-				'link' => itw_app_link(null, 'statistics', 'recoverCartSales', 'SSL'),
-				'text' => 'Recovered Cart Sales'
-			);
-		}
-		
 		if (sysPermissions::adminAccessAllowed('statistics', 'viewedProducts') === true){
-			$contents['children'][] = array(
+			$productReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'viewedProducts', 'SSL'),
 				'text' => 'Products Views'
 			);
 		}
 		if (sysPermissions::adminAccessAllowed('statistics', 'salesReport') === true){
-			$contents['children'][] = array(
+			$salesReports[] = array(
 				'link' => itw_app_link(null, 'statistics', 'salesReport', 'SSL'),
 				'text' => 'Sales Report'
 			);
 		}
+		$contents['children'][] = array(
+			'link' => false,
+			'text' => 'Sales Reports',
+			'children' => $salesReports
+		);
+		$contents['children'][] = array(
+			'link' => false,
+			'text' => 'Product Reports',
+			'children' => $productReports
+		);
+		$contents['children'][] = array(
+			'link' => false,
+			'text' => 'Misc Reports',
+			'children' => $miscReports
+		);
 	}
 
 	EventManager::notify('BoxMarketingAddLink', &$contents);

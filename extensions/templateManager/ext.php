@@ -56,9 +56,11 @@ class Extension_templateManager extends ExtensionBase
 				->where('template_id = ?', $TemplateID[0]['template_id'])
 				->execute()
 				->toArray();
+
+            $TemplateConfig['ID'] = $TemplateID[0]['template_id'];
 		}
 
-		sysConfig::set('TEMPLATE_ID', $TemplateId[0]['template_id'], true);
+		sysConfig::set('TEMPLATE_ID', $TemplateConfig['ID']['template_id'], true);
 		sysConfig::set('TEMPLATE_NAME', $TemplateConfig['NAME']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_DIRECTORY', $TemplateConfig['DIRECTORY']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_TYPE', $TemplateConfig['TEMPLATE_TYPE']['configuration_value'], true);

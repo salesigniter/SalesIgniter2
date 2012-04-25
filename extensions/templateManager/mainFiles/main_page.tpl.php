@@ -53,13 +53,14 @@ $Page = Doctrine_Manager::getInstance()
 
 $PageLayouts = (substr($Page[0]['layout_id'], 0, 1) == ',' ? substr($Page[0]['layout_id'], 1) : $Page[0]['layout_id']);
 $PageLayouts = (substr($Page[0]['layout_id'], -1) == ',' ? substr($PageLayouts, 0, -1) : $PageLayouts);
-if (empty($PageLayouts)){
+if (strlen($PageLayouts) == 0){
 	$Page = Doctrine_Manager::getInstance()
 		->getCurrentConnection()
 		->fetchAssoc('select tml.layout_id, (select count(*) from template_pages tp where FIND_IN_SET(tml.layout_id, tp.layout_id) > 0) as totalPages from template_manager_layouts tml where tml.template_id = "' . $TemplateId[0]['template_id'] . '"');
 	$largestCount = 0;
 	foreach($Page as $pInfo){
 		if ($pInfo['totalPages'] > $largestCount){
+            $largestCount = $pInfo['totalPages'];
 			$PageLayouts = $pInfo['layout_id'];
 		}
 	}
@@ -90,7 +91,7 @@ if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $PageContentFile)){
 $pageContent = new Template($PageContentFile, $pageContentPath);
 
 $checkFiles = array(
-	sysConfig::get('DIR_FS_TEMPLATE') . '/applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
+	sysConfig::get('DIR_FS_TEMPLATE') . '/catalog/applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
 	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
 	(isset($appContent) ? $appContent : false),
 	sysConfig::getDirFsCatalog() . 'applications/' . $appContent

@@ -11,7 +11,9 @@
  * @version    SVN: $Id: Builder.php 6401 2009-09-24 16:12:04Z guilhermeblanco $
  */
 class Categories extends Doctrine_Record {
-	
+
+	private $categoriesArr = array();
+
 	public function setUp(){
 		$this->hasMany('CategoriesDescription', array(
 			'local'   => 'categories_id',
@@ -22,6 +24,7 @@ class Categories extends Doctrine_Record {
 		$this->hasMany('Categories as Children', array(
 			'local' => 'categories_id',
 			'foreign' => 'parent_id',
+            'orderBy' => 'sort_order',
 			'cascade' => array('delete')
 		));
 	}
@@ -116,5 +119,32 @@ class Categories extends Doctrine_Record {
 		->orderBy('c.sort_order, cd.categories_name')
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		return $Qcategories;
+	}
+
+	public function recurseCategory($id, &$catArr){
+		$Children = $this->getParentSubCategories($id, Session::get('languages_id'));
+		if ($Children && !empty($Children)){
+			foreach($Children as $cInfo){
+				$catArr['children'][$cInfo['categories_id']] = array(
+					'name' => addslashes($cInfo['CategoriesDescription'][0]['categories_name'])
+				);
+				$this->recurseCategory($cInfo['categories_id'], &$catArr['children'][$cInfo['categories_id']]);
+			}
+		}
+	}
+
+	public function getCategories($excluded = array()){
+		$catArr = array();
+		if (empty($this->categoriesArr)){
+			foreach($this->getParentSubCategories(0, Session::get('languages_id')) as $category){
+				$catArr[0]['children'][$category['categories_id']] = array(
+					'name' => addslashes($category['CategoriesDescription'][0]['categories_name'])
+				);
+				$this->recurseCategory($category['categories_id'], &$catArr[0]['children'][$category['categories_id']]);
+			}
+			$this->categoriesArr = $catArr;
+		}
+
+		return $this->categoriesArr;
 	}
 }

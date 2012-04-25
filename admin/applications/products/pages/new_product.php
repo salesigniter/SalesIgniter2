@@ -124,7 +124,6 @@ if (file_exists($ProductType->getPath() . 'admin/applications/products/pages/new
 
 EventManager::notify('NewProductAddTabs', $Product, $ProductType, $Tabs);
 ?>
-<input type="button" value="Turn On Upload Debugger" id="turnOnDebugger" /><br />
 <form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'action=saveProduct' . ((int)$Product->getId() > 0
 		? '&pID=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
 	<div style="position:relative;text-align:right;"><?php

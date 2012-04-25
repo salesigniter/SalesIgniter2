@@ -8,5 +8,5 @@
 	<define key="INFOBOX_SHOPPINGCART_CHECKOUT"><![CDATA[Checkout]]></define>
 
 	<define key="TEXT_SHOPPING_CART_BOX_MODE"><![CDATA[Box Mode: ]]></define>
-	<define key="INFOBOX_SHOPPINGCART_ITEMS_IN_CART"><![CDATA[Items In <a href="%s">Shopping Cart</a>]]></define>
+	<define key="INFOBOX_SHOPPINGCART_ITEMS_IN_CART"><![CDATA[ Items In <a href="%s">Shopping Cart</a>]]></define>
 </definitions>

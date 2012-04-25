@@ -43,6 +43,10 @@ function showWidgetEditWindow(o) {
 			if (o.onShow){
 				o.onShow.apply(this);
 			}
+
+			if (o.onHide){
+				$(this).unbind('onHide').bind('onHide', o.onHide);
+			}
 		});
 	});
 }
@@ -50,6 +54,7 @@ function showWidgetEditWindow(o) {
 function hideWidgetEditWindow() {
 	var self = this;
 	$(self).fadeOut(250, function () {
+		$(self).trigger('onHide');
 		$(self).empty();
 		$('.boxListing').fadeIn(250, function () {
 			$('#widgetsForm').hide();
@@ -95,11 +100,16 @@ function editWidget(li) {
 		success: function (data) {
 			showWidgetEditWindow({
 				htmlTable: data,
+				onHide: function (){
+					$(this).find('.makeHtmlEditor:hidden').ckeditorGet().destroy();
+				},
 				onShow: function () {
 					var self = this;
 					$(self).find('.BrowseServerField').filemanager({
 						fileSource: jsConfig.get('DIR_FS_CATALOG_TEMPLATES') + getTemplateName()
 					});
+
+					$(self).find('.makeHtmlEditor').ckeditor();
 
 					$(self).find('.cancelButton').click(function () {
 						hideWidgetEditWindow.apply(self);
@@ -1366,7 +1376,18 @@ var LayoutDesigner = {
 			var inputB = o.inputB || $('.colorPickerRGBA_Blue');
 			var inputA = o.inputA || $('.colorPickerRGBA_Alpha');
 
-			$(self).ColorPicker({
+			$(self).miniColors({
+				change: function (hex, rgb){
+					inputR.val(rgb.r);
+					inputG.val(rgb.g);
+					inputB.val(rgb.b);
+
+					updatePickerTriggerBackground();
+
+					$(self).trigger('onChange');
+				}
+			});
+			/*$(self).ColorPicker({
 				onSubmit: function(hsb, hex, rgb, el) {
 					inputR.val(rgb.r);
 					inputG.val(rgb.g);
@@ -1396,7 +1417,7 @@ var LayoutDesigner = {
 
 					$(self).trigger('onChange');
 				}
-			});
+			});*/
 
 			function updatePickerTriggerBackground() {
 				var rgbaStr = 'rgba(' +
@@ -1421,7 +1442,14 @@ var LayoutDesigner = {
 		var thisCls = this;
 		$el.each(function () {
 			var self = this;
-			$(this).ColorPicker({
+			$(this).miniColors({
+				change: function (hex, rgb) {
+					$(self).val(hex);
+					$(self).trigger('onChange');
+				}
+			});
+
+			/*$(this).ColorPicker({
 				onSubmit: function(hsb, hex, rgb, el) {
 					$(self).val('#' + hex);
 					$(self).ColorPickerHide();
@@ -1438,7 +1466,7 @@ var LayoutDesigner = {
 
 					$(self).trigger('onChange');
 				}
-			});
+			});*/
 		});
 	}
 };

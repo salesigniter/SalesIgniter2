@@ -34,6 +34,7 @@ $Product->products_featured = $_POST['products_featured'];
 $Product->products_tax_class_id = $_POST['products_tax_class_id'];
 $Product->products_type = $_POST['products_type'];
 $Product->products_in_box = (int)(isset($_POST['products_in_box']) ? $_POST['products_in_box'] : '0');
+$Product->products_display_order = (int)$_POST['products_display_order'];
 
 if (isset($_POST['products_image'])){
 	$Product->products_image = $_POST['products_image'];

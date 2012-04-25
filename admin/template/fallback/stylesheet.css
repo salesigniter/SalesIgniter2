@@ -58,6 +58,7 @@ td span { vertical-align: middle; }
 
 .ui-icon-calendar { background-position: -114px -2px; }
 .ui-icon-favorites-add { background-position: -142px -2px; }
+.ui-icon-print { background-position: -170px -2px; }
 .ui-icon-trash { background-position: -198px -2px; }
 .ui-icon-arrowthick-1-s { background-position: -226px -2px; }
 .ui-icon-folder-collapsed { background-position: -254px -2px; }
@@ -105,6 +106,7 @@ td span { vertical-align: middle; }
 .ui-icon-alert { background-position: -170px -142px; }
 .ui-icon-myaccount { background-position: -198px -142px; }
 .ui-dialog .ui-resizable-se { width:24px;height:24px;background-position: -226px -142px; }
+.ui-icon-locked { background-position: -254px -142px; }
 
 .ui-icon-arrow-4 { background-position: -198px -170px; }
 .ui-icon-arrow-apply-all { background-position: -254px -170px; }

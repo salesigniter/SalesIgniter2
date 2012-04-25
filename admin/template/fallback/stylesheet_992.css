@@ -1,0 +1,19 @@
+#rightColumn {
+	margin-left: 100px;
+}
+#mainNavMenu {
+	width:100px;
+}
+#mainNavMenu li a {
+	display:block;
+	text-align:center;
+}
+#mainNavMenu li .ui-icon {
+	display:block;
+	margin-right:auto;
+	margin-left:auto;
+}
+#languageBar #languageBox {
+	display:block;
+	width:100px;
+}

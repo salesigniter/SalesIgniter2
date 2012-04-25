@@ -10,7 +10,7 @@
 			allowMultiple : false
 		},
 		isWindow : false,
-		windowsHeight: 0,
+		windowsHeight : 0,
 		data : {},
 		listingDecorators : {},
 		selectedFiles : [],
@@ -162,21 +162,22 @@
 			 .html('Base Dir: ' + self.options.fileSource)
 			 .insertAfter(self.inputElement);*/
 		},
-		_getDecorator: function (){
+		_getDecorator : function () {
 			return this.listingDecorators[this.options.type];
 		},
-		_fixElements: function (){
+		_fixElements : function () {
 			var self = this;
 			self.dialogEl.parent().css('overflow', 'hidden');
 			if (self.isWindow === true){
 				self.windowsHeight = $(window).innerHeight();
-			}else{
+			}
+			else {
 				self.windowsHeight = self.dialogEl.innerHeight();
 			}
-			self.dialogEl.find('.ui-filemanager-toolbar').each(function (){
+			self.dialogEl.find('.ui-filemanager-toolbar').each(function () {
 				self.windowsHeight -= $(this).outerHeight();
 			});
-			self.dialogEl.find('#windows, #uploadBlock, #createDirBlock, #deleteItemBlock, #fileListing, #editItemBlock, #previewBlock').each(function (){
+			self.dialogEl.find('#windows, #uploadBlock, #createDirBlock, #deleteItemBlock, #fileListing, #editItemBlock, #previewBlock').each(function () {
 				var paddingTop = $(this).outerHeight(true) - $(this).height();
 				$(this).height(self.windowsHeight - paddingTop);
 
@@ -306,7 +307,7 @@
 				'	</div>' +
 				'</div>';
 
-			function setupFileListingWindow(){
+			function setupFileListingWindow() {
 				var dialogWindow = $(this);
 
 				dialogWindow.parent().addClass('ui-filemanager-dialog');
@@ -411,12 +412,13 @@
 				self.dialogEl = self.inputElement;
 				self.inputElement.html(dialogHtml);
 
-				$(window).resize(function() {
+				$(window).resize(function () {
 					self._fixElements();
 				});
 
 				setupFileListingWindow.apply(self.dialogEl);
-			}else{
+			}
+			else {
 				self.dialogEl = $(dialogHtml).dialog({
 					title : 'File Manager',
 					minWidth : 700,
@@ -424,7 +426,7 @@
 					close : function () {
 						$(this).dialog('destroy').remove();
 					},
-					resize: function (){
+					resize : function () {
 						self._fixElements();
 					},
 					open : setupFileListingWindow,
@@ -524,7 +526,7 @@
 
 			for(var i = 0; i < idxArr.length; i++){
 				var listingEl = $(ListingDecorator.listItemSelector + ':eq(' + idxArr[i] + ')');
-				listingEl.trigger('click');
+				listingEl.trigger('mousedown');
 			}
 
 			if (self.processingShiftClick === true){
@@ -570,7 +572,8 @@
 						$(this).removeClass('ui-state-hover');
 					}
 				})
-				.click(function (e, keyDownEvent) {
+				.mousedown(function (e, keyDownEvent) {
+					this.waitForMouseUp = false;
 					if (self.processingShiftClick === false && self.shiftActive && !$(this).hasClass('ui-state-active')){
 						var selectIdxArr = [];
 						if ($('#fileListing').data('currentItem').index() > $(this).index()){
@@ -592,6 +595,23 @@
 						self._updateSelectedFile();
 					}
 					else {
+						if ($(this).hasClass('ui-state-active')){
+							this.waitForMouseUp = true;
+						}
+
+						if (this.waitForMouseUp === false){
+							if (!self.ctrlActive && !self.shiftActive){
+								$('#fileListing').find('.ui-state-active').removeClass('ui-state-active');
+							}
+
+							$(this).removeClass('ui-state-hover').addClass('ui-state-active');
+							$('#fileListing').data('currentItem', $(this));
+							self._updateSelectedFile($(this).data('fileInfo'));
+						}
+					}
+				})
+				.mouseup(function (){
+					if (this.waitForMouseUp === true){
 						if (!self.ctrlActive && !self.shiftActive){
 							$('#fileListing').find('.ui-state-active').removeClass('ui-state-active');
 						}
@@ -626,6 +646,67 @@
 						self.selectedFiles.splice(keyIdx, 1);
 					}
 				});
+
+			appendToEl.find(ListingDecorator.listItemSelector).draggable({
+				revert : false,
+				cursorAt: { left: 3, top: 3 },
+				helper : function (e, ui) {
+					var items = [];
+					$('#fileListing').find('.ui-state-active').each(function () {
+						items.push($(this).data('fileInfo'));
+					});
+
+					var html;
+					if (items.length > 1){
+						html = items.length + ' Items';
+					}else{
+						if (/image/i.test(items[0].type.mime)){
+							html = '<img src="' + items[0].path.relative + '" width="128" height="128">';
+						}
+						else {
+							html = '<span class="ui-filemanager-icon ui-filemanager-icon-128 ' + items[0].type.icon + '"></span>';
+						}
+					}
+
+					return $('<div></div>')
+						.data('selectedItems', items)
+						.addClass('ui-filemanager-dragging')
+						.html(html);
+				},
+				appendTo : appendToEl
+			});
+
+			appendToEl.find(ListingDecorator.listItemSelector).each(function (){
+				if ($(this).data('fileInfo').type.mime == 'directory'){
+					var moveToDir = $(this).data('fileInfo').name;
+					$(this).droppable({
+						tolerance: 'pointer',
+						accept: '.ui-draggable',
+						hoverClass: 'ui-state-hover',
+						drop: function (e, ui){
+							var items = [];
+							$.each(ui.helper.data('selectedItems'), function (){
+								items.push('item[]=' + this.name);
+							});
+
+							$.ajax({
+								cache : false,
+								url : self.options.formAction + '?rType=ajax&action=moveItem',
+								dataType : 'json',
+								data : 'currentDir=' + $('#fileListing').data('currentDirectory') + '&moveToDir=' + moveToDir + '&' + items.join('&'),
+								type : 'post',
+								beforeSend : function () {
+									self._showAjaxLoader($('#fileListing'));
+								},
+								success : function (data) {
+									self._removeAjaxLoader($('#fileListing'));
+									self._getFileListing();
+								}
+							});
+						}
+					});
+				}
+			});
 
 			if (typeof ListingDecorator.onLoad == 'function'){
 				ListingDecorator.onLoad.apply(self, [appendToEl]);
@@ -662,13 +743,14 @@
 					})
 				});
 
-			barEl.find('.ui-filemanager-icon-view-choose').click(function (){
+			barEl.find('.ui-filemanager-icon-view-choose').click(function () {
 				if (barEl.find('.ui-filemanager-toolbar-view-icons-list').is(':hidden')){
 					barEl.find('.ui-filemanager-toolbar-view-icons-list').show();
-					$(document).one('click', function (){
+					$(document).one('click', function () {
 						barEl.find('.ui-filemanager-toolbar-view-icons-list').hide();
 					});
-				}else{
+				}
+				else {
 					barEl.find('.ui-filemanager-toolbar-view-icons-list').hide();
 				}
 				return false;
@@ -685,7 +767,8 @@
 
 				if (typeof self['_' + $(this).attr('id')] == 'function'){
 					self['_' + $(this).attr('id')].apply(self);
-				}else{
+				}
+				else {
 					var blockContainer = self.dialogEl.find('#' + $(this).data('action_block'));
 					if (blockContainer.html() == ''){
 						var actionBlock = $(self.windowBlocks[blockContainer.attr('id')]);
@@ -700,7 +783,7 @@
 				}
 			});
 		},
-		_refreshListing: function (){
+		_refreshListing : function () {
 			this._getFileListing();
 		},
 		_setupBlock : function (actionBlockId, blockEl) {
@@ -1120,7 +1203,7 @@
 				}
 				return numOfItems;
 			},
-			onLoad: function (appendToEl){
+			onLoad : function (appendToEl) {
 				var widest = 0;
 				var tallest = 0;
 				appendToEl.find('li').each(function () {
@@ -1194,23 +1277,23 @@
 
 				return listingEl;
 			},
-			fixElements: function (){
+			fixElements : function () {
 				var fileListing = $('#fileListing');
-				fileListing.find('th').each(function (i, item){
+				fileListing.find('th').each(function (i, item) {
 					$(this).width(fileListing.find('tr').last().find('td:eq(' + i + ')').width());
 				});
 			},
-			onLoad: function (appendToEl){
+			onLoad : function (appendToEl) {
 				if (this.isWindow === true){
 					appendToEl.find('thead').css({
-						position: 'fixed',
-						top: $('.ui-filemanager-toolbar').first().height()
+						position : 'fixed',
+						top : $('.ui-filemanager-toolbar').first().height()
 					});
 					$('#fileListing').css('padding-top', appendToEl.find('thead > tr').height() + 'px');
 					this._fixElements();
 				}
 			},
-			onUnload: function (){
+			onUnload : function () {
 				$('#fileListing').css('margin-top', '0px');
 				this._fixElements();
 			}
@@ -1279,7 +1362,7 @@
 				}
 				return numOfItems;
 			},
-			onLoad: function (appendToEl){
+			onLoad : function (appendToEl) {
 				var widest = 0;
 				var tallest = 0;
 				appendToEl.find('li').each(function () {
@@ -1431,7 +1514,7 @@
 				}
 				return numOfItems;
 			},
-			onLoad: function (appendToEl){
+			onLoad : function (appendToEl) {
 				var widest = 0;
 				var tallest = 0;
 				appendToEl.find('li').each(function () {

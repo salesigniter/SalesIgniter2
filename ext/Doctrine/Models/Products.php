@@ -152,16 +152,25 @@ class Products extends Doctrine_Record {
 			'notnull'       => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('products_on_order', 'integer', 1, array(
-			'type'          => 'integer',
-			'length'        => 1,
-			'unsigned'      => 0,
-			'primary'       => false,
-			'default'       => '0',
-			'notnull'       => true,
-			'autoincrement' => false
-		));
-		$this->hasColumn('products_date_ordered', 'timestamp');
+        $this->hasColumn('products_on_order', 'integer', 1, array(
+            'type'          => 'integer',
+            'length'        => 1,
+            'unsigned'      => 0,
+            'primary'       => false,
+            'default'       => '0',
+            'notnull'       => true,
+            'autoincrement' => false
+        ));
+        $this->hasColumn('products_display_order', 'integer', 2, array(
+            'type'          => 'integer',
+            'length'        => 2,
+            'unsigned'      => 0,
+            'primary'       => false,
+            'default'       => '0',
+            'notnull'       => true,
+            'autoincrement' => false
+        ));
+        $this->hasColumn('products_date_ordered', 'timestamp');
 		$this->hasColumn('products_featured', 'integer', 1, array(
 			'type'          => 'integer',
 			'length'        => 1,

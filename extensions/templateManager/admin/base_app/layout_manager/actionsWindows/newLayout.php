@@ -303,7 +303,7 @@ if (is_dir(sysConfig::getDirFsCatalog() . 'templates/kingdom/applications/')){
 				if ($Page->isDot() || $Page->isDir()){
 					continue;
 				}
-				$pageName = $Page->getBasename('.php');
+				$pageName = $Page->getBasename();
 
 				$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
 			}

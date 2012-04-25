@@ -298,32 +298,39 @@ class ProductTypeStandard extends ProductTypeBase
 	}
 
 	public function showProductListing($col, $options = array()) {
+        $options = array_merge(array(
+            'showBuyButton' => true
+        ), $options);
 		$return = false;
 		switch($col){
 			case 'productsPriceNew':
 				$tableRow = array();
 
-				$buyNowButton = htmlBase::newElement('button')
-					->setText(sysLanguage::get('TEXT_BUTTON_BUY_NOW'));
+                if ($options['showBuyButton'] === true){
+                    $buyNowButton = htmlBase::newElement('button')
+                        ->setText(sysLanguage::get('TEXT_BUTTON_BUY_NOW'));
+                }
 
 				foreach($this->getPurchaseTypes() as $k => $pType){
-					$buyNowButton->setHref(itw_app_link(tep_get_all_get_params(array('action', 'products_id')) . 'action=addCartProduct&purchase_type=' . $pType->getCode() . '&products_id=' . $this->getProductId()), true);
+                    if (isset($buyNowButton)){
+                        $buyNowButton->setHref(itw_app_link(tep_get_all_get_params(array('action', 'products_id')) . 'action=addCartProduct&purchase_type=' . $pType->getCode() . '&products_id=' . $this->getProductId()), true);
+                    }
 					if ($k == 'new' && $pType->hasInventory()){
 						if (sizeof($tableRow) <= 0){
 							$tableRow[] = '<tr>
     	               <td class="main">Buy ' . $pType->getTitle() . ':</td>
     	               <td class="main">' . $pType->displayPrice() . '</td>
     	              </tr>
-    	              <tr>
+    	              ' . (isset($buyNowButton) ? '<tr>
     	               <td class="main" colspan="2">' . $buyNowButton->draw() . '</td>
-    	              </tr>';
+    	              </tr>' : '');
 						}
 						else {
 							array_unshift($tableRow, '<tr>
     	               <td class="main"></td>
     	               <td class="main">' . $pType->getTitle() . ':</td>
     	               <td class="main">' . $pType->displayPrice() . '</td>
-    	               <td class="main" style="font-size:.8em;">' . $buyNowButton->draw() . '</td>
+    	               ' . (isset($buyNowButton) ? '<td class="main" style="font-size:.8em;">' . $buyNowButton->draw() . '</td>' : '') . '
     	              </tr>');
 						}
 					}
@@ -337,7 +344,7 @@ class ProductTypeStandard extends ProductTypeBase
         	   	    <td class="main"></td>
         	   	    <td class="main">' . $pType->getTitle() . ':</td>
         	   	    <td class="main">' . $pType->displayPrice() . '</td>
-        	   	    <td class="main" style="font-size:.8em;">' . $buyNowButton->draw() . '</td>
+        	   	    ' . (isset($buyNowButton) ? '<td class="main" style="font-size:.8em;">' . $buyNowButton->draw() . '</td>' : '') . '
         	   	   </tr>';
 						}
 					}

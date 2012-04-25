@@ -52,8 +52,9 @@ class Product extends MI_Base
 		$this->setTotalOrdered($Product->products_ordered);
 		$this->setOnOrder($Product->products_on_order);
 		$this->setDateOrdered($Product->products_date_ordered);
-		$this->setLastSold($Product->products_last_sold);
-		//$this->setInventoryController($Product->products_inventory_controller);
+        $this->setLastSold($Product->products_last_sold);
+        $this->setDisplayOrder($Product->products_display_order);
+        //$this->setInventoryController($Product->products_inventory_controller);
 		if (is_object($Product->ProductsAdditionalImages)){
 			foreach($Product->ProductsAdditionalImages->toArray() as $iInfo){
 				$this->addAdditionalImage($iInfo);
@@ -276,12 +277,17 @@ class Product extends MI_Base
 	 */
 	public function getProductType() { return $this->info['products_type']; }
 
-	/**
-	 * @return int
-	 */
-	public function getOnOrder() { return (int)$this->info['products_on_order']; }
+    /**
+     * @return int
+     */
+    public function getOnOrder() { return (int)$this->info['products_on_order']; }
 
-	/**
+    /**
+     * @return int
+     */
+    public function getDisplayOrder() { return (int)$this->info['products_display_order']; }
+
+    /**
 	 * @return array
 	 */
 	public function getAdditionalImages() { return (array)$this->info['AdditionalImages']; }
@@ -442,13 +448,19 @@ class Product extends MI_Base
 	 */
 	public function setLastSold(SesDateTime $val) { $this->info['products_last_sold'] = $val; }
 
-	/**
-	 * @param int $val
-	 * @return void
-	 */
-	public function setOnOrder($val) { $this->info['products_on_order'] = (int)$val; }
+    /**
+     * @param int $val
+     * @return void
+     */
+    public function setOnOrder($val) { $this->info['products_on_order'] = (int)$val; }
 
-	/**
+    /**
+     * @param int $val
+     * @return void
+     */
+    public function setDisplayOrder($val) { $this->info['products_display_order'] = (int)$val; }
+
+    /**
 	 * @param array $val
 	 * @return void
 	 */

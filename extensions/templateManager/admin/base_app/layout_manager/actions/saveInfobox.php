@@ -5,7 +5,8 @@ if ($Widget !== false){
 	$WidgetProperties = array(
 		'id' => $_POST['id'],
 		'template_file' => $_POST['template_file'],
-		'widget_title' => $_POST['widget_title']
+		'widget_title' => $_POST['widget_title'],
+		'widget_title_link' => $_POST['widget_title_link']
 	);
 
 	$WidgetPreview = false;

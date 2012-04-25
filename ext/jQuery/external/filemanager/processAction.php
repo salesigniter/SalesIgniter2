@@ -19,6 +19,22 @@ $json = array(
 );
 
 switch($_GET['action']){
+	case 'moveItem':
+		$ftpRes = new SystemFTP();
+		$ftpRes->connect();
+		if ($ftpRes->changeDirectory($_POST['currentDir'])){
+			$moveToDir = $_POST['moveToDir'];
+			foreach($_POST['item'] as $itemName){
+				if (!$ftpRes->moveItem($itemName, $moveToDir . '/' . $itemName)){
+					$json['success'] = false;
+					$json['messages'][] = 'Unable To Move Item "' . $itemName . '" To "' . $moveToDir . '"';
+				}
+			}
+		}else{
+			$json['success'] = false;
+			$json['messages'][] = 'Unable To Change Directory To: ' . $_POST['currentDir'];
+		}
+		break;
 	case 'editItem':
 		$ftpRes = new SystemFTP();
 		$ftpRes->connect();

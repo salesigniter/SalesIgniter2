@@ -150,4 +150,5 @@
 	<define key="TEXT_ENTRY_USE_GLOBAL"><![CDATA[Use Global Settings: ]]></define>
 
 	<define key="TEXT_PRODUCTS_SHORT_DESCRIPTION"><![CDATA[Products Short Description: ]]></define>
+    <define key="TEXT_PRODUCTS_DISPLAY_ORDER"><![CDATA[Display Order: ]]></define>
 </definitions>

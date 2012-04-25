@@ -132,7 +132,7 @@
 			'</tr>' +
 			'<tr>' +
 			'<td>Image: </td>' +
-			'<td><input type="text" name="background_image" class="BrowseServerField"></td>' +
+			'<td><input type="text" name="background_image" class="fileManager" data-files_source="' + jsConfig.get('DIR_FS_CATALOG_TEMPLATES') + '"></td>' +
 			'</tr>' +
 			'<tr>' +
 			'<td>Repeat: </td>' +

@@ -150,7 +150,7 @@ class htmlElement
 	 * Add a css style to the element, can be an array of style => value
 	 * Also can retrieve a css style setting by not including a value
 	 * @param string|array $key
-	 * @param null|string $val
+	 * @param bool|string $val
 	 * @return htmlElement|string
 	 */
 	public function css($key, $val = false) {
@@ -225,7 +225,7 @@ class htmlElement
 	 * Add an html attribute to the element
 	 * Also can get the value of an attribute if val is null
 	 * @param string|array $name
-	 * @param null|string $val
+	 * @param bool|string $val
 	 * @return htmlElement|string
 	 */
 	public function attr($name, $val = false) {
@@ -311,7 +311,7 @@ class htmlElement
 
 	/**
 	 * Add html content to the element
-	 * @param string|null $html
+	 * @param string|bool $html
 	 * @return htmlElement|string
 	 */
 	public function html($html = false) {
@@ -326,7 +326,7 @@ class htmlElement
 
 	/**
 	 * Add text content to the element
-	 * @param string|null $html
+	 * @param string|bool $text
 	 * @return htmlElement|string
 	 */
 	public function text($text = false) {
@@ -341,7 +341,7 @@ class htmlElement
 
 	/**
 	 * Set the value for the element, mainly for input/textarea/button
-	 * @param string|null $val
+	 * @param string|bool $val
 	 * @return htmlElement|string
 	 */
 	public function val($val = false) {
@@ -539,7 +539,6 @@ interface htmlElementPlugin
 	/**
 	 * Output the element
 	 * @abstract
-	 * @param string $val
 	 * @return void
 	 */
 	public function draw();
@@ -577,7 +576,6 @@ interface htmlWidgetPlugin
 	/**
 	 * Output the element
 	 * @abstract
-	 * @param string $val
 	 * @return void
 	 */
 	public function draw();

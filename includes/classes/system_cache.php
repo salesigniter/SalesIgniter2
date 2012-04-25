@@ -178,6 +178,7 @@ class SystemCache {
 				$modifiedCheck = DateTime::createFromFormat('D, d M Y H:i:s \G\M\T', $ServerLastModified);
 				$lastModified = DateTime::createFromFormat('D, d M Y H:i:s \G\M\T', $this->CacheClass->getData('Last-Modified'));
 				if ($modifiedCheck->getTimestamp() >= $lastModified->getTimestamp()){
+					header('Cache-File-Name: ' . $this->CacheClass->fileName);
 					header('Last-Modified: ' . $lastModified->format('D, d M Y H:i:s \G\M\T'), true, 304);
 					exit;
 				}

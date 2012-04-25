@@ -158,6 +158,10 @@ class SystemFTP
 		return ftp_delete($this->ftpConn, $this->cleanPath($filePath));
 	}
 
+	public function moveItem($from, $to){
+		return ftp_rename($this->ftpConn, $this->cleanPath($from), $this->cleanPath($to));
+	}
+
 	public function renameFile($oldName, $newName){
 		return ftp_rename($this->ftpConn, $oldName, $newName);
 	}
