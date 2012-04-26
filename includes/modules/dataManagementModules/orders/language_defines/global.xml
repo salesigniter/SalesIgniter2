@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_DATA_MANAGEMENT_ORDERS_TEXT_TITLE"><![CDATA[Order Data Management]]></define>
+	<define key="MODULE_DATA_MANAGEMENT_ORDERS_TEXT_DESCRIPTION"><![CDATA[Import And Export Orders Using This Module]]></define>
+</definitions>

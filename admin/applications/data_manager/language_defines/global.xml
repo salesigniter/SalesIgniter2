@@ -1,4 +1,5 @@
 <definitions>
+	<define key="HEADING_TITLE"><![CDATA[Data Management]]></define>
 	<define key="TEXT_INFO_SPLIT_FILE"><![CDATA[You can download your split files in the Tools/Files under /catalog/temp/]]></define>
 	<define key="TEXT_INFO_CREATING_SPLIT"><![CDATA[Creating file Import_Split %s.txt ...]]></define>
 	<define key="TEXT_INFO_ADDED_RECORDS"><![CDATA[Added %s records and closing file...<br />]]></define>
