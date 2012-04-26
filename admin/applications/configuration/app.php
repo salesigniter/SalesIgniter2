@@ -1,18 +1,8 @@
 <?php
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/fileSystemBrowser.php');
-	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
+$_GET['key'] = (isset($_GET['key']) ? $_GET['key'] : 'coreMyStore');
 
-	$appContent = $App->getAppContentFile();
+require(sysConfig::getDirFsCatalog() . 'includes/classes/fileSystemBrowser.php');
+require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 
-	$gID = (isset($_GET['gID'])) ? $_GET['gID'] : ($App->getAppPage() == 'product_listing' || $App->getAppPage() == 'product_sort_listing' ? 8 : 1);
-	
-	if (isset($_GET['cID'])){
-		$App->setInfoBoxId($_GET['cID']);
-	}
-
-	$Qgroup = Doctrine_Query::create()
-	->select('configuration_group_title')
-	->from('ConfigurationGroup')
-	->where('configuration_group_id = ?', (int)$gID)
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+$appContent = $App->getAppContentFile();
 ?>
