@@ -107,6 +107,10 @@ ob_end_clean();
 					});
 			});
 
+			$('#mainNavMenu > li > a').click(function (e){
+				e.preventDefault();
+			});
+
 			$(document).on('click', '.removeLanding', function(){
 				$(this).parent().remove();
 				$('#bodyWrapprer').show();
