@@ -19,9 +19,6 @@ $CurrencyInfo = $currencies->get(Session::get('currency'));
 
 ob_start();
 ?>
-<header><?php
-	require(sysConfig::getDirFsAdmin() . 'includes/header.php');
-	?></header>
 <div id="bodyWrapprer"><?php
 	if ($messageStack->size('pageStack') > 0){
 		echo $messageStack->output('pageStack', true) . '<br />';
@@ -118,6 +115,9 @@ ob_end_clean();
 	</script>
 </head>
 <body topmargin="0" leftmargin="0" bgcolor="#FFFFFF">
+<?php
+	if (Session::exists('login_id') === true){
+?>
 <div id="logoBar">
 	<img src="<?php echo sysConfig::getDirWsAdmin();?>template/fallback/images/seslogo.png" style="float:left;margin-top: 12px;margin-left: 10px;">
 	<div style="float:right;margin-top:.5em;margin-right: 24px;">
@@ -175,6 +175,11 @@ function makeLinkList($item) {
 	</div>
 	<div id="rightColumn" class="ui-corner-all"><?php echo $BodyContent;?></div>
 </div>
+		<?php
+	}else{
+		echo $BodyContent;
+	}
+?>
 </body>
 <div id="expiredSessionWindow" title="Session Has Expired" style="display:none;">
 	<p>Your session has expired, please click ok to log back in.</p>
