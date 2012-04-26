@@ -1,0 +1,9 @@
+#blogcategoriesModuleMenu h3{ margin:0;padding:0; }
+#blogcategoriesModuleMenu ul{ list-style-type:none; }
+#blogcategoriesModuleMenu ul li{ margin:0;padding:0;background:transparent; }
+#blogarchivesModuleMenu ul{ list-style-type:none; margin:0; padding:0; }
+#blogarchivesModuleMenu ul li{ margin:0;padding:0;background:transparent; }
+.blogInfoboxLink{ border-color:transparent; }
+.blogInfoboxLink:hover{ text-decoration:none !important; }
+.comf, .captcha_img{ display:block;margin-bottom:10px; }
+#cke_comment_text{ width:80%; }
