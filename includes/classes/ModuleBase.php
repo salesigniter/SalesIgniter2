@@ -207,6 +207,9 @@ class ModuleBase extends MI_Base
 	 * @param string $val
 	 */
 	public function setPath($val) {
+		if (substr($val, -1) != DIRECTORY_SEPARATOR){
+			$val .= DIRECTORY_SEPARATOR;
+		}
 		$this->path = $val;
 	}
 
