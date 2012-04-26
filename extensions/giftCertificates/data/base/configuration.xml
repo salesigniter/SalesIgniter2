@@ -14,7 +14,7 @@
 				</EXTENSION_GIFT_CERTIFICATES_INSTALLED>
         <EXTENSION_GIFT_CERTIFICATES_ENABLED>
             <title>Enable Gift Certificates</title>
-            <value>True</value>
+            <value>False</value>
             <description>Enable Or Disable Gift Certificates Extension</description>
             <sort_order>1</sort_order>
             <set_function>tep_cfg_select_option(array('True','False'),</set_function>

@@ -18,7 +18,7 @@ class multiStore_admin_modules_default extends Extension_multiStore
 	}
 
 	public function load() {
-		if ($this->enabled === false) {
+		if ($this->isEnabled() === false) {
 			return;
 		}
 
@@ -98,8 +98,9 @@ class multiStore_admin_modules_default extends Extension_multiStore
 					->andWhere('module_code = ?', $moduleCode)
 					->andWhere('configuration_key = ?', $cfg->getKey())
 					->andWhere('store_id = ?', $sInfo['stores_id'])
-					->execute();
-				if ($Qconfig->count() > 0){
+					->fetchOne();
+
+				if ($Qconfig){
 					$fieldVal = $Qconfig->configuration_value;
 				}else{
 					$fieldVal = $cfg->getValue();

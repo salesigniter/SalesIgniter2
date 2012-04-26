@@ -18,6 +18,14 @@ if (isset($_GET['sID'])){
 else {
 	$Store = $Stores->create();
 }
+$isDefault = 0;
+if(isset($_POST['is_default'])){
+	$isDefault = 1;
+	Doctrine_Query::create()
+	->update('Stores')
+	->set('is_default','?','0')
+	->execute();
+}
 
 $Store->stores_name = $_POST['stores_name'];
 $Store->stores_domain = $_POST['stores_domain'];
@@ -26,11 +34,17 @@ $Store->stores_email = $_POST['stores_email'];
 $Store->stores_template = $_POST['stores_template'];
 $Store->stores_street_address = $_POST['stores_street_address'];
 $Store->stores_postcode = $_POST['stores_postcode'];
-
-/* Auto Upgrade ( Version 1.0 to 1.1 ) --BEGIN-- */
+$Store->stores_telephone = $_POST['stores_telephone'];
+$Store->stores_group = $_POST['stores_group'];
+$Store->stores_info = $_POST['stores_info'];
+$Store->default_currency = $_POST['default_currency'];
+$Store->is_default = $isDefault;
+$Store->home_redirect_store_info = (isset($_POST['home_redirect_store_info'])?1:0);
+if(isset($_POST['stores_countries'])){
+	$Store->stores_countries = implode(',',$_POST['stores_countries']);
+}
 $Store->stores_owner = $_POST['stores_owner'];
-/* Auto Upgrade ( Version 1.0 to 1.1 ) --END-- */
-
+	
 if (isset($_POST['fees'])){
 	$Store->StoresFees->fee_royalty = $_POST['fees']['royalty'];
 	$Store->StoresFees->fee_management = $_POST['fees']['management'];

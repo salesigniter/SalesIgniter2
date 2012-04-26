@@ -6,6 +6,7 @@ $(document).ready(function (){
 			toClose: 'ui-icon-triangle-1-n'
 		},
 		firstItemChecksAll: true,
+		forceMultiple:true,
 		maxDropHeight: 300
 	});
 });

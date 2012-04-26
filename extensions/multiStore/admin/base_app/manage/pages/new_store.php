@@ -9,6 +9,60 @@
 
 	This script and it's source is not redistributable
 */
+
+$GEOIP_COUNTRY_NAMES = array(
+	"", "Asia/Pacific Region", "Europe", "Andorra", "United Arab Emirates",
+	"Afghanistan", "Antigua and Barbuda", "Anguilla", "Albania", "Armenia",
+	"Netherlands Antilles", "Angola", "Antarctica", "Argentina", "American Samoa",
+	"Austria", "Australia", "Aruba", "Azerbaijan", "Bosnia and Herzegovina",
+	"Barbados", "Bangladesh", "Belgium", "Burkina Faso", "Bulgaria", "Bahrain",
+	"Burundi", "Benin", "Bermuda", "Brunei Darussalam", "Bolivia", "Brazil",
+	"Bahamas", "Bhutan", "Bouvet Island", "Botswana", "Belarus", "Belize",
+	"Canada", "Cocos (Keeling) Islands", "Congo, The Democratic Republic of the",
+	"Central African Republic", "Congo", "Switzerland", "Cote D'Ivoire", "Cook Islands",
+	"Chile", "Cameroon", "China", "Colombia", "Costa Rica", "Cuba", "Cape Verde",
+	"Christmas Island", "Cyprus", "Czech Republic", "Germany", "Djibouti",
+	"Denmark", "Dominica", "Dominican Republic", "Algeria", "Ecuador", "Estonia",
+	"Egypt", "Western Sahara", "Eritrea", "Spain", "Ethiopia", "Finland", "Fiji",
+	"Falkland Islands (Malvinas)", "Micronesia, Federated States of", "Faroe Islands",
+	"France", "France, Metropolitan", "Gabon", "United Kingdom",
+	"Grenada", "Georgia", "French Guiana", "Ghana", "Gibraltar", "Greenland",
+	"Gambia", "Guinea", "Guadeloupe", "Equatorial Guinea", "Greece", "South Georgia and the South Sandwich Islands",
+	"Guatemala", "Guam", "Guinea-Bissau",
+	"Guyana", "Hong Kong", "Heard Island and McDonald Islands", "Honduras",
+	"Croatia", "Haiti", "Hungary", "Indonesia", "Ireland", "Israel", "India",
+	"British Indian Ocean Territory", "Iraq", "Iran, Islamic Republic of",
+	"Iceland", "Italy", "Jamaica", "Jordan", "Japan", "Kenya", "Kyrgyzstan",
+	"Cambodia", "Kiribati", "Comoros", "Saint Kitts and Nevis", "Korea, Democratic People's Republic of",
+	"Korea, Republic of", "Kuwait", "Cayman Islands",
+	"Kazakhstan", "Lao People's Democratic Republic", "Lebanon", "Saint Lucia",
+	"Liechtenstein", "Sri Lanka", "Liberia", "Lesotho", "Lithuania", "Luxembourg",
+	"Latvia", "Libyan Arab Jamahiriya", "Morocco", "Monaco", "Moldova, Republic of",
+	"Madagascar", "Marshall Islands", "Macedonia",
+	"Mali", "Myanmar", "Mongolia", "Macau", "Northern Mariana Islands",
+	"Martinique", "Mauritania", "Montserrat", "Malta", "Mauritius", "Maldives",
+	"Malawi", "Mexico", "Malaysia", "Mozambique", "Namibia", "New Caledonia",
+	"Niger", "Norfolk Island", "Nigeria", "Nicaragua", "Netherlands", "Norway",
+	"Nepal", "Nauru", "Niue", "New Zealand", "Oman", "Panama", "Peru", "French Polynesia",
+	"Papua New Guinea", "Philippines", "Pakistan", "Poland", "Saint Pierre and Miquelon",
+	"Pitcairn Islands", "Puerto Rico", "Palestinian Territory",
+	"Portugal", "Palau", "Paraguay", "Qatar", "Reunion", "Romania",
+	"Russian Federation", "Rwanda", "Saudi Arabia", "Solomon Islands",
+	"Seychelles", "Sudan", "Sweden", "Singapore", "Saint Helena", "Slovenia",
+	"Svalbard and Jan Mayen", "Slovakia", "Sierra Leone", "San Marino", "Senegal",
+	"Somalia", "Suriname", "Sao Tome and Principe", "El Salvador", "Syrian Arab Republic",
+	"Swaziland", "Turks and Caicos Islands", "Chad", "French Southern Territories",
+	"Togo", "Thailand", "Tajikistan", "Tokelau", "Turkmenistan",
+	"Tunisia", "Tonga", "Timor-Leste", "Turkey", "Trinidad and Tobago", "Tuvalu",
+	"Taiwan", "Tanzania, United Republic of", "Ukraine",
+	"Uganda", "United States Minor Outlying Islands", "United States", "Uruguay",
+	"Uzbekistan", "Holy See (Vatican City State)", "Saint Vincent and the Grenadines",
+	"Venezuela", "Virgin Islands, British", "Virgin Islands, U.S.",
+	"Vietnam", "Vanuatu", "Wallis and Futuna", "Samoa", "Yemen", "Mayotte",
+	"Serbia", "South Africa", "Zambia", "Montenegro", "Zimbabwe",
+	"Anonymous Proxy","Satellite Provider","Other",
+	"Aland Islands","Guernsey","Isle of Man","Jersey","Saint Barthelemy","Saint Martin"
+);
 if (isset($_GET['sID'])){
 	$Qstore = Doctrine_Core::getTable('Stores')->findOneByStoresId((int)$_GET['sID']);
 }
@@ -20,16 +74,72 @@ $storeSslDomain = htmlBase::newElement('input')->css('width', '100%')->setName('
 $storeEmail = htmlBase::newElement('input')->css('width', '100%')->setName('stores_email');
 $storeAddress = htmlBase::newElement('input')->css('width', '100%')->setName('stores_street_address');
 //$storePostcode = htmlBase::newElement('input')->setName('stores_postcode');
+$storeTelephone = htmlBase::newElement('input')->setName('stores_telephone');
+$storeGroup = htmlBase::newElement('input')->setName('stores_group');
+$storeOwner = htmlBase::newElement('input')->setName('stores_owner');
+$isDefault = htmlBase::newElement('checkbox')->setName('is_default');
+$homeRedirect = htmlBase::newElement('checkbox')->setName('home_redirect_store_info');
+$defaultCurrency = htmlBase::newElement('selectbox')->setName('default_currency');
+$storeInfo = htmlBase::newElement('ck_editor')->setName('stores_info')->attr('rows','20')->attr('cols','90');
 $storeFeeRoyalty = htmlBase::newElement('input')->attr('size', '6')->attr('placeholder', 'ex. 1.35')->setName('fees[royalty]');
 $storeFeeManagement = htmlBase::newElement('input')->attr('size', '6')->attr('placeholder', 'ex. 1.35')->setName('fees[management]');
 $storeFeeMarketing = htmlBase::newElement('input')->attr('size', '6')->attr('placeholder', 'ex. 1.35')->setName('fees[marketing]');
 $storeFeeLabor = htmlBase::newElement('input')->attr('size', '6')->attr('placeholder', 'ex. 1.35')->setName('fees[labor]');
 $storeFeeParts = htmlBase::newElement('input')->attr('size', '6')->attr('placeholder', 'ex. 1.35')->setName('fees[parts]');
 
-/* Auto Upgrade ( Version 1.0 to 1.1 ) --BEGIN-- */
-$storeOwner = htmlBase::newElement('input')->css('width', '100%')->setName('stores_owner');
-/* Auto Upgrade ( Version 1.0 to 1.1 ) --END-- */
+$table = htmlBase::newElement('table')
+	->setCellPadding(3)
+	->setCellSpacing(0)
+	->css('width', '100%');
 
+$table->addHeaderRow(array(
+		'columns' => array(
+			array('attr' => array('width' => '40%'), 'text' => 'Countries'),
+			array('text' => '&nbsp;'),
+			array('attr' => array('width' => '30%'), 'text' => 'Selected Countries')
+		)
+	));
+
+$storeCountries = '';
+$countryList = '';
+
+foreach($GEOIP_COUNTRY_NAMES as $aCountry){
+	if($aCountry != ''){
+		$countryList .= '<option value="'.$aCountry.'">'.$aCountry.'</option>';
+	}
+}
+
+if (isset($Qstore) && !empty($Qstore['stores_countries'])){
+	$countries = explode(',', $Qstore['stores_countries']);
+	foreach($countries as $cID){
+		$storeCountries .= '<div><a href="#" class="ui-icon ui-icon-circle-close removeButton"></a><span class="main">' . $cID . '</span>' . tep_draw_hidden_field('stores_countries[]', $cID) . '</div>';
+	}
+}
+
+$table->addBodyRow(array(
+		'columns' => array(
+			array(
+				'addCls' => 'main',
+				'attr' => array(
+					'valign' => 'top'
+				),
+				'text' => '<select size="30" style="width:100%;" id="countryList">' . $countryList . '</select>'
+			),
+			array(
+				'addCls' => 'main',
+				'text' => '<button type="button" id="moveRight"><span>&nbsp;&nbsp;>>&nbsp;&nbsp;</span></button>'
+			),
+			array(
+				'addCls' => 'main',
+				'attr' => array(
+					'id' => 'countries',
+					'valign' => 'top'
+				),
+				'text' => $storeCountries
+			)
+		)
+	));
+			
 if (isset($Qstore)){
 	$storeName->setValue($Qstore['stores_name']);
 	$storeDomain->setValue($Qstore['stores_domain']);
@@ -37,17 +147,28 @@ if (isset($Qstore)){
 	$storeEmail->setValue($Qstore['stores_email']);
 	$storeAddress->setValue($Qstore['stores_street_address']);
 	//$storePostcode->setValue($Qstore['stores_postcode']);
-
-	/* Auto Upgrade ( Version 1.0 to 1.1 ) --BEGIN-- */
+	$storeTelephone->setValue($Qstore['stores_telephone']);
+	$storeGroup->setValue($Qstore['stores_group']);
+	$storeInfo->html($Qstore['stores_info']);
 	$storeOwner->setValue($Qstore['stores_owner']);
-	/* Auto Upgrade ( Version 1.0 to 1.1 ) --END-- */
+	$isDefault->setChecked($Qstore['is_default'] == '1'?true:false);
+	$homeRedirect->setChecked($Qstore['home_redirect_store_info'] == '1'?true:false);
 
+	$defaultCurrency->selectOptionByValue($Qstore['default_currency']);
 	$storeFeeRoyalty->setValue($Qstore->StoresFees->fee_royalty);
 	$storeFeeManagement->setValue($Qstore->StoresFees->fee_management);
 	$storeFeeMarketing->setValue($Qstore->StoresFees->fee_marketing);
 	$storeFeeLabor->setValue($Qstore->StoresFees->fee_labor);
 	$storeFeeParts->setValue($Qstore->StoresFees->fee_parts);
 }
+
+	$QCurrencies = Doctrine_Query::create()
+	->from('CurrenciesTable')
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	foreach($QCurrencies as $currency){
+		$defaultCurrency->addOption($currency['code'], $currency['title']);
+	}
 
 $templatesSet = htmlBase::newElement('selectbox')->setName('stores_template');
 $dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/');
@@ -87,11 +208,11 @@ $categoriesList = tep_get_category_tree_list('0', $checkedCats);
 /* Build all categories inputs that are needed --END-- */
 
 /* Build the store info table --BEGIN-- */
-$storeInfoTable = htmlBase::newElement('table')->css('width', '100%')->setCellPadding(3)->setCellSpacing(0);
+	$storeInfoTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
 
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
-			array('css' => array('width' => '150px'), 'addCls' => 'main', 'text' => sysLanguage::get('TEXT_STORES_NAME')),
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_NAME')),
 			array('addCls' => 'main', 'text' => $storeName->draw())
 		)
 	));
@@ -147,6 +268,48 @@ $storeInfoTable->addBodyRow(array(
 		)
 	));
 
+	$storeInfoTable->addBodyRow(array(
+			'columns' => array(
+				array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_TELEPHONE')),
+				array('addCls' => 'main','text' => $storeTelephone->draw())
+			)
+		));
+	$storeInfoTable->addBodyRow(array(
+			'columns' => array(
+				array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_GROUP')),
+				array('addCls' => 'main','text' => $storeGroup->draw())
+			)
+		));
+	$storeInfoTable->addBodyRow(array(
+		'columns' => array(
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_DESCRIPTION')),
+			array('addCls' => 'main','text' => $storeInfo->draw())
+		)
+	));
+	$storeInfoTable->addBodyRow(array(
+		'columns' => array(
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_DEFAULT_CURRENCY')),
+			array('addCls' => 'main','text' => $defaultCurrency->draw())
+		)
+	));
+	$storeInfoTable->addBodyRow(array(
+		'columns' => array(
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_IS_DEFAULT')),
+			array('addCls' => 'main','text' => $isDefault->draw())
+		)
+	));
+	$storeInfoTable->addBodyRow(array(
+		'columns' => array(
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_HOME_REDIRECT_STORE_INFO')),
+			array('addCls' => 'main','text' => $homeRedirect->draw())
+		)
+	));
+	$storeInfoTable->addBodyRow(array(
+		'columns' => array(
+			array('addCls' => 'main','text' => sysLanguage::get('TEXT_STORES_COUNTRIES')),
+			array('addCls' => 'main','text' => $table->draw())
+		)
+	));
 $storeInfoTable->addBodyRow(array(
 		'columns' => array(
 			array('addCls' => 'main', 'colspan' => 2, 'text' => '<hr><b>Hire Fees</b><hr>')

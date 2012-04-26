@@ -48,6 +48,19 @@
 					<description>Auto generate password on new accounts</description>
 					<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 				</EXTENSION_ORDER_CREATOR_AUTOGENERATE_PASSWORD>
+		<EXTENSION_ORDER_CREATOR_AUTOGENERATE_EMAIL>
+			<title>Auto generate email</title>
+			<value>False</value>
+			<description>Auto generate email</description>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_ORDER_CREATOR_AUTOGENERATE_EMAIL>
+
+		<EXTENSION_ORDER_CREATOR_TELEPHONE_NUMBER_REQUIRED>
+			<title>Telephone number is mandatory</title>
+			<value>False</value>
+			<description>Telephone number is mandatory</description>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_ORDER_CREATOR_TELEPHONE_NUMBER_REQUIRED>
 				<EXTENSION_ORDER_CREATOR_SEND_WELCOME_EMAIL>
 					<title>Send welcome email on new accounts</title>
 					<value>True</value>

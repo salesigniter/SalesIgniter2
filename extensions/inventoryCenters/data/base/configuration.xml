@@ -2,7 +2,16 @@
 	<title>Inventory Centers</title>
 	<key>inventoryCenters</key>
 	<description>Configuration Settings For The Inventory Centers Extension</description>
-	<Configuration>
+	<tabs>
+	<general>
+	<title>General</title>
+	<description>General Extension Settings</description>
+	<configurations>
+		<EXTENSION_INVENTORY_CENTERS_INSTALLED editable="false">
+			<title>Installation Status</title>
+			<value>False</value>
+			<description></description>
+		</EXTENSION_INVENTORY_CENTERS_INSTALLED>
 		<EXTENSION_INVENTORY_CENTERS_ENABLED>
 			<title>Enable Inventory Centers</title>
 			<value>True</value>
@@ -17,6 +26,17 @@
 			<sort_order>2</sort_order>
 			<set_function>tep_cfg_select_option(array('Store','Zone'),</set_function>
 		</EXTENSION_INVENTORY_CENTERS_STOCK_METHOD>
+
+		<EXTENSION_INVENTORY_CENTERS_IGNORE_STOCK_METHOD>
+			<value>False</value>
+			<title>Ignore Stock Method</title>
+			<description>Ignore Stock Method</description>
+			<sort_order>2</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_INVENTORY_CENTERS_IGNORE_STOCK_METHOD>
+
+
+
 		<EXTENSION_INVENTORY_CENTERS_MUST_BE_IN_ZONE>
 			<value>True</value>
 			<title>Rental stock check for customer inventory zone only?</title>
@@ -106,7 +126,43 @@
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
 		</EXTENSION_INVENTORY_CENTERS_SHOW_STATE_ON_PPR_INFOBOX>
 
+		<EXTENSION_INVENTORY_CENTERS_REMINDERS_SHIPPING>
+			<value>3</value>
+			<title>How many days before the date to ship do you want start sending reminder emails</title>
+			<description>Number of days before the shipping do you want start sending reminder emails</description>
+			<sort_order>32</sort_order>
+		</EXTENSION_INVENTORY_CENTERS_REMINDERS_SHIPPING>
+		<EXTENSION_INVENTORY_CENTERS_USE_LOCATION>
+			<value>False</value>
+			<title>If set to true location based will show on ppr infobox</title>
+			<description>If set to true location based will show on ppr infobox</description>
+			<sort_order>13</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_INVENTORY_CENTERS_USE_LOCATION>
+		<EXTENSION_INVENTORY_CENTERS_SET_TAX_PER_CENTER_LOCATION>
+			<value>False</value>
+			<title>Set tax per inventory center location</title>
+			<description>If set to true tax is set per inventory center location</description>
+			<sort_order>13</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_INVENTORY_CENTERS_SET_TAX_PER_CENTER_LOCATION>
+		<EXTENSION_INVENTORY_CENTERS_ENABLE_REMINDERS>
+			<value>False</value>
+			<title>If set to true shipment reminders will be enabled</title>
+			<description>If set to true shipment reminders will be enabled</description>
+			<sort_order>13</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_INVENTORY_CENTERS_ENABLE_REMINDERS>
 
-		
-	</Configuration>
+		<EXTENSION_INVENTORY_CENTERS_INTERMEDIARY_PAGE>
+			<value>False</value>
+			<title>Show intermediary page</title>
+			<description>Show intermediary page between choosing location and then showing products that shows list of inventory centers for that city</description>
+			<sort_order>13</sort_order>
+			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
+		</EXTENSION_INVENTORY_CENTERS_INTERMEDIARY_PAGE>
+
+	</configurations>
+	</general>
+	</tabs>
 </ConfigurationGroup>

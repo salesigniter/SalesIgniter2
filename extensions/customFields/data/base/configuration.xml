@@ -24,6 +24,18 @@
 						</values>
 					</set_function>
 				</EXTENSION_CUSTOM_FIELDS_ENABLED>
+				<EXTENSION_CUSTOM_FIELDS_SHOW_DOWNLOAD_FILE_COLUMN>
+					<title>Show download file column on label maker</title>
+					<value>False</value>
+					<description>Show download file column on label maker</description>				
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>		
+				</EXTENSION_CUSTOM_FIELDS_SHOW_DOWNLOAD_FILE_COLUMN>
 			</configurations>
 		</general>
 	</tabs>

@@ -2,10 +2,19 @@
 	<title>upsLabels</title>
 	<key>upsLabels</key>
 	<description>Configuration Settings For The upsLabels Extension</description>
-	<Configuration>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Extension Settings</description>
+			<configurations>
+				<EXTENSION_UPSLABELS_INSTALLED editable="false">
+					<title>Installation Status</title>
+					<value>False</value>
+					<description></description>
+				</EXTENSION_UPSLABELS_INSTALLED>
 		<EXTENSION_UPSLABELS_ENABLED>
 			<title>Enable upsLabels</title>
-			<value>True</value>
+			<value>False</value>
 			<description>Enable Or Disable The upsLabels Extension</description>
 			<sort_order>1</sort_order>
 			<set_function>tep_cfg_select_option(array('True','False'),</set_function>
@@ -147,5 +156,7 @@
 			<sort_order>2</sort_order>
 		</EXTENSION_UPSLABELS_DEFAULT_DIM_LENGTH>
 
-	</Configuration>
+	</configurations>
+</general>
+	</tabs>
 </ConfigurationGroup>

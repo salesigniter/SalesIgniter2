@@ -98,15 +98,15 @@ class Stores extends Doctrine_Record {
 			'notnull'       => true,
 			'autoincrement' => false,
 		));
-
+		
 		$this->hasColumn('stores_template', 'string', 128, array(
-				'type'          => 'string',
-				'length'        => 128,
-				'fixed'         => false,
-				'primary'       => false,
-				'notnull'       => true,
-				'autoincrement' => false,
-			));
+			'type'          => 'string',
+			'length'        => 128,
+			'fixed'         => false,
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
+		));
 
 		$this->hasColumn('stores_street_address', 'string', 999, array(
 				'type'          => 'string',
@@ -119,14 +119,78 @@ class Stores extends Doctrine_Record {
 			));
 
 		$this->hasColumn('google_key', 'string', 255, array(
+			'type'          => 'string',
+			'length'        => 255,
+			'fixed'         => false,
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
+		));
+		
+		$this->hasColumn('stores_location', 'string', 100, array(
+			'type'          => 'string',
+			'length'        => 100,
+			'fixed'         => false,
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
+		));
+
+		$this->hasColumn('stores_telephone', 'string', 100, array(
 				'type'          => 'string',
-				'length'        => 255,
+				'length'        => 100,
 				'fixed'         => false,
 				'primary'       => false,
 				'notnull'       => true,
 				'autoincrement' => false,
-			));
+		));
 
+		$this->hasColumn('stores_group', 'string', 200, array(
+				'type'          => 'string',
+				'length'        => 200,
+				'fixed'         => false,
+				'primary'       => false,
+				'notnull'       => true,
+				'autoincrement' => false,
+		));
+
+		$this->hasColumn('stores_countries', 'string', null, array(
+				'type'          => 'string',
+				'length'        => null,
+				'primary'       => false,
+				'autoincrement' => false,
+		));
+		$this->hasColumn('stores_info', 'string', null, array(
+				'type'          => 'string',
+				'length'        => null,
+				'primary'       => false,
+				'autoincrement' => false,
+		));
+		$this->hasColumn('is_default', 'integer', 1, array(
+				'type' => 'integer',
+				'length' => 1,
+				'unsigned' => 0,
+				'default' => 0,
+				'primary' => false,
+				'autoincrement' => false
+		));
+
+		$this->hasColumn('home_redirect_store_info', 'integer', 1, array(
+				'type' => 'integer',
+				'length' => 1,
+				'unsigned' => 0,
+				'default' => 0,
+				'primary' => false,
+				'autoincrement' => false
+		));
+
+		$this->hasColumn('default_currency', 'string', 3, array(
+				'type' => 'integer',
+				'length' => 3,
+				'default' => 'USD',
+				'primary' => false,
+				'autoincrement' => false
+		));
 		$this->hasColumn('stores_reg_number', 'string', 255, array(
 				'type'          => 'string',
 				'length'        => 255,

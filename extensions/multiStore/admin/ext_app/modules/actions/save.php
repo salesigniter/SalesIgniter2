@@ -16,9 +16,9 @@
 						$value = implode(',', $value);
 					}
 		
-					$configEntry = $StoresModulesConfiguration->findOneByModuleCodeAndModuleTypeAndConfigurationKeyAndStoresId($_GET['module'], $_GET['moduleType'], $key, $storeId);
+					$configEntry = $StoresModulesConfiguration->findOneByModuleCodeAndModuleTypeAndConfigurationKeyAndStoreId($_GET['module'], $_GET['moduleType'], $key, $storeId);
 					if (!$configEntry){
-						$configEntry = new StoresConfiguration();
+						$configEntry = new StoresModulesConfiguration();
 						$configEntry->module_type = $_GET['moduleType'];
 						$configEntry->module_code = $_GET['module'];
 						$configEntry->configuration_key = $key;

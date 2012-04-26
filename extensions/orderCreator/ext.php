@@ -41,6 +41,7 @@ class Extension_orderCreator extends ExtensionBase {
 		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
+			'OrdersGridButtonsBeforeAdd',
 			'EstimatesGridButtonsBeforeAdd',
 			'OrdersListingBeforeExecute',
 			'OrdersProductsReservationListingBeforeExecuteUtilities',
@@ -110,6 +111,17 @@ class Extension_orderCreator extends ExtensionBase {
 		}
 	}
 	
+	public function OrdersGridButtonsBeforeAdd(&$gridButtons){
+		$gridButtons[] = htmlBase::newElement('button')
+		->setText(sysLanguage::get('TEXT_NEW_ORDER'))
+		->addClass('createButton')
+		->setHref(itw_app_link('appExt=orderCreator', 'default', 'new'));
+		
+		$gridButtons[] = htmlBase::newElement('button')
+		->setText(sysLanguage::get('TEXT_EDIT_ORDER'))
+		->addClass('editButton')
+		->disable();
+	}
 	public function EstimatesGridButtonsBeforeAdd(&$gridButtons){
 		$gridButtons[] = htmlBase::newElement('button')
 			->setText(sysLanguage::get('TEXT_NEW_ESTIMATE'))
