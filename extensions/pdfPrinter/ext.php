@@ -19,7 +19,7 @@ class Extension_pdfPrinter extends ExtensionBase {
 
 	public function init(){
 		global $App, $appExtension, $Template;
-		if ($this->enabled === false) return;
+		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
 			'AdminOrderDefaultInfoBoxAddButton',
@@ -36,10 +36,10 @@ class Extension_pdfPrinter extends ExtensionBase {
 		$file = '';
 		if(sysConfig::get('EXTENSION_PDF_INVOICE_ATTACH_TO_ORDER_EMAIL') == 'True'){
 			$file = (itw_catalog_app_link('appExt=pdfPrinter&suffix='.$oID.'&oID=' . $oID, 'generate_pdf', 'default'));
-			$sendVariables['attach'] = 'temp/pdf/saved_pdf'.$oID.'.pdf';
+			$sendVariables['attach'] = 'temp/pdf/invoice_'.$oID.'.pdf';
 		}elseif(sysConfig::get('EXTENSION_PDF_AGREEMENT_ATTACH_TO_ORDER_EMAIL') == 'True'){
 			$file = (itw_catalog_app_link('appExt=pdfPrinter&type=a&suffix='.$oID.'&oID=' . $oID, 'generate_pdf', 'default'));
-			$sendVariables['attach'] = 'temp/pdf/saved_apdf'.$oID.'.pdf';
+			$sendVariables['attach'] = 'temp/pdf/agreement_'.$oID.'.pdf';
 		}
 		if(!empty($file)){
 			$ch=curl_init();
@@ -86,7 +86,7 @@ class Extension_pdfPrinter extends ExtensionBase {
 	public function AdminOrderDetailsAddButton($oID, &$infoBox){
 
 		$pdfinvoiceButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_INVOICE_PDF'))
-		->setHref(itw_catalog_app_link('appExt=pdfPrinter&oID=' . $oID, 'generate_pdf', 'default'));
+		->setHref(itw_catalog_app_link('appExt=pdfPrinter&oID=' . $oID.(isset($_GET['isEstimate'])?'&isEstimate=1':''), 'generate_pdf', 'default'));
 
 		$infoBox->append($pdfinvoiceButton);
 	}
@@ -94,7 +94,7 @@ class Extension_pdfPrinter extends ExtensionBase {
 	public function AdminOrderCreatorAddButton(&$infoBox){
 		if(isset($_GET['oID'])){
 			$pdfinvoiceButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_INVOICE_PDF'))
-			->setHref(itw_catalog_app_link('appExt=pdfPrinter&oID=' . $_GET['oID'], 'generate_pdf', 'default'));
+			->setHref(itw_catalog_app_link('appExt=pdfPrinter&oID=' . $_GET['oID'].(isset($_GET['isEstimate'])?'&isEstimate=1':''), 'generate_pdf', 'default'));
 
 			$infoBox->append($pdfinvoiceButton);
 		}
@@ -103,15 +103,17 @@ class Extension_pdfPrinter extends ExtensionBase {
 }
 
 
-
-
 function tep_cfg_get_layout_name($layoutName){
 	$QLayouts = Doctrine_Query::create()
 		->select('layout_id, layout_name, layout_type')
 		->from('PDFTemplateManagerLayouts')
 	    ->where('layout_id = ?', $layoutName)
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-	return $QLayouts[0]['layout_name'];
+	if(isset($QLayouts[0])){
+		return $QLayouts[0]['layout_name'];
+	}else{
+		return '';
+	}
 }
 
 function tep_cfg_pull_down_layout_list($layoutName, $key = '') {
