@@ -51,7 +51,7 @@ class CustomersCustomFieldsToCustomers extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('value', 'string', null, array(
+		$this->hasColumn('value', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,

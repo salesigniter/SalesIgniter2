@@ -63,7 +63,7 @@ class BlogCategoriesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('blog_categories_description_text', 'string', null, array(
+		$this->hasColumn('blog_categories_description_text', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,
@@ -106,9 +106,9 @@ class BlogCategoriesDescription extends Doctrine_Record {
 			'notnull'       => false,
 			'autoincrement' => false
 		));
-		$this->hasColumn('extra_fields', 'string', null, array(
+		$this->hasColumn('extra_fields', 'string', 999, array(
 				'type'          => 'string',
-				'length'        => null,
+				'length'        => 999,
 				'fixed'         => false,
 				'primary'       => false,
 				'default'       => '',

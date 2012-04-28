@@ -453,10 +453,10 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function processProductImport(&$Product, $item) {
+	public function processProductImport(&$Product, $CurrentRow) {
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
-			$PurchaseTypeModule->processProductImport($this->getCode(), $Product, $item);
+			$PurchaseTypeModule->processProductImport($Product, $CurrentRow);
 		}
 	}
 
@@ -474,10 +474,10 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function addExportRowColumns(&$CurrentRow, $pInfo) {
+	public function addExportRowColumns(&$CurrentRow, $Product) {
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
-			$PurchaseTypeModule->addExportRowColumns($this->getCode(), $CurrentRow, $pInfo);
+			$PurchaseTypeModule->addExportRowColumns($this->getCode(), $CurrentRow, $Product);
 		}
 	}
 

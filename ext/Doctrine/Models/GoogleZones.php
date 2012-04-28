@@ -38,7 +38,7 @@ class GoogleZones extends Doctrine_Record {
 		));
 
 
-		$this->hasColumn('gmaps_polygon', 'string', null, array(
+		$this->hasColumn('gmaps_polygon', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

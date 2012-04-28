@@ -27,14 +27,15 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 		), null, $this);
 	}
 	
-	public function DataImportBeforeSave(&$items, &$Product){
-		if (!isset($items['v_custom_fields_group'])) return;
+	public function DataImportBeforeSave(&$CurrentRow, &$Product){
+		$FieldCheck = $CurrentRow->getColumnValue('v_custom_fields_group');
+		if ($FieldCheck === null) return;
 		
-		if (!empty($items['v_custom_fields_group'])){
+		if (!empty($FieldCheck)){
 			$FieldsGroup = Doctrine_Query::create()
 			->select('group_id')
 			->from('ProductsCustomFieldsGroups')
-			->where('group_name = ?', $items['v_custom_fields_group'])
+			->where('group_name = ?', $FieldCheck)
 			->fetchOne();
 			if ($FieldsGroup){
 				$Group = $FieldsGroup->toArray();
@@ -63,10 +64,10 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 					$fieldCount = 1;
 					$count = 0;
 					foreach($FieldsToGroups->toArray(true) as $fInfo){
-						$key = 'v_custom_field' . $fieldCount++;
-						if (isset($items[$key]) && $fInfo['field_id'] > 0){
+						$Value = $CurrentRow->getColumnValue('v_custom_field' . $fieldCount++);
+						if ($Value !== false && $fInfo['field_id'] > 0){
 							$FieldsToProducts[$count]->field_id = $fInfo['field_id'];
-							$FieldsToProducts[$count]->value = $items[$key];
+							$FieldsToProducts[$count]->value = $Value;
 							$FieldsToProducts[$count]->field_type = $fInfo['ProductsCustomFields']['input_type'];
 							$count++;
 						}
@@ -103,30 +104,22 @@ class customFields_admin_data_manager_default extends Extension_customFields {
 		->addSelect('fg.group_name as v_custom_fields_group');
 	}
 	
-	public function DataExportBeforeFileLineCommit(&$CurrentRow, $pInfo){
-		$CurrentRow->addColumn(
-			$pInfo['v_custom_fields_group'],
-			'v_custom_fields_group'
-		);
+	public function DataExportBeforeFileLineCommit(&$CurrentRow, $Product){
+		if ($Product->ProductsCustomFieldsGroupsToProducts && $Product->ProductsCustomFieldsGroupsToProducts->count() > 0){
+			$Group = $Product->ProductsCustomFieldsGroupsToProducts->ProductsCustomFieldsGroups;
+			$CurrentRow->addColumn(
+				$Group->group_name,
+				'v_custom_fields_group'
+			);
 
-		if (!empty($pInfo['v_custom_fields_group_id'])){
-			$Qfields = Doctrine_Query::create()
-			->select('f.field_id, f2p.value')
-			->from('ProductsCustomFields f')
-			->leftJoin('f.ProductsCustomFieldsToGroups f2g')
-			->leftJoin('f.ProductsCustomFieldsToProducts f2p')
-			->where('f2g.group_id = ?', $productRow['v_custom_fields_group_id'])
-			->andWhere('f2p.product_id = ?', $productRow['products_id'])
-			->orderBy('f2g.sort_order')
-			->execute(array(), Doctrine::HYDRATE_ARRAY);
-			if ($Qfields){
+			if ($Group->ProductsCustomFieldsToGroups && $Group->ProductsCustomFieldsToGroups->count() > 0){
 				$fieldNum = 1;
-				foreach($Qfields as $fInfo){
+				foreach($Group->ProductsCustomFieldsToGroups as $FieldToGroup){
+					$Field = $FieldToGroup->ProductsCustomFields;
 					$CurrentRow->addColumn(
-						$fInfo['ProductsCustomFieldsToProducts'][0]['value'],
+						$Field->value,
 						'v_custom_field' . $fieldNum ++
 					);
-					//$pInfo['v_custom_field' . $fieldNum++] = $fInfo['ProductsCustomFieldsToProducts'][0]['value'];
 				}
 			}
 		}

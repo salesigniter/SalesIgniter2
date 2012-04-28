@@ -46,9 +46,9 @@ class GiftCertificates extends Doctrine_Record {
 
     public function setTableDefinition(){
         $this->setTableName('gift_certificates');
-        $this->hasColumn('gift_certificates_id', 'integer', 11, array(
+        $this->hasColumn('gift_certificates_id', 'integer', 4, array(
             'type' => 'integer',
-            'length' => 11,
+            'length' => 4,
             'unsigned' => 0,
             'primary' => true,
             'notnull' => true,
@@ -62,9 +62,9 @@ class GiftCertificates extends Doctrine_Record {
             'default' => '0.0000',
             'notnull' => true
         ));
-        $this->hasColumn('gift_certificates_tax_class_id', 'integer', 11, array(
+        $this->hasColumn('gift_certificates_tax_class_id', 'integer', 4, array(
             'type' => 'integer',
-            'length' => 11,
+            'length' => 4,
             'unsigned' => 0,
             'notnull' => true
         ));

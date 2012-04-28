@@ -141,7 +141,7 @@ class ProductsPayPerRental extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('combo_products', 'string', null, array(
+		$this->hasColumn('combo_products', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,
@@ -178,7 +178,7 @@ class ProductsPayPerRental extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('shipping', 'string', null, array(
+		$this->hasColumn('shipping', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,
@@ -186,7 +186,7 @@ class ProductsPayPerRental extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('maintenance', 'string', null, array(
+		$this->hasColumn('maintenance', 'string', 999, array(
 				'type' => 'string',
 				'fixed' => false,
 				'primary' => false,

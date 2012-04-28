@@ -99,6 +99,7 @@ define('CURRENCY_SERVER_BACKUP', 'xe');
 // set application wide parameters
 sysConfig::load();
 
+require(sysConfig::getDirFsCatalog() . 'includes/classes/ttfInfo.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/MultipleInheritance.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/Importable/Bindable.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/Importable/Installable.php');

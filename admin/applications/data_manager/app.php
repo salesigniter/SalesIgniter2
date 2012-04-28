@@ -75,6 +75,39 @@ class DataManagementModuleBase extends ModuleBase
 	public function setImportFile($filePath){
 		$this->importFile = $filePath;
 	}
+
+	public function getMemoryLimit(){
+		$MemoryLimit = ini_get('memory_limit');
+		if (!is_int($MemoryLimit)){
+			if (substr($MemoryLimit, -1) == 'M'){
+				$MemoryLimit = (int) substr($MemoryLimit, 0, -1) * (1024 * 1000);
+			}elseif (substr($MemoryLimit, -1) == 'K'){
+				$MemoryLimit = (int) substr($MemoryLimit, 0, -1) * 1024;
+			}elseif (substr($MemoryLimit, -1) == 'B'){
+				$MemoryLimit = (int) substr($MemoryLimit, 0, -1);
+			}
+		}
+		return $MemoryLimit;
+	}
+
+	public function checkMemoryThreshold($numOfItems, $totalItems){
+		$MemoryLimit = $this->getMemoryLimit();
+		$MemoryThreshold = (1024 * 10000);
+		if (memory_get_usage(true) + $MemoryThreshold > $MemoryLimit){
+			$MemoryLimit += $MemoryThreshold;
+			if (ini_set('memory_limit', $MemoryLimit) === false){
+				echo 'Unable to increase memory limit.<br>';
+				echo 'Used ' . memory_get_usage(true) . ' / ' . $MemoryLimit . ' Memory, processed ' . $x . ' out of ' . $totalItems . ' items<br><br>';
+				if ($ExceptionManager->size() > 0){
+					echo $ExceptionManager->output();
+				}
+				if ($messageStack->size('footerStack') > 0){
+					echo $messageStack->output('footerStack');
+				}
+				die();
+			}
+		}
+	}
 }
 
 require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');

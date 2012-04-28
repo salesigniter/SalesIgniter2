@@ -115,14 +115,8 @@ class htmlWidget_systemLinkMenu extends htmlWidget
 			var menuLinkTargets = <?php echo json_encode($linkTargets);?>;
 
 			$.newSystemLinkMenu = function ($appendTo, name){
-				var inputKey = 0;
-				while($('.systemLinkType[data-input_key=' + inputKey + ']').size() > 0){
-					inputKey++;
-				}
-
 				var newSelect = $('<select></select>')
-					.attr('name', name + '[' + inputKey + ']')
-					.attr('data-input_key', inputKey)
+					.attr('name', name + '[link][type]')
 					.addClass('systemLinkType');
 
 				$.each(menuLinkTypes, function (k, v) {

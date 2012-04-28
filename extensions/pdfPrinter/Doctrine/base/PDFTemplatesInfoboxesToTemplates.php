@@ -44,9 +44,9 @@ class PDFTemplatesInfoboxesToTemplates extends Doctrine_Record {
 			'notnull'       => false
 		));
 
-		$this->hasColumn('widget_properties', 'string', null, array(
+		$this->hasColumn('widget_properties', 'string', 999, array(
 			'type'          => 'string',
-			'length'        => null,
+			'length'        => 999,
 			'notnull'       => false
 		));
 

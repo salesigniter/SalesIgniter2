@@ -59,9 +59,9 @@ class BlogCategories extends Doctrine_Record {
 				'notnull'       => true,
 				'autoincrement' => false
 		));
-		$this->hasColumn('extra_fields', 'string', null, array(
+		$this->hasColumn('extra_fields', 'string', 999, array(
 				'type'          => 'string',
-				'length'        => null,
+				'length'        => 999,
 				'fixed'         => false,
 				'primary'       => false,
 				'default'       => '',

@@ -34,7 +34,7 @@ class PayPerRentalEvents extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('shipping', 'string', null, array(
+		$this->hasColumn('shipping', 'string', 999, array(
 			'type'          => 'string',			
 			'fixed'         => false,
 			'primary'       => false,
@@ -42,7 +42,7 @@ class PayPerRentalEvents extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('gates', 'string', null, array(
+		$this->hasColumn('gates', 'string', 999, array(
 				'type'          => 'string',
 				'fixed'         => false,
 				'primary'       => false,
@@ -78,7 +78,7 @@ class PayPerRentalEvents extends Doctrine_Record {
 		));
 
 
-		$this->hasColumn('events_details', 'string', null, array(
+		$this->hasColumn('events_details', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

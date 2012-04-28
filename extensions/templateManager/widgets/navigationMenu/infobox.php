@@ -19,6 +19,30 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 		$this->buildJavascriptMultiple = true;
 	}
 
+	public function showLayoutPreview($WidgetSettings) {
+		$return = '';
+		if (isset($WidgetSettings->menuSettings) && !empty($WidgetSettings->menuSettings)){
+			$menuItems = '';
+			$MenuSettings = array();
+			foreach($WidgetSettings->menuSettings as $mInfo){
+				$MenuSettings[] = $mInfo;
+			}
+
+			foreach($MenuSettings as $k => $mInfo){
+				$Text = $mInfo->link->text->{Session::get('languages_id')};
+				$css = 'display:inline-block;';
+				if ($WidgetSettings->forceFit == 'true'){
+					$css .= 'width: ' . (100 / sizeof($MenuSettings)) . '%;';
+				}
+				$menuItems .= '<span style="' . $css . '">' . $Text . '</span>';
+			}
+			$return = $menuItems;
+		}else{
+			$return = $this->getBoxCode();
+		}
+		return $return;
+	}
+
 	private function checkCondition($condition){
 		global $ShoppingCart, $userAccount;
 		switch($condition){
@@ -57,7 +81,7 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 		if ($Data->icon == 'jquery'){
 			$icon = '<span class="ui-icon ' . $Data->icon_src . '"></span>';
 		}
-		elseif ($item->icon == 'custom') {
+		elseif ($Data->icon == 'custom') {
 			$icon = '<img src="' . $Data->icon_src . '">';
 		}
 
@@ -179,84 +203,86 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 
 		ob_start();
 		?>
+		$(document).ready(function (){
 	$('#<?php echo $WidgetProperties->menuId; ?>.ui-navigation-menu').each(function (){
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
 		var Roots = [];
 		<?php } ?>
-		$(this).find('li').each(function (){
-			$(this).addClass('ui-state-default');
-			$(this).mouseover(function (){
-				$(this).addClass('ui-state-hover');
+	$(this).find('li').each(function (){
+	$(this).addClass('ui-state-default');
+	$(this).mouseover(function (){
+	$(this).addClass('ui-state-hover');
 
-				if ($(this).children('ol').size() > 0){
-					var self = $(this);
+	if ($(this).children('ol').size() > 0){
+	var self = $(this);
 
-					$(this).find('ol:first').each(function (i, el){
-						var cssSettings = {
-							top: 0,
-							left: 0,
-							zIndex: self.parent().css('z-index') + 1
-						};
+	$(this).find('ol:first').each(function (i, el){
+	var cssSettings = {
+	top: 0,
+	left: 0,
+	zIndex: self.parent().css('z-index') + 1
+	};
 
-						if (self.hasClass('root')){
-							cssSettings.top = self.innerHeight();
-						}else{
-							cssSettings.left = '98%';
-						}
+	if (self.hasClass('root')){
+	cssSettings.top = self.innerHeight();
+	}else{
+	cssSettings.left = '98%';
+	}
 
-						$(this).css(cssSettings).show();
+	$(this).css(cssSettings).show();
 
-						$(this).find('.ui-icon.ui-icon-triangle-1-s').each(function (){
-							$(this).removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e').css({
-								position: 'absolute',
-								right: 0,
-								top: (self.innerHeight() / 2) - ($(this).outerHeight() / 2)
-							});
-						});
-					});
-				}
-			}).mouseout(function (){
-				$(this).removeClass('ui-state-hover');
+	$(this).find('.ui-icon.ui-icon-triangle-1-s').each(function (){
+	$(this).removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e').css({
+	position: 'absolute',
+	right: 0,
+	top: (self.innerHeight() / 2) - ($(this).outerHeight() / 2)
+	});
+	});
+	});
+	}
+	}).mouseout(function (){
+	$(this).removeClass('ui-state-hover');
 
-				if ($(this).children('ol').size() > 0){
-					$(this).children('ol').hide();
-				}
-			});
+	if ($(this).children('ol').size() > 0){
+	$(this).children('ol').hide();
+	}
+	});
 
-			if ($(this).find('.ui-icon:first').size() > 0){
-				$(this).find('.ui-icon:first').each(function (){
-					$(this).css({
-						position: 'absolute',
-						right: 0,
-						top: ($(this).parent().parent().parent().innerHeight() / 2) - ($(this).outerHeight(true) / 2)
-					});
-				});
-			}
+	if ($(this).find('.ui-icon:first').size() > 0){
+	$(this).find('.ui-icon:first').each(function (){
+	$(this).css({
+	position: 'absolute',
+	right: 0,
+	top: ($(this).parent().parent().parent().innerHeight() / 2) - ($(this).outerHeight(true) / 2)
+	});
+	});
+	}
 
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
-			if ($(this).hasClass('root')){
-				Roots.push(this);
-			}
+		if ($(this).hasClass('root')){
+		Roots.push(this);
+		}
 		<?php } ?>
-		});
+	});
 
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
 		var numRoots = Roots.length;
 		var totalWidth = $(Roots[0]).parent().parent().width();
 		var RootsWidth = 0;
 		$.each(Roots, function (i, el){
-			RootsWidth += $(this).outerWidth(true);
+		RootsWidth += $(this).outerWidth(true);
 		});
 
 		var totalSpace = totalWidth - RootsWidth;
 		var newPadding = (totalSpace / numRoots);
 		$.each(Roots, function (i, el){
-			$(this).css({
-				width: $(this).innerWidth() + Math.floor(newPadding) + 'px'
-			});
+		$(this).css({
+		width: $(this).innerWidth() + Math.floor(newPadding) + 'px'
+		});
 		});
 		<?php } ?>
 	});
+		});
 	<?php
  		$javascript = '/* Navigation Menu --BEGIN-- */' . "\n" .
 			ob_get_contents();

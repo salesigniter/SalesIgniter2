@@ -60,7 +60,7 @@ class CouponsDescription extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		$this->hasColumn('coupon_description', 'string', null, array(
+		$this->hasColumn('coupon_description', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,

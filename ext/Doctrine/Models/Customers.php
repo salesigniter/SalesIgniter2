@@ -150,9 +150,9 @@ class Customers extends Doctrine_Record {
 				'autoincrement' => false,
 			));
 
-		$this->hasColumn('customers_notes', 'string', null, array(
+		$this->hasColumn('customers_notes', 'string', 999, array(
 				'type' => 'string',
-				'length' => null,
+				'length' => 999,
 				'fixed' => false,
 				'primary' => false,
 				'default' => '',

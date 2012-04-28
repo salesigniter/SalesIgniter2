@@ -208,11 +208,11 @@ class messageStack implements SplObserver {
 			}
 		}
 		if (!$duplicate){
-			Session::append('messageToStack', array(
+			Session::append('messageToStack', json_encode(array(
 				'group' => $group,
 				'text'  => $message,
 				'type'  => $type
-			));
+			)));
 		}
 	}
 
@@ -225,9 +225,10 @@ class messageStack implements SplObserver {
 		$urgency = array();
 		if (Session::exists('messageToStack') === true){
 			$msgArr = &Session::getReference('messageToStack');
+			$msgArr = json_decode($msgArr);
 			foreach($msgArr as $index => $msg){
-				if ($msg['group'] == $group){
-					$this->add($msg['group'], $msg['text'], $msg['type']);
+				if ($msg->group == $group){
+					$this->add($msg->group, $msg->text, $msg->type);
 					unset($msgArr[$index]);
 				}
 			}

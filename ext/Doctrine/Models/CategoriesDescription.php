@@ -63,7 +63,7 @@ class CategoriesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('categories_description', 'string', null, array(
+		$this->hasColumn('categories_description', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,
@@ -80,7 +80,7 @@ class CategoriesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('categories_htc_desc_tag', 'string', null, array(
+		$this->hasColumn('categories_htc_desc_tag', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,
@@ -88,7 +88,7 @@ class CategoriesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('categories_htc_keywords_tag', 'string', null, array(
+		$this->hasColumn('categories_htc_keywords_tag', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,
@@ -96,7 +96,7 @@ class CategoriesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('categories_htc_description', 'string', null, array(
+		$this->hasColumn('categories_htc_description', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

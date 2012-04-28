@@ -103,7 +103,6 @@ $(document).ready(function () {
 						position : 'absolute',
 						top : $link.parent().position().top,
 						left : $link.parent().position().left + $link.parent().innerWidth() - 5,
-						backgroundColor : '#FFFFFF',
 						zIndex : 9999
 					}).show();
 				}

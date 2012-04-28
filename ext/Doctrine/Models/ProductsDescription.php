@@ -122,7 +122,7 @@ class ProductsDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('products_head_desc_tag', 'string', null, array(
+		$this->hasColumn('products_head_desc_tag', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,
@@ -130,7 +130,7 @@ class ProductsDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('products_head_keywords_tag', 'string', null, array(
+		$this->hasColumn('products_head_keywords_tag', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,

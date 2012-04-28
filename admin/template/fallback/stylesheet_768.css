@@ -36,4 +36,10 @@
 	color: #222222;
 	font-weight:normal;
 }
+.pageHeading .ui-button {
+	float:right;
+	margin-top: 3em;
+	margin-right: 1em;
+	font-size: .5em;
+}
 header { display:none; }

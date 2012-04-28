@@ -12,4 +12,5 @@ $Module->beforeActionProcess();
 $Module->perform();
 $Module->afterActionProcess();
 
-EventManager::attachActionResponse('', 'html');
+$messageStack->addSession('pageStack', 'Import Finished Successfully!', 'success');
+EventManager::attachActionResponse(itw_app_link(null, 'data_manager', 'default'), 'redirect');

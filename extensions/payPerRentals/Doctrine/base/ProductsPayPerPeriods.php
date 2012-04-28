@@ -14,9 +14,15 @@ class ProductsPayPerPeriods extends Doctrine_Record {
 	
 	public function setUp(){
 		$this->setUpParent();
+		$this->setAttribute(Doctrine::ATTR_COLL_KEY, 'period_id');
+
 		$this->hasOne('Products', array(
 			'local' => 'products_id',
 			'foreign' => 'products_id'
+		));
+		$this->hasOne('PayPerRentalPeriods', array(
+			'local' => 'period_id',
+			'foreign' => 'period_id'
 		));
 	}
 	

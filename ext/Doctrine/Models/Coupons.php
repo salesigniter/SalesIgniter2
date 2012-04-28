@@ -158,7 +158,7 @@ class Coupons extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('restrict_to_customers', 'string', null, array(
+		$this->hasColumn('restrict_to_customers', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,

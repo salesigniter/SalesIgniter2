@@ -34,7 +34,7 @@ class ModulesConfiguration extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('configuration_value', 'string', null, array(
+		$this->hasColumn('configuration_value', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

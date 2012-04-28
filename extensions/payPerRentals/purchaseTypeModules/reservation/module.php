@@ -2895,84 +2895,80 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 		);
 	}
 
-	public function processProductImport($ProductType, &$Product, $item){
-		parent::processProductImport($ProductType, $Product, $item);
-		$PurchaseTypes =& $Product->ProductsPurchaseTypes;
-		$colNameAdd = $ProductType . '_' . $this->getCode();
-
-		$depositAmount = (isset($items['v_' . $colNameAdd . '_deposit_amount']) ? $items['v_' . $colNameAdd . '_deposit_amount'] : false);
-		$insurance = (isset($items['v_' . $colNameAdd . '_insurance']) ? $items['v_' . $colNameAdd . '_insurance'] : false);
-		$shippingMethods = (isset($items['v_' . $colNameAdd . '_shipping']) ? $items['v_' . $colNameAdd . '_shipping'] : false);
+	public function processProductImport(&$Product, $CurrentRow){
+		parent::processProductImport($Product, $CurrentRow);
+		$colBasename = 'v_' . $Product->products_type . '_' . $this->getCode();
 
 		$PayPerRental =& $Product->ProductsPayPerRental;
-		if (isset($items['v_' . $colNameAdd . '_overbooking'])) {
-			if ($items['v_' . $colNameAdd . '_overbooking'] == 'No') {
-				$PayPerRental->overbooking = '0';
-			} else {
-				$PayPerRental->overbooking = '1';
-			}
-		} else {
-			$PayPerRental->overbooking = '0';
-		}
+		$PayPerRental->overbooking = ($CurrentRow->getColumnValue($colBasename . '_shipping', 'No') == 'No' ? 0 : 1);
 
 		/*$Product->products_auth_method = (
-		isset($items['v_' . $colNameAdd . '_auth_method'])
-			? $items['v_' . $colNameAdd . '_auth_method']
+		isset($item['v_' . $colNameAdd . '_auth_method'])
+			? $item['v_' . $colNameAdd . '_auth_method']
 			: 'auth'
 		);
 
 		$Product->products_auth_charge = (
-		isset($items['v_' . $colNameAdd . '_auth_charge'])
-			? $items['v_' . $colNameAdd . '_auth_charge']
+		isset($item['v_' . $colNameAdd . '_auth_charge'])
+			? $item['v_' . $colNameAdd . '_auth_charge']
 			: '0.0000'
 		);*/
 
-		$PayPerRental->deposit_amount = (float) ($depositAmount !== false ? $depositAmount : '0');
-		$PayPerRental->insurance = (float) ($insurance !== false ? $insurance : '0');
-		$PayPerRental->shipping = $shippingMethods !== false ? $shippingMethods : '';
+		$PayPerRental->deposit_amount = (float) $CurrentRow->getColumnValue($colBasename . '_deposit_amount', 0);
+		$PayPerRental->insurance = (float) $CurrentRow->getColumnValue($colBasename . '_insurance', 0);
+		$PayPerRental->shipping = $CurrentRow->getColumnValue($colBasename . '_shipping');
 		//$PayPerRental->save();
 
+		$QPayPerRentalTypes = Doctrine_Query::create()
+			->from('PayPerRentalTypes')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		$htypes = array();
+		foreach ($QPayPerRentalTypes as $iType) {
+			$htypes[$iType['pay_per_rental_types_id']] = $iType['pay_per_rental_types_name'];
+		}
+		unset($QPayPerRentalTypes);
+
 		/*import hidden dates*/
-		$Product->PayPerRentalHiddenDates->delete();
+		$HiddenDates = $Product->PayPerRentalHiddenDates;
+		$HiddenDates->delete();
 		$j = 0;
 		while(true){
-			if(isset($items['v_' . $colNameAdd . '_hidden_start_date_'.$j])){
-				if(!empty($items['v_' . $colNameAdd . '_hidden_start_date_'.$j])){
+			$HiddenStartDate = $CurrentRow->getColumnValue($colBasename . '_hidden_start_date_' . $j);
+			if ($HiddenStartDate !== false){
+				if ($HiddenStartDate !== null){
+					$HiddenEndDate = $CurrentRow->getColumnValue($colBasename . '_hidden_end_date_' . $j);
 					$PayPerRentalHiddenDates = new PayPerRentalHiddenDates();
-					$PayPerRentalHiddenDates->hidden_start_date = date('Y-m-d', strtotime($items['v_' . $colNameAdd . '_hidden_start_date_'.$j]));
-					$PayPerRentalHiddenDates->hidden_end_date = date('Y-m-d', strtotime($items['v_' . $colNameAdd . '_hidden_end_date_'.$j]));
+					$PayPerRentalHiddenDates->hidden_start_date = date('Y-m-d', strtotime($HiddenStartDate));
+					$PayPerRentalHiddenDates->hidden_end_date = date('Y-m-d', strtotime($HiddenEndDate));
 
-					$Product->PayPerRentalHiddenDates->add($PayPerRentalHiddenDates);
+					$HiddenDates->add($PayPerRentalHiddenDates);
+					unset($HiddenEndDate);
+					unset($HiddenStartDate);
 				}
 			}else{
+				unset($HiddenStartDate);
 				break;
 			}
 			$j++;
 		}
 		/*end import hidden dates*/
 		$i = 0;
+		$Periods = Doctrine_Core::getTable('PayPerRentalPeriods');
+		$PeriodPrices = $Product->ProductsPayPerPeriods;
 		while (true) {
-
-			if (isset($items['v_' . $colNameAdd . '_period_' . $i])) {
-				if (!empty($items['v_' . $colNameAdd . '_period_' . $i])) {
-					$Periods = Doctrine_Core::getTable('PayPerRentalPeriods');
-					$PeriodPrices = Doctrine_Core::getTable('ProductsPayPerPeriods');
-					$Period = $Periods->findOneByPeriodName($items['v_' . $colNameAdd . '_period_' . $i]);
+			$PayPerRentalPeriod = $CurrentRow->getColumnValue($colBasename . '_period_' . $i);
+			if ($PayPerRentalPeriod !== false){
+				if ($PayPerRentalPeriod !== null){
+					$Period = $Periods->findOneByPeriodName($PayPerRentalPeriod);
 					if (!$Period) {
 						$Period = $Periods->getRecord();
-						$Period->period_name = $items['v_' . $colNameAdd . '_period_' . $i];
+						$Period->period_name = $PayPerRentalPeriod;
 						$Period->save();
-						$PeriodPrice = $PeriodPrices->getRecord();
-					} else {
-						$PeriodPrice = $PeriodPrices->findOneByPeriodIdAndProductsId($Period->period_id, $Product->products_id);
-						if (!$PeriodPrice) {
-							$PeriodPrice = $PeriodPrices->getRecord();
-						}
 					}
-					$PeriodPrice->products_id = $Product->products_id;
-					$PeriodPrice->period_id = $Period->period_id;
-					$PeriodPrice->price = $items['v_' . $colNameAdd . '_period_price_' . $i];
-					$PeriodPrice->save();
+
+					$PeriodPrices[$Period->period_id]->period_id = $Period->period_id;
+					$PeriodPrices[$Period->period_id]->price = $CurrentRow->getColumnValue($colBasename . '_period_price_' . $i, 0);
+					$Period->free(true);
 				}
 			} else {
 				break;
@@ -2981,47 +2977,34 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 		}
 
 		$j=0;
-		$PricePerRentalPerProducts = Doctrine_Core::getTable('PricePerRentalPerProducts');
-		Doctrine_Query::create()
-			->delete('PricePerRentalPerProducts')
-			->andWhere('pay_per_rental_id =?', $PayPerRental->pay_per_rental_id)
-			->execute();
-		$QPayPerRentalTypes = Doctrine_Query::create()
-			->from('PayPerRentalTypes')
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		$htypes = array();
-		foreach ($QPayPerRentalTypes as $iType) {
-			$htypes[$iType['pay_per_rental_types_id']] = $iType['pay_per_rental_types_name'];
-		}
-
+		$PayPerRental->PricePerRentalPerProducts->delete();
 		while (true) {
-			if (isset($items['v_' . $colNameAdd . '_time_period_number_of_' . $j])) {
-				if (!empty($items['v_' . $colNameAdd . '_time_period_number_of_' . $j])) {
-
-					$PricePerProduct = $PricePerRentalPerProducts->create();
+			$PayPerRentalTimePeriodNumOf = $CurrentRow->getColumnValue($colBasename . '_time_period_number_of_' . $j);
+			if ($PayPerRentalTimePeriodNumOf !== false){
+				if ($PayPerRentalTimePeriodNumOf !== null){
+					$PricePerProduct = new PricePerRentalPerProducts();
 					$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
 
 					foreach (sysLanguage::getLanguages() as $lInfo) {
 						$langId = $lInfo['id'];
-						if (isset($items['v_' . $colNameAdd . '_time_period_desc_' . $langId . '_' . $j]) && !empty($items['v_' . $colNameAdd . '_time_period_desc_' . $langId . '_' . $j])) {
-							$Description[$langId]->language_id = $langId;
-							$Description[$langId]->price_per_rental_per_products_name = $items['v_' . $colNameAdd . '_time_period_desc_' . $langId . '_' . $j];
-						}
+						$Description[$langId]->language_id = $langId;
+						$Description[$langId]->price_per_rental_per_products_name = $CurrentRow->getColumnValue($colBasename . '_time_period_desc_' . $langId . '_' . $j);
 					}
 
 					$type = '';
+					$PayPerRentalTimePeriodTypeName = $CurrentRow->getColumnValue($colBasename . '_time_period_type_name_' . $j);
 					foreach ($htypes as $itypeID => $itypeName) {
-						if ($itypeName == $items['v_' . $colNameAdd . '_time_period_type_name_' . $j]) {
+						if ($itypeName == $PayPerRentalTimePeriodTypeName) {
 							$type = $itypeID;
 							break;
 						}
 					}
 
-					$PricePerProduct->price = $items['v_' . $colNameAdd . '_time_period_price_' . $j];
-					$PricePerProduct->number_of = $items['v_' . $colNameAdd . '_time_period_number_of_' . $j];
+					$PricePerProduct->price = $CurrentRow->getColumnValue($colBasename . '_time_period_price_' . $j);
+					$PricePerProduct->number_of = $CurrentRow->getColumnValue($colBasename . '_time_period_number_of_' . $j);
 					$PricePerProduct->pay_per_rental_types_id = $type;
-					$PricePerProduct->pay_per_rental_id = $PayPerRental->pay_per_rental_id;
-					$PricePerProduct->save();
+
+					$PayPerRental->PricePerRentalPerProducts->add($PricePerProduct);
 				}
 			} else {
 				break;
@@ -3106,61 +3089,45 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 		}
 	}
 
-	public function addExportRowColumns($ProductType, &$CurrentRow, $pInfo){
-		parent::addExportRowColumns($ProductType, $CurrentRow, $pInfo);
+	public function addExportRowColumns($ProductType, &$CurrentRow, $Product){
+		parent::addExportRowColumns($ProductType, $CurrentRow, $Product);
+
+		$PayPerRental = $Product->ProductsPayPerRental;
 
 		$colNameAdd = $ProductType . '_' . $this->getCode();
-		if ($pInfo['v_' . $colNameAdd . '_overbooking'] == '0'){
+		if ($PayPerRental->overbooking == '0'){
 			$CurrentRow->addColumn('No', 'v_' . $colNameAdd . '_overbooking');
 		}else{
 			$CurrentRow->addColumn('Yes', 'v_' . $colNameAdd . '_overbooking');
 		}
-		$product_id = $pInfo['products_id'];
 
 		/*export hidden dates*/
-		$QHiddsenDates = Doctrine_Query::create()
-			->from('PayPerRentalHiddenDates')
-			->where('products_id=?', $product_id)
-			->execute(array(),  Doctrine_Core::HYDRATE_ARRAY);
-		$j = 0;
-		foreach($QHiddsenDates as $iHidden){
-			$CurrentRow->addColumn($iHidden['hidden_start_date'], 'v_' . $colNameAdd . '_hidden_start_date_'.$j);
-			$CurrentRow->addColumn($iHidden['hidden_end_date'], 'v_' . $colNameAdd . '_hidden_end_date_'.$j);
-			$j++;
+		$HiddenDates = $Product->PayPerRentalHiddenDates;
+		if ($HiddenDates && $HiddenDates->count() > 0){
+			$j = 0;
+			foreach($HiddenDates as $Date){
+				$CurrentRow->addColumn($Date->hidden_start_date, 'v_' . $colNameAdd . '_hidden_start_date_'.$j);
+				$CurrentRow->addColumn($Date->hidden_end_date, 'v_' . $colNameAdd . '_hidden_end_date_'.$j);
+				$j++;
+			}
 		}
-
 		/*end export hidden dates*/
 
-		$QPPR = Doctrine_Query::create()
-			->from('ProductsPayPerRental pprp')
-			->where('products_id=?', $product_id)
-			->execute(array(),  Doctrine_Core::HYDRATE_ARRAY);
-
-		if(isset($QPPR[0]['pay_per_rental_id'])){
-			$QPricePerRentalProducts = Doctrine_Query::create()
-				->from('PricePerRentalPerProducts pprp')
-				->leftJoin('pprp.PricePayPerRentalPerProductsDescription pprpd')
-				->where('pay_per_rental_id =?',$QPPR[0]['pay_per_rental_id'])
-				->orderBy('price_per_rental_per_products_id')
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		$Prices = $PayPerRental->PricePerRentalPerProducts;
+		if ($Prices && $Prices->count() > 0){
 			$j=0;
-			$QPayPerRentalTypes = Doctrine_Query::create()
-				->from('PayPerRentalTypes')
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-			$htypes = array();
-			foreach($QPayPerRentalTypes as $iType){
-				$htypes[$iType['pay_per_rental_types_id']] = $iType['pay_per_rental_types_name'];
-			}
-			foreach($QPricePerRentalProducts as $iPrice){
-				$CurrentRow->addColumn($iPrice['number_of'], 'v_' . $colNameAdd . '_time_period_number_of_'.$j);
-				$CurrentRow->addColumn($htypes[$iPrice['pay_per_rental_types_id']], 'v_' . $colNameAdd . '_time_period_type_name_'.$j);
-				$CurrentRow->addColumn($iPrice['price'], 'v_' . $colNameAdd . '_time_period_price_'.$j);
+			foreach($Prices as $Price){
+				$CurrentRow->addColumn($Price->number_of, 'v_' . $colNameAdd . '_time_period_number_of_'.$j);
+				$CurrentRow->addColumn($Price->PayPerRentalTypes->pay_per_rental_types_name, 'v_' . $colNameAdd . '_time_period_type_name_'.$j);
+				$CurrentRow->addColumn($Price->price, 'v_' . $colNameAdd . '_time_period_price_'.$j);
 
 				foreach(sysLanguage::getLanguages() as $lInfo){
-
-					foreach($iPrice['PricePayPerRentalPerProductsDescription'] as $desc){
-						if($lInfo['id'] == $desc['language_id']){
-							$CurrentRow->addColumn($desc['price_per_rental_per_products_name'], 'v_' . $colNameAdd . '_time_period_desc_'.$lInfo['id'].'_'. $j);
+					foreach($Price->PricePayPerRentalPerProductsDescription as $PriceDescription){
+						if ($lInfo['id'] == $PriceDescription->language_id){
+							$CurrentRow->addColumn(
+								$PriceDescription->price_per_rental_per_products_name,
+								'v_' . $colNameAdd . '_time_period_desc_'.$lInfo['id'].'_'. $j
+							);
 						}
 					}
 				}
@@ -3168,23 +3135,17 @@ class PurchaseType_reservation extends PurchaseType_reservation_htmlOutput
 			}
 		}
 
-		$QPeriods = Doctrine_Query::create()
-			->from('ProductsPayPerPeriods')
-			->where('products_id=?', $product_id)
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-		$QPeriodsNames = Doctrine_Query::create()
-			->from('PayPerRentalPeriods')
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		$periodNames =  array();
-		foreach($QPeriodsNames as $iPeriod){
-			$periodNames[$iPeriod['period_id']] = $iPeriod['period_name'];
-		}
-
 		$i = 0;
-		foreach($QPeriods as $iPeriod){
-			$CurrentRow->addColumn($periodNames[$iPeriod['period_id']], 'v_' . $colNameAdd . '_period_'.$i);
-			$CurrentRow->addColumn($iPeriod['price'], 'v_' . $colNameAdd . '_period_price_'.$i);
+		$Periods = $Product->ProductsPayPerPeriods;
+		foreach($Periods as $Period){
+			$CurrentRow->addColumn(
+				$Period->PayPerRentalPeriods->period_name,
+				'v_' . $colNameAdd . '_period_'.$i
+			);
+			$CurrentRow->addColumn(
+				$Period->price,
+				'v_' . $colNameAdd . '_period_price_'.$i
+			);
 			$i++;
 		}
 	}

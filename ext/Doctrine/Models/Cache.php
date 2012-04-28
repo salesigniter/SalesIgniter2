@@ -38,7 +38,7 @@ class Cache extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('cache_data', 'string', null, array(
+		$this->hasColumn('cache_data', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

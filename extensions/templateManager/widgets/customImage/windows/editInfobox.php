@@ -15,8 +15,6 @@ ob_start();
 		margin-right : .5em;
 	}
 </style>
-<script src="<?php echo sysConfig::getDirWsCatalog();?>ext/jQuery/ui/jquery.ui.selectmenu.js"></script>
-<link rel="stylesheet" href="<?php echo sysConfig::getDirWsCatalog();?>ext/jQuery/themes/smoothness/jquery.ui.selectmenu.css" type="text/css" media="screen,projection" />
 <script type="text/javascript">
 $(document).ready(function () {
 	$('#imagesSortable').sortable({
@@ -27,7 +25,7 @@ $(document).ready(function () {
 
 	$('#imagesTable').find('.addMainBlock').click(function () {
 		var inputKey = 0;
-		while($('#imagesSortable > li[data-input_key=' + inputKey + ']').size() > 0){
+		while($('#imagesSortable').find('.systemLinkType[data-input_key=' + inputKey + ']').size() > 0){
 			inputKey++;
 		}
 
@@ -38,7 +36,7 @@ $(document).ready(function () {
 		<?php foreach(sysLanguage::getLanguages() as $lInfo){ ?>
 			'<tr>' +
 				'<td><?php echo $lInfo['showName']('&nbsp;');?></td>' +
-				'<td><input type="text" class="fileManager" data-is_multiple="true" data-files_source="<?php echo sysConfig::getDirFsCatalog();?>templates/" name="image_source[' + inputKey + '][<?php echo $lInfo['id'];?>]" value=""></td>' +
+				'<td><input type="text" class="fileManager" data-is_multiple="true" data-files_source="<?php echo sysConfig::getDirFsCatalog();?>templates/" name="image[' + inputKey + '][source][<?php echo $lInfo['id'];?>]" value=""></td>' +
 				'</tr>' +
 		<?php } ?>
 			'</table></td>' +
@@ -51,7 +49,7 @@ $(document).ready(function () {
 			'</tr>' +
 			'</table></div>');
 		
-		$(document).trigger('newSystemLinkMenu', [$newLi, 'image_link']);
+		$.newSystemLinkMenu($newLi, 'image[' + inputKey + ']');
 
 		$('#imagesSortable').append($newLi);
 		$('#imagesSortable').sortable('refresh');
@@ -87,14 +85,15 @@ $editTable->addBodyRow(array(
 	function parseImage($item, &$i) {
 		global $AppArray, $CatArr, $LinkTypes, $LinkTargets, $template;
 
-		$data = $item->link;
+		$data = $item;
+		$baseInputName = 'image[' . $i . ']';
 
 		$textInputs = '<table cellpadding="2" cellspacing="0" border="0">';
 		foreach(sysLanguage::getLanguages() as $lInfo){
 			$textInput = htmlBase::newElement('input')
 				->addClass('fileManager')
-				->setName('image_source[' . $i . '][' . $lInfo['id'] . ']')
-				->val((isset($data->image->{$lInfo['id']}) ? $data->image->{$lInfo['id']} : ''));
+				->setName($baseInputName . '[source][' . $lInfo['id'] . ']')
+				->val((isset($data->source->{$lInfo['id']}) ? $data->source->{$lInfo['id']} : ''));
 			$textInputs .= '<tr>' .
 				'<td>' . $lInfo['showName']('&nbsp;') . '</td>' .
 				'<td>' . $textInput->draw() . '</td>' .
@@ -104,7 +103,7 @@ $editTable->addBodyRow(array(
 
 		$systemLinkMenu = htmlBase::newElement('systemLinkMenu', array(
 			'data' => (isset($data) ? $data : false)
-		))->setName($baseInputName);
+		))->setName($baseInputName . '[link]');
 
 		$itemTemplate = '<li id="image_' . $i . '" data-input_key="' . $i . '">' .
 			'<div><table cellpadding="2" cellspacing="0" border="0" width="100%">' .

@@ -21,31 +21,6 @@
 		$Container->Configuration->clear();
 	}
 	$Container->sort_order = (int)$el->attr('data-sort_order');
-	$Container->is_anchor = (int)$el->attr('data-is_anchor');
-	$Container->anchor_id = (int)$el->attr('data-anchor_id');
-
-	if(!empty($Container->anchor_id) && (int)$Container->anchor_id > 0){
-
-		if ($el->attr('data-container_id')){
-			if ($Container->Children){
-				$Container->Children->clear();
-			}
-			if ($Container->Columns){
-				$Container->Columns->clear();
-			}
-			$TemplateLayoutsContainer = Doctrine_Core::getTable('TemplateManagerLayoutsContainers');
-			$Original = $TemplateLayoutsContainer->find((int)$Container->anchor_id);
-			LoadAllContainerData($Original, $Container);
-		}else{
-			if ($Container->Widgets){
-				$Container->Widgets->clear();
-			}
-			$TemplateManagerLayoutsColumns = Doctrine_Core::getTable('TemplateManagerLayoutsColumns');
-			$Original = $TemplateManagerLayoutsColumns->find((int)$Container->anchor_id);
-			LoadAllColumnData($Original, $Container);
-		}
-		return;
-	}
 
 	// process css for id and classes
 	if ($el->attr('data-styles')){

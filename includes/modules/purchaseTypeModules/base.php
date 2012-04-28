@@ -438,17 +438,17 @@ class PurchaseTypeBase extends ModuleBase
 		return $return;
 	}
 
-	public function processProductImport($ProductType, &$Product, $item){
-		$PurchaseTypes =& $Product->ProductsPurchaseTypes;
-		if (
-			isset($item['v_' . $ProductType . '_' . $this->getCode() . '_status']) &&
-			$item['v_' . $ProductType . '_' . $this->getCode() . '_status'] == '1'
-		){
-			foreach($this->getExportTableColumns() as $k){
-				$PurchaseTypes[$this->getCode()]->$k = $item['v_' . $ProductType . '_' . $this->getCode() . '_' . $k];
-			}
-		}elseif (isset($PurchaseTypes[$this->getCode()])){
-			$PurchaseTypes[$this->getCode()]->delete();
+	public function processProductImport(&$Product, $CurrentRow){
+		$Code = $this->getCode();
+		$ColBasename = 'v_' . $Product->products_type . '_' . $Code;
+		if ($CurrentRow->getColumnValue($ColBasename . '_status', 0) == 1){
+			$Product->ProductsPurchaseTypes[$Code]->status = $CurrentRow->getColumnValue($ColBasename . '_status');
+			$Product->ProductsPurchaseTypes[$Code]->price = $CurrentRow->getColumnValue($ColBasename . '_price');
+			$Product->ProductsPurchaseTypes[$Code]->inventory_controller = $CurrentRow->getColumnValue($ColBasename . '_inventory_controller');
+			$Product->ProductsPurchaseTypes[$Code]->inventory_track_method = $CurrentRow->getColumnValue($ColBasename . '_inventory_track_method');
+			$Product->ProductsPurchaseTypes[$Code]->tax_class_id = $CurrentRow->getColumnValue($ColBasename . '_tax_class_id');
+		}elseif (isset($Product->ProductsPurchaseTypes[$Code])){
+			$Product->ProductsPurchaseTypes[$Code]->delete();
 		}
 	}
 
@@ -462,35 +462,24 @@ class PurchaseTypeBase extends ModuleBase
 		);
 	}
 
-	public function addExportQueryConditions($ProductType, &$QfileLayout){
-		foreach($this->getExportTableColumns() as $k => $col){
-			$tableAlias = 'pt_' . $this->getCode() . '_' . $k;
-
-			$QfileLayout->addSelect('(SELECT
-				' . $tableAlias . '.' . $col . '
-			FROM
-				ProductsPurchaseTypes ' . $tableAlias . '
-			WHERE
-				' . $tableAlias . '.products_id = p.products_id
-			AND
-				' . $tableAlias . '.type_name = "' . $this->getCode() . '"
-			) as v_' . $ProductType . '_' . $this->getCode() . '_' . $col);
-		}
-	}
-
 	public function addExportHeaderColumns($ProductType, &$HeaderRow){
-		foreach($this->getExportTableColumns() as $k){
-			$HeaderRow->addColumn('v_' . $ProductType . '_' . $this->getCode() . '_' . $k);
-		}
+		$colBasename = 'v_' . $ProductType . '_' . $this->getCode();
+		$HeaderRow->addColumn($colBasename . '_status');
+		$HeaderRow->addColumn($colBasename . '_price');
+		$HeaderRow->addColumn($colBasename . '_inventory_controller');
+		$HeaderRow->addColumn($colBasename . '_inventory_track_method');
+		$HeaderRow->addColumn($colBasename . '_tax_class_id');
 	}
 
-	public function addExportRowColumns($ProductType, &$CurrentRow, $pInfo){
-		foreach($this->getExportTableColumns() as $k){
-			$CurrentRow->addColumn(
-				$pInfo['v_' . $ProductType . '_' . $this->getCode() . '_' . $k],
-				'v_' . $ProductType . '_' . $this->getCode() . '_' . $k
-			);
-		}
+	public function addExportRowColumns($ProductType, &$CurrentRow, $Product){
+		$PurchaseType = $Product->ProductsPurchaseTypes[$this->getCode()];
+
+		$colBasename = 'v_' . $ProductType . '_' . $this->getCode();
+		$CurrentRow->addColumn($PurchaseType->status, $colBasename . '_status');
+		$CurrentRow->addColumn($PurchaseType->price, $colBasename . '_price');
+		$CurrentRow->addColumn($PurchaseType->inventory_controller, $colBasename . '_inventory_controller');
+		$CurrentRow->addColumn($PurchaseType->inventory_track_method, $colBasename . '_inventory_track_method');
+		$CurrentRow->addColumn($PurchaseType->tax_class_id, $colBasename . '_tax_class_id');
 	}
 
 	public function addInventoryExportHeaders(&$headerCols){

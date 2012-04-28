@@ -21,6 +21,11 @@ class Categories extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 
+		$this->hasOne('Categories as Parent', array(
+			'local' => 'parent_id',
+			'foreign' => 'categories_id'
+		));
+
 		$this->hasMany('Categories as Children', array(
 			'local' => 'categories_id',
 			'foreign' => 'parent_id',

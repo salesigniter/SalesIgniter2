@@ -30,7 +30,7 @@ class Sessions extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('value', 'string', null, array(
+		$this->hasColumn('value', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

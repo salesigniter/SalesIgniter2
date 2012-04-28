@@ -81,7 +81,7 @@ class RentalIssues extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('problem', 'string', null, array(
+		$this->hasColumn('problem', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,
@@ -105,7 +105,7 @@ class RentalIssues extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('feedback', 'string', null, array(
+		$this->hasColumn('feedback', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

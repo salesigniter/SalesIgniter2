@@ -22,15 +22,15 @@ class PDFTemplateManagerLayouts extends Doctrine_Record
 	public function setTableDefinition()
 	{
 		$this->setTableName('pdf_template_manager_layouts');
-		$this->hasColumn('template_id', 'integer', 11, array(
+		$this->hasColumn('template_id', 'integer', 4, array(
 			'type' => 'integer',
-			'length' => '11',
+			'length' => '4',
 		));
-		$this->hasColumn('layout_id', 'integer', 11, array(
+		$this->hasColumn('layout_id', 'integer', 4, array(
 			'primary' => true,
 			'type' => 'integer',
 			'autoincrement' => true,
-			'length' => '11',
+			'length' => '4',
 		));
 		$this->hasColumn('layout_name', 'string', 128, array(
 				'type' => 'string',

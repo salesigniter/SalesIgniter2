@@ -68,7 +68,7 @@ class WhosOnline extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('last_page_url', 'string', null, array(
+		$this->hasColumn('last_page_url', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

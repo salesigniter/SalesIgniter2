@@ -22,7 +22,7 @@ class SearchQueries extends Doctrine_Record {
 		'primary' => true,
 		'autoincrement' => true,
 		));
-		$this->hasColumn('search_text', 'string', null, array(
+		$this->hasColumn('search_text', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

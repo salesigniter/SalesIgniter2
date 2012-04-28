@@ -101,7 +101,9 @@ function editWidget(li) {
 			showWidgetEditWindow({
 				htmlTable: data,
 				onHide: function (){
-					$(this).find('.makeHtmlEditor:hidden').ckeditorGet().destroy();
+					$(this).find('.makeHtmlEditor:hidden').each(function (){
+						$(this).ckeditorGet().destroy();
+					});
 				},
 				onShow: function () {
 					var self = this;
@@ -109,7 +111,7 @@ function editWidget(li) {
 						fileSource: jsConfig.get('DIR_FS_CATALOG_TEMPLATES') + getTemplateName()
 					});
 
-					$(self).find('.makeHtmlEditor').ckeditor();
+					$(self).find('.makeHtmlEditor').ckeditor({});
 
 					$(self).find('.cancelButton').click(function () {
 						hideWidgetEditWindow.apply(self);

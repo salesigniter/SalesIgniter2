@@ -36,17 +36,17 @@
         public function setTableDefinition(){
             $this->setTableName('gift_certificates_customers_balance');
 
-            $this->hasColumn('gift_certificates_customers_balance_id', 'integer', 11, array(
+            $this->hasColumn('gift_certificates_customers_balance_id', 'integer', 4, array(
                 'type' => 'integer',
-                'length' => 11,
+                'length' => 4,
                 'unsigned' => 0,
                 'primary' => true,
                 'notnull' => true,
                 'autoincrement' => true,
             ));
-            $this->hasColumn('customers_id', 'integer', 11, array(
+            $this->hasColumn('customers_id', 'integer', 4, array(
                 'type' => 'integer',
-                'length' => 11,
+                'length' => 4,
                 'unsigned' => 0,
                 'primary' => false,
                 'notnull' => true,

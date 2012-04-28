@@ -73,9 +73,9 @@ class ModulesShippingZoneReservationMethods extends Doctrine_Record {
 			'length'        => 2,
 			'autoincrement' => false
 		));
-		$this->hasColumn('weight_rates', 'string', null, array(
+		$this->hasColumn('weight_rates', 'string', 999, array(
 			'type'          => 'string',
-			'length'        => null,
+			'length'        => 999,
 			'autoincrement' => false
 		));
 		$this->hasColumn('min_rental_number', 'integer', 4, array(

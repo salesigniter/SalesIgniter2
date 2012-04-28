@@ -97,6 +97,7 @@ require(sysConfig::getDirFsCatalog() . 'includes/functions/database.php');
 // set the application parameters
 sysConfig::load();
 
+require(sysConfig::getDirFsCatalog() . 'includes/classes/ttfInfo.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/MultipleInheritance.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/Importable/Bindable.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/Importable/Installable.php');

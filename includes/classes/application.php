@@ -298,10 +298,10 @@ class Application
 		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
 			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php';
 		}
-		elseif (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
+		elseif (isset($_GET['appExt']) && file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
 			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
 		}
-		elseif (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
+		elseif (isset($_GET['appExt']) && file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php')) {
 			$actionFiles[] = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/' . $_GET['appExt'] . '/' . $this->env . '/base_app/' . $this->appName . '/actions/' . $action . '.php';
 		}
 		elseif (file_exists($this->appDir['absolute'] . 'actions/' . $action . '.php')) {

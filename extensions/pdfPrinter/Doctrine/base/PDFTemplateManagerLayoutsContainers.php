@@ -26,21 +26,21 @@ class PDFTemplateManagerLayoutsContainers extends Doctrine_Record
 	public function setTableDefinition()
 	{
 		$this->setTableName('pdf_template_manager_layouts_containers');
-		$this->hasColumn('layout_id', 'integer', 11, array(
+		$this->hasColumn('layout_id', 'integer', 4, array(
 			'type' => 'integer',
-			'length' => '11',
+			'length' => '4',
 		));
-		$this->hasColumn('parent_id', 'integer', 11, array(
+		$this->hasColumn('parent_id', 'integer', 4, array(
 			'type' => 'integer',
 			'default' => 0,
 			'notnull' => false,
-			'length' => '11',
+			'length' => '4',
 		));
-		$this->hasColumn('container_id', 'integer', 11, array(
+		$this->hasColumn('container_id', 'integer', 4, array(
 			'primary' => true,
 			'type' => 'integer',
 			'autoincrement' => true,
-			'length' => '11',
+			'length' => '4',
 		));
 		$this->hasColumn('sort_order', 'integer', 3, array(
 			'type' => 'integer',

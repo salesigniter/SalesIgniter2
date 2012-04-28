@@ -34,23 +34,23 @@
         public function setTableDefinition(){
             $this->setTableName('gift_certificates_description');
 
-            $this->hasColumn('gift_certificates_description_id', 'integer', 11, array(
+            $this->hasColumn('gift_certificates_description_id', 'integer', 4, array(
                  'type' => 'integer',
-                 'length' => 11,
+                 'length' => 4,
                  'unsigned' => 0,
                  'primary' => true,
                  'notnull' => true,
                  'autoincrement' => true,
             ));
-            $this->hasColumn('gift_certificates_id', 'integer', 11, array(
+            $this->hasColumn('gift_certificates_id', 'integer', 4, array(
                  'type' => 'integer',
-                 'length' => 11,
+                 'length' => 4,
                  'unsigned' => 0,
                  'notnull' => true,
             ));
-            $this->hasColumn('language_id', 'integer', 11, array(
+            $this->hasColumn('language_id', 'integer', 4, array(
                  'type' => 'integer',
-                 'length' => 11,
+                 'length' => 4,
                  'unsigned' => 0,
                  'notnull' => true
             ));
@@ -59,7 +59,7 @@
                  'length' => 32,
                  'notnull' => true
             ));
-            $this->hasColumn('gift_certificates_description', 'string', null, array(
+            $this->hasColumn('gift_certificates_description', 'string', 999, array(
                  'type' => 'string',
                  'notnull' => true,
                  'autoincrement' => false,

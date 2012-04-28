@@ -22,7 +22,7 @@ class Log extends Doctrine_Record {
 		'primary' => true,
 		'autoincrement' => true,
 		));
-		$this->hasColumn('message', 'string', null, array(
+		$this->hasColumn('message', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

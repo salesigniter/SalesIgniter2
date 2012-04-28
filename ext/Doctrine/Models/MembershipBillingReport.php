@@ -68,7 +68,7 @@ class MembershipBillingReport extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('error', 'string', null, array(
+		$this->hasColumn('error', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

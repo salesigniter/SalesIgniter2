@@ -54,7 +54,7 @@ class ProductsInventoryBarcodesComments extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		
-		$this->hasColumn('comments', 'string', null, array(
+		$this->hasColumn('comments', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

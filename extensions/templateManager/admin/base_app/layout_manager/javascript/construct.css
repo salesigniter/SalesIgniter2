@@ -14,7 +14,7 @@ a img {border:none;}
   font-family:Cambria, Georgia, serif;
 }
 
-#construct-container { overflow:auto;height:600px; }
+#construct-container { overflow:auto;height:600px;margin: 0px 1em; }
 #construct { border:1px dashed blue; }
 #construct.desktop { }
 #construct.smartphone { width: 480px;margin-left:auto;margin-right:auto; }
@@ -38,7 +38,7 @@ a img {border:none;}
 .ui-sortable li.widget.state-hover { border:none;background:none;outline: 1px dashed white; }
 .ui-sortable li.widget.state-active { border:none;background:none;outline: 1px dashed red; }
 .ui-sortable li.widget.state-highlight { border:none;background-color:#ffffff; }
-.ui-sortable li.widget .widget_name, .ui-sortable li.widget .widgetName { min-height:32px;display: block;vertical-align: middle; }
+.ui-sortable li.widget .widget_name, .ui-sortable li.widget .widgetName {  }
 .ui-sortable .iconHolder { position:absolute;top:0;right:5px;outline:none; }
 .ui-sortable .iconHolder .ui-icon { display:inline-block; }
 

@@ -4,9 +4,6 @@
 </script>
 <div class="pageHeading"><?php
 	echo sysLanguage::get('HEADING_TITLE_LAYOUT_EDITOR');
-	?></div>
-<br />
-<div id="topButtonBar" style="text-align:right;margin:.5em;"><?php
 	echo htmlBase::newElement('button')->usePreset('back')->setText('Back To Layout Listing')
 		->setHref(itw_app_link('appExt=templateManager&tID=' . $Layout->Template->template_id, 'layout_manager', 'layouts'))
 		->draw();
@@ -209,6 +206,19 @@ echo '<div id="zoomOverlay"></div>'
 				echo '<option value="New Times Roman">New Times Roman</option>';
 				echo '<option value="Tahoma">Tahoma</option>';
 				echo '<option value="Verdana">Verdana</option>';
+
+				if (is_dir(sysConfig::getDirFsCatalog() . 'templates/' . $templateName . '/fonts')){
+					$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/' . $templateName . '/fonts');
+					foreach($Dir as $fInfo){
+						if ($fInfo->isDot() || $fInfo->isDir()){
+							continue;
+						}
+						$FontInfo = new ttfInfo;
+						$FontInfo->setFontFile($fInfo->getPathname());
+
+						echo '<option value="' . $FontInfo->getFontFamily() . '">' . $FontInfo->getFullFontName() . '</option>';
+					}
+				}
 				?></select></td>
 		</tr>
 		<tr>

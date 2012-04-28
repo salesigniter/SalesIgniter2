@@ -56,7 +56,7 @@ class RentalQueueTable extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('products_id', 'string', null, array(
+		$this->hasColumn('products_id', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

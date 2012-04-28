@@ -45,9 +45,9 @@ class PayPerRentalMaintenancePeriods extends Doctrine_Record {
 				'autoincrement' => false
 		));
 
-		$this->hasColumn('maintenance_period_description', 'string', null, array(
+		$this->hasColumn('maintenance_period_description', 'string', 999, array(
 				'type'          => 'string',
-				'length'        => null,
+				'length'        => 999,
 				'fixed'         => false,
 				'primary'       => false,
 				'notnull'       => true,

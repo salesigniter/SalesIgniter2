@@ -1,66 +1,4 @@
 <?php
-function parseItemLink($menuItem) {
-	if ($menuItem['type'] == 'app'){
-		$itemLink = array(
-			'type' => 'app',
-			'application' => $menuItem['app']['name'],
-			'page' => $_POST['menu_item_link_app_page'][$itemId],
-			'target' => $_POST['menu_item_link_app_target'][$itemId]
-		);
-	}
-	elseif ($_POST['menu_item_link'][$itemId] == 'category'){
-		$catPath = $_POST['menu_item_link_category'][$itemId];
-		if (isset($_POST['menu_item_link_category_path'][$itemId])){
-			foreach($_POST['menu_item_link_category_path'][$itemId] as $id){
-				if ($id == 'none') break;
-				$catPath .= '_' . $id;
-			}
-		}
-		$itemLink = array(
-			'type' => 'category',
-			'application' => 'index',
-			'page' => 'default',
-			'target' => $_POST['menu_item_link_category_target'][$itemId],
-			'get_vars' => 'cPath=' . $catPath
-		);
-	}
-	elseif ($_POST['menu_item_link'][$itemId] == 'custom') {
-		$itemLink = array(
-			'type' => 'custom',
-			'url' => $_POST['menu_item_link_custom'][$itemId],
-			'target' => $_POST['menu_item_link_custom_target'][$itemId]
-		);
-	}
-	else {
-		$itemLink = false;
-	}
-	return $itemLink;
-}
-
-function parseChildren($itemId, $itemArr, &$childArr) {
-	$itemKeys = array_keys($itemArr, $itemId);
-	foreach($itemKeys as $itemId){
-		if ($itemArr[$itemId] == 'root'){
-			continue;
-		}
-
-		$childArr[$itemId] = array(
-			'icon' => $_POST['menu_item_icon'][$itemId],
-			'icon_src' => (isset($_POST['menu_item_icon_src'][$itemId]) ? $_POST['menu_item_icon_src'][$itemId] : ''),
-			'link' => parseItemLink($itemId),
-			'condition' => $_POST['menu_item_condition'][$itemId],
-			'children' => array()
-		);
-		foreach(sysLanguage::getLanguages() as $lInfo){
-			$childArr[$itemId][$lInfo['id']]['text'] = $_POST['menu_item_text'][$lInfo['id']][$itemId];
-		}
-
-		if (in_array($itemId, $itemArr)){
-			parseChildren($itemId, $itemArr, $childArr[$itemId]['children']);
-		}
-	}
-}
-
 if (!isset($_POST['linked_to']) || $_POST['linked_to'] == 'none'){
 	$menuConfig = array();
 	if (!empty($_POST['navMenuSortable'])){
@@ -76,7 +14,7 @@ if (!isset($_POST['linked_to']) || $_POST['linked_to'] == 'none'){
 				);
 
 				if (in_array($itemId, $items['menu_item'])){
-					parseChildren($itemId, $items['menu_item'], $menuConfig[$i]['children']);
+					//parseChildren($itemId, $items['menu_item'], $menuConfig[$i]['children']);
 				}
 				$i++;
 			}

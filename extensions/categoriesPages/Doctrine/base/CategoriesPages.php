@@ -44,9 +44,9 @@ class CategoriesPages extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-		$this->hasColumn('categories', 'string', null, array(
+		$this->hasColumn('categories', 'string', 999, array(
 			'type' => 'string',
-			'length' => null,
+			'length' => 999,
 			'fixed'         => false,
 			'primary'       => false,
 			'notnull'       => false,

@@ -53,6 +53,24 @@ echo '		' . $html . "\n";
 			}
 		});
 	</script>
+<?php
+	if (is_dir(sysConfig::get('DIR_FS_TEMPLATE') . 'fonts')){
+		echo '<style>';
+		$Dir = new DirectoryIterator(sysConfig::get('DIR_FS_TEMPLATE') . 'fonts');
+		foreach($Dir as $fInfo){
+			if ($fInfo->isDot() || $fInfo->isDir()){
+				continue;
+			}
+			$FontInfo = new ttfInfo;
+			$FontInfo->setFontFile($fInfo->getPathname());
+			echo '@font-face {' . "\n" .
+				'font-family: "' . $FontInfo->getFontFamily() . '";' . "\n" .
+				'src: url("' . sysConfig::get('DIR_WS_TEMPLATE') . 'fonts/' . $fInfo->getBasename() . '") format("truetype");' . "\n" .
+				'}' . "\n\n";
+		}
+		echo '</style>';
+	}
+?>
 </head>
 <body>
 <noscript>

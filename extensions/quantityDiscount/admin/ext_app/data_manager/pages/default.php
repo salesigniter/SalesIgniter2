@@ -44,19 +44,13 @@ class quantityDiscount_admin_data_manager_default extends Extension_quantityDisc
 		}
 	}
 	
-	public function DataExportBeforeFileLineCommit(&$CurrentRow, $pInfo){
-		if ($productRow['quantityDiscounts'] > 0){
-			$discounts = Doctrine_Query::create()
-			->from('ProductsQuantityDiscounts')
-			->where('products_id = ?', $pInfo['v_products_id'])
-			->orderBy('quantity_from asc')
-			->execute();
-			
+	public function DataExportBeforeFileLineCommit(&$CurrentRow, $Product){
+		if ($Product->ProductsQuantityDiscounts && $Product->ProductsQuantityDiscounts->count() > 0){
 			$i=1;
-			foreach($discounts as $dInfo){
-				$CurrentRow->addColumn($dInfo->quantity_from, 'v_quantity_discount_' . $i . '_from');
-				$CurrentRow->addColumn($dInfo->quantity_to, 'v_quantity_discount_' . $i . '_to');
-				$CurrentRow->addColumn($dInfo->price, 'v_quantity_discount_' . $i . '_price');
+			foreach($Product->ProductsQuantityDiscounts as $Discount){
+				$CurrentRow->addColumn($Discount->quantity_from, 'v_quantity_discount_' . $i . '_from');
+				$CurrentRow->addColumn($Discount->quantity_to, 'v_quantity_discount_' . $i . '_to');
+				$CurrentRow->addColumn($Discount->price, 'v_quantity_discount_' . $i . '_price');
 				$i++;
 			}
 			
@@ -70,14 +64,15 @@ class quantityDiscount_admin_data_manager_default extends Extension_quantityDisc
 		}
 	}
 	
-	public function DataImportBeforeSave(&$items, &$Product){
+	public function DataImportBeforeSave(&$CurrentRow, &$Product){
 		$Product->ProductsQuantityDiscounts->delete();
-		if (isset($items['v_quantity_discount_1_from'])){
+		$DiscountCheck = $CurrentRow->getColumnValue('v_quantity_discount_1_from');
+		if ($DiscountCheck !== false){
 			$qtyCount = 0;
 			for($i=1; $i<(sysConfig::get('EXTENSION_QUANTITY_DISCOUNT_LEVELS') + 1); $i++){
-				$qtyFrom = $items['v_quantity_discount_' . $i . '_from'];
-				$qtyTo = $items['v_quantity_discount_' . $i . '_to'];
-				$price = $items['v_quantity_discount_' . $i . '_price'];
+				$qtyFrom = $CurrentRow->getColumnValue('v_quantity_discount_' . $i . '_from');
+				$qtyTo = $CurrentRow->getColumnValue('v_quantity_discount_' . $i . '_to');
+				$price = $CurrentRow->getColumnValue('v_quantity_discount_' . $i . '_price');
 				if ($qtyFrom > 0 && $qtyTo > 0){
 					$Product->ProductsQuantityDiscounts[$qtyCount]->quantity_from = $qtyFrom;
 					$Product->ProductsQuantityDiscounts[$qtyCount]->quantity_to = $qtyTo;

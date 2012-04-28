@@ -23,15 +23,15 @@ class PDFTemplateManagerLayoutsWidgets extends Doctrine_Record
 	public function setTableDefinition()
 	{
 		$this->setTableName('pdf_template_manager_layouts_widgets');
-		$this->hasColumn('column_id', 'integer', 11, array(
+		$this->hasColumn('column_id', 'integer', 4, array(
 			'type' => 'integer',
-			'length' => '11',
+			'length' => '4',
 		));
-		$this->hasColumn('widget_id', 'integer', 11, array(
+		$this->hasColumn('widget_id', 'integer', 4, array(
 			'primary' => true,
 			'type' => 'integer',
 			'autoincrement' => true,
-			'length' => '11',
+			'length' => '4',
 		));
 		$this->hasColumn('identifier', 'string', 255, array(
 			'type' => 'string',

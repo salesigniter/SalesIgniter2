@@ -588,10 +588,12 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
-	public function processProductImport(&$Product, $item){
-		$PackageProducts =& $Product->ProductsPackagedProducts;
-		if (isset($item['v_packaged_products']) && !empty($item['v_packaged_products'])){
-			$Products = explode("\n", $item['v_packaged_products']);
+	public function processProductImport(&$Product, $CurrentRow){
+		$PackageProducts =& $Product->PackageProducts;
+		$PackageProducts->delete();
+		$PackageProductsCheck = $CurrentRow->getColumnValue('v_packaged_products');
+		if ($PackageProductsCheck !== false && $PackageProductsCheck !== null){
+			$Products = explode("\n", $PackageProductsCheck);
 			foreach($Products as $pLine){
 				$pInfo = explode(',', $pLine);
 
@@ -621,10 +623,8 @@ class ProductTypePackage extends ProductTypeBase
 
 					$PackageProducts->add($newProduct);
 				}
+				unset($QproductId);
 			}
-		}
-		else{
-			$PackageProducts->delete();
 		}
 	}
 
@@ -638,24 +638,15 @@ class ProductTypePackage extends ProductTypeBase
 		$headerRow->addColumn('v_packaged_products');
 	}
 
-	public function addExportRowColumns(&$CurrentRow, $pInfo){
+	public function addExportRowColumns(&$CurrentRow, $Product){
 		$RowData = array();
-		$QPackaged = Doctrine_Query::create()
-			->from('ProductsPackagedProducts')
-			->where('package_id = ?', $pInfo['products_id'])
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		if ($QPackaged && sizeof($QPackaged) > 0){
-			foreach($QPackaged as $packInfo){
-				$Qmodel = Doctrine_Query::create()
-					->select('products_model')
-					->from('Products')
-					->where('products_id = ?', $packInfo['product_id'])
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-				$PackageData = json_decode($packInfo['package_data']);
+		$PackagedProducts = $Product->PackageProducts;
+		if ($PackagedProducts && $PackagedProducts->count() > 0){
+			foreach($PackagedProducts as $PackagedProduct){
+				$PackageData = json_decode($PackagedProduct->package_data);
 
 				$LineData = array();
-				$LineData[] = $Qmodel[0]['products_model'];
+				$LineData[] = $PackagedProduct->ProductInfo->products_model;
 				$LineData[] = $PackageData->quantity;
 				if (isset($PackageData->price)){
 					$LineData[] = $PackageData->price;

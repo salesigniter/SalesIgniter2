@@ -67,9 +67,9 @@ class BlogPosts extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-        $this->hasColumn('post_featured_image', 'string', null, array(
+        $this->hasColumn('post_featured_image', 'string', 999, array(
 		        'type'          => 'string',
-		        'length'        => null,
+		        'length'        => 999,
 		        'fixed'         => false,
 		        'primary'       => false,
 		        'default'       => '',
@@ -77,9 +77,9 @@ class BlogPosts extends Doctrine_Record {
 		        'autoincrement' => false
 	    ));
 
-        $this->hasColumn('post_featured_media', 'string', null, array(
+        $this->hasColumn('post_featured_media', 'string', 999, array(
 		        'type'          => 'string',
-		        'length'        => null,
+		        'length'        => 999,
 		        'fixed'         => false,
 		        'primary'       => false,
 		        'default'       => '',
@@ -87,9 +87,9 @@ class BlogPosts extends Doctrine_Record {
 		        'autoincrement' => false
 	    ));
 
-        $this->hasColumn('post_full_featured_image', 'string', null, array(
+        $this->hasColumn('post_full_featured_image', 'string', 999, array(
 		        'type'          => 'string',
-		        'length'        => null,
+		        'length'        => 999,
 		        'fixed'         => false,
 		        'primary'       => false,
 		        'default'       => '',
@@ -97,9 +97,9 @@ class BlogPosts extends Doctrine_Record {
 		        'autoincrement' => false
 	        ));
 
-        $this->hasColumn('extra_fields', 'string', null, array(
+        $this->hasColumn('extra_fields', 'string', 999, array(
 		        'type'          => 'string',
-		        'length'        => null,
+		        'length'        => 999,
 		        'fixed'         => false,
 		        'primary'       => false,
 		        'default'       => '',
@@ -117,9 +117,9 @@ class BlogPosts extends Doctrine_Record {
 		        'autoincrement' => false
 	        ));
 
-        $this->hasColumn('post_redirect_url', 'string', null, array(
+        $this->hasColumn('post_redirect_url', 'string', 999, array(
 		        'type'          => 'string',
-		        'length'        => null,
+		        'length'        => 999,
 		        'fixed'         => false,
 		        'primary'       => false,
 		        'default'       => '',

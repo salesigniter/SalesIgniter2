@@ -34,7 +34,7 @@ class MembershipPlanDescription extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('name', 'string', null, array(
+		$this->hasColumn('name', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

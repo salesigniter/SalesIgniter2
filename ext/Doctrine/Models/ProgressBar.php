@@ -15,7 +15,7 @@ class ProgressBar extends Doctrine_Record {
 	public function setTableDefinition(){
 		$this->setTableName('progress_bar');
 
-		$this->hasColumn('id', 'integer', 11, array(
+		$this->hasColumn('id', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 11,
 			'unsigned' => 0,

@@ -53,7 +53,7 @@ class PayPerRentalPeriods extends Doctrine_Record {
 		));
 
 
-		$this->hasColumn('period_details', 'string', null, array(
+		$this->hasColumn('period_details', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

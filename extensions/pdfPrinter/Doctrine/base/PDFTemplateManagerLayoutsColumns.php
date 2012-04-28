@@ -23,15 +23,15 @@ class PDFTemplateManagerLayoutsColumns extends Doctrine_Record
 	public function setTableDefinition()
 	{
 		$this->setTableName('pdf_template_manager_layouts_columns');
-		$this->hasColumn('container_id', 'integer', 11, array(
+		$this->hasColumn('container_id', 'integer', 4, array(
 			'type' => 'integer',
-			'length' => '11',
+			'length' => '4',
 		));
-		$this->hasColumn('column_id', 'integer', 11, array(
+		$this->hasColumn('column_id', 'integer', 4, array(
 			'primary' => true,
 			'type' => 'integer',
 			'autoincrement' => true,
-			'length' => '11',
+			'length' => '4',
 		));
 		$this->hasColumn('sort_order', 'integer', 3, array(
 			'type' => 'integer',

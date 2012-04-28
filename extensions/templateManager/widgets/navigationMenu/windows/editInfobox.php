@@ -40,7 +40,7 @@ if (!isset($WidgetSettings->linked_to)){
 
 		$('#navMenuTable').find('.addMainBlock').click(function () {
 			var inputKey = 0;
-			while($('#navMenuTable').find('ol.sortable > li[data-input_key=' + inputKey + ']').size() > 0){
+			while($('#navMenuTable').find('.systemLinkType[data-input_key=' + inputKey + ']').size() > 0){
 				inputKey++;
 			}
 
@@ -74,7 +74,7 @@ if (!isset($WidgetSettings->linked_to)){
 				'</tr>' +
 				'</table></div>');
 
-			$(document).trigger('newSystemLinkMenu', [$newLi, 'menu_item_link']);
+			$.newSystemLinkMenu($newLi, 'menu_item_link[' + inputKey + ']');
 
 			$('#navMenuTable').find('ol.sortable')
 				.append($newLi);
@@ -306,8 +306,8 @@ if (!isset($WidgetSettings->linked_to)){
 		}
 
 		$systemLinkMenu = htmlBase::newElement('systemLinkMenu', array(
-			'data' => (isset($data) ? $data : false)
-		))->setName($baseInputName);
+			'data' => $data
+		))->attr('data-input_key', $i)->setName($baseInputName);
 
 		$itemTemplate = '<li id="menu_item_' . $i . '">' .
 			'<div><table cellpadding="2" cellspacing="0" border="0" width="100%">' .

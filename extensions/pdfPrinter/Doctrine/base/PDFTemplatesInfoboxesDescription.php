@@ -38,9 +38,9 @@ class PDFTemplatesInfoboxesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('box_heading', 'string', null, array(
+		$this->hasColumn('box_heading', 'string', 999, array(
 			'type'          => 'string',
-			'length'        => null,
+			'length'        => 999,
 			'fixed'         => false,
 			'primary'       => false,
 			'default'       => '',

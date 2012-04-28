@@ -50,7 +50,7 @@ class ReviewsDescription extends Doctrine_Record {
 		'primary' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('reviews_text', 'string', null, array(
+		$this->hasColumn('reviews_text', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

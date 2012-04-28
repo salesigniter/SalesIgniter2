@@ -50,7 +50,7 @@ class BlogComments extends Doctrine_Record {
 			'autoincrement' => false
 		));
 
-       $this->hasColumn('comment_text', 'string', null, array(
+       $this->hasColumn('comment_text', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

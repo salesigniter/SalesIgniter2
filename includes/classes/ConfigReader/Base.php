@@ -13,8 +13,27 @@
 
 require(__DIR__ . '/Config.php');
 
+class ConfigReaderCache {
+
+	private static $_cache = array();
+
+	public static function exists($k){
+		return isset(self::$_cache[$k]);
+	}
+
+	public static function get($k){
+		return self::$_cache[$k];
+	}
+
+	public static function set($k, $v){
+		self::$_cache[$k] = $v;
+	}
+}
+
 class ConfigurationReader
 {
+
+	public $configFile = '';
 
 	public $configData = array();
 
@@ -29,15 +48,20 @@ class ConfigurationReader
 	public $key = '';
 
 	public function loadConfiguration($configFile, $parseConfig = true) {
-		$xmlObj = simplexml_load_file(
-			$configFile,
-			'SimpleXMLElement',
-			LIBXML_NOCDATA
-		);
+		$this->configFile = $configFile;
+		if (ConfigReaderCache::exists($this->configFile . ':xmlObj') === false){
+			$xmlObj = simplexml_load_file(
+				$this->configFile,
+				'SimpleXMLElement',
+				LIBXML_NOCDATA
+			);
 
-		if (!$xmlObj){
-			die('Config Error::' . $configFile);
+			if (!$xmlObj){
+				die('Config Error::' . $this->configFile);
+			}
+			ConfigReaderCache::set($this->configFile . ':xmlObj', $xmlObj);
 		}
+		$xmlObj = ConfigReaderCache::get($this->configFile . ':xmlObj');
 
 		$this->title = (string)$xmlObj->title;
 		$this->description = (string)$xmlObj->description;
@@ -83,127 +107,138 @@ class ConfigurationReader
 		}
 
 		if (empty($this->compareData)){
-			$this->compareData = $this->loadCompareData($xmlObj);
+			if (ConfigReaderCache::exists($this->configFile . ':compareData') === false){
+				ConfigReaderCache::set($this->configFile . ':compareData', $this->loadCompareData($xmlObj));
+			}
+			$this->compareData = ConfigReaderCache::get($this->configFile . ':compareData');
 		}
 
 		foreach($xmlObj->tabs->children() as $TabKey => $TabInfo){
 			$configurations = array();
+			$mappings = array();
 			$configCount = 0;
-			foreach($TabInfo->configurations->children() as $ConfigKey => $ConfigInfo){
-				$cfgKey = (string)$ConfigKey;
-				if (isset($this->compareData[$cfgKey])){
-					$configVal = $this->compareData[$cfgKey]['configuration_value'];
-				}
-				else {
-					$configVal = (string)$ConfigInfo->value;
-				}
-
-				$configArr = array(
-					'key'   => $cfgKey,
-					'value' => $configVal
-				);
-
-				if (isset($ConfigInfo->value_glue)){
-					$configArr['value_glue'] = (string)$ConfigInfo->value_glue;
-					$configArr['value'] = explode($configArr['value_glue'], $configArr['value']);
-				}
-
-				if (
-					$App && (
-						($App->getEnv() == 'admin' && $App->getAppName() == 'extensions' && isset($_GET['action'])) ||
-						($App->getEnv() == 'admin' && $App->getAppName() == 'modules' && isset($_GET['action'])) ||
-						($App->getEnv() == 'admin' && $App->getAppName() == 'configuration')
-					)
-				){
-					$configArr['is_editable'] = true;
-					$configArr['title'] = (string)$ConfigInfo->title;
-					$configArr['description'] = (string)$ConfigInfo->description;
-					$configArr['set_function'] = null;
-					$configArr['use_function'] = null;
-					$configArr['is_deprecated'] = false;
-
-					if (isset($ConfigInfo['editable'])){
-						$configArr['is_editable'] = ($ConfigInfo['editable'] == 'true' ? true : false);
+			if (ConfigReaderCache::exists($this->configFile . ':XMLParsed:' . $TabKey . ':configurations') === false){
+				foreach($TabInfo->configurations->children() as $ConfigKey => $ConfigInfo){
+					$cfgKey = (string)$ConfigKey;
+					if (isset($this->compareData[$cfgKey])){
+						$configVal = $this->compareData[$cfgKey]['configuration_value'];
+					}
+					else {
+						$configVal = (string)$ConfigInfo->value;
 					}
 
-					if (isset($ConfigInfo['deprecated'])){
-						$configArr['is_deprecated'] = ($ConfigInfo['deprecated'] == 'true' ? true : false);
+					$configArr = array(
+						'key'   => $cfgKey,
+						'value' => $configVal
+					);
+
+					if (isset($ConfigInfo->value_glue)){
+						$configArr['value_glue'] = (string)$ConfigInfo->value_glue;
+						$configArr['value'] = explode($configArr['value_glue'], $configArr['value']);
 					}
 
-					if (isset($ConfigInfo->set_function)){
-						if (isset($ConfigInfo->set_function->type)){
-							$setFunction = array(
-								'type' => (string)$ConfigInfo->set_function->type
-							);
+					if (
+						$App && (
+							($App->getEnv() == 'admin' && $App->getAppName() == 'extensions' && isset($_GET['action'])) ||
+							($App->getEnv() == 'admin' && $App->getAppName() == 'modules' && isset($_GET['action'])) ||
+							($App->getEnv() == 'admin' && $App->getAppName() == 'configuration')
+						)
+					){
+						$configArr['is_editable'] = true;
+						$configArr['title'] = (string)$ConfigInfo->title;
+						$configArr['description'] = (string)$ConfigInfo->description;
+						$configArr['set_function'] = null;
+						$configArr['use_function'] = null;
+						$configArr['is_deprecated'] = false;
 
-							if (isset($ConfigInfo->set_function->data_function)){
-								$args = array();
-								if (isset($ConfigInfo->set_function->data_function->name)){
-									$function = (string)$ConfigInfo->set_function->data_function->name;
-									if (isset($ConfigInfo->set_function->data_function->args)){
-										foreach($ConfigInfo->set_function->data_function->args->children() as $arg){
-											$argStr = (string)$arg;
-											if (substr($argStr, 0, 7) == 'CONFIG:'){
-												$argStr = sysConfig::get(substr($argStr, 7));
+						if (isset($ConfigInfo['editable'])){
+							$configArr['is_editable'] = ($ConfigInfo['editable'] == 'true' ? true : false);
+						}
+
+						if (isset($ConfigInfo['deprecated'])){
+							$configArr['is_deprecated'] = ($ConfigInfo['deprecated'] == 'true' ? true : false);
+						}
+
+						if (isset($ConfigInfo->set_function)){
+							if (isset($ConfigInfo->set_function->type)){
+								$setFunction = array(
+									'type' => (string)$ConfigInfo->set_function->type
+								);
+
+								if (isset($ConfigInfo->set_function->data_function)){
+									$args = array();
+									if (isset($ConfigInfo->set_function->data_function->name)){
+										$function = (string)$ConfigInfo->set_function->data_function->name;
+										if (isset($ConfigInfo->set_function->data_function->args)){
+											foreach($ConfigInfo->set_function->data_function->args->children() as $arg){
+												$argStr = (string)$arg;
+												if (substr($argStr, 0, 7) == 'CONFIG:'){
+													$argStr = sysConfig::get(substr($argStr, 7));
+												}
+
+												$args[] = $argStr;
 											}
-
-											$args[] = $argStr;
 										}
 									}
-								}
-								else {
-									$function = (string)$ConfigInfo->set_function->data_function;
-								}
-								$data = call_user_func_array($function, $args);
-								foreach($data as $dInfo){
-									$setFunction['values'][] = array(
-										'id'   => $dInfo['id'],
-										'text' => $dInfo['text']
-									);
-								}
-							}
-							elseif (isset($ConfigInfo->set_function->values)) {
-								foreach($ConfigInfo->set_function->values->children() as $value){
-									$id = (string)$value;
-									if (isset($value['id'])){
-										$id = $value['id'];
+									else {
+										$function = (string)$ConfigInfo->set_function->data_function;
 									}
-									$setFunction['values'][] = array(
-										'id'   => (string)$id,
-										'text' => (string)$value
-									);
+									$data = call_user_func_array($function, $args);
+									foreach($data as $dInfo){
+										$setFunction['values'][] = array(
+											'id'   => $dInfo['id'],
+											'text' => $dInfo['text']
+										);
+									}
 								}
-							}
+								elseif (isset($ConfigInfo->set_function->values)) {
+									foreach($ConfigInfo->set_function->values->children() as $value){
+										$id = (string)$value;
+										if (isset($value['id'])){
+											$id = $value['id'];
+										}
+										$setFunction['values'][] = array(
+											'id'   => (string)$id,
+											'text' => (string)$value
+										);
+									}
+								}
 
-							if (isset($ConfigInfo->set_function->attributes)){
-								$setFunction['attributes'] = array();
-								foreach($ConfigInfo->set_function->attributes->children() as $k => $v){
-									$setFunction['attributes'][$k] = $v;
+								if (isset($ConfigInfo->set_function->attributes)){
+									$setFunction['attributes'] = array();
+									foreach($ConfigInfo->set_function->attributes->children() as $k => $v){
+										$setFunction['attributes'][$k] = $v;
+									}
 								}
-							}
 
-							if (!isset($setFunction['values']) || empty($setFunction['values'])){
-								if (isset($ConfigInfo->set_function['use_default_if_no_data']) && $ConfigInfo->set_function['use_default_if_no_data'] == 'true'){
-									$setFunction = null;
+								if (!isset($setFunction['values']) || empty($setFunction['values'])){
+									if (isset($ConfigInfo->set_function['use_default_if_no_data']) && $ConfigInfo->set_function['use_default_if_no_data'] == 'true'){
+										$setFunction = null;
+									}
 								}
 							}
+							else {
+								$setFunction = (string)$ConfigInfo->set_function;
+							}
+							$configArr['set_function'] = $setFunction;
 						}
-						else {
-							$setFunction = (string)$ConfigInfo->set_function;
+
+						if (isset($ConfigInfo->use_function)){
+							$configArr['use_function'] = (string)$ConfigInfo->use_function;
 						}
-						$configArr['set_function'] = $setFunction;
 					}
 
-					if (isset($ConfigInfo->use_function)){
-						$configArr['use_function'] = (string)$ConfigInfo->use_function;
-					}
+					$configurations[$configCount] = new Config($configArr);
+					$mappings[$configArr['key']] = array((string)$TabKey, $configCount);
+					$configCount++;
 				}
-
-				$configurations[$configCount] = new Config($configArr);
-				$this->mappings[$configArr['key']] = array((string)$TabKey, $configCount);
-				$configCount++;
+				ConfigReaderCache::set($this->configFile . ':XMLParsed:' . $TabKey . ':configurations', $configurations);
+				ConfigReaderCache::set($this->configFile . ':XMLParsed:' . $TabKey . ':mappings', $mappings);
 			}
+			$configurations = ConfigReaderCache::get($this->configFile . ':XMLParsed:' . $TabKey . ':configurations');
+			$mappings = ConfigReaderCache::get($this->configFile . ':XMLParsed:' . $TabKey . ':mappings');
 
+			$this->mappings = array_merge($this->mappings, $mappings);
 			if (!isset($this->configData[(string)$TabKey])){
 				$this->configData[(string)$TabKey] = array(
 					'title'	   => (string)$TabInfo->title,

@@ -43,6 +43,11 @@ class Products extends Doctrine_Record {
 			'local' => 'products_id',
 			'foreign' => 'products_id'
 		));
+
+		$this->hasOne('TaxClass', array(
+			'local' => 'products_tax_class_id',
+			'foreign' => 'tax_class_id'
+		));
 	}
 	
 	public function preInsert($event){

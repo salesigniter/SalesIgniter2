@@ -22,6 +22,25 @@ class FileParserCsvRow implements Iterator
 		return $return;
 	}
 
+	public function getColumnValue($k, $ifEmpty = ''){
+		$position = $k;
+		if (in_array($k, $this->colAssociations) === true){
+			$positionKeys = array_keys($this->colAssociations, $k);
+			$position = $positionKeys[0];
+		}
+		//echo '<pre>';echo 'KEY::' . $k . '<br>POSITION::' . $position . '<br>';print_r($positionKeys);print_r($this->colAssociations);itwExit();
+
+		if (isset($this->line[$position])){
+			if (strlen($this->line[$position]) > 0){
+				return $this->line[$position];
+			}elseif ($ifEmpty !== ''){
+				return $ifEmpty;
+			}
+			return null;
+		}
+		return false;
+	}
+
 	function rewind() {
 		$this->position = 0;
 	}

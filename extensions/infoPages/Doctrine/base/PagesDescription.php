@@ -45,7 +45,7 @@ class PagesDescription extends Doctrine_Record {
 			'autoincrement' => false
 		));
 		
-		$this->hasColumn('pages_html_text', 'string', null, array(
+		$this->hasColumn('pages_html_text', 'string', 999, array(
 			'type'          => 'string',
 			'fixed'         => false,
 			'primary'       => false,

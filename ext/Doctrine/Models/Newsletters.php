@@ -35,7 +35,7 @@ class Newsletters extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('content', 'string', null, array(
+		$this->hasColumn('content', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

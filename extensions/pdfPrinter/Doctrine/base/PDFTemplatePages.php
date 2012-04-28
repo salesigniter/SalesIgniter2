@@ -43,9 +43,9 @@ class PDFTemplatePages extends Doctrine_Record {
 		'default' => '',
 		'notnull' => false,
 		));
-		$this->hasColumn('layout_id', 'string', null, array(
+		$this->hasColumn('layout_id', 'string', 999, array(
 		'type' => 'string',
-		'length' => null,
+		'length' => 999,
 		'primary' => false,
 		'notnull' => false,
 		));

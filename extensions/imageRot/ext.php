@@ -37,11 +37,12 @@ class Extension_imageRot extends ExtensionBase {
 		 );
 	}
 
-	public function DataImportBeforeSave(&$items, &$Product){
-		if (!empty($items['v_products_banner_groups'])){
+	public function DataImportBeforeSave(&$CurrentRow, &$Product){
+		$GroupCheck = $CurrentRow->getColumnValue('v_products_banner_groups');
+		if ($GroupCheck !== null && empty($GroupCheck) === false){
 			$ProductsToGroups =& $Product->BannerManagerProductsToGroups;
 			$ProductsToGroups->delete();
-			$productsBannerGroups = explode(',', $items['v_products_banner_groups']);
+			$productsBannerGroups = explode(',', $GroupCheck);
 			foreach($productsBannerGroups as $groupId){
 				$ProductsToGroups[]->banner_group_id = $groupId;
 			}

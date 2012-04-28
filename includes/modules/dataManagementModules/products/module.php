@@ -21,104 +21,87 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 	}
 
 	public function runImport(){
+		global $messageStack;
 		$ImportFile = $this->getImportFileReader();
 		$ImportFile->rewind();
 		$ImportFile->parseHeaderLine();
 
+		$x = 0;
+		$Products = Doctrine_Core::getTable('Products');
 		while($ImportFile->valid()){
-			$CurrentRow = $ImportFile->currentRow();
-			$item = array();
+			$CurrentRow =& $ImportFile->currentRow();
+			/*$item = array();
 			while($CurrentRow->valid()){
-				$CurrentColumn = $CurrentRow->current();
+				$CurrentColumn =& $CurrentRow->current();
 
 				$item[$CurrentColumn->key()] = $CurrentColumn->getText();
 
 				$CurrentRow->next();
 			}
-
-			if (!empty($item['v_products_model'])){
-				$Qproduct = Doctrine_Query::create()
-					->from('Products p')
-					->where('p.products_model = ?', $item['v_products_model'])
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			unset($CurrentRow);
+			unset($CurrentColumn);
+*/
+			$ProductModel = $CurrentRow->getColumnValue('v_products_model');
+			if ($ProductModel !== false && $ProductModel !== null){
+				$Product = $Products->findOneByProductsModel($ProductModel);
 				$isNewProduct = false;
-				if ($Qproduct){
-					$Product = Doctrine_Core::getTable('Products')->find($Qproduct[0]['products_id']);
-				}
-				else {
+				if (!$Product){
 					$Product = new Products();
-					$Product->products_model = $item['v_products_model'];
-					$Product->save();
+					$Product->products_model = $ProductModel;
 					$isNewProduct = true;
 				}
 
-				$Product->products_tax_class_id = (isset($item['v_tax_class_title']) ? tep_get_tax_title_class_id($item['v_tax_class_title']) : '0');
-				$Product->products_weight = (isset($item['v_products_weight']) ? $item['v_products_weight'] : '0');
-				$Product->products_type = (isset($item['v_products_type']) ? $item['v_products_type'] : '');
-				$Product->products_in_box = (isset($item['v_products_in_box']) ? $item['v_products_in_box'] : '0');
-				$Product->products_featured = (isset($item['v_products_featured']) ? $item['v_products_featured'] : '0');
-				$Product->products_date_available = (isset($item['v_date_avail']) ? $item['v_date_avail'] : null);
-				$Product->products_status = (!isset($item['v_status']) || $item['v_status'] == $inactive ? '0' : '1');
-				$Product->products_image = (!isset($item['v_products_image']) || $item['v_products_image'] == '' ? $default_image_product : $item['v_products_image']);
+				$Product->products_tax_class_id = tep_get_tax_title_class_id($CurrentRow->getColumnValue('v_tax_class_title', 0));
+				$Product->products_weight = $CurrentRow->getColumnValue('v_products_weight', 0);
+				$Product->products_type = $CurrentRow->getColumnValue('v_products_type', 'standard');
+				$Product->products_in_box = $CurrentRow->getColumnValue('v_products_in_box', 0);
+				$Product->products_featured = $CurrentRow->getColumnValue('v_products_featured', 0);
+				$Product->products_date_available = $CurrentRow->getColumnValue('v_date_avail', date('Y-m-d'));
+				$Product->products_status = ($CurrentRow->getColumnValue('v_status') == $inactive ? '0' : '1');
+				$Product->products_image = $CurrentRow->getColumnValue('v_products_image', $default_image_product);
 
-				if (isset($item['v_memberships_not_enabled']) && !empty($item['v_memberships_not_enabled'])){
+				$MembershipsNotEnabled = $CurrentRow->getColumnValue('v_memberships_not_enabled');
+				if ($MembershipsNotEnabled !== null){
 					$Qmembership = Doctrine_Query::create()
 						->from('Membership m')
 						->leftJoin('m.MembershipPlanDescription md')
 						->where('md.language_id = ?', Session::get('languages_id'))
 						->orderBy('sort_order')
 						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-					$notEnableMembershipsNames = explode(';', $item['v_memberships_not_enabled']);
+					$notEnableMembershipsNames = explode(';', $MembershipsNotEnabled);
 					$notenabledArr = array();
 					foreach($Qmembership as $mInfo){
 						if (in_array($mInfo['MembershipPlanDescription'][0]['name'], $notEnableMembershipsNames)){
 							$notenabledArr[] = $mInfo['plan_id'];
 						}
 					}
+					$Qmembership->free(true);
 
 					$Product->membership_enabled = implode(';', $notenabledArr);
+					unset($notenabledArr);
+					unset($notEnableMembershipsNames);
 				}
 
-				$ProductsDescription =& $Product->ProductsDescription;
 				foreach(sysLanguage::getLanguages() as $lInfo){
 					$lID = $lInfo['id'];
 
-					$CurrentDesc =& $ProductsDescription[$lID];
-
-					$CurrentDesc->language_id = $lID;
-					if (isset($item['v_products_url_' . $lID])){
-						$CurrentDesc->products_url = $item['v_products_url_' . $lID];
-					}
-
-					if (isset($item['v_products_name_' . $lID])){
-						$CurrentDesc->products_name = $item['v_products_name_' . $lID];
-					}
-
-					if (isset($item['v_products_description_' . $lID])){
-						$CurrentDesc->products_description = $item['v_products_description_' . $lID];
-					}
-
-					if (isset($item['v_products_head_desc_tag_' . $lID])){
-						$CurrentDesc->products_head_desc_tag = $item['v_products_head_desc_tag_' . $lID];
-					}
-
-					if (isset($item['v_products_head_title_tag_' . $lID])){
-						$CurrentDesc->products_head_title_tag = $item['v_products_head_title_tag_' . $lID];
-					}
-
-					if (isset($item['v_products_head_keywords_tag_' . $lID])){
-						$CurrentDesc->products_head_keywords_tag = $item['v_products_head_keywords_tag_' . $lID];
-					}
+					$Product->ProductsDescription[$lID]->language_id = $lID;
+					$Product->ProductsDescription[$lID]->products_url = $CurrentRow->getColumnValue('v_products_url_' . $lID);
+					$Product->ProductsDescription[$lID]->products_name = $CurrentRow->getColumnValue('v_products_name_' . $lID);
+					$Product->ProductsDescription[$lID]->products_description = $CurrentRow->getColumnValue('v_products_description_' . $lID);
+					$Product->ProductsDescription[$lID]->products_head_desc_tag = $CurrentRow->getColumnValue('v_products_head_desc_tag_' . $lID);
+					$Product->ProductsDescription[$lID]->products_head_title_tag = $CurrentRow->getColumnValue('v_products_head_title_tag_' . $lID);
+					$Product->ProductsDescription[$lID]->products_head_keywords_tag = $CurrentRow->getColumnValue('v_products_head_keywords_tag_' . $lID);
 				}
 
-				if (!empty($item['v_products_categories'])){
+				$ProductsCategories = $CurrentRow->getColumnValue('v_products_categories');
+				if ($ProductsCategories !== null){
 					$Product->ProductsToCategories->delete();
-					$ProductsToCategories = $Product->ProductsToCategories;
 
-					$productsCategories = explode(';', $item['v_products_categories']);
-					$productsCategories = array_unique($productsCategories);
-					$productsCategories = array_values($productsCategories);
-					foreach($productsCategories as $i => $catString){
+					$ProductsCategories = explode(';', $ProductsCategories);
+					$ProductsCategories = array_unique($ProductsCategories);
+					$ProductsCategories = array_values($ProductsCategories);
+					foreach($ProductsCategories as $i => $catString){
 						if (stristr($catString, '>')){
 							$catPath = explode('>', $catString);
 						}
@@ -139,6 +122,8 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 							}
 
 							$Result = $Qcategory->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+							$Qcategory->free(true);
+							unset($Qcategory);
 							if ($Result){
 								$categoryId = $Result[0]['categories_id'];
 							}
@@ -146,38 +131,40 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 								$Categories = new Categories();
 								$Categories->parent_id = (isset($currentParent) ? $currentParent : 0);
 
-								$Description =& $Categories->CategoriesDescription;
-								$Description[Session::get('languages_id')]->categories_name = $catName;
-								$Description[Session::get('languages_id')]->language_id = Session::get('languages_id');
+								$Categories->CategoriesDescription[Session::get('languages_id')]->categories_name = $catName;
+								$Categories->CategoriesDescription[Session::get('languages_id')]->language_id = Session::get('languages_id');
 								$Categories->save();
 
 								$categoryId = $Categories->categories_id;
+								$Categories->free(true);
 							}
+							unset($Result);
 							$currentParent = $categoryId;
 						}
 
 						$Product->ProductsToCategories[$i]['categories_id'] = $categoryId;
 					}
+					unset($ProductsCategories);
 				}
 
-				foreach(ProductTypeModules::getModules() as $ProductTypeModule){
-					$ProductTypeModule->processProductImport($Product, $item);
-				}
+				$ProductTypeModule = ProductTypeModules::getModule($Product->products_type);
+				$ProductTypeModule->processProductImport($Product, $CurrentRow);
 
-				EventManager::notify('DataImportBeforeSave', $item, $Product);
+				EventManager::notify('DataImportBeforeSave', $CurrentRow, $Product);
 
 				//echo '<pre>';print_r($Product->toArray(true));echo '</pre>';itwExit();
 				$Product->save();
 
 				foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 					$code = $PurchaseTypeModule->getCode();
-					if (isset($item['v_autogenerate_barcodes_' . $code]) && $item['v_autogenerate_barcodes_' . $code] > 0){
-						$this->generateBarcodes($Product, $code, $item['v_autogenerate_barcodes_' . $code]);
+					$AutogenerateTotal = $CurrentRow->getColumnValue('v_autogenerate_barcodes_' . $code, 0);
+					if ($AutogenerateTotal > 0){
+						$this->generateBarcodes($Product, $code, $AutogenerateTotal);
 					}
 				}
 				$Product->save();
 
-				if (isset($item['v_status']) && $item['v_status'] == $deleteStatus){
+				/*if (isset($item['v_status']) && $item['v_status'] == $deleteStatus){
 					$Product->delete();
 					$status = 'Deleted';
 				}
@@ -185,7 +172,7 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 					$status = $Product->products_status;
 				}
 
-				/*$productLogArr = array(
+				$productLogArr = array(
 					'ID:'			  => $Product->products_id,
 					'Image:'		   => $Product->products_image,
 					'Model:'		   => $Product->products_model,
@@ -229,13 +216,16 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 				}
 				*/
 				// end of row insertion code
-				$Product->free();
+				$Product->free(true);
+				$x++;
+				$this->checkMemoryThreshold($x);
 			}
 			$ImportFile->next();
 		}
 	}
 
 	public function runExport(){
+		global $messageStack, $ExceptionManager;
 		$ExportFile = $this->getExportFileWriter();
 
 		$HeaderRow = $ExportFile->newHeaderRow();
@@ -277,39 +267,13 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 			$HeaderRow->addColumn('v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
 		}
 
-		$QfileLayout = Doctrine_Query::create()
-			->select(
-			'p.products_id, ' .
-				'p.products_model as v_products_model, ' .
-				'p.products_image as v_products_image, ' .
-				'p.products_weight as v_products_weight, ' .
-				'p.products_date_available as v_date_avail, ' .
-				'p.products_tax_class_id as v_tax_class_id, ' .
-				'p.products_type as v_products_type, ' .
-				'p.products_in_box as v_products_in_box, ' .
-				'p.products_featured as v_products_featured, ' .
-				'p.products_status as v_status, ' .
-				'p.membership_enabled as v_memberships_not_enabled, ' .
-				'(SELECT group_concat(p2c.categories_id) FROM ProductsToCategories p2c WHERE p2c.products_id = p.products_id) as v_products_categories'
-		)->from('Products p')
-			->where('p.products_model is not null')
-			->andWhere('p.products_model != ?', '');
-
-		foreach(ProductTypeModules::getModules() as $ProductTypeModule){
-			if (method_exists($ProductTypeModule, 'addExportQueryConditions')){
-				$ProductTypeModule->addExportQueryConditions($QfileLayout);
-			}
-		}
-
-		EventManager::notify('DataExportFullQueryBeforeExecute', &$QfileLayout);
-
-		$Result = $QfileLayout->execute(array(), Doctrine_Core::HYDRATE_SCALAR);
-
+		$Products = Doctrine_Core::getTable('Products')
+			->findAll();
 		$p = -1;
-		foreach($Result as $pInfo){
-			foreach($pInfo as $k => $v){
-				$pInfo[substr($k, strpos($k, '_')+1)] = $v;
-				unset($pInfo[$k]);
+		$x = 0;
+		foreach($Products as $Product){
+			if (empty($Product->products_model)){
+				continue;
 			}
 
 			$p++;
@@ -321,87 +285,77 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 			}
 
 			$CurrentRow = $ExportFile->newRow();
-			$CurrentRow->addColumn($pInfo['v_products_model'], 'v_products_model');
-			$CurrentRow->addColumn($pInfo['v_products_image'], 'v_products_image');
-			$CurrentRow->addColumn($pInfo['v_products_weight'], 'v_products_weight');
-			$CurrentRow->addColumn($pInfo['v_products_date_available'], 'v_date_avail');
-			$CurrentRow->addColumn($pInfo['v_products_tax_class_id'], 'v_tax_class_id');
-			$CurrentRow->addColumn($pInfo['v_products_type'], 'v_products_type');
-			$CurrentRow->addColumn($pInfo['v_products_in_box'], 'v_products_in_box');
-			$CurrentRow->addColumn($pInfo['v_products_featured'], 'v_products_featured');
-			$CurrentRow->addColumn($pInfo['v_products_status'], 'v_status');
+			$CurrentRow->addColumn($Product->products_model, 'v_products_model');
+			$CurrentRow->addColumn($Product->products_image, 'v_products_image');
+			$CurrentRow->addColumn($Product->products_weight, 'v_products_weight');
+			$CurrentRow->addColumn($Product->products_date_available, 'v_date_avail');
+			$CurrentRow->addColumn($Product->products_type, 'v_products_type');
+			$CurrentRow->addColumn($Product->products_in_box, 'v_products_in_box');
+			$CurrentRow->addColumn($Product->products_featured, 'v_products_featured');
+			$CurrentRow->addColumn($Product->TaxClass->tax_class_title, 'v_tax_class_title');
+			$CurrentRow->addColumn(($Product->products_status == '1' ? $active : $inactive), 'v_status');
 
+			$Descriptions = $Product->ProductsDescription;
 			foreach(sysLanguage::getLanguages() as $lInfo){
 				$lID = $lInfo['id'];
 
-				$Qdescription = Doctrine_Query::create()
-					->from('ProductsDescription pd')
-					->where('products_id = ?', $pInfo['products_id'])
-					->andWhere('language_id = ?', $lID)
-					->execute()->toArray();
-				if (isset($Qdescription[$lID])){
-					$CurrentRow->addColumn($Qdescription[$lID]['products_name'], 'v_products_name_' . $lID);
-					$CurrentRow->addColumn($Qdescription[$lID]['products_description'], 'v_products_description_' . $lID);
-					$CurrentRow->addColumn($Qdescription[$lID]['products_url'], 'v_products_url_' . $lID);
-					$CurrentRow->addColumn($Qdescription[$lID]['products_head_title_tag'], 'v_products_head_title_tag_' . $lID);
-					$CurrentRow->addColumn($Qdescription[$lID]['products_head_desc_tag'], 'v_products_head_desc_tag_' . $lID);
-					$CurrentRow->addColumn($Qdescription[$lID]['products_head_keywords_tag'], 'v_products_head_keywords_tag_' . $lID);
+				if (isset($Descriptions[$lID])){
+					$CurrentRow->addColumn($Descriptions[$lID]->products_name, 'v_products_name_' . $lID);
+					$CurrentRow->addColumn($Descriptions[$lID]->products_description, 'v_products_description_' . $lID);
+					$CurrentRow->addColumn($Descriptions[$lID]->products_url, 'v_products_url_' . $lID);
+					$CurrentRow->addColumn($Descriptions[$lID]->products_head_title_tag, 'v_products_head_title_tag_' . $lID);
+					$CurrentRow->addColumn($Descriptions[$lID]->products_head_desc_tag, 'v_products_head_desc_tag_' . $lID);
+					$CurrentRow->addColumn($Descriptions[$lID]->products_head_keywords_tag, 'v_products_head_keywords_tag_' . $lID);
 				}
 			}
 
-			$categories = explode(',', $pInfo['v_products_categories']);
+			$Categories = $Product->ProductsToCategories;
 			$catPaths = array();
-			foreach($categories as $categoryId){
-				$currentParent = $categoryId;
+			foreach($Categories as $Category){
+				$CurrentCategory = $Category->Categories;
 				$catPath = array();
-				while($currentParent > 0){
-					$Qcategory = Doctrine_Query::create()
-						->select('c.categories_id, c.parent_id, cd.categories_name')
-						->from('Categories c')
-						->leftJoin('c.CategoriesDescription cd')
-						->where('c.categories_id = ?', $currentParent)
-						->andWhere('cd.language_id = ?', Session::get('languages_id'))
-						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-					$catPath[] = trim($Qcategory[0]['CategoriesDescription'][0]['categories_name']);
-					$currentParent = $Qcategory[0]['parent_id'];
+				if ($CurrentCategory->parent_id == 0){
+					$catPath[] = trim($CurrentCategory->CategoriesDescription[Session::get('languages_id')]->categories_name);
+				}else{
+					while($CurrentCategory->parent_id > 0){
+						$catPath[] = trim($CurrentCategory->CategoriesDescription[Session::get('languages_id')]->categories_name);
+						$CurrentCategory = $CurrentCategory->Parent;
+					}
 				}
 				$catPaths[] = implode('>', array_reverse($catPath));
 			}
 			$CurrentRow->addColumn(implode(';', $catPaths), 'v_products_categories');
 
-			$nmembershipsString = '';
-			if ($pInfo['v_memberships_not_enabled'] != ''){
-				$notEnabledMemberships = explode(';',$pInfo['v_memberships_not_enabled']);
+			$nmembershipsString = array();
+			if ($Product->membership_enabled != ''){
+				$notEnabledMemberships = explode(';',$Product->membership_enabled);
 				$Qmembership = Doctrine_Query::create()
 					->from('Membership m')
 					->leftJoin('m.MembershipPlanDescription md')
 					->where('md.language_id = ?', Session::get('languages_id'))
+					->andWhereIn('m.plan_id', $notEnabledMemberships)
 					->orderBy('sort_order')
 					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 				foreach($Qmembership as $mInfo){
-					if(in_array($mInfo['plan_id'], $notEnabledMemberships)){
-						$nmembershipsString.= $mInfo['MembershipPlanDescription'][0]['name'].';';
-					}
+					$nmembershipsString[] = $mInfo['MembershipPlanDescription'][0]['name'];
 				}
-				$nmembershipsString = substr($nmembershipsString,0,strlen($nmembershipsString)-1);
 			}
+			$CurrentRow->addColumn(implode(';', $nmembershipsString), 'v_memberships_not_enabled');
 
 			foreach(ProductTypeModules::getModules() as $ProductTypeModule){
 				if (method_exists($ProductTypeModule, 'addExportRowColumns')){
-					$ProductTypeModule->addExportRowColumns($CurrentRow, $pInfo);
+					$ProductTypeModule->addExportRowColumns($CurrentRow, $Product);
 				}
 			}
 
-			$CurrentRow->addColumn($nmembershipsString, 'v_memberships_not_enabled');
-			$CurrentRow->addColumn(tep_get_tax_class_title($pInfo['v_tax_class_id']), 'v_tax_class_title');
-			$CurrentRow->addColumn(($pInfo['v_status'] == '1' ? $active : $inactive), 'v_status');
-
-			EventManager::notify('DataExportBeforeFileLineCommit', $CurrentRow, $pInfo);
+			EventManager::notify('DataExportBeforeFileLineCommit', $CurrentRow, $Product);
 
 			foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 				$CurrentRow->addColumn(0, 'v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
 			}
+			$x++;
+			$Product->free(true);
+			$this->checkMemoryThreshold($x);
 		}
 		//print_r($ExportFile);
 		$ExportFile->output();

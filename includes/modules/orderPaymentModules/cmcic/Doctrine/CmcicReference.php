@@ -27,9 +27,9 @@ class CmcicReference extends Doctrine_Record {
 		));
 
 		
-		$this->hasColumn('order_id', 'integer', 11, array(
+		$this->hasColumn('order_id', 'integer', 4, array(
 			'type'          => 'integer',
-			'length'        => 11,
+			'length'        => 4,
 			'autoincrement' => false
 		));
 	}

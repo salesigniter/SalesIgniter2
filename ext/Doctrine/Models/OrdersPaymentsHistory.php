@@ -38,7 +38,7 @@ class OrdersPaymentsHistory extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		$this->hasColumn('date_added', 'timestamp');
-		$this->hasColumn('gateway_message', 'string', null, array(
+		$this->hasColumn('gateway_message', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,
@@ -70,7 +70,7 @@ class OrdersPaymentsHistory extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		$this->hasColumn('card_details', 'string', null, array(
+		$this->hasColumn('card_details', 'string', 999, array(
 			'type' => 'string',
 			'fixed' => false,
 			'primary' => false,

@@ -66,7 +66,7 @@ class OrdersStatusHistory extends Doctrine_Record {
 		'notnull' => false,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('comments', 'string', null, array(
+		$this->hasColumn('comments', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

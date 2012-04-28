@@ -43,7 +43,7 @@ class ArticlesDescription extends Doctrine_Record {
 		'notnull' => true,
 		'autoincrement' => false,
 		));
-		$this->hasColumn('articles_description', 'string', null, array(
+		$this->hasColumn('articles_description', 'string', 999, array(
 		'type' => 'string',
 		'fixed' => false,
 		'primary' => false,

@@ -20,8 +20,8 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 		$return = '';
 		if (isset($WidgetSettings->images) && sizeof($WidgetSettings->images) == 1){
 			foreach($WidgetSettings->images as $iInfo){
-				if (isset($iInfo->image->{Session::get('languages_id')})){
-					$return = '<img src="' . $iInfo->image->{Session::get('languages_id')} . '" />';
+				if (isset($iInfo->source->{Session::get('languages_id')})){
+					$return = '<img src="' . $iInfo->source->{Session::get('languages_id')} . '" />';
 					break;
 				}
 
@@ -38,7 +38,7 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 
 		$ImageHtml = array();
 		foreach($boxWidgetProperties->images as $iInfo){
-			$imageSource = $iInfo->image->{Session::get('languages_id')};
+			$imageSource = $iInfo->source->{Session::get('languages_id')};
 			$linkInfo = $iInfo->link;
 			
 			$ImageEl = htmlBase::newElement('image')
@@ -61,19 +61,19 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 	private function parseLink(&$LinkEl, $lInfo){
 		if ($lInfo->type == 'app'){
 			$getParams = null;
-			if (stristr($lInfo->application, '/')){
-				$extInfo = explode('/', $lInfo->application);
+			if (stristr($lInfo->app->name, '/')){
+				$extInfo = explode('/', $lInfo->app->name);
 				$application = $extInfo[1];
 				$getParams = 'appExt=' . $extInfo[0];
 			}
 			else {
-				$application = $lInfo->application;
+				$application = $lInfo->app->name;
 			}
 
-			$LinkEl->setHref(itw_app_link($getParams, $application, $lInfo->page));
+			$LinkEl->setHref(itw_app_link($getParams, $application, $lInfo->app->page));
 		}
 		elseif ($lInfo->type == 'category'){
-			$LinkEl->setHref(itw_app_link($lInfo->get_vars, $lInfo->application, $lInfo->page));
+			$LinkEl->setHref(itw_app_link($lInfo->get_vars, $lInfo->app->name, $lInfo->app->page));
 		}
 		elseif ($lInfo->type == 'custom') {
 			$LinkEl->setHref($lInfo->url);
