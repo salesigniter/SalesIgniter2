@@ -86,7 +86,7 @@ else {
 		getSourceFile('jquery.ui.stars.js', $jqueryUiPath),
 		getSourceFile('jquery.ui.progressbar.js', $jqueryUiPath),
 		getSourceFile('jquery.ui.autocomplete.js', $jqueryUiPath),
-		getSourceFile('jquery.ui.menu.js', $jqueryUiPath),
+		//getSourceFile('jquery.ui.menu.js', $jqueryUiPath),
 		getSourceFile('jquery.ui.slider.js', $jqueryUiPath),
 		getSourceFile('jquery.ui.tooltip.js', $jqueryUiPath),
 		getSourceFile('jquery.ui.newGrid.js', $jqueryUiPath),

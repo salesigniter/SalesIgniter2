@@ -220,7 +220,7 @@ $currencies = new currencies();
 require(sysConfig::getDirFsCatalog() . 'includes/classes/breadcrumb.php');
 $breadcrumb = new breadcrumb;
 
-$breadcrumb->add(sysLanguage::get('HEADER_TITLE_CATALOG') . ' ' . sysLanguage::get('HEADER_LINK_HOME'), itw_app_link(null, 'index', 'default'));
+//$breadcrumb->add(sysLanguage::get('HEADER_TITLE_CATALOG') . ' ' . sysLanguage::get('HEADER_LINK_HOME'), itw_app_link(null, 'index', 'default'));
 
 $appExtension->loadExtensions();
 

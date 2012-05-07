@@ -14,12 +14,12 @@ $PageContentFile = 'pageContent.tpl';
 if (Session::exists('kiosk_active') && Session::get('kiosk_active') == 'True'){
 	$layoutType = 'smartphone';
 }
-elseif (preg_match('/(ipad|xoom)/i', strtolower($_SERVER['HTTP_USER_AGENT']))){
+elseif (preg_match('/(ipad|xoom)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
 	$layoutType = 'tablet';
 	$tplFile = 'layout-tablet.tpl';
 	$PageContentFile = 'tabletPageContent.tpl';
 }
-elseif (preg_match('/(smartphone|phone|iphone|ipod|android)/i', strtolower($_SERVER['HTTP_USER_AGENT']))){
+elseif (preg_match('/(smartphone|phone|iphone|ipod|android)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
 	$layoutType = 'smartphone';
 	$tplFile = 'layout-mobile.tpl';
 	$PageContentFile = 'mobilePageContent.tpl';
@@ -34,7 +34,7 @@ Session::set('layoutType', $layoutType);
 $Template = new Template($tplFile, $layoutPath);
 
 $Template->setVars(array(
-	'stylesheets' => $App->getStylesheetFiles(),
+	'stylesheets'     => $App->getStylesheetFiles(),
 	'javascriptFiles' => $App->getJavascriptFiles(),
 	'pageStackOutput' => ($messageStack->size('pageStack') > 0 ? $messageStack->output('pageStack') : '')
 ));
@@ -47,35 +47,41 @@ $TemplateId = Doctrine_Manager::getInstance()
 	->getCurrentConnection()
 	->fetchAssoc('select template_id from template_manager_templates_configuration where configuration_key = "DIRECTORY" and configuration_value = "' . $thisTemplate . '"');
 
-$Page = Doctrine_Manager::getInstance()
-	->getCurrentConnection()
-	->fetchAssoc('select layout_id from template_pages where extension = "' . $thisExtension . '" and application = "' . $thisApp . '" and page = "' . $thisAppPage . '"');
-
-$PageLayouts = (substr($Page[0]['layout_id'], 0, 1) == ',' ? substr($Page[0]['layout_id'], 1) : $Page[0]['layout_id']);
-$PageLayouts = (substr($Page[0]['layout_id'], -1) == ',' ? substr($PageLayouts, 0, -1) : $PageLayouts);
-if (strlen($PageLayouts) == 0){
+if ($App->getAppLocation('absolute') != 'virtual'){
 	$Page = Doctrine_Manager::getInstance()
 		->getCurrentConnection()
-		->fetchAssoc('select tml.layout_id, (select count(*) from template_pages tp where FIND_IN_SET(tml.layout_id, tp.layout_id) > 0) as totalPages from template_manager_layouts tml where tml.template_id = "' . $TemplateId[0]['template_id'] . '"');
-	$largestCount = 0;
-	foreach($Page as $pInfo){
-		if ($pInfo['totalPages'] > $largestCount){
-            $largestCount = $pInfo['totalPages'];
-			$PageLayouts = $pInfo['layout_id'];
-		}
-	}
-	Doctrine_Manager::getInstance()
-		->getCurrentConnection()
-		->exec('insert into template_pages (application, page, extension, layout_id) values ("' . $thisApp . '", "' . $thisAppPage . '", "' . $thisExtension . '", "' . $PageLayouts . '")');
-}
+		->fetchAssoc('select layout_id from template_pages where extension = "' . $thisExtension . '" and application = "' . $thisApp . '" and page = "' . $thisAppPage . '"');
 
-$PageLayoutId = Doctrine_Manager::getInstance()
-	->getCurrentConnection()
-	->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "' . $layoutType . '"');
-if (sizeof($PageLayoutId) <= 0){
+	$PageLayouts = (substr($Page[0]['layout_id'], 0, 1) == ',' ? substr($Page[0]['layout_id'], 1) : $Page[0]['layout_id']);
+	$PageLayouts = (substr($Page[0]['layout_id'], -1) == ',' ? substr($PageLayouts, 0, -1) : $PageLayouts);
+	if (strlen($PageLayouts) == 0){
+		$Page = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select tml.layout_id, (select count(*) from template_pages tp where FIND_IN_SET(tml.layout_id, tp.layout_id) > 0) as totalPages from template_manager_layouts tml where tml.template_id = "' . $TemplateId[0]['template_id'] . '"');
+		$largestCount = 0;
+		foreach($Page as $pInfo){
+			if ($pInfo['totalPages'] > $largestCount){
+				$largestCount = $pInfo['totalPages'];
+				$PageLayouts = $pInfo['layout_id'];
+			}
+		}
+		Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->exec('insert into template_pages (application, page, extension, layout_id) values ("' . $thisApp . '", "' . $thisAppPage . '", "' . $thisExtension . '", "' . $PageLayouts . '")');
+	}
+
 	$PageLayoutId = Doctrine_Manager::getInstance()
 		->getCurrentConnection()
-		->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "desktop"');
+		->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "' . $layoutType . '"');
+	if (sizeof($PageLayoutId) <= 0){
+		$PageLayoutId = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and layout_id IN(' . $PageLayouts . ') and layout_type = "desktop"');
+	}
+}else{
+	$PageLayoutId = Doctrine_Manager::getInstance()
+		->getCurrentConnection()
+		->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and app_name = "' . $App->getAppName() . '" and app_page_name = "' . $App->getAppPage() . '"');
 }
 
 $layout_id = $PageLayoutId[0]['layout_id'];

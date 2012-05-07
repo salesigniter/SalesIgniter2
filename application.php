@@ -8,37 +8,40 @@
 	This script and it's source is not redistributable
 */
 
-	require('includes/application_top.php');
-	
-	$action = (isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : ''));
-	
+require('includes/application_top.php');
+
+$action = (isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : ''));
+
+if ($App->getAppLocation('absolute') != 'virtual'){
 	require($App->getAppFile());
-		
+
 	if (!empty($action)){
 		EventManager::notify('ApplicationActionsBeforeExecute', $action);
-		
+
 		$actionFiles = $App->getActionFiles($action);
 		foreach($actionFiles as $file){
 			require($file);
 		}
-		
+
 		EventManager::notify('ApplicationActionsAfterExecute');
 	}
-	
-	EventManager::notify('ApplicationTemplateBeforeInclude');
+}
 
-	$tplFile = 'main_page';
-	if (isset($_GET['dialog']) && $_GET['dialog'] == 'true'){
-		$tplFile = 'popup';
-	}
-	
-	if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php')){
-		require(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php');
-	}else{
-		require(sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/' . $tplFile . '.tpl.php');
-	}
-	
-	EventManager::notify('ApplicationTemplateAfterInclude');
+EventManager::notify('ApplicationTemplateBeforeInclude');
 
-	require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
+$tplFile = 'main_page';
+if (isset($_GET['dialog']) && $_GET['dialog'] == 'true'){
+	$tplFile = 'popup';
+}
+
+if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php')){
+	require(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php');
+}
+else {
+	require(sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/' . $tplFile . '.tpl.php');
+}
+
+EventManager::notify('ApplicationTemplateAfterInclude');
+
+require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
 ?>

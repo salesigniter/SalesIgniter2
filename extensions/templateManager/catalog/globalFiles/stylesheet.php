@@ -149,7 +149,7 @@ else {
 			$QconfigId = Doctrine_Manager::getInstance()
 				->getCurrentConnection()
 				->fetchAssoc('select configuration_value from ' . $configTable . ' where configuration_key = "id" and ' . $idCol . ' = "' . $idVal . '"');
-			return $QconfigId[0]['configuration_value'];
+			return (sizeof($QconfigId) > 0 ? $QconfigId[0]['configuration_value'] : '');
 		}
 
 		function parseContainer($Container) {
@@ -304,32 +304,19 @@ else {
 				' * --END--' . "\n" .
 				' */' . "\n";
 		}
+	}
 
-		echo '/*' . "\n" .
-			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-			' * --BEGIN--' . "\n" .
-			' */' . "\n";
-		require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
-		echo '/*' . "\n" .
-			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-			' * --END--' . "\n" .
-			' */' . "\n";
-	}
-	else {
-		echo '/*' . "\n" .
-			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-			' * --BEGIN--' . "\n" .
-			' */' . "\n";
-		require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
-		echo '/*' . "\n" .
-			' * Template Stylesheet' . "\n" .
-			' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-			' * --END--' . "\n" .
-			' */' . "\n";
-	}
+	echo '/*' . "\n" .
+		' * Template Stylesheet' . "\n" .
+		' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
+		' * --BEGIN--' . "\n" .
+		' */' . "\n";
+	require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
+	echo '/*' . "\n" .
+		' * Template Stylesheet' . "\n" .
+		' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
+		' * --END--' . "\n" .
+		' */' . "\n";
 
 	$fileContent = ob_get_contents();
 	ob_end_clean();

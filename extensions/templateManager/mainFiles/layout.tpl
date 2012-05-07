@@ -25,12 +25,14 @@ echo '		' . $html . "\n";
 	'layout_id=' . $templateLayoutId .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
 	'&import=' . implode(',', $stylesheets) .
+	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '');
 
 	$javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/javascript.php?' .
 	'layout_id=' . $templateLayoutId .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
 	'&import=' . implode(',', $javascriptFiles) .
+	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '');
 
 	global $currencies;

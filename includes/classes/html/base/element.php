@@ -968,7 +968,7 @@ class StyleBuilder {
 	}
 
 	public function outputCss(){
-		$output .= $this->selector . ' { ';
+		$output = $this->selector . ' { ';
 		foreach($this->definitions as $k => $v){
 			$output .= $k . ': ' . $v . ';';
 		}
