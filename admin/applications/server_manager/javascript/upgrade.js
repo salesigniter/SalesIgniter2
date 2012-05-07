@@ -2,17 +2,17 @@ var stopProgress = false;
 var lastIndex = 0;
 var tableDataSet;
 var dataSetLength;
-function populateReportTable(data){
+function populateReportTable(data) {
 	if (data){
 		tableDataSet = data.files;
 		dataSetLength = tableDataSet.length;
-		
+
 		$('.rootDir').html(data.root);
 		$('#progressMessage').empty();
 
 		$('.fileDiffs').data('root_dir', data.root);
 		$('.fileDiffs').data('upgrade_dir', data.upgradeDir);
-		
+
 		$('#processProgressBar').progressbar('value', 0);
 		$('#processProgressMessage').html('Populating Updates Table: 0/' + dataSetLength + ' Updates');
 	}
@@ -24,28 +24,28 @@ function populateReportTable(data){
 			if (tableDataSet[i].hasDiff){
 				button = '<button class="viewDiffs"><span>View Diffs</span></button>';
 			}
-		
+
 			$('.fileDiffs tbody')
-			.prepend('<tr data-file_path="' + tableDataSet[i].file + '">' + 
-				'<td>' + input + '</td>' + 
-				'<td>' + tableDataSet[i].file + '</td>' + 
-				'<td>' + tableDataSet[i].message + '</td>' + 
-				'<td>' + button + '</td>' + 
-			'</tr>');
+				.prepend('<tr data-file_path="' + tableDataSet[i].file + '">' +
+				'<td>' + input + '</td>' +
+				'<td>' + tableDataSet[i].file + '</td>' +
+				'<td>' + tableDataSet[i].message + '</td>' +
+				'<td>' + button + '</td>' +
+				'</tr>');
 		}
-		
+
 		$('#processProgressBar').progressbar('value', Math.round((i / dataSetLength) * 100));
 		$('#processProgressMessage').html('Populating Updates Table: ' + i + '/' + dataSetLength + ' Updates');
-		
+
 		if (i > (lastIndex + 50)){
 			lastIndex = i + 1;
-			setTimeout(function (){
+			setTimeout(function () {
 				populateReportTable();
 			}, 100);
 			break;
 		}
 	}
-	
+
 	if (i == dataSetLength){
 		$('#processProgressBar').progressbar('value', 100);
 		$('#processProgressMessage').html('Populating Updates Table: Complete, Please Review Updates And Uncheck Any Files You Do Not Want Upgraded/Deleted');
@@ -54,14 +54,14 @@ function populateReportTable(data){
 	$('.viewDiffs').button();
 }
 
-function processAjaxError(XMLHttpRequest, textStatus, errorThrown){
+function processAjaxError(XMLHttpRequest, textStatus, errorThrown) {
 	stopProgress = true;
 	alert('There was an error.');
 	$('#globalProgressMessage').html(XMLHttpRequest.responseText);
 }
 
-$(document).ready(function (){
-	$('.gridBody > .gridBodyRow').click(function (){
+$(document).ready(function () {
+	$('.gridBody > .gridBodyRow').click(function () {
 		if ($(this).hasClass('state-active')){
 			return;
 		}
@@ -69,85 +69,87 @@ $(document).ready(function (){
 		$('.gridButtonBar').find('button').button('enable');
 	});
 
-	$('.continueButton').click(function (){
+	$('.continueButton').click(function () {
 		$('.formTable').hide();
 		$('.upgradeInfo').show();
 		if ($('.noValidation:checked').size() > 0){
 			$('.fileDiffs, .processFiles').hide();
 		}
 
-		$('#globalProgressBar').progressbar({value: 0});
-		$('#processProgressBar').progressbar({value: 0});
+		$('#globalProgressBar').progressbar({value : 0});
+		$('#processProgressBar').progressbar({value : 0});
 
 		$.ajax({
-			cache: false,
-			url: js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + $('select[name=version]').val() + '&part=download'),
-			dataType: 'json',
-			error: processAjaxError,
-			success: function (data){
+			cache    : false,
+			url      : js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + $('select[name=version]').val() + '&part=download'),
+			dataType : 'json',
+			error    : processAjaxError,
+			success  : function (data) {
 				if (data.success){
 					var upgradeVersion = data.upgVersion;
 					var upgradeDir = data.upgDir;
 					$.ajax({
-						cache: false,
-						url: js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + upgradeVersion + '&upgDir=' + upgradeDir + '&part=unzip'),
-						dataType: 'json',
-						error: processAjaxError,
-						success: function (data){
+						cache    : false,
+						url      : js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + upgradeVersion + '&upgDir=' + upgradeDir + '&part=unzip'),
+						dataType : 'json',
+						error    : processAjaxError,
+						success  : function (data) {
 							if (data.success){
 								$.ajax({
-									cache: false,
-									url: js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + upgradeVersion + '&upgDir=' + upgradeDir + '&part=compare'),
-									dataType: 'json',
-									error: processAjaxError,
-									success: function (data){
+									cache    : false,
+									url      : js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&version=' + upgradeVersion + '&upgDir=' + upgradeDir + '&part=compare'),
+									dataType : 'json',
+									error    : processAjaxError,
+									success  : function (data) {
 										if (data.success){
 											stopProgress = true;
 											if ($('.noValidation:checked').size() > 0){
 												$('.processFiles').trigger('click', [data]);
-											}else{
+											}
+											else {
 												populateReportTable(data);
 											}
 										}
-										else{
+										else {
 											stopProgress = true;
 											alert('There was an error during the file compare');
 										}
 									}
 								});
 							}
-							else{
+							else {
 								stopProgress = true;
 								alert('There was an error during the file unzip');
 							}
 						}
 					});
 				}
-				else{
+				else {
 					stopProgress = true;
 					alert('There was an error during the upgrade download');
 				}
 			}
 		});
 
-		setTimeout(function (){
+		setTimeout(function () {
 			updateCompareStatus();
 		}, 1000);
 	});
 
-	$('.processFiles').click(function (e, data){
+	$('.processFiles').click(function (e, data) {
 		var postVars = [];
 		postVars.push('version=' + $('select[name=version]').val());
 		if ($('.noValidation:checked').size() > 0 && data.files){
 			postVars.push('rootPath=' + data.root);
 			postVars.push('upgradePath=' + data.upgradeDir);
-			for(var i=0; i<data.files.length; i++){
+			for(var i = 0; i < data.files.length; i++){
 				postVars.push('files[]=' + data.files[i].file);
 			}
-		}else{
+		}
+		else {
 			postVars.push('rootPath=' + $('.fileDiffs').data('root_dir'));
 			postVars.push('upgradePath=' + $('.fileDiffs').data('upgrade_dir'));
-			$('input[type=checkbox]:checked').each(function (){
+			$('input[type=checkbox]:checked').each(function () {
 				postVars.push('files[]=' + $(this).parent().parent().attr('data-file_path'));
 			});
 		}
@@ -155,31 +157,33 @@ $(document).ready(function (){
 		stopProgress = false;
 		updateCompareStatus();
 		$.ajax({
-			cache: false,
-			url: js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&part=upgradeFiles'),
-			dataType: 'json',
-			type: 'post',
-			data: postVars.join('&'),
-			error: processAjaxError,
-			success: function (data){
+			cache    : false,
+			url      : js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&part=upgradeFiles'),
+			dataType : 'json',
+			type     : 'post',
+			data     : postVars.join('&'),
+			error    : processAjaxError,
+			success  : function (data) {
 				if (data.success){
 					$.ajax({
-						cache: false,
-						url: js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&part=upgradeDatabase'),
-						dataType: 'json',
-						type: 'post',
-						data: 'version=' + $('select[name=version]').val(),
-						error: processAjaxError,
-						success: function (){
+						cache    : false,
+						url      : js_app_link('rType=ajax&app=server_manager&appPage=upgrade&action=upgradeProcess&part=upgradeDatabase'),
+						dataType : 'json',
+						type     : 'post',
+						data     : 'version=' + $('select[name=version]').val(),
+						error    : processAjaxError,
+						success  : function () {
 							if (data.success){
 								alert('!!!!!!!!!!!!!!' + "\n" + 'UPGRADE COMPLETE' + "\n" + '!!!!!!!!!!!!!!!!');
-							}else{
+							}
+							else {
 								stopProgress = true;
 								alert('There was an error during the file upgrade');
 							}
 						}
 					});
-				}else{
+				}
+				else {
 					stopProgress = true;
 					alert('There was an error during the file upgrade');
 				}
@@ -187,7 +191,7 @@ $(document).ready(function (){
 		});
 	});
 
-	$('.viewDiffs').live('click', function (){
+	$('.viewDiffs').live('click', function () {
 		var filePath = $(this).parent().parent().data('file_path');
 
 		var rootDir = $('.fileDiffs').data('root_dir');
@@ -200,7 +204,7 @@ $(document).ready(function (){
 });
 
 var errorCount = 0;
-function updateCompareStatus (){
+function updateCompareStatus() {
 	if (stopProgress){
 		$('#globalProgressBar').progressbar('value', 100);
 		$('#processProgressBar').progressbar('value', 100);
@@ -208,11 +212,11 @@ function updateCompareStatus (){
 	}
 
 	$.ajax({
-		cache: false,
-		url: js_app_link('app=server_manager&appPage=default&action=getUpgradeProgress&rType=ajax'),
-		dataType: 'json',
-		type: 'post',
-		success: function (data){
+		cache    : false,
+		url      : js_app_link('app=server_manager&appPage=default&action=getUpgradeProgress&rType=ajax'),
+		dataType : 'json',
+		type     : 'post',
+		success  : function (data) {
 			if (stopProgress){
 				return;
 			}
@@ -220,7 +224,7 @@ function updateCompareStatus (){
 			if (data.globalPercent == null && data.processPercent == null){
 				updateCompareStatus();
 			}
-			else{
+			else {
 				var globalPercent = parseInt(data.globalPercent);
 				var processPercent = parseInt(data.processPercent);
 
@@ -234,12 +238,13 @@ function updateCompareStatus (){
 				}
 			}
 		},
-		error: function (){
+		error    : function () {
 			errorCount++;
 			if (errorCount > 5){
 				stopProgress = true;
-			}else{
-				setTimeout(function (){
+			}
+			else {
+				setTimeout(function () {
 					updateCompareStatus();
 				}, 1500);
 			}

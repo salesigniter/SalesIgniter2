@@ -18,16 +18,20 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 
 	public function showLayoutPreview($WidgetSettings) {
 		$return = '';
-		if (isset($WidgetSettings->images) && sizeof($WidgetSettings->images) == 1){
-			foreach($WidgetSettings->images as $iInfo){
-				if (isset($iInfo->source->{Session::get('languages_id')})){
-					$return = '<img src="' . $iInfo->source->{Session::get('languages_id')} . '" />';
-					break;
+		if (isset($WidgetSettings->images) && sizeof($WidgetSettings->images) > 0){
+			foreach($WidgetSettings->images as $Image){
+				if (isset($Image->{Session::get('languages_id')}->source)){
+					$return .= '<img ' .
+						'src="' . $Image->{Session::get('languages_id')}->source . '" ' .
+						'width="' . $Image->{Session::get('languages_id')}->dimensions->width . '" ' .
+						'height="' . $Image->{Session::get('languages_id')}->dimensions->height . '" ' .
+						'/>';
+				}else{
+					$return = $this->getBoxCode() . '<br>Image Not Available';
 				}
-
 			}
 		}else{
-			$return = $this->getBoxCode() . '<br>' . sizeof($WidgetSettings->images) . ' Images';
+			$return = $this->getBoxCode();
 		}
 		return $return;
 	}
@@ -35,19 +39,22 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 	public function show() {
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();
+		$TemplateManager = $appExtension->getExtension('templateManager');
 
 		$ImageHtml = array();
 		foreach($boxWidgetProperties->images as $iInfo){
-			$imageSource = $iInfo->source->{Session::get('languages_id')};
-			$linkInfo = $iInfo->link;
+			$imageSource = $iInfo->{Session::get('languages_id')}->source;
+			$linkInfo = $iInfo->{Session::get('languages_id')}->link;
 			
 			$ImageEl = htmlBase::newElement('image')
+				->attr('width', $iInfo->{Session::get('languages_id')}->dimensions->width)
+				->attr('height', $iInfo->{Session::get('languages_id')}->dimensions->height)
 				->setSource($imageSource);
 			
 			if ($linkInfo !== false){
 				$LinkEl = htmlBase::newElement('a')
-					->append($ImageEl);
-				$this->parseLink($LinkEl, $linkInfo);
+					->append($ImageEl)
+					->setHref($TemplateManager->parseItemLink($linkInfo));
 
 				$ImageHtml[] = $LinkEl->draw();
 			}else{
@@ -56,37 +63,6 @@ class InfoBoxCustomImage extends InfoBoxAbstract
 		}
 		$this->setBoxContent(implode('', $ImageHtml));
 		return $this->draw();
-	}
-
-	private function parseLink(&$LinkEl, $lInfo){
-		if ($lInfo->type == 'app'){
-			$getParams = null;
-			if (stristr($lInfo->app->name, '/')){
-				$extInfo = explode('/', $lInfo->app->name);
-				$application = $extInfo[1];
-				$getParams = 'appExt=' . $extInfo[0];
-			}
-			else {
-				$application = $lInfo->app->name;
-			}
-
-			$LinkEl->setHref(itw_app_link($getParams, $application, $lInfo->app->page));
-		}
-		elseif ($lInfo->type == 'category'){
-			$LinkEl->setHref(itw_app_link($lInfo->get_vars, $lInfo->app->name, $lInfo->app->page));
-		}
-		elseif ($lInfo->type == 'custom') {
-			$LinkEl->setHref($lInfo->url);
-		}
-
-		if ($lInfo->type != 'none'){
-			if ($lInfo->target == 'new'){
-				$LinkEl->attr('target', '_blank');
-			}
-			elseif ($lInfo->target == 'dialog') {
-				$LinkEl->attr('onclick', 'Javascript:popupWindow(this.href);');
-			}
-		}
 	}
 }
 

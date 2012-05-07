@@ -91,13 +91,13 @@ $conn->setCharset(sysConfig::get('SYSTEM_CHARACTER_SET'));
 $conn->setCollate(sysConfig::get('SYSTEM_CHARACTER_SET_COLLATION'));
 $manager->setCurrentConnection('mainConnection');
 
-// Define how do we update currency exchange rates
-// Possible values are 'oanda' 'xe' or ''
-define('CURRENCY_SERVER_PRIMARY', 'oanda');
-define('CURRENCY_SERVER_BACKUP', 'xe');
-
 // set application wide parameters
 sysConfig::load();
+
+// Define how do we update currency exchange rates
+// Possible values are 'oanda' 'xe' or ''
+sysConfig::set('CURRENCY_SERVER_PRIMARY', 'oanda');
+sysConfig::set('CURRENCY_SERVER_BACKUP', 'xe');
 
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ttfInfo.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/MultipleInheritance.php');
@@ -124,9 +124,6 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/email_events.php');
 //Admin begin
 require(sysConfig::getDirFsAdmin() . 'includes/functions/password_funcs.php');
 //Admin end
-
-// initialize the logger class
-require(sysConfig::getDirFsAdmin() . 'includes/classes/logger.php');
 
 // include shopping cart class
 /*
@@ -178,9 +175,6 @@ $appExtension->initApplicationPlugins();
 //Doctrine_Core::initializeModels(Doctrine_Core::getLoadedModels());
 
 $App->loadLanguageDefines();
-
-// entry/item info classes
-require(sysConfig::getDirFsAdmin() . 'includes/classes/object_info.php');
 
 // email classes
 require(sysConfig::getDirFsAdmin() . 'includes/classes/mime.php');

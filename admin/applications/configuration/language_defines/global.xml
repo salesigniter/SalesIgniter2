@@ -1,4 +1,6 @@
 <definitions>
+	<define key="HEADING_TITLE"><![CDATA[Edit Configuration]]></define>
+
 	<define key="TABLE_HEADING_CONFIGURATION_TITLE"><![CDATA[Title]]></define>
 	<define key="TABLE_HEADING_CONFIGURATION_VALUE"><![CDATA[Value]]></define>
 	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>

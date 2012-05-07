@@ -1,103 +1,162 @@
-$(document).ready(function (){
+$(document).ready(function () {
+	var $PageGrid = $('.gridContainer');
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.detailsButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('orders', 'details', null, [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.deleteButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				$.ajax({
+					cache    : false,
+					dataType : 'json',
+					url      : GridClass.buildActionLink('getDeleteOptions', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]),
+					success  : function (data) {
+						if (data.success == true){
+							$('<div></div>').html(data.html).attr('title', 'Delete').dialog({
+								resizable  : false,
+								allowClose : false,
+								modal      : true,
+								buttons    : {
+									'Confirm' : function () {
+										$.ajax({
+											cache    : false,
+											dataType : 'json',
+											type     : 'post',
+											data     : $(this).find('*').serialize(),
+											url      : GridClass.buildActionLink('deleteConfirm'),
+											success  : function (data) {
+												js_redirect(GridClass.buildAppRedirect('orders', 'default'));
+											}
+										});
+									},
+									'Cancel'  : function () {
+										$(this).dialog('close').remove();
+									}
+								}
+							});
+						}
+
+					}
+				});
+			}
+		},
+		{
+			selector          : '.cancelButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				var message = 'Are you sure you want to cancel this order?';
+				if (GridClass.getSelectedRows().size() > 1){
+					message = 'Are you sure you want to cancel these orders?';
+				}
+
+				GridClass.showConfirmDialog({
+					title     : 'Confirm Order Cancellation',
+					content   : message,
+					onConfirm : function (e, GridClass) {
+						$.ajax({
+							cache    : false,
+							dataType : 'json',
+							url      : GridClass.buildActionLink('cancelOrder', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]),
+							success  : function (data) {
+								js_redirect(GridClass.buildAppRedirect('orders', 'default'));
+							}
+						});
+					}
+				});
+			}
+		},
+		{
+			selector          : '.invoiceButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('orders', 'invoice', null, [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.pdfInvoiceButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				window.open(GridClass.buildAppRedirect('generate_pdf', 'default', 'pdfPrinter', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.newButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('default', 'new', 'orderCreator'));
+			}
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('default', 'new', 'orderCreator', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.packingSlipButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('orders', 'packingslip', null, [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		}
+	]);
+});
+
+$(document).ready(function () {
 	$('.makeDatepicker').datepicker({
-		dateFormat: 'yy-mm-dd'
+		dateFormat : 'yy-mm-dd'
 	});
 	$('#start_date').datepicker({
-		dateFormat: 'yy-mm-dd'
+		dateFormat : 'yy-mm-dd'
 	});
-       $('#end_date').datepicker({
-           dateFormat: 'yy-mm-dd'
-    });
-	$('#csvFieldsTable').hide();
-	$('#showFields').click(function(){
-		if ($('#csvFieldsTable').is(':visible')){
-			$('#csvFieldsTable').hide();
-		}else{
-			$('#csvFieldsTable').show();
-		}
-		return false;
-	});
-	$('#selectAllOrders').change(function(){
-		$('.selectedOrder').each(function(){
-			if ($(this).is(':checked')){
-				$(this).attr('checked', false);
-			}else{
-				$(this).attr('checked', true);
-			}
-		});
+	$('#end_date').datepicker({
+		dateFormat : 'yy-mm-dd'
 	});
 
-	$('.gridContainer').newGrid('option', 'onRowClick', function (e){
-		$('.gridButtonBar').find('button').button('enable');
-		if (e.ctrlKey){
-			$('.gridButtonBar').find('.detailsButton, .invoiceButton, .editButton').button('disable');
-		}
-	});
-
-	$('.gridButtonBar').find('.detailsButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		js_redirect(js_app_link('app=orders&appPage=details&oID=' + orderId));
-	});
-
-	$('.gridButtonBar').find('.cancelButton').click(function (){
+	$('.gridButtonBar').find('.deleteButton').live('click', function () {
 		var orders = $('.gridContainer').newGrid('getSelectedData', 'order_id');
 		var $self = $(this);
 		showAjaxLoader($self, 'x-large');
 		$.ajax({
-			cache: false,
-			dataType: 'json',
-			url: js_app_link('app=orders&appPage=default&action=cancelOrder&oID=' + orders),
-			success: function (data) {
+			cache    : false,
+			dataType : 'json',
+			url      : js_app_link('app=orders&appPage=default&action=getDeleteOptions&oID=' + orders),
+			success  : function (data) {
 				removeAjaxLoader($self);
-				js_redirect(js_app_link('app=orders&appPage=default'));
-			}
-		});
-	});
-	
-	$('.gridButtonBar').find('.invoiceButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		js_redirect(js_app_link('app=orders&appPage=invoice&oID=' + orderId));
-	});
-
-	$('.gridButtonBar').find('.pdfinvoiceButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		window.open(js_catalog_app_link('appExt=pdfPrinter&app=generate_pdf&appPage=default&oID=' + orderId));
-	});
-	
-	$('.gridButtonBar').find('.packingSlipButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		js_redirect(js_app_link('app=orders&appPage=packingslip&oID=' + orderId));
-	});
-	
-	$('.gridButtonBar').find('.deleteButton').live('click', function (){
-		var orders = $('.gridContainer').newGrid('getSelectedData', 'order_id');
-		var $self = $(this);
-		showAjaxLoader($self, 'x-large');
-		$.ajax({
-			cache: false,
-			dataType: 'json',
-			url: js_app_link('app=orders&appPage=default&action=getDeleteOptions&oID=' + orders),
-			success: function (data) {
-				removeAjaxLoader($self);
-				if(data.success == true){
+				if (data.success == true){
 					$('<div></div>').html(data.html).attr('title', 'Delete').dialog({
-						resizable: false,
-						allowClose: false,
-						modal: true,
-						buttons: {
-							'Confirm': function() {
+						resizable  : false,
+						allowClose : false,
+						modal      : true,
+						buttons    : {
+							'Confirm' : function () {
 								$.ajax({
-									cache: false,
-									dataType: 'json',
-									type:'post',
-									data:$(this).find('*').serialize(),
-									url: js_app_link('app=orders&appPage=default&action=deleteConfirm'),
-									success: function (data) {
+									cache    : false,
+									dataType : 'json',
+									type     : 'post',
+									data     : $(this).find('*').serialize(),
+									url      : js_app_link('app=orders&appPage=default&action=deleteConfirm'),
+									success  : function (data) {
 										js_redirect(js_app_link('app=orders&appPage=default'));
 									}
 								});
 							},
-							'Cancel': function() {
+							'Cancel'  : function () {
 								$(this).dialog('close').remove();
 							}
 						}
@@ -106,11 +165,5 @@ $(document).ready(function (){
 
 			}
 		});
-	});
-
-	/* Get Into Order Creator Extension */
-	$('.gridButtonBar').find('.editButton').click(function (){
-		var orderId = $('.gridBodyRow.state-active').attr('data-order_id');
-		js_redirect(js_app_link('appExt=orderCreator&app=default&appPage=new&oID=' + orderId));
 	});
 });

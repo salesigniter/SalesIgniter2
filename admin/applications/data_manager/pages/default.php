@@ -1,7 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
-<br />
 <?php
 $ModuleSelect = htmlBase::newElement('selectbox')
 	->setName('module')
@@ -30,15 +26,19 @@ $ActionButton = htmlBase::newElement('button')
 		<div>Select Which Data To Manage</div>
 		<div><?php echo $ModuleSelect->draw();?></div>
 		<br>
+
 		<div>Select What Format To Use</div>
 		<div><?php echo $DataFormat->draw();?></div>
 		<br>
+
 		<div>Select Which Action To Perform</div>
 		<div><?php echo $ActionSelect->draw();?></div>
 		<br>
+
 		<div>Select Which File To Work With ( Import Only )</div>
 		<div><input type="file" name="file_to_use"></div>
 		<br>
+
 		<div><?php echo $ActionButton->draw();?></div>
 	</div>
 </form>

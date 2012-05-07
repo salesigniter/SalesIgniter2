@@ -13,17 +13,6 @@ Released under the GNU General Public License
 // close session (store variables)
 Session::stop();
 
-if (sysConfig::get('STORE_PAGE_PARSE_TIME') == 'true') {
-	$time_start = explode(' ', sysConfig::get('PAGE_PARSE_START_TIME'));
-	$time_end = explode(' ', microtime());
-	$parse_time = number_format(($time_end[1] + $time_end[0] - ($time_start[1] + $time_start[0])), 3);
-	error_log(strftime(sysConfig::get('STORE_PARSE_DATE_TIME_FORMAT')) . ' - ' . getenv('REQUEST_URI') . ' (' . $parse_time . 's)' . "\n", 3, sysConfig::get('STORE_PAGE_PARSE_TIME_LOG'));
-
-	if (DISPLAY_PAGE_PARSE_TIME == 'true') {
-		echo '<span class="smallText">Parse Time: ' . $parse_time . 's</span>';
-	}
-}
-
 if (isset($_GET['showStats'])){
 	$execStart = explode(' ', PAGE_PARSE_START_TIME);
 	$execEnd = explode(' ', microtime());

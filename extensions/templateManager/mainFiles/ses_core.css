@@ -135,3 +135,11 @@ a.productListingRowPagerLink:hover { text-decoration:none; }
 a.readMore, a.readMore:link, a.readMore:visited, a.readMore:active {color: #c40000; text-decoration: underline; font-weight: bold; }
 a.readMore:hover{color: black;}
 /* Our core managed css --END-- */
+
+.unselectable {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}

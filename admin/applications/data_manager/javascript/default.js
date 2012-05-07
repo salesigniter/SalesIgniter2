@@ -10,29 +10,30 @@ function showHideDivs(selector) {
 
 $(document).ready(function () {
 	$('#epTabs').tabs();
-	
-	$('select[name=module]').change(function (){
+
+	$('select[name=module]').change(function () {
 		var FormatSelect = $('select[name=module_format]');
 		FormatSelect.find('option').remove();
 		if ($(this).val() == ''){
 			FormatSelect.append('<option value="">Please Select A Module</option>');
-		}else{
+		}
+		else {
 			var Data = $(this).find('option:selected').attr('data-supported_formats');
 			var SupportedFormats = $.parseJSON(Data);
-			$.each(SupportedFormats, function (k, v){
+			$.each(SupportedFormats, function (k, v) {
 				FormatSelect.append('<option value="' + k + '">' + v + '</option>');
 			});
 		}
-
 
 		var ActionSelect = $('select[name=module_action]');
 		ActionSelect.find('option').remove();
 		if ($(this).val() == ''){
 			ActionSelect.append('<option value="">Please Select A Module</option>');
-		}else{
+		}
+		else {
 			var Data = $(this).find('option:selected').attr('data-supported_actions');
 			var SupportedActions = $.parseJSON(Data);
-			$.each(SupportedActions, function (k, v){
+			$.each(SupportedActions, function (k, v) {
 				ActionSelect.append('<option value="' + k + '">' + v + '</option>');
 			});
 		}

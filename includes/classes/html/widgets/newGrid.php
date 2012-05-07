@@ -107,6 +107,26 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	protected $disableRowSelection = false;
 
 	/**
+	 * @var bool
+	 */
+	protected $allowCsvExport = false;
+
+	/**
+	 * @var array
+	 */
+	protected $csvFields = array();
+
+	/**
+	 * @var string
+	 */
+	protected $dataKey = 'id';
+
+	/**
+	 * @var bool
+	 */
+	protected $allowMultiple = false;
+
+	/**
 	 * @var Doctrine_Query
 	 */
 	protected $dataQuery;
@@ -174,6 +194,13 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 		}
 		if ($this->disableRowSelection === true){
 			$this->mainElement->addClass('noRowSelect')->addClass('noRowHover');
+		}
+
+		$this->mainElement->attr('data-main_data_key', $this->dataKey);
+		$this->mainElement->attr('data-allow_multiple', ($this->allowMultiple === true ? 'true' : 'false'));
+
+		if ($this->allowCsvExport === true){
+			$this->addButton(htmlBase::newElement('button')->usePreset('csvexport')->addClass('csvExportButton')->attr('data-fields', implode(',', $this->csvFields))->disable());
 		}
 
 		$this->gridElement->append($this->gridHeaderElement)->append($this->gridBodyElement);
@@ -315,6 +342,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 			}
 		}
 		$col = new htmlElement($tag);
+		$col->addClass('unselectable');
 		$col->html($colHtml);
 
 		if (isset($settings['align'])){
@@ -388,6 +416,15 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	 */
 	public function addButtons($buttons) {
 		$this->buttons = $buttons;
+		return $this;
+	}
+
+	/**
+	 * @param htmlWidget_button $button
+	 * @return htmlWidget_newGrid
+	 */
+	public function addButton(htmlWidget_button $button){
+		$this->buttons[] = $button;
 		return $this;
 	}
 
@@ -661,6 +698,48 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	 */
 	public function addAfterButtonBar($val) {
 		$this->insertAfterHeaderBar = $val;
+		return $this;
+	}
+
+	/**
+	 * @param $val
+	 * @return htmlWidget_newGrid
+	 */
+	public function useCsvExport($val){
+		$this->allowCsvExport = $val;
+		return $this;
+	}
+
+	/**
+	 * @param array $val
+	 * @return htmlWidget_newGrid
+	 */
+	public function setCsvFields(array $val){
+		$allowedFields = array();
+		foreach($val as $k => $v){
+			if ($v === true){
+				$allowedFields[] = $k;
+			}
+		}
+		$this->csvFields = $allowedFields;
+		return $this;
+	}
+
+	/**
+	 * @param string $val
+	 * @return htmlWidget_newGrid
+	 */
+	public function setMainDataKey($val){
+		$this->dataKey = $val;
+		return $this;
+	}
+
+	/**
+	 * @param $val
+	 * @return htmlWidget_newGrid
+	 */
+	public function allowMultipleRowSelect($val){
+		$this->allowMultiple = $val;
 		return $this;
 	}
 

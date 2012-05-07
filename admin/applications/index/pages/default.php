@@ -117,7 +117,6 @@ if (sysPermissions::isSimple() === false){
 	if ($customers){
 		foreach($customers as $customer){
 			$customerId = $customer['customers_id'];
-			$cInfo = new objectInfo($customer);
 			$arrowIcon = htmlBase::newElement('icon')->setType('info');
 			$Qorders = Doctrine_Query::create()
 				->select('count(*) as total')
@@ -163,9 +162,9 @@ if (sysPermissions::isSimple() === false){
 
 			$tableGridCustomers->addBodyRow(array(
 				'rowAttr' => array(
-					'data-customer_id'	=> $customerId,
+					'data-customer_id'    => $customerId,
 					'data-customer_email' => $customer['customers_email_address'],
-					'data-has_orders'	 => ($Qorders[0]['total'] > 0 ? 'true' : 'false')
+					'data-has_orders'     => ($Qorders[0]['total'] > 0 ? 'true' : 'false')
 				),
 				'columns' => array(
 					array('text' => $customer['customers_lastname']),
@@ -179,7 +178,7 @@ if (sysPermissions::isSimple() === false){
 						'align' => 'center'
 					),
 					array(
-						'text'  => tep_date_short($customer['CustomersInfo']['customers_info_date_account_created']),
+						'text'  => $customer['CustomersInfo']['customers_info_date_account_created']->format(sysLanguage::getDateFormat('short')),
 						'align' => 'center'
 					),
 					array(
@@ -196,21 +195,21 @@ if (sysPermissions::isSimple() === false){
 						'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="100%">' .
 							'<tr>' .
 							'<td><b>' . sysLanguage::get('TEXT_DATE_ACCOUNT_CREATED') . '</b></td>' .
-							'<td> ' . tep_date_short($cInfo->CustomersInfo['customers_info_date_account_created']) . '</td>' .
+							'<td> ' . $customer['CustomersInfo']['customers_info_date_account_created']->format(sysLanguage::getDateFormat('short')) . '</td>' .
 							'<td><b>' . sysLanguage::get('TEXT_DATE_ACCOUNT_LAST_MODIFIED') . '</b></td>' .
-							'<td>' . tep_date_short($cInfo->CustomersInfo['customers_info_date_account_last_modified']) . '</td>' .
+							'<td>' . $customer['CustomersInfo']['customers_info_date_account_last_modified']->format(sysLanguage::getDateFormat('short')) . '</td>' .
 							'<td></td>' .
 							'</tr>' .
 							'<tr>' .
 							'<td><b>' . sysLanguage::get('TEXT_INFO_DATE_LAST_LOGON') . '</b></td>' .
-							'<td>' . tep_date_short($cInfo->CustomersInfo['customers_info_date_of_last_logon']) . '</td>' .
+							'<td>' . $customer['CustomersInfo']['customers_info_date_of_last_logon']->format(sysLanguage::getDateFormat('short')) . '</td>' .
 							'<td><b>' . sysLanguage::get('TEXT_INFO_NUMBER_OF_LOGONS') . '</b></td>' .
-							'<td>' . $cInfo->CustomersInfo['customers_info_number_of_logons'] . '</td>' .
+							'<td>' . $customer['CustomersInfo']['customers_info_number_of_logons'] . '</td>' .
 							'<td></td>' .
 							'</tr>' .
 							'<tr>' .
 							'<td><b>' . sysLanguage::get('TEXT_INFO_COUNTRY') . '</b></td>' .
-							'<td>' . $cInfo->AddressBook[0]['Countries']['countries_name'] . '</td>' .
+							'<td>' . $customer['AddressBook'][0]['Countries']['countries_name'] . '</td>' .
 							'<td><b></b></td>' .
 							'<td></td>' .
 							'<td>' . $loginAsCustomerLink . '</td>' .
@@ -254,7 +253,7 @@ if (sysPermissions::isSimple() === false){
 	$QlowOrder = sysConfig::get('MODULE_ORDER_TOTAL_LOWORDERFEE_LOW_ORDER_FEE');
 	$loworder = false;
 	if ($QlowOrder != ''){
-		if ($QlowOrder == 'true') {
+		if ($QlowOrder == 'true'){
 			$loworder = true;
 		}
 	}
@@ -580,10 +579,10 @@ if (sysPermissions::isSimple() === false){
 			$footer_tax_coll += $sales_tax_this_row; // Taxes Collected
 			$footer_shiphndl += $shiphndl_this_row; // Shipping & handling
 			$footer_shipping_tax += ($tax_this_row - $sales_tax_this_row); // Shipping Tax
-			if ($loworder) {
+			if ($loworder){
 				$footer_loworder += $loworder_this_row;
 			}
-			if ($extra_class) {
+			if ($extra_class){
 				$footer_other += $other_this_row;
 			}
 
@@ -847,43 +846,46 @@ if (sysPermissions::isSimple() === false){
 			<div class="ui-widget-header ui-corner-top-big">
 				<h3>Sales Statistics</h3>
 			</div>
-			<div class="ui-widget-content ui-corner-bottom-big"">
-				<?php
-				echo $reportTable->draw();
-				?>
-			</div>
-		</li>
-		<li class="ui-widget color-white ui-corner-all-big" id="latestOrders">
-			<div class="ui-widget-header ui-corner-top-big">
-				<h3>Latest Orders</h3>
-			</div>
-			<div class="ui-widget-content ui-corner-bottom-big"">
-				<?php
-					if ($noOrders === false){
-						echo $tableGridOrders->draw();
-					}
-					else {
-						echo 'No orders';
-					}
-				?>
-			</div>
-		</li>
-		<li class="ui-widget color-white ui-corner-all-big" id="latestCustomers">
-			<div class="ui-widget-header ui-corner-top-big">
-				<h3>Latest Customers</h3>
-			</div>
-			<div class="ui-widget-content ui-corner-bottom-big"">
-				<?php
-					if ($noCustomers === false){
-						echo $tableGridCustomers->draw();
-					}
-					else {
-						echo 'No customers';
-					}
-				?>
-			</div>
-		</li>
-	</ul>
+			<div class="ui-widget-content ui-corner-bottom-big"
+			">
+			<?php
+			echo $reportTable->draw();
+			?>
+</div>
+</li>
+<li class="ui-widget color-white ui-corner-all-big" id="latestOrders">
+	<div class="ui-widget-header ui-corner-top-big">
+		<h3>Latest Orders</h3>
+	</div>
+	<div class="ui-widget-content ui-corner-bottom-big"
+	">
+	<?php
+	if ($noOrders === false){
+		echo $tableGridOrders->draw();
+	}
+	else {
+		echo 'No orders';
+	}
+	?>
+	</div>
+</li>
+<li class="ui-widget color-white ui-corner-all-big" id="latestCustomers">
+	<div class="ui-widget-header ui-corner-top-big">
+		<h3>Latest Customers</h3>
+	</div>
+	<div class="ui-widget-content ui-corner-bottom-big"
+	">
+	<?php
+	if ($noCustomers === false){
+		echo $tableGridCustomers->draw();
+	}
+	else {
+		echo 'No customers';
+	}
+	?>
+	</div>
+</li>
+</ul>
 </div>
 <?php
 }

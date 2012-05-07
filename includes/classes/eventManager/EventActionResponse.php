@@ -86,6 +86,7 @@ class EventActionResponse{
 	 * @return void
 	 */
 	public function update(){
+		global $ExceptionManager, $messageStack;
 		$stack = debug_backtrace();
 		$args = array();
 		if (isset($stack[0]['args'])){
@@ -104,7 +105,7 @@ class EventActionResponse{
 			 * @TODO: Determine if this is really the best way
 			 */
 			if ($this->responseType == 'json'){
-				header('Content-Type: text/json');
+				header('Content-Type: application/json');
 				if (is_array($this->eventData)){
 					$jSON = array();
 					foreach($this->eventData as $k => $v){
@@ -121,15 +122,17 @@ class EventActionResponse{
 						}
 					}
 					//echo '{' . implode(',', $jSON) . '}';
-					echo json_encode($this->eventData);
+					$output = json_encode($this->eventData);
 				}
 				else{
-					echo $this->eventData;
+					$output = $this->eventData;
 				}
 			}
 			else{
-				echo $this->eventData;
+				$output = $this->eventData;
 			}
+			header('Content-Length: ' . strlen($output));
+			echo $output;
 			itwExit();
 		}
 	}

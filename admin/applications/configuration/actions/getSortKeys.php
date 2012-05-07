@@ -1,64 +1,65 @@
 <?php
 
-	$name = $_GET['listing_id'];
-	$className = 'productListing_' . $name;
- 	if (isset($_GET['selected'])){
-		$selected = $_GET['selected'];
-	}else{
-		$selected = '';
+$name = $_GET['listing_id'];
+$className = 'productListing_' . $name;
+if (isset($_GET['selected'])){
+	$selected = $_GET['selected'];
+}
+else {
+	$selected = '';
+}
+$selected = str_replace('~', '=', $selected);
+
+$module = false;
+if (!empty($name)){
+	if (file_exists(sysConfig::getDirFsCatalog() . 'includes/classes/product_listing/' . $name . '.php')){
+		$module = sysConfig::getDirFsCatalog() . 'includes/classes/product_listing/' . $name . '.php';
 	}
-	$selected = str_replace('~','=', $selected);
 
-	$module = false;
-	if(!empty($name)){
-		if (file_exists(sysConfig::getDirFsCatalog() . 'includes/classes/product_listing/' . $name . '.php')){
-			$module = sysConfig::getDirFsCatalog() . 'includes/classes/product_listing/' . $name . '.php';
-		}
-
-		if ($module === false){
-			$dirObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
-			while($dirObj->valid()){
-				if ($dirObj->isDot() || $dirObj->isFile()){
-					$dirObj->next();
-					continue;
-				}
-
-				if (is_dir($dirObj->getPathname() . '/catalog/classes/product_listing/')){
-					if (file_exists($dirObj->getPathname() . '/catalog/classes/product_listing/' . $name . '.php')){
-						$module = $dirObj->getPathname() . '/catalog/classes/product_listing/' . $name . '.php';
-					}
-				}
-
+	if ($module === false){
+		$dirObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
+		while($dirObj->valid()){
+			if ($dirObj->isDot() || $dirObj->isFile()){
 				$dirObj->next();
+				continue;
 			}
-		}
 
-		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php')){
-			$module = sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php';
-		}
-
-		if (!class_exists($className)){
-			require($module);
-		}
-
-		$sortListingClass = new $className;
-
-
-		$html = '';
-		foreach($sortListingClass->sortColumns() as $sortCol){
-			if($sortCol['value'] == $selected){
-				$html .= '<option selected="selected" value="'.$sortCol['value'].'">'.$sortCol['name'].'</option>';
-			}else{
-				$html .= '<option value="'.$sortCol['value'].'">'.$sortCol['name'].'</option>';
+			if (is_dir($dirObj->getPathname() . '/catalog/classes/product_listing/')){
+				if (file_exists($dirObj->getPathname() . '/catalog/classes/product_listing/' . $name . '.php')){
+					$module = $dirObj->getPathname() . '/catalog/classes/product_listing/' . $name . '.php';
+				}
 			}
+
+			$dirObj->next();
 		}
 	}
 
-	$json = array(
-			'success' => true,
-			'listId'  => $_GET['listId'],
-			'html'    => $html
-	);
+	if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php')){
+		$module = sysConfig::get('DIR_FS_TEMPLATE') . 'classes/product_listing/' . $name . '.php';
+	}
 
-	EventManager::attachActionResponse($json, 'json');
+	if (!class_exists($className)){
+		require($module);
+	}
+
+	$sortListingClass = new $className;
+
+	$html = '';
+	foreach($sortListingClass->sortColumns() as $sortCol){
+		if ($sortCol['value'] == $selected){
+			$html .= '<option selected="selected" value="' . $sortCol['value'] . '">' . $sortCol['name'] . '</option>';
+		}
+		else {
+			$html .= '<option value="' . $sortCol['value'] . '">' . $sortCol['name'] . '</option>';
+		}
+	}
+}
+
+$json = array(
+	'success' => true,
+	'listId'  => $_GET['listId'],
+	'html'    => $html
+);
+
+EventManager::attachActionResponse($json, 'json');
 ?>

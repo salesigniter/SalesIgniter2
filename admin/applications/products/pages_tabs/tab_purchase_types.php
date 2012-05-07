@@ -1,5 +1,5 @@
 <?php
-function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseType){
+function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseType) {
 	//$PurchaseType->loadData($Product->getId());
 	$purchaseTypeCode = $PurchaseType->getCode();
 	$invController = 'normal';
@@ -19,10 +19,13 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 			->setChecked($PurchaseType->getData('inventory_track_method') == $methodName);
 
 		$trackMethodTable->addBodyRow(array(
-				'columns' => array(
-					array('addCls' => 'main', 'text' => $radioField->draw())
+			'columns' => array(
+				array(
+					'addCls' => 'main',
+					'text'   => $radioField->draw()
 				)
-			));
+			)
+		));
 	}
 
 	EventManager::notify('NewProductAddTrackMethods', $invController, &$PurchaseType, &$trackMethodTable);
@@ -33,10 +36,10 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 		->css('width', '100%');
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => $trackMethodTable->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => $trackMethodTable->draw())
+		)
+	));
 
 	$InvTabs = htmlBase::newElement('tabs')
 		->addClass('PurchaseTypeInventoryTabs_normal')
@@ -44,11 +47,12 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 
 	foreach($trackMethods as $methodName){
 		$function = 'buildNormalInventory' . ucfirst($methodName) . 'Table';
-		$InvTabs->addTabHeader('PurchaseType' . ucfirst($purchaseTypeCode) . 'InventoryTabs_normal_' . $methodName, array(
-				'text' => ucfirst($methodName) . ' Based'
-			))->addTabPage('PurchaseType' . ucfirst($purchaseTypeCode) . 'InventoryTabs_normal_' . $methodName, array(
-				'text' => $function($Product, $PurchaseType)
-			));
+		$InvTabs
+			->addTabHeader('PurchaseType' . ucfirst($purchaseTypeCode) . 'InventoryTabs_normal_' . $methodName, array(
+			'text' => ucfirst($methodName) . ' Based'
+		))->addTabPage('PurchaseType' . ucfirst($purchaseTypeCode) . 'InventoryTabs_normal_' . $methodName, array(
+			'text' => $function($Product, $PurchaseType)
+		));
 
 		if ($Product->getId() == 0 && $methodName == 'barcode'){
 			$InvTabs->disableTab('PurchaseType' . ucfirst($purchaseTypeCode) . 'InventoryTabs_normal_' . $methodName);
@@ -56,17 +60,17 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 	}
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => $InvTabs->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => $InvTabs->draw())
+		)
+	));
 
 	EventManager::notify('NewProductInventoryTabBottom', $Product, &$inputTable, &$PurchaseType);
 
 	return $inputTable->draw();
 }
 
-function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
+function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType) {
 	global $barcodeStatuses;
 	$purchaseTypeTitle = $PurchaseType->getTitle();
 	$purchaseTypeCode = $PurchaseType->getCode();
@@ -74,14 +78,26 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	$addButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_ADD'))->addClass('addBarcode');
 
 	$barcodeTableHeaders = array(
-		array('addCls' => 'main', 'text' => 'Barcode'),
-		array('addCls' => 'main', 'text' => 'Type'),
-		array('addCls' => 'main', 'text' => 'Status'),
+		array(
+			'addCls' => 'main',
+			'text'   => 'Barcode'
+		),
+		array(
+			'addCls' => 'main',
+			'text'   => 'Type'
+		),
+		array(
+			'addCls' => 'main',
+			'text'   => 'Status'
+		),
 	);
 
 	EventManager::notify('NewProductAddBarcodeOptionsHeader', &$barcodeTableHeaders);
 
-	$barcodeTableHeaders[] = array('addCls' => 'rightAlign main', 'text' => 'Action');
+	$barcodeTableHeaders[] = array(
+		'addCls' => 'rightAlign main',
+		'text'   => 'Action'
+	);
 
 	$barcodeInput = htmlBase::newElement('input')
 		->setName('barcodeNumber')
@@ -103,15 +119,15 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	$barcodeTableBody = array(
 		array(
 			'addCls' => 'main',
-			'text' => $barcodeInput->draw() . '<br />' . $autoGenTextInput->draw() . $autoGenCheckboxInput->draw()
+			'text'   => $barcodeInput->draw() . '<br />' . $autoGenTextInput->draw() . $autoGenCheckboxInput->draw()
 		),
 		array(
 			'addCls' => 'main',
-			'text' => $purchaseTypeTitle
+			'text'   => $purchaseTypeTitle
 		),
 		array(
 			'addCls' => 'main',
-			'text' => $barcodeStatuses['A']
+			'text'   => $barcodeStatuses['A']
 		)
 	);
 
@@ -122,18 +138,21 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	//}
 	$addButton->attr('data-purchase_type', $purchaseTypeCode);
 
-	$barcodeTableBody[] = array('addCls' => 'rightAlign main', 'text' => $addButton);
+	$barcodeTableBody[] = array(
+		'addCls' => 'rightAlign main',
+		'text'   => $addButton
+	);
 
 	$barcodeTable = htmlBase::newElement('table')
 		->setCellPadding(3)
 		->setCellSpacing(0)
 		->css('width', '100%')
 		->addHeaderRow(array(
-			'columns' => $barcodeTableHeaders
-		))
+		'columns' => $barcodeTableHeaders
+	))
 		->addBodyRow(array(
-			'columns' => $barcodeTableBody
-		));
+		'columns' => $barcodeTableBody
+	));
 
 	$dataSet = array();
 
@@ -145,7 +164,10 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 		->val($purchaseTypeCode);
 
 	$currentBarcodesTableHeaders = array(
-		array('css' => array('width' => '20px'), 'text' => $checkAllBox),
+		array(
+			'css'  => array('width' => '20px'),
+			'text' => $checkAllBox
+		),
 		array('text' => 'Barcode'),
 		array('text' => 'Type'),
 		array('text' => 'Status')
@@ -162,7 +184,8 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	$TableGrid->addAfterButtonBar($barcodeTable->draw() . '<br>' . $ajaxNotice->draw());
 
 	$TableGrid->addButtons(array(
-		htmlBase::newElement('button')->setId($PurchaseType->getCode())->usePreset('print')->addClass('printLabels')->setText('Print Labels')
+		htmlBase::newElement('button')->setId($PurchaseType->getCode())->usePreset('print')->addClass('printLabels')
+			->setText('Print Labels')
 	));
 
 	$TableGrid->addHeaderRow(array(
@@ -178,14 +201,16 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 	if ($Inventory && $Inventory->count() > 0){
 		foreach($Inventory->ProductsInventoryBarcodes->toArray() as $bInfo){
 			$currentBarcodesTableBody = array(
-				array('align' => 'center', 'text' => '<input type="checkbox" name="barcodes[]" value="' . $bInfo['barcode_id'] . '" data-barcode="' . $bInfo['barcode'] . '" class="barcode_' . $purchaseTypeCode . '">'),
+				array(
+					'align' => 'center',
+					'text'  => '<input type="checkbox" name="barcodes[]" value="' . $bInfo['barcode_id'] . '" data-barcode="' . $bInfo['barcode'] . '" class="barcode_' . $purchaseTypeCode . '">'
+				),
 				array('text' => $bInfo['barcode']),
 				array('text' => $purchaseTypeCode),
 				array('text' => $barcodeStatuses[$bInfo['status']])
 			);
 
 			EventManager::notify('NewProductAddBarcodeListingBody', &$bInfo, &$currentBarcodesTableBody);
-
 
 			//if (isset($settings['attribute_string'])) {
 			//	$buttonData['data-attribute_string'] = $settings['attributeString'];
@@ -196,60 +221,66 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType){
 				->setTooltip(sysLanguage::get('TEXT_BUTTON_DELETE'))
 				->setType('delete')
 				->attr(array(
-					'data-barcode_id' => $bInfo['barcode_id'],
-					'data-purchase_type' => $purchaseTypeCode
-				));
+				'data-barcode_id'    => $bInfo['barcode_id'],
+				'data-purchase_type' => $purchaseTypeCode
+			));
 
 			$updateButton = htmlBase::newElement('icon')
 				->addClass('updateBarcode')
 				->setTooltip(sysLanguage::get('TEXT_BUTTON_UPDATE'))
 				->setType('save')
 				->attr(array(
-					'data-barcode_id' => $bInfo['barcode_id'],
-					'data-purchase_type' => $purchaseTypeCode
-				));
+				'data-barcode_id'    => $bInfo['barcode_id'],
+				'data-purchase_type' => $purchaseTypeCode
+			));
 
 			$commentButton = htmlBase::newElement('icon')
 				->addClass('commentBarcode')
 				->setTooltip(sysLanguage::get('TEXT_BUTTON_COMMENT'))
 				->setType('comment')
 				->attr(array(
-					'data-barcode_id' => $bInfo['barcode_id'],
-					'data-purchase_type' => $purchaseTypeCode
-				));
+				'data-barcode_id'    => $bInfo['barcode_id'],
+				'data-purchase_type' => $purchaseTypeCode
+			));
 
 			$lastColHtml = $deleteButton->draw() . ' ' . $updateButton->draw() . ' ' . $commentButton->draw();
 
 			EventManager::notify('NewProductAddBarcodeListingButtons', &$lastColHtml, &$buttonData);
 
 			$currentBarcodesTableBody[] = array(
-				'css' => array(
+				'css'   => array(
 					'white-space' => 'nowrap',
 				),
 				'align' => 'right',
-				'text' => $lastColHtml
+				'text'  => $lastColHtml
 			);
 
 			$TableGrid->addBodyRow(array(
-					'addCls' => 'noHover',
-					'columns' => $currentBarcodesTableBody
-				));
+				'addCls'  => 'noHover',
+				'columns' => $currentBarcodesTableBody
+			));
 		}
 	}
 
 	return $TableGrid->draw();
 }
 
-function buildNormalInventoryQuantityTable(Product $Product, $PurchaseType){
+function buildNormalInventoryQuantityTable(Product $Product, $PurchaseType) {
 	global $barcodeStatuses;
 	$purchaseTypeCode = $PurchaseType->getCode();
 
 	$quantityTableHeaders = array(
-		array('addCls' => 'ui-widget-content ui-state-default ui-grid-cell ui-grid-cell-first', 'text' => '')
+		array(
+			'addCls' => 'ui-widget-content ui-state-default ui-grid-cell ui-grid-cell-first',
+			'text'   => ''
+		)
 	);
 
 	$quantityTableBody = array(
-		array('addCls' => 'ui-widget-content ui-state-default ui-grid-cell ui-grid-cell-first', 'text' => '<b>Standard</b>')
+		array(
+			'addCls' => 'ui-widget-content ui-state-default ui-grid-cell ui-grid-cell-first',
+			'text'   => '<b>Standard</b>'
+		)
 	);
 
 	$QinventoryQuantity = Doctrine_Query::create()
@@ -271,11 +302,21 @@ function buildNormalInventoryQuantityTable(Product $Product, $PurchaseType){
 		$invQty = '0';
 		if ($Quantity !== false){
 			switch($short){
-				case 'A': $invQty = $Quantity->available; break;
-				case 'O': $invQty = $Quantity->qty_out; break;
-				case 'B': $invQty = $Quantity->broken; break;
-				case 'R': $invQty = $Quantity->reserved; break;
-				case 'P': $invQty = $Quantity->purchased; break;
+				case 'A':
+					$invQty = $Quantity->available;
+					break;
+				case 'O':
+					$invQty = $Quantity->qty_out;
+					break;
+				case 'B':
+					$invQty = $Quantity->broken;
+					break;
+				case 'R':
+					$invQty = $Quantity->reserved;
+					break;
+				case 'P':
+					$invQty = $Quantity->purchased;
+					break;
 			}
 		}
 
@@ -288,21 +329,22 @@ function buildNormalInventoryQuantityTable(Product $Product, $PurchaseType){
 				->attr('data-availability', $short)
 				->val($invQty);
 			$inputHtml = $inputObj->draw();
-		}else{
+		}
+		else {
 			$inputHtml = $invQty;
 		}
 
 		$quantityTableHeaders[] = array(
 			'addCls' => 'ui-widget-content ui-state-default ui-grid-cell',
-			'text' => '<b>' . $barcodeStatuses[$short] . '</b>'
+			'text'   => '<b>' . $barcodeStatuses[$short] . '</b>'
 		);
 
 		$quantityTableBody[] = array(
-			'attr' => array(
+			'attr'   => array(
 				'data-availability' => $short
 			),
 			'addCls' => 'ui-widget-content ui-grid-cell centerAlign',
-			'text' => '&nbsp;' . $inputHtml . '&nbsp;'
+			'text'   => '&nbsp;' . $inputHtml . '&nbsp;'
 		);
 	}
 
@@ -311,12 +353,12 @@ function buildNormalInventoryQuantityTable(Product $Product, $PurchaseType){
 		->setCellSpacing(0)
 		->addClass('ui-grid')
 		->addHeaderRow(array(
-			'addCls' => 'ui-grid-row ui-grid-heading-row',
-			'columns' => $quantityTableHeaders
-		))
+		'addCls'  => 'ui-grid-row ui-grid-heading-row',
+		'columns' => $quantityTableHeaders
+	))
 		->addBodyRow(array(
-			'columns' => $quantityTableBody
-		));
+		'columns' => $quantityTableBody
+	));
 
 	EventManager::notify('NewProductAddQuantityRows', $PurchaseType, $inventoryColumns, $quantityTable);
 
@@ -339,7 +381,9 @@ foreach(PurchaseTypeModules::getModules() as $purchaseType){
 
 		$Dir = new DirectoryIterator($purchaseType->getPath() . 'admin/ext_app/products/purchaseTypeTabs/');
 		foreach($Dir as $d){
-			if ($d->isDot() || $d->isDir()) continue;
+			if ($d->isDot() || $d->isDir()) {
+				continue;
+			}
 
 			$ClassName = $baseClassName . '_' . $d->getBasename('.php');
 			if (!class_exists($ClassName)){
@@ -352,9 +396,9 @@ foreach(PurchaseTypeModules::getModules() as $purchaseType){
 
 	EventManager::notify('AdminProductEditAddPurchaseTypeSettingsTab', &$Sorted, $ProductPurchaseType);
 
-	usort($Sorted, function ($a, $b){
-			return ($a->getDisplayOrder() > $b->getDisplayOrder() ? 1 : -1);
-		});
+	usort($Sorted, function ($a, $b) {
+		return ($a->getDisplayOrder() > $b->getDisplayOrder() ? 1 : -1);
+	});
 
 	$PurchaseTypeSettingsTabs[$code] = htmlBase::newElement('tabs')
 		->addClass('makeVerticalTabs')

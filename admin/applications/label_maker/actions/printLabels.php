@@ -1,12 +1,12 @@
 <?php
-	$products = $_GET['print'];
-	
-	$labelMaker = new labelMaker();
-	foreach($products as $product){
-		$pInfo = explode('_', $product);
-		$labelMaker->addProduct($pInfo[1], $pInfo[0]);
-	}
-	
+$products = $_GET['print'];
+
+$labelMaker = new labelMaker();
+foreach($products as $product){
+	$pInfo = explode('_', $product);
+	$labelMaker->addProduct($pInfo[1], $pInfo[0]);
+}
+
 if ($_GET['printMethod'] == 'dymo'){
 	$labelType = $_GET['labelType'];
 
@@ -69,10 +69,14 @@ else {
 		));
 		$sep = ';';
 		switch($_GET['field_separator']){
-			case 'tab'       : $sep = '	';
-			case 'semicolon' : $sep = ';';
-			case 'colon'     : $sep = ':';
-			case 'comma'     : $sep = ',';
+			case 'tab'       :
+				$sep = '	';
+			case 'semicolon' :
+				$sep = ';';
+			case 'colon'     :
+				$sep = ':';
+			case 'comma'     :
+				$sep = ',';
 		}
 		$File->setCsvControl($sep);
 		foreach($labelInfo['data'] as $lInfo){
@@ -81,7 +85,8 @@ else {
 			$File->addRow($lInfo);
 		}
 		$File->output();
-	}else{
+	}
+	else {
 		require(sysConfig::getDirFsAdmin() . 'includes/classes/pdf_labels.php');
 		$LabelMaker = new PDF_Labels();
 		$LabelMaker->setData($labelInfo['data']);

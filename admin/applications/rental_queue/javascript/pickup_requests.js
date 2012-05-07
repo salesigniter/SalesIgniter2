@@ -1,5 +1,5 @@
-$(document).ready(function (){
-	$('.deleteIconPickup').live('click', function (){
+$(document).ready(function () {
+	$('.deleteIconPickup').live('click', function () {
 		$(this).parent().parent().remove();
 	});
 	$('#types_select').hide();
@@ -8,7 +8,7 @@ $(document).ready(function (){
 		var langId = $(this).parent().parent().parent().parent().parent().attr('language_id');
 		$(this).parent().parent().parent().parent().parent().attr('data-next_id', parseInt(nextId) + 1);
 
-		var sb =$('<select name="pickup[' + nextId + '][type_name]"></select>');
+		var sb = $('<select name="pickup[' + nextId + '][type_name]"></select>');
 		$('#types_select option').clone().appendTo(sb);
 		var $td51 = $('<div style="float:left;width:100px;"></div>').attr('align', 'center').append(sb);
 		var $td2 = $('<div style="float:left;width:150px;"></div>').attr('align', 'center').append('<input class="ui-widget-content date_pickup" size="15" type="text" name="pickup[' + nextId + '][start_date]">');
@@ -16,12 +16,12 @@ $(document).ready(function (){
 		var $newTr = $('<li style="list-style:none"></li>').append($td2).append($td51).append($td9).append('<br style="clear:both;"/>');//<input type="hidden" name="sortvprice[]">
 		$(this).parent().parent().parent().parent().parent().find('.pickupList').append($newTr);
 		$('.date_pickup').datepicker({
-			dateFormat: 'yy-mm-dd',
-			gotoCurrent: true
+			dateFormat  : 'yy-mm-dd',
+			gotoCurrent : true
 		});
 	});
 	$('.date_pickup').datepicker({
-		dateFormat: 'yy-mm-dd',
-		gotoCurrent: true
+		dateFormat  : 'yy-mm-dd',
+		gotoCurrent : true
 	});
 });

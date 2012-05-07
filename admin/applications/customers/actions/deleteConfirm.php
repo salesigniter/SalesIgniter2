@@ -1,28 +1,32 @@
 <?php
-	$Customers = Doctrine::getTable('Customers')->find((int)$_GET['cID']);
-	if ($Customers){
+$toDelete = explode(',', $_GET['customer_id']);
+$Customers = Doctrine::getTable('Customers');
+foreach($toDelete as $customerId){
+	$Customer = $Customers->find($customerId);
+	if ($Customer){
 		$isAllowed = true;
 		$errorMessages = array();
-		EventManager::notify('AdminDeleteCustomerCheckAllowed', &$isAllowed, &$errorMessages, $Customers);
-		EventManager::notify('CustomersBeforeDelete', $Customers);
+		EventManager::notify('AdminDeleteCustomerCheckAllowed', &$isAllowed, &$errorMessages, $Customer);
+		EventManager::notify('CustomersBeforeDelete', $Customer);
 		if ($isAllowed === true){
-			$Customers->delete();
+			$Customer->delete();
 			$response = array(
 				'success' => true
 			);
-		}else{
+		}
+		else {
 			$errorMsg = 'Customer account could not be deleted.' . "\n\n" .
 				'The following errors were reported:' . "\n";
 			foreach($errorMessages as $k => $v){
-				$errorMsg .= $k+1 . ': ' . $v . "\n";
+				$errorMsg .= $k + 1 . ': ' . $v . "\n";
 			}
 
 			$response = array(
-				'success' => false,
+				'success'      => false,
 				'errorMessage' => $errorMsg
 			);
 		}
 	}
-	
-	EventManager::attachActionResponse($response, 'json');
-?>
+}
+
+EventManager::attachActionResponse($response, 'json');

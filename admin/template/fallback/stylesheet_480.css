@@ -153,3 +153,4 @@ body {
 	margin:0;
 	padding:0;
 }
+.gridButtonBar .ui-button .ui-button-text { display:none; }

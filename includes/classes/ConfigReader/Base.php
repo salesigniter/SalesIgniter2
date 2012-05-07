@@ -13,19 +13,20 @@
 
 require(__DIR__ . '/Config.php');
 
-class ConfigReaderCache {
+class ConfigReaderCache
+{
 
 	private static $_cache = array();
 
-	public static function exists($k){
+	public static function exists($k) {
 		return isset(self::$_cache[$k]);
 	}
 
-	public static function get($k){
+	public static function get($k) {
 		return self::$_cache[$k];
 	}
 
-	public static function set($k, $v){
+	public static function set($k, $v) {
 		self::$_cache[$k] = $v;
 	}
 }
@@ -102,7 +103,7 @@ class ConfigurationReader
 
 	public function parseXmlConfig(SimpleXMLElement $xmlObj) {
 		global $App;
-		if ($this->check($xmlObj) === false) {
+		if ($this->check($xmlObj) === false){
 			return;
 		}
 
@@ -117,7 +118,16 @@ class ConfigurationReader
 			$configurations = array();
 			$mappings = array();
 			$configCount = 0;
-			if (ConfigReaderCache::exists($this->configFile . ':XMLParsed:' . $TabKey . ':configurations') === false){
+			if (
+				ConfigReaderCache::exists($this->configFile . ':XMLParsed:' . $TabKey . ':configurations') === false ||
+				(
+					$App && (
+						($App->getEnv() == 'admin' && $App->getAppName() == 'extensions' && isset($_GET['action'])) ||
+						($App->getEnv() == 'admin' && $App->getAppName() == 'modules' && isset($_GET['action'])) ||
+						($App->getEnv() == 'admin' && $App->getAppName() == 'configuration')
+					)
+				)
+			){
 				foreach($TabInfo->configurations->children() as $ConfigKey => $ConfigInfo){
 					$cfgKey = (string)$ConfigKey;
 					if (isset($this->compareData[$cfgKey])){
@@ -241,9 +251,9 @@ class ConfigurationReader
 			$this->mappings = array_merge($this->mappings, $mappings);
 			if (!isset($this->configData[(string)$TabKey])){
 				$this->configData[(string)$TabKey] = array(
-					'title'	   => (string)$TabInfo->title,
+					'title'       => (string)$TabInfo->title,
 					'description' => (string)$TabInfo->description,
-					'config'	  => $configurations
+					'config'      => $configurations
 				);
 			}
 			else {

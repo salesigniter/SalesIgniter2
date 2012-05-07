@@ -13,6 +13,6 @@
 	<define key="TEXT_INFO_COMPLETE"><![CDATA[Download <b>Complete</b> tab-delimited .txt file to edit]]></define>
 	<define key="TEXT_INFO_COMPLETE_TEMP"><![CDATA[Create Complete tab-delimited .txt file in temp dir]]></define>
 	<define key="TEXT_ERROR_NO_MODEL"><![CDATA[No products_model field in record. This line was not imported]]></define>
-    <define key="HEADING_FROOGLE"><![CDATA[Export Froogle]]></define>
+	<define key="HEADING_FROOGLE"><![CDATA[Export Froogle]]></define>
 
 </definitions>

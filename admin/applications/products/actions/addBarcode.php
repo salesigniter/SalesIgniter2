@@ -1,5 +1,5 @@
 <?php
-$pID = (int)$_GET['pID'];
+$pID = (int)$_GET['product_id'];
 $barcode = (isset($_POST['barcodeNumber']) ? $_POST['barcodeNumber'] : false);
 $type = $_GET['purchaseType'];
 $status = 'A';
@@ -115,8 +115,7 @@ else {
 				);
 			}
 		}
-		else
-		{
+		else {
 			if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25' || sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25 Interleaved'){
 				if (preg_match('/[^0-9]/', $barcode)){
 					$json = array(

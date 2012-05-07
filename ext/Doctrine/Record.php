@@ -399,9 +399,9 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
         $event = new Doctrine_Event($this, Doctrine_Event::RECORD_VALIDATE);
         $this->preValidate($event);
         $this->getTable()->getRecordListener()->preValidate($event);
-        
+
         if ( ! $event->skipOperation) {
-        
+
             $validator = new Doctrine_Validator();
             $validator->validateRecord($this);
             $this->validate();

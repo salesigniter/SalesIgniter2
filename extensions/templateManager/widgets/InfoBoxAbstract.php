@@ -149,7 +149,7 @@ abstract class InfoBoxAbstract
 		$boxTemplate = new Template($templateFile, $this->boxTemplateDefaultDir);
 
 		$this->templateVars['boxHeading'] = $this->boxHeadingText;
-		if (isset($WidgetSettings->widget_title_link) && !empty($WidgetSettings->widget_title_link)){
+		if (isset($WidgetSettings->widget_title_link) && $WidgetSettings->widget_title_link->type != 'none'){
 			$Data = $WidgetSettings->widget_title_link;
 			$itemLink = htmlBase::newElement('a')
 				->html($this->templateVars['boxHeading']);

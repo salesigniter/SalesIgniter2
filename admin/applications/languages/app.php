@@ -14,9 +14,15 @@
 Doctrine_Core::loadAllModels();
 $appContent = $App->getAppContentFile();
 
-if ($App->getPageName() == 'defines'){
-	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
-	$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
+switch($App->getPageName()){
+	case 'defines':
+		$App->addJavascriptFile(sysConfig::getDirFsAdmin() . 'rental_wysiwyg/ckeditor.js');
+		$App->addJavascriptFile(sysConfig::getDirFsAdmin() . 'rental_wysiwyg/adapters/jquery.js');
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_DEFINES'));
+		break;
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_DEFAULT'));
+		break;
 }
 
 if (sysConfig::exists('GOOGLE_API_SERVER_KEY') && sysConfig::get('GOOGLE_API_SERVER_KEY') != ''){

@@ -19,20 +19,20 @@ var sesWidgets = {
 	jQuery : $,
 
 	settings : {
-		columns : 'ul.widget-column',
-		widgetSelector : 'li.ui-widget',
-		handleSelector : '.ui-widget-header:not(.gridButtonBar, tr)',
+		columns         : 'ul.widget-column',
+		widgetSelector  : 'li.ui-widget',
+		handleSelector  : '.ui-widget-header:not(.gridButtonBar, tr)',
 		contentSelector : 'div.ui-widget-content:first',
 
 		/* If you don't want preferences to be saved change this value to
 		 false, otherwise change it to the name of the cookie: */
-		saveToCookie : 'seswidgets-widget-preferences',
+		saveToCookie    : 'seswidgets-widget-preferences',
 
 		widgetDefault : {
-			movable : true,
-			removable : true,
-			collapsible : true,
-			editable : true,
+			movable      : true,
+			removable    : true,
+			collapsible  : true,
+			editable     : true,
 			colorClasses : ['color-yellow', 'color-yellowgradient', 'color-red', 'color-redgradient', 'color-blue', 'color-bluegradient', 'color-white', 'color-whitegradient', 'color-orange', 'color-orangegradient', 'color-green', 'color-greengradient']
 		}
 	},
@@ -192,20 +192,20 @@ var sesWidgets = {
 			});
 
 		$(settings.columns).sortable({
-			items : $sortableItems,
-			connectWith : $(settings.columns),
-			handle : settings.handleSelector,
-			placeholder : 'widget-placeholder',
+			items                : $sortableItems,
+			connectWith          : $(settings.columns),
+			handle               : settings.handleSelector,
+			placeholder          : 'widget-placeholder',
 			forcePlaceholderSize : true,
-			revert : 300,
-			delay : 100,
-			opacity : 0.8,
-			containment : 'document',
-			tolerance: 'pointer',
-			start : function (e, ui) {
+			revert               : 300,
+			delay                : 100,
+			opacity              : 0.8,
+			containment          : 'document',
+			tolerance            : 'pointer',
+			start                : function (e, ui) {
 				$(ui.helper).addClass('dragging');
 			},
-			stop : function (e, ui) {
+			stop                 : function (e, ui) {
 				$(ui.item).removeClass('dragging');
 				$(settings.columns).sortable('enable');
 				/* Save prefs to cookie: */
@@ -241,12 +241,12 @@ var sesWidgets = {
 		});
 		showAjaxLoader($('body'), 'xlarge');
 		$.ajax({
-			cache : false,
-			url : js_app_link('app=index&appPage=default&action=sesWidgets'),
-			data : 'config=' + cookieString,
-			type : 'post',
+			cache    : false,
+			url      : js_app_link('app=index&appPage=default&action=sesWidgets'),
+			data     : 'config=' + cookieString,
+			type     : 'post',
 			dataType : 'json',
-			success : function (data) {
+			success  : function (data) {
 				removeAjaxLoader($('body'));
 			}
 		});
@@ -266,12 +266,12 @@ var sesWidgets = {
 
 		showAjaxLoader($('body'), 'xlarge');
 		$.ajax({
-			cache : false,
-			url : js_app_link('app=index&appPage=default&action=sesWidgets'),
-			data : '',
-			type : 'post',
+			cache    : false,
+			url      : js_app_link('app=index&appPage=default&action=sesWidgets'),
+			data     : '',
+			type     : 'post',
 			dataType : 'json',
-			success : function (data) {
+			success  : function (data) {
 				removeAjaxLoader($('body'));
 				var cookie = data.config;
 				if (cookie == ''){

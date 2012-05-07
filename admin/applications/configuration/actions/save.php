@@ -19,12 +19,13 @@ foreach($_POST['configuration'] as $k => $v){
 	if (is_array($v)){
 		$Config = $ConfigGroup->getConfig($k);
 		$Configuration[$k]->configuration_value = implode($Config->getGlue(), $v);
-	}else{
+	}
+	else {
 		$Configuration[$k]->configuration_value = $v;
 	}
 }
 $Configuration->save();
-	EventManager::attachActionResponse(array(
-		'success' => true
-	), 'json');
+EventManager::attachActionResponse(array(
+	'success' => true
+), 'json');
 ?>

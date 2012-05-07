@@ -1,5 +1,7 @@
 <?php
-$tableGrid = htmlBase::newElement('newGrid');
+$tableGrid = htmlBase::newElement('newGrid')
+	->setMainDataKey('extension')
+	->allowMultipleRowSelect(true);
 
 $tableGrid->addButtons(array(
 	htmlBase::newElement('button')->usePreset('install')->addClass('installButton')->disable(),
@@ -19,7 +21,7 @@ $tableGrid->addHeaderRow(array(
 $extensions = array();
 $dirObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
 foreach($dirObj as $dir){
-	if ($dir->isDot() || $dir->isFile()) {
+	if ($dir->isDot() || $dir->isFile()){
 		continue;
 	}
 
@@ -59,46 +61,54 @@ foreach($extensions as $extCode => $extCls){
 
 	$tableGrid->addBodyRow(array(
 		'rowAttr' => array(
-			'data-extension_key' => $extCls->getExtensionKey(),
+			'data-extension'      => $extCls->getExtensionKey(),
 			'data-extension_path' => $extCls->getExtensionDir(),
-			'data-can_install' => (file_exists($extCls->getExtensionDir() . '/install/install.php') === true ? 'true' : 'false'),
-			'data-installed' => ($extCls->isInstalled() === true ? 'true' : 'false')
+			'data-can_install'    => (file_exists($extCls->getExtensionDir() . '/install/install.php') === true ? 'true' : 'false'),
+			'data-installed'      => ($extCls->isInstalled() === true ? 'true' : 'false')
 		),
 		'columns' => array(
 			array('text' => $extCls->getExtensionName()),
-			array('align' => 'center', 'text' => $installedIcon->draw()),
-			array('align' => 'center', 'text' => $enabledIcon->draw()),
-			array('align' => 'center', 'text' => htmlBase::newElement('icon')->setType('info')->draw())
+			array(
+				'align' => 'center',
+				'text'  => $installedIcon->draw()
+			),
+			array(
+				'align' => 'center',
+				'text'  => $enabledIcon->draw()
+			),
+			array(
+				'align' => 'center',
+				'text'  => htmlBase::newElement('icon')->setType('info')->draw()
+			)
 		)
 	));
 
 	$tableGrid->addBodyRow(array(
-		'addCls' => 'gridInfoRow',
+		'addCls'  => 'gridInfoRow',
 		'columns' => array(
-			array('colspan' => 4, 'text' => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
-				'<tr>' .
-				'<td colspan="2">' . $extCls->getExtensionDescription() . '</td>' .
-				'</tr>' .
-				'<tr>' .
-				'<td>Version: </td>' .
-				'<td>' . $extCls->getExtensionVersion() . '</td>' .
-				'</tr>' .
-				'<tr>' .
-				'<td>Author: </td>' .
-				'<td>' . $extCls->getExtensionAuthor() . '</td>' .
-				'</tr>' .
-				'</table>')
+			array(
+				'colspan' => 4,
+				'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
+					'<tr>' .
+					'<td colspan="2">' . $extCls->getExtensionDescription() . '</td>' .
+					'</tr>' .
+					'<tr>' .
+					'<td>Version: </td>' .
+					'<td>' . $extCls->getExtensionVersion() . '</td>' .
+					'</tr>' .
+					'<tr>' .
+					'<td>Author: </td>' .
+					'<td>' . $extCls->getExtensionAuthor() . '</td>' .
+					'</tr>' .
+					'</table>'
+			)
 		)
 	));
 }
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
-<div>
-	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-		<div style="margin:5px;">
-			<?php echo $tableGrid->draw();?>
-			<div class="smallText" style="padding:5px;"><?php echo sysLanguage::get('TEXT_EXTENSION_DIRECTORY') . ' ' . sysConfig::getDirFsCatalog() . 'extensions/';?></div>
-		</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;">
+		<?php echo $tableGrid->draw();?>
+		<div class="smallText" style="padding:5px;"><?php echo sysLanguage::get('TEXT_EXTENSION_DIRECTORY') . ' ' . sysConfig::getDirFsCatalog() . 'extensions/';?></div>
 	</div>
 </div>

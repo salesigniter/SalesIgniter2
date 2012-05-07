@@ -11,15 +11,15 @@ $infoBox->addButton($saveButton)->addButton($cancelButton);
 
 /*Favorites Links*/
 if (isset($_GET['aID'])){
-	$AdminFavorites = Doctrine_Core::getTable('AdminFavorites')->find((int) $_GET['aID']);
+	$AdminFavorites = Doctrine_Core::getTable('AdminFavorites')->find((int)$_GET['aID']);
 }
 $favorites_links = explode(';', $AdminFavorites->favorites_links);
 $favorites_names = explode(';', $AdminFavorites->favorites_names);
 
 $favoritesTable = htmlBase::newElement('div')
 	->css(array(
-		'width' => '100%'
-	))
+	'width' => '100%'
+))
 	->addClass('ui-widget ui-widget-content favoritesLinks');
 
 /*$fheaderCols = array(
@@ -33,19 +33,18 @@ $favoritesTable->addHeaderRow(array(
 ));*/
 $favoritesList = htmlBase::newElement('list')
 	->css(array(
-		'list-style' => 'none',
-		'margin' => '0',
-		'padding' => '0'
-	))
+	'list-style' => 'none',
+	'margin'     => '0',
+	'padding'    => '0'
+))
 	->addClass('favoritesLinks');
-for($i = 0;$i < sizeof($favorites_links); $i++){
-	if(!empty($favorites_links[$i])){
-		$myItem = '<a href="' . sysConfig::get('DIR_WS_ADMIN') . $favorites_links[$i] . '">' . $favorites_names[$i] . '</a>'. '<a class="remoFav" href="'. itw_app_link('action=removeFromFavoritesSet&url='. $favorites_links[$i],'index','default') .'"><span class="ui-icon ui-icon-closethick"></span></a><input type="hidden" name="fav_links[]" value="'.sysConfig::get('DIR_WS_ADMIN') . $favorites_links[$i].'"/><input type="hidden" name="fav_names[]" value="'.$favorites_names[$i].'"/>';
-		$favoritesList->addItem('',$myItem);
-
+for($i = 0; $i < sizeof($favorites_links); $i++){
+	if (!empty($favorites_links[$i])){
+		$myItem = '<a href="' . sysConfig::get('DIR_WS_ADMIN') . $favorites_links[$i] . '">' . $favorites_names[$i] . '</a>' . '<a class="remoFav" href="' . itw_app_link('action=removeFromFavoritesSet&url=' . $favorites_links[$i], 'index', 'default') . '"><span class="ui-icon ui-icon-closethick"></span></a><input type="hidden" name="fav_links[]" value="' . sysConfig::get('DIR_WS_ADMIN') . $favorites_links[$i] . '"/><input type="hidden" name="fav_names[]" value="' . $favorites_names[$i] . '"/>';
+		$favoritesList->addItem('', $myItem);
 		/*$favoritesTable->addBodyRow(array(
-  'columns' => $fbodyRowCols
-  ));*/
+		  'columns' => $fbodyRowCols
+		  ));*/
 	}
 }
 $favoritesTable->append($favoritesList);

@@ -72,11 +72,6 @@
 					<description><![CDATA[Is show only unique Country enabled?]]></description>
 					<set_function><![CDATA[tep_cfg_select_option(array('true','false'),]]></set_function>
 				</RENTAL_DEFAULT_COUNTRY_ENABLED>
-				<GOOGLE_MAPS_API_KEY>
-					<title><![CDATA[Google Maps Key]]></title>
-					<value><![CDATA[ABQIAAAAJfeNSDfdlXtgf6gjHMTzDBT0_i__oM-cAYP-svDeQzBBv_RytBShCDbtJySULQi-i9FDwsHX8pK4aQ]]></value>
-					<description><![CDATA[Api key for google maps?]]></description>
-				</GOOGLE_MAPS_API_KEY>
 				<RENTAL_DAYS_CUSTOMER_PAST_DUE>
 					<title><![CDATA[How many days past due the customer is allowed to rent and receive items]]></title>
 					<value><![CDATA[3]]></value>

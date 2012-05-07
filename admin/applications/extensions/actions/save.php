@@ -9,7 +9,8 @@ foreach($_POST['configuration'] as $k => $v){
 	if (is_array($v)){
 		$Config = $ExtConfig->getConfig($k);
 		$Configuration[$k]->configuration_value = implode($Config->getGlue(), $v);
-	}else{
+	}
+	else {
 		$Configuration[$k]->configuration_value = $v;
 	}
 }

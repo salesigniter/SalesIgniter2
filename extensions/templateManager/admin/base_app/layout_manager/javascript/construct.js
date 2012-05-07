@@ -107,11 +107,12 @@ function editWidget(li) {
 				},
 				onShow: function () {
 					var self = this;
-					$(self).find('.BrowseServerField').filemanager({
+					$(self).find('.BrowseServerField, .fileManagerInput').filemanager({
 						fileSource: jsConfig.get('DIR_FS_CATALOG_TEMPLATES') + getTemplateName()
 					});
 
 					$(self).find('.makeHtmlEditor').ckeditor({});
+					$(self).find('.makeTabs').tabs();
 
 					$(self).find('.cancelButton').click(function () {
 						hideWidgetEditWindow.apply(self);
@@ -152,6 +153,10 @@ function editWidget(li) {
 							}
 						});
 					});
+
+					if (typeof WindowOnShow == 'function'){
+						WindowOnShow.apply(self);
+					}
 				}
 			});
 		}
@@ -1477,3 +1482,52 @@ $.widget('ui.LayoutDesigner', LayoutDesigner);
 function getBrowserInfo(){
 	return Designer.getBrowserInfo();
 }
+
+$.newImageResizer = function ($appendTo, name){
+	var newWidth = $('<input size="5">')
+		.addClass('imageWidth')
+		.attr('name', name + '[dimensions][width]');
+
+	var newHeight = $('<input size="5">')
+		.addClass('imageHeight')
+		.attr('name', name + '[dimensions][height]');
+
+	var newRatioLock = $('<span></span>')
+		.addClass('linkSizes ui-icon ui-icon-link');
+
+	var newImageSizerTable = $('<table></table>')
+		.attr('cellpadding', 0)
+		.attr('cellspacing', 0)
+		.attr('border', 0);
+
+	var newImageSizerTableBody = $('<tbody></tbody>');
+
+	var RowOneColOne = $('<td></td>').append(newWidth);
+	var RowOneColTwo = $('<td></td>').append(newRatioLock);
+	var RowOneColThree = $('<td></td>').append(newHeight);
+	var RowOne = $('<tr></tr>')
+		.append(RowOneColOne)
+		.append(RowOneColTwo)
+		.append(RowOneColThree);
+
+	var RowTwoColOne = $('<td></td>').attr('align', 'center').html('Width');
+	var RowTwoColTwo = $('<td></td>').html('');
+	var RowTwoColThree = $('<td></td>').attr('align', 'center').html('Height');
+	var RowTwo = $('<tr></tr>')
+		.append(RowTwoColOne)
+		.append(RowTwoColTwo)
+		.append(RowTwoColThree);
+
+	newImageSizerTableBody
+		.append(RowOne)
+		.append(RowTwo);
+
+	newImageSizerTable.append(newImageSizerTableBody);
+
+	if (!$appendTo){
+		return $('<div></div>').append(newImageSizerTable).html();
+	}else{
+		$appendTo.find('.imageResizerContainer')
+			.append(newImageSizerTable);
+	}
+};

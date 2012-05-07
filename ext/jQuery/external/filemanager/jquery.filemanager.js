@@ -23,7 +23,7 @@
 		processingShiftClick : false,
 		windowBlocks : {
 			uploadBlock : '<div style="position: relative;">' +
-				'<div id="uploadInfo">Current Upload: <span id="curUpload" data-total_upload="0">0</span></div>' +
+				'<div id="uploadInfo">Current Upload: <span id="curUpload" data-total_upload="0">0</span><span style="float:left;">&nbsp;&nbsp;Max Upload: <span id="maxUpload">0</span></span></div>' +
 				'<button id="returnToListing" type="button"><span>Return To List</span></button>' +
 				'<form enctype="multipart/form-data" method="post" action="">' +
 				'<input type="file" name="fileToUpload" id="fileToUpload" multiple="true" />' +
@@ -1006,11 +1006,11 @@
 		},
 		_formatBytes : function (bytes) {
 			var Formatted = '';
-			if (bytes > 1024 * 1024){
-				Formatted = (Math.round(bytes * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+			if (bytes > 1024 * 1000){
+				Formatted = (Math.round(bytes / (1024 * 1000))).toString() + 'MB';
 			}
 			else if (bytes > 1024){
-				Formatted = (Math.round(bytes * 100 / 1024) / 100).toString() + 'KB';
+				Formatted = (Math.round(bytes / 1024)).toString() + 'KB';
 			}
 			else {
 				Formatted = bytes.toString() + 'Bytes';

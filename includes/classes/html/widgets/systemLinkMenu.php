@@ -1,34 +1,4 @@
 <?php
-class htmlWidget {
-
-	protected $element;
-
-	public function __call($function, $args) {
-		$return = call_user_func_array(array($this->element, $function), $args);
-		if (!is_object($return)){
-			return $return;
-		}
-		return $this;
-	}
-
-	public function draw(){
-		return $this->element->draw();
-	}
-
-	public function setId($val){
-		$this->element->attr('id', $val);
-		return $this;
-	}
-
-	public function setName($val){
-		$this->element->attr('name', $val);
-		return $this;
-	}
-
-	public function startChain(){
-		return $this;
-	}
-}
 /**
  * System Link Menu Widget Class
  * @package Html
@@ -115,8 +85,14 @@ class htmlWidget_systemLinkMenu extends htmlWidget
 			var menuLinkTargets = <?php echo json_encode($linkTargets);?>;
 
 			$.newSystemLinkMenu = function ($appendTo, name){
+				var inputKey = 0;
+				while($('.systemLinkType[data-input_key=' + inputKey + ']').size() > 0){
+					inputKey++;
+				}
+
 				var newSelect = $('<select></select>')
-					.attr('name', name + '[link][type]')
+					.attr('name', name + '[' + inputKey + ']')
+					.attr('data-input_key', inputKey)
 					.addClass('systemLinkType');
 
 				$.each(menuLinkTypes, function (k, v) {

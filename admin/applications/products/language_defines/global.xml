@@ -1,17 +1,22 @@
 <definitions>
-	<define key="HEADING_TITLE"><![CDATA[Products]]></define>
+	<define key="HEADING_TITLE_DEFAULT"><![CDATA[Products]]></define>
+	<define key="HEADING_TITLE_NEW_PRODUCT"><![CDATA[New Product]]></define>
+	<define key="HEADING_TITLE_EDIT_PRODUCT"><![CDATA[Edit Product]]></define>
+	<define key="HEADING_TITLE_EXPECTED"><![CDATA[Products Expected]]></define>
+
+	<define key="INFO_MESSAGE_NEW_PRODUCT"><![CDATA[You are entering a new product. Some places are disabled, use the "Save Ajax" button to save this product and enable them]]></define>
+
 	<define key="HEADING_TITLE_SEARCH"><![CDATA[Search:]]></define>
 	<define key="HEADING_TITLE_GOTO"><![CDATA[Go To:]]></define>
-	<define key="HEADING_TITLE_EXPECTED"><![CDATA[Products Expected]]></define>
-	
+
 	<define key="TABLE_HEADING_ID"><![CDATA[ID]]></define>
 	<define key="TABLE_HEADING_PRODUCTS"><![CDATA[Products]]></define>
 	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
 	<define key="TABLE_HEADING_STATUS"><![CDATA[Status]]></define>
 	<define key="TABLE_HEADING_DATE_EXPECTED"><![CDATA[Date Expected]]></define>
 	<define key="TABLE_HEADING_INFO"><![CDATA[Info]]></define>
-    <define key="TABLE_PLEASE_SELECT"><![CDATA[Please Select]]></define>
-	
+	<define key="TABLE_PLEASE_SELECT"><![CDATA[Please Select]]></define>
+
 	<define key="TEXT_NEW_PRODUCT"><![CDATA[New Product in "%s"]]></define>
 	<define key="TEXT_CATEGORIES"><![CDATA[Categories:]]></define>
 	<define key="TEXT_SUBCATEGORIES"><![CDATA[Subcategories:]]></define>
@@ -67,7 +72,7 @@
 	<define key="TEXT_PRODUCTS_PAGE_TITLE"><![CDATA[Product Title Tag:]]></define>
 	<define key="TEXT_PRODUCTS_HEADER_DESCRIPTION"><![CDATA[Product Description Tag:]]></define>
 	<define key="TEXT_PRODUCTS_KEYWORDS"><![CDATA[Product Keywords Tag:]]></define>
-  	<define key="TEXT_PRODUCTS_SEO_URL"><![CDATA[Products SEO URL:]]></define>
+	<define key="TEXT_PRODUCTS_SEO_URL"><![CDATA[Products SEO URL:]]></define>
 	<define key="TEXT_PRODUCTS_BOX"><![CDATA[Is This Title Part of A Box Set?]]></define>
 	<define key="TEXT_PRODUCTS_BOX_EX"><![CDATA[Box contains:]]></define>
 	<define key="TEXT_PRODUCT_IS_BOX"><![CDATA[ Associate With Main Title: ]]></define>
@@ -104,7 +109,7 @@
 	<define key="TEXT_CENTER_RIGHT"><![CDATA[Center Right]]></define>
 	<define key="TEXT_BOTTOM_LEFT"><![CDATA[Bottom Left]]></define>
 	<define key="TEXT_BOTTOM_RIGHT"><![CDATA[Bottom Right]]></define>
-	
+
 	<define key="TEXT_INFO_DATE_ADDED"><![CDATA[Date Added:]]></define>;
 	<define key="TEXT_INFO_LAST_MODIFIED"><![CDATA[Last Modified:]]></define>
 	<define key="TEXT_PRODUCTS"><![CDATA[Products:]]></define>
@@ -150,5 +155,5 @@
 	<define key="TEXT_ENTRY_USE_GLOBAL"><![CDATA[Use Global Settings: ]]></define>
 
 	<define key="TEXT_PRODUCTS_SHORT_DESCRIPTION"><![CDATA[Products Short Description: ]]></define>
-    <define key="TEXT_PRODUCTS_DISPLAY_ORDER"><![CDATA[Display Order: ]]></define>
+	<define key="TEXT_PRODUCTS_DISPLAY_ORDER"><![CDATA[Display Order: ]]></define>
 </definitions>

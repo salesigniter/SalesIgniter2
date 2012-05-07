@@ -1,5 +1,7 @@
 <?php
-$tableGrid = htmlBase::newElement('newGrid');
+$tableGrid = htmlBase::newElement('newGrid')
+	->setMainDataKey('module')
+	->allowMultipleRowSelect(true);
 
 $tableGrid->addButtons(array(
 	htmlBase::newElement('button')->usePreset('install')->addClass('installButton')->disable(),
@@ -66,39 +68,47 @@ foreach($modules as $moduleCode => $moduleCls){
 
 	$tableGrid->addBodyRow(array(
 		'rowAttr' => array(
-			'data-module_code' => $moduleCls->getCode(),
+			'data-module' => $moduleCls->getCode(),
 			'data-module_path' => $moduleCls->getPath(),
 			'data-module_type' => $moduleCls->getModuleType(),
 			'data-installed'   => ($moduleCls->isInstalled() === true ? 'true' : 'false')
 		),
 		'columns' => array(
 			array('text' => $moduleCls->getTitle()),
-			array('align' => 'center', 'text' => ($moduleCls->imported('SortedDisplay') ? $moduleCls->getDisplayOrder() : '')),
-			array('align' => 'center', 'text' => $installedIcon->draw()),
-			array('align' => 'center', 'text' => $enabledIcon->draw()),
-			array('align' => 'center', 'text' => htmlBase::newElement('icon')->setType('info')->draw())
+			array(
+				'align' => 'center',
+				'text'  => ($moduleCls->imported('SortedDisplay') ? $moduleCls->getDisplayOrder() : '')
+			),
+			array(
+				'align' => 'center',
+				'text'  => $installedIcon->draw()
+			),
+			array(
+				'align' => 'center',
+				'text'  => $enabledIcon->draw()
+			),
+			array(
+				'align' => 'center',
+				'text'  => htmlBase::newElement('icon')->setType('info')->draw()
+			)
 		)
 	));
 
 	$tableGrid->addBodyRow(array(
 		'addCls'  => 'gridInfoRow',
 		'columns' => array(
-			array('colspan' => 5,
-			      'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
-				      '<tr>' .
-				      '<td>' . $moduleCls->getDescription() . '</td>' .
-				      '</tr>' .
-				      '</table>')
+			array(
+				'colspan' => 5,
+				'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
+					'<tr>' .
+					'<td>' . $moduleCls->getDescription() . '</td>' .
+					'</tr>' .
+					'</table>'
+			)
 		)
 	));
 }
 ?>
-<div class="pageHeading"><?php
-	echo $headingTitle;
-	?></div>
-<br />
-<div>
-	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-		<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>

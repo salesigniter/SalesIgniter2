@@ -61,7 +61,7 @@ class Product extends MI_Base
 			}
 		}
 
-		if (is_object($Product->ProductsDescription)){
+		if ($Product->ProductsDescription && is_object($Product->ProductsDescription)){
 			foreach($Product->ProductsDescription->toArray() as $dInfo){
 				$this->setName($dInfo['products_name'], $dInfo['language_id']);
 				$this->setDescription($dInfo['products_description'], $dInfo['language_id']);
@@ -77,7 +77,7 @@ class Product extends MI_Base
 	/**
 	 * @return void
 	 */
-	function updateViews() {
+	public function updateViews() {
 		Doctrine_Manager::getInstance()
 			->getCurrentConnection()
 			->exec(
@@ -137,9 +137,10 @@ class Product extends MI_Base
 	public function getName($langId = 0) {
 		$ProductType = $this->getProductTypeClass();
 		$langId = $this->getLanguageId($langId);
+		$return = '';
 		if (method_exists($ProductType, 'getProductName')){
 			$return = $ProductType->getProductName($langId);
-		}else{
+		}elseif (isset($this->info['products_name'])){
 			$return = $this->info['products_name'][$langId];
 		}
 		return $return;
@@ -152,9 +153,10 @@ class Product extends MI_Base
 	public function getDescription($langId = 0) {
 		$ProductType = $this->getProductTypeClass();
 		$langId = $this->getLanguageId($langId);
+		$return = '';
 		if (method_exists($ProductType, 'getProductDescription')){
 			$return = $ProductType->getProductDescription($langId);
-		}else{
+		}elseif (isset($this->info['products_description'])){
 			$return = $this->info['products_description'][$langId];
 		}
 		return $return;
@@ -167,9 +169,10 @@ class Product extends MI_Base
 	public function getShortDescription($langId = 0) {
 		$ProductType = $this->getProductTypeClass();
 		$langId = $this->getLanguageId($langId);
+		$return = '';
 		if (method_exists($ProductType, 'getProductShortDescription')){
 			$return = $ProductType->getProductShortDescription($langId);
-		}else{
+		}elseif (isset($this->info['products_short_description'])){
 			$return = $this->info['products_short_description'][$langId];
 		}
 		return $return;
@@ -206,7 +209,11 @@ class Product extends MI_Base
 	 * @return string
 	 */
 	public function getUrl($langId = 0) {
-		return $this->info['products_url'][$this->getLanguageId($langId)];
+		$return = '';
+		if (isset($this->info['products_url'])){
+			$return = $this->info['products_url'][$this->getLanguageId($langId)];
+		}
+		return $return;
 	}
 
 	/**
@@ -214,7 +221,11 @@ class Product extends MI_Base
 	 * @return string
 	 */
 	public function getSeoUrl($langId = 0) {
-		return $this->info['products_seo_url'][$this->getLanguageId($langId)];
+		$return = '';
+		if (isset($this->info['products_seo_url'])){
+			$return = $this->info['products_seo_url'][$this->getLanguageId($langId)];
+		}
+		return $return;
 	}
 
 	/**

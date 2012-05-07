@@ -476,6 +476,32 @@ class Extension_templateManager extends ExtensionBase
 			$Container->append($ColEl);
 		}
 	}
+
+	public function parseItemLink($Data){
+		$return = '';
+		if ($Data !== false){
+			if ($Data->type == 'app'){
+				$getParams = null;
+				if (stristr($Data->app->name, '/')){
+					$extInfo = explode('/', $Data->app->name);
+					$application = $extInfo[1];
+					$getParams = 'appExt=' . $extInfo[0];
+				}
+				else {
+					$application = $Data->app->name;
+				}
+
+				$return = itw_app_link($getParams, $application, $Data->app->page);
+			}
+			elseif ($Data->type == 'category'){
+				$return = itw_app_link('cPath=' . str_replace('_none', '', implode('_', $Data->category->id)), 'index', 'default');
+			}
+			elseif ($Data->type == 'custom') {
+				$return = $Data->url;
+			}
+		}
+		return $return;
+	}
 }
 
 /* @TODO: Find a better place for this stuff */

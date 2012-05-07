@@ -1,5 +1,5 @@
-$(document).ready(function (){
-	$('.deleteIconPickup').live('click', function (){
+$(document).ready(function () {
+	$('.deleteIconPickup').live('click', function () {
 		$(this).parent().parent().remove();
 	});
 
@@ -7,7 +7,6 @@ $(document).ready(function (){
 		var nextId = $(this).parent().parent().parent().parent().parent().attr('data-next_id');
 		var langId = $(this).parent().parent().parent().parent().parent().attr('language_id');
 		$(this).parent().parent().parent().parent().parent().attr('data-next_id', parseInt(nextId) + 1);
-
 
 		var $td2 = $('<div style="float:left;width:150px;"></div>').attr('align', 'center').append('<input class="ui-widget-content pickup_type" size="15" type="text" name="pickup[' + nextId + '][type_name]">');
 		var $td9 = $('<div style="float:left;width:40px;"></div>').attr('align', 'center').append('<a class="ui-icon ui-icon-closethick deleteIconPickup"></a>');

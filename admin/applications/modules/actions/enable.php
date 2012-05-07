@@ -23,5 +23,5 @@ if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'orderTotal' || $_GET[
 }
 
 EventManager::attachActionResponse(array(
-		'success' => true
-	), 'json');
+	'success' => true
+), 'json');

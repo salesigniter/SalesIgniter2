@@ -1,5 +1,5 @@
 <?php
-	$appContent = $App->getAppContentFile();
+$appContent = $App->getAppContentFile();
 
-	$system = tep_get_system_information();
+$system = tep_get_system_information();
 ?>

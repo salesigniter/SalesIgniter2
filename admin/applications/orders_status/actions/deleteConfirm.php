@@ -1,10 +1,15 @@
 <?php
-	$OrdersStatus = Doctrine_Core::getTable('OrdersStatus')->find((int) $_GET['sID']);
-	if ($OrdersStatus){
-		$OrdersStatus->delete();
+$success = false;
+$toDelete = explode(',', $_GET['status_id']);
+$OrdersStatus = Doctrine_Core::getTable('OrdersStatus');
+foreach($toDelete as $statusId){
+	$Status = $OrdersStatus->find((int)$statusId);
+	if ($Status){
+		$Status->delete();
+		$success = true;
 	}
+}
 
-	EventManager::attachActionResponse(array(
-		'success' => true,
-	), 'json');
-?>
+EventManager::attachActionResponse(array(
+	'success' => $success,
+), 'json');

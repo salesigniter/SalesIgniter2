@@ -12,8 +12,8 @@ else {
 }
 
 $Products = Doctrine_Core::getTable('Products');
-if (isset($_GET['pID'])){
-	$Product = $Products->findOneByProductsId((int)$_GET['pID']);
+if (isset($_GET['product_id'])){
+	$Product = $Products->findOneByProductsId((int)$_GET['product_id']);
 }
 elseif (isset($_POST['product_id'])) {
 	$Product = $Products->findOneByProductsId((int)$_POST['product_id']);
@@ -67,7 +67,7 @@ if (isset($_POST['products_keepit_price'])){
 /*
 	 * anything additional to handle into $ProductsDescription ?
 	 */
-EventManager::notify('ProductsDescriptionsBeforeSave', &$ProductsDescription);
+EventManager::notify('ProductsDescriptionsBeforeSave', $ProductsDescription);
 
 //------------------------- BOX set begin block -----------------------------//
 /*$ProductsToBox = $Product->ProductsToBox;
@@ -166,7 +166,7 @@ foreach($postedQty as $typeShort => $qInfo){
 
 	EventManager::notify(
 		'SaveProductInventoryQuantity',
-		&$ProductsInventory,
+		$ProductsInventory,
 		'normal',
 		$typeShort,
 		$qInfo
@@ -176,7 +176,7 @@ foreach($postedQty as $typeShort => $qInfo){
 if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
 	EventManager::attachActionResponse(array(
 		'success' => true,
-		'pID'	 => $Product->products_id
+		'product_id' => $Product->products_id
 	), 'json');
 }
 else {
@@ -184,7 +184,7 @@ else {
 		$link = $_POST['categories_save_redirect'];
 	}
 	else {
-		$link = itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'pID=' . $Product->products_id, null, 'default');
+		$link = itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'product_id=' . $Product->products_id, null, 'default');
 	}
 	EventManager::attachActionResponse($link, 'redirect');
 }

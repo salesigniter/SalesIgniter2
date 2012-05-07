@@ -36,17 +36,17 @@ class payPerRentals_admin_orders_default extends Extension_payPerRentals {
 
 	public function AdminOrdersListingExportFields(&$fieldsArray){
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_EVENT_AS_COLUMN_ON_ORDER_PAGE')== 'True'){
-			$fieldsArray[] = 'v_orders_products_event_name';
-			$fieldsArray[] = 'v_orders_products_event_date';
+			$fieldsArray['v_orders_products_event_name'] = true;
+			$fieldsArray['v_orders_products_event_date'] = true;
 		}
-		 $fieldsArray[] = 'v_orders_products_semester_name';
-		 $fieldsArray[] = 'v_orders_products_insurance';
-         $fieldsArray[] = 'v_orders_products_start_date';
-         $fieldsArray[] = 'v_orders_products_end_date';
-         $fieldsArray[] = 'v_orders_products_shipping_method_title';
-         $fieldsArray[] = 'v_orders_products_shipping_cost';
-         $fieldsArray[] = 'v_orders_products_shipping_days_after';
-         $fieldsArray[] = 'v_orders_products_shipping_days_before';
+		 $fieldsArray['v_orders_products_semester_name'] = true;
+		 $fieldsArray['v_orders_products_insurance'] = true;
+         $fieldsArray['v_orders_products_start_date'] = true;
+         $fieldsArray['v_orders_products_end_date'] = true;
+         $fieldsArray['v_orders_products_shipping_method_title'] = true;
+         $fieldsArray['v_orders_products_shipping_cost'] = true;
+         $fieldsArray['v_orders_products_shipping_days_after'] = true;
+         $fieldsArray['v_orders_products_shipping_days_before'] = true;
 	}
 
     public function OrdersProductsExportQueryFileLayoutHeader(&$dataExport, $i){

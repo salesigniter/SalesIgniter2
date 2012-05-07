@@ -10,72 +10,73 @@
  * @author     ##NAME## <##EMAIL##>
  * @version    SVN: $Id: Builder.php 6401 2009-09-24 16:12:04Z guilhermeblanco $
  */
-class RoyaltiesSystemRoyaltyTracker extends Doctrine_Record {
+class RoyaltiesSystemRoyaltyTracker extends Doctrine_Record
+{
 
-	public function setUp(){
+	public function setUp() {
 		parent::setUp();
 		$this->setUpParent();
 
 		$this->hasOne('Products', array(
-		                                'local' => 'products_id',
-		                                'foreign' => 'products_id'
-		                           ));
+			'local'   => 'products_id',
+			'foreign' => 'products_id'
+		));
 		$this->hasOne('Customers', array(
-		                               'local' => 'content_provider_id',
-		                               'foreign' => 'customers_id'
-		                          ));
+			'local'   => 'content_provider_id',
+			'foreign' => 'customers_id'
+		));
 	}
 
-	public function setUpParent(){
+	public function setUpParent() {
 		$Products = Doctrine::getTable('Products')->getRecordInstance();
 
 		$Products->hasMany('RoyaltiesSystemProductsRoyalties', array(
-		                                                        'local' => 'products_id',
-		                                                        'foreign' => 'products_id',
-		                                                        'cascade' => array('delete')
-		                                                   ));
+			'local'   => 'products_id',
+			'foreign' => 'products_id',
+			'cascade' => array('delete')
+		));
 		$Customers = Doctrine::getTable('Customers')->getRecordInstance();
 
 		$Customers->hasMany('RoyaltiesSystemProductsRoyalties', array(
-		                                                           'local' => 'content_provider_id',
-		                                                           'foreign' => 'customers_id',
-		                                                           'cascade' => array('delete')
-		                                                      ));
+			'local'   => 'content_provider_id',
+			'foreign' => 'customers_id',
+			'cascade' => array('delete')
+		));
 	}
 
-	public function setTableDefinition(){
+	public function setTableDefinition() {
 		$this->setTableName('royalties_royalty_tracker');
 
 		$this->hasColumn('content_provider_id', 'integer', 4, array(
-		'type' => 'integer',
-		'length' => 11,
-		'unsigned' => 0,
-		'primary' => true,
-		'notnull' => true,
-		'autoincrement' => true,
+			'type'          => 'integer',
+			'length'        => 4,
+			'unsigned'      => 0,
+			'primary'       => true,
+			'notnull'       => true,
+			'autoincrement' => true,
 		));
-		$this->hasColumn('products_id', 'integer', 11, array(
-		'type' => 'integer',
-		'length' => 11,
-		'unsigned' => 0,
-		'primary' => false,
-		'notnull' => true,
-		'autoincrement' => false,
+		$this->hasColumn('products_id', 'integer', 4, array(
+			'type'          => 'integer',
+			'length'        => 4,
+			'unsigned'      => 0,
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
 		));
 		$this->hasColumn('royalty_amount_paid', 'integer', 4, array(
-		'type' => 'integer',
-		'length' => 4,
-		'unsigned' => 0,
-		'primary' => false,
-		'notnull' => true,
-		'autoincrement' => false,
+			'type'          => 'integer',
+			'length'        => 4,
+			'unsigned'      => 0,
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
 		));
 		$this->hasColumn('royalty_payment_date', 'timestamp', null, array(
-		'type' => 'timestamp',
-		'default' =>'0000-00-00 00:00:00',
-		'primary' => false,
-		'notnull' => true,
-		'autoincrement' => false,
+			'type'          => 'timestamp',
+			'default'       => '0000-00-00 00:00:00',
+			'primary'       => false,
+			'notnull'       => true,
+			'autoincrement' => false,
 		));
 	}
 }

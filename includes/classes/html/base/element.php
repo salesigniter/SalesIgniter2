@@ -1,4 +1,6 @@
 <?php
+require(__DIR__ . '/widgetBase.php');
+
 /**
  * Html Element Base Class
  * @package Html

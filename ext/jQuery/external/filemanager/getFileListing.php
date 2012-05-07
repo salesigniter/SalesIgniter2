@@ -105,7 +105,17 @@ if (is_dir($_POST['filesSource'])){
 
 	$returnArr = array_merge($dirs, $files);
 }
-$maxUpload = (int) ini_get('upload_max_filesize');
+$maxUpload = ini_get('upload_max_filesize');
+if (!is_int($maxUpload)){
+	if (substr($maxUpload, -1) == 'M'){
+		$maxUpload = (int) (substr($maxUpload, 0, -1) * 1000) * 1024;
+	}elseif (substr($maxUpload, -1) == 'K'){
+		$maxUpload = (int) substr($maxUpload, 0, -1) * 1024;
+	}elseif (substr($maxUpload, -1) == 'B'){
+		$maxUpload = (int) substr($maxUpload, 0, -1);
+	}
+}
+
 echo json_encode(array(
 	'success' => true,
 	'maxUpload' => $maxUpload,

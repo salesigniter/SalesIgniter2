@@ -1,4 +1,8 @@
 <?php
+require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
+DataManagementModules::loadModule('orders');
+$ExportModule = DataManagementModules::getModule('orders');
+
 $Qorders = Doctrine_Query::create()
 	->select('o.orders_id, a.entry_name, o.date_purchased, o.customers_id, o.last_modified, o.currency, o.currency_value, s.orders_status_id, sd.orders_status_name, ot.text as order_total, o.payment_module')
 	->from('Orders o')
@@ -25,6 +29,10 @@ $tableGrid = htmlBase::newElement('newGrid')
 	->useSorting(true)
 	->useSearching(true)
 	->usePagination(true)
+	->useCsvExport(true)
+	->setCsvFields($ExportModule->getSupportedColumns())
+	->allowMultipleRowSelect(true)
+	->setMainDataKey('order_id')
 	->setQuery($Qorders);
 
 $gridButtons = array(
@@ -61,7 +69,7 @@ $gridHeaderColumns = array(
 	array('text' => $SelectAll->draw()),
 	array(
 		'text'      => 'ID',
-		'useSort' => true,
+		'useSort'   => true,
 		'sortKey'   => 'o.orders_id',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Equal()
@@ -70,7 +78,7 @@ $gridHeaderColumns = array(
 	),
 	array(
 		'text'      => sysLanguage::get('TABLE_HEADING_CUSTOMERS'),
-		'useSort' => true,
+		'useSort'   => true,
 		'sortKey'   => 'a.entry_name',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Like()
@@ -79,20 +87,21 @@ $gridHeaderColumns = array(
 	),
 	array(
 		'text'      => sysLanguage::get('TABLE_HEADING_ORDER_TOTAL'),
-		'useSort' => true,
+		'useSort'   => true,
 		'sortKey'   => 'ot.value'
 	),
 	array(
 		'text'      => sysLanguage::get('TABLE_HEADING_DATE_PURCHASED'),
-		'useSort' => true,
+		'useSort'   => true,
 		'sortKey'   => 'o.date_purchased',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Between()
-			->useFieldObj(htmlBase::newElement('input')->attr('size', 10)->addClass('makeDatepicker')->setName('search_date_purchased'))
+			->useFieldObj(htmlBase::newElement('input')->attr('size', 10)->addClass('makeDatepicker')
+			->setName('search_date_purchased'))
 			->setDatabaseColumn('o.date_purchased')
 	),
 	array(
-		'text' => sysLanguage::get('TABLE_HEADING_STATUS'),
+		'text'      => sysLanguage::get('TABLE_HEADING_STATUS'),
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Equal()
 			->useFieldObj($StatusDrop)
@@ -252,108 +261,8 @@ switch($action){
 		//$infoBox->addContentRow(tep_draw_checkbox_field('restock') . ' ' . sysLanguage::get('TEXT_INFO_RESTOCK_PRODUCT_QUANTITY'));
 		break;
 }
-
-$htmlSelectFieldsButton = '<a href="#" id="showFields"><img src="' . sysConfig::getDirWsCatalog() . 'images/addbut.png"/></a>';
-
-$htmlSelectFieldsDiv = htmlBase::newElement('div')
-	->css(array(
-	'margin-top' => '.5em'
-))
-	->attr('id', 'csvFieldsTable');
-
-$fieldsArray = array(
-	'v_orders_id',
-	'v_orders_customers_name',
-	'v_orders_customers_company',
-	'v_orders_customers_email_address',
-	'v_orders_customers_telephone',
-	'v_orders_billing_name',
-	'v_orders_billing_address',
-	'v_orders_billing_city',
-	'v_orders_billing_state',
-	'v_orders_billing_country',
-	'v_orders_billing_postcode',
-	'v_orders_shipping_name',
-	'v_orders_shipping_address',
-	'v_orders_shipping_city',
-	'v_orders_shipping_state',
-	'v_orders_shipping_country',
-	'v_orders_shipping_postcode',
-	'v_orders_subtotal',
-	'v_orders_total',
-	'v_orders_tax',
-	'v_orders_payment_method',
-	'v_orders_status',
-	'v_orders_shipping_price',
-	'v_orders_shipping_method',
-	'v_orders_date_purchased',
-	'v_orders_products_name',
-	'v_orders_products_model',
-	'v_orders_products_price',
-	'v_orders_products_tax',
-	'v_orders_products_finalprice',
-	'v_orders_products_qty',
-	'v_orders_products_barcode',
-	'v_orders_products_purchasetype'
-);
-
-EventManager::notify('AdminOrdersListingExportFields', &$fieldsArray);
-
-$i = 1;
-$fieldsTable = htmlBase::newElement('table')
-	->setCellSpacing(0)
-	->setCellPadding(1);
-
-$fieldsTable->addHeaderRow(array(
-	'columns' => array(
-		array(
-			'colspan' => 5,
-			'text'    => 'Uncheck to exclude from export'
-		)
-	)
-));
-foreach($fieldsArray as $field){
-	$br = htmlBase::newElement('br');
-	$fieldName = explode('_', $field);
-	unset($fieldName[0]);
-	$fieldName = ucwords(implode(' ', $fieldName));
-
-	$fieldCheckbox = htmlBase::newElement('checkbox')
-		->setName($field)
-		->setChecked(true)
-		->setLabel($fieldName)
-		->setLabelPosition('after');
-
-	$columns[] = array('text' => $fieldCheckbox->draw());
-	if (sizeof($columns) == 5){
-		$fieldsTable->addBodyRow(array(
-			'columns' => $columns
-		));
-		$columns = array();
-	}
-}
-if (sizeof($columns) > 0){
-	$fieldsTable->addBodyRow(array(
-		'columns' => $columns
-	));
-}
-$htmlSelectFieldsDiv->append($fieldsTable);
-
-$csvButton = htmlBase::newElement('button')
-	->setType('submit')
-	->usePreset('save')
-	->setText('Save CSV');
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
-<form action="<?php echo itw_app_link('action=exportOrders', 'orders', 'default');?>" method="post">
-	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-		<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-	</div>
-	<?php
-	echo $htmlSelectFieldsDiv->draw();
-	echo $htmlSelectFieldsButton;
-	echo $csvButton->draw();
-	EventManager::notify('AdminOrdersAfterTableDraw');
-	?>
-</form>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
+</div>
+<?php EventManager::notify('AdminOrdersAfterTableDraw');?>

@@ -7,7 +7,7 @@ $Qbillings = Doctrine_Query::create()
 	->leftJoin('o.Customers c')
 	->leftJoin('c.CustomersMembership cm')
 	->where('o.customers_id = ?', $cID)
-	//->andWhere('o.is_rental = ?', '1')
+//->andWhere('o.is_rental = ?', '1')
 	->andWhereIn('ot.module_type', array('total', 'ot_total'))
 	->orderBy('o.date_purchased desc')
 	->execute();

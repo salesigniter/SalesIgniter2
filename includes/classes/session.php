@@ -233,6 +233,10 @@ class Session
 		global $ErrorException;
 		unset($ErrorException);
 		try {
+			/**
+			 * @TODO: Remove This Ugly Fix When You Figure Out The 503 Error On Chater Camera's Packages
+			 */
+			print_r($_SESSION, true);
 			serialize($_SESSION);
 		} catch(Exception $e){
 			echo '<pre>' . $e->__toString() . '</pre>';

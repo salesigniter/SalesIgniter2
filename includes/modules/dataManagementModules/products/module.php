@@ -30,17 +30,6 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		$Products = Doctrine_Core::getTable('Products');
 		while($ImportFile->valid()){
 			$CurrentRow =& $ImportFile->currentRow();
-			/*$item = array();
-			while($CurrentRow->valid()){
-				$CurrentColumn =& $CurrentRow->current();
-
-				$item[$CurrentColumn->key()] = $CurrentColumn->getText();
-
-				$CurrentRow->next();
-			}
-			unset($CurrentRow);
-			unset($CurrentColumn);
-*/
 			$ProductModel = $CurrentRow->getColumnValue('v_products_model');
 			if ($ProductModel !== false && $ProductModel !== null){
 				$Product = $Products->findOneByProductsModel($ProductModel);

@@ -13,6 +13,6 @@ else {
 }
 
 EventManager::attachActionResponse(array(
-		'success' => true,
-		'status' => $status
-	), 'json');
+	'success' => true,
+	'status'  => $status
+), 'json');

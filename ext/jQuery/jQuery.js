@@ -13,6 +13,7 @@
  *
  * Date: Mon Nov 21 21:11:03 2011 -0500
  */
+var requestNumber = 0;
 (function( window, undefined ) {
 
 // Use the correct document accordingly with window argument (sandbox)
@@ -8088,6 +8089,7 @@
 						if ( !s.crossDomain && !headers["X-Requested-With"] ) {
 							headers[ "X-Requested-With" ] = "XMLHttpRequest";
 						}
+						headers[ "X-Request-Num" ] = requestNumber++;
 
 						// Need an extra try/catch for cross domain requests in Firefox 3
 						try {

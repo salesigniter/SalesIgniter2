@@ -1,17 +1,22 @@
 <?php
-	$CurrenciesTable = Doctrine_Core::getTable('CurrenciesTable')->find((int)$_GET['cID']);
-	if ($CurrenciesTable){
-		if ($CurrenciesTable->code == sysConfig::get('DEFAULT_CURRENCY')){
+$success = false;
+$toDelete = explode(',', $_GET['currency_id']);
+$CurrenciesTable = Doctrine_Core::getTable('CurrenciesTable');
+foreach($toDelete as $currencyId){
+	$Currency = $CurrenciesTable->find((int)$currencyId);
+	if ($Currency){
+		if ($Currency->code == sysConfig::get('DEFAULT_CURRENCY')){
 			Doctrine_Query::create()
-			->update('Configuration')
-			->set('configuration_value', '?', '')
-			->where('configuration_key = ?', 'DEFAULT_CURRENCY')
-			->execute();
+				->update('Configuration')
+				->set('configuration_value', '?', '')
+				->where('configuration_key = ?', 'DEFAULT_CURRENCY')
+				->execute();
 		}
-		$CurrenciesTable->delete();
+		$Currency->delete();
+		$success = true;
 	}
+}
 
-	EventManager::attachActionResponse(array(
-		'success' => true
-	), 'json');
-?>
+EventManager::attachActionResponse(array(
+	'success' => $success
+), 'json');

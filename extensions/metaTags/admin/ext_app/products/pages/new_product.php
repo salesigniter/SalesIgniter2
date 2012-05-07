@@ -5,15 +5,27 @@ class MetaTagsProductClassImport extends MI_Importable {
 	private $metaInfo = array();
 
 	public function getHeadTitle($langId = false){
-		return $this->metaInfo['head_title'][$this->getLanguageId($langId)];
+		$return = '';
+		if (isset($this->metaInfo['head_title'])){
+			$return = $this->metaInfo['head_title'][$this->getLanguageId($langId)];
+		}
+		return $return;
 	}
 
 	public function getHeadDesc($langId = false){
-		return $this->metaInfo['head_desc'][$this->getLanguageId($langId)];
+		$return = '';
+		if (isset($this->metaInfo['head_desc'])){
+			$return = $this->metaInfo['head_desc'][$this->getLanguageId($langId)];
+		}
+		return $return;
 	}
 
 	public function getHeadKeywords($langId = false){
-		return $this->metaInfo['head_keywords'][$this->getLanguageId($langId)];
+		$return = '';
+		if (isset($this->metaInfo['head_keywords'])){
+			$return = $this->metaInfo['head_keywords'][$this->getLanguageId($langId)];
+		}
+		return $return;
 	}
 
 	public function setHeadTitle($val, $langId = false){

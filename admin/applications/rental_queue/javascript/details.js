@@ -1,6 +1,6 @@
-	$(document).ready(function (){
-	
-		$('.barcodeMenu').each(function (){
-			$(this).trigger('change');
-		});
+$(document).ready(function () {
+
+	$('.barcodeMenu').each(function () {
+		$(this).trigger('change');
 	});
+});

@@ -42,4 +42,25 @@
 	margin-right: 1em;
 	font-size: .5em;
 }
+.pageFooter {
+	font-size: 2em;
+	height: 100px;
+	line-height: 100px;
+	border-top: 1px solid #cccccc;
+	background-image: -ms-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+	background-image: -o-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+	background-image: -moz-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+	background-image: -webkit-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+	background-image: linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+	-webkit-border-radius: 0px 0px 4px 4px;
+	padding: 0 1em;
+	color: #222222;
+	font-weight:normal;
+	text-align:right;
+}
+.pageFooter .ui-button {
+	margin-right: 1em;
+	font-size: .5em;
+}
 header { display:none; }
+.gridButtonBar .ui-button .ui-button-text { display:inline-block; }

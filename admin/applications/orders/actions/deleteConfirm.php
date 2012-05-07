@@ -1,6 +1,7 @@
 <?php
+$toDelete = explode(',', $_GET['order_id']);
 $Orders = Doctrine_Core::getTable('Orders');
-foreach($_POST['orders'] as $oID){
+foreach($toDelete as $oID){
 	$Order = $Orders->find($oID);
 	if (isset($_POST['deleteReservationRestock'][$oID]) && $_POST['deleteReservationRestock'][$oID] == '1'){
 		/*

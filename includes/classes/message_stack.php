@@ -23,45 +23,12 @@ class messageStack implements SplObserver {
 
 	public function __construct() {
 		$this->messages = array();
-		$this->msgTemplate = '<div class="messageStack_%s ui-widget">' .
-			'<div style="padding: 0.7em;" class="ui-state-%s ui-corner-all">' .
-				'<span style="float: left; margin-right: 0.3em;" class="ui-icon %s"></span>' .
-				'%s' .
+		$this->msgTemplate = '<div class="ui-messageStack ui-messageStack-%s">' .
+			'<div class="ui-messageStack-message ui-messageStack-%s ui-corner-all">' .
+				'<span class="ui-messageStack-message-icon ui-icon ui-icon-%s"></span>' .
+				'<span class="ui-messageStack-message-text">%s</span>' .
 			'</div>' .
 		'</div>';
-		
-		$this->phpExceptionTemplate = '<table cellpadding="2" cellspacing="0" border="0">' .
-			'<tr>' .
-				'<td class="main"><b>PHP Error number:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-			'<tr>' .
-				'<td class="main"><b>Server Message:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-			'<tr>' .
-				'<td class="main"><b>File Involved:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-			'<tr>' .
-				'<td class="main"><b>Time Reported:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-			'<tr>' .
-				'<td class="main"><b>On Line:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-			'<tr>' .
-				'<td class="main"><b>PHP Trace:</b></td>' .
-				'<td class="main">%s</td>' .
-			'</tr>' .
-		'</table>';
-
-		$this->typeIcons = array(
-			'success' => 'ui-icon-circle-check',
-			'error'   => 'ui-icon-circle-close',
-			'warning' => 'ui-icon-alert'
-		);
 	}
 	
 	public function update(SplSubject $obj){
@@ -225,8 +192,8 @@ class messageStack implements SplObserver {
 		$urgency = array();
 		if (Session::exists('messageToStack') === true){
 			$msgArr = &Session::getReference('messageToStack');
-			$msgArr = json_decode($msgArr);
 			foreach($msgArr as $index => $msg){
+				$msg = json_decode($msg);
 				if ($msg->group == $group){
 					$this->add($msg->group, $msg->text, $msg->type);
 					unset($msgArr[$index]);
@@ -271,6 +238,20 @@ class messageStack implements SplObserver {
 			}
 		}
 
+		if (isset($urgency['info'])){
+			if ($groupMessages === true){
+				$multiple = array();
+				foreach($urgency['info'] as $msg){
+					$multiple[] = $msg['text'];
+				}
+				$output[] = $this->parseTemplate($group, $this->parseMultipleIntoTable($multiple), 'info');
+			}else{
+				foreach($urgency['info'] as $msg){
+					$output[] = $this->parseTemplate($group, $msg['text'], $msg['type']);
+				}
+			}
+		}
+
 		if (isset($urgency['success'])){
 			if ($groupMessages === true){
 				$multiple = array();
@@ -292,7 +273,7 @@ class messageStack implements SplObserver {
 		return sprintf($this->msgTemplate,
 			$group,
 			$type,
-			$this->typeIcons[$type],
+			$type,
 			stripslashes($message)
 		);
 	}
@@ -302,7 +283,8 @@ class messageStack implements SplObserver {
 		if (Session::exists('messageToStack') === true){
 			$msgArr = Session::get('messageToStack');
 			foreach($msgArr as $index => $msg){
-				if ($msg['group'] == $group){
+				$msg = json_decode($msg);
+				if ($msg->group == $group){
 					$count++;
 				}
 			}

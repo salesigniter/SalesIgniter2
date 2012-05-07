@@ -6,7 +6,7 @@ if ($_GET['force'] == 1){
 		->execute();
 }
 
-$Language = Doctrine_Core::getTable('Languages')->find((int) $_GET['lID']);
+$Language = Doctrine_Core::getTable('Languages')->find((int)$_GET['lID']);
 $Language->forced_default = $_GET['force'];
 $Language->save();
 

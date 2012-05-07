@@ -119,6 +119,9 @@ class SystemFTP
 	}
 
 	public function cleanPath($filePath) {
+		if (substr($filePath, -1) != DIRECTORY_SEPARATOR){
+			$filePath .= DIRECTORY_SEPARATOR;
+		}
 		return str_replace(sysConfig::getDirFsCatalog(), '', $filePath);
 	}
 

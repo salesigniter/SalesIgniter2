@@ -18,6 +18,8 @@ $tableGrid = htmlBase::newElement('newGrid')
 	->useSearching(true)
 	->useSorting(true)
 	->usePagination(true)
+	->allowMultipleRowSelect(true)
+	->setMainDataKey('product_id')
 	->setQuery($Qproducts);
 
 $gridButtons = array(
@@ -25,7 +27,8 @@ $gridButtons = array(
 	htmlBase::newElement('button')->usePreset('edit')->addClass('editButton')->disable(),
 	htmlBase::newElement('button')->usePreset('copy')->addClass('copyButton')->disable(),
 	htmlBase::newElement('button')->usePreset('delete')->addClass('deleteButton')->disable(),
-	htmlBase::newElement('button')->usePreset('edit')->setText('Manage Inventory')->setTooltip('Manage Inventory')->addClass('invButton')->disable()
+	htmlBase::newElement('button')->usePreset('edit')->setText('Manage Inventory')->setTooltip('Manage Inventory')
+		->addClass('invButton')->disable()
 );
 
 $tableGrid->addButtons($gridButtons);
@@ -92,18 +95,18 @@ $tableGrid->addBeforeButtonBar($searchForm->draw());
 $header2 = array(
 	array('text' => 'Set'),
 	array(
-		'text' => sysLanguage::get('TABLE_HEADING_ID'),
-		'useSort' => true,
-		'sortKey' => 'p.products_id',
+		'text'      => sysLanguage::get('TABLE_HEADING_ID'),
+		'useSort'   => true,
+		'sortKey'   => 'p.products_id',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Equal()
 			->useFieldObj(htmlBase::newElement('input')->attr('size', 4)->setName('search_product_id'))
 			->setDatabaseColumn('p.products_id')
 	),
 	array(
-		'text' => 'Categories',
-		'useSort' => true,
-		'sortKey' => 'p2c.categories_id',
+		'text'      => 'Categories',
+		'useSort'   => true,
+		'sortKey'   => 'p2c.categories_id',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Like()
 			->useFieldObj(htmlBase::newElement('input')->setName('search_category_name'))
@@ -111,18 +114,18 @@ $header2 = array(
 	),
 	array('text' => 'Type'),
 	array(
-		'text' => 'Name',
-		'useSort' => true,
-		'sortKey' => 'pd.products_name',
+		'text'      => 'Name',
+		'useSort'   => true,
+		'sortKey'   => 'pd.products_name',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Like()
 			->useFieldObj(htmlBase::newElement('input')->setName('search_products_name'))
 			->setDatabaseColumn('pd.products_name')
 	),
 	array(
-		'text' => 'Model',
-		'useSort' => true,
-		'sortKey' => 'p.products_model',
+		'text'      => 'Model',
+		'useSort'   => true,
+		'sortKey'   => 'p.products_model',
 		'useSearch' => true,
 		'searchObj' => GridSearchObj::Like()
 			->useFieldObj(htmlBase::newElement('input')->setName('search_products_model'))
@@ -139,7 +142,7 @@ foreach(PurchaseTypeModules::getModules() as $PurchaseType){
 }
 $header2[] = array(
 	'colspan' => 3,
-	'text'	=> '&nbsp;'
+	'text'    => '&nbsp;'
 );
 
 $header1 = array();
@@ -162,7 +165,7 @@ $tableGrid->addHeaderRow(array('columns' => $header2));
 
 $Products = &$tableGrid->getResults();
 if ($Products){
-	$allGetParams = tep_get_all_get_params(array('action', 'pID', 'flag', 'fflag'));
+	$allGetParams = tep_get_all_get_params(array('action', 'product_id', 'flag', 'fflag'));
 	foreach($Products as $pInfo){
 		$ProductClass = new Product((int)$pInfo['products_id']);
 
@@ -181,21 +184,21 @@ if ($Products){
 		$statusIcon = htmlBase::newElement('icon');
 		if ($ProductClass->isActive() === true){
 			$statusIcon->setType('circleCheck')->setTooltip('Click to disable')
-				->setHref(itw_app_link($allGetParams . 'action=setflag&flag=0&pID=' . $productId));
+				->setHref(itw_app_link($allGetParams . 'action=setflag&flag=0&product_id=' . $productId));
 		}
 		else {
 			$statusIcon->setType('circleClose')->setTooltip('Click to enable')
-				->setHref(itw_app_link($allGetParams . 'action=setflag&flag=1&pID=' . $productId));
+				->setHref(itw_app_link($allGetParams . 'action=setflag&flag=1&product_id=' . $productId));
 		}
 
 		$featuredIcon = htmlBase::newElement('icon');
 		if ($ProductClass->isFeatured() === true){
 			$featuredIcon->setType('circleCheck')->setTooltip('Click to disable')
-				->setHref(itw_app_link($allGetParams . 'action=setfflag&fflag=0&pID=' . $productId));
+				->setHref(itw_app_link($allGetParams . 'action=setfflag&fflag=0&product_id=' . $productId));
 		}
 		else {
 			$featuredIcon->setType('circleClose')->setTooltip('Click to enable')
-				->setHref(itw_app_link($allGetParams . 'action=setfflag&fflag=1&pID=' . $productId));
+				->setHref(itw_app_link($allGetParams . 'action=setfflag&fflag=1&product_id=' . $productId));
 		}
 
 		$nameAlignCenter = false;
@@ -306,7 +309,7 @@ if ($Products){
 			'columns' => array(
 				array(
 					'colspan' => sizeof($tableGridBody),
-					'text'	=> '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
+					'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
 						'<tr>' .
 						'<td valign="top" width="' . ((int)sysConfig::get('SMALL_IMAGE_WIDTH') + 10) . '">' . $imageHtml->draw() . '<br />' . $productImage . '</td>' .
 						'<td valign="top"><table cellpadding="2" cellspacing="0" border="0">' .
@@ -487,8 +490,6 @@ function addGridRow($productClass, &$tableGrid, &$infoBoxes) {
 	}
 	end of update*/
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
 <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
 	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>

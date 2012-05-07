@@ -164,8 +164,6 @@ switch($action){
 		break;
 }
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
 <div>
 	<div style="margin-right:5px;margin-left:5px;">
 		<div style="margin:5px;">

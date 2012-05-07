@@ -1,34 +1,33 @@
 <?php
 $action = (isset($_GET['action']) ? $_GET['action'] : '');
 
-if (tep_not_null($action)) {
+if (tep_not_null($action)){
 	$manager->setAttribute(Doctrine_Core::ATTR_MODEL_LOADING, Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
 	Doctrine::loadModels(sysConfig::get('DIR_FS_CATALOG') . 'ext/Doctrine/Models');
 
-	switch ($action) {
+	switch($action){
 		case 'clear':
 			Doctrine_Core::getTable('Orders')->findAll()->delete();
 			Doctrine_Core::getTable('OrdersProducts')->findAll()->delete();
 			Doctrine_Core::getTable('OrdersStatusHistory')->findAll()->delete();
 			Doctrine_Core::getTable('OrdersPaymentsHistory')->findAll()->delete();
-			Doctrine_Core::getTable('OrdersProductsReservation')->findAll()->delete();//this should be into extension.
+			Doctrine_Core::getTable('OrdersProductsReservation')->findAll()->delete(); //this should be into extension.
 			Doctrine_Core::getTable('Products')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsInventoryBarcodes')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsInventoryQuantity')->findAll()->delete();
 			Doctrine_Core::getTable('Customers')->findAll()->delete();
 			Doctrine_Core::getTable('Categories')->findAll()->delete();
 			//Doctrine_Core::getTable('RentalBookings')->findAll()->delete();
-			
+
 			Doctrine_Core::getTable('ProductsCustomFields')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsCustomFieldsGroups')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsCustomFieldsOptions')->findAll()->delete();
-			
+
 			Doctrine_Core::getTable('ProductsAttributes')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsOptions')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsOptionsGroups')->findAll()->delete();
 			Doctrine_Core::getTable('ProductsOptionsValues')->findAll()->delete();
-			
-			
+
 			//Doctrine_Core::getTable('Banners')->findAll()->delete();
 			//Doctrine_Core::getTable('BannersHistory')->findAll()->delete();
 			Doctrine_Core::getTable('Specials')->findAll()->delete();
@@ -58,7 +57,7 @@ if (tep_not_null($action)) {
 			//Doctrine_Core::getTable('AffiliatePaymentStatus')->findAll()->delete();
 			//Doctrine_Core::getTable('AffiliatePaymentStatusHistory')->findAll()->delete();
 			//Doctrine_Core::getTable('AffiliateSales')->findAll()->delete();
-			
+
 			tep_redirect(tep_href_link('clearDB.php', 'success=true'));
 			break;
 	}

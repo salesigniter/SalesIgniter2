@@ -56,6 +56,7 @@ td span { vertical-align: middle; }
 .ui-icon { width:24px;height:24px;display: inline-block; }
 .ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
 
+.ui-icon-warning { background-position: -2px -2px }
 .ui-icon-calendar { background-position: -114px -2px; }
 .ui-icon-favorites-add { background-position: -142px -2px; }
 .ui-icon-print { background-position: -170px -2px; }
@@ -66,6 +67,7 @@ td span { vertical-align: middle; }
 .ui-icon-circle-triangle-e { background-position: -2px -30px; }
 .ui-icon-window-close, .ui-dialog-titlebar-close .ui-icon-closethick { background-position: -114px -30px; }
 .ui-icon-home { background-position: -142px -30px; }
+.ui-icon-help { background-position: -170px -30px; }
 .ui-icon-back, .ui-icon-circle-triangle-w { background-position: -198px -30px; }
 .ui-icon-arrowthick-1-n { background-position: -226px -30px; }
 .ui-icon-seek-end { background-position: -254px -30px; }
@@ -84,7 +86,7 @@ td span { vertical-align: middle; }
 .ui-icon-sort-desc { background-position: -142px -86px; }
 .ui-icon-css-document, .editElement { background-position: -170px -86px; }
 .ui-icon-comment { background-position: -198px -86px; }
-.ui-icon-check, .ui-icon-circle-check { background-position: -226px -86px; }
+.ui-icon-check, .ui-icon-circle-check, .ui-icon-success { background-position: -226px -86px; }
 .ui-icon-logoff { background-position: -254px -86px; }
 
 .ui-icon-disk { background-position: -2px -114px; }
@@ -93,17 +95,17 @@ td span { vertical-align: middle; }
 .ui-icon-cancel { background-position: -114px -114px; }
 .ui-icon-wrench { background-position: -142px -114px; }
 .ui-icon-closethick { background-position: -170px -114px; }
-.ui-icon-circle-close { background-position: -198px -114px; }
+.ui-icon-circle-close, .ui-icon-error { background-position: -198px -114px; }
 .ui-icon-triangle-1-e { background-position: -226px -114px; }
 
 .ui-icon-document { background-position: -2px -142px; }
-.ui-icon-arrowreturnthick-1-s { background-position: -30px -142px;}
+.ui-icon-export, .ui-icon-arrowreturnthick-1-s { background-position: -30px -142px;}
 .ui-icon-link { background-position: -58px -142px; }
 .ui-icon-arrowreturnthick-1-w { background-position: -86px -142px; }
 .ui-icon-wrap, .wrapElement { background-position: -86px -142px; }
 .ui-icon-unwrap, .removeWrapper { background-position: -114px -142px; }
 .ui-icon-transferthick-e-w { background-position: -142px -142px; }
-.ui-icon-alert { background-position: -170px -142px; }
+.ui-icon-alert, .ui-icon-notice { background-position: -170px -142px; }
 .ui-icon-myaccount { background-position: -198px -142px; }
 .ui-dialog .ui-resizable-se { width:24px;height:24px;background-position: -226px -142px; }
 .ui-icon-locked { background-position: -254px -142px; }
@@ -112,6 +114,11 @@ td span { vertical-align: middle; }
 .ui-icon-arrow-apply-all { background-position: -254px -170px; }
 
 .ui-icon-required { background-position: -2px -198px; }
+.ui-icon-link { background-position: -30px -198px; }
+.ui-icon-link-break { background-position: -58px -198px; }
+.ui-icon-email-compose { background-position: -86px -198px; }
+.ui-icon-user-group { background-position: -114px -198px; }
+
 .iconBlock .ui-icon { margin: 0 .4em; }
 
 .tableRowOdd { background-color: #F0F0F0; }
@@ -436,3 +443,16 @@ input.error, select.error, textarea.error { background: red; }
 .ui-datepicker .ui-datepicker-title {
 	line-height: 2em;
 }
+
+.ui-messageStack { margin:.5em; }
+.ui-messageStack .ui-messageStack-message { padding:1em;border: 1px solid transparent; }
+.ui-messageStack .ui-messageStack-message-icon { vertical-align:middle; }
+.ui-messageStack .ui-messageStack-message-text { vertical-align:middle;margin-left:1em; }
+.ui-messageStack .ui-messageStack-default { border-color:#dddddd;background:#eeeeee;color:#444444; }
+.ui-messageStack .ui-messageStack-error { border-color:#eed3d7;background:#f2dede;color:#b94a48; }
+.ui-messageStack .ui-messageStack-warning { border-color:#fbeed5;background:#fcf8e3;color:#c09853; }
+.ui-messageStack .ui-messageStack-info { border-color:#bce8f1;background:#d9edf7;color:#3a87ad; }
+.ui-messageStack .ui-messageStack-success { border-color:#d6e9c6;background:#dff0d8;color:#468847; }
+.ui-messageStack .ui-messageStack-notice { border-color:#dddddd;background:#eeeeee;color:#444444; }
+
+#appTips { display:none; }

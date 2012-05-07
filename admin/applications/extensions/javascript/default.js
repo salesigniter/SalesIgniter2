@@ -1,66 +1,58 @@
-function getLinkParams(addVars, isAjax) {
-	var getVars = [];
-	getVars.push('app=extensions');
-	getVars.push('appPage=default');
-	getVars.push('extension=' + $('.gridBodyRow.state-active').attr('data-extension_key'));
-
-	if (addVars){
-		for(var i = 0; i < addVars.length; i++){
-			getVars.push(addVars[i]);
-		}
-	}
-	return getVars.join('&');
-}
-
 $(document).ready(function () {
-	$('.gridBody > .gridBodyRow').click(function () {
-		if ($(this).hasClass('state-active')){
-			return;
-		}
-
-		$('.gridButtonBar').find('button').button('enable');
+	var $PageGrid = $('.gridContainer');
+	$PageGrid.newGrid('option', 'onRowClick', function (e, GridClass) {
 		if ($(this).attr('data-installed') == 'false'){
-			$('.gridButtonBar').find('.uninstallButton').button('disable');
-			$('.gridButtonBar').find('.editButton').button('disable');
+			GridClass.disableButton('.uninstallButton');
+			GridClass.disableButton('.editButton');
 		}
 		else {
-			$('.gridButtonBar').find('.installButton').button('disable');
+			GridClass.disableButton('.installButton');
 		}
 	});
-
-	$('.editButton').click(function () {
-		configurationGridWindow({
-			buttonEl: this,
-			gridEl: $('.gridContainer'),
-			contentUrl: js_app_link(getLinkParams(['rType=ajax', 'action=getActionWindow', 'window=configure'])),
-			saveUrl: js_app_link(getLinkParams(['rType=ajax', 'action=save'])),
-			onSaveSuccess: function (){
-				js_redirect(js_app_link('app=extensions&appPage=default'));
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.installButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('default', ['action=install', GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
 			}
-		});
-	});
-
-	$('.installButton').click(function () {
-		var getVars = getLinkParams(['action=install']);
-		js_redirect(js_app_link(getVars));
-	});
-
-	$('.uninstallButton').click(function () {
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=remove'
-		]);
-
-		confirmDialog({
-			confirmUrl: js_app_link(getVars),
-			title: 'Confirm Extension Uninstall',
-			content: 'Are you sure you want to uninstall this extension?',
-			errorMessage: 'This extension could not be uninstalled.',
-			success: function () {
-				js_redirect(js_app_link('app=' + thisApp + '&appPage=' + thisAppPage));
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				GridClass.showConfigurationWindow({
+					buttonEl      : this,
+					contentUrl    : GridClass.buildActionWindowLink('configure', true),
+					saveUrl       : GridClass.buildActionLink('save', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]),
+					onSaveSuccess : function () {
+						js_redirect(GridClass.buildCurrentAppRedirect('default'));
+					}
+				});
 			}
-		});
-	});
+		},
+		{
+			selector          : '.uninstallButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				var message = 'Are you sure you want to uninstall this extension?';
+				if (GridClass.getSelectedRows().size() > 1){
+					message = 'Are you sure you want to uninstall these extensions?';
+				}
+
+				GridClass.showConfirmDialog({
+					title     : 'Confirm Extension Uninstall',
+					content   : message,
+					onConfirm : function (e, GridClass) {
+						js_redirect(GridClass.buildActionLink('uninstall', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+					}
+				});
+			}
+		}
+	]);
 
 	/*
 	 * Global function for javascript tables in the windows

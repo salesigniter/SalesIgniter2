@@ -3,8 +3,8 @@
 	<define key="HEADER_TITLE_LOGOFF"><![CDATA[Logoff]]></define>
 	<define key="BOX_HEADING_MY_ACCOUNT"><![CDATA[My Account]]></define>
 	<define key="BOX_HEADING_ADMINISTRATOR"><![CDATA[Administrator]]></define>
-	<define key="BOX_ADMINISTRATOR_MEMBERS"><![CDATA[Member Groups]]></define>
-	<define key="BOX_ADMINISTRATOR_MEMBER"><![CDATA[Members]]></define>
+	<define key="BOX_ADMINISTRATOR_MEMBERS"><![CDATA[Admin Members]]></define>
+	<define key="BOX_ADMINISTRATOR_GROUPS"><![CDATA[Admin Groups]]></define>
 	<define key="BOX_ADMINISTRATOR_BOXES"><![CDATA[File Access]]></define>
 	<define key="IMAGE_FILE_PERMISSION"><![CDATA[File Permission]]></define>
 	<define key="IMAGE_GROUPS"><![CDATA[Groups List]]></define>
@@ -335,6 +335,7 @@
 	<define key="TEXT_BUTTON_DELETE"><![CDATA[Delete]]></define>
 	<define key="TEXT_BUTTON_EDIT"><![CDATA[Edit]]></define>
 	<define key="TEXT_BUTTON_EMAIL"><![CDATA[Email]]></define>
+	<define key="TEXT_BUTTON_EXPORT"><![CDATA[Export]]></define>
 	<define key="TEXT_BUTTON_GO"><![CDATA[ GO ]]></define>
 	<define key="TEXT_BUTTON_HELP"><![CDATA[Help]]></define>
 	<define key="TEXT_BUTTON_INSERT"><![CDATA[Insert]]></define>

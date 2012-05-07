@@ -48,10 +48,13 @@ $dbTable->addBodyRow(array(
 		array('text' => 'system_character_set'),
 		array('text' => 'SalesIgniter Character Set'),
 		array('text' => sysConfig::get('SYSTEM_CHARACTER_SET')),
-		array('align' => 'center', 'text' => $CharsetSelect
-			->attr('data-variable', 'system_character_set')
-			->selectOptionByValue(sysConfig::get('SYSTEM_CHARACTER_SET'))
-			->draw())
+		array(
+			'align' => 'center',
+			'text'  => $CharsetSelect
+				->attr('data-variable', 'system_character_set')
+				->selectOptionByValue(sysConfig::get('SYSTEM_CHARACTER_SET'))
+				->draw()
+		)
 	)
 ));
 
@@ -60,10 +63,13 @@ $dbTable->addBodyRow(array(
 		array('text' => 'system_character_set_collation'),
 		array('text' => 'SalesIgniter Character Set Collation'),
 		array('text' => sysConfig::get('SYSTEM_CHARACTER_SET_COLLATION')),
-		array('align' => 'center', 'text' => $CollationSelect
-			->attr('data-variable', 'system_character_set_collation')
-			->selectOptionByValue(sysConfig::get('SYSTEM_CHARACTER_SET_COLLATION'))
-			->draw())
+		array(
+			'align' => 'center',
+			'text'  => $CollationSelect
+				->attr('data-variable', 'system_character_set_collation')
+				->selectOptionByValue(sysConfig::get('SYSTEM_CHARACTER_SET_COLLATION'))
+				->draw()
+		)
 	)
 ));
 
@@ -82,7 +88,7 @@ foreach($Variables as $dbVariable){
 
 	${$dbVariable['Variable_name']} = $dbVariable['Value'];
 
-	switch ($dbVariable['Variable_name']){
+	switch($dbVariable['Variable_name']){
 		case 'character_set_client':
 			$text = 'MySQL Client Character Set';
 			break;
@@ -130,7 +136,10 @@ foreach($Variables as $dbVariable){
 				array('text' => $dbVariable['Variable_name']),
 				array('text' => $text),
 				array('text' => $dbVariable['Value']),
-				array('align' => 'center', 'text' => $selectMenu)
+				array(
+					'align' => 'center',
+					'text'  => $selectMenu
+				)
 			)
 		));
 	}
@@ -177,9 +186,19 @@ foreach($Models as $mInfo){
 			array('text' => $mInfo),
 			array('text' => $ModelCheck['table_name']),
 			array('text' => $ModelCheck['info']),
-			array('align' => 'center', 'text' => '<span class="charsetStatusIcon ui-icon ui-icon-circle-' . ($ModelCheck['isCharset'] === false ? 'close' : 'check') . '"></span>'),
-			array('align' => 'center', 'text' => '<span class="statusIcon ui-icon ui-icon-circle-' . ($ModelCheck['isOk'] === false ? 'close' : 'check') . '"></span>'),
-			array('align' => 'center', 'text' => ($ModelCheck['isOk'] === false ? htmlBase::newElement('button')->addClass('allResButton')->setText('Fix All Problems')->draw() : ''))
+			array(
+				'align' => 'center',
+				'text'  => '<span class="charsetStatusIcon ui-icon ui-icon-circle-' . ($ModelCheck['isCharset'] === false ? 'close' : 'check') . '"></span>'
+			),
+			array(
+				'align' => 'center',
+				'text'  => '<span class="statusIcon ui-icon ui-icon-circle-' . ($ModelCheck['isOk'] === false ? 'close' : 'check') . '"></span>'
+			),
+			array(
+				'align' => 'center',
+				'text'  => ($ModelCheck['isOk'] === false ? htmlBase::newElement('button')->addClass('allResButton')
+					->setText('Fix All Problems')->draw() : '')
+			)
 		)
 	));
 }
@@ -190,21 +209,26 @@ foreach($tablesInDb as $tableName){
 			array('text' => 'No Model'),
 			array('text' => $tableName),
 			array('text' => 'Table exists but has no doctrine model to access it<br>It\'s possible the model is loaded only on demand<br>Please make sure before deleting the table'),
-			array('align' => 'center', 'text' => 'N/A'),
-			array('align' => 'center', 'text' => 'N/A'),
-			array('align' => 'center', 'text' => htmlBase::newElement('button')->addClass('delTableButton')->setText('Delete Table')->draw())
+			array(
+				'align' => 'center',
+				'text'  => 'N/A'
+			),
+			array(
+				'align' => 'center',
+				'text'  => 'N/A'
+			),
+			array(
+				'align' => 'center',
+				'text'  => htmlBase::newElement('button')->addClass('delTableButton')->setText('Delete Table')->draw()
+			)
 		)
 	));
 }
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
-<div>
-	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-		<div style="margin:5px;"><?php
-			echo $dbTable->draw();
-			echo '<br>';
-			echo $tableGrid->draw();
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php
+		echo $dbTable->draw();
+		echo '<br>';
+		echo $tableGrid->draw();
 		?></div>
-	</div>
 </div>

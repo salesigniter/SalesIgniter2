@@ -2,8 +2,7 @@
 	var templateName = '<?php echo $templateName;?>';
 	var layoutId = '<?php echo (int)$Layout->layout_id;?>';
 </script>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_LAYOUT_EDITOR');
+<div><?php
 	echo htmlBase::newElement('button')->usePreset('back')->setText('Back To Layout Listing')
 		->setHref(itw_app_link('appExt=templateManager&tID=' . $Layout->Template->template_id, 'layout_manager', 'layouts'))
 		->draw();

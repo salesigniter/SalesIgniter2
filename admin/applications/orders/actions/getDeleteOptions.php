@@ -1,5 +1,5 @@
 <?php
-$orders = explode(',', $_GET['oID']);
+$orders = explode(',', $_GET['order_id']);
 $htmlForm = htmlBase::newElement('div')
 	->attr('id', 'deleteForm');
 foreach($orders as $orderId){
@@ -65,6 +65,6 @@ foreach($orders as $orderId){
 
 EventManager::attachActionResponse(array(
 	'success' => true,
-	'html'	=> $htmlForm->draw()
+	'html'    => $htmlForm->draw()
 ), 'json');
 ?>

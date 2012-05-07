@@ -1,5 +1,5 @@
 <?php
-function makeLandingMenu($item){
+function makeLandingMenu($item) {
 	$return = '<ul>';
 	foreach($item['children'] as $cInfo){
 		$return .= '<li>';
@@ -17,6 +17,7 @@ function makeLandingMenu($item){
 	$return .= '</ul>';
 	return $return;
 }
+
 function makeLandingDashboard($item) {
 	if (!empty($item['children'])){
 		$return = '<div class="ui-widget ui-widget-content ui-corner-all landingMenuBlock">' .
@@ -24,8 +25,9 @@ function makeLandingDashboard($item) {
 			'<div class="landingMenuBlockMenu">' .
 			makeLandingMenu($item) .
 			'</div>' .
-		'</div>';
-	}else{
+			'</div>';
+	}
+	else {
 		$return = '<div class="ui-widget ui-widget-content ui-corner-all landingMenuBlock">' .
 			'<div class="landingMenuBlockDirectLink">' .
 			'<a href="' . $item['link'] . '">' . $item['text'] . '</a>' .
@@ -34,6 +36,7 @@ function makeLandingDashboard($item) {
 	}
 	return $return;
 }
+
 echo '<span class="ui-icon ui-icon-window-close removeLanding" style="position:absolute;right:.5em;top:.5em;"></span>';
 require(sysConfig::getDirFsAdmin() . 'includes/boxes/' . $_GET['box'] . '.php');
 foreach($contents['children'] as $cInfo){

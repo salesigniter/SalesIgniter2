@@ -1,3 +1,3 @@
 <?php
-	require(sysConfig::getDirFsAdmin() . 'applications/coupons/actionsWindows/' . $_GET['window'] . '.php');
+require(sysConfig::getDirFsAdmin() . 'applications/coupons/actionsWindows/' . $_GET['window'] . '.php');
 ?>

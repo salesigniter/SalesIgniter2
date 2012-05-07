@@ -39,8 +39,8 @@ $gridHeaderColumns = array(
 $gridHeaderColumns[] = array('text' => 'info');
 
 $tableGrid->addHeaderRow(array(
-		'columns' => $gridHeaderColumns
-	));
+	'columns' => $gridHeaderColumns
+));
 
 $orders = &$tableGrid->getResults();
 $noOrders = false;
@@ -59,41 +59,53 @@ if ($orders){
 			//array('text' => $htmlCheckbox->draw(), 'align' => 'center'),
 			array('text' => $orderId),
 			//array('text' => $order['OrdersAddresses']['customer']['entry_name']),
-			array('text' => $order['date_purchased']->format(sysLanguage::getDateFormat('short')), 'align' => 'center'),
-			array('text' => $order['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'], 'align' => 'center'),
-			array('text' => strip_tags($order['order_total']), 'align' => 'right')
+			array(
+				'text'  => $order['date_purchased']->format(sysLanguage::getDateFormat('short')),
+				'align' => 'center'
+			),
+			array(
+				'text'  => $order['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'],
+				'align' => 'center'
+			),
+			array(
+				'text'  => strip_tags($order['order_total']),
+				'align' => 'right'
+			)
 		);
 
-		$gridBodyColumns[] = array('text' => $arrowIcon->draw(), 'align' => 'right');
+		$gridBodyColumns[] = array(
+			'text'  => $arrowIcon->draw(),
+			'align' => 'right'
+		);
 
 		$tableGrid->addBodyRow(array(
-				'rowAttr' => array(
-					'data-order_id' => $orderId
-				),
-				'columns' => $gridBodyColumns
-			));
+			'rowAttr' => array(
+				'data-order_id' => $orderId
+			),
+			'columns' => $gridBodyColumns
+		));
 
 		$tableGrid->addBodyRow(array(
-				'addCls' => 'gridInfoRow',
-				'columns' => array(
-					array(
-						'colspan' => sizeof($gridBodyColumns),
-						'text' => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
-							'<tr>' .
-							'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_CREATED') . '</b></td>' .
-							'<td> ' . $order['date_purchased']->format(sysLanguage::getDateFormat('short')) . '</td>' .
-							'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_LAST_MODIFIED') . '</b></td>' .
-							'<td>' . $order['last_modified']->format(sysLanguage::getDateFormat('short')) . '</td>' .
-							'<td></td>' .
-							'</tr>' .
-							'<tr>' .
-							'<td><b>' . sysLanguage::get('TEXT_INFO_PAYMENT_METHOD') . '</b></td>' .
-							'<td>'  . $order['payment_module'] . '</td>' .
-							'</tr>' .
-							'</table>'
-					)
+			'addCls'  => 'gridInfoRow',
+			'columns' => array(
+				array(
+					'colspan' => sizeof($gridBodyColumns),
+					'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
+						'<tr>' .
+						'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_CREATED') . '</b></td>' .
+						'<td> ' . $order['date_purchased']->format(sysLanguage::getDateFormat('short')) . '</td>' .
+						'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_LAST_MODIFIED') . '</b></td>' .
+						'<td>' . $order['last_modified']->format(sysLanguage::getDateFormat('short')) . '</td>' .
+						'<td></td>' .
+						'</tr>' .
+						'<tr>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_PAYMENT_METHOD') . '</b></td>' .
+						'<td>' . $order['payment_module'] . '</td>' .
+						'</tr>' .
+						'</table>'
 				)
-			));
+			)
+		));
 	}
 }
 echo $tableGrid->draw();

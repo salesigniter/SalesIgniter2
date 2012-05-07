@@ -20,7 +20,8 @@ $moduleCode = $_GET['module'];
 
 if (file_exists(sysConfig::getDirFsCatalog() . 'includes/modules/' . $moduleDir . '/' . $moduleCode . '/actionsWindows/' . $_GET['window'] . '.php')){
 	require(sysConfig::getDirFsCatalog() . 'includes/modules/' . $moduleDir . '/' . $moduleCode . '/actionsWindows/' . $_GET['window'] . '.php');
-}else{
+}
+else {
 	require(sysConfig::getDirFsAdmin() . 'applications/modules/actionsWindows/' . $_GET['window'] . '.php');
 }
 ?>

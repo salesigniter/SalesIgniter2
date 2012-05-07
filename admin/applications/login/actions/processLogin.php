@@ -25,10 +25,12 @@ else {
 					->getCurrentConnection()
 					->exec('update admin set admin_id = 0 where admin_firstname = "Master Account" and admin_lastname = "Do Not Delete"');
 			}
-		}else{
+		}
+		else {
 			$error = true;
 		}
-	}else{
+	}
+	else {
 		$Qadmin = Doctrine_Core::getTable('Admin')
 			->findOneByAdminEmailAddress($_POST['email_address']);
 		if ($Qadmin && $Qadmin->count() > 0){
@@ -38,10 +40,12 @@ else {
 				$adminFirstName = $Qadmin->admin_firstname;
 				$customerLoginAllowed = ($Qadmin->AdminGroups->customer_login_allowed == 1);
 				$updateLoginStats = true;
-			}else{
+			}
+			else {
 				$error = true;
 			}
-		}else{
+		}
+		else {
 			$error = true;
 		}
 	}

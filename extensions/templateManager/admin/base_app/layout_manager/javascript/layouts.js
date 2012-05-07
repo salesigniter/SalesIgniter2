@@ -134,6 +134,11 @@ $(document).ready(function () {
 					});
 				});
 
+				$('select[name=pageType]').change(function (){
+					$('tr[data-for_page_type]').hide();
+					$('tr[data-for_page_type="' + $(this).val() + '"]').show();
+				}).change();
+
 				if ($(this).hasClass('configureButton')){
 					if (typeof configureWindowOnLoad != 'undefined'){
 						configureWindowOnLoad.apply(self);

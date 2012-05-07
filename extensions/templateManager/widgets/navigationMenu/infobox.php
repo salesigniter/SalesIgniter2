@@ -71,10 +71,12 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 	}
 
 	private function parseMenuItem($item, $isRoot = false, $isLast = false) {
-		global $App;
+		global $appExtension;
 		if (isset($item->link->condition) && $this->checkCondition($item->link->condition) === false){
 			return '';
 		}
+
+		$TemplateManager = $appExtension->getExtension('templateManager');
 
 		$Data = $item->link;
 		$icon = '';
@@ -88,28 +90,10 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 		$menuText = '<span class="menu_text">' . $Data->text->{Session::get('languages_id')} . '</span>';
 
 		$itemLink = htmlBase::newElement('a')
-			->addClass('ui-corner-all');
+			->addClass('ui-corner-all')
+			->setHref($TemplateManager->parseItemLink($Data))
+			->html($icon . $menuText);
 		if ($Data !== false){
-			if ($Data->type == 'app'){
-				$getParams = null;
-				if (stristr($Data->app->name, '/')){
-					$extInfo = explode('/', $Data->app->name);
-					$application = $extInfo[1];
-					$getParams = 'appExt=' . $extInfo[0];
-				}
-				else {
-					$application = $Data->app->name;
-				}
-
-				$itemLink->setHref(itw_app_link($getParams, $application, $Data->app->page));
-			}
-			elseif ($Data->type == 'category'){
-				$itemLink->setHref(itw_app_link('cPath=' . str_replace('_none', '', implode('_', $Data->category->id)), $Data->app->name, $Data->app->page));
-			}
-			elseif ($Data->type == 'custom') {
-				$itemLink->setHref($Data->url);
-			}
-
 			if ($Data->type != 'none'){
 				if ($Data->target == 'new'){
 					$itemLink->attr('target', '_blank');
@@ -119,7 +103,6 @@ class InfoBoxNavigationMenu extends InfoBoxAbstract
 				}
 			}
 		}
-		$itemLink->html($icon . $menuText);
 
 		$addCls = 'ui-state-default';
 		if ($isRoot === true){

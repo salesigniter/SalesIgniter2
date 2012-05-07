@@ -226,7 +226,8 @@ $appExtension->loadExtensions();
 
 $App->loadApplication((isset($_GET['app']) ? $_GET['app'] : ''), (isset($_GET['appPage']) ? $_GET['appPage'] : ''));
 if ($App->isValid() === false){
-	die('No valid application found.');
+	echo 'No valid application found.';
+	itwExit();
 }
 $appExtension->initApplicationPlugins();
 

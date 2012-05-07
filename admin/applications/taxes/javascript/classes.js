@@ -1,79 +1,52 @@
-$(document).ready(function (){
-	$('.gridBody > .gridBodyRow').click(function (){
-		if ($(this).hasClass('state-active')) return;
+$(document).ready(function () {
+	var $PageGrid = $('.gridContainer');
 
-		$('.gridButtonBar').find('button').button('enable');
-	});
-
-	$('.newButton, .editButton').click(function (){
+	var newEditButtonClick = function (e, GridClass) {
 		if ($(this).hasClass('newButton')){
-			$('.gridBodyRow.state-active').removeClass('state-active');
+			GridClass.clearSelected();
 		}
-		
-		var getVars = [];
-		getVars.push('app=taxes');
-		getVars.push('appPage=classes');
-		getVars.push('action=getActionWindow');
-		getVars.push('window=newTaxClass');
-		if ($(this).hasClass('editButton') && $('.gridBodyRow.state-active').size() > 0){
-			getVars.push('cID=' + $('.gridBodyRow.state-active').attr('data-class_id'));
+
+		GridClass.showWindow({
+			buttonEl   : this,
+			contentUrl : GridClass.linkBuilder.actionWindow('newTaxClass'),
+			buttons    : [
+				{
+					type  : 'cancel',
+					click : GridClass.windowButtonEvents.cancelClick()
+				},
+				{
+					type  : 'save',
+					click : GridClass.windowButtonEvents.saveClick({
+						dataKey    : 'class_id',
+						actionName : 'saveTaxClass'
+					})
+				}
+			]
+		});
+	};
+
+	$PageGrid.newGrid('option', 'dataKey', 'class_id');
+	$PageGrid.newGrid('option', 'allowMultiple', true);
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.newButton',
+			disableIfMultiple : false,
+			click             : newEditButtonClick
+		},
+		{
+			selector          : '.editButton',
+			disableIfMultiple : true,
+			click             : newEditButtonClick
+		},
+		{
+			selector          : '.deleteButton',
+			disableIfMultiple : false,
+			click             : $PageGrid.newGrid('deleteDialog', {
+				messageSingle   : 'Are you sure you want to delete this class?',
+				messageMultiple : 'Are you sure you want to delete these classes?',
+				confirmUrl      : $PageGrid.newGrid('linkBuilder.action', 'deleteConfirm'),
+				onSuccess       : $PageGrid.newGrid('redirectBuilder.currentApp', 'default')
+			})
 		}
-		
-		gridWindow({
-			buttonEl: this,
-			gridEl: $('.gridContainer'),
-			contentUrl: js_app_link(getVars.join('&')),
-			onShow: function (){
-				var self = this;
-				
-				$(self).find('.cancelButton').click(function (){
-					$(self).effect('fade', {
-						mode: 'hide'
-					}, function (){
-						$('.gridContainer').effect('fade', {
-							mode: 'show'
-						}, function (){
-							$(self).remove();
-						});
-					});
-				});
-				
-				$(self).find('.saveButton').click(function (){
-					var getVars = [];
-					getVars.push('app=taxes');
-					getVars.push('appPage=classes');
-					getVars.push('action=saveTaxClass');
-					if ($('.gridBodyRow.state-active').size() > 0){
-						getVars.push('cID=' + $('.gridBodyRow.state-active').attr('data-class_id'));
-					}
-					
-					$.ajax({
-						cache: false,
-						url: js_app_link(getVars.join('&')),
-						dataType: 'json',
-						data: $(self).find('*').serialize(),
-						type: 'post',
-						success: function (data){
-							if (data.success){
-								js_redirect(js_app_link('app=taxes&appPage=classes&cID=' + data.cID));
-							}
-						}
-					});
-				});
-			}
-		});
-	});
-	
-	$('.deleteButton').click(function (){
-		var classId = $('.gridBodyRow.state-active').attr('data-class_id');
-		confirmDialog({
-			confirmUrl: js_app_link('app=taxes&appPage=classes&action=deleteTaxClass&cID=' + classId),
-			title: 'Confirm Class Delete',
-			content: 'Are you sure you want to delete this class?',
-			errorMessage: 'This class could not be deleted.',
-			success: function (){
-				js_redirect(js_app_link('app=taxes&appPage=classes'));
-			}
-		});
-	});
+	]);
 });

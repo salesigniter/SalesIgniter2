@@ -10,16 +10,16 @@ $tableGrid = htmlBase::newElement('newGrid')
 	->setQuery($Qadmin);
 
 $tableGrid->addButtons(array(
-		htmlBase::newElement('button')->setText('Edit')->addClass('editButton')->disable(),
-		htmlBase::newElement('button')->setText('Load As My Set ')->addClass('loadSetButton')->disable(),
-		htmlBase::newElement('button')->setText('Delete')->addClass('deleteButton')->disable()
-	));
+	htmlBase::newElement('button')->setText('Edit')->addClass('editButton')->disable(),
+	htmlBase::newElement('button')->setText('Load As My Set ')->addClass('loadSetButton')->disable(),
+	htmlBase::newElement('button')->setText('Delete')->addClass('deleteButton')->disable()
+));
 
 $tableGrid->addHeaderRow(array(
-		'columns' => array(
-			array('text' => sysLanguage::get('TABLE_HEADING_NAME_FAVORITES'))
-		)
-	));
+	'columns' => array(
+		array('text' => sysLanguage::get('TABLE_HEADING_NAME_FAVORITES'))
+	)
+));
 
 $infoBoxes = array();
 $allGetParams = tep_get_all_get_params(array('mID', 'action'));
@@ -31,13 +31,13 @@ if ($admin){
 		$adminName = $aInfo['admin_favs_name'];
 
 		$tableGrid->addBodyRow(array(
-				'rowAttr' => array(
-					'data-admin_id' => $adminId
-				),
-				'columns' => array(
-					array('text' => $adminName),
-				)
-			));
+			'rowAttr' => array(
+				'data-admin_id' => $adminId
+			),
+			'columns' => array(
+				array('text' => $adminName),
+			)
+		));
 	}
 }
 ?>

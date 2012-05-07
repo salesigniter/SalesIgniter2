@@ -1,7 +1,8 @@
 <?php
 if (isset($_GET['zID'])){
 	$heading = sysLanguage::get('TEXT_INFO_HEADING_EDIT');
-}else{
+}
+else {
 	$heading = sysLanguage::get('TEXT_INFO_HEADING_NEW');
 }
 
@@ -17,7 +18,8 @@ $infoBox->addButton($saveButton)->addButton($cancelButton);
 $GoogleZones = Doctrine_Core::getTable('GoogleZones');
 if (isset($_GET['zID'])){
 	$GoogleZones = $GoogleZones->findOneByGoogleZonesId((int)$_GET['zID']);
-}else{
+}
+else {
 	$GoogleZones = $GoogleZones->getRecord();
 }
 
@@ -33,8 +35,8 @@ if (isset($_GET['zID'])){
 		$address = '';
 		$polygon = unserialize($GoogleZones->gmaps_polygon);
 		$scriptCommands = '';
-		for($i=0, $n=sizeof($polygon); $i<$n; $i++){
-			if(!empty($polygon[$i]['lat']) || !empty($polygon[$i]['lng'])){
+		for($i = 0, $n = sizeof($polygon); $i < $n; $i++){
+			if (!empty($polygon[$i]['lat']) || !empty($polygon[$i]['lng'])){
 				$scriptCommands .= 'leftClick(poly, new GLatLng(' . $polygon[$i]['lat'] . ', ' . $polygon[$i]['lng'] . ', true));';
 			}
 		}

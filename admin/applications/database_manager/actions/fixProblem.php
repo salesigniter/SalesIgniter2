@@ -1,9 +1,9 @@
 <?php
 /**
- * @author   "Sebastián Grignoli" <grignoli@framework2.com.ar>
+ * @author   "Sebastiï¿½n Grignoli" <grignoli@framework2.com.ar>
  * @package  Encoding
  * @version  1.1
- * @link	 http://www.framework2.com.ar/dzone/forceUTF8-es/
+ * @link     http://www.framework2.com.ar/dzone/forceUTF8-es/
  * @example  http://www.framework2.com.ar/dzone/forceUTF8-es/
  */
 
@@ -82,18 +82,18 @@ class Encoding
 		"\xe2\x82\xac" => "\x80",
 
 		"\xe2\x80\x9a" => "\x82",
-		"\xc6\x92"	 => "\x83",
+		"\xc6\x92"     => "\x83",
 		"\xe2\x80\x9e" => "\x84",
 		"\xe2\x80\xa6" => "\x85",
 		"\xe2\x80\xa0" => "\x86",
 		"\xe2\x80\xa1" => "\x87",
-		"\xcb\x86"	 => "\x88",
+		"\xcb\x86"     => "\x88",
 		"\xe2\x80\xb0" => "\x89",
-		"\xc5\xa0"	 => "\x8a",
+		"\xc5\xa0"     => "\x8a",
 		"\xe2\x80\xb9" => "\x8b",
-		"\xc5\x92"	 => "\x8c",
+		"\xc5\x92"     => "\x8c",
 
-		"\xc5\xbd"	 => "\x8e",
+		"\xc5\xbd"     => "\x8e",
 
 		"\xe2\x80\x98" => "\x91",
 		"\xe2\x80\x99" => "\x92",
@@ -102,14 +102,14 @@ class Encoding
 		"\xe2\x80\xa2" => "\x95",
 		"\xe2\x80\x93" => "\x96",
 		"\xe2\x80\x94" => "\x97",
-		"\xcb\x9c"	 => "\x98",
+		"\xcb\x9c"     => "\x98",
 		"\xe2\x84\xa2" => "\x99",
-		"\xc5\xa1"	 => "\x9a",
+		"\xc5\xa1"     => "\x9a",
 		"\xe2\x80\xba" => "\x9b",
-		"\xc5\x93"	 => "\x9c",
+		"\xc5\x93"     => "\x9c",
 
-		"\xc5\xbe"	 => "\x9e",
-		"\xc5\xb8"	 => "\x9f"
+		"\xc5\xbe"     => "\x9e",
+		"\xc5\xb8"     => "\x9f"
 	);
 
 	static function toUTF8($text) {
@@ -122,25 +122,24 @@ class Encoding
 		 *
 		 * It may fail to convert characters to UTF-8 if they fall into one of these scenarios:
 		 *
-		 * 1) when any of these characters:   ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
-		 *	are followed by any of these:  ("group B")
-		 *									¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶•¸¹º»¼½¾¿
-		 * For example:   %ABREPRESENT%C9%BB. «REPRESENTÉ»
-		 * The "«" (%AB) character will be converted, but the "É" followed by "»" (%C9%BB)
+		 * 1) when any of these characters:   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		 *    are followed by any of these:  ("group B")
+		 *                                    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		 * For example:   %ABREPRESENT%C9%BB. ï¿½REPRESENTÉ»
+		 * The "ï¿½" (%AB) character will be converted, but the "ï¿½" followed by "ï¿½" (%C9%BB)
 		 * is also a valid unicode character, and will be left unchanged.
 		 *
-		 * 2) when any of these: àáâãäåæçèéêëìíîï  are followed by TWO chars from group B,
-		 * 3) when any of these: ðñòó  are followed by THREE chars from group B.
+		 * 2) when any of these: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  are followed by TWO chars from group B,
+		 * 3) when any of these: ï¿½ï¿½ï¿½ï¿½  are followed by THREE chars from group B.
 		 *
-		 * @name toUTF8
+		 * @name         toUTF8
 		 * @param string $text  Any string.
 		 * @return string  The same string, UTF8 encoded
 		 *
 		 */
 
 		if (is_array($text)){
-			foreach($text as $k => $v)
-			{
+			foreach($text as $k => $v){
 				$text[$k] = self::toUTF8($v);
 			}
 			return $text;
@@ -281,7 +280,7 @@ $modelName = (isset($_GET['model']) ? $_GET['model'] : null);
 $columnName = (isset($_GET['column']) ? $_GET['column'] : null);
 $tableName = (isset($_GET['table']) ? $_GET['table'] : null);
 
-function getColumnsToEncode($TableName, $collation){
+function getColumnsToEncode($TableName, $collation) {
 	global $dbConn;
 
 	$DBtableColumns = $dbConn->import->listTableColumns($TableName);
@@ -300,11 +299,11 @@ function getColumnsToEncode($TableName, $collation){
 
 	return array(
 		'autoIncrementCol' => $autoIncrementCol,
-		'encodeCols' => $encodeColumns
+		'encodeCols'       => $encodeColumns
 	);
 }
 
-function getEncodeUpdateQueries($TableName, $EncodeInfo){
+function getEncodeUpdateQueries($TableName, $EncodeInfo) {
 	$updateQueries = array();
 	if (is_null($EncodeInfo['autoIncrementCol']) === false && !empty($EncodeInfo['encodeCols'])){
 		$selectCols = array($EncodeInfo['autoIncrementCol']);
@@ -332,7 +331,7 @@ function getEncodeUpdateQueries($TableName, $EncodeInfo){
 	return $updateQueries;
 }
 
-function processUpdateQueries($UpdateQueries){
+function processUpdateQueries($UpdateQueries) {
 	foreach($UpdateQueries as $query){
 		Doctrine_Manager::getInstance()
 			->getCurrentConnection()

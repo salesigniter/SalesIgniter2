@@ -1,5 +1,6 @@
 <?php
 set_time_limit(0);
+ini_set("auto_detect_line_endings", true);
 
 DataManagementModules::loadModule($_POST['module']);
 $Module = DataManagementModules::getModule($_POST['module']);

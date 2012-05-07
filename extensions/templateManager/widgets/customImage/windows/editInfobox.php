@@ -2,67 +2,164 @@
 ob_start();
 ?>
 <style>
-	#imagesSortable { list-style-type: none; margin: 0; padding: 0; }
-	#imagesSortable li { display:inline-block;vertical-align: top;margin: 3px 3px 3px 0; padding: 1px; width: 350px; font-size: 1em; text-align: left; }
-	#imagesSortable li div { cursor: move;margin: 0;padding: 3px;border: 1px solid black;background:#ffffff; }
-	#imagesSortable li .ui-icon-closethick {
-		float  : right;
-		margin : .5em;
+	#imagesSortable {
+		list-style-type : none;
+		margin          : 0;
+		padding         : 0;
+		position        : relative;
+	}
+
+	#imagesSortable li.sortable {
+		display        : inline-block;
+		vertical-align : top;
+		margin         : 3px 3px 3px 0;
+		padding        : 1px;
+		min-width      : 350px;
+		font-size      : 1em;
+		text-align     : left;
+		position       : relative;
+	}
+
+	#imagesSortable li.sortable .imageDelete {
+		position : absolute;
+		top      : -5px;
+		right    : -5px;
 	}
 
 	#imagesSortable li select {
 		margin-left  : .5em;
 		margin-right : .5em;
+		width        : 100%;
+	}
+
+	#imagesSortable li .fileManagerInput {
+		width : 100%;
 	}
 </style>
 <script type="text/javascript">
-$(document).ready(function () {
-	$('#imagesSortable').sortable({
-		tolerance: 'pointer',
-		placeholder: 'ui-state-highlight',
-		forcePlaceholderSize: true
-	});
+	$(document).ready(function () {
+		$('#imagesSortable').sortable({
+			tolerance            : 'pointer',
+			placeholder          : 'ui-state-highlight',
+			forcePlaceholderSize : true
+		});
 
-	$('#imagesTable').find('.addMainBlock').click(function () {
-		var inputKey = 0;
-		while($('#imagesSortable').find('.systemLinkType[data-input_key=' + inputKey + ']').size() > 0){
-			inputKey++;
+		$('.linkSizes').on('click', function () {
+			if ($(this).hasClass('ui-icon-link')){
+				$(this).removeClass('ui-icon-link').addClass('ui-icon-link-break')
+			}
+			else {
+				$(this).removeClass('ui-icon-link-break').addClass('ui-icon-link')
+			}
+		});
+
+		function setupListBlock() {
+			var self = $(this);
+			var Image = $(this).find('.previewImage');
+			var ImageRealWidth = Image.get(0).width;
+			var ImageRealHeight = Image.get(0).height;
+
+			$(this).on('keyup', '.ui-tabs-panel .imageWidth', function () {
+				var keepRatio = $(this).parent().parent().find('.linkSizes').hasClass('ui-icon-link');
+				if (keepRatio === true){
+					var Ratio = ImageRealWidth / ImageRealHeight;
+					var RatioValue = parseInt($(this).val()) / Ratio;
+					$(this).parent().parent().find('.imageHeight').val(parseInt(RatioValue));
+					Image.height(RatioValue);
+				}
+				Image.width($(this).val());
+			});
+
+			$(this).on('keyup', '.ui-tabs-panel .imageHeight', function () {
+				var keepRatio = $(this).parent().parent().find('.linkSizes').hasClass('ui-icon-link');
+				if (keepRatio === true){
+					var Ratio = ImageRealHeight / ImageRealWidth;
+					var RatioValue = parseInt($(this).val()) / Ratio;
+					$(this).parent().parent().find('.imageWidth').val(parseInt(RatioValue));
+					Image.width(RatioValue);
+				}
+				Image.height($(this).val());
+			});
+
+			$(this).on('onSelect', '.ui-tabs-panel .ui-filemanager-input', function (e, selected) {
+				Image.attr('src', selected[0]);
+				Image.width('auto');
+				Image.height('auto');
+				ImageRealWidth = Image.get(0).width;
+				ImageRealHeight = Image.get(0).height;
+
+				self.parentsUntil('.ui-tabs-panel').last().find('.imageWidth').val(ImageRealWidth);
+				self.parentsUntil('.ui-tabs-panel').last().find('.imageHeight').val(ImageRealHeight);
+			});
 		}
 
-		var $newLi = $('<li></li>').attr('id', 'image_' + inputKey);
-		$newLi.html('<div><table cellpadding="2" cellspacing="0" border="0" width="100%">' +
-			'<tr>' +
-			'<td valign="top"><table cellpadding="2" cellspacing="0" border="0">' +
+		$('#imagesSortable li.sortable').each(function () {
+			setupListBlock.apply(this);
+		});
+
+		$('#imagesTable').find('.addMainBlock').click(function () {
+			var inputKey = 0;
+			while($('#imagesSortable').find('li[data-input_key=' + inputKey + '].sortable').size() > 0){
+				inputKey++;
+			}
+
+			var liHtml = '<div class="makeTabs"><ul>';
+
 		<?php foreach(sysLanguage::getLanguages() as $lInfo){ ?>
-			'<tr>' +
-				'<td><?php echo $lInfo['showName']('&nbsp;');?></td>' +
-				'<td><input type="text" class="fileManager" data-is_multiple="true" data-files_source="<?php echo sysConfig::getDirFsCatalog();?>templates/" name="image[' + inputKey + '][source][<?php echo $lInfo['id'];?>]" value=""></td>' +
+			liHtml += '<li>' +
+				'<a href="#image_' + inputKey + '_<?php echo $lInfo['id'];?>_tab"><?php echo $lInfo['showName']('<br>');?></a>' +
+				'</li>';
+			<?php } ?>
+			liHtml += '</ul>';
+
+		<?php foreach(sysLanguage::getLanguages() as $lInfo){ ?>
+			liHtml += '<div id="image_' + inputKey + '_<?php echo $lInfo['id'];?>_tab"><table cellpadding="2" cellspacing="0" border="0" width="100%">' +
+				'<tr>' +
+				'	<td valign="top"><img class="previewImage"></td>' +
 				'</tr>' +
-		<?php } ?>
-			'</table></td>' +
-			'<td valign="top">' +
-			'<span class="ui-icon ui-icon-closethick imageDelete" tooltip="Delete Image"></span>' +
-			'</td>' +
-			'</tr>' +
-			'<tr>' +
-			'<td valign="top" colspan="2" class="systemLinkMenuContainer"></td>' +
-			'</tr>' +
-			'</table></div>');
-		
-		$.newSystemLinkMenu($newLi, 'image[' + inputKey + ']');
+				'<tr>' +
+				'	<td valign="top"><input type="text" class="fileManagerInput" data-is_multiple="false" data-files_source="<?php echo sysConfig::getDirFsCatalog();?>templates/" name="image[' + inputKey + '][<?php echo $lInfo['id'];?>][source]" value=""></td>' +
+				'</tr>' +
+				'<tr>' +
+				'	<td valign="top" class="imageResizerContainer"></td>' +
+				'</tr>' +
+				'<tr>' +
+				'	<td valign="top" class="systemLinkMenuContainer"></td>' +
+				'</tr>' +
+				'</table></div>';
+			<?php } ?>
 
-		$('#imagesSortable').append($newLi);
-		$('#imagesSortable').sortable('refresh');
-	});
+			liHtml += '<span class="ui-icon ui-icon-circle-close imageDelete" tooltip="Delete Image"></span></div>';
 
-	$('.imageDelete').live('click', function () {
-		$(this).parentsUntil('ol').last().remove();
-	});
+			var $newLi = $('<li></li>')
+				.addClass('sortable')
+				.attr('id', 'image_' + inputKey)
+				.attr('data-input_key', inputKey)
+				.html(liHtml);
 
-	$('.saveButton').click(function () {
-		$('input[name=imagesSortable]').val($('#imagesSortable').sortable('serialize'));
-	});
-});
+		<?php foreach(sysLanguage::getLanguages() as $lInfo){ ?>
+			$newLi.find('#image_' + inputKey + '_<?php echo $lInfo['id'];?>_tab').each(function () {
+				$.newSystemLinkMenu($(this), 'image[' + inputKey + '][<?php echo $lInfo['id'];?>]');
+				$.newImageResizer($(this), 'image[' + inputKey + '][<?php echo $lInfo['id'];?>]');
+			});
+			<?php } ?>
+
+			$newLi.find('.makeTabs').tabs();
+			setupListBlock.apply($newLi.get(0));
+
+			$('#imagesSortable').append($newLi);
+			$('#imagesSortable').sortable('refresh');
+		});
+
+		$('.imageDelete').live('click', function () {
+			$(this).parentsUntil('ol').last().remove();
+		});
+
+		$('.saveButton').click(function () {
+			$('input[name=imagesSortable]').val($('#imagesSortable').sortable('serialize'));
+		});
+	})
+	;
 </script>
 <?php
 $editTable = htmlBase::newElement('table')
@@ -76,65 +173,99 @@ $editTable->addBodyRow(array(
 	)
 ));
 
-	$editTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => '<span class="ui-icon ui-icon-plusthick addMainBlock"></span><span class="ui-icon ui-icon-closethick"></span>')
-		)
-	));
+$editTable->addBodyRow(array(
+	'columns' => array(
+		array('text' => '<span class="ui-icon ui-icon-plusthick addMainBlock"></span>')
+	)
+));
 
-	function parseImage($item, &$i) {
-		global $AppArray, $CatArr, $LinkTypes, $LinkTargets, $template;
-
-		$data = $item;
-		$baseInputName = 'image[' . $i . ']';
-
-		$textInputs = '<table cellpadding="2" cellspacing="0" border="0">';
+function parseImages($images, &$i) {
+	$ItemTemplates = array();
+	foreach($images as $iInfo){
+		$Tabs = htmlBase::newElement('tabs');
 		foreach(sysLanguage::getLanguages() as $lInfo){
-			$textInput = htmlBase::newElement('input')
-				->addClass('fileManager')
-				->setName($baseInputName . '[source][' . $lInfo['id'] . ']')
-				->val((isset($data->source->{$lInfo['id']}) ? $data->source->{$lInfo['id']} : ''));
-			$textInputs .= '<tr>' .
-				'<td>' . $lInfo['showName']('&nbsp;') . '</td>' .
-				'<td>' . $textInput->draw() . '</td>' .
-				'</tr>';
+			$baseInputName = 'image[' . $i . '][' . $lInfo['id'] . ']';
+			$data = (isset($iInfo->{$lInfo['id']}) ? $iInfo->{$lInfo['id']} : false);
+
+			$textInput = htmlBase::newElement('fileManager')
+				->setName($baseInputName . '[source]')
+				->val((isset($data->source) ? $data->source : ''));
+
+			$imagePreview = htmlBase::newElement('image')
+				->addClass('previewImage')
+				->setSource((isset($data->source) ? $data->source : ''));
+
+			$imageResizer = htmlBase::newElement('imageResizer', array(
+				'data' => $data
+			))->setName($baseInputName);
+
+			$systemLinkMenu = htmlBase::newElement('systemLinkMenu', array(
+				'data' => (isset($data->link) ? $data->link : false)
+			))->setName($baseInputName . '[link]');
+
+			$ImageTable = htmlBase::newElement('table')
+				->setCellPadding(3)
+				->setCellSpacing(0)
+				->css('width', '100%');
+
+			$ImageTable->addBodyRow(array(
+				'columns' => array(
+					array('text' => $imagePreview->draw())
+				)
+			));
+
+			$ImageTable->addBodyRow(array(
+				'columns' => array(
+					array('text' => $textInput->draw())
+				)
+			));
+
+			$ImageTable->addBodyRow(array(
+				'columns' => array(
+					array(
+						'align' => 'center',
+						'text'  => $imageResizer->draw()
+					)
+				)
+			));
+
+			$ImageTable->addBodyRow(array(
+				'columns' => array(
+					array('text' => $systemLinkMenu->draw())
+				)
+			));
+
+			$Tabs
+				->addTabHeader('image_' . $i . '_' . $lInfo['id'] . '_tab', array('text' => $lInfo['showName']('<br>')))
+				->addTabPage('image_' . $i . '_' . $lInfo['id'] . '_tab', array('text' => $ImageTable->draw()));
 		}
-		$textInputs .= '</table>';
-
-		$systemLinkMenu = htmlBase::newElement('systemLinkMenu', array(
-			'data' => (isset($data) ? $data : false)
-		))->setName($baseInputName . '[link]');
-
-		$itemTemplate = '<li id="image_' . $i . '" data-input_key="' . $i . '">' .
-			'<div><table cellpadding="2" cellspacing="0" border="0" width="100%">' .
-			'<tr>' .
-			'<td valign="top">' . $textInputs . '</td>' .
-			'<td valign="top"><span class="ui-icon ui-icon-closethick imageDelete" tooltip="Delete Image"></span></td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td valign="top" colspan="2">' . $systemLinkMenu->draw() . '</td>' .
-			'</tr>' .
-			'</table>' .
-			'</div>' .
-			'</li>';
+		$ItemTemplates[] = htmlBase::newElement('li')
+			->addClass('sortable')
+			->attr('id', 'image_' . $i)
+			->attr('data-input_key', $i)
+			->html($Tabs->draw() . '<span class="ui-icon ui-icon-circle-close imageDelete" tooltip="Delete Image"></span>')
+			->draw();
 		$i++;
-
-		return $itemTemplate;
 	}
+
+	return implode('', $ItemTemplates);
+}
+
+function parseImage($item, &$i) {
+	global $AppArray, $CatArr, $LinkTypes, $LinkTargets, $template;
+}
 
 $Images = '';
-	if (isset($WidgetSettings->images)){
-		$i = 0;
-		foreach($WidgetSettings->images as $iInfo){
-			$Images .= parseImage($iInfo, &$i);
-		}
-	}
+if (isset($WidgetSettings->images)){
+	$i = 0;
+	$Images = parseImages($WidgetSettings->images, &$i);
+}
 
-	$editTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => '<ol id="imagesSortable" class="ui-widget sortable">' . $Images . '</ol>')
-		)
-	));
+$editTable->addBodyRow(array(
+	'columns' => array(
+		array('text' => '<ol id="imagesSortable" class="ui-widget sortable">' . $Images . '</ol>')
+	)
+));
 
 echo $editTable->draw();
 echo '<input type="hidden" name="imagesSortable" value="">';

@@ -18,28 +18,15 @@ $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 $CurrencyInfo = $currencies->get(Session::get('currency'));
 
 ob_start();
-?>
-<div id="bodyWrapprer"><?php
-	if ($messageStack->size('pageStack') > 0){
-		echo $messageStack->output('pageStack', true) . '<br />';
-	}
-
-	if (isset($appContent) && file_exists(sysConfig::getDirFsAdmin() . 'applications/' . $appContent)){
-		require(sysConfig::getDirFsAdmin() . 'applications/' . $appContent);
-	}
-	elseif (isset($appContent) && file_exists($appContent)) {
-		require($appContent);
-	}
-	else {
-		require('template/content/' . $pageContent . '.tpl.php');
-	}
-	?></div>
-<br>
-<footer><?php
-	require(sysConfig::getDirFsAdmin() . 'includes/footer.php');
-	?></footer>
-<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
-<?php
+if (isset($appContent) && file_exists(sysConfig::getDirFsAdmin() . 'applications/' . $appContent)){
+	require(sysConfig::getDirFsAdmin() . 'applications/' . $appContent);
+}
+elseif (isset($appContent) && file_exists($appContent)) {
+	require($appContent);
+}
+else {
+	require('template/content/' . $pageContent . '.tpl.php');
+}
 $BodyContent = ob_get_contents();
 ob_end_clean();
 ?>
@@ -63,24 +50,6 @@ ob_end_clean();
 	if (isset($_GET['oError'])){
 		echo '		<script type="text/javascript">alert(\'Onetime rentals has been disabled. If you would like to enable it, please contact www.itwebexperts.com\');</script>' . "\n";
 	}
-
-	$infoBoxId = $App->getInfoBoxId();
-
-	echo '		<script type="text/javascript">' . "\n" .
-		'			$(document).ready(function (){' . "\n";
-	if ($infoBoxId == 'new'){
-		echo '				showInfoBox(\'new\');' . "\n";
-	}
-	elseif ($infoBoxId != null) {
-		echo '				$(\'tbody > .ui-grid-row[infobox_id=' . $infoBoxId . ']\').click();' . "\n";
-	}
-	else {
-		echo '				if ($(\'tbody > .ui-grid-row:eq(0)\').attr(\'infobox_id\')){' . "\n" .
-			'					$(\'tbody > .ui-grid-row:eq(0)\').click();' . "\n" .
-			'				}' . "\n";
-	}
-	echo '			});' . "\n" .
-		'		</script>' . "\n";
 	?>
 	<script>
 		$(document).ready(function () {
@@ -91,19 +60,23 @@ ob_end_clean();
 						$(this).addClass('ui-state-hover')
 					}).mouseout(function () {
 						$(this).removeClass('ui-state-hover');
-					}).click(function () {
+					}).click(function (e) {
 						$('#mainNavMenu > li.ui-state-active').removeClass('ui-state-active');
 						$(this).addClass('ui-state-active');
-						$.ajax({
-							url: $(this).find('a').attr('href'),
-							dataType: 'html',
-							success: function (data){
-								$('#landingPage').remove();
-								var landingPage = $('#bodyWrapprer').clone().attr('id', 'landingPage').html(data).show();
-								$('#bodyWrapprer').hide();
-								landingPage.insertAfter($('#bodyWrapprer'));
-							}
-						});
+						if ($(this).data('load_ajax') === true){
+							$.ajax({
+								url: $(this).find('a').attr('href'),
+								dataType: 'html',
+								success: function (data){
+									$('#landingPage').remove();
+									var landingPage = $('#bodyWrapprer').clone().attr('id', 'landingPage').html(data).show();
+									$('#bodyWrapprer').hide();
+									landingPage.insertAfter($('#bodyWrapprer'));
+								}
+							});
+						}else{
+							window.location = $(this).find('a').attr('href');
+						}
 					});
 			});
 
@@ -115,6 +88,12 @@ ob_end_clean();
 				$(this).parent().remove();
 				$('#bodyWrapprer').show();
 			});
+
+			if ($('#appTips').size() > 0){
+				$('#logoBar .ui-icon-help').click(function (){
+					$('#appTips').dialog();
+				}).show();
+			}
 		});
 	</script>
 </head>
@@ -125,6 +104,7 @@ ob_end_clean();
 <div id="logoBar">
 	<img src="<?php echo sysConfig::getDirWsAdmin();?>template/fallback/images/seslogo.png" style="float:left;margin-top: 12px;margin-left: 10px;">
 	<div style="float:right;margin-top:.5em;margin-right: 24px;">
+		<a href="javascript:void(0)" class="ui-icon ui-icon-help" tooltip="Click Here For Tips" style="display:none;"></a>&nbsp;&nbsp;
 		<a href="<?php echo itw_app_link(null, 'index', 'default');?>" class="ui-icon ui-icon-home" tooltip="Home"></a>&nbsp;&nbsp;
 		<a href="<?php echo itw_app_link(null, 'admin_account', 'default');?>" class="ui-icon ui-icon-myaccount" tooltip="My Account"></a>&nbsp;&nbsp;
 		<a href="<?php echo itw_app_link('action=addToFavorites', 'index', 'default');?>" id="addToFavorites" class="ui-icon ui-icon-favorites-add" tooltip="Add To Favorites"></a>&nbsp;&nbsp;
@@ -174,11 +154,25 @@ function makeLinkList($item) {
 			<li data-load_ajax="true"><span class="ui-icon ui-icon-myaccount"></span><a href="<?php echo itw_app_link('action=landing&box=customers', 'index', 'default');?>">Customers</a></li>
 			<li data-load_ajax="true"><span class="ui-icon ui-icon-wrench"></span><a href="<?php echo itw_app_link('action=landing&box=tools', 'index', 'default');?>">Tools</a></li>
 			<li data-load_ajax="true"><span class="ui-icon ui-icon-print"></span><a href="<?php echo itw_app_link('action=landing&box=marketing', 'index', 'default');?>">Reports</a></li>
-			<li data-load_ajax="true"><span class="ui-icon ui-icon-transferthick-e-w"></span><a href="<?php echo itw_app_link('action=landing&box=data_management', 'index', 'default');?>">Data Import/Export</a></li>
+			<li><span class="ui-icon ui-icon-transferthick-e-w"></span><a href="<?php echo itw_app_link(null, 'data_manager', 'default');?>">Data Import/Export</a></li>
 		</ul>
 	</div>
-	<div id="rightColumn" class="ui-corner-all"><?php echo $BodyContent;?></div>
+	<div id="rightColumn" class="ui-corner-all">
+		<div class="pageHeading"><?php echo sysLanguage::get('PAGE_TITLE');?></div>
+		<?php
+		if ($messageStack->size('pageStack') > 0){
+			echo $messageStack->output('pageStack') . '<br />';
+		}
+		?>
+		<br />
+		<div id="bodyWrapprer"><?php echo $BodyContent; ?></div>
+		<br>
+		<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
+	</div>
 </div>
+	<footer><?php
+		require(sysConfig::getDirFsAdmin() . 'includes/footer.php');
+		?></footer>
 		<?php
 	}else{
 		echo $BodyContent;

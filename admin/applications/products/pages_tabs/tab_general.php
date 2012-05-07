@@ -33,10 +33,10 @@ $ProductDateOrdered = htmlBase::newElement('input')
 	->addClass('useDatepicker');
 
 $ProductModel = htmlBase::newElement('input')
-    ->setName('products_model');
+	->setName('products_model');
 
 $ProductDisplayOrder = htmlBase::newElement('input')
-    ->setName('products_display_order');
+	->setName('products_display_order');
 
 $ProductWeight = htmlBase::newElement('input')
 	->setName('products_weight');
@@ -56,10 +56,10 @@ if ($Product->getId() > 0){
 	$ProductDateAvailable->setValue($Product->getDateAvailable()->format('Y-m-d'));
 	$ProductDateOrdered->setValue($Product->getDateOrdered()->format('Y-m-d'));
 	$ProductModel->setValue($Product->getModel());
-    $ProductWeight->setValue($Product->getWeight());
-    $ProductDisplayOrder->setValue($Product->getDisplayOrder());
+	$ProductWeight->setValue($Product->getWeight());
+	$ProductDisplayOrder->setValue($Product->getDisplayOrder());
 }
-else{
+else {
 	$ProductStatusEnabled->setChecked(true);
 	$ProductFeaturedStatusDisabled->setChecked(true);
 }
@@ -93,12 +93,12 @@ else{
 		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_MODEL'); ?></td>
 		<td class="main"><?php echo $ProductModel->draw(); ?></td>
 	</tr>
-    <tr>
-        <td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_WEIGHT'); ?></td>
-        <td class="main"><?php echo $ProductWeight->draw(); ?></td>
-    </tr>
-    <tr>
-        <td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_DISPLAY_ORDER'); ?></td>
-        <td class="main"><?php echo $ProductDisplayOrder->draw(); ?></td>
-    </tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_WEIGHT'); ?></td>
+		<td class="main"><?php echo $ProductWeight->draw(); ?></td>
+	</tr>
+	<tr>
+		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_DISPLAY_ORDER'); ?></td>
+		<td class="main"><?php echo $ProductDisplayOrder->draw(); ?></td>
+	</tr>
 </table>

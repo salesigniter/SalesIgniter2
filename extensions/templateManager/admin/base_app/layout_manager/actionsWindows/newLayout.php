@@ -9,10 +9,14 @@
 
 $layoutName = '';
 $layoutType = 'desktop';
+$layoutPageType = 'template';
+$layoutPageTitle = 'My Title';
+$layoutPageSubTitle = 'My Sub Title';
+$layoutAppName = 'MyApp';
+$layoutAppPageName = 'default';
 $selApps = array();
 if (isset($_GET['lID'])){
 	$QLayout = Doctrine_Query::create()
-	->select('layout_id, layout_name, layout_type')
 	->from('TemplateManagerLayouts')
 	->where('layout_id = ?', (int) $_GET['lID'])
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -20,6 +24,11 @@ if (isset($_GET['lID'])){
 	$layoutId = $QLayout[0]['layout_id'];
 	$layoutName = $QLayout[0]['layout_name'];
 	$layoutType = $QLayout[0]['layout_type'];
+	$layoutPageType = $QLayout[0]['page_type'];
+	$layoutAppName = $QLayout[0]['app_name'];
+	$layoutAppPageName = $QLayout[0]['app_page_name'];
+	$layoutPageTitle = $QLayout[0]['app_page_title'];
+	$layoutPageSubTitle = $QLayout[0]['app_page_sub_title'];
 
 	$QselApps = Doctrine_Query::create()
 	->from('TemplatePages')
@@ -124,7 +133,7 @@ function buildProductPages(&$AppArray, $appName){
 	->leftJoin('p.ProductsDescription pd')
 	->where('pd.language_id = ?', Session::get('languages_id'));
 
-	EventManager::notify('AdminProductListingTemplateQueryBeforeExecute', &$QProducts);
+	EventManager::notify('AdminProductListingTemplateQueryBeforeExecute', $QProducts);
 
 	$QProducts = $QProducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
@@ -422,19 +431,22 @@ if (!isset($_GET['lID'])){
 	$layoutTemplatesContainer = htmlBase::newElement('div');
 	$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/layoutTemplates/');
 	foreach($Dir as $d){
-		if ($d->isFile() === true || $d->isDot() === true){
+		if ($d->isFile() === true || $d->isDot() === true || strtolower($d->getBasename()) == 'codegeneration'){
 			continue;
 		}
-
+		$sortedTemplates[] =  $d->getBasename();
+	}
+	sort($sortedTemplates);
+	foreach($sortedTemplates as $templateName){
 		$Box = htmlBase::newElement('div')
 		->css(array(
 			'float' => 'left',
 			'margin' => '.5em'
 		))
 		->html('<center>' .
-		'<input type="radio" name="layout_template" value="' . $d->getBasename() . '"' . ($d->getBasename() == 'empty' ? ' checked=checked' : '') . '>' .
-		'&nbsp;' . ucfirst($d->getBasename()) . '<br>' .
-		'<img src="' . sysConfig::getDirWsCatalog() . 'extensions/templateManager/layoutTemplates/' . $d->getBasename() . '/' . $d->getBasename() . '.png" width="200" height="200">' .
+		'<input type="radio" name="layout_template" value="' . $templateName . '"' . ($templateName == 'empty' ? ' checked=checked' : '') . '>' .
+		'&nbsp;' . ucfirst($templateName) . '<br>' .
+		'<img src="' . sysConfig::getDirWsCatalog() . 'extensions/templateManager/layoutTemplates/' . $templateName . '/' . $templateName . '.png" width="200" height="200">' .
 		'</center>');
 
 		$layoutTemplatesContainer->append($Box);
@@ -443,13 +455,85 @@ if (!isset($_GET['lID'])){
 
 	$SettingsTable->addBodyRow(array(
 		'columns' => array(
-			array('text' => 'Layout Type:'),
+			array('text' => 'Select starting layout:'),
 			array('text' => $layoutTemplatesContainer->draw())
 		)
 	));
 }
 
+$PageTypeSelect = htmlBase::newElement('selectbox')
+	->setName('pageType')
+	->selectOptionByValue($layoutPageType)
+	->addOption('template', 'Layout Template')
+	->addOption('page', 'Standalone Page');
+
+$ApplicationNameInput = htmlBase::newElement('input')
+	->setName('appName')
+	->setValue($layoutAppName);
+
+$ApplicationPageTitleInput = htmlBase::newElement('input')
+	->setName('appPageTitle')
+	->setValue($layoutPageTitle);
+
+$ApplicationPageSubTitleInput = htmlBase::newElement('input')
+	->setName('appPageSubTitle')
+	->setValue($layoutPageSubTitle);
+
+$ApplicationPageNameInput = htmlBase::newElement('input')
+	->setName('appPageName')
+	->setValue($layoutAppPageName);
+
 $SettingsTable->addBodyRow(array(
+	'columns' => array(
+		array('text' => 'Page Type:'),
+		array('text' => $PageTypeSelect)
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'page'
+	),
+	'columns' => array(
+		array('text' => 'Application Name:'),
+		array('text' => $ApplicationNameInput)
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'page'
+	),
+	'columns' => array(
+		array('text' => 'Application Page Name:'),
+		array('text' => $ApplicationPageNameInput->draw() . '.php')
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'page'
+	),
+	'columns' => array(
+		array('text' => 'Application Page Title:'),
+		array('text' => $ApplicationPageTitleInput->draw())
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'page'
+	),
+	'columns' => array(
+		array('text' => 'Application Page Sub Title:'),
+		array('text' => $ApplicationPageSubTitleInput->draw())
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'template'
+	),
 	'columns' => array(
 		array( 'text' => 'Layout Pages:'),
 		array('css'=>array('color'=>'red'),'text' => '<strong>N : Non Rental Members <br> R : Rental Members</strong>')
@@ -457,6 +541,9 @@ $SettingsTable->addBodyRow(array(
 ));
 
 $SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'template'
+	),
 	'columns' => array(
 		array('colspan' => 2, 'text' => '<input type="checkbox" id="checkAll"/> <span id="checkAllText">Check All Pages</span>' . $BoxesContainer->draw())
 	)

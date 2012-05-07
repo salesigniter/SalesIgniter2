@@ -1,12 +1,12 @@
-$(document).ready(function (){
-	$('select').change(function (){
+$(document).ready(function () {
+	$('select').change(function () {
 		var self = this;
 		showAjaxLoader($(self), 'small');
 		$.ajax({
-			url: $(this).data('action_url') + '&to=' + $(self).val() + '&variable=' + $(self).data('variable'),
-			cache: false,
-			dataType: 'json',
-			success: function (data){
+			url      : $(this).data('action_url') + '&to=' + $(self).val() + '&variable=' + $(self).data('variable'),
+			cache    : false,
+			dataType : 'json',
+			success  : function (data) {
 				removeAjaxLoader($(self));
 				if (data.isOk){
 					var TableRow = $(self).parentsUntil('.gridBody').last();
@@ -18,16 +18,16 @@ $(document).ready(function (){
 		});
 	});
 
-	$('.resButton').click(function (e){
+	$('.resButton').click(function (e) {
 		e.preventDefault();
-		
+
 		var self = this;
 		showAjaxLoader($(self), 'small');
 		$.ajax({
-			url: $(this).attr('href'),
-			cache: false,
-			dataType: 'json',
-			success: function (data){
+			url      : $(this).attr('href'),
+			cache    : false,
+			dataType : 'json',
+			success  : function (data) {
 				removeAjaxLoader($(self));
 				$(self).trigger('fixAllClicked');
 				if (data.isOk){
@@ -36,7 +36,7 @@ $(document).ready(function (){
 					}
 					var Table = $(self).parentsUntil('.gridBodyRowColumn').last();
 					$(self).parent().parent().remove();
-					
+
 					if (Table.find('tr').size() <= 0){
 						Table.parentsUntil('.gridBody').last().find('.statusIcon').removeClass('ui-icon-circle-close').addClass('ui-icon-circle-check');
 						Table.parent().parent().find('.allResButton').remove();
@@ -47,43 +47,44 @@ $(document).ready(function (){
 			}
 		});
 	});
-	
-	$('.allResButton').click(function (e){
+
+	$('.allResButton').click(function (e) {
 		e.preventDefault();
 		var self = this;
-		
+
 		var buttons = [];
 		var cnt = 0;
-		$(this).parentsUntil('.gridBody').last().find('.resButton').each(function(){
+		$(this).parentsUntil('.gridBody').last().find('.resButton').each(function () {
 			buttons.push($(this));
-			$(this).bind('fixAllClicked', function (){
+			$(this).bind('fixAllClicked', function () {
 				cnt++;
 				if (buttons[cnt]){
 					buttons[cnt].click();
-				}else{
+				}
+				else {
 					$(self).trigger('fixAllClicked');
 				}
 			});
 		});
-		
+
 		buttons[cnt].click();
 	});
-	
-	$('.fixEverythingButton').click(function (e){
+
+	$('.fixEverythingButton').click(function (e) {
 		e.preventDefault();
-		
+
 		var buttons = [];
 		var cnt = 0;
-		$('.allResButton').each(function(){
+		$('.allResButton').each(function () {
 			buttons.push($(this));
-			$(this).bind('fixAllClicked', function (){
+			$(this).bind('fixAllClicked', function () {
 				cnt++;
 				if (buttons[cnt]){
 					buttons[cnt].click();
 				}
 			});
 		});
-		
+
 		buttons[cnt].click();
 	});
 });

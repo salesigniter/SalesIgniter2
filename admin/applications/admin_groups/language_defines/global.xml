@@ -1,0 +1,18 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[Admin Groups]]></define>
+
+	<define key="TABLE_HEADING_GROUPS_NAME"><![CDATA[Groups Name]]></define>
+	<define key="TABLE_HEADING_CUSTOMER_LOGIN_ALLOWED"><![CDATA[Customer Login Allowed]]></define>
+
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Group Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this group?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete these groups?]]></define>
+
+	<define key="TEXT_ACTION_WINDOW_HEADING_NEW"><![CDATA[New Group]]></define>
+	<define key="TEXT_ACTION_WINDOW_HEADING_EDIT"><![CDATA[Edit Group]]></define>
+
+	<define key="TEXT_INFO_GROUPS_NAME"><![CDATA[ <b>Group Name:</b><br>Give an unique group name. Then, click next to submit.<br>]]></define>
+	<define key="TEXT_INFO_GROUPS_NAME_FALSE"><![CDATA[The group name must be at least 5 characters long]]></define>
+	<define key="TEXT_INFO_GROUPS_NAME_USED"><![CDATA[Group name has already been used]]></define>
+	<define key="TEXT_INFO_GROUP_PERMISSIONS"><![CDATA[<b>Group Permissions</b>]]></define>
+</definitions>

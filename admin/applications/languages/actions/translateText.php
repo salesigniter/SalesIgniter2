@@ -16,13 +16,14 @@ if (is_array($_POST['text'])){
 	foreach($_POST['text'] as $k => $v){
 		$toTranslate[$k] = $v;
 	}
-}else{
+}
+else {
 	$toTranslate[] = $_POST['text'];
 }
 
 $Translated = sysLanguage::translateText($toTranslate, $_POST['fromLang'], $_POST['toLang']);
 
 EventManager::attachActionResponse(array(
-	'success' => true,
+	'success'    => true,
 	'translated' => $Translated
 ), 'json');

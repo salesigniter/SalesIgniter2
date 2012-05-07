@@ -31,12 +31,6 @@ class ExceptionManager {
 	private $messages = array('Fatal' => array(), 'Error' => array(), 'Warning' => array(), 'Notice' => array());
 
 	/**
-	 * Array of icon css classes indexed by exception type
-	 * @var array
-	 */
-	private $typeIcons = array('Fatal' => 'ui-icon-circle-check', 'Error' => 'ui-icon-circle-close', 'Warning' => 'ui-icon-alert', 'Notice' => 'ui-icon-alert');
-
-	/**
 	 * Array of error codes indexed by exception types
 	 * @var array
 	 */
@@ -120,7 +114,6 @@ class ExceptionManager {
 								$Description = $this->errorCodesDescription[$Description];
 							}
 							$Decorator = new $className($Exception);
-							$Decorator->setIconClass($this->typeIcons[$type]);
 							$Decorator->setErrorDescription($Description);
 							if ($type == 'Fatal'){
 								die($Decorator->output());
@@ -141,7 +134,6 @@ class ExceptionManager {
 						}
 						$Decorator = new $className($Exception);
 						$Decorator->hideTrace(false);
-						$Decorator->setIconClass($this->typeIcons[$type]);
 						$Decorator->setErrorDescription($Description);
 						echo $Decorator->output();
 						itwExit();
@@ -155,7 +147,6 @@ class ExceptionManager {
 							$Description = $this->errorCodesDescription[$Description];
 						}
 						$Decorator = new $className($Exception);
-						$Decorator->setIconClass($this->typeIcons[$type]);
 						$Decorator->setErrorDescription($Description);
 						if ($type == 'Fatal'){
 							die($Decorator->output());

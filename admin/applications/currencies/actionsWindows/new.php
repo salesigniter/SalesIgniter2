@@ -1,8 +1,9 @@
 <?php
 $CurrenciesTable = Doctrine_Core::getTable('CurrenciesTable');
-if (isset($_GET['cID'])){
-	$Currency = $CurrenciesTable->find((int) $_GET['cID']);
-}else{
+if (isset($_GET['currency_id'])){
+	$Currency = $CurrenciesTable->find((int)$_GET['currency_id']);
+}
+else {
 	$Currency = $CurrenciesTable->getRecord();
 }
 

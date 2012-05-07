@@ -1,9 +1,9 @@
 <?php
-	Doctrine_Query::create()
+Doctrine_Query::create()
 	->update('Newsletters')
 	->set('locked', '?', '0')
-	->where('newsletters_id = ?', (int) $_GET['nID'])
+	->where('newsletters_id = ?', (int)$_GET['nID'])
 	->execute();
-	
-	EventManager::attachActionResponse(itw_app_link((isset($_GET['page']) ? 'page=' . $_GET['page'] . '&' : '') . 'nID=' . (int) $_GET['nID'], 'newsletters', 'default'), 'redirect');
+
+EventManager::attachActionResponse(itw_app_link((isset($_GET['page']) ? 'page=' . $_GET['page'] . '&' : '') . 'nID=' . (int)$_GET['nID'], 'newsletters', 'default'), 'redirect');
 ?>

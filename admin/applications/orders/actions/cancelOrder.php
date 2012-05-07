@@ -1,5 +1,5 @@
 <?php
-$oIDs = explode(',', $_GET['oID']);
+$oIDs = explode(',', $_GET['order_id']);
 foreach($oIDs as $oID){
 	$QOrdersQuery = Doctrine_Query::create()
 		->from('Orders o')

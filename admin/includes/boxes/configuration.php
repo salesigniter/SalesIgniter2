@@ -22,6 +22,13 @@ if (
 ){
 	$subChildren = array();
 
+	if (sysPermissions::adminAccessAllowed('admin_groups', 'default') === true){
+		$subChildren[] = array(
+			'link' => itw_app_link(null, 'admin_groups', 'default', 'SSL'),
+			'text' => sysLanguage::get('BOX_ADMINISTRATOR_GROUPS')
+		);
+	}
+
 	if (sysPermissions::adminAccessAllowed('admin_members', 'default') === true){
 		$subChildren[] = array(
 			'link' => itw_app_link(null, 'admin_members', 'default', 'SSL'),
@@ -99,18 +106,6 @@ if (sysPermissions::adminAccessAllowed('configuration') === true){
 		'text'	 => 'Technical',
 		'children' => array(
 			array(
-				'link' => itw_app_link('key=coreLogging', 'configuration', 'default', 'SSL'),
-				'text' => 'Logging'
-			),
-			array(
-				'link' => itw_app_link('key=coreCache', 'configuration', 'default', 'SSL'),
-				'text' => 'Cache'
-			),
-			array(
-				'link' => itw_app_link('key=coreGzip', 'configuration', 'default', 'SSL'),
-				'text' => 'Gzip Compression'
-			),
-			array(
 				'link' => itw_app_link('key=coreSessions', 'configuration', 'default', 'SSL'),
 				'text' => 'Sessions'
 			),
@@ -137,17 +132,6 @@ if (sysPermissions::adminAccessAllowed('configuration') === true){
 			array(
 				'link' => itw_app_link('key=coreImages', 'configuration', 'default', 'SSL'),
 				'text' => 'Images'
-			)
-		)
-	);
-
-	$contents['children'][] = array(
-		'link'	 => false,
-		'text'	 => 'Downloads/Streaming',
-		'children' => array(
-			array(
-				'link' => itw_app_link('key=coreDownload', 'configuration', 'default', 'SSL'),
-				'text' => 'Downloads'
 			)
 		)
 	);

@@ -16,10 +16,10 @@ $tabId = 1;
 foreach($Configuration->getConfig() as $tabKey => $tabInfo){
 	if (!isset($tabs[$tabKey])){
 		$tabs[$tabKey] = array(
-			'panelId' => 'page-' . $tabId,
-			'panelHeader' => $tabInfo['title'],
+			'panelId'          => 'page-' . $tabId,
+			'panelHeader'      => $tabInfo['title'],
 			'panelDescription' => $tabInfo['description'],
-			'panelTable' => htmlBase::newElement('table')
+			'panelTable'       => htmlBase::newElement('table')
 				->addClass('configTable')
 				->setCellPadding(5)
 				->setCellSpacing(0)

@@ -30,8 +30,8 @@ elseif (in_array($_GET['moduleType'], array('orderTotal', 'orderPayment', 'order
 
 if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
 	EventManager::attachActionResponse(array(
-			'success' => true
-		), 'json');
+		'success' => true
+	), 'json');
 }
 else {
 	EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('action', 'module', 'modulePath'))), 'redirect');

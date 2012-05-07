@@ -39,4 +39,4 @@ switch($moduleType){
 		$moduleDirectory = 'orderPaymentModules';
 		break;
 }
-?>
+sysLanguage::set('PAGE_TITLE', $headingTitle);

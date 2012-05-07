@@ -1,51 +1,42 @@
-$(document).ready(function (){
-	$('.insertIcon, .editIcon').click(function (){
-		var $thisRow = $(this).parent().parent();
-		var key = 'parent_id';
-		if ($(this).hasClass('editIcon')){
-			key = 'cID';
-		}
-		js_redirect(js_app_link('app=categories&appPage=new_category&' + key + '=' + $thisRow.attr('data-category_id')));
-	});
+$(document).ready(function () {
+	var $PageGrid = $('.gridContainer');
 
-	$('.deleteIcon').click(function (e){
-		e.stopPropagation();
-		var $thisRow = $(this).parent().parent();
-		var categoryName = jQuery.trim($thisRow.find('.categoryListing-name').html());
-		showAjaxLoader($thisRow, 'small');
-		$('<div></div>').dialog({
-			resizable: false,
-			allowClose: false,
-			height:180,
-			modal: true,
-			title: 'Confirm Delete',
-			open: function (){
-				$(this).html('<b>' + categoryName + '</b><br /><br />Are you sure you want to delete this category and all it\'s subcategories?');
-			},
-			buttons: {
-				Confirm: function() {
-					var dialogEl = this;
-					$.ajax({
-						cache: false,
-						url: js_app_link('app=categories&appPage=default&action=deleteCategoryConfirm'),
-						dataType: 'json',
-						type: 'POST',
-						data: 'categories_id=' + $thisRow.attr('data-category_id'),
-						success: function (data){
-							removeAjaxLoader($thisRow);
-							if (data.success == true){
-								$thisRow.remove();
-							}else{
-								alert('Category Was Not Deleted.');
-							}
-							$(dialogEl).dialog('close').remove();
-						}
-					});
-				},
-				Cancel: function() {
-					$(this).dialog('close').remove();
-				}
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.newButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('new'));
 			}
-		});
+		},
+		{
+			selector          : '.newChildButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('new', ['parent_id=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('new', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		'delete'
+	]);
+
+	$PageGrid.newGrid('option', 'onRowDblClick', function (e, GridClass) {
+		var path = [];
+		if ($_GET['cPath']){
+			$.each($_GET['cPath'].split('_'), function () {
+				path.push(this);
+			});
+		}
+		path.push(GridClass.getSelectedData('category_id'));
+		js_redirect(GridClass.buildCurrentAppRedirect('default', ['cPath=' + path.join('_')]));
 	});
 });

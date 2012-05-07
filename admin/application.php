@@ -11,35 +11,40 @@
 	This script and it's source is not redistributable
 */
 
-	require('includes/application_top.php');
+require('includes/application_top.php');
 
-	$action = (isset($_GET['action']) ? $_GET['action'] : '');
-	
-	$pageFunctionFiles = $App->getFunctionFiles($App->getAppPage());
-	if (!empty($pageFunctionFiles)){
-		foreach($pageFunctionFiles as $filePath){
-			require($filePath);
-		}
+$action = (isset($_GET['action']) ? $_GET['action'] : '');
+$actionWindow = (isset($_GET['window']) ? $_GET['window'] : '');
+
+$pageFunctionFiles = $App->getFunctionFiles($App->getAppPage());
+if (!empty($pageFunctionFiles)){
+	foreach($pageFunctionFiles as $filePath){
+		require($filePath);
 	}
+}
 
-	require($App->getAppFile());
-	
-	if (!empty($action)){
-		EventManager::notify('ApplicationActionsBeforeExecute', $action);
-		
+require($App->getAppFile());
+
+if (!empty($action)){
+	EventManager::notify('ApplicationActionsBeforeExecute', $action);
+
+	if ($action == 'getActionWindow'){
+		require(sysConfig::getDirFsAdmin() . 'applications/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+	}else{
 		$actionFiles = $App->getActionFiles($action);
 		foreach($actionFiles as $file){
 			require($file);
 		}
-		
-		EventManager::notify('ApplicationActionsAfterExecute');
 	}
-	
-	EventManager::notify('ApplicationTemplateBeforeInclude');
 
-	require(sysConfig::get('DIR_FS_TEMPLATE') . '/main_page.tpl.php');
-	
-	EventManager::notify('ApplicationTemplateAfterInclude');
+	EventManager::notify('ApplicationActionsAfterExecute');
+}
 
-	require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
+EventManager::notify('ApplicationTemplateBeforeInclude');
+
+require(sysConfig::get('DIR_FS_TEMPLATE') . '/main_page.tpl.php');
+
+EventManager::notify('ApplicationTemplateAfterInclude');
+
+require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
 ?>

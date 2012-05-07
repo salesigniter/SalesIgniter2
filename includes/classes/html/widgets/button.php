@@ -179,7 +179,7 @@ class htmlWidget_button implements htmlWidgetPlugin
 					->setText(sysLanguage::get('TEXT_BUTTON_SEARCH'));
 				break;
 			case 'email':
-				$this->setIcon('email')
+				$this->setIcon('email-compose')
 					->setText(sysLanguage::get('TEXT_BUTTON_EMAIL'));
 				break;
 			case 'orders':
@@ -217,6 +217,14 @@ class htmlWidget_button implements htmlWidgetPlugin
 			case 'movedown':
 				$this->setIcon('thickArrowSouth')
 					->setText('Move Down');
+				break;
+			case 'csvexport':
+				$this->setIcon('export')
+					->setText(sysLanguage::get('TEXT_BUTTON_EXPORT'));
+				break;
+			case 'usergroup':
+				$this->setIcon('user-group')
+					->setText('View Groups');
 				break;
 		}
 		return $this;

@@ -1,14 +1,4 @@
 <?php
-$tableGrid = htmlBase::newElement('newGrid');
-
-$tableGrid->addHeaderRow(array(
-	'columns' => array(
-		array('text' => sysLanguage::get('TABLE_HEADING_CONFIGURATION_TITLE')),
-		array('text' => sysLanguage::get('TABLE_HEADING_CONFIGURATION_VALUE')),
-		array('text' => sysLanguage::get('TABLE_HEADING_INFO'))
-	)
-));
-
 $tabs = array();
 $tabId = 1;
 
@@ -16,10 +6,10 @@ $Configuration = new MainConfigReader($_GET['key']);
 foreach($Configuration->getConfig() as $tabKey => $tabInfo){
 	if (!isset($tabs[$tabKey])){
 		$tabs[$tabKey] = array(
-			'panelId' => 'page-' . $tabId,
-			'panelHeader' => $tabInfo['title'],
+			'panelId'          => 'page-' . $tabId,
+			'panelHeader'      => $tabInfo['title'],
 			'panelDescription' => $tabInfo['description'],
-			'panelTable' => htmlBase::newElement('table')
+			'panelTable'       => htmlBase::newElement('table')
 				->addClass('configTable')
 				->setCellPadding(5)
 				->setCellSpacing(0)
@@ -66,16 +56,20 @@ foreach($tabs as $pInfo){
 <script>
 	var CONFIGURATION_GROUP_KEY = '<?php echo $_GET['key'];?>';
 </script>
-<div class="pageHeading"><?php
-	echo $Configuration->getTitle();
-	?></div>
-<div style="margin:.5em;"><?php
-	echo $Configuration->getDescription();
-	?></div>
-<div style="margin:.5em;text-align: right;"><?php
-	echo htmlBase::newElement('button')->addClass('saveButton')->usePreset('save')->setText('Save Changes')->draw();
-	?></div>
-<br />
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $tabPanel->draw();?></div>
+<div style="margin:.5em;">
+	<div style="margin:.5em;float:right;"><?php
+		echo htmlBase::newElement('button')
+			->addClass('saveButton')
+			->usePreset('save')
+			->setText('Save Changes')
+			->draw();
+		?></div>
+	<h1><?php echo $Configuration->getTitle(); ?></h1>
+
+	<h3><?php echo $Configuration->getDescription(); ?></h3>
+	<br />
+
+	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+		<div style="margin:5px;"><?php echo $tabPanel->draw();?></div>
+	</div>
 </div>

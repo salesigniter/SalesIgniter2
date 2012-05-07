@@ -31,6 +31,9 @@ else {
 	$sourceInfo = '';
 	function getSourceFile($fileName, $filePath){
 		global $sourceInfo;
+		if (isset($_GET['noMin'])){
+			return $filePath . $fileName;
+		}
 		$cacheFileName = md5($filePath . $fileName);
 		$sourceInfo .= '/**' . "\n";
 		$sourceInfo .= 'Real Filename: ' . $filePath . $fileName . "\n";

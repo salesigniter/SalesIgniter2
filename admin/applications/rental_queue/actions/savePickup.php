@@ -1,12 +1,12 @@
 <?php
 $PickupRequestsTable = Doctrine_Core::getTable('PickupRequests');
 
-if(isset($_POST['pickup'])){
+if (isset($_POST['pickup'])){
 
 	$exc = array();
 	foreach($_POST['pickup'] as $pickupid => $iPickup){
 		$PickupRequests = $PickupRequestsTable->find($pickupid);
-		if(!$PickupRequests){
+		if (!$PickupRequests){
 			$PickupRequests = $PickupRequestsTable->create();
 		}
 		$PickupRequests->start_date = $iPickup['start_date'];

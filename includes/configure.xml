@@ -2,11 +2,11 @@
 <configuration>
 	<config protected="true">
 		<key>HTTP_DOMAIN_NAME</key>
-		<value>kingdomcamerarentals.com</value>
+		<value>localhost</value>
 	</config>
 	<config protected="true">
 		<key>HTTPS_DOMAIN_NAME</key>
-		<value>kingdomcamerarentals.com</value>
+		<value>localhost</value>
 	</config>
 	<config protected="false">
 		<key>DIR_WS_CATALOG</key>
@@ -14,7 +14,7 @@
 	</config>
 	<config protected="true">
 		<key>DIR_FS_DOCUMENT_ROOT</key>
-		<value>/home/kingdomc/public_html</value>
+		<value>/www/</value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER</key>
@@ -22,15 +22,15 @@
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_USERNAME</key>
-		<value>kingdomc_rent</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>DB_SERVER_PASSWORD</key>
-		<value>rent99</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>DB_DATABASE</key>
-		<value>kingdomc_rent</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>ENABLE_SSL</key>
@@ -46,19 +46,19 @@
 	</config>
 	<config protected="true">
 		<key>SYSTEM_VERSION</key>
-		<value>1</value>
+		<value>2</value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_USERNAME</key>
-		<value>kingdomc</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_UPGRADE_PASSWORD</key>
-		<value>911acf076d38584e9e11e0afc61acb88</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_SERVER</key>
-		<value>kingdomcamerarentals.com</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_PATH</key>
@@ -66,11 +66,11 @@
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_USERNAME</key>
-		<value>kingdomc</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_FTP_PASSWORD</key>
-		<value>tdfw^z6c,G}b</value>
+		<value></value>
 	</config>
 	<config protected="true">
 		<key>SYSTEM_INSTALL_DATE</key>

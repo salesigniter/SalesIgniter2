@@ -1,88 +1,334 @@
 /* Columns section */
-#desktopWidgets ul { list-style:none;padding:0;margin:0;text-align:center; }
-#desktopWidgets li.ui-widget { margin:1em;display: inline-block;vertical-align: top;width:46%;text-align: left; }
-#desktopWidgets li.widget-placeholder { margin:1em;display: inline-block;vertical-align: top;width:48%;border: 2px dashed #999;}
-#desktopWidgets .ui-widget-header { padding: 0 .5em;position: relative; }
-#desktopWidgets .ui-widget-header h3 { display: inline-block; }
-#desktopWidgets .ui-widget-header .edit { position:absolute;right:3.5em;top:.5em; }
-#desktopWidgets .ui-widget-header .remove { position:absolute;right:.5em;top:.5em; }
-#desktopWidgets li > .ui-widget-content { border-top:0px;padding:10px; }
-#desktopWidgets li.collapsed > .ui-widget-content {display:none;}
+#desktopWidgets ul {
+	list-style : none;
+	padding    : 0;
+	margin     : 0;
+	text-align : center;
+}
 
+#desktopWidgets li.ui-widget {
+	margin         : 1em;
+	display        : inline-block;
+	vertical-align : top;
+	width          : 46%;
+	text-align     : left;
+}
 
-#desktopWidgets li.color-yellow > .ui-widget-header { background:#f2bc00;border-color:#f2bc00; }
-#desktopWidgets li.color-yellow > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-yellow > .ui-widget-content { border-color:#f2bc00; }
+#desktopWidgets li.widget-placeholder {
+	margin         : 1em;
+	display        : inline-block;
+	vertical-align : top;
+	width          : 48%;
+	border         : 2px dashed #999;
+}
 
-#desktopWidgets li.color-red > .ui-widget-header { background:#dd0000;border-color:#dd0000; }
-#desktopWidgets li.color-red > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-red > .ui-widget-content { border-color:#dd0000; }
+#desktopWidgets .ui-widget-header {
+	padding  : 0 .5em;
+	position : relative;
+}
 
-#desktopWidgets li.color-blue > .ui-widget-header { background:#148ea4;border-color:#148ea4; }
-#desktopWidgets li.color-blue > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-blue > .ui-widget-content { border-color:#148ea4; }
+#desktopWidgets .ui-widget-header h3 {
+	display : inline-block;
+}
 
-#desktopWidgets li.color-white > .ui-widget-header { background:#ffffff;border-color:#000000; }
-#desktopWidgets li.color-white > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-white > .ui-widget-content { border-color:#000000; }
+#desktopWidgets .ui-widget-header .edit {
+	position : absolute;
+	right    : 3.5em;
+	top      : .5em;
+}
 
-#desktopWidgets li.color-orange > .ui-widget-header { background:#f66e00;border-color:#f66e00; }
-#desktopWidgets li.color-orange > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-orange > .ui-widget-content { border-color:#f66e00; }
+#desktopWidgets .ui-widget-header .remove {
+	position : absolute;
+	right    : .5em;
+	top      : .5em;
+}
 
-#desktopWidgets li.color-green > .ui-widget-header { background:#8dc100;border-color:#8dc100; }
-#desktopWidgets li.color-green > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-green > .ui-widget-content { border-color:#8dc100; }
+#desktopWidgets li > .ui-widget-content {
+	border-top : 0px;
+	padding    : 10px;
+}
 
-#desktopWidgets li.color-yellowgradient { <?php echo buildSimpleGradient('#f2bc00', '#ffffff');?> }
-#desktopWidgets li.color-yellowgradient > .ui-widget-header { border-color:#f2bc00;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-yellowgradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-yellowgradient > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-yellowgradient > .ui-widget-content { background:transparent;border-color:#f2bc00; }
+#desktopWidgets li.collapsed > .ui-widget-content {
+	display : none;
+}
 
-#desktopWidgets li.color-redgradient { <?php echo buildSimpleGradient('#dd0000', '#ffffff');?> }
-#desktopWidgets li.color-redgradient > .ui-widget-header { border-color:#dd0000;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-redgradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-redgradient > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-redgradient > .ui-widget-content { background:transparent;border-color:#dd0000; }
+#desktopWidgets li.color-yellow > .ui-widget-header {
+	background   : #f2bc00;
+	border-color : #f2bc00;
+}
 
-#desktopWidgets li.color-bluegradient { <?php echo buildSimpleGradient('#148ea4', '#ffffff');?> }
-#desktopWidgets li.color-bluegradient > .ui-widget-header { border-color:#148ea4;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-bluegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-bluegradient > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-bluegradient > .ui-widget-content { background:transparent;border-color:#148ea4; }
+#desktopWidgets li.color-yellow > .ui-widget-header h3 {
+	color : #000000;
+}
 
-#desktopWidgets li.color-whitegradient { <?php echo buildSimpleGradient('#ffffff', '#000000');?> }
-#desktopWidgets li.color-whitegradient > .ui-widget-header { border-color:#000000;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-whitegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-whitegradient > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-whitegradient > .ui-widget-content { background:transparent;border-color:#000000; }
+#desktopWidgets li.color-yellow > .ui-widget-content {
+	border-color : #f2bc00;
+}
 
-#desktopWidgets li.color-orangegradient { <?php echo buildSimpleGradient('#f66e00', '#ffffff');?> }
-#desktopWidgets li.color-orangegradient > .ui-widget-header { border-color:#f66e00;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-orangegradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-orangegradient > .ui-widget-header h3 { color:#FFFFFF; }
-#desktopWidgets li.color-orangegradient > .ui-widget-content { background:transparent;border-color:#f66e00; }
+#desktopWidgets li.color-red > .ui-widget-header {
+	background   : #dd0000;
+	border-color : #dd0000;
+}
 
-#desktopWidgets li.color-greengradient { <?php echo buildSimpleGradient('#8dc100', '#ffffff');?> }
-#desktopWidgets li.color-greengradient > .ui-widget-header { border-color:#8dc100;border-bottom-width:0px;background:transparent; }
-#desktopWidgets li.color-greengradient.collapsed > .ui-widget-header { border-bottom-width:1px; }
-#desktopWidgets li.color-greengradient > .ui-widget-header h3 { color:#000000; }
-#desktopWidgets li.color-greengradient > .ui-widget-content { background:transparent;border-color:#8dc100; }
+#desktopWidgets li.color-red > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-red > .ui-widget-content {
+	border-color : #dd0000;
+}
+
+#desktopWidgets li.color-blue > .ui-widget-header {
+	background   : #148ea4;
+	border-color : #148ea4;
+}
+
+#desktopWidgets li.color-blue > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-blue > .ui-widget-content {
+	border-color : #148ea4;
+}
+
+#desktopWidgets li.color-white > .ui-widget-header {
+	background   : #ffffff;
+	border-color : #000000;
+}
+
+#desktopWidgets li.color-white > .ui-widget-header h3 {
+	color : #000000;
+}
+
+#desktopWidgets li.color-white > .ui-widget-content {
+	border-color : #000000;
+}
+
+#desktopWidgets li.color-orange > .ui-widget-header {
+	background   : #f66e00;
+	border-color : #f66e00;
+}
+
+#desktopWidgets li.color-orange > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-orange > .ui-widget-content {
+	border-color : #f66e00;
+}
+
+#desktopWidgets li.color-green > .ui-widget-header {
+	background   : #8dc100;
+	border-color : #8dc100;
+}
+
+#desktopWidgets li.color-green > .ui-widget-header h3 {
+	color : #000000;
+}
+
+#desktopWidgets li.color-green > .ui-widget-content {
+	border-color : #8dc100;
+}
+
+#desktopWidgets li.color-yellowgradient {
+	< ? php echo buildSimpleGradient('#f2bc00', '#ffffff');
+	? >
+}
+
+#desktopWidgets li.color-yellowgradient > .ui-widget-header {
+	border-color        : #f2bc00;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-yellowgradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-yellowgradient > .ui-widget-header h3 {
+	color : #000000;
+}
+
+#desktopWidgets li.color-yellowgradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #f2bc00;
+}
+
+#desktopWidgets li.color-redgradient {
+	< ? php echo buildSimpleGradient('#dd0000', '#ffffff');
+	? >
+}
+
+#desktopWidgets li.color-redgradient > .ui-widget-header {
+	border-color        : #dd0000;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-redgradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-redgradient > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-redgradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #dd0000;
+}
+
+#desktopWidgets li.color-bluegradient {
+	< ? php echo buildSimpleGradient('#148ea4', '#ffffff');
+	? >
+}
+
+#desktopWidgets li.color-bluegradient > .ui-widget-header {
+	border-color        : #148ea4;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-bluegradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-bluegradient > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-bluegradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #148ea4;
+}
+
+#desktopWidgets li.color-whitegradient {
+	< ? php echo buildSimpleGradient('#ffffff', '#000000');
+	? >
+}
+
+#desktopWidgets li.color-whitegradient > .ui-widget-header {
+	border-color        : #000000;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-whitegradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-whitegradient > .ui-widget-header h3 {
+	color : #000000;
+}
+
+#desktopWidgets li.color-whitegradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #000000;
+}
+
+#desktopWidgets li.color-orangegradient {
+	< ? php echo buildSimpleGradient('#f66e00', '#ffffff');
+	? >
+}
+
+#desktopWidgets li.color-orangegradient > .ui-widget-header {
+	border-color        : #f66e00;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-orangegradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-orangegradient > .ui-widget-header h3 {
+	color : #FFFFFF;
+}
+
+#desktopWidgets li.color-orangegradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #f66e00;
+}
+
+#desktopWidgets li.color-greengradient {
+	< ? php echo buildSimpleGradient('#8dc100', '#ffffff');
+	? >
+}
+
+#desktopWidgets li.color-greengradient > .ui-widget-header {
+	border-color        : #8dc100;
+	border-bottom-width : 0px;
+	background          : transparent;
+}
+
+#desktopWidgets li.color-greengradient.collapsed > .ui-widget-header {
+	border-bottom-width : 1px;
+}
+
+#desktopWidgets li.color-greengradient > .ui-widget-header h3 {
+	color : #000000;
+}
+
+#desktopWidgets li.color-greengradient > .ui-widget-content {
+	background   : transparent;
+	border-color : #8dc100;
+}
 
 /* Colors */
-.colors .color-yellow {background:#f2bc00;}
-.colors .color-red    {background:#dd0000;}
-.colors .color-blue   {background:#148ea4;}
-.colors .color-white  {background:#ffffff;}
-.colors .color-orange {background:#f66e00;}
-.colors .color-green  {background:#8dc100;}
-.colors .color-yellowgradient {<?php echo buildSimpleGradient('#f2bc00', '#ffffff');?>}
-.colors .color-redgradient    {<?php echo buildSimpleGradient('#dd0000', '#ffffff');?>}
-.colors .color-bluegradient   {<?php echo buildSimpleGradient('#148ea4', '#ffffff');?>}
-.colors .color-whitegradient  {<?php echo buildSimpleGradient('#ffffff', '#ffffff');?>}
-.colors .color-orangegradient {<?php echo buildSimpleGradient('#f66e00', '#ffffff');?>}
-.colors .color-greengradient  {<?php echo buildSimpleGradient('#8dc100', '#ffffff');?>}
+.colors .color-yellow {
+	background : #f2bc00;
+}
+
+.colors .color-red {
+	background : #dd0000;
+}
+
+.colors .color-blue {
+	background : #148ea4;
+}
+
+.colors .color-white {
+	background : #ffffff;
+}
+
+.colors .color-orange {
+	background : #f66e00;
+}
+
+.colors .color-green {
+	background : #8dc100;
+}
+
+.colors .color-yellowgradient {
+	< ? php echo buildSimpleGradient('#f2bc00', '#ffffff');
+	? >
+}
+
+.colors .color-redgradient {
+	< ? php echo buildSimpleGradient('#dd0000', '#ffffff');
+	? >
+}
+
+.colors .color-bluegradient {
+	< ? php echo buildSimpleGradient('#148ea4', '#ffffff');
+	? >
+}
+
+.colors .color-whitegradient {
+	< ? php echo buildSimpleGradient('#ffffff', '#ffffff');
+	? >
+}
+
+.colors .color-orangegradient {
+	< ? php echo buildSimpleGradient('#f66e00', '#ffffff');
+	? >
+}
+
+.colors .color-greengradient {
+	< ? php echo buildSimpleGradient('#8dc100', '#ffffff');
+	? >
+}
+
 /* End Colors */
 
 /* End Columns section */

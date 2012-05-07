@@ -1,70 +1,52 @@
-$(document).ready(function (){
-	$('.gridBody > .gridBodyRow').click(function (){
-		if ($(this).hasClass('state-active')) return;
-
-		$('.gridButtonBar').find('button').button('enable');
-		if ($(this).attr('data-has_orders') == 'false'){
-			$('.gridButtonBar').find('.ordersButton').button('disable');
+$(document).ready(function () {
+	var $PageGrid = $('.gridContainer');
+	$PageGrid.newGrid('option', 'onRowClick', function (e, GridClass) {
+		if ($(this).data('has_orders') == false){
+			GridClass.disableButton('.ordersButton');
 		}
 	});
-
-	$('.gridButtonBar').find('.ordersButton').click(function (){
-		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
-		js_redirect(js_app_link('app=orders&appPage=default&cID=' + customerId));
-	});
-	
-	$('.gridButtonBar').find('.emailButton').click(function (){
-		var customerEmail = $('.gridBodyRow.state-active').attr('data-customer_email');
-		js_redirect(js_app_link('app=mail&appPage=default&customer=' + customerEmail));
-	});
-
-	$('.gridButtonBar').find('.editButton').click(function (){
-		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
-		js_redirect(js_app_link('app=customers&appPage=edit&cID=' + customerId));
-	});
-
-	$('.gridButtonBar').find('.newButton').click(function (){
-		js_redirect(js_app_link('app=customers&appPage=edit'));
-	});
-
-	$('.gridButtonBar').find('.loginAsCustomerButton').click(function (){
-		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
-		js_redirect(js_app_link('app=customers&appPage=default&action=loginAs&cID=' + customerId));
-	});
-
-	$('.gridButtonBar').find('.deleteButton').click(function (){
-		var customerId = $('.gridBodyRow.state-active').attr('data-customer_id');
-		
-		confirmDialog({
-			confirmUrl: js_app_link('app=customers&appPage=default&action=deleteConfirm&cID=' + customerId),
-			title: 'Confirm Delete',
-			content: 'Are you sure you want to delete this customer?',
-			success: function (){
-				js_redirect(js_app_link('app=customers&appPage=default'));
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.newButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('new'));
 			}
-		});
-	});
-
-	$('#csvFieldsTable').hide();
-	$('#showFields').click(function(){
-		if ($('#csvFieldsTable').is(':visible')){
-			$('#csvFieldsTable').hide();
-		}else{
-			$('#csvFieldsTable').show();
-		}
-		return false;
-	});
-	$('#selectAllCustomers').change(function(){
-		$('.selectedCustomer').each(function(){
-			if ($(this).is(':checked')){
-				$(this).attr('checked', false);
-			}else{
-				$(this).attr('checked', true);
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildCurrentAppRedirect('new', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
 			}
-		});
-	});
-
-	$('#saveCvs').click(function (){
-		js_redirect(js_app_link('app=customers&appPage=default&action=exportCustomers&' + $('.selectedCustomer, #csvFieldsTable :checked').serialize()))
-	});
+		},
+		{
+			selector          : '.ordersButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('orders', 'decault', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.emailButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('mail', 'default', ['customer=' + GridClass.getSelectedData('customer_email')]));
+			}
+		},
+		{
+			selector          : '.loginAsCustomerButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('customers', 'default', ['action=loginAd', GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		'delete',
+		'export'
+	]);
 });

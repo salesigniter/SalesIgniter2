@@ -1,19 +1,24 @@
 <?php
 $Product = new Product(
-	(isset($_GET['pID']) && empty($_POST) ? $_GET['pID'] : ''),
+	(isset($_GET['product_id']) && empty($_POST) ? $_GET['product_id'] : ''),
 	true
 );
-if (!isset($_GET['pID']) && isset($_GET['productType'])){
+if (!isset($_GET['product_id']) && isset($_GET['productType'])){
 	$Product->setProductType($_GET['productType']);
 }
 
-$tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
+$tax_class_array = array(array('id'   => '0',
+							   'text' => sysLanguage::get('TEXT_NONE')
+)
+);
 $QtaxClass = Doctrine_Manager::getInstance()
 	->getCurrentConnection()
 	->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
 foreach($QtaxClass as $tax_class){
-	$tax_class_array[] = array('id' => $tax_class['tax_class_id'],
-		'text' => $tax_class['tax_class_title']);
+	$tax_class_array[] = array(
+		'id'   => $tax_class['tax_class_id'],
+		'text' => $tax_class['tax_class_title']
+	);
 }
 
 if ($Product->isActive() === true){
@@ -54,8 +59,12 @@ if ($Product->getId() > 0){
 }
 
 $is_box_array = array();
-$is_box_array[] = array('id' => 0, 'text' => 'No');
-$is_box_array[] = array('id' => 1, 'text' => 'Yes');
+$is_box_array[] = array('id'   => 0,
+						'text' => 'No'
+);
+$is_box_array[] = array('id'   => 1,
+						'text' => 'Yes'
+);
 //------------------------- BOX set end block -----------------------------//
 
 $ajaxSaveButton = htmlBase::newElement('button')->setType('submit')->usePreset('save')->addClass('ajaxSave')
@@ -68,13 +77,13 @@ if (Session::exists('categories_cancel_link') === true){
 	$cancelButton->setHref(Session::get('categories_cancel_link'));
 }
 else {
-	$cancelButton->setHref(itw_app_link((isset($_GET['pID']) ? 'pID=' . $_GET['pID'] : ''), null, 'default'));
+	$cancelButton->setHref(itw_app_link((isset($_GET['product_id']) ? 'product_id=' . $_GET['product_id'] : ''), null, 'default'));
 }
 ?>
 <script language="javascript">
 	var tax_rates = new Array();
-<?php
-for($i = 0, $n = sizeof($tax_class_array); $i < $n; $i++){
+	<?php
+	for($i = 0, $n = sizeof($tax_class_array); $i < $n; $i++){
 		if ($tax_class_array[$i]['id'] > 0){
 			echo 'tax_rates["' . $tax_class_array[$i]['id'] . '"] = ' . tep_get_tax_rate_value($tax_class_array[$i]['id']) . ';' . "\n";
 		}
@@ -84,12 +93,12 @@ for($i = 0, $n = sizeof($tax_class_array); $i < $n; $i++){
 <?php
 $ProductType = $Product->getProductTypeClass();
 $adminTabs = array(
-	'admin/applications/products/pages_tabs/tab_general.php' => sysLanguage::get('TAB_GENERAL'),
-	'admin/applications/products/pages_tabs/tab_images.php' => sysLanguage::get('TAB_IMAGES'),
+	'admin/applications/products/pages_tabs/tab_general.php'     => sysLanguage::get('TAB_GENERAL'),
+	'admin/applications/products/pages_tabs/tab_images.php'      => sysLanguage::get('TAB_IMAGES'),
 	'admin/applications/products/pages_tabs/tab_description.php' => sysLanguage::get('TAB_DESCRIPTION'),
-	'admin/applications/products/pages_tabs/tab_categories.php' => sysLanguage::get('TAB_CATEGORIES')
+	'admin/applications/products/pages_tabs/tab_categories.php'  => sysLanguage::get('TAB_CATEGORIES')
 );
-EventManager::notify('NewProductAddDefaultTabs', $Product, $ProductType, &$adminTabs);
+EventManager::notify('NewProductAddDefaultTabs', $Product, $ProductType, $adminTabs);
 
 $Tabs = htmlBase::newElement('tabs')
 	->setId('tab_container');
@@ -101,7 +110,8 @@ foreach($adminTabs as $k => $v){
 	ob_start();
 	if (file_exists($ProductType->getPath() . $k)){
 		require($ProductType->getPath() . $k);
-	}else{
+	}
+	else {
 		require(sysConfig::getDirFsCatalog() . $k);
 	}
 	$TabContent = ob_get_contents();
@@ -123,30 +133,21 @@ if (file_exists($ProductType->getPath() . 'admin/applications/products/pages/new
 }
 
 EventManager::notify('NewProductAddTabs', $Product, $ProductType, $Tabs);
+$pageButtons = $ajaxSaveButton->draw() . $saveButton->draw() . $cancelButton->draw();
 ?>
-<form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'action=saveProduct' . ((int)$Product->getId() > 0
-		? '&pID=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
-	<div style="position:relative;text-align:right;"><?php
-	 echo $ajaxSaveButton->draw() . $saveButton->draw() . $cancelButton->draw();
-		echo '<div class="pageHeading" style="position:absolute;left:0;top:.5em;">' . (isset($_GET['pID'])
-			? 'Edit Product' : 'New Product') . '</div>';
-		?></div>
-	<br />
-	<?php if (!isset($_GET['pID'])){ ?>
-	<div class="ui-widget ui-widget-content ui-corner-all ui-state-warning newProductMessage" style="padding:.3em;font-weight:bold;">You are entering a new product. Some places are disabled, use the "Save Ajax" button to save this product and enable them</div>
+<form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'action=saveProduct' . ((int)$Product->getId() > 0
+	? '&product_id=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
+	<div style="position:relative;text-align:right;"><?php echo $pageButtons; ?></div>
 	<br />
 	<?php
-}
 	echo $Tabs->draw();
 	?>
 	<div style="position:relative;text-align:right;margin-top:.5em;margin-left:250px;"><?php
-	if (Session::exists('categories_cancel_link') === true){
-		echo tep_draw_hidden_field('categories_save_redirect', Session::get('categories_save_redirect'));
-	}
-		echo $ajaxSaveButton->draw() . $saveButton->draw() . $cancelButton->draw();
+		if (Session::exists('categories_cancel_link') === true){
+			echo tep_draw_hidden_field('categories_save_redirect', Session::get('categories_save_redirect'));
+		}
+		echo $pageButtons;
 		?>
-		<div class="smallText" style="text-align:left;width:315px;position:absolute;right:.5em;top:3em;">*Image upload fields do not work with ajax save<br>So you'll need to use the normal save button for uploads
-		</div>
 	</div>
 	<input type="hidden" name="products_type" value="<?php echo $ProductType->getCode();?>">
 </form>

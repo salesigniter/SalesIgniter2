@@ -8,15 +8,10 @@
 			<description>General Settings</description>
 			<configurations>
 				<PRODUCT_LIST_FILTER>
-					<title><![CDATA[Display Category/Manufacturer Filter (0=disable; 1=enable)]]></title>
+					<title><![CDATA[Display Category Filter (0=disable; 1=enable)]]></title>
 					<value><![CDATA[1]]></value>
-					<description><![CDATA[Do you want to display the Category/Manufacturer Filter?]]></description>
+					<description><![CDATA[Do you want to display the Category Filter?]]></description>
 				</PRODUCT_LIST_FILTER>
-				<PREV_NEXT_BAR_LOCATION>
-					<title><![CDATA[Location of Prev/Next Navigation Bar (1-top, 2-bottom, 3-both)]]></title>
-					<value><![CDATA[2]]></value>
-					<description><![CDATA[Sets the location of the Prev/Next Navigation Bar (1-top, 2-bottom, 3-both)]]></description>
-				</PREV_NEXT_BAR_LOCATION>
 				<RENTAL_SHOW_FEATURED_TITLE_X>
 					<title><![CDATA[Show X number of featured titles per category]]></title>
 					<value><![CDATA[6]]></value>

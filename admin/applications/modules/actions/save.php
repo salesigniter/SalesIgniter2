@@ -47,7 +47,8 @@ if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'orderTotal' || $_GET[
 		if (is_array($value)){
 			$Glue = $ModuleConfig->getConfig($key)->getGlue();
 			$Configuration[$key]->configuration_value = implode($Glue, $value);
-		}else{
+		}
+		else {
 			$Configuration[$key]->configuration_value = $value;
 		}
 	}
@@ -76,7 +77,7 @@ else {
 }
 
 EventManager::attachActionResponse(array(
-		'success' => true,
-		'moduleType' => $moduleType
-	), 'json');
+	'success'    => true,
+	'moduleType' => $moduleType
+), 'json');
 ?>

@@ -1,10 +1,4 @@
 <?php
-    require(sysConfig::getDirFsAdmin() . 'includes/classes/table_block.php');
-    require(sysConfig::getDirFsAdmin() . 'includes/classes/box.php');
-    require(sysConfig::getDirFsAdmin() . 'includes/classes/split_page_results.php');
-
-    require(sysConfig::getDirFsCatalog() . 'includes/classes/currencies.php');
-    $currencies = new currencies();
     $purchaseTypeNames = $typeNames;
     $purchaseTypeNames['global'] = 'All Purchase Types';
     $tax_class_array = array(array('id' => '0', 'text' => sysLanguage::get('TEXT_NONE')));
@@ -21,10 +15,4 @@
     }
 
     $appContent = $App->getAppContentFile();
-
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.ui.datepicker.js');
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.effects.core.js');
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.effects.slide.js');
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fold.js');
-    $App->addJavascriptFile('ext/jQuery/ui/jquery.effects.fade.js');
 ?>

@@ -84,10 +84,10 @@ function iterateLanguageDirectory($dir, $exclude = null) {
 			$path = explode('/', str_replace($dir, '', $arr[0]));
 			$evalString = '';
 			for($i = 0, $n = sizeof($path); $i < $n; $i++){
-				if (empty($path[$i])) {
+				if (empty($path[$i])){
 					continue;
 				}
-				if ($path[$i] == 'language_defines') {
+				if ($path[$i] == 'language_defines'){
 					continue;
 				}
 
@@ -121,21 +121,21 @@ function iterateLanguageDirectory($dir, $exclude = null) {
 }
 
 if (sysConfig::exists('GOOGLE_API_SERVER_KEY') && sysConfig::get('GOOGLE_API_SERVER_KEY') != ''){
-?>
+	?>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script>
 	google.load("language", "1");
 </script>
 <?php
 
-$fromLangDrop = htmlBase::newElement('selectbox')->setName('fromLanguage');
-$fromLangDrop->addOption('auto', 'Detect language');
-$fromLangDrop->selectOptionByValue((isset($_GET['langCode']) ? $_GET['langCode'] : sysLanguage::getCode()));
-$toLangDrop = htmlBase::newElement('selectbox')->setName('toLanguage');
-foreach(sysLanguage::getGoogleLanguages() as $code => $lang){
-	$fromLangDrop->addOption($code, $lang);
-	$toLangDrop->addOption($code, $lang);
-}
+	$fromLangDrop = htmlBase::newElement('selectbox')->setName('fromLanguage');
+	$fromLangDrop->addOption('auto', 'Detect language');
+	$fromLangDrop->selectOptionByValue((isset($_GET['langCode']) ? $_GET['langCode'] : sysLanguage::getCode()));
+	$toLangDrop = htmlBase::newElement('selectbox')->setName('toLanguage');
+	foreach(sysLanguage::getGoogleLanguages() as $code => $lang){
+		$fromLangDrop->addOption($code, $lang);
+		$toLangDrop->addOption($code, $lang);
+	}
 }
 ?>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">

@@ -60,10 +60,23 @@ class Application
 			}
 		}
 
-		$this->appDir = array(
-			'relative' => $this->getAppLocation('relative'),
-			'absolute' => $this->getAppLocation()
-		);
+		if ($this->appLocation === false){
+			$StandAlone = Doctrine_Query::create()
+				->from('TemplateManagerLayouts')
+				->where('page_type = ?', 'page')
+				->andWhere('app_name = ?', $this->appName)
+				->andWhere('app_page_name = ?', $this->appPage)
+				->execute();
+			if ($StandAlone && $StandAlone->count() == 1){
+				$this->appLocation = 'virtual';
+				$this->appDir = 'virtual';
+			}
+		}else{
+			$this->appDir = array(
+				'relative' => $this->getAppLocation('relative'),
+				'absolute' => $this->getAppLocation()
+			);
+		}
 	}
 
 	public function isValid() {
@@ -114,10 +127,16 @@ class Application
 	}
 
 	public function getAppFile() {
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
 		return $this->getAppLocation() . 'app.php';
 	}
 
 	private function getEnvDirs() {
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
 		return $this->envDirs;
 	}
 
@@ -126,6 +145,10 @@ class Application
 	}
 
 	public function getAppContentFile($useFile = false) {
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
+
 		if ($useFile !== false){
 			if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/pages/' . $useFile)){
 				$requireFile = sysConfig::get('DIR_WS_TEMPLATE') . $this->env . 'applications/' . $this->appName . '/pages/' . $useFile;
@@ -146,6 +169,9 @@ class Application
 
 	public function loadLanguageDefines() {
 		global $appExtension;
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
 
 		/* TODO: Remove when all applications are built */
 		if (!isset($_GET['app'])){
@@ -194,6 +220,10 @@ class Application
 
 	public function getAppBaseJsFiles() {
 		global $appExtension;
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
+
 		$javascriptFiles = array();
 
 		$appExtension->getGlobalFiles('javascript', array(
@@ -237,6 +267,10 @@ class Application
 
 	public function getAppBaseStylesheetFiles() {
 		global $appExtension;
+
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
 
 		$stylesheetFiles = array();
 
@@ -294,6 +328,10 @@ class Application
 
 	public function getActionFiles($action) {
 		global $appExtension;
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
+
 		$actionFiles = array();
 		if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php')){
 			$actionFiles[] = sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/actions/' . $action . '.php';
@@ -319,6 +357,10 @@ class Application
 
 	public function getFunctionFiles() {
 		global $appExtension;
+		if ($this->appLocation == 'virtual'){
+			return '';
+		}
+
 		$functionFiles = array();
 		$pageFunctionFile = $this->getAppPage() . '.php';
 

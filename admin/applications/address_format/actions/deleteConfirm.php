@@ -1,8 +1,15 @@
 <?php
-	Doctrine_Query::create()
-	->delete('AddressFormat')
-	->where('address_format_id = ?', (int)$_GET['fID'])
-	->execute();
-	
-	EventManager::attachActionResponse(itw_app_link(null, 'address_format', 'default'), 'redirect');
-?>
+$success = false;
+$toDelete = explode(',', $_GET['format_id']);
+$AddressFormats = Doctrine_Core::getTable('AddressFormat');
+foreach($toDelete as $formatId){
+	$AddressFormat = $AddressFormats->find($formatId);
+	if ($AddressFormat){
+		$AddressFormat->delete();
+		$success = true;
+	}
+}
+
+EventManager::attachActionResponse(array(
+	'success' => $success
+), 'json');

@@ -13,11 +13,6 @@ Released under the GNU General Public License
 // close session (store variables)
 Session::stop();
 
-if (sysConfig::get('STORE_PAGE_PARSE_TIME') == 'true') {
-	if (!is_object($logger)) $logger = new logger;
-	echo $logger->timer_stop(sysConfig::get('DISPLAY_PAGE_PARSE_TIME'));
-}
-
 if (isset($_GET['showStats'])){
 	$execStart = explode(' ', sysConfig::get('PAGE_PARSE_START_TIME'));
 	$execEnd = explode(' ', microtime());

@@ -138,7 +138,8 @@ class ReservationUtilities {
 			'showDateSelectStatus' => true,
 			'selectedDate'         => null,
 			'showSelectedInputs'   => true,
-			'shippingDays'         => null
+			'shippingDays'         => null,
+			'showInfoKey'          => true
 		);
 
 		$options = array_merge($defaults, $settings);
@@ -1284,7 +1285,9 @@ class ReservationUtilities {
 
 		if($('.pricingTable table tr').size() == 0){
 
+			<?php if ($options['showInfoKey'] === false){ ?>
 			$selfID.find('.shippingInfoDiv').hide();
+			<?php } ?>
 			$selfID.find('.iscal').hide();
 			$selfID.find('.iscal').prev().hide();
 			$selfID.find('.issem').trigger('click');
@@ -1464,30 +1467,6 @@ class ReservationUtilities {
         </div>
 		<?php
 		}
-        ?>
-		<div class="shippingInfoDiv">
-			<div colspan="2">
-				<table cellpadding="0" cellspacing="3" border="0" width="100%">
-				<tr>
-				<td style="width:10px;height:10px;" class="ui-datepicker-reserved ui-state-disabled">&nbsp;</td>
-				<td style="font-size:.8em"> - Unavailable Days.</td>
-				</tr>
-			    <tr>
-				<td style="width:10px;height:10px;" class="ui-datepicker-shipping-day-hover-info">&nbsp;</td>
-				<td style="font-size:.8em"> - Selected Days.</td>
-			    </tr>
-
-			<?php if ($purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false){ ?>
-				<tr>
-				<td style="width:10px;height:10px;background: #F7C8D3;">&nbsp;</td>
-				<td style="font-size:.8em"> - Shipping Days.</td>
-		        </tr>
-			<?php } ?>
-
-                </table>
-			</div>
-		</div>
-     <?php
      if ($purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false){
 	  ?>
 		<div class="shippingDiv"><div>
@@ -1509,11 +1488,31 @@ class ReservationUtilities {
 	 <div class="dateRow">
       <div><table cellpadding="3" cellspacing="0" border="0" width="100%">
        <tr>
-        <td valign="top"><div class="datePicker"></div>
-		<div class="calendarTime">
-
-		</div>
-
+        <td valign="top">
+			<div class="datePicker"></div>
+			<?php if ($options['showInfoKey'] === true){ ?>
+			<div class="shippingInfoDiv">
+				<div colspan="2">
+					<table cellpadding="0" cellspacing="3" border="0" width="100%">
+						<tr>
+							<td style="width:10px;height:10px;" class="ui-datepicker-reserved ui-state-disabled">&nbsp;</td>
+							<td style="font-size:.8em"> - Unavailable Days.</td>
+						</tr>
+						<tr>
+							<td style="width:10px;height:10px;" class="ui-datepicker-shipping-day-hover-info">&nbsp;</td>
+							<td style="font-size:.8em"> - Selected Days.</td>
+						</tr>
+						<?php if ($options['showShipping'] === true && $purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false){ ?>
+						<tr>
+							<td style="width:10px;height:10px;background: #F7C8D3;">&nbsp;</td>
+							<td style="font-size:.8em"> - Shipping Days.</td>
+						</tr>
+						<?php } ?>
+					</table>
+				</div>
+			</div>
+			<?php } ?>
+			<div class="calendarTime"></div>
 		</td>
        </tr>
       </table></div>

@@ -119,7 +119,8 @@ if (is_dir($newLangPath)){
 	if (sysConfig::exists('GOOGLE_API_SERVER_KEY') && sysConfig::get('GOOGLE_API_SERVER_KEY') != ''){
 		$Translated = sysLanguage::translateText($langName, $newLang->languages_id);
 		$newLang->name_real = $Translated[0];
-	}else{
+	}
+	else {
 		$newLang->name_real = $langName;
 	}
 	$newLang->save();

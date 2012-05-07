@@ -33,5 +33,5 @@
 	<define key="JS_ALERT_EMAIL_USED"><![CDATA[- Email address has already been used! \n]]></define>
 	<define key="JS_ALERT_PASSWORD_CONFIRM"><![CDATA[- Miss typing in Password Confirmation field! \n]]></define>
 	<define key="ADMIN_EMAIL_SUBJECT"><![CDATA[Personal Information Change]]></define>
-	<define key="ADMIN_EMAIL_TEXT"><![CDATA[Hi %s,\n\nYour personal information, perhaps including your password, has been changed.  If this was done without your knowledge or consent please contact the administrator immediatly!\n\nWebsite : %s\nUsername: %s\nPassword: %s\n\nThanks!\n%s\n\nThis is an automated response, please do not reply!]]></define> 
+	<define key="ADMIN_EMAIL_TEXT"><![CDATA[Hi %s,\n\nYour personal information, perhaps including your password, has been changed.  If this was done without your knowledge or consent please contact the administrator immediatly!\n\nWebsite : %s\nUsername: %s\nPassword: %s\n\nThanks!\n%s\n\nThis is an automated response, please do not reply!]]></define>
 </definitions>

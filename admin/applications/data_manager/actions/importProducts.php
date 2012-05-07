@@ -15,7 +15,7 @@ if (isset($_FILES['usrfl'])){
 	}
 }
 $logArray = array(
-	'new'	=> array(),
+	'new'    => array(),
 	'update' => array(),
 	'error'  => array()
 );
@@ -101,7 +101,7 @@ function logSection($divID, $lArr) {
 
 /* New Tabbed Logging - END*/
 
-function generateBarcodes(&$Product, $type, $numOfBarcodes){
+function generateBarcodes(&$Product, $type, $numOfBarcodes) {
 	$Qinventory = Doctrine_Query::create()
 		->select('i.inventory_id')
 		->from('ProductsInventory i')
@@ -122,7 +122,8 @@ function generateBarcodes(&$Product, $type, $numOfBarcodes){
 		$ProductsInventory->controller = 'normal';
 
 		$Product->ProductsInventory->add($ProductsInventory);
-	}else{
+	}
+	else {
 		$ProductsInventory = $Product->ProductsInventory[$Qinventory->inventory_id];
 	}
 	$Barcodes = $ProductsInventory->ProductsInventoryBarcodes;
@@ -215,7 +216,7 @@ class dataImportColumnIterator extends ArrayIterator
 	}
 
 	public function offsetClean($offset, $replace_quotes) {
-		if (parent::offsetExists($offset) === false) {
+		if (parent::offsetExists($offset) === false){
 			return;
 		}
 
@@ -417,15 +418,15 @@ if ($uploaded === true){
 			}
 
 			$productLogArr = array(
-				'ID:'			  => $Product->products_id,
-				'Image:'		   => $Product->products_image,
-				'Model:'		   => $Product->products_model,
-				'Status:'		  => $status,
-				'Tax Class ID:'	=> $Product->products_tax_class_id,
-				'Weight:'		  => $Product->products_weight,
-				'Type:'			=> $Product->products_type,
-				'In Box:'		  => $Product->products_in_box,
-				'Featured'		 => $Product->products_featured
+				'ID:'              => $Product->products_id,
+				'Image:'           => $Product->products_image,
+				'Model:'           => $Product->products_model,
+				'Status:'          => $status,
+				'Tax Class ID:'    => $Product->products_tax_class_id,
+				'Weight:'          => $Product->products_weight,
+				'Type:'            => $Product->products_type,
+				'In Box:'          => $Product->products_in_box,
+				'Featured'         => $Product->products_featured
 			);
 
 			EventManager::notify('DataImportProductLogBeforeExecute', &$Product, &$productLogArr);
@@ -439,14 +440,14 @@ if ($uploaded === true){
 
 			foreach($Product->ProductsDescription as $Description){
 				$productDescLogArr = array(
-					'ID:'				 => $Description['products_id'],
-					'Language:'		   => $Description['language_id'],
-					'Name:'			   => $Description['products_name'],
-					'Description:'		=> $Description['products_description'],
-					'URL:'				=> $Description['products_url'],
-					'Header Title:'	   => $Description['products_head_title_tag'],
+					'ID:'                 => $Description['products_id'],
+					'Language:'           => $Description['language_id'],
+					'Name:'               => $Description['products_name'],
+					'Description:'        => $Description['products_description'],
+					'URL:'                => $Description['products_url'],
+					'Header Title:'       => $Description['products_head_title_tag'],
 					'Header Description:' => $Description['products_head_desc_tag'],
-					'Header Keywords:'	=> $Description['products_head_keywords_tag']
+					'Header Keywords:'    => $Description['products_head_keywords_tag']
 				);
 
 				EventManager::notify('DataImportProductDescriptionLogBeforeExecute', &$productDescLogArr);

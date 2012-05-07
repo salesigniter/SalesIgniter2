@@ -75,16 +75,20 @@ $Result = $QfileLayout->execute(array(), Doctrine_Core::HYDRATE_SCALAR);
 $p = -1;
 foreach($Result as $pInfo){
 	foreach($pInfo as $k => $v){
-		$pInfo[substr($k, strpos($k, '_')+1)] = $v;
+		$pInfo[substr($k, strpos($k, '_') + 1)] = $v;
 		unset($pInfo[$k]);
 	}
 
 	$p++;
 	if (isset($_POST['start_num']) && (!empty($_POST['start_num']) || $_POST['start_num'] == 0)){
-		if ($p < $_POST['start_num']) continue;
+		if ($p < $_POST['start_num']) {
+			continue;
+		}
 	}
 	if (isset($_POST['num_items']) && !empty($_POST['num_items'])){
-		if ($p >= ((int)$_POST['start_num'] + $_POST['num_items'])) break;
+		if ($p >= ((int)$_POST['start_num'] + $_POST['num_items'])) {
+			break;
+		}
 	}
 
 	$CurrentRow = $ExportFile->newRow();
@@ -139,7 +143,7 @@ foreach($Result as $pInfo){
 
 	$nmembershipsString = '';
 	if ($pInfo['v_memberships_not_enabled'] != ''){
-		$notEnabledMemberships = explode(';',$pInfo['v_memberships_not_enabled']);
+		$notEnabledMemberships = explode(';', $pInfo['v_memberships_not_enabled']);
 		$Qmembership = Doctrine_Query::create()
 			->from('Membership m')
 			->leftJoin('m.MembershipPlanDescription md')
@@ -147,11 +151,11 @@ foreach($Result as $pInfo){
 			->orderBy('sort_order')
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		foreach($Qmembership as $mInfo){
-			if(in_array($mInfo['plan_id'], $notEnabledMemberships)){
-				$nmembershipsString.= $mInfo['MembershipPlanDescription'][0]['name'].';';
+			if (in_array($mInfo['plan_id'], $notEnabledMemberships)){
+				$nmembershipsString .= $mInfo['MembershipPlanDescription'][0]['name'] . ';';
 			}
 		}
-		$nmembershipsString = substr($nmembershipsString,0,strlen($nmembershipsString)-1);
+		$nmembershipsString = substr($nmembershipsString, 0, strlen($nmembershipsString) - 1);
 	}
 
 	foreach(ProductTypeModules::getModules() as $ProductTypeModule){

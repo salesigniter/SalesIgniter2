@@ -202,4 +202,14 @@ function processContainerColumns(&$Container, $Columns) {
 	}
 }
 
-?>
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_TEMPLATES'));
+		break;
+	case 'layouts':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_LAYOUTS'));
+		break;
+	case 'editLayout':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_LAYOUT_EDITOR'));
+		break;
+}

@@ -23,5 +23,5 @@ if (!class_exists('UpgradeDatabase')){
 	require(sysConfig::getDirFsCatalog() . '/includes/classes/upgradeManager/Database.php');
 }
 
-	$appContent = $App->getAppContentFile();
+$appContent = $App->getAppContentFile();
 ?>

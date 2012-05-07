@@ -30,18 +30,18 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 		->setCellSpacing(0);
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('TEXT_PRODUCTS_NAME')),
-				array('text' => $ProductsName->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => sysLanguage::get('TEXT_PRODUCTS_NAME')),
+			array('text' => $ProductsName->draw())
+		)
+	));
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('TEXT_PRODUCTS_URL') . '<br><small>' . sysLanguage::get('TEXT_PRODUCTS_URL_WITHOUT_HTTP') . '</small>'),
-				array('text' => $ProductsUrl->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => sysLanguage::get('TEXT_PRODUCTS_URL') . '<br><small>' . sysLanguage::get('TEXT_PRODUCTS_URL_WITHOUT_HTTP') . '</small>'),
+			array('text' => $ProductsUrl->draw())
+		)
+	));
 
 	$inputTable->addBodyRow(array(
 		'columns' => array(
@@ -52,7 +52,10 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 
 	$inputTable->addBodyRow(array(
 		'columns' => array(
-			array('colspan' => 2, 'text' => '&nbsp;')
+			array(
+				'colspan' => 2,
+				'text'    => '&nbsp;'
+			)
 		)
 	));
 
@@ -64,17 +67,20 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	));
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('colspan' => 2, 'text' => '<hr>' . sysLanguage::get('TEXT_PRODUCT_METTA_INFO'))
+		'columns' => array(
+			array(
+				'colspan' => 2,
+				'text'    => '<hr>' . sysLanguage::get('TEXT_PRODUCT_METTA_INFO')
 			)
-		));
+		)
+	));
 
 	$inputTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('TEXT_PRODUCTS_SEO_URL')),
-				array('text' => $ProductsSeoUrl->draw())
-			)
-		));
+		'columns' => array(
+			array('text' => sysLanguage::get('TEXT_PRODUCTS_SEO_URL')),
+			array('text' => $ProductsSeoUrl->draw())
+		)
+	));
 
 	/**
 	 * this event expects an array having two elements: label and content | i.e. (array(label=>'', content=>''))
@@ -85,26 +91,29 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	if (is_array($contents_middle)){
 		foreach($contents_middle as $element){
 			if (is_array($element)){
-				if (!isset($element['label'])) {
+				if (!isset($element['label'])){
 					$element['label'] = 'no_defined';
 				}
-				if (!isset($element['content'])) {
+				if (!isset($element['content'])){
 					$element['content'] = 'no_defined';
 				}
 
 				$inputTable->addBodyRow(array(
-						'columns' => array(
-							array('text' => $element['label']),
-							array('text' => $element['content'])
-						)
-					));
+					'columns' => array(
+						array('text' => $element['label']),
+						array('text' => $element['content'])
+					)
+				));
 			}
 			else {
 				$inputTable->addBodyRow(array(
-						'columns' => array(
-							array('colspan' => 2, 'text' => $element)
+					'columns' => array(
+						array(
+							'colspan' => 2,
+							'text'    => $element
 						)
-					));
+					)
+				));
 			}
 		}
 	}

@@ -8,11 +8,11 @@ if ($_POST['report_type'] == 'day'){
 	$dateFrom = date('Y-m-d H:i:s', mktime(0, 0, 0, $dateFromArr['month'], $dateFromArr['day'], $dateFromArr['year']));
 	$dateTo = date('Y-m-d H:i:s', mktime(23, 59, 59, $dateToArr['month'], $dateToArr['day'], $dateToArr['year']));
 }
-elseif ($_POST['report_type'] == 'month'){
+elseif ($_POST['report_type'] == 'month') {
 	$dateFrom = date('Y-m-d H:i:s', mktime(0, 0, 0, $_POST['month_from'], 1, $_POST['year_from']));
-	$dateTo = date('Y-m-d H:i:s', mktime(23, 59, 59, $_POST['month_to']+1, 0, $_POST['year_to']));
+	$dateTo = date('Y-m-d H:i:s', mktime(23, 59, 59, $_POST['month_to'] + 1, 0, $_POST['year_to']));
 }
-elseif ($_POST['report_type'] == 'year'){
+elseif ($_POST['report_type'] == 'year') {
 	$dateFrom = date('Y-m-d H:i:s', mktime(0, 0, 0, 1, 1, $_POST['year_from']));
 	$dateTo = date('Y-m-d H:i:s', mktime(23, 59, 59, 13, 0, $_POST['year_to']));
 }
@@ -83,10 +83,12 @@ if ($Result){
 					$reportData[$oStore][$pYear][$pMonth][$pDay] = array();
 				}
 				$DataBase =& $reportData[$oStore][$pYear][$pMonth][$pDay];
-			}else{
+			}
+			else {
 				continue;
 			}
-		}else{
+		}
+		else {
 			if (!isset($reportData[$pYear][$pMonth][$pDay])){
 				$reportData[$pYear][$pMonth][$pDay] = array();
 			}
@@ -124,7 +126,8 @@ if ($Result){
 
 				if ($pInfo['payment_amount'] < 0){
 					$DataBase['expense']['payments'][$pInfo['payment_method']] += abs($pInfo['payment_amount']);
-				}else{
+				}
+				else {
 					$DataBase['income']['payments'][$pInfo['payment_method']] += $pInfo['payment_amount'];
 				}
 			}
@@ -140,25 +143,25 @@ if ($Result){
 				}
 				$DataBase['income']['sales'] += $otValue;
 			}
-			elseif ($moduleType == 'late_fee' && $showLateFees === true){
+			elseif ($moduleType == 'late_fee' && $showLateFees === true) {
 				if (!isset($DataBase['income']['late_fees'])){
 					$DataBase['income']['late_fees'] = 0;
 				}
 				$DataBase['income']['late_fees'] += $otValue;
 			}
-			elseif ($moduleType == 'tax' && $showSalesTax === true){
+			elseif ($moduleType == 'tax' && $showSalesTax === true) {
 				if (!isset($DataBase['income']['sales_tax'])){
 					$DataBase['income']['sales_tax'] = 0;
 				}
 				$DataBase['income']['sales_tax'] += $otValue;
 			}
-			elseif ($moduleType == 'credit' && $showCredits === true){
+			elseif ($moduleType == 'credit' && $showCredits === true) {
 				if (!isset($DataBase['expense']['credits'])){
 					$DataBase['expense']['credits'] = 0;
 				}
 				$DataBase['expense']['credits'] += $otValue;
 			}
-			elseif ($moduleType == 'coupon' && $showCoupons === true){
+			elseif ($moduleType == 'coupon' && $showCoupons === true) {
 				if (!isset($DataBase['expense']['coupons'])){
 					$DataBase['expense']['coupons'] = 0;
 				}
@@ -193,57 +196,89 @@ if ($Result){
 			$csvRow[] = 'owed_to_main';
 		}
 		$FileObj->addRow($csvRow);
-	}else{
+	}
+	else {
 		$headerCols = array();
-		$headerCols[] = array('addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_DATE'));
+		$headerCols[] = array(
+			'addCls' => 'ui-widget-header',
+			'text'   => sysLanguage::get('TABLE_HEADING_DATE')
+		);
 		if ($showSales === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_SALES'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_SALES')
+			);
 		}
 		if ($showLateFees === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_LATE_FEES'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_LATE_FEES')
+			);
 		}
 		if ($showSalesTax === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_SALES_TAX'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_SALES_TAX')
+			);
 		}
 		if ($showCredits === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_CREDITS'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_CREDITS')
+			);
 		}
 		if ($showCoupons === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_COUPONS'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_COUPONS')
+			);
 		}
 		if ($showStoreToStoreIncome === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_STORE_TO_STORE_INCOME'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_STORE_TO_STORE_INCOME')
+			);
 		}
 		if ($showStoreToStoreExpense === true){
-			$headerCols[] = array('align' => 'right', 'addCls' => 'ui-widget-header', 'text' => sysLanguage::get('TABLE_HEADING_STORE_TO_STORE_EXPENSE'));
+			$headerCols[] = array(
+				'align'  => 'right',
+				'addCls' => 'ui-widget-header',
+				'text'   => sysLanguage::get('TABLE_HEADING_STORE_TO_STORE_EXPENSE')
+			);
 		}
 
 		$ReportTable->addHeaderRow(array(
-				'columns' => $headerCols
-			));
+			'columns' => $headerCols
+		));
 	}
 
 	if ($_POST['report_type'] == 'day'){
-		function parseReportInfo($rInfo, &$ReportTable){
+		function parseReportInfo($rInfo, &$ReportTable) {
 			global $currencies, $FileObj, $headerCols, $showSales, $showLateFees, $showSalesTax, $showCredits, $showCoupons, $showStoreToStoreIncome, $showStoreToStoreExpense, $showPaymentModules;
 			foreach($rInfo as $year => $yInfo){
 				foreach($yInfo as $month => $mInfo){
 					if (!isset($_GET['csv'])){
 						$ReportTable->addBodyRow(array(
-								'columns' => array(
-									array(
-										'addCls' => 'ui-widget-content ui-state-hover',
-										'colspan' => sizeof($headerCols),
-										'text' => '<b>' . date('F', mktime(0,0,0,$month,1,$year)) . ' ' . $year . '</b>'
-									)
+							'columns' => array(
+								array(
+									'addCls'  => 'ui-widget-content ui-state-hover',
+									'colspan' => sizeof($headerCols),
+									'text'    => '<b>' . date('F', mktime(0, 0, 0, $month, 1, $year)) . ' ' . $year . '</b>'
 								)
-							));
+							)
+						));
 					}
 
 					foreach($mInfo as $day => $rInfo){
 						if (isset($_GET['csv'])){
 							$csvRow = array();
-							$csvRow[] = date('m/d/Y', mktime(0,0,0,$month,$day,$year));
+							$csvRow[] = date('m/d/Y', mktime(0, 0, 0, $month, $day, $year));
 							if ($showSales === true){
 								$csvRow[] = $currencies->format($rInfo['income']['sales']);
 							}
@@ -267,58 +302,86 @@ if ($Result){
 							}
 
 							$FileObj->addRow($csvRow);
-						}else{
+						}
+						else {
 							$rowCols = array();
 							$rowCols[] = array('text' => 'Day: ' . $day);
 							if ($showSales === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['income']['sales']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['income']['sales'])
+								);
 							}
 							if ($showLateFees === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['income']['late_fees']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['income']['late_fees'])
+								);
 							}
 							if ($showSalesTax === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['income']['sales_tax']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['income']['sales_tax'])
+								);
 							}
 							if ($showCredits === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['expense']['credits']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['expense']['credits'])
+								);
 							}
 							if ($showCoupons === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['expense']['coupons']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['expense']['coupons'])
+								);
 							}
 							if ($showStoreToStoreIncome === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['income']['store_to_store']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['income']['store_to_store'])
+								);
 							}
 							if ($showStoreToStoreExpense === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($rInfo['expense']['store_to_store']));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($rInfo['expense']['store_to_store'])
+								);
 							}
 
 							$ReportTable->addBodyRow(array(
-									'columns' => $rowCols
-								));
+								'columns' => $rowCols
+							));
 
 							if ($showPaymentModules === true){
 								foreach($rInfo['income']['payments'] as $Method => $total){
 									$rowCols = array();
 									$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Income');
 									if ($showSales === true){
-										$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+										$rowCols[] = array(
+											'align' => 'right',
+											'text'  => $currencies->format($total)
+										);
 									}
 
 									$ReportTable->addBodyRow(array(
-											'columns' => $rowCols
-										));
+										'columns' => $rowCols
+									));
 								}
 
 								foreach($rInfo['expense']['payments'] as $Method => $total){
 									$rowCols = array();
 									$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Expense');
 									if ($showSales === true){
-										$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+										$rowCols[] = array(
+											'align' => 'right',
+											'text'  => $currencies->format($total)
+										);
 									}
 
 									$ReportTable->addBodyRow(array(
-											'columns' => $rowCols
-										));
+										'columns' => $rowCols
+									));
 								}
 							}
 						}
@@ -327,8 +390,8 @@ if ($Result){
 			}
 		}
 	}
-	elseif ($_POST['report_type'] == 'month'){
-		function parseReportInfo($rInfo, &$ReportTable){
+	elseif ($_POST['report_type'] == 'month') {
+		function parseReportInfo($rInfo, &$ReportTable) {
 			global $currencies, $FileObj, $headerCols, $showSales, $showLateFees, $showSalesTax, $showCredits, $showCoupons, $showStoreToStoreIncome, $showStoreToStoreExpense, $showPaymentModules;
 			foreach($rInfo as $year => $yInfo){
 				foreach($yInfo as $month => $mInfo){
@@ -381,7 +444,7 @@ if ($Result){
 					}
 					if (isset($_GET['csv'])){
 						$csvRow = array();
-						$csvRow[] = date('F', mktime(0,0,0,$month,1,$year)) . ' ' . $year;
+						$csvRow[] = date('F', mktime(0, 0, 0, $month, 1, $year)) . ' ' . $year;
 						if ($showSales === true){
 							$csvRow[] = $currencies->format($totalSales);
 						}
@@ -405,34 +468,56 @@ if ($Result){
 						}
 
 						$FileObj->addRow($csvRow);
-					}else{
+					}
+					else {
 						$rowCols = array();
-						$rowCols[] = array('text' => '<b>' . date('F', mktime(0,0,0,$month,1,$year)) . ' ' . $year . '</b>');
+						$rowCols[] = array('text' => '<b>' . date('F', mktime(0, 0, 0, $month, 1, $year)) . ' ' . $year . '</b>');
 						if ($showSales === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalSales));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalSales)
+							);
 						}
 						if ($showLateFees === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalLateFees));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalLateFees)
+							);
 						}
 						if ($showSalesTax === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalTax));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalTax)
+							);
 						}
 						if ($showCredits === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalCredits));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalCredits)
+							);
 						}
 						if ($showCoupons === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalCoupons));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalCoupons)
+							);
 						}
 						if ($showStoreToStoreIncome === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalStoreToStoreIncome));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalStoreToStoreIncome)
+							);
 						}
 						if ($showStoreToStoreExpense === true){
-							$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalStoreToStoreExpense));
+							$rowCols[] = array(
+								'align' => 'right',
+								'text'  => $currencies->format($totalStoreToStoreExpense)
+							);
 						}
 
 						$ReportTable->addBodyRow(array(
-								'columns' => $rowCols
-							));
+							'columns' => $rowCols
+						));
 
 						if ($showPaymentModules === true){
 							$PaymentsIncomeTotal = array();
@@ -451,24 +536,30 @@ if ($Result){
 								$rowCols = array();
 								$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Income');
 								if ($showSales === true){
-									$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+									$rowCols[] = array(
+										'align' => 'right',
+										'text'  => $currencies->format($total)
+									);
 								}
 
 								$ReportTable->addBodyRow(array(
-										'columns' => $rowCols
-									));
+									'columns' => $rowCols
+								));
 							}
 
 							foreach($PaymentsExpenseTotal as $Method => $total){
 								$rowCols = array();
 								$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Expense');
 								if ($showSales === true){
-									$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+									$rowCols[] = array(
+										'align' => 'right',
+										'text'  => $currencies->format($total)
+									);
 								}
 
 								$ReportTable->addBodyRow(array(
-										'columns' => $rowCols
-									));
+									'columns' => $rowCols
+								));
 							}
 						}
 					}
@@ -476,8 +567,8 @@ if ($Result){
 			}
 		}
 	}
-	elseif ($_POST['report_type'] == 'year'){
-		function parseReportInfo($rInfo, &$ReportTable){
+	elseif ($_POST['report_type'] == 'year') {
+		function parseReportInfo($rInfo, &$ReportTable) {
 			global $currencies, $FileObj, $headerCols, $showSales, $showLateFees, $showSalesTax, $showCredits, $showCoupons, $showStoreToStoreIncome, $showStoreToStoreExpense, $showPaymentModules;
 			foreach($rInfo as $year => $yInfo){
 				if ($showSales === true){
@@ -552,34 +643,56 @@ if ($Result){
 					}
 
 					$FileObj->addRow($csvRow);
-				}else{
+				}
+				else {
 					$rowCols = array();
 					$rowCols[] = array('text' => '<b>' . $year . '</b>');
 					if ($showSales === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalSales));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalSales)
+						);
 					}
 					if ($showLateFees === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalLateFees));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalLateFees)
+						);
 					}
 					if ($showSalesTax === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalTax));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalTax)
+						);
 					}
 					if ($showCredits === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalCredits));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalCredits)
+						);
 					}
 					if ($showCoupons === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalCoupons));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalCoupons)
+						);
 					}
 					if ($showStoreToStoreIncome === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalStoreToStoreIncome));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalStoreToStoreIncome)
+						);
 					}
 					if ($showStoreToStoreExpense === true){
-						$rowCols[] = array('align' => 'right', 'text' => $currencies->format($totalStoreToStoreExpense));
+						$rowCols[] = array(
+							'align' => 'right',
+							'text'  => $currencies->format($totalStoreToStoreExpense)
+						);
 					}
 
 					$ReportTable->addBodyRow(array(
-							'columns' => $rowCols
-						));
+						'columns' => $rowCols
+					));
 
 					if ($showPaymentModules === true){
 						$PaymentsIncomeTotal = array();
@@ -600,24 +713,30 @@ if ($Result){
 							$rowCols = array();
 							$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Income');
 							if ($showSales === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($total)
+								);
 							}
 
 							$ReportTable->addBodyRow(array(
-									'columns' => $rowCols
-								));
+								'columns' => $rowCols
+							));
 						}
 
 						foreach($PaymentsExpenseTotal as $Method => $total){
 							$rowCols = array();
 							$rowCols[] = array('text' => 'Payment Method: ' . $Method . ' - Expense');
 							if ($showSales === true){
-								$rowCols[] = array('align' => 'right', 'text' => $currencies->format($total));
+								$rowCols[] = array(
+									'align' => 'right',
+									'text'  => $currencies->format($total)
+								);
 							}
 
 							$ReportTable->addBodyRow(array(
-									'columns' => $rowCols
-								));
+								'columns' => $rowCols
+							));
 						}
 					}
 				}
@@ -630,30 +749,32 @@ if ($Result){
 		foreach($reportData as $storeId => $sInfo){
 			$storeInfo = $MultiStore->getStoresArray($storeId);
 			$ReportTable->addBodyRow(array(
-					'columns' => array(
-						array(
-							'addCls' => 'ui-widget-header',
-							'colspan' => sizeof($headerCols),
-							'text' => '<b>' . $storeInfo['stores_name'] . '</b>'
-						)
+				'columns' => array(
+					array(
+						'addCls'  => 'ui-widget-header',
+						'colspan' => sizeof($headerCols),
+						'text'    => '<b>' . $storeInfo['stores_name'] . '</b>'
 					)
-				));
+				)
+			));
 
 			parseReportInfo($sInfo, $ReportTable);
 		}
-	}else{
+	}
+	else {
 		parseReportInfo($reportData, $ReportTable);
 	}
 }
 
 if (isset($_GET['csv'])){
 	EventManager::attachActionResponse(array(
-			'success' => true,
-			'redirectTo' => itw_app_link('action=downloadReport&report=salesReport', 'statistics', 'salesReport')
-		), 'json');
-}else{
+		'success'    => true,
+		'redirectTo' => itw_app_link('action=downloadReport&report=salesReport', 'statistics', 'salesReport')
+	), 'json');
+}
+else {
 	EventManager::attachActionResponse(array(
-			'success' => true,
-			'html' => $ReportTable->draw()
-		), 'json');
+		'success' => true,
+		'html'    => $ReportTable->draw()
+	), 'json');
 }
