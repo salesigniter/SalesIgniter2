@@ -307,6 +307,7 @@ class Extension
 		$findDirExt = $appInfo['env'] . '/ext_app/';
 		if (isset($_GET['appExt'])){
 			$findDirExt .= $_GET['appExt'] . '/';
+			$findDirBase = $_GET['appExt'] . '/' . $findDirBase;
 		}
 		$findDirExt .= $appInfo['appName'] . '/language_defines/';
 
@@ -335,6 +336,7 @@ class Extension
 		$findDirExt = $appInfo['env'] . '/ext_app/';
 		if (isset($_GET['appExt'])){
 			$findDirExt .= $_GET['appExt'] . '/';
+			$findDirBase = $_GET['appExt'] . '/' . $findDirBase;
 		}
 		$findDirExt .= $appInfo['appName'] . '/';
 

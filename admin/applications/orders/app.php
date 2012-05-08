@@ -61,4 +61,17 @@ if ($App->getPageName() == 'packingslip' || $App->getPageName() == 'invoice'){
 	$Order = new Order((int)$_GET['oID']);
 }
 
-sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'details':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'invoice':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'packingSlip':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+}

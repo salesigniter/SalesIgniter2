@@ -1,7 +1,3 @@
-<div class="pageHeading" data-order_id="<?php echo $oID;?>"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
-<br />
 <div style="text-align:right"><?php
 	$invoiceButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_INVOICE'))
 		->setHref(itw_app_link('oID=' . $oID, 'orders', 'invoice'));

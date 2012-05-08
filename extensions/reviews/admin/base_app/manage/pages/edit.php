@@ -15,8 +15,6 @@
 	->setStars(5)
 	->setValue($Qreview[0]['reviews_rating']);
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE_REVIEWS');?></div>
-<br />
 <form name="update" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'rID')) . 'rID=' . (int)$_GET['rID'], null, 'preview');?>" method="post">
 <div style="width:100%;display:inline-block;">
 	<p>

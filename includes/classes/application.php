@@ -200,7 +200,9 @@ class Application
 		/*
 		 * Application definitions overwrite file path
 		 */
-		$languageFiles[] = sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $_GET['app'] . '/';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppPage() . '/global.xml')){
+			$languageFiles[] = sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppPage() . '/global.xml';
+		}
 
 		/*
 		 * Application extension definitions overwrite file path

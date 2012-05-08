@@ -1,7 +1,4 @@
 <?php
 	$appContent = $App->getAppContentFile();
 
-	if (isset($_GET['cID'])){
-		$App->setInfoBoxId($_GET['cID']);
-	}
-?>
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

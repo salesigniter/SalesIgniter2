@@ -90,11 +90,6 @@ $TableHidden->addBodyRow(array(
 ?>
 
 <form name="new_event" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) . 'action=savePickup');?>" method="post" enctype="multipart/form-data">
-	<div class="pageHeading"><?php
-		echo sysLanguage::get('HEADING_TITLE_PICKUP_REQUESTS');
-		?></div>
-	<br />
-
 	<div id="tab_container">
 		<?php
 		echo $TableHidden->draw() . $htype->draw();

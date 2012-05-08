@@ -113,8 +113,7 @@ if ($pickupr){
 }
 
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<div style="width:100%"><?php
+<div><?php
 	echo $searchForm->draw();
 	?></div>
 <br />

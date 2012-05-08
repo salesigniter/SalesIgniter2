@@ -10,10 +10,6 @@ foreach(sysLanguage::getGoogleLanguages() as $code => $lang){
 <script>
 	google.load("language", "1");
 </script>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
-<br />
 <div class="relativeParent" style="position:relative;">
 	<div class="ui-widget ui-widget-content" style="height:600px;width:275px;overflow:auto;position:absolute;left:0em;top:0em;"><?php
 		echo '<div class="ui-widget-content ui-corner-all ui-state-default editLink ui-state-active" style="padding:.5em;margin:.3em;" template_id="new">New Email Template</div>';

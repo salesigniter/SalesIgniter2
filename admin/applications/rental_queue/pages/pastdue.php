@@ -204,10 +204,7 @@ $array_limit = array(
 	)
 );
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
-
-<table cellspacing="0" cellpadding="0" style="width:99%;margin-right:5px;margin-left:5px;">
+<table cellspacing="0" cellpadding="0" style="width:100%;margin-right:5px;margin-left:5px;">
 	<tr>
 		<td>
 			<table width="100%" cellspacing="0" cellpadding="2">
@@ -273,20 +270,18 @@ $array_limit = array(
 		</td>
 	</tr>
 </table>
-<div style="width:100%;float:left;">
-	<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-		<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-	</div>
-	<?php
-	if (isset($_GET['search']) && tep_not_null($_GET['search'])){
-		?>
-		<div style="text-align:right;"><?php
-			$resetButton = htmlBase::newElement('button')
-				->setText(sysLanguage::get('TEXT_BUTTON_RESET'))
-				->setHref(itw_app_link(null, null, 'default'));
-			echo $resetButton->draw();
-			?></div>
-		<?php
-	}
-	?>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
 </div>
+<?php
+if (isset($_GET['search']) && tep_not_null($_GET['search'])){
+	?>
+	<div style="text-align:right;"><?php
+		$resetButton = htmlBase::newElement('button')
+			->setText(sysLanguage::get('TEXT_BUTTON_RESET'))
+			->setHref(itw_app_link(null, null, 'default'));
+		echo $resetButton->draw();
+		?></div>
+	<?php
+}
+?>

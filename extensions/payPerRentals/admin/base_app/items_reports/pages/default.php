@@ -185,7 +185,6 @@ if ($products){
 }
 
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
 <div><?php
 	echo $searchForm->draw().'<br/>';
 	echo 'Current Date: '. date(sysLanguage::getDateFormat('long')).'<br/>';

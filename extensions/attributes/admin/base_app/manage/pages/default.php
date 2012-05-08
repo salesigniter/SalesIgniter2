@@ -170,11 +170,7 @@
 			$groupsListing->append($newGroupWrapper);
 		}
 	}
-?>
- 
- <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
- <br />
- <?php
+
   $newOptionButton = htmlBase::newElement('div')->append(htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_OPTION'))->setId('newOption'));
   $newValueButton = htmlBase::newElement('div')->append(htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_VALUE'))->setId('newValue'));
   $newGroupButton = htmlBase::newElement('div')->append(htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_GROUP'))->setId('newGroup'));

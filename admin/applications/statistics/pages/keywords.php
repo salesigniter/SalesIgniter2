@@ -1,7 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_KEYWORDS');
-	?></div>
-<br />
 <?php
 if (!isset($_GET['wordList'])){
 	?>

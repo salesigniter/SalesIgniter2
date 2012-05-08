@@ -109,8 +109,6 @@
 			break;
 	}
 ?>
- <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
- <br />
  <table border="0" width="100%" cellspacing="0" cellpadding="3">
   <tr>
    <td class="smallText" align="right" colspan="2"><?php

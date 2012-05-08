@@ -58,4 +58,5 @@
 OrderPaymentModules::loadModules();
 OrderShippingModules::loadModules();
 OrderTotalModules::loadModules();
-?>
+
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

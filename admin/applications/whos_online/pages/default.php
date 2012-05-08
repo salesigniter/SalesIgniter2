@@ -1,8 +1,3 @@
-<?php
-?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
 <div>
 	<div style="float: right;">
 		<table cellpadding="0" cellspacing="0" border="0">

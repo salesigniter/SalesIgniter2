@@ -25,10 +25,6 @@
 
 ?>
  <form name="new_post" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) .'action=savePost' . ((int)$Post['post_id'] > 0 ? '&pID=' . $Post['post_id'] : ''));?>" method="post" enctype="multipart/form-data">
- <div style="position:relative;text-align:right;"><?php
- 	echo  $saveButton->draw() . $cancelButton->draw();
- 	echo '<div class="pageHeading" style="position:absolute;left:0;top:.5em;">' . (isset($_GET['pID']) ? 'Edit Post' : 'New Post') . '</div>';
- ?></div>
  <div style="position:relative;">
  <div id="tab_container">
     <ul>

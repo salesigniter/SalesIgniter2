@@ -56,4 +56,14 @@ if ($App->getPageName() == 'editLayout'){
 	$App->addJavascriptFile('ext/jQuery/external/colorPicker/jquery.colorpicker.js');
 	$App->addStylesheetFile('ext/jQuery/external/colorPicker/jquery.colorpicker.css');
 }
-?>
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_LAYOUTS'));
+		break;
+	case 'default2':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_TEMPLATES'));
+		break;
+	case 'editLayout':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_LAYOUT_EDITOR'));
+		break;
+}

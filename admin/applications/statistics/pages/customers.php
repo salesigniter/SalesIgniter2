@@ -1,7 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_CUSTOMERS');
-	?></div>
-<br />
 <?php
 $Qcustomers = Doctrine_Query::create()
 	->select('c.customers_id, c.customers_firstname, c.customers_lastname, sum(ot.value) as ordersum')

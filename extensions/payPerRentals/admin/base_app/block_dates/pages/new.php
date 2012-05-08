@@ -9,11 +9,6 @@
 
 ?>
 <form name="new_period" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) . 'action=save');?>" method="post" enctype="multipart/form-data">
-<div class="pageHeading"><?php
- echo sysLanguage::get('HEADING_TITLE');
-?></div>
-<br />
-
 <div id="tab_container">
  <ul>
   <li class="ui-tabs-nav-item"><a href="#page-2"><span><?php echo sysLanguage::get('TAB_DESCRIPTION');?></span></a></li>

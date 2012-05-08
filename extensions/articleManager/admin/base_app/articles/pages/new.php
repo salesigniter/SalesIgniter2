@@ -5,12 +5,10 @@
 		$Article->refresh(true);
 
 		$sortOrder = $Articles->sort_order;
-		$headingTitle = sysLanguage::get('HEADING_TITLE_EDIT');
 	}else{
 		$Article = $Articles->getRecord();
 
 		$sortOrder = 0;
-		$headingTitle = sysLanguage::get('HEADING_TITLE_NEW');
 	}
 
 	switch ($Article->articles_status){
@@ -18,12 +16,6 @@
 		case '1':
 		default: $in_status = true; $out_status = false;
 	}
-?>
-<div class="pageHeading"><?php
-	echo $headingTitle;
-?></div>
-<br />
-<?php
 	$tabDir = sysConfig::getDirFsCatalog() . 'extensions/articleManager/admin/base_app/articles/pages_tabs/';
 ?>
 <form name="new_article" action="<?php echo itw_app_link('appExt=articleManager&action=save' . (isset($_GET['aID']) ? '&aID=' . $_GET['aID'] : ''), 'articles', 'new');?>" method="post">

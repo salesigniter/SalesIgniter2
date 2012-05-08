@@ -127,19 +127,15 @@ $infoTable .= '<tr>
 	</tr>
    </table>';
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE_DETAILS');?></div>
-<br />
 <?php echo $infoTable; ?>
 <form name="rental_queue_details" action="<?php echo itw_app_link('action=sendRentals&cID=' . $_GET['cID']);?>" method="post">
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-		</div>
-		<div style="text-align:right;"><?php
-			$rentButton = htmlBase::newElement('button')
-				->setText(sysLanguage::get('TEXT_BUTTON_RENT'))
-				->setType('submit');
-			echo $rentButton->draw();
-			?></div>
+	<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
+		<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
 	</div>
+	<div style="text-align:right;"><?php
+		$rentButton = htmlBase::newElement('button')
+			->setText(sysLanguage::get('TEXT_BUTTON_RENT'))
+			->setType('submit');
+		echo $rentButton->draw();
+		?></div>
 </form>

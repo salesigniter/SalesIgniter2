@@ -240,9 +240,6 @@ if ($Qlisting){
 	}
 }
 ?>
-<div class="pageHeading"><?php echo 'Product Listing Order';?></div>
-<br />
-
 <div style="text-align:right;padding:.5em;"><?php
 	echo htmlBase::newElement('button')->usePreset('save')->setType('submit')->draw();
 	echo htmlBase::newElement('button')->usePreset('install')->setText('New Column')->addClass('newColumnButton')

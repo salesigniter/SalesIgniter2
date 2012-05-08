@@ -9,11 +9,6 @@ else {
 
 ?>
 <form name="new_zone_center" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=save');?>" method="post" enctype="multipart/form-data">
-	<div class="pageHeading"><?php
-		echo sysLanguage::get('HEADING_TITLE');
-		?></div>
-	<br />
-
 	<div id="tab_container">
 		<ul>
 			<li class="ui-tabs-nav-item">

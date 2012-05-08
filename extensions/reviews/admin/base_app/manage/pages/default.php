@@ -23,7 +23,7 @@
 		if ((!isset($_GET['rID']) || $_GET['rID'] == $reviewId) && !isset($rInfo)){
 			$ExtraInfo = Doctrine_Manager::getInstance()
 				->getCurrentConnection()
-				->fetchAssoc('select p.products_image, pd.products_name, length(rd.reviews_text) as reviews_text_size, (avg(r.reviews_rating) / 5 * 100) as average_rating from ' . TABLE_REVIEWS . ' r left join ' . TABLE_REVIEWS_DESCRIPTION . ' rd using(reviews_id), ' . TABLE_PRODUCTS . ' p left join ' . TABLE_PRODUCTS_DESCRIPTION . ' pd using(products_id) where p.products_id = r.products_id and pd.language_id = "' . Session::get('languages_id') . '" and rd.reviews_id = r.reviews_id and r.reviews_id = "' . $reviewId . '"')
+				->fetchAssoc('select p.products_image, pd.products_name, length(rd.reviews_text) as reviews_text_size, (avg(r.reviews_rating) / 5 * 100) as average_rating from ' . TABLE_REVIEWS . ' r left join ' . TABLE_REVIEWS_DESCRIPTION . ' rd using(reviews_id), ' . TABLE_PRODUCTS . ' p left join ' . TABLE_PRODUCTS_DESCRIPTION . ' pd using(products_id) where p.products_id = r.products_id and pd.language_id = "' . Session::get('languages_id') . '" and rd.reviews_id = r.reviews_id and r.reviews_id = "' . $reviewId . '"');
 
 			$rInfo = new objectInfo(array_merge($Review, $ExtraInfo[0]));
 		}
@@ -103,8 +103,6 @@
 			break;
 	}
 ?>
- <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE_REVIEWS');?></div>
- <br />
  <div style="width:75%;float:left;">
   <div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
    <div style="width:99%;margin:5px;">

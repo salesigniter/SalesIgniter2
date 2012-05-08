@@ -157,7 +157,6 @@ if ($maintenances){
 }
 
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
 <div style="width:100%"><?php
 	echo $searchForm->draw();
 	?></div>

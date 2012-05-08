@@ -1,5 +1,4 @@
 <?php
 $appContent = $App->getAppContentFile();
 
-require(sysConfig::getDirFsCatalog() . 'includes/classes/product.php');
-?>
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

@@ -20,4 +20,39 @@ if (isset($_GET['cID'])){
 	//require(sysConfig::getDirFsAdmin() . 'includes/classes/rental_queue.php');
 	//$rentalQueue = new rentalQueue_admin($_GET['cID']);
 }
-?>
+
+switch($App->getPageName()){
+	case 'availability':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_AVAIL'));
+		break;
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'details':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_DETAILS'));
+		break;
+	case 'issues':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'pastdue':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'pickup_requests':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_PICKUP_REQUESTS'));
+		break;
+	case 'pickup_requests_report':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'pickup_requests_types':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_PICKUP_TYPES'));
+		break;
+	case 'rented':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_RENTED'));
+		break;
+	case 'return':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_RETURN'));
+		break;
+	case 'return_barcode':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_RETURN_BARCODE'));
+		break;
+}

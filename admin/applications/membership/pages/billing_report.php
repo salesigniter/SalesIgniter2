@@ -74,10 +74,6 @@ if ($Reports){
 	}
 }
 ?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_REPORTS');
-	?></div>
-<br />
 <form name="actions" action="<?php echo itw_app_link('action=deleteReports', 'membership', 'billing_report');?>" method="post">
 	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
 		<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>

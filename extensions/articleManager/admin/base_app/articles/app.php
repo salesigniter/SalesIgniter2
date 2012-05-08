@@ -13,8 +13,21 @@
 	$appContent = $App->getAppContentFile();
 
 	if ($App->getAppPage() == 'new'){
-		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
-		$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 	}else{
 	}
-?>
+
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'new':
+		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+		$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
+		if (isset($_GET['aID'])){
+			$headingTitle = sysLanguage::get('HEADING_TITLE_EDIT');
+		}else{
+			$headingTitle = sysLanguage::get('HEADING_TITLE_NEW');
+		}
+		sysLanguage::set('PAGE_TITLE', $headingTitle);
+		break;
+}

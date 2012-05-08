@@ -242,22 +242,10 @@ if ($orders){
 }
 
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<div style="width:100%"><?php
+<div><?php
 	echo $searchForm->draw();
 	?></div>
 <br />
-	<div style="width:100%;float:left;">
-		<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-			<div style="width:99%;margin:5px;"><?php echo $tableGrid->draw();?></div>
-			<br style="clear:both;"/> <br/>
-			<?php
-			/*echo htmlBase::newElement('button')
-			->setText(sysLanguage::get('TEXT_BUTTON_GENERATE_CSV'))
-			->setHref(itw_app_link('action=csvExport&appExt=payPerRentals'.(isset($_GET['start_date'])?'&start_date='.$_GET['start_date']:'').(isset($_GET['end_date'])?'&end_date='.$_GET['end_date']:''), 'maintenance_reports', 'default'))
-			->draw();*/
-			?>
-
-		</div>
-	</div>
-
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
+</div>

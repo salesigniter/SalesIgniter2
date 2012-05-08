@@ -6,5 +6,16 @@ if ($App->getAppPage() != 'noAccess'){
 	$App->addStylesheetFile('admin/applications/index/javascript/index.css');
 	$App->addStylesheetFile('admin/applications/index/javascript/default.js.css');
 }
-sysLanguage::set('PAGE_TITLE', 'My Dashboard');
+
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', 'My Dashboard');
+		break;
+	case 'manageFavorites':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_FAVORITES'));
+		break;
+	case 'noAccess':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_NOACCESS'));
+		break;
+}
 ?>

@@ -77,8 +77,6 @@ if ($posts){
 	}
 }
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
 <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
 	<div style="margin:5px;">
 		<?php echo $tableGrid->draw();?>

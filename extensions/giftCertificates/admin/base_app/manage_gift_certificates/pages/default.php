@@ -77,10 +77,6 @@
         }
     }
 ?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_DEFAULT');
-    ?></div>
-<br />
 <div style="text-align:right;">
     <form name="status" action="<?php echo itw_app_link(null, 'coupons', 'default');?>" method="get"><?php
 		$status_array[] = array('id' => 'Y', 'text' => sysLanguage::get('TEXT_GIFT_CERTIFICATES_ACTIVE'));

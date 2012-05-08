@@ -1,7 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-?></div>
-<br />
 <form name="return_reservations" id="returnReservation" action="<?php echo itw_app_link('appExt=payPerRentals&action=return');?>" method="post">
 <?php
 	$table = htmlBase::newElement('table')

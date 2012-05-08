@@ -155,10 +155,6 @@ $PaymentModules->addGroup(array(
 	'data'      => $buttonPaymentModules
 ));
 ?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_SALES_REPORT');
-	?></div>
-<br />
 <div>
 	<table>
 		<tr>
@@ -244,9 +240,6 @@ $PaymentModules->addGroup(array(
 		</tr>
 	</table>
 </div>
-<div style="width:100%;float:left;">
-	<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-		<div style="width:99%;margin:5px;" class="reportHolder">
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;" class="reportHolder"></div>
 </div>

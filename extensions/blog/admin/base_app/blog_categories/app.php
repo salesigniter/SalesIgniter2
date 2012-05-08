@@ -1,9 +1,13 @@
 <?php
-	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 $appContent = $App->getAppContentFile();
 
-	if ($App->getAppPage() == 'new_category'){
+switch($App->getPageName()){
+	case 'new_category':
 		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
 		$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
-	}
-?>
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+}

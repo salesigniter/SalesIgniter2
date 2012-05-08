@@ -113,8 +113,5 @@
 	))->html(sysLanguage::get('TEXT_SPECIALS_PRICE_TIP'))->append($savebutton)->append($cancelbutton);
 	
 	$form->append($formTable)->append($infoBar);
-?>
-<div class="pageHeading"><?php 
- echo sysLanguage::get('HEADING_TITLE');
-?></div>
-<?php echo $form->draw();?>
+
+ echo $form->draw();

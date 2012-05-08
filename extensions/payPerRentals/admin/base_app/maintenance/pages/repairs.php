@@ -191,8 +191,6 @@
 			break;
 	}
 ?>
- <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE_REPAIRS');?></div>
- <br />
 	<div>
 <?php
 	  //here i show all the maintenance buttons for this admin

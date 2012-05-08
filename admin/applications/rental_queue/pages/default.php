@@ -95,10 +95,7 @@ while($actual > -1){
 	}
 	$actual--;
 }
-?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
-<br />
-<?php
+
 if ($usePickupRequest){
 	$pickupReq = htmlBase::newElement('selectbox')
 		->setName('pickupRequest')

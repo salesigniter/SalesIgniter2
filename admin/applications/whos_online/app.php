@@ -177,4 +177,4 @@ function tep_check_cart($session_id, $lastClick, $customer_id) {
 	);
 }
 
-?>
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

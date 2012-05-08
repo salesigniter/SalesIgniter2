@@ -16,4 +16,10 @@ foreach($QtaxClass as $taxClass){
 		'text' => $taxClass['tax_class_title']
 	);
 }
+
+switch($App->getPageName()){
+	case 'billing_report':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_REPORTS'));
+		break;
+}
 ?>

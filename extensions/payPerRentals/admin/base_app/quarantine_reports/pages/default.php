@@ -68,7 +68,6 @@ if ($products){
 }
 
 ?>
-<div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
 <div style="width:100%"><?php
 	echo 'Current Date: '. date(sysLanguage::getDateFormat('long')) .'<br/>';
 	?></div>

@@ -1,6 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_RETURN_BARCODE');
-	?></div>
 <form name="return_barcode" action="<?php echo itw_app_link('action=returnBarcodes', 'rental_queue', 'return_barcode');?>" method="post">
 	<table border="0" width="100%" cellspacing="0" cellpadding="2">
 		<tr>

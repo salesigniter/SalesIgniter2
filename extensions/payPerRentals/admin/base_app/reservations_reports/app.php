@@ -10,4 +10,4 @@
 	$App->addStylesheetFile('ext/jQuery/external/qTip/jquery.qtip.min.css');
 
 	//require('../includes/classes/product.php');
-?>
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

@@ -1,13 +1,5 @@
   <table border="0" width="100%" cellspacing="0" cellpadding="0">
    <tr>
-    <td width="100%"><table border="0" width="100%" cellspacing="0" cellpadding="0">
-     <tr>
-      <td class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></td>
-      <td class="pageHeading" align="right"></td>
-     </tr>
-    </table></td>
-   </tr>
-   <tr>
     <td><table border="0" width="100%" cellspacing="0" cellpadding="2">
      <tr>
       <td width="50%" class="main" valign="top"><fieldset>

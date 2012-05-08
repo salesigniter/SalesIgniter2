@@ -1,5 +1,3 @@
- <div class="pageHeading"><?php echo "Rental Orders History ";?></div>
- <br />
 	 <div>
 
 	 <?php

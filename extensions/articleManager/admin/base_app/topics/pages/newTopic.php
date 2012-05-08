@@ -5,20 +5,13 @@
 		$Topic->refresh(true);
 		
 		$sortOrder = $Topic->sort_order;
-		$headingTitle = sysLanguage::get('TEXT_INFO_HEADING_EDIT_TOPIC');
 	}else{
 		$Topic = $Topics->getRecord();
 		
 		$sortOrder = 0;
-		$headingTitle = sysLanguage::get('TEXT_INFO_HEADING_NEW_TOPIC');
 	}
 ?>
 <form name="new_topic" action="<?php echo itw_app_link(tep_get_all_get_params(array('app', 'appName', 'action')) . 'action=saveTopic');?>" method="post">
-<div class="pageHeading"><?php
-	echo $headingTitle;
-?></div>
-<br />
-
 <table border="0" cellspacing="0" cellpadding="2">
 <?php
     foreach (sysLanguage::getLanguages() as $lInfo) {

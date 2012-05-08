@@ -4,10 +4,6 @@ $Layout = Doctrine_Core::getTable('PDFTemplateManagerLayouts')->find($_GET['lID'
 <script type="text/javascript">
 	var layoutId = '<?php echo (int)$_GET['lID'];?>';
 </script>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_LAYOUT_EDITOR');
-	?></div>
-<br />
 <div id="topButtonBar" style="text-align:right;margin:.5em;"><?php
 	echo htmlBase::newElement('button')->usePreset('back')->setText('Back To Layout Listing')
 	->setHref(itw_app_link('appExt=pdfPrinter&tID=' . $Layout->Template->template_id, 'layout_manager', 'default'))->draw();

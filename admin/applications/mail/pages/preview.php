@@ -1,6 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
 <?php
 switch($_POST['customers_email_address']){
 	case '***':

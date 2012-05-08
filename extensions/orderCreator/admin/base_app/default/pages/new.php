@@ -33,10 +33,6 @@
 		background : #CACEE6;
 	}
 </style>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE');
-	?></div>
-<br />
 <form name="new_order" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=saveOrder');?>" method="post">
 <div style="text-align:right"><?php
 	$saveButton = htmlBase::newElement('button')->usePreset('save')

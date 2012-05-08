@@ -12,6 +12,18 @@
 
 	$appContent = $App->getAppContentFile();
 
-	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
-$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
-?>
+switch($App->getPageName()){
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'newTopic':
+		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+		$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
+		if (isset($_GET['tID']) && empty($_POST)){
+			$headingTitle = sysLanguage::get('TEXT_INFO_HEADING_EDIT_TOPIC');
+		}else{
+			$headingTitle = sysLanguage::get('TEXT_INFO_HEADING_NEW_TOPIC');
+		}
+		sysLanguage::set('PAGE_TITLE', $headingTitle);
+		break;
+}

@@ -95,9 +95,6 @@ if ($QclassCheck){
 // start accumulator for the report content mirrored in CSV
 $csv_accum = '';
 ?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_MONTHLY_SALES');
-	?></div>
 <div style="text-align:right;"><?php
 	if ($sel_month <> 0){
 		$buttonLinkParams = array();
@@ -810,15 +807,11 @@ else {
 	));
 }
 ?>
-<div style="width:100%;float:left;">
-	<div class="ui-widget ui-widget-content ui-corner-all" style="width:99%;margin-right:5px;margin-left:5px;">
-		<div style="width:99%;margin:5px;">
-			<?php echo $reportTable->draw();?>
-		</div>
-	</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
+	<div style="margin:5px;"><?php echo $reportTable->draw();?></div>
+</div>
 	<?php
 	if (isset($form)){
 		echo '<div style="text-align:right;margin:.5em;">' . $form->draw() . '</div>';
 	}
 	?>
-</div>

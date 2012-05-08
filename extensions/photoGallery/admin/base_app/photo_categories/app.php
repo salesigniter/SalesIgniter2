@@ -1,5 +1,4 @@
 <?php
-	require(sysConfig::getDirFsAdmin() . 'includes/classes/upload.php');
 	$App->setInfoBoxId((isset($_GET['cID']) ? $_GET['cID'] : null));
 	$appContent = $App->getAppContentFile();
 
@@ -18,25 +17,16 @@ if (tep_not_null($cPath)) {
 	$current_category_id = 0;
 }
 
-	if ($App->getAppPage() == 'new_category'){
+switch($App->getPageName()){
+	case 'new_category':
 		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
-		$App->addJavascriptFile('ext/jQuery/ui/jquery.ui.tabs.js');
-		$App->addJavascriptFile('ext/jQuery/external/uploadify/swfobject.js');
-		$App->addJavascriptFile('ext/jQuery/external/uploadify/jquery.uploadify.js');
 		$App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');
 
-		$App->addStylesheetFile('ext/jQuery/external/datepick/css/jquery.datepick.css');
-		$App->addStylesheetFile('ext/jQuery/external/uploadify/jquery.uploadify.css');
 		$App->addStylesheetFile('ext/jQuery/external/fancybox/jquery.fancybox.css');
-	}else{
-	}
 
-	// check if the catalog image directory exists
-	if (is_dir(sysConfig::get('DIR_FS_CATALOG_IMAGES'))){
-		if (!is_writeable(sysConfig::get('DIR_FS_CATALOG_IMAGES'))){
-			$messageStack->add('footerStack', sysLanguage::get('ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE'), 'error');
-		}
-	}else{
-		$messageStack->add('footerStack', sysLanguage::get('ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST'), 'error');
-	}
-?>
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+	case 'default':
+		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+		break;
+}

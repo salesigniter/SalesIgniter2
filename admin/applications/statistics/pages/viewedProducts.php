@@ -1,7 +1,3 @@
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_VIEWED_PRODUCTS');
-	?></div>
-<br />
 <?php
 $Qproducts = Doctrine_Query::create()
 	->select('p.products_id, pd.products_name, pd.products_viewed, l.name')

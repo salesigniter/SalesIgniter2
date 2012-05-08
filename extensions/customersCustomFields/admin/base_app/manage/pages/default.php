@@ -119,8 +119,6 @@
 	}
 ?>
 
- <div class="pageHeading"><?php echo sysLanguage::get('HEADING_TITLE');?></div>
- <br />
  <div><?php echo htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_FIELD'))->setId('newField')->draw();?></div>
  <?php echo $fieldListing->draw();?>
  <div><?php echo htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_GROUP'))->setId('newGroup')->draw();?></div>
