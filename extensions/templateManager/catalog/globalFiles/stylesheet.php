@@ -29,26 +29,30 @@ else {
 	require(sysConfig::getDirFsCatalog() . 'ext/cssMin/CssMin.php');
 
 	$sourceInfo = '';
-	function getSourceFile($fileName, $filePath){
+	function getSourceFile($fileName, $filePath) {
 		global $sourceInfo;
 		if (isset($_GET['noMin'])){
 			return $filePath . $fileName;
 		}
-		$cacheFileName = md5($filePath . $fileName);
-		$sourceInfo .= '/**' . "\n";
-		$sourceInfo .= 'Real Filename: ' . $filePath . $fileName . "\n";
-		$sourceInfo .= 'Cache Filename: ' . sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache' . "\n";
-		$sourceInfo .= filemtime($filePath . $fileName) . ' > ' . filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') . ' = ' . (int)(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache')) . "\n";
-		$sourceInfo .= '*/' . "\n\n";
-		if (
-			file_exists(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') === false ||
-			(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache'))
-		){
-			$minifiedCss = CssMin::minify(file_get_contents($filePath . $fileName));
+		if (file_exists($filePath . $fileName)){
+			$cacheFileName = md5($filePath . $fileName);
+			$sourceInfo .= '/**' . "\n";
+			$sourceInfo .= 'Real Filename: ' . $filePath . $fileName . "\n";
+			$sourceInfo .= 'Cache Filename: ' . sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache' . "\n";
+			if (file_exists(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache')){
+				$sourceInfo .= filemtime($filePath . $fileName) . ' > ' . filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') . ' = ' . (int)(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache')) . "\n";
+			}
+			$sourceInfo .= '*/' . "\n\n";
+			if (
+				file_exists(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache') === false ||
+				(filemtime($filePath . $fileName) > filemtime(sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache'))
+			){
+				$minifiedCss = CssMin::minify(file_get_contents($filePath . $fileName));
 
-			$cachedFile = new SystemCache($cacheFileName, 'cache/preminified/');
-			$cachedFile->setContent($minifiedCss);
-			$cachedFile->store(false);
+				$cachedFile = new SystemCache($cacheFileName, 'cache/preminified/');
+				$cachedFile->setContent($minifiedCss);
+				$cachedFile->store(false);
+			}
 		}
 		return sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache';
 	}
@@ -225,7 +229,7 @@ else {
 						$WidgetClass->setWidgetProperties($WidgetSettings);
 						if (method_exists($WidgetClass, 'buildStylesheet')){
 							if ($WidgetClass->buildStylesheetMultiple === true || !in_array($WidgetClass->getBoxCode(), $boxStylesEntered)){
-								echo $WidgetClass->buildStylesheet();
+								$addCss .= $WidgetClass->buildStylesheet();
 
 								$boxStylesEntered[] = $WidgetClass->getBoxCode();
 							}
@@ -321,78 +325,31 @@ else {
 	$fileContent = ob_get_contents();
 	ob_end_clean();
 
-	function src1_fetch() {
-		global $fileContent;
-		return $fileContent;
-	}
-
 	$nowTime = time();
 	$maxAge = (60 * 60 * 24 * 2);
 	$expiresTime = $nowTime + $maxAge;
 
-	if ($noMin === true || sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION') == 'none'){
-		$Result = array(
-			'headers' => array(
-				'Content-Type'	 => 'text/css'
-			),
-			'content' => src1_fetch()
-		);
-		if ($noCache === false && sysConfig::get('TEMPLATE_STYLESHEET_CACHE') == 1){
-			$Result['headers']['Expires'] = gmdate('D, d M Y H:i:s \G\M\T', $expiresTime);
-			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
-			$Result['headers']['Cache-Control'] = 'max-age=' . $maxAge;
-		}
-		else {
-			$Result['headers']['Expires'] = 'Sat, 26 Jul 1997 05:00:00 GMT';
-			$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
-			$Result['headers']['Cache-Control'] = 'no-cache, must-revalidate';
-		}
+	$Result = array(
+		'headers' => array(
+			'Content-Type'     => 'text/css'
+		)
+	);
+	if ($noCache === false && sysConfig::get('TEMPLATE_STYLESHEET_CACHE') == 1){
+		$Result['headers']['Expires'] = gmdate('D, d M Y H:i:s \G\M\T', $expiresTime);
+		$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+		$Result['headers']['Cache-Control'] = 'max-age=' . $maxAge;
 	}
 	else {
-		define('MINIFY_MIN_DIR', sysConfig::getDirFsCatalog() . 'min');
-
-		/*
-		 * This script implements a Minify server for a single set of sources.
-		 * If you don't want '.php' in the URL, use mod_rewrite...
-		 */
-
-		// setup Minify
-		set_include_path(MINIFY_MIN_DIR . '/lib' . PATH_SEPARATOR . get_include_path());
-		require 'Minify.php';
-		require 'Minify/Cache/File.php';
-		Minify::setCache(new Minify_Cache_File()); // guesses a temp directory
-
-		// setup sources
-		$sources = new Minify_Source(array(
-			'id'              => 'source1',
-			'getContentFunc'  => 'src1_fetch',
-			'contentType'	 => Minify::TYPE_CSS,
-			'lastModified'    => $nowTime
-		));
-
-		// handle request
-		$serveArr = array(
-			'files'              => $sources,
-			'maxAge'             => $maxAge,
-			'quiet'              => true,
-			'debug'              => true,
-			'encodeMethod'       => '',
-			'contentTypeCharset' => false
-		);
-
-		switch(sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION')){
-			case 'gzip':
-				//ob_start("ob_gzhandler");
-				break;
-			case 'min':
-				$serveArr['debug'] = false;
-				break;
-			case 'min_gzip':
-				//ob_start("ob_gzhandler");
-				$serveArr['debug'] = false;
-				break;
-		}
-		$Result = Minify::serve('Files', $serveArr);
+		$Result['headers']['Expires'] = 'Sat, 26 Jul 1997 05:00:00 GMT';
+		$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
+		$Result['headers']['Cache-Control'] = 'no-cache, must-revalidate';
+	}
+	
+	if ($noMin === true || sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION') == 'none'){
+		$Result['content'] = $fileContent;
+	}
+	else {
+		$Result['content'] = CssMin::minify($fileContent);
 	}
 
 	$StylesheetCache->setContent($sourceInfo . $preMinified . $Result['content']);
