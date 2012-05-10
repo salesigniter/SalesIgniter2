@@ -25,8 +25,7 @@ class productListing_productsName {
 				htmlspecialchars($productClass->getBoxName())
 				) . '</i></small>';
 			}
-//		}
-		$ratingsBar = rating_bar($productClass->getName(), $productClass->getID());*/
+//		}*/
 
 		$ProductType = $productClass->getProductTypeClass();
 		if (method_exists($ProductType, 'showProductListing')){

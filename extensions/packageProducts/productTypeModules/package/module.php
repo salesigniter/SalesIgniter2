@@ -531,8 +531,6 @@ class ProductTypePackage extends ProductTypeBase
 				$return = $currencies->format($this->getProductPrice());
 				break;
 			case 'productsName':
-				$ratingsBar = rating_bar($this->getProductName(), $this->getProductId());
-
 				$NameTable = htmlBase::newElement('table')
 					->setCellPadding(1)
 					->setCellSpacing(0);

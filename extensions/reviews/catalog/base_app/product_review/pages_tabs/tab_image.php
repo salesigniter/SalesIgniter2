@@ -16,7 +16,6 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$product);
     <div style="margin:.5em;"><a id="productsImage" class="fancyBox" href="<?php echo $image;?>"><?php
       echo '<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' . sysLanguage::get('TEXT_CLICK_TO_ENLARGE');
     ?></a></div>
-    <div style="margin:.5em;"><?php echo rating_bar($productName,$productID);?></div>
 <?php
     $QadditionalImages = Doctrine_Query::create()
     ->select('file_name')

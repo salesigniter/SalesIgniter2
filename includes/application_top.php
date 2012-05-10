@@ -468,12 +468,7 @@ if (APPLICATION_ENVIRONMENT == 'catalog'){
 	define('WARN_SESSION_AUTO_START', 'true');
 	define('WARN_DOWNLOAD_DIRECTORY_NOT_READABLE', 'true');
 
-	// Clean out HTML comments from ALT tags etc.
-	require(sysConfig::getDirFsCatalog() . 'includes/functions/clean_html_comments.php');
-	// EOF: WebMakers.com Added: Header Tags Controller
 	require(sysConfig::getDirFsCatalog() . 'includes/add_ccgvdc_application_top.php'); // ICW CREDIT CLASS Gift Voucher Addittion
-
-	include(sysConfig::getDirFsCatalog() . 'includes/functions/drawrating.php');
 }
 
 class PagerLayoutWithArrows extends Doctrine_Pager_Layout

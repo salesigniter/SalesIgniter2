@@ -20,7 +20,7 @@ function tep_get_header_tag_articles_title($article_id) {
   $article_header_tags = tep_db_query("select articles_head_title_tag from " . TABLE_ARTICLES_DESCRIPTION . " where language_id = '" . (int)Session::get('languages_id') . "' and articles_id = '" . (int)$_GET['articles_id'] . "'");
   $article_header_tags_values = tep_db_fetch_array($article_header_tags);
 
-  return clean_html_comments($article_header_tags_values['articles_head_title_tag']);
+  return $article_header_tags_values['articles_head_title_tag'];
   }
 
 

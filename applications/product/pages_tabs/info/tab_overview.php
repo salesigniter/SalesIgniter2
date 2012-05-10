@@ -16,9 +16,7 @@ EventManager::notify('ProductInfoProductsImageShow', &$image, &$Product);
 		'<div style="margin:.5em;text-align:center;"><a id="productsImage" class="fancyBox" href="<?php echo $image;?>">' . 
 			'<img class="jqzoom" src="' . $image . '&width=250&height=250" alt="' . $image . '" /><br />' . 
 			sysLanguage::get('TEXT_CLICK_TO_ENLARGE') . 
-		'</a>' . 
-		rating_bar($productName,$productID) . 
-		'</div>';
+		'</a></div>';
 
 	$AdditionalImages = $Product->getAdditionalImages();
 	if (sizeof($AdditionalImages) > 0){

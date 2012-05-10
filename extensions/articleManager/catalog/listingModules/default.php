@@ -59,7 +59,7 @@
 ?>
 			<tr>
 				<td class="main" style="padding-left:15px"><?php
-					echo clean_html_comments(substr($aInfo['ArticlesDescription'][(int)Session::get('languages_id')]['articles_head_desc_tag'],0, sysConfig::get('EXTENSION_ARTICLE_MANAGER_MAX_ARTICLE_ABSTRACT_LENGTH'))) . ((strlen($aInfo['ArticlesDescription'][(int)Session::get('languages_id')]['articles_head_desc_tag']) >= sysConfig::get('EXTENSION_ARTICLE_MANAGER_MAX_ARTICLE_ABSTRACT_LENGTH')) ? '...' : '');
+					echo substr($aInfo['ArticlesDescription'][(int)Session::get('languages_id')]['articles_head_desc_tag'],0, sysConfig::get('EXTENSION_ARTICLE_MANAGER_MAX_ARTICLE_ABSTRACT_LENGTH')) . ((strlen($aInfo['ArticlesDescription'][(int)Session::get('languages_id')]['articles_head_desc_tag']) >= sysConfig::get('EXTENSION_ARTICLE_MANAGER_MAX_ARTICLE_ABSTRACT_LENGTH')) ? '...' : '');
 				?></td>
 			</tr>
 <?php

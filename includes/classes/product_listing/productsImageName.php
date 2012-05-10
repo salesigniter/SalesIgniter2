@@ -37,7 +37,6 @@ class productListing_productsImageName {
 					) . '</i></small>';
 				}
 	//		}
-			$ratingsBar = rating_bar($productClass->getName(), $productClass->getID());
 
 			$retuned .=  '<a href="' . htmlspecialchars(itw_app_link('products_id=' . $productClass->getID() . $addedGetVar, 'product', 'info')) . '">' . $imageHtml->draw() . '</a><br/>';
 		}

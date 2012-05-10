@@ -1421,7 +1421,7 @@ class ReservationUtilities {
 		}
 
 		.calendarTime {
-			width: 540px;
+			/*width: 540px;*/
 		}
 
 		.fc-agenda-body td.ui-state-default {
