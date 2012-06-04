@@ -84,6 +84,14 @@ class htmlElement
 	}
 
 	/**
+	 * Get the elements tag name
+	 * @return string
+	 */
+	public function getTagName(){
+		return $this->element;
+	}
+
+	/**
 	 * Create a random number for nameing and id assignment
 	 * @return int
 	 */
@@ -449,14 +457,14 @@ class htmlElement
 			}
 			$html .= '</' . $this->element . '>';
 		}
-		if ($this->hasClass('required')){
+		/*if ($this->hasClass('required')){
 			$requiredIcon = htmlBase::newElement('icon')
 				->setType('required')
 				->css(array('display' => 'inline-block'))
 				->setTooltip('Input Required')
 				->addClass('ui-icon-required');
 			$html .= $requiredIcon->draw();
-		}
+		}*/
 		return $html;
 	}
 
@@ -500,10 +508,23 @@ class htmlElement
 	 */
 	public function setRequired($val) {
 		if ($val === true){
+			$this->attr('required', 'required');
 			$this->addClass('required');
 		}
 		else {
 			$this->removeClass('required');
+			$this->removeAttr('required');
+		}
+		return $this;
+	}
+
+	public function setValidation($val = false, $pattern = ''){
+		if ($val === true){
+			$this->attr('data-validate', 'true');
+			$this->attr('pattern', $pattern);
+		}else{
+			$this->removeAttr('data-validate');
+			$this->removeAttr('pattern');
 		}
 		return $this;
 	}
@@ -624,7 +645,6 @@ class StyleBuilder {
 	}
 
 	public function addRule($ruleName, $ruleVal){
-		//echo 'HERE::' . $ruleName . '<br>';
 		if (is_array($ruleVal)){
 			$ruleVal = json_decode(json_encode($ruleVal));
 			$this->parseJsonRule($ruleName, $ruleVal);

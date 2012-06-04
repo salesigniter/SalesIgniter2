@@ -22,15 +22,16 @@ class ProductTypePackage extends ProductTypeBase
 	private $checked = array();
 
 	private $info = array(
-		'id' => 0,
-		'name' => array(),
+		'id'          => 0,
+		'name'        => array(),
 		'description' => array(),
-		'products' => array()
+		'products'    => array()
 	);
 
 	private $purchaseTypeModules = array();
 
-	public function __construct() {
+	public function __construct()
+	{
 		/*
 		 * Default title and description for modules that are not yet installed
 		 */
@@ -44,7 +45,8 @@ class ProductTypePackage extends ProductTypeBase
 		);
 	}
 
-	public function init($code, $forceEnable = false, $moduleDir = false) {
+	public function init($code, $forceEnable = false, $moduleDir = false)
+	{
 		$this->import(new Installable);
 
 		$this->setModuleType('productType');
@@ -52,32 +54,39 @@ class ProductTypePackage extends ProductTypeBase
 		parent::init($code, $forceEnable, $moduleDir);
 	}
 
-	public function setProductId($val){
+	public function setProductId($val)
+	{
 		$this->info['id'] = $val;
 		$this->loadPackagedProducts();
 	}
 
-	public function setProductName($val, $langId){
+	public function setProductName($val, $langId)
+	{
 		$this->info['name'][$langId] = $val;
 	}
 
-	public function setProductDescription($val, $langId){
+	public function setProductDescription($val, $langId)
+	{
 		$this->info['description'][$langId] = $val;
 	}
 
-	public function setProductShortDescription($val, $langId){
+	public function setProductShortDescription($val, $langId)
+	{
 		$this->info['short_description'][$langId] = $val;
 	}
 
-	public function getProductId(){
+	public function getProductId()
+	{
 		return $this->info['id'];
 	}
 
-	public function getTaxClassId(){
+	public function getTaxClassId()
+	{
 		return 0;
 	}
 
-	public function getProductName($langId = false){
+	public function getProductName($langId = false)
+	{
 		if ($langId === false){
 			$langId = Session::get('languages_id');
 		}
@@ -85,21 +94,24 @@ class ProductTypePackage extends ProductTypeBase
 		return $this->info['name'][$langId];
 	}
 
-	public function getProductDescription($langId = false){
+	public function getProductDescription($langId = false)
+	{
 		if ($langId === false){
 			$langId = Session::get('languages_id');
 		}
 		return $this->info['description'][$langId];
 	}
 
-	public function getProductShortDescription($langId = false){
+	public function getProductShortDescription($langId = false)
+	{
 		if ($langId === false){
 			$langId = Session::get('languages_id');
 		}
 		return $this->info['short_description'][$langId];
 	}
 
-	public function getProductPrice(){
+	public function getProductPrice()
+	{
 		if (empty($this->info['products'])){
 			$this->loadPackagedProducts();
 		}
@@ -114,11 +126,11 @@ class ProductTypePackage extends ProductTypeBase
 			if (isset($PackageData->price)){
 				$Price += $PackageData->price * $Quantity;
 			}
-			elseif (isset($PackageData->purchase_type)){
+			elseif (isset($PackageData->purchase_type)) {
 				$ProductType->loadPurchaseType($PackageData->purchase_type);
 				$Price += $ProductType->getProductPrice($PackageData->purchase_type) * $Quantity;
 			}
-			else{
+			else {
 				$Price += $ProductType->getProductPrice() * $Quantity;
 			}
 		}
@@ -126,7 +138,8 @@ class ProductTypePackage extends ProductTypeBase
 		return $Price;
 	}
 
-	public function hasInventory(){
+	public function hasInventory()
+	{
 		if (empty($this->info['products'])){
 			$this->loadPackagedProducts();
 		}
@@ -144,7 +157,7 @@ class ProductTypePackage extends ProductTypeBase
 					$hasInventory = (($TotalInvItems - $pInfo['packageData']->quantity) >= 0);
 				}
 			}
-			else{
+			else {
 				$hasInventory = $ProductType->hasInventory();
 				if ($hasInventory === true && $pInfo['packageData']->quantity > 1){
 					$TotalInvItems = $ProductType->getCurrentStock();
@@ -160,7 +173,8 @@ class ProductTypePackage extends ProductTypeBase
 		return $hasInventory;
 	}
 
-	public function allowAddToCart(&$CartProductData) {
+	public function allowAddToCart(&$CartProductData)
+	{
 		$return = true;
 		foreach($this->getProductsRaw() as $PackageInfo){
 			$Product = $PackageInfo['productClass'];
@@ -178,7 +192,8 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
-	public function addToCartPrepare(&$CartProductData){
+	public function addToCartPrepare(&$CartProductData)
+	{
 		$CartProductData['PackagedProducts'] = array();
 		foreach($this->getProductsRaw() as $PackageInfo){
 			$Product = $PackageInfo['productClass'];
@@ -188,10 +203,10 @@ class ProductTypePackage extends ProductTypeBase
 			$ProductId = $Product->getId();
 
 			$PackageCartProduct = new ShoppingCartProduct(array(
-				'product_id' => $ProductId,
-				'id_string' => $ProductId,
+				'product_id'   => $ProductId,
+				'id_string'    => $ProductId,
 				'tax_class_id' => 0,
-				'quantity' => $PackageData->quantity
+				'quantity'     => $PackageData->quantity
 			));
 			if (isset($PackageData->purchase_type)){
 				$PackageCartProduct->setData('purchase_type', $PackageData->purchase_type);
@@ -221,7 +236,8 @@ class ProductTypePackage extends ProductTypeBase
 		$CartProductData['tax_class_id'] = 0;
 	}
 
-	public function addToCartBeforeAction(ShoppingCartProduct &$CartProduct){
+	public function addToCartBeforeAction(ShoppingCartProduct &$CartProduct)
+	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
 			$ProductType = $PackageCartProduct->getProductClass()->getProductTypeClass();
 			if (method_exists($ProductType, 'addToCartBeforeAction')){
@@ -230,7 +246,8 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
-	public function addToCartAfterAction(ShoppingCartProduct &$CartProduct){
+	public function addToCartAfterAction(ShoppingCartProduct &$CartProduct)
+	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
 			$ProductType = $PackageCartProduct->getProductClass()->getProductTypeClass();
 			if (method_exists($ProductType, 'addToCartAfterAction')){
@@ -239,7 +256,8 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
-	public function onCartProductLoad(ShoppingCartProduct &$CartProduct){
+	public function onCartProductLoad(ShoppingCartProduct &$CartProduct)
+	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
 			$PackageCartProduct->loadProductClass();
 
@@ -250,7 +268,8 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
-	public function displayOrderedProductBarcodes($pInfo) {
+	public function displayOrderedProductBarcodes($pInfo)
+	{
 		$return = '';
 		foreach($pInfo['Packaged'] as $prodInfo){
 			$PackageProduct = new OrderProduct($prodInfo);
@@ -264,17 +283,16 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
-	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true){
+	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true)
+	{
 		$PackageHtml = '';
-		foreach($OrderedProduct->getInfo('Packaged') as $pInfo){
-			$PackageProduct = new OrderProduct($pInfo);
-			$ProductType = $PackageProduct->getProductClass()->getProductTypeClass();
-
+		foreach($OrderedProduct->getInfo('PackagedProducts') as $PackageProduct){
+			$ProductType = $PackageProduct->getProductTypeClass();
 			$pInfoHtml = htmlBase::newElement('span')
 				->css(array(
-					'font-size' => '.8em',
-					'font-style' => 'italic'
-				))
+				'font-size'  => '.8em',
+				'font-style' => 'italic'
+			))
 				->html(' - ' . $PackageProduct->getQuantity() . 'x ' . $PackageProduct->getName());
 
 			$PackageHtml .= $pInfoHtml->draw() .
@@ -285,19 +303,20 @@ class ProductTypePackage extends ProductTypeBase
 			foreach($Result as $html){
 				$PackageHtml .= $html;
 			}
-			$PackageHtml .= '</div><br>';
+			$PackageHtml .= '</div>';
 		}
 		return $PackageHtml;
 	}
 
-	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array()){
+	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array())
+	{
 		$html = '';
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
 			$Product = $PackageCartProduct->getProductClass();
 
 			$pInfoHtml = htmlBase::newElement('span')
 				->css(array(
-				'font-size' => '.8em',
+				'font-size'  => '.8em',
 				'font-style' => 'italic'
 			))
 				->html(' - ' . $PackageCartProduct->getQuantity() . 'x ' . $Product->getName());
@@ -315,7 +334,8 @@ class ProductTypePackage extends ProductTypeBase
 		return $html;
 	}
 
-	public function onInsertOrderedProduct(ShoppingCartProduct &$CartProduct, $orderID, OrdersProducts &$orderedProduct, &$products_ordered) {
+	public function onInsertOrderedProduct(ShoppingCartProduct &$CartProduct, $orderID, OrdersProducts &$orderedProduct, &$products_ordered)
+	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
 			$Product = $PackageCartProduct->getProductClass();
 			$ProductType = $Product->getProductTypeClass();
@@ -343,7 +363,8 @@ class ProductTypePackage extends ProductTypeBase
 		$orderedProduct->save();
 	}
 
-	public function onSaveProduct(Products $Product){
+	public function onSaveProduct(Products $Product)
+	{
 		if ($_POST['products_type'] == 'package' && isset($_POST['package_product'])){
 			$PackageProducts = $Product->PackageProducts;
 			$keepProducts = array();
@@ -363,7 +384,8 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
-	private function loadPackagedProducts(){
+	private function loadPackagedProducts()
+	{
 		$Query = Doctrine_Query::create()
 			->from('ProductsPackagedProducts')
 			->where('package_id = ?', $this->getProductId())
@@ -375,14 +397,15 @@ class ProductTypePackage extends ProductTypeBase
 
 			$packageInfo = array(
 				'productClass' => $PackageProduct,
-				'packageData' => $PackageData,
+				'packageData'  => $PackageData,
 			);
 
 			$this->info['products'][] = $packageInfo;
 		}
 	}
 
-	public function hasReservation(){
+	public function hasReservation()
+	{
 		$hasReservation = false;
 		foreach($this->getProductsRaw() as $PackageInfo){
 			if (isset($PackageInfo['packageData']->purchase_type) && $PackageInfo['packageData']->purchase_type == 'reservation'){
@@ -393,14 +416,16 @@ class ProductTypePackage extends ProductTypeBase
 		return $hasReservation;
 	}
 
-	public function getProductsRaw(){
+	public function getProductsRaw()
+	{
 		if (empty($this->info['products'])){
 			$this->loadPackagedProducts();
 		}
 		return $this->info['products'];
 	}
 
-	public function getProducts(){
+	public function getProducts()
+	{
 		foreach($this->getProductsRaw() as $pInfo){
 			$productId = $pInfo['productClass']->getId();
 			$packData = $pInfo['packageData'];
@@ -408,7 +433,8 @@ class ProductTypePackage extends ProductTypeBase
 			$showPrice = '';
 			if (isset($packData->price)){
 				if (is_object($packData->price)){
-					$PurchaseType = $pInfo['productClass']->getProductTypeClass()->getPurchaseType($packData->purchase_type);
+					$PurchaseType = $pInfo['productClass']->getProductTypeClass()
+						->getPurchaseType($packData->purchase_type);
 					foreach(PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId()) as $iPrices){
 						$pprId = $iPrices['pay_per_rental_id'];
 						$priceId = $iPrices['pay_per_rental_types_id'];
@@ -418,23 +444,25 @@ class ProductTypePackage extends ProductTypeBase
 						if (isset($packData->price->$pprId->$priceId->$numberOf)){
 							$showPrice .= $packData->price->$pprId->$priceId->$numberOf;
 							$hiddenField .= '<input type="hidden" name="package_product_settings[' . $PurchaseType->getProductId() . '][price][' . $pprId . '][' . $priceId . '][' . $numberOf . ']" value="' . $packData->price->$pprId->$priceId->$numberOf . '">';
-						}else{
+						}
+						else {
 							$showPrice .= 'Period Current Price';
 						}
 						$showPrice .= '<br>';
 					}
-				}else{
+				}
+				else {
 					$showPrice = '<input type="hidden" name="package_product_settings[' . $productId . '][price]" value="' . $packData->price . '">' . $packData->price;
 				}
 			}
 
 			$packageInfo = array(
 				'packageData' => $packData,
-				'id' => $productId,
-				'name' => '<input type="hidden" name="package_product[]" value="' . $productId . '">' . $pInfo['productClass']->getName(),
-				'type' => $pInfo['productClass']->getProductType(),
-				'price' => $showPrice,
-				'quantity' => '<input type="hidden" name="package_product_settings[' . $productId . '][quantity]" value="' . $packData->quantity . '">' . $packData->quantity
+				'id'          => $productId,
+				'name'        => '<input type="hidden" name="package_product[]" value="' . $productId . '">' . $pInfo['productClass']->getName(),
+				'type'        => $pInfo['productClass']->getProductType(),
+				'price'       => $showPrice,
+				'quantity'    => '<input type="hidden" name="package_product_settings[' . $productId . '][quantity]" value="' . $packData->quantity . '">' . $packData->quantity
 			);
 
 			$products[] = $packageInfo;
@@ -445,7 +473,8 @@ class ProductTypePackage extends ProductTypeBase
 	/*
 	 * @TODO: Figure out something better
 	 */
-	public function getReservationPrice($priceName){
+	public function getReservationPrice($priceName)
+	{
 		global $currencies;
 		if (empty($this->info['products'])){
 			$this->loadPackagedProducts();
@@ -462,12 +491,13 @@ class ProductTypePackage extends ProductTypeBase
 				foreach(PurchaseType_reservation_utilities::getRentalPricing($pprId) as $priceInfo){
 					if (
 						isset($PackageData->price) &&
-						isset($PackageData->price[$pprId]) &&
-						isset($PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']]) &&
-						isset($PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
+						isset($PackageData->price->$pprId) &&
+						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}) &&
+						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']})
 					){
-						$price = $PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
-					}else{
+						$price = $PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']};
+					}
+					else {
 						$price = $priceInfo['price'];
 					}
 					$partName = $priceInfo['PricePayPerRentalPerProductsDescription'][0]['price_per_rental_per_products_name'];
@@ -479,10 +509,11 @@ class ProductTypePackage extends ProductTypeBase
 			}
 		}
 
-		return $prices[$priceName];
+		return (isset($prices[$priceName]) ? $prices[$priceName] : 0);
 	}
 
-	public function showProductListing($col){
+	public function showProductListing($col)
+	{
 		global $currencies;
 		if (empty($this->info['products'])){
 			$this->loadPackagedProducts();
@@ -507,7 +538,8 @@ class ProductTypePackage extends ProductTypeBase
 								isset($PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
 							){
 								$price = $PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
-							}else{
+							}
+							else {
 								$price = $priceInfo['price'];
 							}
 							$partName = $priceInfo['PricePayPerRentalPerProductsDescription'][0]['price_per_rental_per_products_name'];
@@ -542,13 +574,13 @@ class ProductTypePackage extends ProductTypeBase
 				$NameTable->addBodyRow(array(
 					'columns' => array(
 						array(
-							'css' => array(
+							'css'     => array(
 								'font-style' => 'inherit',
-								'font-size' => 'inherit',
-								'color' => 'inherit'
+								'font-size'  => 'inherit',
+								'color'      => 'inherit'
 							),
 							'colspan' => 3,
-							'text' => $NameLink->draw()
+							'text'    => $NameLink->draw()
 						)
 					)
 				));
@@ -558,9 +590,9 @@ class ProductTypePackage extends ProductTypeBase
 					$PackageData = $pInfo['packageData'];
 
 					$RowCss = array(
-						'font-style' => 'inherit',
-						'font-size' => '.8em',
-						'color' => 'inherit',
+						'font-style'  => 'inherit',
+						'font-size'   => '.8em',
+						'color'       => 'inherit',
 						'white-space' => 'nowrap'
 					);
 
@@ -586,7 +618,8 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
-	public function processProductImport(&$Product, $CurrentRow){
+	public function processProductImport(&$Product, $CurrentRow)
+	{
 		$PackageProducts =& $Product->PackageProducts;
 		$PackageProducts->delete();
 		$PackageProductsCheck = $CurrentRow->getColumnValue('v_packaged_products');
@@ -626,17 +659,21 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
-	public function getExportTableColumns(){
+	public function getExportTableColumns()
+	{
 	}
 
-	public function addExportQueryConditions(&$QfileLayout){
+	public function addExportQueryConditions(&$QfileLayout)
+	{
 	}
 
-	public function addExportHeaderColumns(&$headerRow){
+	public function addExportHeaderColumns(&$headerRow)
+	{
 		$headerRow->addColumn('v_packaged_products');
 	}
 
-	public function addExportRowColumns(&$CurrentRow, $Product){
+	public function addExportRowColumns(&$CurrentRow, $Product)
+	{
 		$RowData = array();
 		$PackagedProducts = $Product->PackageProducts;
 		if ($PackagedProducts && $PackagedProducts->count() > 0){
@@ -648,12 +685,14 @@ class ProductTypePackage extends ProductTypeBase
 				$LineData[] = $PackageData->quantity;
 				if (isset($PackageData->price)){
 					$LineData[] = $PackageData->price;
-				}else{
+				}
+				else {
 					$LineData[] = '';
 				}
 				if (isset($PackageData->purchase_type)){
 					$LineData[] = $PackageData->purchase_type;
-				}else{
+				}
+				else {
 					$LineData[] = '';
 				}
 
@@ -663,7 +702,8 @@ class ProductTypePackage extends ProductTypeBase
 		$CurrentRow->addColumn(implode("\n", $RowData), 'v_packaged_products');
 	}
 
-	public function loadReservationPricing($PackageProducts){
+	public function loadReservationPricing($PackageProducts)
+	{
 		foreach($PackageProducts as $PackagedProduct){
 			$PackageData = $PackagedProduct->getInfo('PackageData');
 			if ($PackageData->purchase_type == 'reservation'){
@@ -688,5 +728,81 @@ class ProductTypePackage extends ProductTypeBase
 				}
 			}
 		}
+	}
+
+	public function onSetQuantity(OrderProduct $OrderProduct){
+		$Info = $OrderProduct->getInfo();
+		foreach($Info['PackagedProducts'] as $k => $PackageProduct){
+			$PackageData = $PackageProduct->getInfo('PackageData');
+			$PackageProduct->setQuantity($PackageData->quantity * $OrderProduct->getQuantity());
+		}
+		//echo '<pre>';print_r($Info);
+		$OrderProduct->setInfo($Info);
+	}
+
+	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null)
+	{
+		$return = true;
+		foreach($OrderProduct->getInfo('PackagedProducts') as $PackageProduct){
+			$return = $PackageProduct->hasEnoughInventory($OrderProduct->getQuantity() * $PackageProduct->getQuantity());
+
+			if ($return === false){
+				break;
+			}
+		}
+		return $return;
+	}
+
+	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false)
+	{
+		foreach($OrderProduct->getInfo('PackagedProducts') as $k => $PackagedProduct){
+			$PackageProduct = $SaleProduct->Packaged->getTable()->getRecord();
+			$PackagedProduct->onSaveSale($PackageProduct, $AssignInventory);
+			$SaleProduct->Packaged->add($PackageProduct);
+		}
+
+		/**
+		 * Remove the package products info, so we can handle it in our own way for this product type
+		 */
+		$Info = $OrderProduct->getInfo();
+		unset($Info['PackagedProducts']);
+		$OrderProduct->setInfo($Info);
+	}
+
+	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
+		if ($Product->Packaged){
+			$Info = $OrderProduct->getInfo();
+			foreach($Product->Packaged as $PackagedProduct){
+				$PackageProduct = new OrderProduct();
+				$PackageProduct->jsonDecodeProduct($PackagedProduct);
+				$Info['PackagedProducts'][$k] = $PackageProduct;
+			}
+			$OrderProduct->setInfo($Info);
+		}
+	}
+
+	public function jsonDecode(OrderProduct &$OrderProduct)
+	{
+		if ($OrderProduct->hasInfo('PackagedProducts')){
+			$Info = $OrderProduct->getInfo();
+			foreach($Info['PackagedProducts'] as $k => $PackagedJson){
+				$PackageProduct = new OrderProduct();
+				$PackageProduct->jsonDecode($PackagedJson);
+				$Info['PackagedProducts'][$k] = $PackageProduct;
+			}
+			$OrderProduct->setInfo($Info);
+		}
+	}
+
+	public function jsonEncode(OrderProduct &$OrderProduct)
+	{
+		$toEncode = array();
+		if ($OrderProduct->hasInfo('PackagedProducts')){
+			$toEncode = $OrderProduct->getInfo();
+			foreach($Info['PackagedProducts'] as $k => $PackagedProduct){
+				$toEncode['PackagedProducts'][$k] = $PackagedProduct->jsonEncode();
+			}
+		}
+		return json_encode($toEncode);
 	}
 }

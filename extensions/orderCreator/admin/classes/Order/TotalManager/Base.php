@@ -19,7 +19,7 @@ class OrderCreatorTotalManager extends OrderTotalManager
 		if (is_null($orderTotals) === false){
 			foreach($orderTotals as $i => $tInfo){
 				$orderTotal = new OrderCreatorTotal($tInfo);
-				$this->add($orderTotal);
+				$this->totals[$orderTotal->getModule()] = $orderTotal;
 			}
 		}
 	}
@@ -28,9 +28,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	 * @param string $moduleType
 	 */
 	public function remove($moduleType) {
-		$orderTotal = $this->getTotal($moduleType);
-		if (is_null($orderTotal) === false){
-			$this->detach($orderTotal);
+		if (isset($this->totals[$moduleType]) === true){
+			unset($this->totals[$moduleType]);
 		}
 	}
 
@@ -45,19 +44,27 @@ class OrderCreatorTotalManager extends OrderTotalManager
 			$addTotal = false;
 			if (is_null($OrderTotal) === true){
 				$OrderTotal = new OrderCreatorTotal();
-				$OrderTotal->setModuleType($tInfo['type']);
+				$OrderTotal->setModule($tInfo['type']);
 				$addTotal = true;
+			}
+
+			$value = $tInfo['value'];
+			if (substr($value, -3, 1) == ',' || substr($value, -5, 1) == ','){
+				$value = str_replace(',', '.', $value);
+				$value[strpos($value, '.')] = '';
+			}else{
+				$value = str_replace(',', '', $value);
 			}
 
 			$OrderTotal->setSortOrder($tInfo['sort_order']);
 			$OrderTotal->setTitle($tInfo['title']);
-			$OrderTotal->setValue($tInfo['value']);
-			$OrderTotal->setText($currencies->format($tInfo['value'], true, $Editor->getCurrency(), $Editor->getCurrencyValue()));
+			$OrderTotal->setValue($value);
+			$OrderTotal->setText($currencies->format($value, true, $Editor->getCurrency(), $Editor->getCurrencyValue()));
 			$OrderTotal->setModule($tInfo['type']);
 			$OrderTotal->setMethod(null);
 
 			if ($addTotal === true){
-				$this->add($OrderTotal);
+				$this->totals[$OrderTotal->getModule()] = $OrderTotal;
 			}
 
 			if ($tInfo['type'] == 'shipping'){
@@ -101,13 +108,20 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	 * @param float $amount
 	 */
 	public function addToTotal($key, $amount) {
-		$this->rewind();
-		while($this->valid()){
-			$orderTotal = $this->current();
-			if ($orderTotal->getModuleType() == $key){
-				$orderTotal->setValue($orderTotal->getValue() + $amount);
+		foreach($this->totals as $OrderTotal){
+			if ($OrderTotal->getModule() == $key){
+				$OrderTotal->setValue($OrderTotal->getValue() + $amount);
 			}
-			$this->next();
+		}
+	}
+
+	public function jsonDecode($data){
+		$this->totals = array();
+		$Totals = json_decode($data, true);
+		foreach($Totals as $tInfo){
+			$OrderTotal = new OrderCreatorTotal();
+			$OrderTotal->jsonDencode($tInfo);
+			$this->totals[$OrderTotal->getModule()] = $OrderTotal;
 		}
 	}
 }

@@ -1,0 +1,8 @@
+<info>
+	<code>order</code>
+	<title_key>MODULE_ACCOUNTS_RECEIVABLE_ORDER_TEXT_TITLE</title_key>
+	<description_key>MODULE_ACCOUNTS_RECEIVABLE_ORDER_TEXT_DESCRIPTION</description_key>
+	<installed_key>INSTALLED</installed_key>
+	<status_key>STATUS</status_key>
+	<assign_inventory_key>ASSIGN_INVENTORY</assign_inventory_key>
+</info>

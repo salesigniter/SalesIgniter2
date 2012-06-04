@@ -1,40 +1,254 @@
-function getLinkParams(addVars, isAjax) {
-	var getVars = [];
-	getVars.push('appExt=templateManager');
-	getVars.push('app=' + thisApp);
-	getVars.push('appPage=' + thisAppPage);
-	getVars.push('tID=' + tID);
-	getVars.push('showErrors=true');
-
-	if ($('.gridBodyRow.state-active').size() > 0){
-		getVars.push('lID=' + $('.gridBodyRow.state-active').data('layout_id'));
-	}
-
-	if (addVars){
-		for(var i = 0; i < addVars.length; i++){
-			getVars.push(addVars[i]);
-		}
-	}
-	return getVars.join('&');
-}
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
 
 $(document).ready(function () {
-	$('.gridBodyRow').live('click', function () {
-		$('.gridButtonBar').find('button').button('enable');
-	});
+	var $PageGrid = $('.gridContainer');
+	$PageGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.backButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('layout_manager', 'default', 'templateManager'));
+			}
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				js_redirect(GridClass.buildAppRedirect('layout_manager', 'editLayout', 'templateManager', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]));
+			}
+		},
+		{
+			selector          : '.newButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				GridClass.clearSelected();
+				GridClass.showWindow({
+					buttonEl   : this,
+					contentUrl : GridClass.buildActionWindowLink('newLayout'),
+					onAfterShow: function (){
+						var height = 0;
+						var width = 0;
+						$('.mainBox').each(function () {
+							if ($(this).outerWidth() > width){
+								width = $(this).outerWidth();
+							}
 
-	$('.backButton').click(function () {
-		js_redirect(js_app_link('appExt=templateManager&app=layout_manager&appPage=default'));
-	});
+							if ($(this).outerHeight() > height){
+								height = $(this).outerHeight();
+							}
+						});
 
-	$('.editButton').click(function (){
-		js_redirect(js_app_link('appExt=templateManager&app=layout_manager&appPage=editLayout&lID=' + $('.gridBodyRow.state-active').data('layout_id')));
-	});
+						$('.mainBox').width(width).height(height);
+
+						$('.checkAll').click(function(){
+							var self = this;
+							$(this).parent().find('input:checkbox').each(function (){
+								this.checked = self.checked;
+							});
+
+							if (self.checked){
+								$(this).parent().find('.checkAllText').html('Uncheck All');
+							}else{
+								$(this).parent().find('.checkAllText').html('Check All');
+							}
+						});
+
+						$('.checkAllPages').click(function (){
+							var self = this;
+							$(self).parent().parent().find('.pageBox').each(function (){
+								this.checked = self.checked;
+							});
+						});
+
+						$('.checkAllApps').click(function (){
+							var self = this;
+							$(self).parent().parent().find('.appBox').each(function (){
+								this.checked = self.checked;
+							});
+							$(self).parent().parent().find('.pageBox').each(function (){
+								this.checked = self.checked;
+							});
+						});
+
+						$(this).find('select[name=pageType]').change(function (){
+							$('tr[data-for_page_type]').hide();
+							var self = this;
+							$('tr[data-for_page_type="' + $(this).val() + '"]').show('fast', function (){
+								if ($(self).val() == 'template'){
+									$('.mainBox').width('auto').height('auto');
+									var height = 0;
+									var width = 0;
+									$('.mainBox').each(function () {
+										if ($(this).outerWidth() > width){
+											width = $(this).outerWidth();
+										}
+
+										if ($(this).outerHeight() > height){
+											height = $(this).outerHeight();
+										}
+									});
+
+									$('.mainBox').width(width).height(height);
+								}
+							});
+						}).change();
+					},
+					buttons    : ['cancel', {
+						type: 'save',
+						click: GridClass.windowButtonEvent('save', {
+							actionName: 'createLayout',
+							addGetVars: ['template_id=' + $_GET['template_id']],
+							onSuccess: function (){
+								js_redirect(GridClass.buildCurrentAppRedirect('layouts', ['template_id=' + $_GET['template_id']]));
+							}
+						})
+					}]
+				});
+			}
+		},
+		{
+			selector          : '.configureButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				GridClass.showWindow({
+					buttonEl   : this,
+					contentUrl : GridClass.buildActionWindowLink('newLayout', true),
+					onAfterShow: function (){
+						var height = 0;
+						var width = 0;
+						$('.mainBox').each(function () {
+							if ($(this).outerWidth() > width){
+								width = $(this).outerWidth();
+							}
+
+							if ($(this).outerHeight() > height){
+								height = $(this).outerHeight();
+							}
+						});
+
+						$('.mainBox').width(width).height(height);
+
+						$('.checkAll').click(function(){
+							var self = this;
+							$(this).parent().find('input:checkbox').each(function (){
+								this.checked = self.checked;
+							});
+
+							if (self.checked){
+								$(this).parent().find('.checkAllText').html('Uncheck All');
+							}else{
+								$(this).parent().find('.checkAllText').html('Check All');
+							}
+						});
+
+						$('.checkAllPages').click(function (){
+							var self = this;
+							$(self).parent().parent().find('.pageBox').each(function (){
+								this.checked = self.checked;
+							});
+						});
+
+						$('.checkAllApps').click(function (){
+							var self = this;
+							$(self).parent().parent().find('.appBox').each(function (){
+								this.checked = self.checked;
+							});
+							$(self).parent().parent().find('.pageBox').each(function (){
+								this.checked = self.checked;
+							});
+						});
+
+						$(this).find('select[name=pageType]').change(function (){
+							$('tr[data-for_page_type]').hide();
+							var self = this;
+							$('tr[data-for_page_type="' + $(this).val() + '"]').show('fast', function (){
+								if ($(self).val() == 'template'){
+									$('.mainBox').width('auto').height('auto');
+									var height = 0;
+									var width = 0;
+									$('.mainBox').each(function () {
+										if ($(this).outerWidth() > width){
+											width = $(this).outerWidth();
+										}
+
+										if ($(this).outerHeight() > height){
+											height = $(this).outerHeight();
+										}
+									});
+
+									$('.mainBox').width(width).height(height);
+								}
+							});
+						}).change();
+					},
+					buttons    : ['cancel', {
+						type: 'save',
+						click: GridClass.windowButtonEvent('save', {
+							actionName: 'createLayout'
+						})
+					}]
+				});
+			}
+		},
+		{
+			selector          : '.deleteButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				GridClass.showDeleteDialog({
+					buttonEl   : this,
+					confirmUrl : GridClass.buildActionLink('deleteLayout', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()])
+				});
+			}
+		},
+		{
+			selector          : '.duplicateButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				GridClass.showConfirmDialog({
+					title: 'Duplicate Layout',
+					content: 'New Layout Name: <input type="text" name="layout_name">',
+					errorMessage: 'This layout could not be duplicated.',
+					onConfirm: function (){
+						var dialogEl = this;
+
+						$.ajax({
+							cache: false,
+							url: GridClass.buildActionLink('duplicateLayout', [GridClass.getDataKey() + '=' + GridClass.getSelectedData()]),
+							dataType: 'json',
+							data: $(dialogEl).find('*').serialize(),
+							type: 'post',
+							success: function (data) {
+								js_redirect(GridClass.buildCurrentAppRedirect());
+							}
+						});
+					},
+					success: function () {
+					}
+				});
+			}
+		}
+	]);
 
 	$('.generateCode').click(function(){
 		$.ajax({
 			cache: false,
-			url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&lID=' + $('.gridBodyRow.state-active').data('layout_id')),
+			url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&layout_id=' + $('.gridBodyRow.state-active').data('layout_id')),
 			dataType: 'json',
 			type: 'post',
 			success: function (data) {
@@ -50,7 +264,7 @@ $(document).ready(function () {
 				$('.genType, .genTemplate, .genProduct').change(function(){
 					$.ajax({
 						cache: false,
-						url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&lID=' + $('.gridBodyRow.state-active').data('layout_id')),
+						url: js_app_link('appExt=templateManager&app=layout_manager&appPage=layouts&action=generateCode&layout_id=' + $('.gridBodyRow.state-active').data('layout_id')),
 						dataType: 'json',
 						data:'onlyCode=1&type='+$('.genType').val()+'&templateName='+$('.genTemplate').val()+'&products_id='+$('.genProduct option:selected').val(),
 						type: 'post',
@@ -63,152 +277,5 @@ $(document).ready(function () {
 		});
 
 
-	});
-
-	$('.newButton, .configureButton').click(function () {
-		if ($(this).hasClass('newButton')){
-			$('.gridBodyRow.state-active').removeClass('state-active');
-		}
-
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=getActionWindow',
-			'window=newLayout'
-		]);
-
-		gridWindow({
-			buttonEl: this,
-			gridEl: $('.gridContainer'),
-			contentUrl: js_app_link(getVars),
-			onShow: function (ui) {
-				var self = this;
-
-				$(self).find('.cancelButton').click(function () {
-					$(self).effect('fade', {
-						mode: 'hide'
-					}, function () {
-						$('.gridContainer').effect('fade', {
-							mode: 'show'
-						}, function () {
-							$(self).remove();
-						});
-					});
-				});
-
-				$(self).find('.saveButton').click(function () {
-					var getVars = getLinkParams([
-						'rType=ajax',
-						'action=createLayout'
-					]);
-
-					$.ajax({
-						cache: false,
-						url: js_app_link(getVars),
-						dataType: 'json',
-						data: $(self).find('*').serialize(),
-						type: 'post',
-						success: function (data) {
-							//alert('Updated/Added, Want To Edit Now?');
-							if (data.success){
-								if ($(ui.triggerEl).hasClass('configureButton')){
-									$('.gridBodyRow.state-active').find('.layoutName').html(data.layoutName);
-									$('.gridBodyRow.state-active').find('.layoutType').html(data.layoutType);
-								}else{
-									$('.grid tbody').append('<tr class="gridBodyRow" data-layout_id="' + data.layoutId + '">' +
-										'<td class="gridBodyRowColumn layoutName">' + data.layoutName + '</td>' +
-										'<td class="gridBodyRowColumn layoutType">' + data.layoutType + '</td>' +
-									'</tr>');
-								}
-
-								$(self).effect('fade', {
-									mode: 'hide'
-								}, function () {
-									$('.gridContainer').effect('fade', {
-										mode: 'show'
-									}, function () {
-										$(self).remove();
-									});
-								});
-							}
-						}
-					});
-				});
-
-				$('select[name=pageType]').change(function (){
-					$('tr[data-for_page_type]').hide();
-					$('tr[data-for_page_type="' + $(this).val() + '"]').show();
-				}).change();
-
-				if ($(this).hasClass('configureButton')){
-					if (typeof configureWindowOnLoad != 'undefined'){
-						configureWindowOnLoad.apply(self);
-					}
-				}else{
-					if (typeof newWindowOnLoad != 'undefined'){
-						newWindowOnLoad.apply(self);
-					}
-				}
-			}
-		});
-	});
-
-	$('.duplicateButton').click(function (){
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=duplicateLayout'
-		]);
-
-		confirmDialog({
-			title: 'Duplicate Layout',
-			content: 'New Layout Name: <input type="text" name="layout_name">',
-			errorMessage: 'This layout could not be duplicated.',
-			onConfirm: function (){
-				var dialogEl = this;
-
-				$.ajax({
-					cache: false,
-					url: js_app_link(getVars),
-					dataType: 'json',
-					data: $(dialogEl).find('*').serialize(),
-					type: 'post',
-					success: function (data) {
-						//alert('Updated/Added, Want To Edit Now?');
-						if (data.success){
-							$('.gridContainer').newGrid('addBodyRow', {
-								rowAttr: {
-									'data-layout_id': data.layoutId
-								},
-								columns: [
-									{ text: data.layoutName },
-									{ text: data.layoutType }
-								]
-							});
-
-							$(dialogEl).dialog('close').remove();
-						}
-					}
-				});
-			},
-			success: function () {
-			}
-		});
-	});
-
-	$('.deleteButton').click(function () {
-		var getVars = getLinkParams([
-			'rType=ajax',
-			'action=deleteLayout'
-		]);
-
-		confirmDialog({
-			confirmUrl: js_app_link(getVars),
-			title: 'Confirm Layout Delete',
-			content: 'Are you sure you want to delete this layout?',
-			errorMessage: 'This layout could not be deleted.',
-			success: function () {
-				$('.gridBodyRow.state-active').remove();
-				$('.gridBodyRow').first().trigger('click');
-			}
-		});
 	});
 });

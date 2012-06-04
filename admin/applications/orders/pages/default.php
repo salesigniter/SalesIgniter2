@@ -1,5 +1,4 @@
 <?php
-require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
 DataManagementModules::loadModule('orders');
 $ExportModule = DataManagementModules::getModule('orders');
 

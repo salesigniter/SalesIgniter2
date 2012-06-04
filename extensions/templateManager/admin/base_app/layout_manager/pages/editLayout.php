@@ -1,12 +1,225 @@
+<?php
+/*
+$PrintWidgetLang = '<definitions>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_TITLE"><![CDATA[{title}]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_DESCRIPTION"><![CDATA[{title}]]></define>
+</definitions>
+';
+$PrintWidgetInfo = '<info>
+	<code>templateManagerPrintWidget{ucfirst}</code>
+	<title_key>TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_TITLE</title_key>
+	<description_key>TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_DESCRIPTION</description_key>
+	<installed_key>INSTALLED</installed_key>
+	<status_key>STATUS</status_key>
+</info>
+';
+$PrintWidgetConfig = '<ConfigurationGroup>
+	<title>{title}</title>
+	<key>templateManagerPrintWidget{ucfirst}</key>
+	<description>Configuration Settings</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Widget Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Tells if the widget is installed or not]]></description>
+				</INSTALLED>
+				<STATUS editable="false">
+					<title><![CDATA[Enable Widget]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Enable widget]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>
+';
+
+$WidgetLang = '<definitions>
+	<define key="TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_TITLE"><![CDATA[{title}]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_DESCRIPTION"><![CDATA[{title}]]></define>
+</definitions>
+';
+$WidgetInfo = '<info>
+	<code>templateManagerWidget{ucfirst}</code>
+	<title_key>TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_TITLE</title_key>
+	<description_key>TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_DESCRIPTION</description_key>
+	<installed_key>INSTALLED</installed_key>
+	<status_key>STATUS</status_key>
+</info>
+';
+$WidgetConfig = '<ConfigurationGroup>
+	<title>{title}</title>
+	<key>templateManagerWidget{ucfirst}</key>
+	<description>Configuration Settings</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Widget Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Tells if the widget is installed or not]]></description>
+				</INSTALLED>
+				<STATUS editable="false">
+					<title><![CDATA[Enable Widget]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Enable widget]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>
+';
+
+foreach($TemplateManager->getPrintWidgetPaths() as $widgetCode => $widgetPath){
+	$results = array();
+	preg_match_all('/[A-Z][^A-Z]* /',ucfirst($widgetCode),$results);
+	$widgetTitle = implode(' ', $results[0]);
+
+	$File = fopen($widgetPath . '/data/info.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{ucfirst}',
+			'{strtoupper}'
+		), array(
+			ucfirst($widgetCode),
+			strtoupper($widgetCode)
+		), $PrintWidgetInfo);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+
+	$File = fopen($widgetPath . '/data/config.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{ucfirst}',
+			'{strtoupper}',
+			'{title}'
+		), array(
+			ucfirst($widgetCode),
+			strtoupper($widgetCode),
+			$widgetTitle
+		), $PrintWidgetConfig);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+
+	$File = fopen($widgetPath . '/language_defines/global.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{strtoupper}',
+			'{title}'
+		), array(
+			strtoupper($widgetCode),
+			$widgetTitle
+		), $PrintWidgetLang);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+}
+
+foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
+	$results = array();
+	preg_match_all('/[A-Z][^A-Z]* /',ucfirst($widgetCode),$results);
+	$widgetTitle = implode(' ', $results[0]);
+
+	$File = fopen($widgetPath . '/data/info.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{ucfirst}',
+			'{strtoupper}'
+		), array(
+			ucfirst($widgetCode),
+			strtoupper($widgetCode)
+		), $WidgetInfo);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+
+	$File = fopen($widgetPath . '/data/config.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{ucfirst}',
+			'{strtoupper}',
+			'{title}'
+		), array(
+			ucfirst($widgetCode),
+			strtoupper($widgetCode),
+			$widgetTitle
+		), $WidgetConfig);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+
+	$File = fopen($widgetPath . '/language_defines/global.xml', 'w+');
+	if ($File){
+		$Contents = str_replace(array(
+			'{strtoupper}',
+			'{title}'
+		), array(
+			strtoupper($widgetCode),
+			$widgetTitle
+		), $WidgetLang);
+		fwrite($File, $Contents);
+		fclose($File);
+	}
+}
+*/
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+?>
+<style>
+	.widgetInfo { display:none; }
+</style>
 <script type="text/javascript">
 	var templateName = '<?php echo $templateName;?>';
 	var layoutId = '<?php echo (int)$Layout->layout_id;?>';
+	var layoutType = '<?php echo $Layout->layout_type;?>';
+	var pageType = '<?php echo $Layout->page_type;?>';
 </script>
-<div><?php
+<div style="margin:1em;text-align:right;"><?php
 	echo htmlBase::newElement('button')->usePreset('back')->setText('Back To Layout Listing')
-		->setHref(itw_app_link('appExt=templateManager&tID=' . $Layout->Template->template_id, 'layout_manager', 'layouts'))
+		->setHref(itw_app_link('appExt=templateManager&template_id=' . $Layout->Template->template_id, 'layout_manager', 'layouts'))
 		->draw();
 	?></div>
+<div style="text-align:center;">
+	<a href="#" id="construct-save" tooltip="Save Layout" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-save"></a>
+	<!--<a href="#" id="construct-saveAs" tooltip="Save Layout As" class="ui-icon ui-action-icon ui-action-icon-save-as"></a>-->
+	<a href="#" id="construct-addContainer" tooltip="Add container" class="ui-icon ui-action-icon ui-action-icon-add-container"></a>
+	<a href="#" id="construct-addColumn" tooltip="Add column" class="ui-icon ui-action-icon ui-action-icon-add-column"></a>
+	<a href="#" id="construct-addSubColumn" tooltip="Add a column inside selected column" class="ui-icon ui-action-icon ui-action-icon-add-subcolumn"></a>
+	<a href="#" id="construct-widgets" tooltip="Add widgets to template" class="ui-icon ui-action-icon ui-action-icon-add-widget"></a>
+	<a href="#" id="construct-link" tooltip="Create a linked container to use on other templates" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-create-link"></a>
+	<a href="#" id="construct-importlink" tooltip="Import a linked container" class="ui-icon ui-action-icon ui-action-icon-import-link"></a>
+</div>
 <div id="saveLayoutText" style="display:none;"><?php
 	echo '<span class="changedText">Layout Has Been Changed</span>';
 
@@ -23,17 +236,16 @@
 	?></div>
 <div class="unselectable" id='construct-header'>
 	<div class="inside">
-		<ul id='construct-actionMenu'>
+		<!--<ul id='construct-actionMenu'>
 			<li><a href='#' id='construct-addContainer' title='Add container'>Add Container</a></li>
 			<li><a href='#' id='construct-addColumn' title='Add column'>Add Column</a></li>
 			<li><a href='#' id='construct-addSubColumn' title='Add a column inside selected column'>Add Sub-Column</a></li>
 			<li><a href='#' id='construct-widgets' title='Add widgets to template'>Add widgets</a></li>
 			<li><a href='#' id='construct-link' title='Create a linked container to use on other templates' class="ui-state-disabled">Create Link</a></li>
 			<li><a href='#' id='construct-importlink' title='Import a linked container'>Import Link</a></li>
-			<li><a href='#' id='construct-borders' title='Show Outline Around Columns And Containers'>Show Outline</a>
-			<li><a href='#' id='construct-zoomMode' title='Turn Zoom Mode On/Off' data-zoommode="false">Zoom Mode Off</a>
-			</li>
-		</ul>
+			<li><a href='#' id='construct-borders' title='Show Outline Around Columns And Containers'>Show Outline</a></li>
+			<li><a href='#' id='construct-zoomMode' title='Turn Zoom Mode On/Off' data-zoommode="false">Zoom Mode Off</a></li>
+		</ul>-->
 		<div class="containerBreadcrumb"></div>
 		<div id="scrollInfo"></div>
 	</div>
@@ -45,11 +257,11 @@
 	<div class="editWindow centerColumn" style="display:none; position: relative; ;"></div>
 	<div class="boxListing centerColumn" style="position: relative;">
 		<div class="ui-widget ui-widget-content ui-corner-bottom" style="padding: 0.3em;border-top: none;"><?php
-			foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
-				echo '<div class="ui-widget ui-widget-content ui-corner-all draggableField" id="' . $widgetCode . '" style="margin:.2em;float:left;width:175px;padding:.3em;">' .
-					'<div class="ui-widget-header ui-corner-all" style="padding:.2em;padding-left:.5em;">' .
-					$widgetCode .
-					'</div>' .
+			foreach($LayoutBuilder->getWidgets() as $Widget){
+				echo '<div class="ui-widget ui-widget-content ui-corner-all draggableField widgetDraggable" id="' . $Widget->getCode() . '" data-is_table="' . ($Widget->isTable() ? 'true' : 'false') . '">' .
+					'<span class="ui-icon ui-icon-info"></span>' .
+					'<div class="ui-widget-header ui-corner-all">' . $Widget->getTitle() . '</div>' .
+					'<div class="ui-widget-content ui-corner-bottom widgetInfo">' . $Widget->getDescription() . '</div>' .
 					'</div>';
 			}
 			echo '<div class="ui-helper-clearfix"></div>';

@@ -1,6 +1,8 @@
 <?php
 $tableGrid = htmlBase::newElement('newGrid')
-->usePagination(false);
+	->setMainDataKey('template_id')
+	->allowMultipleRowSelect(true)
+	->usePagination(false);
 
 $tableGrid->addHeaderRow(array(
 	'columns' => array(

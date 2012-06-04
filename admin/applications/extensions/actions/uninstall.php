@@ -1,8 +1,8 @@
 <?php
 require(sysConfig::getDirFsCatalog() . 'includes/classes/extensionInstaller.php');
 
-$toUninstall = explode(',', $_GET['ext']);
-$removeSettings = (isset($_POST['remove']) ? true : false);
+$toUninstall = explode(',', $_GET['extension']);
+$removeSettings = true;
 foreach($toUninstall as $extName){
 	$extension = basename($extName);
 

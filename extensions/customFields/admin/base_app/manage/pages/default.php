@@ -39,8 +39,8 @@
 
 			$newFieldWrapper = htmlBase::newElement('div')->css(array(
 				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '50px',
+				//'width'   => '150px',
+				//'height'  => '50px',
 				'padding' => '4px',
 				'margin'  => '3px'
 			))->addClass('ui-widget ui-widget-content ui-corner-all draggableField')
@@ -106,8 +106,8 @@
 
 			$newGroupWrapper = htmlBase::newElement('div')->css(array(
 				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '200px',
+				//'width'   => '150px',
+				//'height'  => '200px',
 				'padding' => '4px',
 				'margin'  => '3px'
 			))->attr('group_id', $groupId)

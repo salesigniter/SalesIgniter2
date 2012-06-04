@@ -8,7 +8,7 @@ $cancelButton = htmlBase::newElement('button')->addClass('cancelButton')->usePre
 
 $infoBox->addButton($saveButton)->addButton($cancelButton);
 
-$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find((int) $_GET['tID']);
+$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find((int) $_GET['template_id']);
 
 $templateName = htmlBase::newElement('input')
 	->setName('templateName')

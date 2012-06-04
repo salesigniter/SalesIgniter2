@@ -104,6 +104,9 @@ AddType audio/x-wav .wav
 
 #php_value zlib.output_compression on
 
+ErrorDocument 404 errorPages/404.php
+ErrorDocument 500 errorPages/500.php
+
 Options +FollowSymLinks
 RewriteEngine On 
 RewriteBase /

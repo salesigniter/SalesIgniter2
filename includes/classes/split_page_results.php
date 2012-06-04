@@ -46,9 +46,9 @@
       if (($pos_order_by < $pos_to) && ($pos_order_by != false)) $pos_to = $pos_order_by;
 
       if (strpos($this->sql_query, 'distinct') || strpos($this->sql_query, 'group by')) {
-        $count_string = 'distinct ' . tep_db_input($count_key);
+        $count_string = 'distinct ' . $count_key;
       } else {
-        $count_string = tep_db_input($count_key);
+        $count_string = $count_key;
       }
 
 		$Count = Doctrine_Manager::getInstance()

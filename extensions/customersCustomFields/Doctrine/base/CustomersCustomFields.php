@@ -49,9 +49,9 @@ class CustomersCustomFields extends Doctrine_Record {
 			'autoincrement' => true,
 		));
 		
-		$this->hasColumn('search_key', 'string', 16, array(
+		$this->hasColumn('field_key', 'string', 255, array(
 			'type' => 'string',
-			'length' => 16,
+			'length' => 255,
 			'fixed' => false,
 			'primary' => false,
 			'notnull' => false,

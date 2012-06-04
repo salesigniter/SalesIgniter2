@@ -1,0 +1,57 @@
+@media screen and (min-width: 1px) {
+	#bodyWrapper:before {
+		content: "This Page Has Been Disabled For All Resolutions Below 480";
+	}
+	.mainContainer { display:none;margin:10px;text-align: center; }
+	.buttonsColumn { vertical-align: top;padding:10px;margin-left:auto;margin-right:auto; }
+	.fieldsColumn { vertical-align: top; }
+	.groupsColumn { vertical-align: top; }
+	.fieldsContainer { text-align:left;margin:10px; }
+	.groupsContainer { text-align:left;margin:10px; }
+	.ui-droppable { border: 1px solid transparent; }
+}
+
+@media screen and (min-width: 240px) {
+}
+
+@media screen and (min-width: 320px) {
+}
+
+@media screen and (min-width: 480px) {
+	#bodyWrapper:before { display:none; }
+	.gridButtonBar .ui-button-text {
+		display:none;
+	}
+	.mainContainer { display:block; }
+
+	.fieldsColumn { width:184px; }
+	.groupsColumn { width:184px; }
+}
+
+@media screen and (min-width: 768px) {
+	.ui-button .ui-button-text {
+		display:inline-block;
+	}
+	.fieldsColumn { width:288px; }
+	.groupsColumn { width:288px; }
+}
+
+@media screen and (min-width: 992px) {
+	.fieldsColumn { width:375px; }
+	.groupsColumn { width:375px; }
+}
+
+@media screen and (min-width: 1200px) {
+	.fieldsColumn { width:429px; }
+	.groupsColumn { width:429px; }
+}
+
+@media screen and (min-width: 1600px) {
+	.fieldsColumn { width:629px; }
+	.groupsColumn { width:629px; }
+}
+
+@media screen and (min-width: 1800px) {
+	.fieldsColumn { width:729px; }
+	.groupsColumn { width:729px; }
+}

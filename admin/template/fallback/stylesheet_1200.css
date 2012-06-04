@@ -1,18 +1,30 @@
-#rightColumn {
-	margin-left: 200px;
-}
-#mainNavMenu {
-	width:200px;
-}
-#mainNavMenu li a {
-	display:inline-block;
-	text-align:left;
-}
-#mainNavMenu li .ui-icon {
-	display:inline-block;
-	margin: .5em;
-}
-#languageBar #languageBox {
-	width:200px;
-	line-height:60px;
+@media screen and (min-width: 1200px) {
+	#logoBar {
+		text-align   : left;
+		padding-left : 10px;
+	}
+
+	#rightColumn {
+		margin-left : 200px;
+		top         : -100px;
+	}
+
+	#mainNavMenu {
+		width : 200px;
+	}
+
+	#mainNavMenu li a {
+		display    : inline-block;
+		text-align : left;
+	}
+
+	#mainNavMenu li .ui-icon {
+		display : inline-block;
+		margin  : .5em;
+	}
+
+	#languageBar #languageBox {
+		width       : 200px;
+		line-height : 60px;
+	}
 }

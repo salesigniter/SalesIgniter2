@@ -1,132 +1,133 @@
-<?php
-	$fieldListing = htmlBase::newElement('div')->attr('id', 'fieldListing')->css(array(
-		'display'  => 'block',
-		'width'    => '100%',
-		'height'   => '250px',
-		'overflow' => 'auto'
-	));
+<div class="mainContainer">
+	<div class="ui-widget ui-widget-content ui-corner-all column fieldsColumn">
+		<div class="fieldsContainer">
+			<?php
+			$FieldsGrid = htmlBase::newGrid()
+				->allowMultipleRowSelect(true)
+				->setId('fields_grid')
+				->setMainDataKey('field_id');
 
-	$Qfields = Doctrine_Query::create()
-	->from('CustomersCustomFields f')
-	->leftJoin('f.Description fd')
-	->where('fd.language_id = ?', Session::get('languages_id'))
-	->execute();
-	if ($Qfields->count() > 0){
-		$iconCss = array(
-			'float'    => 'right',
-			'position' => 'relative',
-			'top'      => '-4px',
-			'right'    => '-4px'
-		);
+			$FieldsGrid->addButtons(array(
+				htmlBase::newElement('button')->addClass('newButton')->attr('data-action_window', 'newField')
+					->usePreset('new'),
+				htmlBase::newElement('button')->addClass('editButton')->attr('data-action_window', 'newField')
+					->usePreset('edit')->disable(),
+				htmlBase::newElement('button')->addClass('deleteButton')->usePreset('delete')->disable()
+			));
 
-		foreach($Qfields->toArray(true) as $fInfo){
-			$fieldId = $fInfo['field_id'];
-			$fieldName = $fInfo['Description'][Session::get('languages_id')]['field_name'];
-			$inputType = $fInfo['input_type'];
-			$showOnSite = $fInfo['show_on_site'];
-
-			$deleteIcon = htmlBase::newElement('icon')->setType('circleClose')->setTooltip('Click to delete field')
-			->setHref(itw_app_link('appExt=customersCustomFields&action=removeField&field_id=' . $fieldId))
-			->css($iconCss);
-
-			$editIcon = htmlBase::newElement('icon')->setType('wrench')->setTooltip('Click to edit field')
-			->setHref(itw_app_link('appExt=customersCustomFields&windowAction=edit&action=getFieldWindow&fID=' . $fieldId))
-			->css($iconCss);
-
-			$htmlFields = '<b><span class="fieldName" field_id="' . $fieldId . '">' . $fieldName . '</span></b>' . $deleteIcon->draw() . $editIcon->draw() . '<br />' . sysLanguage::get('TEXT_TYPE') . '<span class="fieldType">' . $inputType . '</span><br />' . sysLanguage::get('TEXT_SHOWN_ON_SITE') . ($showOnSite == '1' ? 'Yes' : 'No');
-
-			EventManager::notify('CustomersCustomFieldsAddOptions', &$htmlFields, $fInfo);
-
-			$newFieldWrapper = htmlBase::newElement('div')->css(array(
-				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '50px',
-				'padding' => '4px',
-				'margin'  => '3px'
-			))->addClass('ui-widget ui-widget-content ui-corner-all draggableField')
-			->html($htmlFields);
-
-			$fieldListing->append($newFieldWrapper);
-		}
-	}
-
-	$groupListing = htmlBase::newElement('div')->attr('id', 'groupListing')->css(array(
-		'display'  => 'block',
-		'width'    => '100%',
-		'height'   => '315px',
-		'overflow' => 'auto'
-	));
-
-	$Qgroups = Doctrine_Query::create()
-	->select('group_id, group_name')
-	->from('CustomersCustomFieldsGroups')
-	->orderBy('group_name')
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-	if ($Qgroups){
-		$trashBin = new htmlElement('div');
-		$trashBin->addClass('trashBin')->html(sysLanguage::get('TEXT_TRASH_BIN') . '<div class="ui-icon ui-icon-trash" style="float:left;"></div>');
-
-		foreach($Qgroups as $gInfo){
-			$groupId = $gInfo['group_id'];
-			$groupName = $gInfo['group_name'];
-
-			$trashBin->attr('group_id', $groupId);
-			$sortableList = htmlBase::newElement('sortable_list');
+			$FieldsGrid->addHeaderRow(array(
+				'columns' => array(
+					array('text' => sysLanguage::get('TABLE_HEADING_FIELD_NAME')),
+					array('text' => sysLanguage::get('TABLE_HEADING_FIELD_TYPE')),
+					array('text' => sysLanguage::get('TABLE_HEADING_SHOWN_ON_SITE'))
+				)
+			));
 
 			$Qfields = Doctrine_Query::create()
-			->select('f.field_id, fd.field_name, f2g.sort_order')
-			->from('CustomersCustomFields f')
-			->leftJoin('f.Description fd')
-			->leftJoin('f.Groups f2g')
-			->where('fd.language_id = ?', Session::get('languages_id'))
-			->andWhere('f2g.group_id = ?', $groupId)
-			->orderBy('f2g.sort_order')
-			->execute();
+				->from('CustomersCustomFields f')
+				->leftJoin('f.Description fd')
+				->where('fd.language_id = ?', Session::get('languages_id'))
+				->execute();
 			if ($Qfields->count() > 0){
 				foreach($Qfields->toArray(true) as $fInfo){
-					$liObj = new htmlElement('li');
-					$liObj->css(array(
-						'font-size' => '.8em',
-						'line-height' => '1.2em'
-					))
-					->attr('id', 'field_' . $fInfo['field_id'])
-					->attr('sort_order', $fInfo['Groups'][0]['sort_order'])
-					->html($fInfo['Description'][Session::get('languages_id')]['field_name']);
-					$sortableList->addItemObj($liObj);
+					$fieldId = $fInfo['field_id'];
+					$fieldName = $fInfo['Description'][Session::get('languages_id')]['field_name'];
+					$inputType = $fInfo['input_type'];
+					$showOnSite = $fInfo['show_on_site'];
+
+					$FieldsGrid->addBodyRow(array(
+						'rowAttr' => array(
+							'data-field_id' => $fieldId
+						),
+						'columns' => array(
+							array('text' => $fieldName),
+							array('text' => $inputType),
+							array('text' => ($showOnSite == '1' ? 'Yes' : 'No'))
+						)
+					));
 				}
+				echo $FieldsGrid->draw();
 			}
+			?>
+		</div>
+	</div>
+	<div class="ui-widget column buttonsColumn">
+		<?php
+		echo htmlBase::newElement('button')
+			->setIcon('circleTriangleEast')
+			->setText('')
+			->setId('fieldToGroup')
+			->disable()
+			->draw();
+		?>
+	</div>
+	<div class="ui-widget ui-widget-content ui-corner-all column groupsColumn">
+		<div class="groupsContainer">
+			<?php
+			$GroupsGrid = htmlBase::newGrid()
+				->setId('groups_grid')
+				->setMainDataKey('group_id');
 
-			$deleteIcon = htmlBase::newElement('icon')->setType('circleClose')->setTooltip('Click to delete group')
-			->setHref(itw_app_link('appExt=customersCustomFields&action=removeGroup&group_id=' . $groupId))
-			->css($iconCss);
+			$GroupsGrid->addButtons(array(
+				htmlBase::newElement('button')->addClass('newButton')->attr('data-action_window', 'newGroup')
+					->usePreset('new'),
+				htmlBase::newElement('button')->addClass('editButton')->attr('data-action_window', 'newGroup')
+					->usePreset('edit')->disable(),
+				htmlBase::newElement('button')->addClass('deleteButton')->usePreset('delete')->disable()
+			));
 
-			$editIcon = htmlBase::newElement('icon')->setType('wrench')->setTooltip('Click to edit group')
-			->setHref(itw_app_link('appExt=customersCustomFields&action=getGroupWindow&group_id=' . $groupId))
-			->css($iconCss);
+			$GroupsGrid->addHeaderRow(array(
+				'columns' => array(
+					array('text' => 'Group Name'),
+					array('text' => 'Group Fields')
+				)
+			));
 
-			$newGroupWrapper = htmlBase::newElement('div')->css(array(
-				'float'   => 'left',
-				'width'   => '150px',
-				'height'  => '200px',
-				'padding' => '4px',
-				'margin'  => '3px'
-			))->attr('group_id', $groupId)
-			->addClass('ui-widget ui-widget-content ui-corner-all droppableField')
-			->html('<b>' . $groupName . '</b>' . $deleteIcon->draw() . $editIcon->draw() . '<hr />' . $trashBin->draw() . '<hr />' . $sortableList->draw());
+			$Qgroups = Doctrine_Query::create()
+				->select('group_id, group_name')
+				->from('CustomersCustomFieldsGroups')
+				->orderBy('group_name')
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			if ($Qgroups){
+				foreach($Qgroups as $gInfo){
+					$groupId = $gInfo['group_id'];
+					$groupName = $gInfo['group_name'];
 
-			$groupListing->append($newGroupWrapper);
-		}
-	}
-?>
+					$sortableList = htmlBase::newElement('sortable_list')
+						->css('margin', '5px');
 
- <div><?php echo htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_FIELD'))->setId('newField')->draw();?></div>
- <?php echo $fieldListing->draw();?>
- <div><?php echo htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_NEW_GROUP'))->setId('newGroup')->draw();?></div>
- <?php echo $groupListing->draw();?>
+					$Qfields = Doctrine_Query::create()
+						->select('f.field_id, fd.field_name, f2g.sort_order')
+						->from('CustomersCustomFields f')
+						->leftJoin('f.Description fd')
+						->leftJoin('f.Groups f2g')
+						->where('fd.language_id = ?', Session::get('languages_id'))
+						->andWhere('f2g.group_id = ?', $groupId)
+						->orderBy('f2g.sort_order')
+						->execute();
+					if ($Qfields->count() > 0){
+						foreach($Qfields->toArray(true) as $fInfo){
+							$liObj = new htmlElement('li');
+							$liObj->attr('id', 'field_' . $fInfo['field_id'])
+								->attr('sort_order', $fInfo['Groups'][0]['sort_order'])
+								->html($fInfo['Description'][Session::get('languages_id')]['field_name']);
+							$sortableList->addItemObj($liObj);
+						}
+					}
 
- <div id="newGroupDialog" title="<?php echo sysLanguage::get('WINDOW_TITLE_NEW_GROUP');?>" style="display:none;"><table cellpadding="0" cellspacing="0">
-  <tr>
-   <td class="main"><?php echo sysLanguage::get('ENTRY_GROUP_NAME');?></td>
-   <td class="main"><?php echo tep_draw_input_field('group_name');?></td>
-  </tr>
- </table></div>
+					$GroupsGrid->addBodyRow(array(
+						'rowAttr' => array(
+							'data-group_id' => $groupId
+						),
+						'columns' => array(
+							array('text' => $groupName),
+							array('text' => $sortableList->draw())
+						)
+					));
+				}
+				echo $GroupsGrid->draw();
+			}
+			?>
+		</div>
+	</div>
+</div>

@@ -6,8 +6,8 @@ var jsLanguage = {
 	set: function (k, v){
 		this.defines[k] = v;
 	},
-	get: function (key){
-		return this.defines[key] || '';
+	get: function (key, returnIfNotExists){
+		return this.defines[key] || returnIfNotExists || '';
 	},
 	getDateFormat: function (type){
 		return this.dateFormat[type];

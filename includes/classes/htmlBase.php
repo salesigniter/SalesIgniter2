@@ -34,5 +34,21 @@ class htmlBase {
   		}
 		return $element->startChain();
   	}
+
+	/**
+	 * @static
+	 * @return htmlElement_input
+	 */
+	public static function newInput(){
+		return self::newElement('input');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_newGrid
+	 */
+	public static function newGrid(){
+		return self::newElement('newGrid');
+	}
 }
 ?>

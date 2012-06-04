@@ -8,7 +8,11 @@
 	<define key="TEXT_INFO_DEFAULT_LAYOUT_FILE"><![CDATA[Default Layout File: %s]]></define>
 	<define key="TEXT_INFO_FILES_LOCATION"><![CDATA[Files Location: %s]]></define>
 	<define key="TEXT_INFO_DEFAULT_BOXES"><![CDATA[Default Boxes]]></define>
-	
+
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete the selected item?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete the selected items?]]></define>
+
 	<define key="TEXT_CREATE_TEMPLATE"><![CDATA[Create a New Template:]]></define>
 	<define key="TEXT_EDIT_TEMPLATE"><![CDATA[Edit Template:]]></define>
 	<define key="TEXT_SELECT_TEMPLATE"><![CDATA[Please select a template]]></define>

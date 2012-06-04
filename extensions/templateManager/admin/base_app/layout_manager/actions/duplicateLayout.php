@@ -19,7 +19,11 @@ function LoadAllColumnData(&$Data, &$New){
 	}
 
 	if ($Data->Children && $Data->Children->count() > 0){
-		LoadAllColumnData($Data->Children, $New);
+		foreach($Data->Children as $Child){
+			$NewColumn = $New->Children->getTable()->create();
+			LoadAllColumnData($Child, $NewColumn);
+			$New->Children->add($NewColumn);
+		}
 	}else{
 		if ($Data->Widgets && $Data->Widgets->count() > 0){
 			foreach($Data->Widgets as $wInfo){
@@ -65,7 +69,7 @@ function LoadAllData(&$Original, &$New){
 
 $TemplateLayouts = Doctrine_Core::getTable('TemplateManagerLayouts');
 
-$Original = $TemplateLayouts->find((int) $_GET['lID']);
+$Original = $TemplateLayouts->find((int) $_GET['layout_id']);
 
 $New = $TemplateLayouts->create();
 $New->template_id = $Original->template_id;
@@ -82,7 +86,7 @@ foreach($Original->Styles as $Style){
 LoadAllData($Original, $New);
 
 //$New->synchronizeWithArray($Original[0]);
-//print_r($Original->toArray(true));exit;
+//print_r($New->toArray(true));exit;
 $New->save();
 
 EventManager::attachActionResponse(array(

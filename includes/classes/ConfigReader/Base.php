@@ -51,6 +51,7 @@ class ConfigurationReader
 	public function loadConfiguration($configFile, $parseConfig = true) {
 		$this->configFile = $configFile;
 		if (ConfigReaderCache::exists($this->configFile . ':xmlObj') === false){
+			libxml_use_internal_errors(true);
 			$xmlObj = simplexml_load_file(
 				$this->configFile,
 				'SimpleXMLElement',
@@ -58,7 +59,15 @@ class ConfigurationReader
 			);
 
 			if (!$xmlObj){
-				die('Config Error::' . $this->configFile);
+				echo '<pre>';
+				echo 'Config Error::' . $this->configFile . '<br><br>';
+				echo 'File Exists::' . (int) file_exists($this->configFile) . '<br><br>';
+				foreach(libxml_get_errors() as $error) {
+					echo "\t", $error->message;
+				}
+				debug_print_backtrace();
+				echo '</pre>';
+				itwExit();
 			}
 			ConfigReaderCache::set($this->configFile . ':xmlObj', $xmlObj);
 		}

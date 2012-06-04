@@ -35,8 +35,8 @@ foreach($QProducts as $product){
 
 if(!isset($_POST['type']) || $_POST['type'] == 'js'){
 ob_start();
-	$frameId = 'ses'.$_GET['lID'];
-	$url = itw_catalog_app_link(null,'index','default').'?tplDir=codeGeneration&lID='.$_GET['lID'].'&genTemplate='.$_POST['templateName'].'&isjs=1';
+	$frameId = 'ses'.$_GET['layout_id'];
+	$url = itw_catalog_app_link(null,'index','default').'?tplDir=codeGeneration&layout_id='.$_GET['layout_id'].'&genTemplate='.$_POST['templateName'].'&isjs=1';
 	if(isset($_POST['products_id']) && $_POST['products_id'] > 0){
 		$frameId .= $_POST['products_id'];
 		$url .= '&products_id='.$_POST['products_id'];
@@ -69,7 +69,7 @@ ob_start();
 $_GET['tplDir'] = 'codeGeneration';
 $_GET['genTemplate'] = '<?php echo $_POST['templateName'];?>';
 
-$_GET['lID'] = '<?php echo $_GET['lID'];?>';
+$_GET['layout_id'] = '<?php echo $_GET['layout_id'];?>';
 
 <?php
 	if(isset($_POST['products_id']) && $_POST['products_id'] > 0){

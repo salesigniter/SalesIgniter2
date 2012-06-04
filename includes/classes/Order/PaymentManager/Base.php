@@ -1,9 +1,21 @@
 <?php
 /**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
+/**
  * Payment manager for the order class
  *
- * @package Order
- * @author Stephen Walker <stephen@itwebexperts.com>
+ * @package   Order
+ * @author    Stephen Walker <stephen@itwebexperts.com>
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
@@ -33,7 +45,8 @@ class OrderPaymentManager
 	/**
 	 * @param array|null $PaymentHistory
 	 */
-	public function __construct(array $PaymentHistory = null) {
+	public function __construct(array $PaymentHistory = null)
+	{
 		if (is_null($PaymentHistory) === false){
 			$this->History = $PaymentHistory;
 			foreach($this->getPaymentHistory() as $hInfo){
@@ -55,28 +68,32 @@ class OrderPaymentManager
 	/**
 	 * @param int $val
 	 */
-	public function setOrderId($val) {
-		$this->orderId = (int) $val;
+	public function setOrderId($val)
+	{
+		$this->orderId = (int)$val;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getPaymentsTotal() {
+	public function getPaymentsTotal()
+	{
 		return $this->PaymentsTotal;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getPendingPaymentsTotal() {
+	public function getPendingPaymentsTotal()
+	{
 		return $this->PendingPaymentsTotal;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getPaymentHistory() {
+	public function getPaymentHistory()
+	{
 		return $this->History;
 	}
 
@@ -84,7 +101,8 @@ class OrderPaymentManager
 	 * @param bool $cardData
 	 * @return htmlElement_table
 	 */
-	public function show($cardData = true) {
+	public function show($cardData = true)
+	{
 		global $Order, $currencies, $App;
 		$paymentHistoryTable = htmlBase::newElement('table')
 			->setCellPadding(3)

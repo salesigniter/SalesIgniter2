@@ -66,7 +66,7 @@ function addPackageProduct() {
 			var urlVars = $('*', $thisRow).serialize();
 			$.ajax({
 				cache    : false,
-				url      : js_app_link('app=products&appPage=new_product&action=addPackageProduct&packageParentID=' + productID + '&packageProductID=' + $('#packageProductName').attr('selectedProduct') + '&' + urlVars),
+				url      : js_app_link('app=products&appPage=new_product&action=addPackageProduct&packageParentID=' + $_GET['product_id'] + '&packageProductID=' + $('#packageProductName').attr('selectedProduct') + '&' + urlVars),
 				dataType : 'json',
 				success  : function (data) {
 					if (typeof data.errorMsg == 'undefined'){
@@ -361,7 +361,7 @@ $(document).ready(function () {
 		linkParams.push('app=products');
 		linkParams.push('appPage=new_product');
 		linkParams.push('action=addBarcode');
-		linkParams.push('product_id=' + productID);
+		linkParams.push('product_id=' + $_GET['product_id']);
 
 		if ($(this).attr('data-purchase_type')){
 			linkParams.push('purchaseType=' + $(this).attr('data-purchase_type'));
@@ -407,7 +407,7 @@ $(document).ready(function () {
 				linkParams.push('appPage=new_product');
 				linkParams.push('action=deleteBarcode');
 				linkParams.push('bID=' + barcodeID);
-				linkParams.push('product_id=' + productID);
+				linkParams.push('product_id=' + $_GET['product_id']);
 
 				if ($(this).attr('data-purchase_type')){
 					linkParams.push('purchaseType=' + $(this).attr('data-purchase_type'));
@@ -449,7 +449,7 @@ $(document).ready(function () {
 		linkParams.push('app=products');
 		linkParams.push('appPage=new_product');
 		linkParams.push('action=updateBarcode');
-		linkParams.push('product_id=' + productID);
+		linkParams.push('product_id=' + $_GET['product_id']);
 		linkParams.push('barcode_id=' + $(this).attr('data-barcode_id'))
 
 		if ($(this).attr('data-purchase_type')){
@@ -550,7 +550,7 @@ $(document).ready(function () {
 		$.ajax({
 			cache    : false,
 			type     : 'post',
-			url      : js_app_link('app=products&appPage=new_product&action=saveProduct&rType=ajax' + (productID > 0 ? '&product_id=' + productID : '')),
+			url      : js_app_link('app=products&appPage=new_product&action=saveProduct&rType=ajax' + ($_GET['product_id'] > 0 ? '&product_id=' + $_GET['product_id'] : '')),
 			data     : $('form[name="new_product"]').serialize(),
 			dataType : 'json',
 			success  : function (data) {
@@ -773,7 +773,7 @@ function changeCalDate(o) {
 	}
 	$.ajax({
 		cache    : false,
-		url      : js_app_link('app=products&appPage=new_product&action=loadCalendar&purchase_type=' + o.purchaseType + '&products_id=' + productID + '&month=' + o.month + '&year=' + o.year + (o.barcodeId ? '&barcode_id=' + o.barcodeId : '') + (filterString ? filterString : '')),
+		url      : js_app_link('app=products&appPage=new_product&action=loadCalendar&purchase_type=' + o.purchaseType + '&products_id=' + $_GET['product_id'] + '&month=' + o.month + '&year=' + o.year + (o.barcodeId ? '&barcode_id=' + o.barcodeId : '') + (filterString ? filterString : '')),
 		dataType : 'html',
 		success  : function (data) {
 			removeAjaxLoader(o.el);

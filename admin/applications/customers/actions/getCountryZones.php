@@ -15,10 +15,10 @@ $Qcheck = Doctrine_Query::create()
 	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 if ($Qcheck){
 	$htmlField = htmlBase::newElement('selectbox')
-		->setName('entry_state')
+		->setName('entry_zone_id')
 		->attr('id', $_GET['state_type']);
 	foreach($Qcheck as $zInfo){
-		$htmlField->addOption($zInfo['zone_name'], $zInfo['zone_name']);
+		$htmlField->addOption($zInfo['zone_id'], $zInfo['zone_name']);
 	}
 
 	$htmlField->selectOptionByValue((isset($_GET['state']) ? htmlentities($_GET['state'], ENT_IGNORE, 'utf-8') : 1));

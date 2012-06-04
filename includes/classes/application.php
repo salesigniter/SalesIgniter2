@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 class Application
 {
 
@@ -64,8 +76,8 @@ class Application
 			$StandAlone = Doctrine_Query::create()
 				->from('TemplateManagerLayouts')
 				->where('page_type = ?', 'page')
-				->andWhere('app_name = ?', $this->appName)
-				->andWhere('app_page_name = ?', $this->appPage)
+				->andWhere('layout_settings LIKE ?', '%\"appName\": \"' . $this->appName . '\"%')
+				->andWhere('layout_settings LIKE ?', '%\"appPageName\": \"' . $this->appPage . '\"%')
 				->execute();
 			if ($StandAlone && $StandAlone->count() == 1){
 				$this->appLocation = 'virtual';
@@ -80,10 +92,17 @@ class Application
 	}
 
 	public function isValid() {
-		if (!isset($_GET['app'])){
+		$return = true;
+		if (in_array(basename(strtolower($_SERVER['PHP_SELF'])), array('stylesheet.php', 'javascript.php'))){
 			return true;
 		}
-		return ($this->appLocation !== false);
+		if ($this->appLocation === false){
+			$return = false;
+		}
+		if ($this->getAppContentFile() === false){
+			$return = false;
+		}
+		return $return;
 	}
 
 	public function setInfoBoxId($val) {
@@ -164,7 +183,7 @@ class Application
 		else {
 			$requireFile = $this->appDir['absolute'] . 'pages/' . $this->getAppPage() . '.php';
 		}
-		return $requireFile;
+		return (file_exists($requireFile) ? $requireFile : false);
 	}
 
 	public function loadLanguageDefines() {
@@ -536,7 +555,43 @@ class Application
 		}
 	}
 
-	public function getApplications($excluded = array()) {
+	private function addCategoriesToAppArray($selApps, &$AppArray, $parentId = 0){
+		$Qcategories = Doctrine_Query::create()
+			->from('Categories c')
+			->leftJoin('c.CategoriesDescription cd')
+			->where('parent_id = ?', $parentId)
+			->andWhere('language_id = ?', Session::get('languages_id'))
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		$appName = 'index';
+		foreach($Qcategories as $category){
+			$pageName = $category['CategoriesDescription'][0]['categories_name'];
+			if (!empty($pageName)){
+				$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+			}
+			$this->addCategoriesToAppArray($selApps, &$AppArray, $category['categories_id']);
+		}
+	}
+
+	public function addProductsToAppArray($selApps, &$AppArray){
+		$QProducts = Doctrine_Query::create()
+			->from('Products p')
+			->leftJoin('p.ProductsDescription pd')
+			->where('pd.language_id = ?', Session::get('languages_id'));
+
+		EventManager::notify('AdminProductListingTemplateQueryBeforeExecute', $QProducts);
+
+		$QProducts = $QProducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+		$appName = 'product';
+		foreach($QProducts as $prod){
+			$pageName = $prod['ProductsDescription'][0]['products_name'];
+			if (!empty($pageName)){
+				$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+			}
+		}
+	}
+
+	public function getApplications($selApps = array(), $includeStandalone = true, $excluded = array()) {
 		global $appExtension;
 
 		if (empty($this->applicationsArr)){
@@ -561,7 +616,26 @@ class Application
 						$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
 					}
 				}
+
+				if ($appName == 'index'){
+					$this->addCategoriesToAppArray($selApps, &$AppArray, 0);
+				}
+
+				if ($appName == 'product' && isset($associativeUrl)){
+					$this->addProductsToAppArray($selApps, &$AppArray);
+				}
+
 				ksort($AppArray[$appName]);
+			}
+
+			if ($includeStandalone === true){
+				$StandAlone = Doctrine_Query::create()
+					->from('TemplateManagerLayouts')
+					->where('page_type = ?', 'page')
+					->execute();
+				foreach($StandAlone as $PageInfo){
+					$AppArray[$PageInfo->app_name][$PageInfo->app_page_name] = (isset($selApps[$PageInfo->app_name][$PageInfo->app_page_name]) ? $selApps[$PageInfo->app_name][$PageInfo->app_page_name] : false);
+				}
 			}
 
 			$Extensions = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
@@ -690,33 +764,39 @@ class Application
 				}
 			}
 
-			if (is_dir(sysConfig::getDirFsCatalog() . 'templates/kingdom/catalog/applications/')){
-				$TemplateApps = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/kingdom/catalog/applications/');
-				foreach($TemplateApps as $Application){
-					if ($Application->isDot() || $Application->isFile()){
-						continue;
-					}
+			$Dir = new DirectoryIterator(sysConfig::get('DIR_FS_CATALOG_TEMPLATES'));
+			foreach($Dir as $dInfo){
+				if ($dInfo->isDot() || $dInfo->isFile()){
+					continue;
+				}
 
-					$appName = $Application->getBasename();
-					if (!isset($AppArray[$appName])){
-						$AppArray[$appName] = array();
-					}
-
-					if (is_dir($Application->getPathname() . '/pages/')){
-						$Pages = new DirectoryIterator($Application->getPathname() . '/pages/');
-						foreach($Pages as $Page){
-							if ($Page->isDot() || $Page->isDir()){
-								continue;
-							}
-							$pageName = $Page->getBasename('.php');
-
-							$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+				if (is_dir($dInfo->getPathname() . '/catalog/applications')){
+					$TemplateApps = new DirectoryIterator($dInfo->getPathname() . '/catalog/applications');
+					foreach($TemplateApps as $Application){
+						if ($Application->isDot() || $Application->isFile()){
+							continue;
 						}
+
+						$appName = $Application->getBasename();
+						if (!isset($AppArray[$appName])){
+							$AppArray[$appName] = array();
+						}
+
+						if (is_dir($Application->getPathname() . '/pages/')){
+							$Pages = new DirectoryIterator($Application->getPathname() . '/pages/');
+							foreach($Pages as $Page){
+								if ($Page->isDot() || $Page->isDir()){
+									continue;
+								}
+								$pageName = $Page->getBasename('.php');
+
+								$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+							}
+						}
+						ksort($AppArray[$appName]);
 					}
-					ksort($AppArray[$appName]);
 				}
 			}
-
 			ksort($AppArray);
 			$this->applicationsArr = $AppArray;
 		}

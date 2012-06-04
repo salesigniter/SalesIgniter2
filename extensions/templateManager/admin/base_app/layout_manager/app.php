@@ -15,21 +15,22 @@ if (!class_exists('CurlDownload')){
 	require(sysConfig::getDirFsCatalog() . '/includes/classes/curl/Download.php');
 }
 
+if (!class_exists('Template')){
+	require(sysConfig::getDirFsCatalog() . '/includes/classes/template.php');
+}
+
 $appContent = $App->getAppContentFile();
 $TemplateManager = $appExtension->getExtension('templateManager');
-if (isset($_GET['templateName'])){
-	$templateName = $_GET['templateName'];
-}
-elseif (isset($_GET['lID'])) {
-	$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find($_GET['lID']);
-	$templateName = $Layout->Template->Configuration['DIRECTORY']->configuration_value;
-}
 
 if ($App->getPageName() == 'editLayout'){
+	$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find($_GET['layout_id']);
+	$templateName = $Layout->Template->Configuration['DIRECTORY']->configuration_value;
 
-    $App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
+	$LayoutBuilder = $TemplateManager->getLayoutBuilder();
+	$LayoutBuilder->setLayoutId($Layout->layout_id);
+
+	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
     $App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
-	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/backgroundBuilder.js');
 
 	$Imports = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/admin/base_app/layout_manager/javascript/background/');
@@ -63,17 +64,17 @@ if ($App->getPageName() == 'editLayout'){
 	}
 
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct-parser.js');
-	$App->addStylesheetFile('extensions/templateManager/admin/base_app/layout_manager/javascript/construct.css');
 
 	$App->addJavascriptFile('ext/jQuery/external/miniColors/jquery.miniColors.js');
 	$App->addStylesheetFile('ext/jQuery/external/miniColors/jquery.miniColors.css');
-
-	$TemplateManager->loadWidgets($templateName);
 }
 
 function addStyles($El, $Styles) {
 	$css = array();
 	foreach($Styles as $sInfo){
+		if ($sInfo->definition_key == 'table'){
+			continue;
+		}
 		if ($sInfo->definition_key == 'custom_css'){
 			$El->attr('data-custom_css', htmlspecialchars($sInfo->definition_value));
 		}
@@ -92,6 +93,9 @@ function addStyles($El, $Styles) {
 function addInputs($El, $Config) {
 	$inputVals = array();
 	foreach($Config as $cInfo){
+		if ($cInfo->configuration_key == 'table'){
+			continue;
+		}
 		if (substr($cInfo->configuration_value, 0, 1) == '{' || substr($cInfo->configuration_value, 0, 1) == '['){
 			$inputVals[$cInfo->configuration_key] = json_decode($cInfo->configuration_value);
 		}
@@ -127,7 +131,7 @@ function processContainerChildren($MainObj, &$El) {
 }
 
 function processContainerColumns(&$Container, $Columns) {
-	global $TemplateManager;
+	global $LayoutBuilder, $Layout;
 	if (!$Columns){
 		return;
 	}
@@ -138,20 +142,20 @@ function processContainerColumns(&$Container, $Columns) {
 			->attr('data-sort_order', (int)$col->sort_order)
 			->addClass('column');
 
-		if ($col->Styles->count() > 0){
+		if ($col->Styles && $col->Styles->count() > 0){
 			addStyles($ColEl, $col->Styles);
 		}
 
-		if ($col->Configuration->count() > 0){
+		if ($col->Configuration && $col->Configuration->count() > 0){
 			addInputs($ColEl, $col->Configuration);
 		}
 
-		if ($col->Children->count() > 0){
+		if ($col->Children && $col->Children->count() > 0){
 			processContainerColumns($ColEl, $col->Children);
 		}
 		else {
 			$WidgetList = htmlBase::newElement('ul');
-			if ($col->Widgets->count() > 0){
+			if ($col->Widgets && $col->Widgets->count() > 0){
 				foreach($col->Widgets as $wid){
 					$widgetSettings = '';
 					$widgetInputs = array();
@@ -167,13 +171,20 @@ function processContainerColumns(&$Container, $Columns) {
 					}
 
 					$WidgetName = 'undefined';
-					$WidgetClass = $TemplateManager->getWidget($wid->identifier);
+					$WidgetClass = $LayoutBuilder->getWidget($wid->identifier);
 					if ($WidgetClass !== false){
 						if (method_exists($WidgetClass, 'showLayoutPreview')){
-							$WidgetName = $WidgetClass->showLayoutPreview(json_decode($widgetSettings));
+							$settings = array(
+								'settings' => json_decode($widgetSettings)
+							);
+							if (isset($wid->Configuration['table'])){
+								$settings['tableSettings'] = json_decode($wid->Configuration['table']->configuration_value);
+								$settings['tableStyles'] = json_decode($wid->Styles['table']->definition_value);
+							}
+							$WidgetName = $WidgetClass->showLayoutPreview($settings);
 						}
 						else {
-							$WidgetName = $wid->identifier;
+							$WidgetName = $WidgetClass->getTitle();
 						}
 					}
 
@@ -183,6 +194,7 @@ function processContainerColumns(&$Container, $Columns) {
 						->attr('data-widget_code', $wid->identifier)
 						->attr('data-widget_settings', addslashes(htmlspecialchars($widgetSettings)))
 						->attr('data-sort_order', $wid->sort_order)
+						->attr('data-is_table', ($WidgetClass->isTable() ? 'true' : 'false'))
 						->html('<span class="widgetName">' . $WidgetName . '</span>');
 
 					if ($wid->Styles->count() > 0){

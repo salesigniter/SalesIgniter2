@@ -1,0 +1,4 @@
+<definitions>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICENUMBER_TEXT_TITLE"><![CDATA[Invoice Number]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICENUMBER_TEXT_DESCRIPTION"><![CDATA[Invoice Number]]></define>
+</definitions>

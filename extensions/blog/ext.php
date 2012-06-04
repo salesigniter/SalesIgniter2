@@ -553,7 +553,7 @@
 			if(isset($_GET['appExt']) && strpos($_GET['appExt'],'blog') !== false ){
 				if(sysConfig::get('EXTENSION_BLOG_SHOW_ONLY_INFOBOXES') == 'True'){
 
-					if((strpos($infoboxes->getBoxCode(),'blogCategories') !== false || strpos($infoboxes->getBoxCode(),'blogArchives') !== false )){
+					if((strpos($infoboxes->getCode(),'blogCategories') !== false || strpos($infoboxes->getCode(),'blogArchives') !== false )){
 						$isshow = true;
 					}else{
 						$isshow = false;
@@ -566,7 +566,7 @@
 				if(sysConfig::get('EXTENSION_BLOG_SHOW_INFOBOXES_ON_REST_SITE') == 'True'){
 					$isshow = true;
 				}else{
-					if((strpos($infoboxes->getBoxCode(),'blogCategories') !== false || strpos($infoboxes->getBoxCode(),'blogArchives') !== false )){
+					if((strpos($infoboxes->getCode(),'blogCategories') !== false || strpos($infoboxes->getCode(),'blogArchives') !== false )){
 						$isshow = false;
 					}else{
 						$isshow = true;
@@ -580,7 +580,7 @@
 			if(isset($_GET['appExt']) && strpos($_GET['appExt'],'blog') !== false ){
 				if(sysConfig::get('EXTENSION_BLOG_SHOW_ONLY_INFOBOXES') == 'True'){
 
-					if((strpos($infoboxes->getBoxCode(),'blogCategories') !== false || strpos($infoboxes->getBoxCode(),'blogArchives') !== false )){
+					if((strpos($infoboxes->getCode(),'blogCategories') !== false || strpos($infoboxes->getCode(),'blogArchives') !== false )){
 						$isshow = true;
 					}else{
 						$isshow = false;
@@ -593,7 +593,7 @@
 				if(sysConfig::get('EXTENSION_BLOG_SHOW_INFOBOXES_ON_REST_SITE') == 'True'){
 					$isshow = true;
 				}else{
-					if((strpos($infoboxes->getBoxCode(),'blogCategories') !== false || strpos($infoboxes->getBoxCode(),'blogArchives') !== false )){
+					if((strpos($infoboxes->getCode(),'blogCategories') !== false || strpos($infoboxes->getCode(),'blogArchives') !== false )){
 						$isshow = false;
 					}else{
 						$isshow = true;

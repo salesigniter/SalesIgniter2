@@ -115,6 +115,7 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 	public function OrderCreatorOnAddToContents(OrderCreatorProduct &$OrderProduct) {
 		$PackageProducts = array();
 		$MainPrice = 0;
+		$ConfirmProducts = array();
 		foreach($this->getProductsRaw() as $PackageInfo){
 			$Product = $PackageInfo['productClass'];
 			$PackageData = $PackageInfo['packageData'];
@@ -141,6 +142,15 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 
 			$MainPrice += $PackageOrderProduct->getPrice();
 			$PackageProducts[] = $PackageOrderProduct;
+
+			if ($PackageOrderProduct->needsConfirmation() === true){
+				$OrderProduct->needsConfirmation(true);
+				$ConfirmProducts[] = $PackageOrderProduct->getName();
+			}
+		}
+
+		if ($OrderProduct->needsConfirmation() === true){
+			$OrderProduct->setConfirmationMessage('The Following Products In This Package Do Not Have Enough Inventory:' . '<br><br>' . implode('<br>', $ConfirmProducts));
 		}
 
 		$OrderProduct->setPrice($MainPrice);
@@ -220,6 +230,30 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 				}
 				$PackageProduct->setBarcodes($Barcodes);
 			}
+		}
+	}
+
+	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
+		if ($Product->Packaged && $Product->Packaged->count() > 0){
+			$Info = $OrderProduct->getInfo();
+			foreach($Product->Packaged as $PackagedProduct){
+				$PackageProduct = new OrderCreatorProduct();
+				$PackageProduct->jsonDecodeProduct($PackagedProduct);
+				$Info['PackagedProducts'][$k] = $PackageProduct;
+			}
+			$OrderProduct->setInfo($Info);
+		}
+	}
+
+	public function jsonDecode(OrderProduct &$OrderProduct){
+		if ($OrderProduct->hasInfo('PackagedProducts')){
+			$Info = $OrderProduct->getInfo();
+			foreach($Info['PackagedProducts'] as $k => $PackagedJson){
+				$PackageProduct = new OrderCreatorProduct();
+				$PackageProduct->jsonDecode($PackagedJson);
+				$Info['PackagedProducts'][$k] = $PackageProduct;
+			}
+			$OrderProduct->setInfo($Info);
 		}
 	}
 }

@@ -9,15 +9,20 @@
 
   This script and it's source is not redistributable
  */
-class Extension_packageProducts extends ExtensionBase {
+class Extension_packageProducts extends ExtensionBase
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		parent::__construct('packageProducts');
 	}
 
-	public function init(){
-		if ($this->isEnabled() === false)
+	public function init()
+	{
+		global $appExtension;
+		if ($this->isEnabled() === false){
 			return;
+		}
 
 		EventManager::attachEvents(array(
 			'OrderQueryBeforeExecute',
@@ -25,22 +30,18 @@ class Extension_packageProducts extends ExtensionBase {
 			'PayPerRentalUtilitiesGetRentalPricingModify'
 		), null, $this);
 
-		$OrdersProducts = Doctrine_Core::getTable('OrdersProducts')
+		$SalesProducts = Doctrine_Core::getTable('AccountsReceivableSalesProducts')
 			->getRecordInstance();
 
-		$OrdersProducts->hasMany('OrdersProducts as Packaged', array(
-			'local' => 'orders_products_id',
+		$SalesProducts->hasMany('AccountsReceivableSalesProductsPackaged as Packaged', array(
+			'local'   => 'id',
 			'foreign' => 'package_id',
 			'cascade' => array('delete')
 		));
-
-		$OrdersProducts->hasOne('OrdersProducts as PackageProduct', array(
-			'local' => 'package_id',
-			'foreign' => 'orders_products_id'
-		));
 	}
 
-	public function OrderQueryBeforeExecute(&$Qorder){
+	public function OrderQueryBeforeExecute(&$Qorder)
+	{
 		global $appExtension;
 		$Qorder->leftJoin('op.Packaged oppack')
 			->leftJoin('oppack.Barcodes oppackbarcodes')
@@ -52,7 +53,8 @@ class Extension_packageProducts extends ExtensionBase {
 		}
 	}
 
-	public function GetReservationsOrdersListingPopulateArray(&$Reservations){
+	public function GetReservationsOrdersListingPopulateArray(&$Reservations)
+	{
 		$Qreservations = Doctrine_Query::create()
 			->from('Orders o')
 			->leftJoin('o.OrdersAddresses oa')
@@ -68,27 +70,29 @@ class Extension_packageProducts extends ExtensionBase {
 			->andWhere('oa.address_type = ?', 'delivery')
 			->andWhere('opr.parent_id is null');
 
-		if(isset($_GET['eventSort'])){
+		if (isset($_GET['eventSort'])){
 			$Qreservations->orderBy('opr.event_name ' . $_GET['eventSort']);
 		}
-		if(isset($_GET['gateSort'])){
+		if (isset($_GET['gateSort'])){
 			$Qreservations->orderBy('opr.event_gate ' . $_GET['gateSort']);
 		}
 
 		if ($_GET['filter_pay'] == 'pay'){
 			$Qreservations->andWhere('opr.amount_payed >= op.final_price');
-		}else
+		}
+		else {
 			if ($_GET['filter_pay'] == 'notpay'){
 				$Qreservations->andWhere('opr.amount_payed < op.final_price');
 			}
+		}
 		if ((int)$_GET['filter_status'] > 0){
-			if($_GET['filter_status'] == 2){
-				$Qreservations->andWhere('opr.rental_status_id = '. $_GET['filter_status'].' OR opr.rental_status_id is null');
-			}else{
+			if ($_GET['filter_status'] == 2){
+				$Qreservations->andWhere('opr.rental_status_id = ' . $_GET['filter_status'] . ' OR opr.rental_status_id is null');
+			}
+			else {
 				$Qreservations->andWhere('opr.rental_status_id = ?', $_GET['filter_status']);
 			}
 		}
-
 
 		EventManager::notify('OrdersListingBeforeExecute', &$Qreservations);
 
@@ -109,7 +113,8 @@ class Extension_packageProducts extends ExtensionBase {
 		}
 	}
 
-	public function PayPerRentalUtilitiesGetRentalPricingModify(&$PricingData){
+	public function PayPerRentalUtilitiesGetRentalPricingModify(&$PricingData)
+	{
 		$PPR = Doctrine_Core::getTable('ProductsPayPerRental')
 			->find($PricingData['pay_per_rental_id']);
 		$Product = $PPR->Products;

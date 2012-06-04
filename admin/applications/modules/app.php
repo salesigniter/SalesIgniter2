@@ -6,11 +6,6 @@ $App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 
 $moduleType = $_GET['moduleType'];
 switch($moduleType){
-	case 'infobox':
-		$accessorClass = 'Infoboxes';
-		$headingTitle = sysLanguage::get('HEADING_TITLE_INFOBOX');
-		$moduleDirectory = 'infoboxes';
-		break;
 	case 'purchaseType':
 		$accessorClass = 'PurchaseTypeModules';
 		$headingTitle = sysLanguage::get('HEADING_TITLE_PURCHASE_TYPE');
@@ -31,6 +26,11 @@ switch($moduleType){
 		$accessorClass = 'OrderTotalModules';
 		$headingTitle = sysLanguage::get('HEADING_TITLE_ORDER_TOTAL');
 		$moduleDirectory = 'orderTotalModules';
+		break;
+	case 'accountsReceivable':
+		$accessorClass = 'AccountsReceivableModules';
+		$headingTitle = 'Accounts Receivable Sale Modules';
+		$moduleDirectory = 'accountsReceivableModules';
 		break;
 	case 'orderPayment':
 	default:

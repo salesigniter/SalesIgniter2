@@ -174,4 +174,14 @@
 	<define key="TABLE_HEADING_PAYMENT_METHOD"><![CDATA[Payment Method]]></define>
 	<define key="TABLE_HEADING_TRANS_STATUS"><![CDATA[Status]]></define>
 	<define key="TABLE_HEADING_TRANS_ERROR"><![CDATA[Result]]></define>
+
+	<define key="VALIDATION_ERROR_UNKNOWN" php="true" javascript="true"><![CDATA[An Unknown Error Occured With This Field]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_VALUE_MISSING" php="true" javascript="true"><![CDATA[You Must Enter A Valid Email Address]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_TYPE_MISMATCH" php="true" javascript="true"><![CDATA[This Email Address Is Invalid]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_PATTERN_MISMATCH" php="true" javascript="true"><![CDATA[This Email Address Is Invalid]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_TOO_SHORT" php="true" javascript="true"><![CDATA[This Email Address Is Too Short]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_TOO_LONG" php="true" javascript="true"><![CDATA[This Email Address Is Too Long]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_RANGE_UNDERFLOW" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_RANGE_OVERFLOW" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
+	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_STEP_MISMATCH" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
 </definitions>

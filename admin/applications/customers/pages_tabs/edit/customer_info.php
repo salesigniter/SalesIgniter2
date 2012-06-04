@@ -30,10 +30,9 @@ $lastNameInput = htmlBase::newElement('input')
 	->attr('maxlength', 32)
 	->val($Customer->customers_lastname);
 
-$emailAddressInput = htmlBase::newElement('input')
+$emailAddressInput = htmlBase::newElement('email')
 	->setName('customers_email_address')
 	->setRequired(true)
-	->attr('size', 96)
 	->attr('maxlength', 96)
 	->val($Customer->customers_email_address);
 

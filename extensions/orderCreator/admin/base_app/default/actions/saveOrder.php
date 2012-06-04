@@ -1,93 +1,96 @@
 <?php
 //echo '<pre>';print_r($_POST);itwExit();
-$Orders = Doctrine_Core::getTable('Orders');
-if (isset($_GET['oID'])){
-	$NewOrder = $Orders->find((int) $_GET['oID']);
-}else{
-	$NewOrder = new Orders();
+if (isset($_GET['oID']) === false){
 	$createAccount = false;
 	if (isset($_POST['customers_id'])){
-		$NewOrder->customers_id = $_POST['customers_id'];
-	}elseif ((isset($_POST['account_password']) && !empty($_POST['account_password'])) || sysConfig::get('EXTENSION_ORDER_CREATOR_AUTOGENERATE_PASSWORD') == 'True'){
-		if($_POST['isType'] == 'walkin'){
-			if(isset($_POST['email']) && !empty($_POST['email'])){
+		$Editor->setCustomerId($_POST['customers_id']);
+	}
+	elseif ((isset($_POST['account_password']) && !empty($_POST['account_password'])) || sysConfig::get('EXTENSION_ORDER_CREATOR_AUTOGENERATE_PASSWORD') == 'True') {
+		if ($_POST['isType'] == 'walkin'){
+			if (isset($_POST['email']) && !empty($_POST['email'])){
 				$Editor->setEmailAddress($_POST['email']);
-			}else{
+			}
+			else {
 				$Editor->addErrorMessage('Email address not set');
 			}
 			$Editor->setTelephone($_POST['telephone']);
-		}else{
-			if(isset($_POST['room_number']) && !empty($_POST['room_number'])){
-				if(isset($_POST['email']) && !empty($_POST['email'])){
+		}
+		else {
+			if (isset($_POST['room_number']) && !empty($_POST['room_number'])){
+				if (isset($_POST['email']) && !empty($_POST['email'])){
 					$Editor->setEmailAddress($_POST['email']);
-				}else{
-					$Editor->setEmailAddress('roomnumber'.'_'.$Editor->getData('store_id').'_'.$_POST['room_number']);
+				}
+				else {
+					$Editor->setEmailAddress('roomnumber' . '_' . $Editor->getData('store_id') . '_' . $_POST['room_number']);
 				}
 
-				if(isset($_POST['telephone']) && !empty($_POST['telephone'])){
+				if (isset($_POST['telephone']) && !empty($_POST['telephone'])){
 					$Editor->setTelephone($_POST['telephone']);
 				}
 
-				$NewOrder->customers_room_number = $_POST['room_number'];
-			}else{
+				$Editor->infoManager->setInfo('customers_room_number', $_POST['room_number']);
+			}
+			else {
 				$Editor->addErrorMessage('You need to have a room number setup');
 			}
 		}
-		$Editor->createCustomerAccount($NewOrder->Customers);
-	}else{
+		//$Editor->createCustomerAccount($NewOrder->Customers);
+	}
+	else {
 		$Editor->addErrorMessage('You need to setup a password');
 	}
 }
-	
-$NewOrder->customers_email_address = $Editor->getEmailAddress();
-$NewOrder->customers_telephone = $Editor->getTelephone();
-if(isset($_POST['estimateOrder'])){
-	$NewOrder->orders_status  = sysConfig::get('ORDERS_STATUS_ESTIMATE_ID');
-}else{
-	$NewOrder->orders_status = $_POST['status'];
-}
-if(sysConfig::get('EXTENSION_ORDER_CREATOR_NEEDS_LICENSE_PASSPORT') == 'True' && $_POST['isType'] == 'walkin'){
+
+if (sysConfig::get('EXTENSION_ORDER_CREATOR_NEEDS_LICENSE_PASSPORT') == 'True' && $_POST['isType'] == 'walkin'){
 	$hasData = false;
-	if(isset($_POST['drivers_license']) && !empty($_POST['drivers_license'])){
-		$NewOrder->customers_drivers_license = $_POST['drivers_license'];
+	if (isset($_POST['drivers_license']) && !empty($_POST['drivers_license'])){
+		$Editor->setData('customers_drivers_license', $_POST['drivers_license']);
 		$hasData = true;
 	}
-	if(isset($_POST['passport']) && !empty($_POST['passport'])){
-		$NewOrder->customers_passport = $_POST['passport'];
+	if (isset($_POST['passport']) && !empty($_POST['passport'])){
+		$Editor->setData('customers_passport', $_POST['passport']);
 		$hasData = true;
 	}
-	if($hasData === false){
+	if ($hasData === false){
 		$Editor->addErrorMessage('You need to have a drivers license or passport setup');
 	}
 }
 
-$NewOrder->currency = $Editor->getCurrency();
-$NewOrder->currency_value = $Editor->getCurrencyValue();
-$NewOrder->shipping_module = $Editor->getShippingModule();
-$NewOrder->usps_track_num = $_POST['usps_track_num'];
-$NewOrder->usps_track_num2 = $_POST['usps_track_num2'];
-$NewOrder->ups_track_num = $_POST['ups_track_num'];
-$NewOrder->ups_track_num2 = $_POST['ups_track_num2'];
-$NewOrder->fedex_track_num = $_POST['fedex_track_num'];
-$NewOrder->fedex_track_num2 = $_POST['fedex_track_num2'];
-$NewOrder->dhl_track_num = $_POST['dhl_track_num'];
-$NewOrder->dhl_track_num2 = $_POST['dhl_track_num2'];
-$NewOrder->ip_address = $_SERVER['REMOTE_ADDR'];
-$NewOrder->admin_id = Session::get('login_id');
-//$NewOrder->payment_module = $Editor->getPaymentModule();
+$Editor->setData('usps_track_num', $_POST['usps_track_num']);
+$Editor->setData('usps_track_num2', $_POST['usps_track_num2']);
+$Editor->setData('ups_track_num', $_POST['ups_track_num']);
+$Editor->setData('ups_track_num2', $_POST['ups_track_num2']);
+$Editor->setData('fedex_track_num', $_POST['fedex_track_num']);
+$Editor->setData('fedex_track_num2', $_POST['fedex_track_num2']);
+$Editor->setData('dhl_track_num', $_POST['dhl_track_num']);
+$Editor->setData('dhl_track_num2', $_POST['dhl_track_num2']);
+$Editor->setData('ip_address', $_SERVER['REMOTE_ADDR']);
+$Editor->setData('admin_id', Session::get('login_id'));
+
+/**
+ * @TODO: Specific to Chater Camera Rentals
+ */
+$Editor->InfoManager->setInfo('job_name', $_POST['job_name']);
+$Editor->InfoManager->setInfo('sale_notes', $_POST['sale_notes']);
+
 
 $Editor->AddressManager->updateFromPost();
-$Editor->AddressManager->addAllToCollection($NewOrder->OrdersAddresses);
-
 $Editor->ProductManager->updateFromPost();
-$Editor->ProductManager->addAllToCollection($NewOrder->OrdersProducts);
-
 $Editor->TotalManager->updateFromPost();
-$Editor->TotalManager->addAllToCollection($NewOrder->OrdersTotal);
 
-EventManager::notify('OrderSaveBeforeSave', $NewOrder);
-//echo '<pre>';print_r($NewOrder->toArray());itwExit();
+//EventManager::notify('OrderSaveBeforeSave', $NewOrder);
+//echo '<pre>';print_r($_POST);itwExit();
 
+if (isset($_POST['convertTo'])){
+	AccountsReceivable::convertSale($Editor, $_POST['convertTo']);
+}
+elseif (isset($_POST['save'])) {
+	AccountsReceivable::saveSale($Editor);
+}
+elseif (isset($_POST['saveAs'])) {
+	AccountsReceivable::saveSale($Editor, $_POST['saveAs']);
+}
+/*
 if($Editor->hasErrors()){
 	$success = false;
 }else{
@@ -108,9 +111,10 @@ if($Editor->hasErrors()){
 		$success = true;
 	}
 }
-	
+*/
+$success = true;
 if ($success === true){
-	$StatusHistory = new OrdersStatusHistory();
+	/*$StatusHistory = new OrdersStatusHistory();
 	if(!isset($_POST['estimateOrder'])){
 		$StatusHistory->orders_status_id = $_POST['status'];
 	}else{
@@ -158,16 +162,19 @@ if ($success === true){
 		EventManager::attachActionResponse(itw_app_link('oID=' . $NewOrder->orders_id, 'orders', 'details'), 'redirect');
 	}else{
 		EventManager::attachActionResponse(itw_app_link('oID=' . $NewOrder->orders_id.'&isEstimate=1', 'orders', 'details'), 'redirect');
-	}
-}else{
-	if(isset($_POST['estimateOrder'])){
+	}*/
+}
+else {
+	if (isset($_POST['estimateOrder'])){
 		$est = '&isEstimate=1';
-	}else{
+	}
+	else {
 		$est = '';
 	}
 	if (isset($_GET['oID'])){
-		EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&isType='.$_POST['isType'].'&error=true&oID=' . $_GET['oID'].$est, 'default', 'new'), 'redirect');
-	}else{
-		EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&isType='.$_POST['isType'].'&error=true'.$est, 'default', 'new'), 'redirect');
+		EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&isType=' . $_POST['isType'] . '&error=true&oID=' . $_GET['oID'] . $est, 'default', 'new'), 'redirect');
+	}
+	else {
+		EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&isType=' . $_POST['isType'] . '&error=true' . $est, 'default', 'new'), 'redirect');
 	}
 }

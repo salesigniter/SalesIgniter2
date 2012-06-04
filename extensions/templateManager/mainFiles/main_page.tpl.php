@@ -2,7 +2,7 @@
 require(sysConfig::getDirFsCatalog() . 'includes/classes/template.php');
 $thisTemplate = sysConfig::get('TEMPLATE_DIRECTORY');
 $thisApp = $App->getAppName();
-$thisAppPage = $App->getAppPage() . '.php';
+$thisAppPage = $App->getAppPage();
 $thisDir = sysConfig::get('DIR_FS_TEMPLATE');
 $thisFile = basename($_SERVER['PHP_SELF']);
 $thisExtension = (isset($_GET['appExt']) ? $_GET['appExt'] : '');
@@ -81,7 +81,7 @@ if ($App->getAppLocation('absolute') != 'virtual'){
 }else{
 	$PageLayoutId = Doctrine_Manager::getInstance()
 		->getCurrentConnection()
-		->fetchAssoc('select layout_id from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and app_name = "' . $App->getAppName() . '" and app_page_name = "' . $App->getAppPage() . '"');
+		->fetchAssoc('select layout_id, app_page_title, app_page_sub_title from template_manager_layouts where template_id = "' . $TemplateId[0]['template_id'] . '" and app_name = "' . $App->getAppName() . '" and app_page_name = "' . $App->getAppPage() . '"');
 }
 
 $layout_id = $PageLayoutId[0]['layout_id'];
@@ -95,7 +95,10 @@ if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $PageContentFile)){
 }
 
 $pageContent = new Template($PageContentFile, $pageContentPath);
-
+if (isset($PageLayoutId[0]['app_page_title'])){
+	$pageContent->set('pageTitle', $PageLayoutId[0]['app_page_title']);
+	$pageContent->set('pageSubTitle', $PageLayoutId[0]['app_page_sub_title']);
+}
 $checkFiles = array(
 	sysConfig::get('DIR_FS_TEMPLATE') . '/catalog/applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
 	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
@@ -118,7 +121,9 @@ $Template->set('pageContent', $pageContent);
 
 $Construct = htmlBase::newElement('div')->attr('id', 'bodyContainer');
 $ExtTemplateManager = $appExtension->getExtension('templateManager');
-$ExtTemplateManager->buildLayout($Construct, $layout_id);
+$LayoutBuilder = $ExtTemplateManager->getLayoutBuilder();
+$LayoutBuilder->setLayoutId($layout_id);
+$LayoutBuilder->build($Construct);
 $Template->set('templateLayoutContent', $Construct->draw());
 
 echo $Template->parse();

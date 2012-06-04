@@ -1,16 +1,23 @@
 <?php
 /**
- * Main order class
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
  *
- * @package Order
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-require(dirname(__FILE__) . '/AddressManager/Base.php');
-require(dirname(__FILE__) . '/ProductManager/Base.php');
-require(dirname(__FILE__) . '/TotalManager/Base.php');
-require(dirname(__FILE__) . '/PaymentManager/Base.php');
+/**
+ * Main order class
+ *
+ * @package   Order
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2011, I.T. Web Experts
+ */
 
 class Order
 {
@@ -36,6 +43,11 @@ class Order
 	public $customerId = 0;
 
 	/**
+	 * @var OrderInfoManager
+	 */
+	public $InfoManager;
+
+	/**
 	 * @var OrderAddressManager
 	 */
 	public $AddressManager;
@@ -56,117 +68,184 @@ class Order
 	public $PaymentManager;
 
 	/**
-	 * @param int $orderId
+	 * @var AccountsReceivableModule
 	 */
-	public function __construct($orderId = 0) {
-		if ($orderId > 0){
-			$this->setOrderId($orderId);
+	protected $SaleModule = null;
 
-			$Qorder = Doctrine_Query::create()
-				->from('Orders o')
-				->leftJoin('o.OrdersAddresses oa')
-				->leftJoin('oa.Zones z')
-				->leftJoin('oa.Countries c')
-				->leftJoin('c.AddressFormat af')
-				->leftJoin('o.OrdersTotal ot')
-				->leftJoin('o.OrdersPaymentsHistory oph')
-				->leftJoin('o.OrdersStatusHistory osh')
-				->leftJoin('osh.OrdersStatus s')
-				->leftJoin('s.OrdersStatusDescription sd')
-				->leftJoin('o.OrdersProducts op')
-				->where('o.orders_id = ?', $orderId)
-				->andWhere('sd.language_id = ?', Session::get('languages_id'))
-				->orderBy('ot.sort_order ASC, osh.date_added DESC');
+	/**
+	 *
+	 */
+	public function __construct()
+	{
+		$this->InfoManager = new OrderInfoManager();
+		$this->AddressManager = new OrderAddressManager();
+		$this->ProductManager = new OrderProductManager();
+		$this->TotalManager = new OrderTotalManager();
+		$this->PaymentManager = new OrderPaymentManager();
 
-			EventManager::notify('OrderQueryBeforeExecute', &$Qorder);
-
-			//echo $Qorder->getSqlQuery();
-			$Order = $Qorder->execute()->toArray();
-			//echo '<pre>';print_r($Order);
-			$this->Order = $Order[0];
-			$this->customerId = $this->Order['customers_id'];
-
-			$this->AddressManager = new OrderAddressManager($this->Order['OrdersAddresses']);
-			$this->AddressManager->setOrderId($this->Order['orders_id']);
-
-			$this->ProductManager = new OrderProductManager($this->Order['OrdersProducts'], $this->Order);
-			$this->ProductManager->setOrderId($this->Order['orders_id']);
-
-			$this->TotalManager = new OrderTotalManager($this->Order['OrdersTotal']);
-			$this->TotalManager->setOrderId($this->Order['orders_id']);
-
-			$this->PaymentManager = new OrderPaymentManager($this->Order['OrdersPaymentsHistory']);
-			$this->PaymentManager->setOrderId($this->Order['orders_id']);
+		AccountsReceivableModules::loadModules();
+		foreach(AccountsReceivableModules::getModules() as $Module){
+			if ($Module->ownsSale() === true){
+				$this->SaleModule = $Module;
+				$this->SaleModule->load($this);
+			}
 		}
 	}
 
 	/**
-	 * @param int $val
+	 * @param AccountsReceivableModule $Module
 	 */
-	public function setOrderId($val) {
-		$this->orderId = (int) $val;
+	public function setSaleModule(AccountsReceivableModule $Module)
+	{
+		$this->SaleModule = $Module;
 	}
 
 	/**
-	 * @return int
+	 * @return AccountsReceivableModule|null
 	 */
-	public function getOrderId() {
-		return $this->orderId;
+	public function getSaleModule()
+	{
+		return $this->SaleModule;
 	}
 
 	/**
-	 * @return int
+	 * @return OrderInfo[]
 	 */
-	public function getCustomerId() {
-		return (int)$this->customerId;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOrderInfo() {
-		return $this->Order;
+	public function getId()
+	{
+		return $this->InfoManager->getInfo('sale_id');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCurrency() {
+	public function getCustomersName()
+	{
+		return $this->InfoManager->getInfo('customers_firstname') . ' ' . $this->InfoManager->getInfo('customers_lastname');
+	}
+
+	/**
+	 * @return OrderInfo[]
+	 */
+	public function getDateAdded()
+	{
+		return $this->InfoManager->getInfo('date_added');
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getStatusName()
+	{
+		$Status = Doctrine_Query::create()
+			->from('OrdersStatusDescription')
+			->where('orders_status_id = ?', $this->InfoManager->getInfo('status'))
+			->andWhere('language_id = ?', Session::get('languages_id'))
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		return $Status[0]['orders_status_name'];
+	}
+
+	/**
+	 * @return OrderInfo[]
+	 */
+	public function getDateModified()
+	{
+		return $this->InfoManager->getInfo('last_modified');
+	}
+
+	/**
+	 * @return OrderInfo[]
+	 */
+	public function getPaymentMethod()
+	{
+		return $this->InfoManager->getInfo('payment_method');
+	}
+
+	/**
+	 * @return OrderInfo[]
+	 */
+	public function getRevision()
+	{
+		return $this->InfoManager->getInfo('revision');
+	}
+
+	/**
+	 * @param int $val
+	 */
+	public function setOrderId($val)
+	{
+		$this->InfoManager->setInfo('order_id', (int)$val);
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getOrderId()
+	{
+		return $this->InfoManager->getInfo('order_id');
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCustomerId()
+	{
+		return $this->InfoManager->getInfo('customers_id');
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOrderInfo()
+	{
+		return $this->InfoManager->getInfo();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrency()
+	{
 		return (string)$this->Order['currency'];
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getCurrencyValue() {
+	public function getCurrencyValue()
+	{
 		return (float)$this->Order['currency_value'];
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasTaxes() {
+	public function hasTaxes()
+	{
 		return ($this->TotalManager->getTotalValue('tax') > 0);
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasShippingMethod() {
+	public function hasShippingMethod()
+	{
 		return (empty($this->Order['shipping_method']) === false);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getShippingMethod() {
+	public function getShippingMethod()
+	{
 		return (string)$this->Order['shipping_method'];
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getTotal() {
+	public function getTotal()
+	{
 		return (float)$this->TotalManager->getTotalValue('total');
 	}
 
@@ -174,7 +253,8 @@ class Order
 	 * @param bool $isID
 	 * @return int|string
 	 */
-	public function getCurrentStatus($isID = false) {
+	public function getCurrentStatus($isID = false)
+	{
 		/*
 		 * DO NOT CHANGE FROM 0, IT IS ORDERED DESC SO 0 WILL ALWAYS ME THE MOST RECENT
 		 */
@@ -192,14 +272,16 @@ class Order
 	/**
 	 * @return SesDateTime
 	 */
-	public function getDatePurchased() {
+	public function getDatePurchased()
+	{
 		return $this->Order['date_purchased'];
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasStatusHistory() {
+	public function hasStatusHistory()
+	{
 		$history = $this->getStatusHistory();
 		return (!empty($history));
 	}
@@ -207,7 +289,8 @@ class Order
 	/**
 	 * @return array
 	 */
-	public function getStatusHistory() {
+	public function getStatusHistory()
+	{
 		return $this->Order['OrdersStatusHistory'];
 	}
 
@@ -215,14 +298,16 @@ class Order
 	 * @param bool $cardData
 	 * @return htmlElement_table
 	 */
-	public function listPaymentHistory($cardData = true) {
+	public function listPaymentHistory($cardData = true)
+	{
 		return $this->PaymentManager->show($cardData);
 	}
 
 	/**
 	 * @return htmlElement_table
 	 */
-	public function listTotals() {
+	public function listTotals()
+	{
 		return $this->TotalManager->show();
 	}
 
@@ -230,21 +315,24 @@ class Order
 	 * @param $type
 	 * @return string
 	 */
-	public function getFormattedAddress($type) {
+	public function getFormattedAddress($type)
+	{
 		return (string)$this->AddressManager->getFormattedAddress($type, true);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function listAddresses() {
+	public function listAddresses()
+	{
 		return (string)$this->AddressManager->listAll();
 	}
 
 	/**
 	 * @return OrderProduct[]
 	 */
-	public function getProducts() {
+	public function getProducts()
+	{
 		return $this->ProductManager->getContents();
 	}
 
@@ -262,7 +350,8 @@ class Order
 	 * @param bool $showTax
 	 * @return htmlElement_table
 	 */
-	public function listProducts($showTableHeading = true, $showQty = true, $showBarcode = true, $showModel = true, $showName = true, $showExtraInfo = true, $showPrice = true, $showPriceWithTax = true, $showTotal = true, $showTotalWithTax = true, $showTax = true) {
+	public function listProducts($showTableHeading = true, $showQty = true, $showBarcode = true, $showModel = true, $showName = true, $showExtraInfo = true, $showPrice = true, $showPriceWithTax = true, $showTotal = true, $showTotalWithTax = true, $showTax = true)
+	{
 		return $this->ProductManager->listProducts($showTableHeading, $showQty, $showBarcode, $showModel, $showName, $showExtraInfo, $showPrice, $showPriceWithTax, $showTotal, $showTotalWithTax, $showTax, $this);
 	}
 
@@ -270,7 +359,8 @@ class Order
 	 * @param bool $mask
 	 * @return string
 	 */
-	public function getCreditCard($mask = true) {
+	public function getCreditCard($mask = true)
+	{
 		$Payment = $this->PaymentManager->getPaymentHistory();
 		$cardInfo = unserialize(cc_decrypt($Payment[0]['card_details']));
 		return str_repeat('*', 12) . substr($cardInfo['cardNumber'], 12);
@@ -279,79 +369,62 @@ class Order
 	/**
 	 * @return string
 	 */
-	public function getTelephone() {
-		$telephone = '';
-		if (isset($this->Order['customers_telephone'])){
-			$telephone = $this->Order['customers_telephone'];
-		}
-		return (string)$telephone;
+	public function getTelephone()
+	{
+		return (string)$this->InfoManager->getInfo('customers_telephone');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCellTelephone() {
-		$cellphone = '';
-		if (isset($this->Order['customers_cellphone'])){
-			$cellphone = $this->Order['customers_cellphone'];
-		}
-		return (string)$cellphone;
+	public function getCellTelephone()
+	{
+		return (string)$this->InfoManager->getInfo('customers_cellphone');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getIPAddress() {
-		$ip = '';
-		if (isset($this->Order['ip_address'])){
-			$ip = $this->Order['ip_address'];
-		}
-		return (string)$ip;
+	public function getIPAddress()
+	{
+		return (string)$this->InfoManager->getInfo('ip_address');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getEmailAddress() {
-		$email = '';
-		if (isset($this->Order['customers_email_address'])){
-			$email = $this->Order['customers_email_address'];
-		}
-		return (string)$email;
+	public function getEmailAddress()
+	{
+		return (string)$this->InfoManager->getInfo('customers_email_address');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getDriversLicense() {
-		$num = '';
-		if (isset($this->Order['customers_drivers_license'])){
-			$num = $this->Order['customers_drivers_license'];
-		}
-		return (string)$num;
+	public function getDriversLicense()
+	{
+		return (string)$this->InfoManager->getInfo('customers_drivers_license');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPassPort() {
-		$passport = '';
-		if (isset($this->Order['customers_passport'])){
-			$passport = $this->Order['customers_passport'];
-		}
-		return (string)$passport;
+	public function getPassPort()
+	{
+		return (string)$this->InfoManager->getInfo('customers_passport');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getRoomNumber() {
-		$room_number = '';
-		if (isset($this->Order['customers_room_number'])){
-			$room_number = $this->Order['customers_room_number'];
-		}
-		return (string)$room_number;
+	public function getRoomNumber()
+	{
+		return (string)$this->InfoManager->getInfo('customers_room_number');
 	}
 }
 
-?>
+require(dirname(__FILE__) . '/InfoManager/Base.php');
+require(dirname(__FILE__) . '/AddressManager/Base.php');
+require(dirname(__FILE__) . '/ProductManager/Base.php');
+require(dirname(__FILE__) . '/TotalManager/Base.php');
+require(dirname(__FILE__) . '/PaymentManager/Base.php');

@@ -41,10 +41,8 @@ class Extension_orderCreator extends ExtensionBase {
 		if ($this->isEnabled() === false) return;
 
 		EventManager::attachEvents(array(
-			'EstimatesGridButtonsBeforeAdd',
 			'OrdersListingBeforeExecute',
 			'OrdersProductsReservationListingBeforeExecuteUtilities',
-			'AdminOrdersListingBeforeExecute',
 			'OrderQueryBeforeExecute',
 			'ReservationCheckQueryBeforeExecute',
 			'ProductInventoryReportsListingQueryBeforeExecute',
@@ -54,12 +52,6 @@ class Extension_orderCreator extends ExtensionBase {
 
 		if ($appExtension->isAdmin()){
 			EventManager::attachEvent('BoxCustomersAddLink', null, $this);
-		}
-	}
-
-	public function AdminOrdersListingBeforeExecute(&$Qorders){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('o.orders_status != ?', sysConfig::get('ORDERS_STATUS_ESTIMATE_ID'));
 		}
 	}
 
@@ -108,18 +100,6 @@ class Extension_orderCreator extends ExtensionBase {
 				'text' => 'Estimates'
 			);
 		}
-	}
-	
-	public function EstimatesGridButtonsBeforeAdd(&$gridButtons){
-		$gridButtons[] = htmlBase::newElement('button')
-			->setText(sysLanguage::get('TEXT_NEW_ESTIMATE'))
-			->addClass('createButton')
-			->setHref(itw_app_link('appExt=orderCreator', 'default', 'new'));
-
-		$gridButtons[] = htmlBase::newElement('button')
-			->setText(sysLanguage::get('TEXT_EDIT_ESTIMATE'))
-			->addClass('editButton')
-			->disable();
 	}
 }
 ?>

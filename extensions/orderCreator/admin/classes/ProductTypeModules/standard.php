@@ -255,8 +255,9 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	 */
 	public function OrderCreatorAllowProductUpdate(OrderCreatorProduct $OrderProduct) {
 		$return = true;
-		if (isset($_GET['purchase_type']) && !empty($_GET['purchase_type'])){
-			$PurchaseType = $this->getPurchaseType($_GET['purchase_type']);
+		$PurchaseTypeName = $OrderProduct->getInfo('purchase_type');
+		if (!empty($PurchaseTypeName)){
+			$PurchaseType = $this->getPurchaseType($PurchaseTypeName);
 			if (method_exists($PurchaseType, 'OrderCreatorAllowProductUpdate')){
 				$return = $PurchaseType->OrderCreatorAllowProductUpdate($OrderProduct);
 			}
@@ -297,13 +298,5 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 		if (method_exists($PurchaseType, 'OrderCreatorProductManagerUpdateFromPost')){
 			$PurchaseType->OrderCreatorProductManagerUpdateFromPost($Product);
 		}
-	}
-
-	public function hasEnoughInventory(OrderCreatorProduct &$Product){
-		$PurchaseType = $this->getPurchaseType($Product->getInfo('purchase_type'));
-		if (method_exists($PurchaseType, 'hasEnoughInventory')){
-			return $PurchaseType->hasEnoughInventory($Product);
-		}
-		return true;
 	}
 }

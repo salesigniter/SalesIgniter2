@@ -1,5 +1,17 @@
 <?php
 /**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
+/**
  * Checkbox Element Widget Class
  * @package Html
  */
@@ -50,7 +62,7 @@ class htmlWidget_checkbox implements htmlWidgetPlugin {
 		if ($this->isGroup === true){
 			if (is_array($this->groupSeparator)){
 				if ($this->groupSeparator['type'] == 'table'){
-					$table = htmlBase::newElement('table')->setCellPadding(2)->setCellSpacing(0);
+					$table = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
 					$columns = array();
 					foreach($this->groupElements as $button){
 						$columns[] = array('text' => $button->draw());

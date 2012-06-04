@@ -1,64 +1,71 @@
 <?php
 /**
  * Input Element Class
+ *
  * @package Html
  */
-class htmlElement_input implements htmlElementPlugin {
-	protected $inputElement, $labelElement, $labelElementPosition, $labelElementSeparator;
-	
-	public function __construct(){
-		$this->inputElement = new htmlElement('input');
+class htmlElement_input extends htmlElement
+{
+
+	protected $labelElement;
+
+	protected $labelElementPosition;
+
+	protected $labelElementSeparator;
+
+	public function __construct()
+	{
+		parent::__construct('input');
+
 		$this->labelElement = false;
 		$this->labelElementPosition = 'before';
 		$this->labelElementSeparator = '';
 	}
-	
-	public function __call($function, $args){
-		$return = call_user_func_array(array($this->inputElement, $function), $args);
-		if (!is_object($return)){
-			return $return;
-		}
-		return $this;
-	}
-	
+
 	/* Required Functions From Interface: htmlElementPlugin --BEGIN-- */
-	public function startChain(){
+	public function startChain()
+	{
 		return $this;
 	}
-	
-	public function setId($val){
-		$this->inputElement->attr('id', $val);
+
+	public function setId($val)
+	{
+		$this->attr('id', $val);
 		return $this;
 	}
-	
-	public function setName($val){
-		$this->inputElement->attr('name', $val);
+
+	public function setName($val)
+	{
+		$this->attr('name', $val);
 		return $this;
 	}
-	
-	public function draw(){
+
+	public function draw()
+	{
 		$html = '';
 		if ($this->labelElement !== false){
-			if ($this->inputElement->hasAttr('id') === true){
-				$this->labelElement->attr('for', $this->inputElement->attr('id'));
+			if ($this->hasAttr('id') === true){
+				$this->labelElement->attr('for', $this->attr('id'));
 			}
 			if ($this->labelElementPosition == 'before'){
 				$html .= $this->labelElement->draw();
 				if (is_object($this->labelElementSeparator)){
 					$html .= $this->labelElementSeparator->draw();
-				}else{
+				}
+				else {
 					$html .= $this->labelElementSeparator;
 				}
 			}
 		}
-		
-		$html .= $this->inputElement->draw();
-		
+
+		$html .= parent::draw();
+
 		if ($this->labelElement !== false){
 			if ($this->labelElementPosition == 'after' || $this->labelElementPosition === false){
 				if (is_object($this->labelElementSeparator)){
 					$html .= $this->labelElementSeparator->draw();
-				}else{
+				}
+				else {
 					$html .= $this->labelElementSeparator;
 				}
 				$html .= $this->labelElement->draw();
@@ -66,24 +73,29 @@ class htmlElement_input implements htmlElementPlugin {
 		}
 		return $html;
 	}
+
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
-	
-	public function setValue($val){
-		$this->inputElement->attr('value', stripslashes($val));
+
+	public function setValue($val)
+	{
+		$this->attr('value', stripslashes($val));
 		return $this;
 	}
-	
-	public function setType($type){
-		$this->inputElement->attr('type', $type);
+
+	public function setType($type)
+	{
+		$this->attr('type', $type);
 		return $this;
 	}
-	
-	public function setSize($val){
-		$this->inputElement->attr('size', $val);
+
+	public function setSize($val)
+	{
+		$this->attr('size', $val);
 		return $this;
 	}
-	
-	public function setLabel($val){
+
+	public function setLabel($val)
+	{
 		if ($this->labelElement === false){
 			$this->labelElement = new htmlElement('label');
 			if ($this->labelElementPosition === false){
@@ -93,33 +105,29 @@ class htmlElement_input implements htmlElementPlugin {
 		$this->labelElement->html($val);
 		return $this;
 	}
-	
-	public function setLabelPosition($val){
+
+	public function setLabelPosition($val)
+	{
 		$this->labelElementPosition = $val;
 		return $this;
 	}
-	
-	public function setLabelSeparator($val){
+
+	public function setLabelSeparator($val)
+	{
 		$this->labelElementSeparator = $val;
 		return $this;
 	}
-	
-	public function setChecked($val){
-		if ($val === true){
-			$this->inputElement->attr('checked', 'checked');
-		}else{
-			$this->inputElement->removeAttr('checked');
-		}
-		return $this;
-	}
 
-	public function setRequired($val){
+	public function setChecked($val)
+	{
 		if ($val === true){
-			$this->inputElement->addClass('required');
-		}else{
-			$this->inputElement->removeClass('required');
+			$this->attr('checked', 'checked');
+		}
+		else {
+			$this->removeAttr('checked');
 		}
 		return $this;
 	}
 }
+
 ?>

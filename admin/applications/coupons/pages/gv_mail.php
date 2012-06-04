@@ -13,7 +13,7 @@ if (($_GET['action'] == 'send_email_to_user') && ($_POST['customers_email_addres
 		default:
 			$customers_email_address = tep_db_prepare_input($_POST['customers_email_address']);
 
-			$mail_query = tep_db_query("select customers_firstname, customers_lastname, customers_email_address from " . TABLE_CUSTOMERS . " where customers_email_address = '" . tep_db_input($customers_email_address) . "'");
+			$mail_query = tep_db_query("select customers_firstname, customers_lastname, customers_email_address from " . TABLE_CUSTOMERS . " where customers_email_address = '" . $customers_email_address . "'");
 			$mail_sent_to = $_POST['customers_email_address'];
 			if ($_POST['email_to']){
 				$mail_sent_to = $_POST['email_to'];

@@ -12,10 +12,10 @@ else {
 }
 $import = 'noimport';
 if (isset($_GET['import']) && !empty($_GET['import'])){
-	$import = $_GET['import'];
+	$import = implode(',', $_GET['import']);
 }
 $cacheKey = $templateDir . '-' . md5($_SERVER['HTTP_USER_AGENT'] . '-' . $layoutId . '-' . $import);
-$noCache = isset($_GET['noCache']);
+$noCache = /*isset($_GET['noCache'])*/true;
 $noMin = isset($_GET['noMin']);
 
 require('includes/classes/system_cache.php');
@@ -81,27 +81,6 @@ else {
 		$sources[] = getSourceFile('jquery.fileuploader.css', sysConfig::getDirFsCatalog() . 'ext/jQuery/external/fileuploader/');
 	}
 
-	if (isset($_GET['import']) && !empty($_GET['import'])){
-		foreach(explode(',', $_GET['import']) as $filePath){
-			if (substr($filePath, -4) != '.css'){
-				continue;
-			}
-
-			if (file_exists($filePath)){
-				$sources[] = $filePath;
-			}
-			elseif (file_exists(sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath)) {
-				$sources[] = sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath;
-			}
-			elseif (file_exists(sysConfig::getDirFsCatalog() . $filePath)) {
-				$sources[] = sysConfig::getDirFsCatalog() . $filePath;
-			}
-			elseif (file_exists(sysConfig::getDirFsAdmin() . $filePath)) {
-				$sources[] = sysConfig::getDirFsAdmin() . $filePath;
-			}
-		}
-	}
-
 	ob_start();
 	foreach($sources as $filePath){
 		if (file_exists($filePath)){
@@ -124,7 +103,10 @@ else {
 	ob_start();
 	if ($env == 'catalog'){
 		$TemplateManager = $appExtension->getExtension('templateManager');
-		$TemplateManager->loadWidgets($templateDir);
+		$LayoutBuilder = $TemplateManager->getLayoutBuilder();
+		$LayoutBuilder->setLayoutId($layoutId);
+		$LayoutBuilder->loadWidgets();
+
 		$boxStylesEntered = array();
 		$infoBoxSources = array();
 		$boxStylesheetSourcesEntered = array();
@@ -157,7 +139,7 @@ else {
 		}
 
 		function parseContainer($Container) {
-			global $TemplateManager, $boxStylesEntered, $infoBoxSources, $boxStylesheetSourcesEntered, $addCss;
+			global $LayoutBuilder, $boxStylesEntered, $infoBoxSources, $boxStylesheetSourcesEntered, $addCss;
 
 			if (isset($Container['widget_id'])){
 				$typeId = $Container['widget_id'];
@@ -173,7 +155,7 @@ else {
 			}
 
 			if (($ElementId = getElementId($Container)) != ''){
-				if (($Styles = $TemplateManager->getStyleInfo($type, $typeId)) !== false){
+				if (($Styles = $LayoutBuilder->getStyleInfo($type, $typeId)) !== false){
 					$Style = new StyleBuilder();
 					$Style->setSelector('#' . $ElementId);
 					foreach($Styles as $sInfo){
@@ -183,28 +165,28 @@ else {
 				}
 			}
 
-			if ($type == 'container' && (($Containers = $TemplateManager->getContainerChildren($typeId)) !== false)){
+			if ($type == 'container' && (($Containers = $LayoutBuilder->getContainerChildren($typeId)) !== false)){
 				foreach($Containers as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'container' && (($Columns = $TemplateManager->getContainerColumns($typeId)) !== false)) {
+			elseif ($type == 'container' && (($Columns = $LayoutBuilder->getContainerColumns($typeId)) !== false)) {
 				foreach($Columns as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'column' && (($Columns = $TemplateManager->getColumnChildren($typeId)) !== false)) {
+			elseif ($type == 'column' && (($Columns = $LayoutBuilder->getColumnChildren($typeId)) !== false)) {
 				foreach($Columns as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'column' && (($Widgets = $TemplateManager->getColumnWidgets($typeId)) !== false)) {
+			elseif ($type == 'column' && (($Widgets = $LayoutBuilder->getColumnWidgets($typeId)) !== false)) {
 				foreach($Widgets as $wInfo){
 					parseContainer($wInfo);
 				}
 			}
 			elseif ($type == 'widget') {
-				if (($Configuration = $TemplateManager->getConfigInfo($type, $typeId)) !== false){
+				if (($Configuration = $LayoutBuilder->getConfigInfo($type, $typeId)) !== false){
 					foreach($Configuration as $config){
 						if ($config['configuration_key'] == 'widget_settings'){
 							$WidgetSettings = json_decode($config['configuration_value']);
@@ -212,7 +194,7 @@ else {
 						}
 					}
 
-					if (($Styles = $TemplateManager->getStyleInfo($type, $typeId)) !== false){
+					if (($Styles = $LayoutBuilder->getStyleInfo($type, $typeId)) !== false){
 						$Style = new StyleBuilder();
 						$Style->setSelector('#widget_' . $typeId);
 						foreach($Styles as $sInfo){
@@ -221,21 +203,21 @@ else {
 						$addCss .= $Style->outputCss();
 					}
 
-					$WidgetClass = $TemplateManager->getWidget($Container['identifier']);
+					$WidgetClass = $LayoutBuilder->getWidget($Container['identifier']);
 					if ($WidgetClass !== false){
 						if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
 							$WidgetClass->setBoxId($WidgetSettings->id);
 						}
 						$WidgetClass->setWidgetProperties($WidgetSettings);
 						if (method_exists($WidgetClass, 'buildStylesheet')){
-							if ($WidgetClass->buildStylesheetMultiple === true || !in_array($WidgetClass->getBoxCode(), $boxStylesEntered)){
+							if ($WidgetClass->buildStylesheetMultiple === true || !in_array($WidgetClass->getCode(), $boxStylesEntered)){
 								$addCss .= $WidgetClass->buildStylesheet();
 
-								$boxStylesEntered[] = $WidgetClass->getBoxCode();
+								$boxStylesEntered[] = $WidgetClass->getCode();
 							}
 						}
 						if (method_exists($WidgetClass, 'getStylesheetSources')){
-							if (!in_array($WidgetClass->getBoxCode(), $boxStylesheetSourcesEntered)){
+							if (!in_array($WidgetClass->getCode(), $boxStylesheetSourcesEntered)){
 								$infoBoxCssFiles = $WidgetClass->getStylesheetSources();
 								foreach($infoBoxCssFiles as $infoBoxCssFile){
 									if (file_exists($infoBoxCssFile)){
@@ -243,7 +225,7 @@ else {
 									}
 								}
 
-								$boxStylesheetSourcesEntered[] = $WidgetClass->getBoxCode();
+								$boxStylesheetSourcesEntered[] = $WidgetClass->getCode();
 							}
 						}
 					}
@@ -255,7 +237,7 @@ else {
 			->getCurrentConnection()
 			->fetchAssoc('select * from template_manager_layouts where layout_id = "' . (int)$_GET['layout_id'] . '"');
 		if ($Layout){
-			if (($LayoutStyles = $TemplateManager->getStyleInfo('layout', $Layout[0]['layout_id'])) !== false){
+			if (($LayoutStyles = $LayoutBuilder->getStyleInfo('layout', $Layout[0]['layout_id'])) !== false){
 				$StyleBuilder = new StyleBuilder();
 				$StyleBuilder->setSelector('body');
 				$rules = array();
@@ -310,17 +292,59 @@ else {
 		}
 	}
 
-	echo '/*' . "\n" .
-		' * Template Stylesheet' . "\n" .
-		' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-		' * --BEGIN--' . "\n" .
-		' */' . "\n";
-	require(sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css');
-	echo '/*' . "\n" .
-		' * Template Stylesheet' . "\n" .
-		' * Path: ' . sysConfig::get('DIR_FS_TEMPLATE') . 'stylesheet.css' . "\n" .
-		' * --END--' . "\n" .
-		' */' . "\n";
+	if ($App->getEnv() == 'admin'){
+		$TemplatePath = sysConfig::getDirFsAdmin() . 'template/' . $templateDir . '/';
+	}else{
+		$TemplatePath = sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/';
+	}
+
+	$sources = array();
+	$sources[] = getSourceFile('stylesheet.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_1.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_240.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_320.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_480.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_768.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_992.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_1200.css', $TemplatePath);
+	$sources[] = getSourceFile('stylesheet_1600.css', $TemplatePath);
+
+	if (!empty($import)){
+		foreach(explode(',', $import) as $filePath){
+			if (substr($filePath, -4) != '.css'){
+				continue;
+			}
+
+			if (file_exists($filePath)){
+				$sources[] = $filePath;
+			}
+			elseif (file_exists(sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath)) {
+				$sources[] = sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $filePath;
+			}
+			elseif (file_exists(sysConfig::getDirFsCatalog() . $filePath)) {
+				$sources[] = sysConfig::getDirFsCatalog() . $filePath;
+			}
+			elseif (file_exists(sysConfig::getDirFsAdmin() . $filePath)) {
+				$sources[] = sysConfig::getDirFsAdmin() . $filePath;
+			}
+		}
+	}
+
+	foreach($sources as $filePath){
+		if (file_exists($filePath)){
+			echo '/*' . "\n" .
+				' * Required File' . "\n" .
+				' * Path: ' . $filePath . "\n" .
+				' * --BEGIN--' . "\n" .
+				' */' . "\n";
+			require($filePath);
+			echo '/*' . "\n" .
+				' * Required File' . "\n" .
+				' * Path: ' . $filePath . "\n" .
+				' * --END--' . "\n" .
+				' */' . "\n";
+		}
+	}
 
 	$fileContent = ob_get_contents();
 	ob_end_clean();
@@ -331,7 +355,7 @@ else {
 
 	$Result = array(
 		'headers' => array(
-			'Content-Type'     => 'text/css'
+			'Content-Type'     => 'text/css; charset=utf-8'
 		)
 	);
 	if ($noCache === false && sysConfig::get('TEMPLATE_STYLESHEET_CACHE') == 1){

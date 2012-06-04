@@ -25,7 +25,7 @@ if (sysPermissions::isSimple() === false){
 
 	EventManager::notify('AdminOrdersListingBeforeExecute', $Qorders);
 
-	$tableGridOrders = htmlBase::newElement('grid')
+	$tableGridOrders = htmlBase::newElement('newGrid')
 		->usePagination(false)
 		->setPageLimit(10)
 		->setQuery($Qorders);
@@ -113,7 +113,7 @@ if (sysPermissions::isSimple() === false){
 		)
 	));
 
-	$customers = &$tableGridCustomers->getResults();
+	$customers = $tableGridCustomers->getResults();
 	if ($customers){
 		foreach($customers as $customer){
 			$customerId = $customer['customers_id'];
@@ -209,7 +209,7 @@ if (sysPermissions::isSimple() === false){
 							'</tr>' .
 							'<tr>' .
 							'<td><b>' . sysLanguage::get('TEXT_INFO_COUNTRY') . '</b></td>' .
-							'<td>' . $customer['AddressBook'][0]['Countries']['countries_name'] . '</td>' .
+							//'<td>' . $customer['AddressBook']['Countries']['countries_name'] . '</td>' .
 							'<td><b></b></td>' .
 							'<td></td>' .
 							'<td>' . $loginAsCustomerLink . '</td>' .

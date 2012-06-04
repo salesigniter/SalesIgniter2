@@ -157,3 +157,8 @@ function checkModel($modelName, $charset, $collation) {
 Doctrine_Core::loadAllModels();
 $appContent = $App->getAppContentFile();
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
+
+OrderPaymentModules::loadModules(true);
+OrderShippingModules::loadModules(true);
+OrderTotalModules::loadModules(true);
+AccountsReceivableModules::loadModules(true);

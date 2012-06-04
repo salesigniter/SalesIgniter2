@@ -9,9 +9,8 @@ else {
 
 $Template->email_templates_name = $_POST['email_template'];
 $Template->email_templates_event = $_POST['email_event'];
-$attach_file = new upload('email_file', sysConfig::getDirFsCatalog() . 'images/upload');
-if ($attach_file && !empty($attach_file->filename)){
-	$Template->email_templates_attach = 'images/upload/' . $attach_file->filename;
+if (!empty($_POST['email_file'])){
+	$Template->email_templates_attach = $_POST['email_file'];
 }
 else {
 	$Template->email_templates_attach = '';

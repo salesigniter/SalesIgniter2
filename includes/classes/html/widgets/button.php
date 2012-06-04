@@ -16,7 +16,7 @@ class htmlWidget_button implements htmlWidgetPlugin
 		//->addClass('ui-button')
 		//->addClass('ui-widget')
 		//->addClass('ui-state-default')
-		//->addClass('ui-corner-all')
+		->addClass('unselectable')
 			->attr('type', 'button');
 
 		$this->settings = array(
@@ -225,6 +225,10 @@ class htmlWidget_button implements htmlWidgetPlugin
 			case 'usergroup':
 				$this->setIcon('user-group')
 					->setText('View Groups');
+				break;
+			case 'convert':
+				$this->setIcon('transferthick-e-w')
+					->setText('Convert');
 				break;
 		}
 		return $this;

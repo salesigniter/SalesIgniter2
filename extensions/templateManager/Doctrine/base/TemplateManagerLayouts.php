@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 
 /**
  * TemplateManagerLayouts
@@ -46,26 +58,7 @@ class TemplateManagerLayouts extends Doctrine_Record
 			'length' => 128,
 			'default' => 'template'
 		));
-		$this->hasColumn('app_name', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'default' => ''
-		));
-		$this->hasColumn('app_page_name', 'string', 128, array(
-			'type' => 'string',
-			'length' => 128,
-			'default' => ''
-		));
-		$this->hasColumn('app_page_title', 'string', 255, array(
-			'type' => 'string',
-			'length' => 255,
-			'default' => ''
-		));
-		$this->hasColumn('app_page_sub_title', 'string', 255, array(
-			'type' => 'string',
-			'length' => 255,
-			'default' => ''
-		));
+		$this->hasColumn('layout_settings', 'string', 999);
 	}
 
 	public function setUp()

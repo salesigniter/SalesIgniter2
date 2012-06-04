@@ -1,0 +1,52 @@
+@media screen and (min-width: 0px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(2), .gridHeaderRow:nth-child(2) th:nth-child(2), .gridBodyRow td:nth-child(2),
+	.gridHeaderRow:nth-child(1) th:nth-child(3), .gridHeaderRow:nth-child(2) th:nth-child(3), .gridBodyRow td:nth-child(3),
+	.gridHeaderRow:nth-child(1) th:nth-child(4), .gridHeaderRow:nth-child(2) th:nth-child(4), .gridBodyRow td:nth-child(4),
+	.gridHeaderRow:nth-child(1) th:nth-child(6), .gridHeaderRow:nth-child(2) th:nth-child(6), .gridBodyRow td:nth-child(6),
+	.gridHeaderRow:nth-child(1) th:nth-child(7), .gridHeaderRow:nth-child(2) th:nth-child(7), .gridBodyRow td:nth-child(7),
+	.gridHeaderRow:nth-child(1) th:nth-child(8), .gridHeaderRow:nth-child(2) th:nth-child(8), .gridBodyRow td:nth-child(8),
+	.gridHeaderRow:nth-child(1) th:nth-child(9), .gridHeaderRow:nth-child(2) th:nth-child(9), .gridBodyRow td:nth-child(9) {
+		display:none;
+	}
+	.gridHeaderRow:nth-child(2) {
+		display:none;
+	}
+}
+@media screen and (min-width: 240px) {
+
+}
+@media screen and (min-width: 320px) {
+
+}
+@media screen and (min-width: 480px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(9), .gridHeaderRow:nth-child(2) th:nth-child(9), .gridBodyRow td:nth-child(9) {
+		display:table-cell;
+	}
+}
+@media screen and (min-width: 768px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(7), .gridHeaderRow:nth-child(2) th:nth-child(7), .gridBodyRow td:nth-child(7),
+	.gridHeaderRow:nth-child(1) th:nth-child(8), .gridHeaderRow:nth-child(2) th:nth-child(8), .gridBodyRow td:nth-child(8) {
+		display:table-cell;
+	}
+}
+@media screen and (min-width: 992px) {
+	.gridHeaderRow:nth-child(2) {
+		display:table-row;
+	}
+}
+@media screen and (min-width: 1200px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(4), .gridHeaderRow:nth-child(2) th:nth-child(4), .gridBodyRow td:nth-child(4) {
+		display:table-cell;
+	}
+}
+@media screen and (min-width: 1600px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(3), .gridHeaderRow:nth-child(2) th:nth-child(3), .gridBodyRow td:nth-child(3) {
+		display:table-cell;
+	}
+}
+@media screen and (min-width: 1800px) {
+	.gridHeaderRow:nth-child(1) th:nth-child(2), .gridHeaderRow:nth-child(2) th:nth-child(2), .gridBodyRow td:nth-child(2),
+	.gridHeaderRow:nth-child(1) th:nth-child(6), .gridHeaderRow:nth-child(2) th:nth-child(6), .gridBodyRow td:nth-child(6) {
+		display:table-cell;
+	}
+}

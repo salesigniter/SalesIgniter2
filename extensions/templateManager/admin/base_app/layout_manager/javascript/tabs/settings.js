@@ -110,6 +110,9 @@
 					}
 					else {
 						var parentWidth = parentCls.getCurrentElement().parent().width();
+						parentWidth -= parseFloat(parentCls.getCurrentElement().css('marginLeft'));
+						parentWidth -= parseFloat(parentCls.getCurrentElement().css('marginRight'));
+
 						$Tab.find('.widthSlider').slider('option', 'min', 30);
 						$Tab.find('.widthSlider').slider('option', 'max', parentWidth);
 						if (values.width > parentWidth){

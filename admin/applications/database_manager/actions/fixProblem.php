@@ -386,16 +386,11 @@ switch($Resolution){
 		$isOk = true;
 		break;
 	case 'removeColumn':
-		$success = Doctrine_Manager::getInstance()
+		Doctrine_Manager::getInstance()
 			->getCurrentConnection()
 			->exec('alter table ' . $tableName . ' drop ' . $columnName);
-		if ($success){
-			$message = 'Database table column removed.';
-			$isOk = true;
-		}
-		else {
-			$message = 'Error Removing Table Column';
-		}
+		$message = 'Database table column removed.';
+		$isOk = true;
 		break;
 	case 'changeTableCollation':
 		$charset = $_GET['to'];

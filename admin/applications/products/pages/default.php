@@ -67,31 +67,6 @@ function addCategoryTreeToGrid($parentId, &$categorySelect, $namePrefix = '') {
 $categorySelect->addOption('-1', sysLanguage::get('TEXT_PLEASE_SELECT'));
 addCategoryTreeToGrid(0, $categorySelect, '');
 
-$searchTable = htmlBase::newElement('table')
-	->setCellPadding(3)
-	->setCellSpacing(0)
-	->attr('align', 'center');
-
-$bodyCols = array(
-	array('text' => $categorySelect),
-	array('text' => htmlBase::newElement('button')->setType('submit')->usePreset('search'))
-);
-
-if (isset($_GET['search'])){
-	$resetButton = htmlBase::newElement('button')
-		->setText(sysLanguage::get('TEXT_BUTTON_RESET'))
-		->setHref(itw_app_link(null, null, 'default'));
-
-	$bodyCols[] = array('text' => $resetButton);
-}
-
-$searchTable->addBodyRow(array(
-	'columns' => $bodyCols
-));
-$searchForm->append($searchTable);
-
-$tableGrid->addBeforeButtonBar($searchForm->draw());
-
 $header2 = array(
 	array('text' => 'Set'),
 	array(
@@ -132,35 +107,10 @@ $header2 = array(
 			->setDatabaseColumn('p.products_model')
 	)
 );
+$header2[] = array('text' => sysLanguage::get('TABLE_HEADING_STATUS'));
+$header2[] = array('text' => sysLanguage::get('TABLE_HEADING_FEATURED'));
+$header2[] = array('text' => sysLanguage::get('TABLE_HEADING_INFO'));
 
-$stockColSpan = 0;
-foreach(PurchaseTypeModules::getModules() as $PurchaseType){
-	if ($PurchaseType->getConfigData('SHOW_ON_ADMIN_PRODUCT_LIST') == 'True'){
-		$header2[] = array('text' => $PurchaseType->getTitle());
-		$stockColSpan++;
-	}
-}
-$header2[] = array(
-	'colspan' => 3,
-	'text'    => '&nbsp;'
-);
-
-$header1 = array();
-$header1[] = array(
-	'colspan' => 6,
-	'text'    => sysLanguage::get('TABLE_HEADING_PRODUCTS')
-);
-if ($stockColSpan > 0){
-	$header1[] = array(
-		'colspan' => $stockColSpan,
-		'text'    => 'Stock'
-	);
-}
-$header1[] = array('text' => sysLanguage::get('TABLE_HEADING_STATUS'));
-$header1[] = array('text' => sysLanguage::get('TABLE_HEADING_FEATURED'));
-$header1[] = array('text' => sysLanguage::get('TABLE_HEADING_INFO'));
-
-$tableGrid->addHeaderRow(array('columns' => $header1));
 $tableGrid->addHeaderRow(array('columns' => $header2));
 
 $Products = &$tableGrid->getResults();
@@ -371,124 +321,6 @@ function addGridRow($productClass, &$tableGrid, &$infoBoxes) {
 		}
 	}
 }
-
-/*update pay per rentals with the new fields this can be removed after update
-	$QproductsUpdate = Doctrine_Query::create()
-	->from('ProductsPayPerRental ppr')
-	->execute();
-	$PricePerRentalPerProducts = Doctrine_Core::getTable('PricePerRentalPerProducts');
-	foreach($QproductsUpdate as $iProducts){
-			//DAILY
-			if($iProducts['price_daily'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_DAILY_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_daily'];
-				$PricePerProduct->number_of = 1;
-				$PricePerProduct->pay_per_rental_types_id = 3;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_daily = 0;
-			}
-
-			//WEEKLY
-			if($iProducts['price_weekly'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_WEEKLY_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_weekly'];
-				$PricePerProduct->number_of = 1;
-				$PricePerProduct->pay_per_rental_types_id = 4;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_weekly = 0;
-			}
-
-			//MONTHLY
-			if($iProducts['price_monthly'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_MONTHLY_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_monthly'];
-				$PricePerProduct->number_of = 1;
-				$PricePerProduct->pay_per_rental_types_id = 5;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_monthly = 0;
-			}
-
-		   //6 MONTHS
-			if($iProducts['price_six_month'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_6_MONTHS_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_six_month'];
-				$PricePerProduct->number_of = 6;
-				$PricePerProduct->pay_per_rental_types_id = 5;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_six_month = 0;
-			}
-
-		   //1 YEAR
-			if($iProducts['price_year'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_1_YEAR_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_year'];
-				$PricePerProduct->number_of = 1;
-				$PricePerProduct->pay_per_rental_types_id = 6;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_year = 0;
-			}
-
-		  //3 YEAR
-			if($iProducts['price_three_year'] > 0){
-				$PricePerProduct = $PricePerRentalPerProducts->create();
-				$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
-				foreach(sysLanguage::getLanguages() as $lInfo){
-					$Description[$lInfo['id']]->language_id = $lInfo['id'];
-					$Description[$lInfo['id']]->price_per_rental_per_products_name = sysLanguage::get('PPR_3_YEAR_PRICE');
-				}
-				$PricePerProduct->price = $iProducts['price_three_year'];
-				$PricePerProduct->number_of = 3;
-				$PricePerProduct->pay_per_rental_types_id = 6;
-				$PricePerProduct->pay_per_rental_id = $iProducts['pay_per_rental_id'];
-				$PricePerProduct->save();
-				$iProducts->price_three_year = 0;
-			}
-			if($iProducts['max_days'] > 0){
-				$iProducts->max_period = $iProducts['max_days'];
-				$iProducts->max_type = 3;
-			}
-			if($iProducts['max_months'] > 0){
-				$iProducts->max_period = $iProducts['max_months'];
-				$iProducts->max_type = 5;
-			}
-			if($iProducts['min_rental_days'] > 0){
-				$iProducts->min_period = $iProducts['min_rental_days'];
-				$iProducts->min_type = 3;
-			}
-		$iProducts->save();
-
-	}
-	end of update*/
 ?>
 <div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
 	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>

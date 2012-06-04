@@ -1,5 +1,5 @@
 <?php
-$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find((int)$_GET['tID']);
+$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find((int)$_GET['template_id']);
 if ($Template){
 	$TemplateDir = $Template->Configuration['DIRECTORY']->configuration_value;
 	foreach($Template->Layouts as $Layout){

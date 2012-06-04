@@ -1,3 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_BESTSELLERS"><![CDATA[Bestsellers]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BESTSELLERS_TEXT_TITLE"><![CDATA[Best Sellers]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BESTSELLERS_TEXT_DESCRIPTION"><![CDATA[Best Sellers]]></define>
 </definitions>

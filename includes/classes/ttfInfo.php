@@ -187,7 +187,12 @@ class ttfInfo {
 				for($l=0;$l<$string_length_dec;$l++)
 				{
 					if (ord($this->text[$storage_dec+$string_offset_dec+$l]) == '0') { continue; }
-					else { $font_tags[$name_id_dec] .= ($this->text[$storage_dec+$string_offset_dec+$l]); }
+					else {
+						if (isset($font_tags[$name_id_dec])){
+							$font_tags[$name_id_dec] .= ($this->text[$storage_dec+$string_offset_dec+$l]);
+						}else{
+							$font_tags[$name_id_dec] = ($this->text[$storage_dec+$string_offset_dec+$l]);
+						} }
 				}
 			}
 		}

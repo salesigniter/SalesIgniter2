@@ -1,1 +1,114 @@
-.barcodeCol .ui-autocomplete-input { width:75%; }
+@media screen and (min-width: 1px) {
+	.buttonContainer {
+		text-align   : left;
+		margin-right : 2em;
+		margin-left  : auto;
+		padding      : .5em;
+		font-size    : .9em;
+		top          : 205px;
+		position     : absolute;
+		right        : 0;
+		width: 190px;
+	}
+
+	.buttonContainer .column {
+		vertical-align : top;
+		width: 93px;
+	}
+
+	.buttonContainer.fixed {
+		top          : 0;
+		position     : fixed;
+		z-index      : 1;
+		margin-right : 51px;
+	}
+
+	.buttonContainer button {
+		width      : 100%;
+		text-align : left;
+	}
+
+	.buttonContainer .ui-button .ui-icon {
+		display:none;
+	}
+
+	.loadRevision {
+		width : 100%;
+	}
+
+	#bodyWrapper {
+		padding-top: 315px;
+	}
+}
+
+@media screen and (min-width: 240px) {
+}
+
+@media screen and (min-width: 320px) {
+	.buttonContainer {
+		width: 270px;
+	}
+	.buttonContainer .column {
+		width: 133px;
+	}
+	#bodyWrapper {
+		padding-top: 275px;
+	}
+}
+
+@media screen and (min-width: 480px) {
+	.buttonContainer {
+		top : 10px;
+		width: 430px;
+	}
+	.buttonContainer .column {
+		width: 104px;
+	}
+	#bodyWrapper {
+		padding-top : 175px;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	.buttonContainer {
+		margin-right : .5em;
+		width        : 664px;
+	}
+	.buttonContainer .column {
+		width          : 163px;
+	}
+	.buttonContainer .ui-button .ui-icon {
+		display:inline-block;
+	}
+	#bodyWrapper {
+		padding-top: 150px;
+	}
+}
+
+@media screen and (min-width: 992px) {
+	.buttonContainer {
+		margin-right : 2em;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	.buttonContainer {
+		top : -75px;
+	}
+
+	#bodyWrapper {
+		padding-top : 65px;
+	}
+}
+
+@media screen and (min-width: 1600px) {
+}
+
+@media screen and (min-width: 1800px) {
+}
+
+@media screen and (min-width: 1900px) {
+	#bodyWrapper {
+		padding-top : 0;
+	}
+}

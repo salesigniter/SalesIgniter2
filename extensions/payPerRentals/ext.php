@@ -65,6 +65,25 @@ class Extension_payPerRentals extends ExtensionBase {
 		}else{
 			Session::set('google_key', sysConfig::get('EXTENSION_PAY_PER_RENTALS_GOOGLE_MAPS_API_KEY'));
 		}
+
+		$SalesProducts = Doctrine_Core::getTable('AccountsReceivableSalesProducts')
+			->getRecordInstance();
+
+		$SalesProducts->hasMany('PayPerRentalReservations as Reservations', array(
+			'local' => 'id',
+			'foreign' => 'sale_product_id'
+		));
+
+		if ($appExtension->isEnabled('packageProducts')){
+			$SalesProductsPackaged = Doctrine_Core::getTable('AccountsReceivableSalesProductsPackaged')
+				->getRecordInstance();
+
+			$SalesProductsPackaged->hasMany('PayPerRentalReservations as Reservations', array(
+				'local'   => 'id',
+				'foreign' => 'sale_product_id',
+				'cascade' => array('delete')
+			));
+		}
 	}
 
 	public function UpdateTotalsCheckout(){

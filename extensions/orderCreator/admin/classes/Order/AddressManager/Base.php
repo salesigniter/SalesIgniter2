@@ -481,6 +481,14 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 
 		return sysLanguage::get('TEXT_COPY_TO') . $buttons;
 	}
+
+	public function jsonDecode($data){
+		$addresses = json_decode($data, true);
+		foreach($addresses as $Type => $aInfo){
+			$this->addresses[$Type] = new OrderCreatorAddress();
+			$this->addresses[$Type]->jsonDecode($aInfo);
+		}
+	}
 }
 
 ?>

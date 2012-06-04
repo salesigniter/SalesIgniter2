@@ -24,14 +24,14 @@ echo '		' . $html . "\n";
 	$stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/stylesheet.php?' .
 	'layout_id=' . $templateLayoutId .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
-	'&import=' . implode(',', $stylesheets) .
+	'&import[]=' . implode('&import[]=', $stylesheets) .
 	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '');
 
 	$javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/javascript.php?' .
 	'layout_id=' . $templateLayoutId .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
-	'&import=' . implode(',', $javascriptFiles) .
+	'&import[]=' . implode('&import[]=', $javascriptFiles) .
 	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '');
 

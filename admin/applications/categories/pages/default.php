@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 $Qcategories = Doctrine_Query::create()
 	->from('Categories c')
 	->leftJoin('c.CategoriesDescription cd')
@@ -59,4 +71,11 @@ if ($Categories){
 	<div style="margin:5px;">
 		<?php echo $CategoriesGrid->draw();?>
 	</div>
+</div>
+<div id="appTips" title="Did You Know?">
+	<ul>
+		<li>You can hold the ctrl button down to select multiple categories</li>
+		<li>You can press ctrl + a to select all categories</li>
+		<li>You can double click on a row to enter the category and see its subcategories</li>
+	</ul>
 </div>

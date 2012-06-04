@@ -1,17 +1,24 @@
 <?php
 /**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
+/**
  * Address manager for the order class
  *
- * @package Order
- * @author Stephen Walker <stephen@itwebexperts.com>
+ * @package   Order
+ * @author    Stephen Walker <stephen@itwebexperts.com>
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-require(dirname(__FILE__) . '/Address.php');
-
-/**
- * @package Order
- */
 class OrderAddressManager
 {
 
@@ -33,7 +40,8 @@ class OrderAddressManager
 	/**
 	 * @param array|null $addressArray
 	 */
-	public function __construct(array $addressArray = null) {
+	public function __construct(array $addressArray = null)
+	{
 		$this->addressHeadings = array(
 			'customer' => 'Customer Address',
 			'billing'  => 'Billing Address',
@@ -61,14 +69,16 @@ class OrderAddressManager
 	/**
 	 * @param int $val
 	 */
-	public function setOrderId($val) {
-		$this->orderId = (int) $val;
+	public function setOrderId($val)
+	{
+		$this->orderId = (int)$val;
 	}
 
 	/**
 	 * @return OrderAddress[]
 	 */
-	public function getAddresses(){
+	public function getAddresses()
+	{
 		return $this->addresses;
 	}
 
@@ -76,7 +86,8 @@ class OrderAddressManager
 	 * @param $rType
 	 * @return OrderAddress|null
 	 */
-	public function getAddress($rType) {
+	public function getAddress($rType)
+	{
 		$return = null;
 		foreach($this->addresses as $type => $addressObj){
 			if ($type == $rType){
@@ -90,7 +101,8 @@ class OrderAddressManager
 	/**
 	 * @return string
 	 */
-	public function listAll() {
+	public function listAll()
+	{
 		$addressesTable = htmlBase::newElement('table')
 			->setCellPadding(2)
 			->setCellSpacing(0)
@@ -141,7 +153,8 @@ class OrderAddressManager
 	 * @param $type
 	 * @return string
 	 */
-	public function getFormattedAddress($type) {
+	public function getFormattedAddress($type)
+	{
 		$Address = '';
 		if (isset($this->addresses[$type])){
 			$Address = $this->showAddress($this->addresses[$type], true);
@@ -151,10 +164,11 @@ class OrderAddressManager
 
 	/**
 	 * @param OrderAddress $Address
-	 * @param bool $html
+	 * @param bool         $html
 	 * @return mixed
 	 */
-	public function showAddress(OrderAddress $Address, $html = true) {
+	public function showAddress(OrderAddress $Address, $html = true)
+	{
 		if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 			$company = htmlspecialchars($Address->getCompany());
 		}
@@ -178,6 +192,30 @@ class OrderAddressManager
 
 		return $address;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function jsonEncode()
+	{
+		$jsonArray = array();
+		foreach($this->getAddresses() as $Type => $Address){
+			$jsonArray[$Type] = $Address->jsonEncode();
+		}
+		return json_encode($jsonArray);
+	}
+
+	/**
+	 * @param string $data
+	 */
+	public function jsonDecode($data)
+	{
+		$addresses = json_decode($data, true);
+		foreach($addresses as $Type => $aInfo){
+			$this->addresses[$Type] = new OrderAddress();
+			$this->addresses[$Type]->jsonDecode($aInfo);
+		}
+	}
 }
 
-?>
+require(dirname(__FILE__) . '/Address.php');

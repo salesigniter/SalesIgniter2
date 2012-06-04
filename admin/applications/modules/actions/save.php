@@ -1,10 +1,14 @@
 <?php
-if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'orderTotal' || $_GET['moduleType'] == 'orderPayment' || $_GET['moduleType'] == 'orderShipping' || $_GET['moduleType'] == 'purchaseType' || $_GET['moduleType'] == 'productType')){
+if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'accountsReceivable' || $_GET['moduleType'] == 'orderTotal' || $_GET['moduleType'] == 'orderPayment' || $_GET['moduleType'] == 'orderShipping' || $_GET['moduleType'] == 'purchaseType' || $_GET['moduleType'] == 'productType')){
 	$moduleCode = $_GET['module'];
 	$moduleType = $_GET['moduleType'];
 	$modulePath = $_GET['modulePath'];
 
 	switch($moduleType){
+		case 'accountsReceivable':
+			$Module = AccountsReceivableModules::getModule($moduleCode, true);
+			$moduleDir = 'accountsReceivableModules';
+			break;
 		case 'productType':
 			$Module = ProductTypeModules::getModule($moduleCode, true);
 			$moduleDir = 'productTypeModules';

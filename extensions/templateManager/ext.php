@@ -6,9 +6,15 @@ class Extension_templateManager extends ExtensionBase
 
 	private $widgetTemplatePaths = array();
 
+	private $printWidgetPaths = array();
+
+	private $printWidgetTemplatePaths = array();
+
 	public function __construct() {
 		parent::__construct('templateManager');
-		require(__DIR__ . '/widgets/InfoBoxAbstract.php');
+		require(__DIR__ . '/TemplateManagerWidgetBase.php');
+		require(__DIR__ . '/widgets/TemplateManagerWidget.php');
+		require(__DIR__ . '/printWidgets/TemplateManagerPrintWidget.php');
 	}
 
 	public function init() {
@@ -28,7 +34,7 @@ class Extension_templateManager extends ExtensionBase
 				'ID' => 0,
 				'NAME' => array('configuration_value' => 'Fallback'),
 				'DIRECTORY' => array('configuration_value' => 'fallback'),
-				'TEMPLATE_TYPE' => array('configuration_value' => 'desktop'),
+				//'TEMPLATE_TYPE' => array('configuration_value' => 'desktop'),
 				'STYLESHEET_CACHE' => array('configuration_value' => 1),
 				'STYLESHEET_COMPRESSION' => array('configuration_value' => 'min'),
 				'JAVASCRIPT_CACHE' => array('configuration_value' => 1),
@@ -63,7 +69,7 @@ class Extension_templateManager extends ExtensionBase
 		sysConfig::set('TEMPLATE_ID', $TemplateConfig['ID']['template_id'], true);
 		sysConfig::set('TEMPLATE_NAME', $TemplateConfig['NAME']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_DIRECTORY', $TemplateConfig['DIRECTORY']['configuration_value'], true);
-		sysConfig::set('TEMPLATE_TYPE', $TemplateConfig['TEMPLATE_TYPE']['configuration_value'], true);
+		//sysConfig::set('TEMPLATE_TYPE', $TemplateConfig['TEMPLATE_TYPE']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_STYLESHEET_CACHE', $TemplateConfig['STYLESHEET_CACHE']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_STYLESHEET_COMPRESSION', $TemplateConfig['STYLESHEET_COMPRESSION']['configuration_value'], true);
 		sysConfig::set('TEMPLATE_JAVASCRIPT_CACHE', $TemplateConfig['JAVASCRIPT_CACHE']['configuration_value'], true);
@@ -90,391 +96,21 @@ class Extension_templateManager extends ExtensionBase
 			echo strip_tags(sysConfig::get('TEMPLATE_DIRECTORY')) . '<br>';
 			exit('Illegal template directory!');
 		}
-
-		if (APPLICATION_ENVIRONMENT == 'catalog'){
-			$this->loadWidgets($templateDir);
-		}
 	}
 
-	public function loadWidgets($templateDir = false){
-		global $appExtension;
-		$dir = new DirectoryIterator(__DIR__ . '/widgets/');
-		foreach($dir as $dInfo){
-			if ($dInfo->isDot() || $dInfo->isFile()){
-				continue;
-			}
-			$this->widgetPaths[$dInfo->getBasename()] = $dInfo->getPathname();
+	public function getLayoutBuilder(){
+		if (!class_exists('TemplateManagerLayoutBuilder')){
+			require(__DIR__ . '/classes/layoutBuilder.php');
 		}
-
-		$dir = new DirectoryIterator(__DIR__ . '/widgetTemplates/');
-		foreach($dir as $dInfo){
-			if ($dInfo->isDot() || $dInfo->isDir()){
-				continue;
-			}
-			$this->widgetTemplatePaths[$dInfo->getBasename('.tpl')] = $dInfo->getPathname();
-		}
-
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
-		foreach($dir as $dInfo){
-			if (
-				$dInfo->isDot() ||
-				$dInfo->isFile() ||
-				$appExtension->isInstalled($dInfo->getBasename()) === false
-			){
-				continue;
-			}
-
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/' . $this->getExtensionKey() . '/widgets')){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/' . $this->getExtensionKey() . '/widgets/');
-				foreach($subDir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isFile()){
-						continue;
-					}
-					$this->widgetPaths[$sdInfo->getBasename()] = $sdInfo->getPathname();
-				}
-			}
-
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/' . $this->getExtensionKey() . '/widgetTemplates')){
-				$dir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/' . $this->getExtensionKey() . '/widgetTemplates/');
-				foreach($dir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isDir()){
-						continue;
-					}
-					$this->widgetTemplatePaths[$sdInfo->getBasename('.tpl')] = $sdInfo->getPathname();
-				}
-			}
-		}
-
-		if ($templateDir !== false && is_dir(sysConfig::getDirFsCatalog() . 'templates/' . $templateDir)){
-			if (is_dir(sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/widgets/')){
-				$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/widgets/');
-				foreach($dir as $dInfo){
-					if ($dInfo->isDot() || $dInfo->isFile()){
-						continue;
-					}
-					$this->widgetPaths[$dInfo->getBasename()] = $dInfo->getPathname();
-				}
-			}
-
-			if (is_dir(sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/widgetTemplates/')){
-				$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/widgetTemplates/');
-				foreach($dir as $dInfo){
-					if ($dInfo->isDot() || $dInfo->isDir()){
-						continue;
-					}
-					$this->widgetTemplatePaths[$dInfo->getBasename('.tpl')] = $dInfo->getPathname();
-				}
-			}
-		}
-		ksort($this->widgetPaths);
-		ksort($this->widgetTemplatePaths);
+		return new TemplateManagerLayoutBuilder();
 	}
 
-	public function getWidgetPaths(){
-		return $this->widgetPaths;
-	}
-
-	public function getWidgetTemplatePaths(){
-		return $this->widgetTemplatePaths;
-	}
-
-	private function loadWidget($code){
-		if (isset($this->widgetPaths[$code])){
-			if (class_exists('InfoBox' . ucfirst($code)) === false){
-				require($this->widgetPaths[$code] . '/infobox.php');
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public function getWidget($code){
-		if ($this->loadWidget($code) !== false){
-			$className = 'InfoBox' . ucfirst($code);
-			return new $className;
-		}
-		return false;
-	}
-
-	public function buildLayout(&$Construct, $layoutId) {
-		$Profile = SES_Profiler::newProfile('templateLoad', true);
-		$Containers = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from template_manager_layouts_containers where layout_id = "' . $layoutId . '" and parent_id = 0 order by sort_order');
-		if (sizeof($Containers) > 0){
-			foreach($Containers as $cInfo){
-				$MainEl = htmlBase::newElement('div')
-					->addClass('container');
-
-				if ($cInfo['link_id'] > 0){
-					$QlinkId = Doctrine_Manager::getInstance()
-						->getCurrentConnection()
-						->fetchAssoc('select container_id from template_manager_container_links where link_id = "' . $cInfo['link_id'] . '"');
-					$containerId = $QlinkId[0]['container_id'];
-				}else{
-					$containerId = $cInfo['container_id'];
-				}
-
-				if (($cfgInfo = $this->getConfigInfo('container', $containerId)) !== false){
-					$this->addInputs($MainEl, $cfgInfo);
-				}
-
-				if (($cssInfo = $this->getStyleInfo('container', $containerId)) !== false){
-					$this->addStyles($MainEl, $cssInfo);
-				}
-
-				if (($Columns = $this->getContainerColumns($containerId)) !== false){
-					$this->processContainerColumns($MainEl, $Columns);
-				}
-
-				if (($Children = $this->getContainerChildren($containerId)) !== false){
-					$this->processContainerChildren($MainEl, $Children);
-				}
-				$Construct->append($MainEl);
-			}
-		}
-		$Profile->end();
-	}
-
-	public function getConfigInfo($type, $id) {
-		if ($type == 'layout'){
-			$idCol = 'layout_id';
-			$table = 'template_manager_layouts_configuration';
-		}
-		elseif ($type == 'container'){
-			$idCol = 'container_id';
-			$table = 'template_manager_layouts_containers_configuration';
-		}
-		elseif ($type == 'column') {
-			$idCol = 'column_id';
-			$table = 'template_manager_layouts_columns_configuration';
-		}
-		elseif ($type == 'widget') {
-			$idCol = 'widget_id';
-			$table = 'template_manager_layouts_widgets_configuration';
-		}
-
-		$cfgInfo = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from ' . $table . ' where ' . $idCol . ' = "' . $id . '"');
-		if (sizeof($ResultSet) > 0){
-			$cfgInfo = array();
-			foreach($ResultSet as $Result){
-				$cfgInfo[] = $Result;
-			}
-		}
-		return $cfgInfo;
-	}
-
-	public function getStyleInfo($type, $id) {
-		if ($type == 'layout'){
-			$idCol = 'layout_id';
-			$table = 'template_manager_layouts_styles';
-		}
-		elseif ($type == 'container'){
-			$idCol = 'container_id';
-			$table = 'template_manager_layouts_containers_styles';
-		}
-		elseif ($type == 'column') {
-			$idCol = 'column_id';
-			$table = 'template_manager_layouts_columns_styles';
-		}
-		elseif ($type == 'widget') {
-			$idCol = 'widget_id';
-			$table = 'template_manager_layouts_widgets_styles';
-		}
-
-		$cssInfo = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from ' . $table . ' where ' . $idCol . ' = "' . $id . '"');
-		if (sizeof($ResultSet) > 0){
-			$cssInfo = array();
-			foreach($ResultSet as $Result){
-				$cssInfo[] = $Result;
-			}
-		}
-		return $cssInfo;
-	}
-
-	public function getContainerColumns($id) {
-		$Columns = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from template_manager_layouts_columns where container_id = "' . $id . '" and parent_id = 0 order by sort_order');
-		if (sizeof($ResultSet) > 0){
-			$Columns = array();
-			foreach($ResultSet as $Result){
-				$Columns[] = $Result;
-			}
-		}
-		return $Columns;
-	}
-
-	public  function getColumnChildren($id){
-		$Columns = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from template_manager_layouts_columns where parent_id = "' . $id . '" order by sort_order');
-		if (sizeof($ResultSet) > 0){
-			$Columns = array();
-			foreach($ResultSet as $Result){
-				$Columns[] = $Result;
-			}
-		}
-		return $Columns;
-	}
-
-	public function getContainerChildren($id) {
-		$Children = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from template_manager_layouts_containers where parent_id = "' . $id . '" order by sort_order');
-		if (sizeof($ResultSet) > 0){
-			$Children = array();
-			foreach($ResultSet as $Result){
-				$Children[] = $Result;
-			}
-		}
-		return $Children;
-	}
-
-	public function getColumnWidgets($id) {
-		$Widgets = false;
-		$ResultSet = Doctrine_Manager::getInstance()
-			->getCurrentConnection()
-			->fetchAssoc('select * from template_manager_layouts_widgets where column_id = "' . $id . '" order by sort_order');
-		if (sizeof($ResultSet) > 0){
-			$Widgets = array();
-			foreach($ResultSet as $Result){
-				$Widgets[] = $Result;
-			}
-		}
-		return $Widgets;
-	}
-
-	private function addStyles($El, $Styles) {
-		if ($El->hasAttr('id') && $El->attr('id') != ''){
-			return;
-		}
-
-		$css = array();
-		foreach($Styles as $sInfo){
-			if (substr($sInfo['definition_value'], 0, 1) == '{' || substr($sInfo['definition_value'], 0, 1) == '['){
-				$css[$sInfo['definition_key']] = json_decode($sInfo['definition_value']);
-			}
-			else {
-				$css[$sInfo['definition_key']] = $sInfo['definition_value'];
-			}
-			$El->css($sInfo['definition_key'], $css[$sInfo['definition_key']]);
-		}
-	}
-
-	private function addInputs($El, $Config) {
-		foreach($Config as $cInfo){
-			if ($cInfo['configuration_key'] != 'id'){
-				continue;
-			}
-
-			$El->attr('id', $cInfo['configuration_value']);
-		}
-	}
-
-	private function processContainerChildren(&$El, $ChildArr) {
-		foreach($ChildArr as $cInfo){
-			$NewEl = htmlBase::newElement('div')
-				->addClass('container');
-
-			if (($cfgInfo = $this->getConfigInfo('container', $cInfo['container_id'])) !== false){
-				$this->addInputs($NewEl, $cfgInfo);
-			}
-
-			if (($cssInfo = $this->getStyleInfo('container', $cInfo['container_id'])) !== false){
-				$this->addStyles($NewEl, $cssInfo);
-			}
-
-			$El->append($NewEl);
-
-			if (($Columns = $this->getContainerColumns($cInfo['container_id'])) !== false){
-				$this->processContainerColumns($NewEl, $Columns);
-			}
-
-			if (($Children = $this->getContainerChildren($cInfo['container_id'])) !== false){
-				$this->processContainerChildren($NewEl, $Children);
-			}
-		}
-	}
-
-	private function processContainerColumns(&$Container, $ColArr) {
-		foreach($ColArr as $cInfo){
-			$ColEl = htmlBase::newElement('div')
-				->addClass('column');
-
-			if (($cfgInfo = $this->getConfigInfo('column', $cInfo['column_id'])) !== false){
-				$this->addInputs($ColEl, $cfgInfo);
-			}
-
-			if (($cssInfo = $this->getStyleInfo('column', $cInfo['column_id'])) !== false){
-				$this->addStyles($ColEl, $cssInfo);
-			}
-
-			if (($Columns = $this->getColumnChildren($cInfo['column_id'])) !== false){
-				$this->processContainerColumns($ColEl, $Columns);
-			}
-
-			$WidgetHtml = '';
-			if (($Widgets = $this->getColumnWidgets($cInfo['column_id'])) !== false){
-				foreach($Widgets as $wInfo){
-					$WidgetEl = htmlBase::newElement('div')
-						->addClass('widget')
-						->setId('widget_' . $wInfo['widget_id']);
-
-					$WidgetSettings = '';
-					if (($cfgInfo = $this->getConfigInfo('widget', $wInfo['widget_id'])) !== false){
-						$WidgetInputs = array();
-						foreach($cfgInfo as $cfInfo){
-							if ($cfInfo['configuration_key'] == 'widget_settings'){
-								$WidgetSettings = json_decode(utf8_encode($cfInfo['configuration_value']));
-							}else{
-								$WidgetInputs[] = $cfInfo;
-							}
-						}
-
-						if (!empty($WidgetInputs)){
-							//$this->addInputs($WidgetEl, $WidgetInputs);
-						}
-					}
-
-					if (($widgetCssInfo = $this->getStyleInfo('widget', $wInfo['widget_id'])) !== false){
-						$this->addStyles($WidgetEl, $widgetCssInfo);
-					}
-
-					$WidgetClass = $this->getWidget($wInfo['identifier']);
-					if ($WidgetClass !== false){
-						if (isset($WidgetSettings->template_file) && !empty($WidgetSettings->template_file)){
-							$WidgetClass->setBoxTemplateFile($WidgetSettings->template_file);
-						}
-						if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
-							$WidgetClass->setBoxId($WidgetSettings->id);
-						}
-						if (isset($WidgetSettings->widget_title) && !empty($WidgetSettings->widget_title)){
-							$WidgetClass->setBoxHeading($WidgetSettings->widget_title->{Session::get('languages_id')});
-						}
-
-						$WidgetClass->setWidgetProperties($WidgetSettings);
-
-						$WidgetEl->html($WidgetClass->show());
-						if ($WidgetEl->html() != ''){
-							$WidgetHtml .= $WidgetEl->draw();
-						}
-					}
-				}
-			}
-			$ColEl->html($WidgetHtml);
-
-			$Container->append($ColEl);
-		}
+	public function buildLayout(&$Construct, $layoutId){
+		global $Editor;
+		$LayoutBuilder = $this->getLayoutBuilder();
+		$LayoutBuilder->setLayoutId($layoutId);
+		$LayoutBuilder->addVar('Sale', $Editor);
+		$LayoutBuilder->build($Construct);
 	}
 
 	public function parseItemLink($Data){
@@ -665,7 +301,7 @@ function buildLinearGradient($deg, $colorStops, $images = false, &$styleObj = fa
 			);
 		}
 
-		$cssData['background-image'][] = 'url(extensions/templateManager/catalog/globalFiles/IE8_gradient.php?width=10&height=100&angle=' . $deg . '&colorStops=' . urlencode(json_encode($stops)) . ')';
+		$cssData['background-image'][] = 'url(' . sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/IE8_gradient.php?width=10&height=100&angle=' . $deg . '&colorStops=' . urlencode(json_encode($stops)) . ')';
 		$cssData['-jquery'][] = 'if ($(this).height() > 10){ $(this).css(\'background-image\', \'url(extensions/templateManager/catalog/globalFiles/IE8_gradient.php?width=\' + $(this).outerWidth(true) + \'&height=\' + $(this).outerHeight(true) + \'&angle=' . $deg . '&colorStops=' . urlencode(json_encode($stops)) . ')\'); }';
 		$cssData['background-repeat'][] = 'repeat-x';
 		$cssData['background-attachment'][] = (isset($iInfo['attachment']) ? $iInfo['attachment'] : 'scroll');

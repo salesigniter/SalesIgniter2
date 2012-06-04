@@ -29,7 +29,11 @@ if (!empty($action)){
 	EventManager::notify('ApplicationActionsBeforeExecute', $action);
 
 	if ($action == 'getActionWindow'){
-		require(sysConfig::getDirFsAdmin() . 'applications/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+		if (isset($_GET['appExt'])){
+			require(sysConfig::getDirFsCatalog() . 'extensions/' . $_GET['appExt'] . '/admin/base_app/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+		}else{
+			require(sysConfig::getDirFsAdmin() . 'applications/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+		}
 	}else{
 		$actionFiles = $App->getActionFiles($action);
 		foreach($actionFiles as $file){

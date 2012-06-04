@@ -1,5 +1,5 @@
 <?php
-$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find($_GET['tID']);
+$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find($_GET['template_id']);
 
 $Template->Configuration['NAME']->configuration_value = $_POST['templateName'];
 //$Template->Configuration['TEMPLATE_TYPE']->configuration_value = $_POST['templateType'];

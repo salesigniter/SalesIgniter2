@@ -9,11 +9,13 @@ if ($Widget !== false){
 	);
 
 	$WidgetPreview = false;
-	if (file_exists($Widget->getPath() . 'actions/saveInfobox.php')){
-		require($Widget->getPath() . 'actions/saveInfobox.php');
+	if (file_exists($Widget->getPath() . 'actions/saveWidget.php')){
+		require($Widget->getPath() . 'actions/saveWidget.php');
 
 		if (method_exists($Widget, 'showLayoutPreview')){
-			$WidgetPreview = $Widget->showLayoutPreview(json_decode(json_encode($WidgetProperties)));
+			$WidgetPreview = $Widget->showLayoutPreview(array(
+				'settings' => json_decode(json_encode($WidgetProperties))
+			));
 		}
 	}
 	$success = true;

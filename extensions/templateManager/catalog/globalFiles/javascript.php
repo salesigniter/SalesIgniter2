@@ -17,10 +17,10 @@ else {
 }
 $import = '';
 if (isset($_GET['import']) && !empty($_GET['import'])){
-	$import = $_GET['import'];
+	$import = implode(',', $_GET['import']);
 }
 $cacheKey = $templateDir . '-' . md5($_SERVER['HTTP_USER_AGENT'] . '-' . $layoutId . '-' . $import);
-$noCache = isset($_GET['noCache']);
+$noCache = /*isset($_GET['noCache'])*/true;
 $noMin = isset($_GET['noMin']);
 
 require('includes/classes/system_cache.php');
@@ -36,7 +36,7 @@ else {
 	$sourceInfo = '';
 	function getSourceFile($fileName, $filePath){
 		global $sourceInfo;
-		if (isset($_GET['noMin'])){
+		if (isset($_GET['noMin']) || $fileName == 'ckeditor.js'){
 			return $filePath . $fileName;
 		}
 		if (file_exists($filePath . $fileName)){
@@ -110,6 +110,7 @@ else {
 		getSourceFile('jquery.effects.slide.js', $jqueryUiPath),
 		getSourceFile('jquery.effects.transfer.js', $jqueryUiPath)
 	);
+	$sources[] = getSourceFile('functions.js', sysConfig::getDirFsCatalog() . 'includes/javascript/');
 
 	if ($env == 'admin'){
 		$sources[] = getSourceFile('jquery.filemanager.js', sysConfig::getDirFsCatalog() . 'ext/jQuery/external/filemanager/');
@@ -118,12 +119,11 @@ else {
 		$sources[] = getSourceFile('general.js', sysConfig::getDirFsAdmin() . 'includes/');
 	}
 	else {
-		$sources[] = getSourceFile('functions.js', sysConfig::getDirFsCatalog() . 'includes/javascript/');
 		$sources[] = getSourceFile('general.js', sysConfig::getDirFsCatalog() . 'includes/javascript/');
 	}
 
-	if (isset($_GET['import']) && !empty($_GET['import'])){
-		foreach(explode(',', $_GET['import']) as $filePath){
+	if (!empty($import)){
+		foreach(explode(',', $import) as $filePath){
 			if (substr($filePath, -3) != '.js'){
 				continue;
 			}
@@ -169,12 +169,15 @@ else {
 	ob_start();
 	if ($env == 'catalog'){
 		$TemplateManager = $appExtension->getExtension('templateManager');
-		$TemplateManager->loadWidgets($templateDir);
+		$LayoutBuilder = $TemplateManager->getLayoutBuilder();
+		$LayoutBuilder->setLayoutId($layoutId);
+		$LayoutBuilder->loadWidgets();
+
 		$boxJavascriptsEntered = array();
 		$boxJavascriptSourcesEntered = array();
 		$infoBoxSources = array();
 		function parseContainer($Container) {
-			global $TemplateManager, $boxJavascriptsEntered, $boxJavascriptSourcesEntered, $infoBoxSources;
+			global $LayoutBuilder, $boxJavascriptsEntered, $boxJavascriptSourcesEntered, $infoBoxSources;
 
 			if (isset($Container['widget_id'])){
 				$typeId = $Container['widget_id'];
@@ -189,28 +192,28 @@ else {
 				$type = 'container';
 			}
 
-			if ($type == 'container' && (($Containers = $TemplateManager->getContainerChildren($typeId)) !== false)){
+			if ($type == 'container' && (($Containers = $LayoutBuilder->getContainerChildren($typeId)) !== false)){
 				foreach($Containers as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'container' && (($Columns = $TemplateManager->getContainerColumns($typeId)) !== false)) {
+			elseif ($type == 'container' && (($Columns = $LayoutBuilder->getContainerColumns($typeId)) !== false)) {
 				foreach($Columns as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'column' && (($Columns = $TemplateManager->getColumnChildren($typeId)) !== false)) {
+			elseif ($type == 'column' && (($Columns = $LayoutBuilder->getColumnChildren($typeId)) !== false)) {
 				foreach($Columns as $ChildObj){
 					parseContainer($ChildObj);
 				}
 			}
-			elseif ($type == 'column' && (($Widgets = $TemplateManager->getColumnWidgets($typeId)) !== false)) {
+			elseif ($type == 'column' && (($Widgets = $LayoutBuilder->getColumnWidgets($typeId)) !== false)) {
 				foreach($Widgets as $wInfo){
 					parseContainer($wInfo);
 				}
 			}
 			elseif ($type == 'widget') {
-				if (($Configuration = $TemplateManager->getConfigInfo($type, $typeId)) !== false){
+				if (($Configuration = $LayoutBuilder->getConfigInfo($type, $typeId)) !== false){
 					foreach($Configuration as $config){
 						if ($config['configuration_key'] == 'widget_settings'){
 							$WidgetSettings = json_decode($config['configuration_value']);
@@ -218,21 +221,21 @@ else {
 						}
 					}
 
-					$WidgetClass = $TemplateManager->getWidget($Container['identifier']);
+					$WidgetClass = $LayoutBuilder->getWidget($Container['identifier']);
 					if ($WidgetClass !== false){
 						if (isset($WidgetSettings->id) && !empty($WidgetSettings->id)){
 							$WidgetClass->setBoxId($WidgetSettings->id);
 						}
 						$WidgetClass->setWidgetProperties($WidgetSettings);
 						if (method_exists($WidgetClass, 'buildJavascript')){
-							if ($WidgetClass->buildJavascriptMultiple === true || !in_array($WidgetClass->getBoxCode(), $boxJavascriptsEntered)){
+							if ($WidgetClass->buildJavascriptMultiple === true || !in_array($WidgetClass->getCode(), $boxJavascriptsEntered)){
 								echo $WidgetClass->buildJavascript();
 
-								$boxJavascriptsEntered[] = $WidgetClass->getBoxCode();
+								$boxJavascriptsEntered[] = $WidgetClass->getCode();
 							}
 						}
 						if (method_exists($WidgetClass, 'getJavascriptSources')){
-							if (!in_array($WidgetClass->getBoxCode(), $boxJavascriptSourcesEntered)){
+							if (!in_array($WidgetClass->getCode(), $boxJavascriptSourcesEntered)){
 								$infoBoxJsFiles = $WidgetClass->getJavascriptSources();
 								foreach($infoBoxJsFiles as $infoBoxJsFile){
 									if (file_exists($infoBoxJsFile)){
@@ -240,7 +243,7 @@ else {
 									}
 								}
 
-								$boxJavascriptSourcesEntered[] = $WidgetClass->getBoxCode();
+								$boxJavascriptSourcesEntered[] = $WidgetClass->getCode();
 							}
 						}
 					}
@@ -306,7 +309,7 @@ else {
 
 	$Result = array(
 		'headers' => array(
-			'Content-Type'     => 'application/x-javascript'
+			'Content-Type'     => 'application/x-javascript; charset=utf-8'
 		)
 	);
 	if ($noCache === false && sysConfig::get('TEMPLATE_JAVASCRIPT_CACHE') == 1){

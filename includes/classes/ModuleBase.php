@@ -75,7 +75,7 @@ class ModuleBase extends MI_Base
 			$this->setRelativePath(str_replace(sysConfig::getDirFsCatalog(), '', $moduleDir));
 		}
 
-		$this->moduleInfo = simplexml_load_file(
+		$this->moduleInfo = (array) simplexml_load_file(
 			$this->getPath() . 'data/info.xml',
 			'SimpleXMLElement',
 			LIBXML_NOCDATA
@@ -96,11 +96,11 @@ class ModuleBase extends MI_Base
 			Doctrine_Core::loadModels(sysConfig::getDirFsCatalog() . 'includes/modules/' . $this->getModuleType() . 'Modules/' . $this->getCode() . '/Doctrine/', Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
 		}
 
-		$this->setTitle(sysLanguage::get((string)$this->moduleInfo->title_key));
-		$this->setDescription(sysLanguage::get((string)$this->moduleInfo->description_key));
+		$this->setTitle(sysLanguage::get((string)$this->moduleInfo['title_key']));
+		$this->setDescription(sysLanguage::get((string)$this->moduleInfo['description_key']));
 
-		if ($this->configExists((string)$this->moduleInfo->status_key)){
-			$this->setEnabled(($this->getConfigData((string)$this->moduleInfo->status_key) == 'True' ? true : false));
+		if ($this->configExists((string)$this->moduleInfo['status_key'])){
+			$this->setEnabled(($this->getConfigData((string)$this->moduleInfo['status_key']) == 'True' ? true : false));
 		}
 
 		if ($forceEnable === true){
@@ -121,8 +121,8 @@ class ModuleBase extends MI_Base
 	 * @return null|string
 	 */
 	public function getModuleInfo($k) {
-		if (isset($this->moduleInfo->$k)){
-			return (string)$this->moduleInfo->$k;
+		if (isset($this->moduleInfo[$k])){
+			return (string)$this->moduleInfo[$k];
 		}
 		return null;
 	}

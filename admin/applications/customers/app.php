@@ -3,7 +3,6 @@ if (isset($_GET['customer_id'])){
 	$cID = $_GET['customer_id'];
 }
 
-require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
 DataManagementModules::loadModule('customers');
 $ExportModule = DataManagementModules::getModule('customers');
 

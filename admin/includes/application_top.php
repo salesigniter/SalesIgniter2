@@ -20,7 +20,7 @@ function onShutdown() {
 	// here we can do any last operations
 	// before the script is complete.
 
-	if ($ExceptionManager->size() > 0){
+	if (is_object($ExceptionManager) && $ExceptionManager->size() > 0){
 		echo '<br /><div style="width:98%;margin-right:auto;margin-left:auto;">' . $ExceptionManager->output() . '</div>';
 	}
 }
@@ -44,6 +44,7 @@ require((isset($basePath) ? $basePath : '') . '../includes/classes/ModuleConfigR
 require((isset($basePath) ? $basePath : '') . '../includes/classes/ExtensionConfigReader.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/system_configuration.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesDateTime.php');
+require((isset($basePath) ? $basePath : '') . '../includes/classes/SesBrowserDetect.php');
 
 /*
  * Load system path/database settings
@@ -93,6 +94,7 @@ $manager->setCurrentConnection('mainConnection');
 
 // set application wide parameters
 sysConfig::load();
+SesBrowserDetect::loadBrowserInfo();
 
 // Define how do we update currency exchange rates
 // Possible values are 'oanda' 'xe' or ''
@@ -114,6 +116,7 @@ set_exception_handler(array($ExceptionManager, 'add'));
 
 // define our general functions used application-wide
 require(sysConfig::getDirFsAdmin() . 'includes/classes/navigation_history.php');
+require(sysConfig::getDirFsCatalog() . 'includes/functions/global.php');
 require(sysConfig::getDirFsAdmin() . 'includes/functions/general.php');
 require(sysConfig::getDirFsAdmin() . 'includes/functions/html_output.php');
 
@@ -140,7 +143,9 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/eventManager/Manager.ph
 require(sysConfig::getDirFsCatalog() . 'includes/classes/system_modules_loader.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ModuleInstaller.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ModuleBase.php');
-require(sysConfig::getDirFsCatalog() . 'includes/modules/pdfinfoboxes/PDFInfoBoxAbstract.php');
+require(sysConfig::getDirFsCatalog() . 'includes/classes/AccountsReceivable.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/accountsReceivableModules/modules.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderShippingModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderPaymentModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderTotalModules/modules.php');
@@ -168,7 +173,9 @@ $appExtension->loadExtensions();
 
 $App->loadApplication((isset($_GET['app']) ? $_GET['app'] : ''), (isset($_GET['appPage']) ? $_GET['appPage'] : ''));
 if ($App->isValid() === false) {
-	die('No valid application found.');
+	header('HTTP/1.0 404 Not Found');
+
+	itwExit();
 }
 $appExtension->initApplicationPlugins();
 

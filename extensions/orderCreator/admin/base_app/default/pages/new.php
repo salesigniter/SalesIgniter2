@@ -1,3 +1,17 @@
+<?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
+?>
 <style>
 	.ui-datepicker-group {
 		margin : .3em;
@@ -33,62 +47,123 @@
 		background : #CACEE6;
 	}
 </style>
+<script>
+	var autoSaveLength;
+	var autoSaveInterval;
+	var autoSaveNoticeInterval;
+	var autoSaveNoticeStart;
+	var autoSaveNoticeCount = 0;
+	function setAutoSave(seconds){
+		autoSaveLength = parseInt(seconds) * 1000;
+		if (autoSaveLength > 60000){
+			autoSaveNoticeStart = (autoSaveLength - 60000);
+		}else{
+			autoSaveNoticeStart = 0;
+		}
+		autoSaveInterval = setInterval(function (){
+			alert('Auto Saved');
+			autoSaveNoticeCount = 0;
+		}, autoSaveLength);
+
+		autoSaveNoticeInterval = setInterval(function (){
+			autoSaveNoticeCount += 1000;
+			if (autoSaveNoticeCount >= autoSaveNoticeStart){
+				$('.nextSave').html((autoSaveLength - autoSaveNoticeCount) / 1000);
+			}
+		}, 1000);
+	}
+
+	function clearAutoSave(){
+		window.clearInterval(autoSaveInterval);
+		window.clearInterval(autoSaveNoticeInterval);
+		autoSaveNoticeCount = 0;
+	}
+
+	$(document).ready(function (){
+		$('input[name=autosave]').click(function (){
+			if (this.checked){
+				setAutoSave($('select[name=autosavelength]').val());
+			}else{
+				clearAutoSave();
+			}
+		});
+
+		$('select[name=autosavelength]').change(function (){
+			if ($('input[name=autosave]:checked').size() > 0){
+				clearAutoSave();
+				setAutoSave($(this).val());
+			}
+		});
+
+		$('.loadRevision').change(function (){
+			js_redirect(js_app_link(js_get_all_get_params() + '&rev=' + $(this).val()));
+		});
+	});
+</script>
 <form name="new_order" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=saveOrder');?>" method="post">
-<div style="text-align:right"><?php
-	$saveButton = htmlBase::newElement('button')->usePreset('save')
-		->setType('submit')->setName('saveOrder');
-	$estimateButton = htmlBase::newElement('button')->usePreset('save')
-		->setType('submit')->setName('estimateOrder')
-		->attr('toolTip', 'This saves the enquiry details <br>but does NOT reserve any bikes.<br>You can change this later');
-	$emailButton = htmlBase::newElement('button')->usePreset('save')
-		->setType('submit')->setName('emailEstimate')->setId('emailEstimate');
-	$EmailInput = htmlBase::newElement('input')
-		->setName('emailInput')
-		->setId('emailInput')
-		->setLabel('Email:')
-		->setLabelPosition('before');
-
-	if (isset($_GET['oID'])){
-		if (!isset($_GET['isEstimate'])){
-			$saveButton->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_ORDER'));
-			$estimateButton->disable();
+<div class="buttonContainer ui-widget ui-widget-content ui-corner-all">
+	<div class="column"><div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Auto Save</div>
+		<div>
+			Turn On: <input type="checkbox" name="autosave" value="1"><br>
+			Interval: <select name="autosavelength">
+			<option value="30">30 Sec</option>
+			<option value="60">1 Min</option>
+			<option value="300">5 Min</option>
+		</select>
+		</div>
+		<hr>
+		<div>
+			Next Save In <span class="nextSave">N/A</span> Sec
+		</div>
+		<?php
+		if ($Editor->hasSaleModule() === true){
+			$SaleModule = $Editor->getSaleModule();
+			echo '<hr>' . $SaleModule->getSaveButton();
 		}
-		else {
-			$saveButton->setText(sysLanguage::get('TEXT_BUTTON_SAVE_AS_ORDER'));
-			$estimateButton->setText(sysLanguage::get('TEXT_BUTTON_UPDATE_ESTIMATE'));
-			$emailButton->setText(sysLanguage::get('TEXT_BUTTON_SEND_ESTIMATE'));
+		?>
+	</div>
+	<?php
+	if ($Editor->hasSaleModule() === true){
+		$SaleModule = $Editor->getSaleModule();
+		if ($SaleModule->canConvert()){
+			?>
+			<div class="column">
+				<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Convert To</div>
+				<?php echo $SaleModule->getConvertButtons();?>
+			</div>
+			<?php
 		}
-	}
-	else {
-		$saveButton->setText(sysLanguage::get('TEXT_BUTTON_SAVE_AS_ORDER'));
-		$estimateButton->setText(sysLanguage::get('TEXT_BUTTON_SAVE_AS_ESTIMATE'));
-	}
-
-
-	$cancelButton = htmlBase::newElement('button')->usePreset('cancel')
-		->setHref(itw_app_link(null, 'orders', 'default'));
-
-	$ResReportButton = htmlBase::newElement('button')
-		->addClass('resReports')
-		->setText('Reservation Reports')
-		->setHref(itw_app_link(null, 'orders', 'default'));
-
-	$infobox = htmlBase::newElement('div');
-	$infobox /*->append($saveButton)->append($estimateButton)*/
-		->append($ResReportButton)->append($cancelButton);
-
-	EventManager::notify('AdminOrderCreatorAddButton', &$infobox);
-
-	if (isset($_GET['oID'])){
-		if (isset($_GET['isEstimate'])){
-			$br = htmlBase::newElement('br');
-			$infobox->append($br)->append($EmailInput)->append($emailButton);
+		?>
+		<div class="column">
+			<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Print</div>
+			<?php echo $SaleModule->getPrintButtons();?>
+		</div>
+		<?php
+		if ($SaleModule->hasRevisions() === true){
+			?>
+			<div class="column">
+				<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Load A Revision</div>
+				Current Loaded Revision: <?php echo $SaleModule->getCurrentRevision(); ?>
+				<hr>
+				<?php echo $SaleModule->getRevisionSelect(); ?>
+			</div>
+			<?php
 		}
+	}else{
+		?>
+		<div class="column">
+			<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Save As</div>
+		<hr>
+		<?php
+		foreach(AccountsReceivableModules::getModules() as $Module){
+			echo $Module->getSaveAsButton();
+		}
+		?>
+		</div>
+		<?php
 	}
-
-	echo $infobox->draw();
-
-	?></div>
+	?>
+</div>
 <br />
 <span style="font-size:2em;color:red;line-height:1em;">To add products to order, first enter customer details and click update customer</span>
 
@@ -96,7 +171,7 @@
 	<div class="customerSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_CUSTOMER_INFORMATION');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/customerDetails.php')){
+		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/customerDetails.php')){
 			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/customerDetails.php';
 		}
 		else {
@@ -214,11 +289,6 @@
 		?>
 	</div>
 </div>
-<br />
-
-<div style="text-align:right"><?php
-	echo $saveButton->draw() . $estimateButton->draw() . $cancelButton->draw() . '<br>';
-	?></div>
 </form>
 
 <script type="text/javascript">

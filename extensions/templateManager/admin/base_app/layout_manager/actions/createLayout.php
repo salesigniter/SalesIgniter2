@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 function parseElement(&$el, &$parent) {
 	global $Layout;
 
@@ -79,12 +91,12 @@ function parseElement(&$el, &$parent) {
 $TemplateLayouts = Doctrine_Core::getTable('TemplateManagerLayouts');
 $TemplatePages = Doctrine_Core::getTable('TemplatePages');
 
-if (isset($_GET['lID'])){
-	$Layout = $TemplateLayouts->find((int)$_GET['lID']);
+if (isset($_GET['layout_id'])){
+	$Layout = $TemplateLayouts->find((int)$_GET['layout_id']);
 }
 else {
 	$Layout = $TemplateLayouts->create();
-	$Layout->template_id = (int)$_GET['tID'];
+	$Layout->template_id = (int)$_GET['template_id'];
 }
 $Layout->layout_name = $_POST['layoutName'];
 $Layout->layout_type = $_POST['layoutType'];
@@ -93,14 +105,18 @@ $Layout->page_type = $_POST['pageType'];
 if (isset($_POST['layout_template'])){
 	$LayoutTplDir = sysConfig::getDirFsCatalog() . 'extensions/templateManager/layoutTemplates/' . $_POST['layout_template'] . '/';
 	$TemplateLayoutSource = file_get_contents($LayoutTplDir . 'layout_content_source.php');
-	if ($Layout->layout_type == 'desktop'){
-		$layoutWidth = '960';
-	}
-	elseif ($Layout->layout_type == 'smartphone') {
-		$layoutWidth = '480';
-	}
-	elseif ($Layout->layout_type == 'tablet') {
-		$layoutWidth = '960';
+	if ($Layout->page_type == 'print' || $Layout->page_type == 'email'){
+		$layoutWidth = '800';
+	}elseif ($Layout->page_type == 'template' || $Layout->page_type == 'page'){
+		if ($Layout->layout_type == 'desktop'){
+			$layoutWidth = '960';
+		}
+		elseif ($Layout->layout_type == 'smartphone') {
+			$layoutWidth = '480';
+		}
+		elseif ($Layout->layout_type == 'tablet') {
+			$layoutWidth = '960';
+		}
 	}
 	$TemplateLayoutSource = str_replace('{$LAYOUT_WIDTH}', $layoutWidth, $TemplateLayoutSource);
 
@@ -137,10 +153,29 @@ foreach($Reset as $rInfo){
 }
 
 if ($Layout->page_type == 'page'){
-	$Layout->app_name = $_POST['appName'];
-	$Layout->app_page_name = $_POST['appPageName'];
-	$Layout->app_page_title = $_POST['appPageTitle'];
-	$Layout->app_page_sub_title = $_POST['appPageSubTitle'];
+	$Layout->layout_settings = json_encode(array(
+		'appName' => $_POST['appName'],
+		'appPageName' => $_POST['appPageName'],
+		'appPageTitle' => array(
+			Session::get('languages_id') => $_POST['appPageTitle']
+		),
+		'appPageSubTitle' => array(
+			Session::get('languages_id') => $_POST['appPageSubTitle']
+		)
+	));
+	$Layout->save();
+}
+elseif ($Layout->page_type == 'print'){
+	$Layout->layout_settings = json_encode(array(
+		'layoutOrientation' => $_POST['layoutOrientation'],
+		'printModules' => $_POST['print_modules']
+	));
+	$Layout->save();
+}
+elseif ($Layout->page_type == 'email'){
+	$Layout->layout_settings = json_encode(array(
+		'emailTemplates' => $_POST['email_template']
+	));
 	$Layout->save();
 }
 elseif ($Layout->page_type == 'template') {

@@ -239,14 +239,19 @@ class ProductTypeStandard extends ProductTypeBase
 
 	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true) {
 		$PurchaseTypeCls = $this->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
-		$purchaseTypeHtml = htmlBase::newElement('span')
-			->css(array(
-			'font-size'  => '.8em',
-			'font-style' => 'italic'
-		))
-			->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
+		if ($showExtraInfo === true){
+			$purchaseTypeHtml = htmlBase::newElement('span')
+				->css(array(
+				'font-size'  => '.8em',
+				'font-style' => 'italic'
+			))
+				->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
 
-		$html = $purchaseTypeHtml->draw();
+			$html = $purchaseTypeHtml->draw();
+		}else{
+			$html = '';
+		}
+
 		if (method_exists($PurchaseTypeCls, 'showOrderedProductInfo')){
 			$html .= $PurchaseTypeCls->showOrderedProductInfo($OrderedProduct, $showExtraInfo);
 		}
@@ -872,5 +877,51 @@ class ProductTypeStandard extends ProductTypeBase
 
 
 		return $purchaseTable->draw();
+	}
+
+	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null){
+		$return = true;
+
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'hasEnoughInventory')){
+			$return = $PurchaseType->hasEnoughInventory($OrderProduct, $Qty);
+		}
+		return $return;
+	}
+
+	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false){
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'onSaveSale')){
+			$PurchaseType->onSaveSale($OrderProduct, $SaleProduct, $AssignInventory);
+		}
+	}
+
+	public function jsonEncode(OrderProduct &$OrderProduct){
+		$toEncode = array();
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'jsonEncode')){
+			$toEncode = $PurchaseType->jsonEncode($OrderProduct);
+		}
+		return json_encode($toEncode);
+	}
+
+	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
+		$this->cartPurchaseType = $OrderProduct->getInfo('purchase_type');
+		$this->loadPurchaseType();
+
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'jsonDecode')){
+			$PurchaseType->jsonDecode($OrderProduct);
+		}
+	}
+
+	public function jsonDecode(OrderProduct &$OrderProduct){
+		$this->cartPurchaseType = $OrderProduct->getInfo('purchase_type');
+		$this->loadPurchaseType();
+
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'jsonDecode')){
+			$PurchaseType->jsonDecode($OrderProduct);
+		}
 	}
 }

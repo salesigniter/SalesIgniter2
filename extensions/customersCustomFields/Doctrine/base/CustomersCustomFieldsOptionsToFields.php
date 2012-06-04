@@ -18,7 +18,7 @@ class CustomersCustomFieldsOptionsToFields extends Doctrine_Record {
 			'foreign' => 'field_id'
 		));
 		
-		$this->hasOne('CustomersCustomFieldsOptions as Options', array(
+		$this->hasOne('CustomersCustomFieldsOptions as Option', array(
 			'local' => 'option_id',
 			'foreign' => 'option_id',
 			'cascade' => array('delete')

@@ -1,5 +1,5 @@
 <?php
-$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find((int)$_GET['lID']);
+$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find((int)$_GET['layout_id']);
 if ($Layout){
 	$TemplatePages = Doctrine_Core::getTable('TemplatePages')->findAll();
 	foreach($TemplatePages as $rInfo){

@@ -83,7 +83,7 @@ class Template {
 	
 	public function parse($useFile = null){
 		global $App, $appExtension, $messageStack, $ExceptionManager;
-		$userAccount = &Session::getReference('userAccount');
+		//$userAccount = &Session::getReference('userAccount');
 		
 		$file = $this->layoutFile;
 		if (is_null($useFile) === false) $file = $useFile;

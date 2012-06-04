@@ -137,6 +137,13 @@ class OrderCreatorAddress extends OrderAddress implements Serializable
 			$this->Format = $Qcheck[0]['AddressFormat'];
 		}
 	}
+
+	public function jsonDecode($data){
+		$addressInfo = json_decode($data, true);
+		foreach($addressInfo as $k => $info){
+			$this->$k = $info;
+		}
+	}
 }
 
 ?>

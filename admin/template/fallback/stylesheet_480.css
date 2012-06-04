@@ -1,156 +1,110 @@
-body {
-	background: #666666;
-}
-.ui-state-default {
-	background-image: -ms-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -o-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -moz-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -webkit-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: linear-gradient(top, #3f3f3f 0%, #222222 100%);
-}
-.ui-state-hover {
-	background-image: -ms-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -o-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -moz-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -webkit-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: linear-gradient(top, #3f3f3f 0%, #222222 100%);
-}
-.ui-state-active {
-	background-image: -ms-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -o-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -moz-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -webkit-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: linear-gradient(top, #3f3f3f 0%, #222222 100%);
-}
-#rightColumn {
-	margin-left: 0px;
-	margin-right: 0px;
-	margin-bottom: 20px;
-	background:#ffffff;
-}
-#bodyWrapprer {
-	width:auto;
-}
-#logoBar {
-	background-image: -ms-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -o-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -moz-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: -webkit-linear-gradient(top, #3f3f3f 0%, #222222 100%);
-	background-image: linear-gradient(270, #3f3f3f 0%, #222222 100%);
-	text-align:center;
-	height:80px;
-	border-bottom: 1px solid #555555;
-}
-#logoBar .openMenu {
-	float: left;
-	margin-left: .5em;
-	margin-top: .5em;
-	display:block;
-}
-#languageBar {
-	background-image: -ms-linear-gradient(top, #464646 0%, #363636 100%);
-	background-image: -o-linear-gradient(top, #464646 0%, #363636 100%);
-	background-image: -moz-linear-gradient(top, #464646 0%, #363636 100%);
-	background-image: -webkit-linear-gradient(top, #464646 0%, #363636 100%);
-	background-image: linear-gradient(top, #464646 0%, #363636 100%);
-	text-align:center;
-	height:60px;
-	border-top: 1px solid #242424;
-	border-bottom: 1px solid #555555;
-	color:#ffffff;
-}
-#languageBar #languageBox {
-	display:none;
-}
-#mainNavMenu {
-	width:auto;
-	list-style:none;
-	margin:0;
-	padding:0;
-	background: #666666;
-}
-#mainNavMenu li {
-	text-align:left;
-	display:none;
-}
-#mainNavMenu li.ui-state-default {
-	cursor: default;
-	border: none;
-	border-top: 1px solid #858585;
-	border-bottom: 1px solid #4a4a4a;
-	background-image: -ms-linear-gradient(left, #666 97%, #444 100%);
-	background-image: -o-linear-gradient(left, #666 97%, #444 100%);
-	background-image: -moz-linear-gradient(left, #666 97%, #444 100%);
-	background-image: -webkit-linear-gradient(left, #666 97%, #444 100%);
-	background-image: linear-gradient(left, #666 97%, #444 100%);
-}
-#mainNavMenu li.ui-state-hover {
-	cursor: pointer;
-	background-image: -ms-linear-gradient(left, #5e5e5e 97%, #444 100%);
-	background-image: -o-linear-gradient(left, #5e5e5e 97%, #444 100%);
-	background-image: -moz-linear-gradient(left, #5e5e5e 97%, #444 100%);
-	background-image: -webkit-linear-gradient(left, #5e5e5e 97%, #444 100%);
-	background-image: linear-gradient(left, #5e5e5e 97%, #444 100%);
-}
-#mainNavMenu li.ui-state-active {
-	border-top: 1px solid #6ea9de;
-	border-bottom: 1px solid #4a4a4a;
-	background-image: -ms-linear-gradient(top, #4892d7 0%, #076ecd 100%);
-	background-image: -o-linear-gradient(top, #4892d7 0%, #076ecd 100%);
-	background-image: -moz-linear-gradient(top, #4892d7 0%, #076ecd 100%);
-	background-image: -webkit-linear-gradient(top, #4892d7 0%, #076ecd 100%);
-	background-image: linear-gradient(top, #4892d7 0%, #076ecd 100%);
-}
-#mainNavMenu li a {
-	color:#ffffff;
-}
-#mainNavMenu li .ui-icon {
-	display:block;
-	margin-right:auto;
-	margin-left:auto;
-}
-#mainNavMenu ul.mainNavMenuChild {
-	background: #555555;
-	list-style:none;
-	margin:0;
-	padding:0;
-	padding-left:1em;
-	padding-bottom: 1em;
-}
-#mainNavMenu ul.mainNavMenuChild li {
-	border:none;
-	color: #ffffff;
-}
+@media screen and (min-width: 480px) {
+	#leftColumn {
+		display : block;
+	}
 
-.landingMenuBlock {
-	display: inline-block;
-	margin: 1em;
-	vertical-align: top;
-	border-color: #888888;
-	background-image: -ms-linear-gradient(top, #fafafa 0%, #e9e9e9 100%);
-	background-image: -o-linear-gradient(top, #fafafa 0%, #e9e9e9 100%);
-	background-image: -moz-linear-gradient(top, #fafafa 0%, #e9e9e9 100%);
-	background-image: -webkit-linear-gradient(top, #fafafa 0%, #e9e9e9 100%);
-	background-image: linear-gradient(top, #fafafa 0%, #e9e9e9 100%);
+	#rightColumn {
+		margin-left   : 0px;
+		margin-right  : 0px;
+		margin-bottom : 20px;
+	}
+
+	#bodyWrapper {
+		width    : auto;
+		position : relative;
+	}
+
+	#logoBar {
+		text-align    : center;
+		height        : 80px;
+	}
+
+	#languageBar {
+		text-align    : center;
+		height        : 60px;
+		border-top    : 1px solid #242424;
+		border-bottom : 1px solid #555555;
+	}
+
+	#mainNavMenu {
+		width      : auto;
+		list-style : none;
+		margin     : 0;
+		padding    : 0;
+	}
+
+	#mainNavMenu li {
+		text-align : left;
+		display    : none;
+	}
+
+	#mainNavMenu li.ui-state-default {
+		cursor        : default;
+		border        : none;
+		border-top    : 1px solid #858585;
+		border-bottom : 1px solid #4a4a4a;
+	}
+
+	#mainNavMenu li.ui-state-hover {
+		cursor : pointer;
+	}
+
+	#mainNavMenu li.ui-state-active {
+		border-top    : 1px solid #6ea9de;
+		border-bottom : 1px solid #4a4a4a;
+	}
+
+	#mainNavMenu li a {
+	}
+
+	#mainNavMenu li .ui-icon {
+		display      : block;
+		margin-right : auto;
+		margin-left  : auto;
+	}
+
+	#mainNavMenu ul.mainNavMenuChild {
+		list-style     : none;
+		margin         : 0;
+		padding        : 0;
+		padding-left   : 1em;
+		padding-bottom : 1em;
+	}
+
+	#mainNavMenu ul.mainNavMenuChild li {
+		border : none;
+	}
+
+	.landingMenuBlock {
+		display        : inline-block;
+		margin         : 1em;
+		vertical-align : top;
+	}
+
+	.landingMenuBlock .landingMenuBlockHeading {
+		border-bottom : 1px solid #d5d5d5;
+		font-size     : 1.2em;
+		padding       : .5em;
+	}
+
+	.landingMenuBlock .landingMenuBlockDirectLink {
+		padding : .5em;
+	}
+
+	.landingMenuBlock .landingMenuBlockMenu {
+		padding : .5em;
+	}
+
+	.landingMenuBlock .landingMenuBlockMenu a {
+	}
+
+	.landingMenuBlock .landingMenuBlockMenu ul {
+		list-style : none;
+		margin     : 0;
+		padding    : 0;
+	}
+
+	.gridButtonBar button {
+		width : 50px;
+	}
 }
-.landingMenuBlock .landingMenuBlockHeading {
-	border-bottom: 1px solid #d5d5d5;
-	font-size: 1.2em;
-	padding: .5em;
-	color:#555555;
-}
-.landingMenuBlock .landingMenuBlockDirectLink {
-	padding: .5em;
-}
-.landingMenuBlock .landingMenuBlockMenu {
-	padding: .5em;
-}
-.landingMenuBlock .landingMenuBlockMenu a {
-	color:#555555;
-}
-.landingMenuBlock .landingMenuBlockMenu ul {
-	list-style:none;
-	margin:0;
-	padding:0;
-}
-.gridButtonBar .ui-button .ui-button-text { display:none; }

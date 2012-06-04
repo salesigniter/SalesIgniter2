@@ -10,32 +10,6 @@
   Released under the GNU General Public License
 */
 
-  function tep_db_connect() {
-  }
-
-  function tep_db_close() {
-    return dataAccess::disconnect();
-  }
-
-  function tep_db_error($query, $errno, $error) {
-    echo '<table cellpadding="3" cellspacing="0" border="0">' . 
-     '<tr>' . 
-      '<td class="main" style="white-space:nowrap;">' . $errno . '</td>' . 
-     '</tr>' . 
-     '<tr>' . 
-      '<td class="main" style="white-space:nowrap;" valign="top"><b><u>Query Used</u></b></td>' . 
-     '</tr>' . 
-     '<tr>' . 
-      '<td class="main">' . $query . '</td>' . 
-     '</tr>' . 
-     '<tr>' . 
-      '<td class="main" style="white-space:nowrap;" valign="top"><b><u>Server Message</u></b></td>' . 
-     '</tr>' . 
-     '<tr>' . 
-      '<td class="main">' . $error . '</td>' . 
-     '</tr>' . 
-    '</table>';
-  }
 
   function tep_db_query($query, $link = 'db_link') {
     global $messageStack;
@@ -88,7 +62,7 @@
                     $query .= 'null, ';
                 break;
                 default:
-                    $query .= '\'' . tep_db_input($value) . '\', ';
+                    $query .= '\'' . $value . '\', ';
                 break;
             }
         }
@@ -108,7 +82,7 @@
                     $query .= $columns .= ' = null, ';
                 break;
                 default:
-                    $query .= $columns . ' = \'' . tep_db_input($value) . '\', ';
+                    $query .= $columns . ' = \'' . $value . '\', ';
                 break;
             }
         }
@@ -129,29 +103,9 @@
     return $return['numberOfRows'];
   }
 
-  function tep_db_data_seek($db_query, $row_number) {
-    return mysql_data_seek($db_query, $row_number);
-  }
-
   function tep_db_insert_id() {
     return dataAccess::insertId();
   }
-
-  function tep_db_free_result($db_query) {
-    return dataAccess::freeResult($db_query);
-  }
-
-  function tep_db_fetch_fields($db_query) {
-    return mysql_fetch_field($db_query);
-  }
-
-  function tep_db_output($string) {
-    return dataAccess::cleanOutput($db_query);
-  }
-
-function tep_db_input($string, $link = 'db_link') {
-    return dataAccess::cleanInput($string);
-}
 
   function tep_db_prepare_input($string) {
     return dataAccess::cleanInput($string);

@@ -20,9 +20,12 @@
 		'listing_field_id'     => '',
 		'listing_attribute_id' => ''
 	);
-	$pInfo = new objectInfo($parameters);
+$pInfo = new stdClass();
+foreach($parameters as $k => $v){
+	$pInfo->$k = $v;
+}
 
-	if (isset($_GET['pID'])){
+if (isset($_GET['pID'])){
 		$Qpage = Doctrine_Query::create()
 		->from('Pages p')
 		->leftJoin('p.PagesFields pf')
@@ -228,9 +231,5 @@ if ($appExtension->isEnabled('attributes')){
 	->attr('method', 'post')
 	->html($topTable->draw() . '<br />' . $buttonContainer->draw());
 
-	$headingTitle = htmlBase::newElement('div')
-	->addClass('pageHeading')
-	->html(sysLanguage::get('HEADING_TITLE'));
-
-	echo $headingTitle->draw() . '<br />' . $pageForm->draw();
+	echo $pageForm->draw();
 ?>

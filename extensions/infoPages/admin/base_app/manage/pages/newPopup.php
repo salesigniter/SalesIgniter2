@@ -15,7 +15,10 @@
 		'status'     => '',
 		'page_key'   => ''
 	);
-	$pInfo = new objectInfo($parameters);
+$pInfo = new stdClass();
+foreach($parameters as $k => $v){
+	$pInfo->$k = $v;
+}
 
 foreach(sysLanguage::getLanguages() as $lInfo){
 		$lID = $lInfo['id'];
@@ -213,9 +216,5 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	->attr('method', 'post')
 	->html($topTable->draw() . '<br /><div style="position:relative;">' . $tabsObj->draw() . '</div><br />' . $buttonContainer->draw());
 	
-	$headingTitle = htmlBase::newElement('div')
-	->addClass('pageHeading')
-	->html(sysLanguage::get('HEADING_TITLE'));
-	
-	echo $headingTitle->draw() . '<br />' . $pageForm->draw();
+	echo $pageForm->draw();
 ?>

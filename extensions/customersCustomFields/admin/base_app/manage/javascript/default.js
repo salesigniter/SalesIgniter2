@@ -1,43 +1,194 @@
-function showOptionEntry(el){
+$(document).ready(function () {
+	var $FieldsGrid = $('#fields_grid');
+	$FieldsGrid.newGrid('option', 'buttons', ['new', 'edit', 'delete']);
+
+	var $GroupsGrid = $('#groups_grid');
+	$GroupsGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.newButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				GridClass.clearSelected();
+				GridClass.showWindow({
+					buttonEl    : this,
+					contentUrl  : GridClass.buildActionWindowLink('newGroup'),
+					buttons     : [
+						{
+							type  : 'cancel',
+							click : GridClass.windowButtonEvent('cancel', {
+								onBeforeHide : function () {
+									$('#fieldToGroup').button('disable');
+								}
+							})
+						},
+						'save'
+					],
+					onAfterShow : function () {
+						$(this).find('.sortableList').sortable({
+							containment : $(this).parent(),
+							cursor      : 'move',
+							items       : 'li',
+							opacity     : .5,
+							revert      : true
+						});
+
+						$(this).find('.ui-icon-trash').parent().droppable({
+							accept     : 'li',
+							hoverClass : 'ui-state-highlight',
+							drop       : function (e, ui) {
+								var $this = $(this);
+								$(ui.draggable).remove();
+								$('.sortableList', $this).sortable('refresh');
+							}
+						});
+
+						$('#fieldToGroup').button('enable');
+					}
+				});
+			}
+		},
+		{
+			selector          : '.editButton',
+			disableIfNone     : true,
+			disableIfMultiple : true,
+			click             : function (e, GridClass) {
+				GridClass.showWindow({
+					buttonEl    : this,
+					contentUrl  : GridClass.buildActionWindowLink('newGroup', true),
+					buttons     : [
+						{
+							type  : 'cancel',
+							click : GridClass.windowButtonEvent('cancel', {
+								onBeforeHide : function () {
+									$('#fieldToGroup').button('disable');
+								}
+							})
+						},
+						{
+							type  : 'save',
+							click : GridClass.windowButtonEvent('save', {
+								data : function () {
+									return $(this).find('*').serialize() + '&' + $(this).find('.ui-sortable').sortable('serialize');
+								}
+							})
+						}
+					],
+					onAfterShow : function () {
+						$(this).find('.sortableList').sortable({
+							containment : $(this).parent(),
+							cursor      : 'move',
+							items       : 'li',
+							opacity     : .5,
+							revert      : true
+						});
+
+						$(this).find('.ui-icon-trash').parent().droppable({
+							accept     : 'li',
+							hoverClass : 'ui-state-highlight',
+							drop       : function (e, ui) {
+								var $this = $(this);
+								$(ui.draggable).remove();
+								$('.sortableList', $this).sortable('refresh');
+							}
+						});
+					}
+				});
+
+				$('#fieldToGroup').button('enable');
+			}
+		},
+		'delete'
+	]);
+
+	$('#fieldToGroup').click(function () {
+		if ($GroupsGrid.parent().find('.newWindowContainer').size() == 1){
+			var SelectedFields = $FieldsGrid.newGrid('getSelectedRows');
+
+			if (SelectedFields.size() == 0){
+				alert('Error');
+				return false;
+			}
+
+			var GroupSortable = $GroupsGrid.parent().find('.newWindowContainer .sortableList');
+			SelectedFields.each(function () {
+				if (GroupSortable.find('#field_' + $(this).data('field_id')).size() == 0){
+					GroupSortable.append('<li ' +
+						'id="field_' + $(this).data('field_id') + '"' +
+						'sort_order=""' +
+						'>' + $(this).find('td').first().html() +
+						'</li>');
+				}
+			});
+			GroupSortable.sortable('refreah');
+		}
+		else {
+			var SelectedFields = $FieldsGrid.newGrid('getSelectedRows');
+			var SelectedGroups = $GroupsGrid.newGrid('getSelectedRows');
+
+			if (SelectedFields.size() == 0 || SelectedGroups.size() == 0){
+				alert('Error');
+				return false;
+			}
+
+			SelectedGroups.each(function () {
+				var GroupSortable = $(this).find('.sortableList');
+				if (GroupSortable.find('#field_' + $(this).data('field_id')).size() == 0){
+					SelectedFields.each(function () {
+						GroupSortable.append('<li ' +
+							'id="field_' + $(this).data('field_id') + '"' +
+							'sort_order=""' +
+							'>' + $(this).find('td').first().html() +
+							'</li>');
+					});
+				}
+			});
+		}
+	});
+});
+
+function showOptionEntry(el) {
 	if (el.value != 'select'){
 		$('#selectOptions').hide();
-	}else{
+	}
+	else {
 		$('#selectOptions').show();
 	}
 }
 
-function makeGroupDroppable($el){
-	$el.each(function (){
+function makeGroupDroppable($el) {
+	$el.each(function () {
 		var $groupBox = $(this);
 		$(this).droppable({
-			accept: '.draggableField',
-			hoverClass: 'ui-state-highlight',
-			drop: function (e, ui){
+			accept     : '.draggableField',
+			hoverClass : 'ui-state-highlight',
+			drop       : function (e, ui) {
 				var $this = $(this);
 				$.ajax({
-					cache: false,
-					url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=addFieldToGroup&group_id=' + $this.attr('group_id') + '&field_id=' + $('.fieldName', ui.draggable).attr('field_id')),
-					dataType: 'json',
-					beforeSend: function (){
+					cache      : false,
+					url        : js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=addFieldToGroup&group_id=' + $this.attr('group_id') + '&field_id=' + $('.fieldName', ui.draggable).attr('field_id')),
+					dataType   : 'json',
+					beforeSend : function () {
 						showAjaxLoader($this, 'xlarge');
 					},
-					complete: function (){
+					complete   : function () {
 						hideAjaxLoader($this);
 					},
-					success: function (data){
+					success    : function (data) {
 						if (data.success == true){
 							var $newLi = $('<li></li>')
-							.attr('id', 'field_' + $('.fieldName', ui.draggable).attr('field_id'))
-							.css('font-size', '.8em')
-							.html($('.fieldName', ui.draggable).html());
-							$newLi.hover(function (){
+								.attr('id', 'field_' + $('.fieldName', ui.draggable).attr('field_id'))
+								.css('font-size', '.8em')
+								.html($('.fieldName', ui.draggable).html());
+							$newLi.hover(function () {
 								this.style.cursor = 'move';
-							}, function (){
+							}, function () {
 								this.style.cursor = 'default';
 							});
 							$('ul', $this).append($newLi);
 							$('.sortableList', $this).sortable('refresh');
-						}else{
+						}
+						else {
 							alert('That field already belongs to this group');
 						}
 					}
@@ -46,400 +197,3 @@ function makeGroupDroppable($el){
 		});
 	});
 }
-
-function makeTrashBinDroppable($el){
-	$el.each(function (){
-		$(this).droppable({
-			accept: 'li',
-			hoverClass: 'ui-state-highlight',
-			drop: function (e, ui){
-				var $this = $(this);
-				$(ui.draggable).remove();
-				$.ajax({
-					url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=removeFieldFromGroup&group_id=' + $(this).parent().attr('group_id') + '&field_id=' + $(ui.draggable).attr('id')),
-					cache: false,
-					beforeSend: function (){
-						showAjaxLoader($this.parent(), 'xlarge');
-					},
-					complete: function (){
-						hideAjaxLoader($this.parent());
-					},
-					dataType: 'json',
-					success: function (){
-						$('.sortableList', $this).sortable('refresh');
-					}
-				});
-			}
-		});
-	});
-}
-
-function makeListSortable($el){
-	$el.each(function (){
-		var $this = $(this);
-		$(this).sortable({
-			containment: $(this).parent(),
-			cursor: 'move',
-			items: 'li',
-			opacity: .5,
-			revert: true,
-			stop: function (e, ui){
-				$.ajax({
-					url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=updateFieldSortOrder&group_id=' + $(this).parent().attr('group_id') + '&' + $(this).sortable('serialize')),
-					beforeSend: function (){
-						showAjaxLoader($this.parent(), 'xlarge');
-					},
-					complete: function (){
-						hideAjaxLoader($this.parent());
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (){
-					}
-				});
-			}
-		});
-
-		$('li', $this).hover(function (){
-			this.style.cursor = 'move';
-		}, function (){
-			this.style.cursor = 'default';
-		});
-	});
-}
-
-function makeBoxDraggable($el){
-	$el.each(function (){
-		$(this).draggable({
-			revert: 'invalid',
-			scroll: false,
-			containment: 'document',
-			helper: 'clone',
-			opacity: .5
-		}).hover(function (){
-			this.style.cursor = 'move';
-		}, function (){
-			this.style.cursor = 'default';
-		});
-	});
-}
-
-function makeFieldDeleteable($el){
-	$el.each(function (){
-		$(this).click(function (e){
-			e.preventDefault();
-
-			var $icon = $(this);
-			var $container = $icon.parent();
-			$container.draggable('disable');
-			var confirmation = confirm('Are you sure you want to delete this field?');
-			if (confirmation){
-				$.ajax({
-					url: $icon.attr('href'),
-					cache: false,
-					beforeSend: function (){
-						showAjaxLoader($icon.parent(), 'normal');
-					},
-					dataType: 'json',
-					success: function (data){
-						if (data.success == true){
-							hideAjaxLoader($icon.parent());
-							$container.remove();
-							$('li[id="field_' + data.field_id + '"]').each(function (){
-								$(this).remove();
-								$(this).parent().parent().sortable('refresh');
-							});
-						}else{
-							$($icon.parent()).draggable('enable');
-						}
-					}
-				});
-			}else{
-				$($icon.parent()).draggable('enable');
-			}
-			return false;
-		});
-	});
-}
-
-function makeFieldEditable($el){
-	$el.each(function (){
-		var $icon = $(this);
-		var fieldId;
-
-		$icon.click(function (e){
-			e.preventDefault();
-			showAjaxLoader($icon.parent(), 'normal');
-			$($icon.parent()).draggable('disable');
-
-			$('<div></div>').dialog({
-				autoOpen: true,
-				title: 'Edit Field',
-				position: 'top',
-				close: function (){
-					if ($icon.parent().data('ajaxOverlay')){
-						hideAjaxLoader($icon.parent());
-					}
-					$($icon.parent()).draggable('enable');
-					$(this).dialog('destroy');
-				},
-				open: function (e, ui){
-					var self = this;
-					$(self).html('<div class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></div>');
-					$.ajax({
-						url: $icon.attr('href'),
-						cache: false,
-						dataType: 'html',
-						success: function (editData){
-							fieldId = $(editData).attr('field_id');
-							$(self).html(editData);
-						}
-					});
-				},
-				buttons: {
-					'Save': function (){
-						var self = $(this);
-						showAjaxLoader($('.ui-dialog-content', self.element).parent(), 'xlarge');
-						
-						$.ajax({
-							cache: false,
-							url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=saveField&fID=' + fieldId),
-							data: $('.ui-dialog-content *', self.element).serialize(),
-							type: 'post',
-							dataType: 'html',
-							success: function (data){
-								var $newField = $(data);
-								makeBoxDraggable($newField);
-								makeFieldDeleteable($('a.ui-icon-circle-close', $newField));
-								makeFieldEditable($('a.ui-icon-wrench', $newField));
-
-								hideAjaxLoader($('.ui-dialog-content', self.element).parent());
-								hideAjaxLoader($icon.parent());
-								
-								$icon.parent().replaceWith($newField);
-								self.dialog('destroy');
-							}
-						});
-					},
-					'Cancel': function (){
-						if ($icon.parent().data('ajaxOverlay')){
-							hideAjaxLoader($icon.parent());
-						}
-						$($icon.parent()).draggable('enable');
-						$(this).dialog('destroy');
-					}
-				}
-			});
-		});
-	});
-}
-
-function makeGroupDeleteable($el){
-	$el.each(function (){
-		$(this).click(function (e){
-			e.preventDefault();
-			var $icon = $(this);
-			$($icon.parent()).droppable('disable');
-			var confirmation = confirm('Are you sure you want to delete this group?');
-			if (confirmation){
-				$.ajax({
-					url: $icon.attr('href'),
-					beforeSend: function (){
-						showAjaxLoader($icon.parent(), 'xlarge');
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data){
-						if (data.success == true){
-							hideAjaxLoader($icon.parent());
-							$icon.parent().remove();
-						}
-					}
-				});
-			}else{
-				$($icon.parent()).droppable('enable');
-			}
-			return false;
-		});
-	});
-}
-
-function makeGroupEditable($el){
-	$el.each(function (){
-		var $icon = $(this);
-		var groupId;
-
-		$icon.click(function (e){
-			e.preventDefault();
-			showAjaxLoader($icon.parent(), 'xlarge');
-			$($icon.parent()).droppable('disable');
-
-			$('<div></div>').dialog({
-				autoOpen: true,
-				title: 'Edit Group',
-				position: 'top',
-				close: function (){
-					if ($icon.parent().data('ajaxOverlay')){
-						hideAjaxLoader($icon.parent());
-					}
-					$($icon.parent()).droppable('enable');
-					$(this).dialog('destroy');
-				},
-				open: function (e, ui){
-					var self = this;
-					$(self).html('<div class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></div>');
-					$.ajax({
-						url: $icon.attr('href'),
-						cache: false,
-						dataType: 'json',
-						success: function (editData){
-							$(self).html(editData.html);
-							groupId = editData.group_id;
-						}
-					});
-				},
-				buttons: {
-					'Save': function (){
-						var self = $(this);
-						showAjaxLoader($('.ui-dialog-content', self.element).parent(), 'xlarge');
-						
-						$.ajax({
-							cache: false,
-							url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=saveGroup&gID=' + groupId),
-							data: $('.ui-dialog-content *', self.element).serialize(),
-							type: 'post',
-							dataType: 'json',
-							success: function (saveData){
-								$('b:first', $icon.parent()).html(saveData.group_name);
-								
-								removeAjaxLoader($('.ui-dialog-content', self.element).parent());
-								self.dialog('destroy');
-									
-								hideAjaxLoader($icon.parent());
-								
-								$($icon.parent()).droppable('enable');
-							}
-						});
-					},
-					'Cancel': function (){
-						if ($icon.parent().data('ajaxOverlay')){
-							hideAjaxLoader($icon.parent());
-						}
-						$($icon.parent()).droppable('enable');
-						$(this).dialog('destroy');
-					}
-				}
-			});
-
-			return false;
-		});
-	});
-}
-
-$(document).ready(function (){
-	$('#newField').click(function (){
-		$('<div></div>').dialog({
-			autoOpen: true,
-			title: 'Create New Field',
-			position: 'top',
-			open: function (e, ui){
-				var self = this;
-				$(self).html('<div class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></div>');
-				$.ajax({
-					cache: false,
-					url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&windowAction=new&action=getFieldWindow'),
-					dataType: 'html',
-					success: function (data){
-						$(self).html(data);
-					}
-				});
-			},
-			buttons: {
-				'Save': function (){
-					var self = $(this);
-					$.ajax({
-						cache: false,
-						url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=saveField'),
-						data: $('.ui-dialog-content *', self.element).serialize(),
-						type: 'post',
-						dataType: 'html',
-						success: function (data){
-							var $newField = $(data);
-							makeBoxDraggable($newField);
-							makeFieldDeleteable($('a.ui-icon-circle-close', $newField));
-							makeFieldEditable($('a.ui-icon-wrench', $newField));
-
-							$('#fieldListing').append($newField);
-							self.dialog('destroy');
-						}
-					});
-				},
-				'Cancel': function (){
-					$(this).dialog('destroy');
-				}
-			}
-		});
-	}).button();
-
-	$('#newGroup').click(function (){
-		$('<div></div>').dialog({
-			autoOpen: true,
-			title: 'Create New Group',
-			position: 'top',
-			open: function (e, ui){
-				var self = this;
-				$(self).html('<div class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></div>');
-				$.ajax({
-					cache: false,
-					url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&windowAction=new&action=getGroupWindow'),
-					dataType: 'json',
-					success: function (data){
-						$(self).html(data.html);
-					}
-				});
-			},
-			buttons: {
-				'Save': function (){
-					var self = $(this);
-					$.ajax({
-						cache: false,
-						url: js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=saveGroup'),
-						data: $('.ui-dialog-content *', self.element).serialize(),
-						type: 'post',
-						dataType: 'html',
-						success: function (data){
-							var $newGroupBox = $(data);
-							makeGroupDroppable($newGroupBox);
-							makeTrashBinDroppable($('.trashBin', $newGroupBox));
-							makeListSortable($('.sortableList', $newGroupBox));
-							makeGroupDeleteable($('a.ui-icon-circle-close', $newGroupBox));
-							makeGroupEditable($('a.ui-icon-wrench', $newGroupBox));
-
-							$('#groupListing').append($newGroupBox);
-
-							self.dialog('destroy');
-						}
-					});
-				},
-				'Cancel': function (){
-					$(this).dialog('destroy');
-				}
-			}
-		});
-	}).button();
-
-	$('.draggableField').each(function (){
-		makeBoxDraggable($(this));
-		makeFieldDeleteable($('a.ui-icon-circle-close', $(this)));
-		makeFieldEditable($('a.ui-icon-wrench', $(this)));
-	});
-
-	$('.droppableField').each(function (){
-		makeGroupDroppable($(this));
-		makeGroupDeleteable($('a.ui-icon-circle-close', $(this)));
-		makeGroupEditable($('a.ui-icon-wrench', $(this)));
-	});
-
-	makeTrashBinDroppable($('.trashBin'));
-	makeListSortable($('.sortableList'));
-});

@@ -1,66 +1,98 @@
-#rightColumn {
-	margin-left: 50px;
-	margin-right: 30px;
-	position: relative;
-	top: -101px;
+@media screen and (min-width: 768px) {
+	#logoBar {
+		text-align   : left;
+		padding-left : 10px;
+	}
+
+	#iconBar {
+		position   : absolute;
+		top        : 0;
+		right      : 0;
+		background : transparent;
+		border     : none;
+	}
+
+	#languageBar {
+		display : block;
+	}
+
+	#rightColumn {
+		margin-left  : 50px;
+		margin-right : 30px;
+		position     : relative;
+		top          : -70px;
+	}
+
+	#openMenu {
+		display : none;
+	}
+
+	#mainNavMenu {
+		width    : 50px;
+		position : absolute;
+	}
+
+	#mainNavMenu li {
+		display : block;
+	}
+
+	#mainNavMenu li a {
+		display : none;
+	}
+
+	#mainNavMenu li .ui-icon {
+		display      : block;
+		margin-right : auto;
+		margin-left  : auto;
+	}
+
+	.pageHeading {
+		font-size             : 2em;
+		line-height           : 100px;
+		border-bottom         : 1px solid #cccccc;
+		-webkit-border-radius : 4px 4px 0px 0px;
+		font-weight           : normal;
+	}
+
+	.pageHeading .ui-button {
+		float        : right;
+		margin-top   : 3em;
+		margin-right : 1em;
+		font-size    : .5em;
+	}
+
+	.pageFooter {
+		font-size             : 2em;
+		height                : 100px;
+		line-height           : 100px;
+		border-top            : 1px solid #cccccc;
+		background-image      : -ms-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+		background-image      : -o-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+		background-image      : -moz-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+		background-image      : -webkit-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+		background-image      : linear-gradient(top, #eeeeee 0%, #ffffff 100%);
+		-webkit-border-radius : 0px 0px 4px 4px;
+		padding               : 0 1em;
+		color                 : #222222;
+		font-weight           : normal;
+		text-align            : right;
+	}
+
+	.pageFooter .ui-button {
+		margin-right : 1em;
+		font-size    : .5em;
+	}
+
+	.gridButtonBar button {
+		width   : auto;
+		padding : 3px 10px 3px 5px;
+	}
+
+	.gridButtonBar button .ui-icon {
+		margin : 0 5px;
+	}
+
+	.gridButtonBar .ui-button .ui-button-text {
+		display : inline-block;
+	}
 }
-#logoBar .openMenu {
-	display:none;
-}
-#mainNavMenu {
-	width:50px;
-	position: absolute;
-}
-#mainNavMenu li {
-	display:block;
-}
-#mainNavMenu li a {
-	display:none;
-}
-#mainNavMenu li .ui-icon {
-	display:block;
-	margin-right:auto;
-	margin-left:auto;
-}
-.pageHeading {
-	font-size: 2em;
-	line-height: 100px;
-	border-bottom: 1px solid #cccccc;
-	background-image: -ms-linear-gradient(top, #ffffff 0%, #eeeeee 100%);
-	background-image: -o-linear-gradient(top, #ffffff 0%, #eeeeee 100%);
-	background-image: -moz-linear-gradient(top, #ffffff 0%, #eeeeee 100%);
-	background-image: -webkit-linear-gradient(top, #ffffff 0%, #eeeeee 100%);
-	background-image: linear-gradient(top, #ffffff 0%, #eeeeee 100%);
-	-webkit-border-radius: 4px 4px 0px 0px;
-	padding: 0 1em;
-	color: #222222;
-	font-weight:normal;
-}
-.pageHeading .ui-button {
-	float:right;
-	margin-top: 3em;
-	margin-right: 1em;
-	font-size: .5em;
-}
-.pageFooter {
-	font-size: 2em;
-	height: 100px;
-	line-height: 100px;
-	border-top: 1px solid #cccccc;
-	background-image: -ms-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
-	background-image: -o-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
-	background-image: -moz-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
-	background-image: -webkit-linear-gradient(top, #eeeeee 0%, #ffffff 100%);
-	background-image: linear-gradient(top, #eeeeee 0%, #ffffff 100%);
-	-webkit-border-radius: 0px 0px 4px 4px;
-	padding: 0 1em;
-	color: #222222;
-	font-weight:normal;
-	text-align:right;
-}
-.pageFooter .ui-button {
-	margin-right: 1em;
-	font-size: .5em;
-}
-header { display:none; }
-.gridButtonBar .ui-button .ui-button-text { display:inline-block; }

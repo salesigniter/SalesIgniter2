@@ -24,15 +24,6 @@ $orderTotalTable->addHeaderRow(array(
 		)
 	)
 ));
-$Editor->TotalManager->rewind();
-$totals = array();
-while($Editor->TotalManager->valid()){
-	$totals[] = $Editor->TotalManager->current();
-	$Editor->TotalManager->next();
-}
-usort($totals, function (OrderCreatorTotal $a, OrderCreatorTotal $b) {
-	return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
-});
 $count = 0;
 $totalTypes = array();
 foreach(OrderTotalModules::getModules() as $Module){
@@ -40,7 +31,7 @@ foreach(OrderTotalModules::getModules() as $Module){
 }
 $totalTypes['custom'] = 'Custom';
 
-foreach($totals as $orderTotal){
+foreach($Editor->TotalManager->getAll() as $orderTotal){
 	$editable = $orderTotal->isEditable();
 	$totalType = $orderTotal->getModuleType();
 
@@ -55,7 +46,7 @@ foreach($totals as $orderTotal){
 			$typeMenu->addOption($k, $v);
 		}
 
-		$typeMenu->selectOptionByValue($totalType);
+		$typeMenu->selectOptionByValue($orderTotal->getModule());
 		$typeMenu = $typeMenu->draw();
 
 		$hiddenField = '';

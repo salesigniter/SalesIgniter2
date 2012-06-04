@@ -7,24 +7,11 @@
 	if ($App->getAppPage() == 'new'){
 		$runInit = false;
 		if (!isset($_GET['action'])){
-			if (isset($_GET['oID'])){
-				$Editor = new OrderCreator((int) $_GET['oID']);
-			}else{
-				$Editor = new OrderCreator();
-			}
+			$Editor = new OrderCreator();
+
 			Session::set('OrderCreator', $Editor);
 		}else{
-			if (isset($_GET['oID'])){
-				$EditorCheck =& Session::getReference('OrderCreator');
-				if ($EditorCheck->getOrderId() != $_GET['oID']){
-					$Editor = new OrderCreator((int) $_GET['oID']);
-					Session::set('OrderCreator', $Editor);
-				}else{
-					$runInit = true;
-				}
-			}else{
-				$runInit = true;
-			}
+			$runInit = true;
 		}
 
 		$Editor =& Session::getReference('OrderCreator');
@@ -55,6 +42,7 @@
 		}
 	}
 
+AccountsReceivableModules::loadModules();
 OrderPaymentModules::loadModules();
 OrderShippingModules::loadModules();
 OrderTotalModules::loadModules();

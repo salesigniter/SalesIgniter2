@@ -35,8 +35,8 @@ $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 		<script>
 			$(document).ready(function () {
 				$('.makeFileManager').filemanager({
-					onSelect: function(selected){
-						window.opener.CKEDITOR.tools.callFunction($_GET['CKEditorFuncNum'], selected[0]);
+					onSelect: function(e, selected){
+						window.opener.CKEDITOR.tools.callFunction($_GET['CKEditorFuncNum'], selected);
 					}
 				});
 			});

@@ -1247,6 +1247,92 @@ $(document).ready(function () {
 			}
 		});
 	});
+
+	$(document).on('blur', '*[data-validate="true"]', function (){
+		if (this.validity){
+			if (this.checkValidity() === false){
+				var Message = jsLanguage.get('VALIDATION_ERROR_UNKNOWN');
+				var FieldName = $(this).attr('name').toUpperCase();
+				if (this.validity.valueMissing){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_VALUE_MISSING');
+				}else if (this.validity.typeMismatch){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_TYPE_MISMATCH');
+				}else if (this.validity.patternMismatch){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_PATTERN_MISMATCH');
+				}else if (this.validity.tooLong){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_TOO_LONG');
+				}else if (this.validity.rangeUnderflow){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_RANGE_UNDERFLOW');
+				}else if (this.validity.rangeOverflow){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_RANGE_OVERFLOW');
+				}else if (this.validity.stepMismatch){
+					Message = jsLanguage.get(FieldName + '_VALIDATION_ERROR_STEP_MISMATCH');
+				}
+				this.setCustomValidity(Message);
+				$(this).addClass('invalid');
+			}else{
+				this.setCustomValidity('');
+				$(this).removeClass('invalid');
+			}
+		}else{
+			if ($(this).attr('pattern')){
+				var Pattern = new RegExp($(this).attr('pattern'));
+				if (Pattern.test($(this).val()) === false){
+					$(this).addClass('invalid');
+				}else{
+					$(this).removeClass('invalid');
+				}
+			}
+
+			if ($(this).hasClass('invalid') === false){
+				if ($(this).attr('minlength')){
+					if ($(this).val().length < $(this).attr('minlength')){
+						$(this).addClass('invalid');
+					}else{
+						$(this).removeClass('invalid');
+					}
+				}
+			}
+		}
+	});
+
+	$(document).bind('validateForm', function (e, originalE){
+		$(this).find('*[data-validate="true"]').trigger('blur');
+		if ($(this).find('.invalid').size() > 0){
+			originalE.stopPropagation();
+			originalE.stopImmediatePropagation();
+
+			var $Firstfield = $(this).find('.invalid').first();
+
+			$(document.body).each(function (){
+				var $popup = $('<div class="inputErrorPopup"></div>');
+				$popup.html('<div class="ui-widget-content arrowOutside">' +
+					'<div class="arrowInside"></div>' +
+					'</div>' +
+					'<div class="ui-widget-content ui-corner-all mainContent">' +
+					'<span class="ui-icon ui-icon-error"></span>' +
+					'<span class="ui-widget-content-text">This Field Has An Error</span>' +
+					'</div>');
+				$(this).append($popup);
+
+				$popup.position({
+					my: 'left top',
+					at: 'left bottom',
+					of: $Firstfield,
+					collision: 'flip flip',
+					offset: '0px -3px'
+				});
+
+				setTimeout(function (){
+					$popup.remove();
+				}, 5500);
+			});
+		}
+	});
+
+	$(document).on('submit', 'form', function (e){
+		$(this).trigger('validateForm', [e]);
+	});
 });
 
 $.fn.watch = function (props, func, interval, id) {

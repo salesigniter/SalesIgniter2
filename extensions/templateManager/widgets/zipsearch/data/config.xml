@@ -1,0 +1,30 @@
+<ConfigurationGroup>
+	<title>Zipsearch</title>
+	<key>templateManagerWidgetZipsearch</key>
+	<description>Configuration Settings</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Widget Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Tells if the widget is installed or not]]></description>
+				</INSTALLED>
+				<STATUS editable="false">
+					<title><![CDATA[Enable Widget]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Enable widget]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

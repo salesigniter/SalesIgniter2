@@ -62,7 +62,7 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 		if ($this->confirmationMessage != ''){
 			$message = $this->confirmationMessage;
 		}
-		$message .= "\n\n" . 'Would you like to add it anyway?';
+		$message .= "<br><br>" . 'Would you like to add it anyway?';
 		return $message;
 	}
 
@@ -76,7 +76,7 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 	/**
 	 * @param string $type
 	 */
-	private function loadProductTypeClass($type) {
+	public function loadProductTypeClass($type) {
 		$className = 'OrderCreatorProductType' . ucfirst($type);
 		if (class_exists($className) === false){
 			$fileName = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $type . '.php';
@@ -87,6 +87,7 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 
 		if (class_exists($className)){
 			$this->ProductTypeClass = new $className;
+			$this->ProductTypeClass->setProductId($this->getProductsId());
 		}
 		else {
 			$this->ProductTypeClass = $this->getProductClass()->getProductTypeClass();
@@ -213,6 +214,11 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 	 */
 	public function setQuantity($val) {
 		$this->pInfo['products_quantity'] = (int) $val;
+
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'onSetQuantity')){
+			$ProductType->onSetQuantity($this);
+		}
 	}
 
 	/**
@@ -312,6 +318,18 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 	}
 
 	/**
+	 * @param string $k
+	 * @param mixed $v
+	 */
+	public function setInfo($k, $v = ''){
+		if (is_array($k)){
+			$this->pInfo = $k;
+		}else{
+			$this->pInfo[$k] = $v;
+		}
+	}
+
+	/**
 	 * @param array $newInfo
 	 */
 	public function updateInfo(array $newInfo) {
@@ -346,12 +364,19 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 		EventManager::notify('OrderCreatorProductAddToCollection', $this, $OrderedProduct);
 	}
 
-	public function hasEnoughInventory(){
+	public function jsonDecodeProduct($Product){
+		$this->pInfo = json_decode($Product->product_json, true);
+
+		$this->productClass = new Product($this->pInfo['products_id']);
+		$this->products_weight = $this->productClass->getWeight();
+
+		$this->loadProductTypeClass($this->productClass->getProductType());
+
 		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'hasEnoughInventory')){
-			return $ProductType->hasEnoughInventory($this);
+		if (method_exists($ProductType, 'setProductId')){
+			$ProductType->setProductId($this->pInfo['products_id']);
 		}
-		return true;
+		$ProductType->jsonDecodeProduct($this, $Product);
 	}
 }
 

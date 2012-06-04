@@ -86,6 +86,11 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 
 if (sysPermissions::adminAccessAllowed('modules') === true){
 	$orderModules[] = array(
+		'link' => itw_app_link('moduleType=accountsReceivable', 'modules', 'default', 'SSL'),
+		'text' => 'Sale Modules'
+	);
+
+	$orderModules[] = array(
 		'link' => itw_app_link('moduleType=orderPayment', 'modules', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_MODULES_PAYMENT')
 	);
@@ -112,7 +117,7 @@ if (sysPermissions::adminAccessAllowed('modules') === true){
 
 	$contents['children'][] = array(
 		'link' => false,
-		'text' => 'Order Modules',
+		'text' => 'Accounts Receivable',
 		'children' => $orderModules
 	);
 

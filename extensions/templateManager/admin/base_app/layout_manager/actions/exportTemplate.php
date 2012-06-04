@@ -126,7 +126,7 @@ function exportElement($exportVar, $addItemVar, $exportTable, $Element, $element
 }
 
 	ob_start();
-	$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find($_GET['tID']);
+	$Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find($_GET['template_id']);
 	$TemplateDir = $Template->Configuration['DIRECTORY']->configuration_value;
 	$WidgetUpdates = '';
 

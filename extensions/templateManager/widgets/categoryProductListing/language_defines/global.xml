@@ -1,5 +1,5 @@
 <definitions>
-	<define key="INFOBOX_HEADING_CATEGORYPRODUCTLISTING"><![CDATA[Category Products]]></define>
+	<define key="WIDGET_HEADING_CATEGORYPRODUCTLISTING"><![CDATA[Category Products]]></define>
 
 	<define key="TEXT_CATEGORYPRODUCTLISTING_SELECT_CATEGORY"><![CDATA[Category: ]]></define>
 	<define key="TEXT_CATEGORYPRODUCTLISTING_INFO"><![CDATA[ - Category to use and show subcategories/products from]]></define>

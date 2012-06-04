@@ -51,11 +51,18 @@ if (isset($_POST['customers_dob'])){
 	$Customers->customers_dob = $_POST['customers_dob'];
 }
 
+$Address->entry_firstname = $_POST['customers_firstname'];
+$Address->entry_lastname = $_POST['customers_lastname'];
 $Address->entry_street_address = $_POST['entry_street_address'];
 $Address->entry_postcode = $_POST['entry_postcode'];
 $Address->entry_city = $_POST['entry_city'];
 $Address->entry_country_id = $_POST['country'];
-$Address->entry_state = $_POST['entry_state'];
+if (isset($_POST['entry_zone_id'])){
+	$Address->entry_zone_id = $_POST['entry_zone_id'];
+}
+elseif ($_POST['entry_state']){
+	$Address->entry_state = $_POST['entry_state'];
+}
 
 if (isset($_POST['entry_suburb'])){
 	$Address->entry_suburb = $_POST['entry_suburb'];

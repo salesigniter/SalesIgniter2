@@ -2,7 +2,7 @@
 
 $TemplateName = $_POST['templateName'];
 $TemplateDirectory = $_POST['templateDirectory'];
-$tID = $_GET['tID'];
+$tID = $_GET['template_id'];
 $Template = Doctrine_Core::getTable('TemplateManagerTemplates')->find($tID);
 $TemplateToCopy = $Template->Configuration['DIRECTORY']->configuration_value;
 

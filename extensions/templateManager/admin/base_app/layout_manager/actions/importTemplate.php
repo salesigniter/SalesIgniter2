@@ -12,7 +12,7 @@ function installInfobox($boxPath, $className, $extName = null){
 	$class = new $className;
 
 	$Infobox = new TemplatesInfoboxes();
-	$Infobox->box_code = $class->getBoxCode();
+	$Infobox->box_code = $class->getCode();
 	$Infobox->box_path = $boxPath;
 	if (!is_null($extName)){
 		$Infobox->ext_name = $extName;

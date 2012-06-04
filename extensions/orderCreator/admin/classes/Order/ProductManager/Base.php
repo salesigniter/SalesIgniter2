@@ -24,10 +24,6 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 		if (is_null($orderedProducts) === false){
 			foreach($orderedProducts as $i => $pInfo){
 				$orderedProduct = new OrderCreatorProduct($pInfo);
-				while(array_key_exists($orderedProduct->getId(), $this->Contents)){
-					$orderedProduct->regenerateId();
-				}
-
 				$this->Contents[$orderedProduct->getId()] = $orderedProduct;
 			}
 			$this->cleanUp();
@@ -77,15 +73,16 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 	 *
 	 */
 	public function updateFromPost() {
-		global $currencies, $Editor;
 		foreach($_POST['product'] as $id => $pInfo){
 			if (!isset($pInfo['qty'])){
 				continue;
 			}
 
 			$Product = $this->get($id);
-			if (is_null($Product)){
-				die('Error: A Product Was Posted That Was Not In The Product Manager. ( ID:' . $id . ' )');
+			if ($Product === false || is_null($Product)){
+				echo 'Error: A Product Was Posted That Was Not In The Product Manager. ( ID:' . $id . ' )';
+				echo '<pre>';print_r(array_keys($this->Contents));
+				itwExit();
 			}
 
 			$Product->setQuantity($pInfo['qty']);
@@ -147,22 +144,22 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 	}
 
 	/**
-	 * @param OrderCreatorProduct $orderedProduct
+	 * @param OrderProduct $OrderProduct
 	 */
-	public function add(OrderCreatorProduct &$orderedProduct) {
+	public function add(OrderProduct &$OrderProduct) {
 		$addAllowed = true;
-		if (method_exists($orderedProduct, 'OrderCreatorAllowAddToContents')){
-			$addAllowed = $orderedProduct->OrderCreatorAllowAddToContents();
+		if (method_exists($OrderProduct, 'OrderCreatorAllowAddToContents')){
+			$addAllowed = $OrderProduct->OrderCreatorAllowAddToContents();
 		}
 
 		if ($addAllowed === true){
-			$orderedProduct->regenerateId();
-			while(array_key_exists($orderedProduct->getId(), $this->Contents)){
-				$orderedProduct->regenerateId();
+			$OrderProduct->regenerateId();
+			while(array_key_exists($OrderProduct->getId(), $this->Contents)){
+				$OrderProduct->regenerateId();
 			}
 
-			$orderedProduct->OrderCreatorOnAddToContents();
-			$this->Contents[$orderedProduct->getId()] = $orderedProduct;
+			$OrderProduct->OrderCreatorOnAddToContents();
+			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 			$this->cleanUp();
 		}
 	}
@@ -191,6 +188,23 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 	private function removeFromContents($id) {
 		if (array_key_exists($id, $this->Contents)){
 			unset($this->Contents[$id]);
+		}
+	}
+
+	public function jsonDecodeProduct($Product){
+		$OrderProduct = new OrderCreatorProduct();
+		$OrderProduct->regenerateId();
+		$OrderProduct->jsonDecodeProduct($Product);
+		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
+	}
+
+	public function jsonDecode($data){
+		$Contents = json_decode($data, true);
+		foreach($Contents as $Id => $opInfo){
+			$OrderProduct = new OrderCreatorProduct();
+			$OrderProduct->regenerateId();
+			$OrderProduct->jsonDecode($opInfo);
+			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 		}
 	}
 }

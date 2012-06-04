@@ -300,6 +300,26 @@ function parseElement(&$el, &$parent) {
 				$Widget->identifier = $wInfo->attr('data-widget_code');
 				$Widget->sort_order = $wInfo->attr('data-sort_order');
 				$Widget->Configuration['widget_settings']->configuration_value = $wInfo->attr('data-widget_settings');
+				if ($wInfo->attr('data-is_table') == 'true'){
+					$Widget->Configuration['table']->configuration_value = json_encode(array(
+						'table' => $wInfo->find('table')->attr('data-inputs'),
+						'thead' => $wInfo->find('table thead')->attr('data-inputs'),
+						'thead_tr' => $wInfo->find('table thead tr')->eq(0)->attr('data-inputs'),
+						'thead_tr_th' => $wInfo->find('table thead tr th')->eq(0)->attr('data-inputs'),
+						'tbody' => $wInfo->find('table tbody')->attr('data-inputs'),
+						'tbody_tr' => $wInfo->find('table tbody tr')->eq(0)->attr('data-inputs'),
+						'tbody_tr_td' => $wInfo->find('table tbody tr td')->eq(0)->attr('data-inputs')
+					));
+					$Widget->Styles['table']->definition_value = json_encode(array(
+						'table' => $wInfo->find('table')->attr('data-styles'),
+						'thead' => $wInfo->find('table thead')->attr('data-styles'),
+						'thead_tr' => $wInfo->find('table thead tr')->eq(0)->attr('data-styles'),
+						'thead_tr_th' => $wInfo->find('table thead tr th')->eq(0)->attr('data-styles'),
+						'tbody' => $wInfo->find('table tbody')->attr('data-styles'),
+						'tbody_tr' => $wInfo->find('table tbody tr')->eq(0)->attr('data-styles'),
+						'tbody_tr_td' => $wInfo->find('table tbody tr td')->eq(0)->attr('data-styles')
+					));
+				}
 
 				parseElementSettings($wInfo, $Widget);
 

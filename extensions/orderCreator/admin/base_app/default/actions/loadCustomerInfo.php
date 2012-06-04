@@ -9,6 +9,10 @@ foreach($Customer->AddressBook as $aInfo){
 	}
 }
 
+if ($Address === false && $Customer->AddressBook->count() > 0){
+	$Address = $Customer->AddressBook[0];
+}
+
 $Qcustomer = Doctrine_Query::create()
 	->from('Customers c')
 	->leftJoin('c.AddressBook ab')
@@ -40,9 +44,12 @@ $OrderDeliveryAddress = new OrderCreatorAddress($addressArray);
 $addressArray['address_type'] = 'pickup';
 $OrderPickupAddress = new OrderCreatorAddress($addressArray);
 
-$Editor->setCustomerId($Customer->customers_id);
-$Editor->setEmailAddress($Customer->customers_email_address);
-$Editor->setTelephone($Customer->customers_telephone);
+$Editor->InfoManager->setInfo('customers_id', $Customer->customers_id);
+$Editor->InfoManager->setInfo('customers_firstname', $Customer->customers_firstname);
+$Editor->InfoManager->setInfo('customers_lastname', $Customer->customers_lastname);
+$Editor->InfoManager->setInfo('customers_email_address', $Customer->customers_email_address);
+$Editor->InfoManager->setInfo('customers_telephone', $Customer->customers_telephone);
+$Editor->InfoManager->setInfo('customers_member_number', $Customer->customers_number);
 $Editor->AddressManager->addAddressObj($OrderCustomerAddress);
 $Editor->AddressManager->addAddressObj($OrderBillingAddress);
 $Editor->AddressManager->addAddressObj($OrderDeliveryAddress);
@@ -55,9 +62,9 @@ $response = array(
 	'delivery' => $Editor->AddressManager->editAddress('delivery'),
 	'pickup' => $Editor->AddressManager->editAddress('pickup'),
 	'field_values' => array(
-		'email' => $Editor->getEmailAddress(),
-		'member_number' => $Editor->getMemberNumber(),
-		'telephone' => $Editor->getTelephone(),
+		'email' => $Editor->InfoManager->getInfo('customers_email_address'),
+		'member_number' => $Editor->InfoManager->getInfo('customers_member_number'),
+		'telephone' => $Editor->InfoManager->getInfo('customers_telephone'),
 	)
 );
 EventManager::notify('OrderCreatorLoadCustomerInfoResponse', &$response, $Customer);

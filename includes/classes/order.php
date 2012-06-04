@@ -680,12 +680,27 @@ class OrderProcessor {
 
 		$emailEvent->sendEmail($sendVariables);
 
-		// send emails to other people
 		if (sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO') != '') {
-			$emailEvent->sendEmail(array(
-					'email' => sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO'),
-					'name'  => ''
-				));
+			$extraEmails = sysConfig::get('SEND_EXTRA_ORDER_EMAILS_TO');
+			foreach(explode(',', $extraEmails) as $email){
+				$email = trim($email);
+				$matches = array();
+				if (strstr($email, '<')){
+					preg_match('/([a-zA-Z 0-9]+)\<(.*)\>/', $email, &$matches);
+				}elseif (strstr($email, '@')){
+					$matches = array(
+						$userAccount->getFullName(),
+						$email
+					);
+				}
+
+				if (!empty($matches)){
+					$emailEvent->sendEmail(array(
+						'email' => $matches[2],
+						'name'  => $matches[1]
+					));
+				}
+			}
 		}
 	}
 }

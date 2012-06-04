@@ -12,32 +12,43 @@
 			onRowDblClick : null
 		},
 		buttonPresets           : {
-			new    : {
+			'new'    : {
 				selector          : '.newButton',
 				disableIfNone     : false,
 				disableIfMultiple : false,
 				click             : function (e, GridClass) {
 					GridClass.clearSelected();
+
+					var windowName = 'new';
+					if ($(this).data('action_window')){
+						windowName = $(this).data('action_window');
+					}
+
 					GridClass.showWindow({
 						buttonEl   : this,
-						contentUrl : GridClass.buildActionWindowLink('new'),
+						contentUrl : GridClass.buildActionWindowLink(windowName),
 						buttons    : ['cancel', 'save']
 					});
 				}
 			},
-			edit   : {
+			'edit'   : {
 				selector          : '.editButton',
 				disableIfNone     : true,
 				disableIfMultiple : true,
 				click             : function (e, GridClass) {
+					var windowName = 'new';
+					if ($(this).data('action_window')){
+						windowName = $(this).data('action_window');
+					}
+
 					GridClass.showWindow({
 						buttonEl   : this,
-						contentUrl : GridClass.buildActionWindowLink('new', true),
+						contentUrl : GridClass.buildActionWindowLink(windowName, true),
 						buttons    : ['cancel', 'save']
 					});
 				}
 			},
-			delete : {
+			'delete' : {
 				selector          : '.deleteButton',
 				disableIfNone     : true,
 				disableIfMultiple : false,
@@ -45,7 +56,7 @@
 					GridClass.showDeleteDialog();
 				}
 			},
-			export : {
+			'export' : {
 				selector          : '.csvExportButton',
 				disableIfNone     : true,
 				disableIfMultiple : false,
@@ -66,7 +77,27 @@
 
 			$('.gridInfoRow').hide();
 
-			$(this.GridElement).on('mouseover mouseout click refresh dblclick selectAll', '.gridBodyRow', function (e, isRefresh) {
+			$(this.GridElement).on('selectAll', function (){
+				if (self.allowMultiple === true){
+					self.enableButton('button');
+					var selectedCount = 0;
+					$(self.GridElement).find('.gridBodyRow').each(function (){
+						if ($(this).hasClass('noSelect')){
+							return false;
+						}
+						$(this).removeClass('state-hover').addClass('state-active');
+						selectedCount++;
+					});
+
+					$.each(self.options.buttons, function () {
+						if (this.disableIfMultiple === true && selectedCount > 1){
+							self.disableButton(this.selector);
+						}
+					});
+				}
+			});
+
+			$(this.GridElement).on('mouseover mouseout click refresh dblclick', '.gridBodyRow', function (e, isRefresh) {
 				switch(e.type){
 					case 'mouseover':
 						if ($(this).hasClass('noHover')){
@@ -88,7 +119,6 @@
 							this.style.cursor = 'default';
 						}
 						break;
-					case 'selectAll':
 					case 'click':
 						if ($(this).hasClass('noSelect')){
 							return false;
@@ -96,11 +126,9 @@
 
 						self.enableButton('button');
 
-						if (self.allowMultiple === true && ( (e.ctrlKey && e.type == 'click') || (e.type == 'selectAll') )){
+						if (self.allowMultiple === true && (e.ctrlKey && e.type == 'click')){
 							if ($(this).hasClass('state-active')){
-								if (e.type != 'selectAll'){
-									$(this).removeClass('state-active');
-								}
+								$(this).removeClass('state-active');
 							}
 							else {
 								$(this).removeClass('state-hover').addClass('state-active');
@@ -141,8 +169,8 @@
 			$(document).on('keydown', function (e) {
 				switch(e.which){
 					case 65:
-						if (self.getSelectedRows().size() > 0){
-							$(self.GridElement).find('.gridBodyRow').trigger('selectAll');
+						if (e.ctrlKey && self.getSelectedRows().size() > 0){
+							$(self.GridElement).trigger('selectAll');
 							return false;
 						}
 						break;
@@ -310,15 +338,15 @@
 				$Row.append('<td class="gridBodyRowColumn">' + this.text + '</td>');
 			});
 
-			$(this.GridElement).find('tbody').append($Row);
-			$(this.GridElement).find('tbody').trigger('rowAdded');
+			this.GridElement.find('tbody').append($Row);
+			this.GridElement.find('tbody').trigger('rowAdded');
 			return $Row;
 		},
 		enableButton            : function (selector) {
-			$(this.GridButtonElement).find(selector).button('enable');
+			this.GridButtonElement.find(selector).button('enable');
 		},
 		disableButton           : function (selector) {
-			$(this.GridButtonElement).find(selector).button('disable');
+			this.GridButtonElement.find(selector).button('disable');
 		},
 		getDataKey              : function () {
 			return this.dataKey;
@@ -332,7 +360,7 @@
 			return data.join(',');
 		},
 		getSelectedRows         : function () {
-			return $(this.GridElement).find('tbody').find('.gridBodyRow.state-active');
+			return this.GridElement.find('tbody').find('.gridBodyRow.state-active');
 		},
 		hasSelected             : function () {
 			return (this.getSelectedRows().size() > 0);
@@ -342,7 +370,7 @@
 			this.getSelectedRows().removeClass('state-active');
 			$.each(self.options.buttons, function () {
 				if (this.disableIfNone === true){
-					$(self.GridButtonElement).find(this.selector).button('disable');
+					self.GridButtonElement.find(this.selector).button('disable');
 				}
 			});
 		},
@@ -350,9 +378,13 @@
 			var self = this;
 			showAjaxLoader(o.buttonEl, 'small');
 
-			var url = [this.buildActionLink(o.actionName)];
+			var url = [this.buildActionLink(o.actionName, o.addGetVars)];
 			if (o.addKeyToUrl === true){
 				url.push(o.dataKey + '=' + this.getSelectedData(o.dataKey));
+			}
+
+			if (o.data && $.isFunction(o.data)){
+				o.data = o.data.apply(o.windowEl);
 			}
 
 			$.ajax({
@@ -379,7 +411,7 @@
 		baseLinkParams          : function (pageName) {
 			pageName = pageName || thisAppPage
 			var getVars = [];
-			if ($_GET['appExt']){
+			if (thisAppExt != ''){
 				getVars.push('appExt=' + thisAppExt);
 			}
 			getVars.push('app=' + thisApp);
@@ -435,7 +467,7 @@
 			pageName = pageName || thisAppPage;
 			addGetVars = addGetVars || [];
 			var getVars = [];
-			if ($_GET['appExt']){
+			if (thisAppExt != ''){
 				getVars.push('appExt=' + thisAppExt);
 			}
 			getVars.push('app=' + thisApp);
@@ -454,6 +486,11 @@
 			if (type == 'cancel'){
 				return function () {
 					var mainContainer = $(this).parentsUntil('.newWindowContainer').last().parent();
+
+					if (o.onBeforeHide){
+						o.onBeforeHide.apply(self.element);
+					}
+
 					mainContainer.effect('fade', {
 						mode : 'hide'
 					}, function () {
@@ -463,16 +500,21 @@
 							mainContainer.remove();
 						});
 					});
+
+					if (o.onAfterHide){
+						o.onAfterHide.apply(self.element)
+					}
 				};
 			} else if (type == 'save'){
 				return function () {
-					o.actionName = o.actionName || 'save';
+					o.actionName = o.actionName || $(this).data('action') || 'save';
 					var options = $.extend({
 						dataKey     : self.getDataKey(),
 						actionName  : o.actionName,
 						addKeyToUrl : (self.getSelectedRows().size() > 0),
 						windowEl    : $(this).parentsUntil('.newWindowContainer').last().parent(),
-						buttonEl    : $(this)
+						buttonEl    : $(this),
+						addGetVars  : []
 					}, o);
 					self.postWindowData(options);
 				};
@@ -512,6 +554,10 @@
 						}, function () {
 							self.newWindow.find('button').button();
 
+							self.newWindow.find('.saveButton').click(function (e){
+								$(document).trigger('validateForm', [e]);
+							});
+
 							$.each(o.buttons, function () {
 								if ($.isPlainObject(this)){
 									if (this.type == 'cancel'){
@@ -531,6 +577,14 @@
 
 							removeAjaxLoader($(buttonEl));
 						});
+
+						if (o.onAfterShow){
+							o.onAfterShow.apply(self.newWindow, [
+								{
+									triggerEl : self
+								}
+							]);
+						}
 					});
 				}
 			});

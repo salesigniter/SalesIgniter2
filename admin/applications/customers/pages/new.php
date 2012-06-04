@@ -175,7 +175,7 @@ $tabsWrapper = htmlBase::newElement('div')->css('position', 'relative')->append(
 
 $pageForm = htmlBase::newElement('form')
 	->attr('name', 'customers')
-	->attr('action', itw_app_link(tep_get_all_get_params(array('action')) . 'action=update', null, null, 'SSL'))
+	->attr('action', itw_app_link(tep_get_all_get_params(array('action')) . 'action=save', null, null, 'SSL'))
 	->attr('method', 'post')
 	->append($tabsWrapper)
 	->append(htmlBase::newElement('br'))

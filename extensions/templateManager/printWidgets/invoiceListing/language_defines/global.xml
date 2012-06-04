@@ -1,0 +1,10 @@
+<definitions>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICELISTING_TEXT_TITLE"><![CDATA[Invoice Listing]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICELISTING_TEXT_DESCRIPTION"><![CDATA[Invoice Listing]]></define>
+
+	<define key="TABLE_HEADING_PRICE_EXCLUDING_TAX"><![CDATA[Price Excl.]]></define>
+	<define key="TABLE_HEADING_PRICE_INCLUDING_TAX"><![CDATA[Price Incl.]]></define>
+	<define key="TABLE_HEADING_TOTAL_EXCLUDING_TAX"><![CDATA[Total Excl.]]></define>
+	<define key="TABLE_HEADING_TOTAL_INCLUDING_TAX"><![CDATA[Total Incl.]]></define>
+	<define key="TABLE_HEADING_TAX"><![CDATA[Tax Rate]]></define>
+</definitions>

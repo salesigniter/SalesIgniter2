@@ -112,6 +112,7 @@ set_exception_handler(array($ExceptionManager, 'add'));
 require(sysConfig::getDirFsCatalog() . 'includes/classes/eventManager/Manager.php');
 
 // define general functions used application-wide
+require(sysConfig::getDirFsCatalog() . 'includes/functions/global.php');
 require(sysConfig::getDirFsCatalog() . 'includes/functions/general.php');
 require(sysConfig::getDirFsCatalog() . 'includes/functions/crypt.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/system_modules_loader.php');
@@ -189,7 +190,9 @@ if (APPLICATION_ENVIRONMENT == 'catalog'){
 		Session::set('navigation', new navigationHistory);
 	}
 	$navigation = &Session::getReference('navigation');
-	$navigation->add_current_page();
+	if (basename($_SERVER['PHP_SELF']) != 'javascript.php' && basename($_SERVER['PHP_SELF']) != 'stylesheet.php'){
+		$navigation->add_current_page();
+	}
 }
 
 $appExtension->postSessionInit();

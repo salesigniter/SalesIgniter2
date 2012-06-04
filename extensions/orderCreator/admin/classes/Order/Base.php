@@ -7,6 +7,7 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
+require(dirname(__FILE__) . '/InfoManager/Base.php');
 require(dirname(__FILE__) . '/AddressManager/Base.php');
 require(dirname(__FILE__) . '/ProductManager/Base.php');
 require(dirname(__FILE__) . '/TotalManager/Base.php');
@@ -19,6 +20,11 @@ class OrderCreator extends Order implements Serializable
 	 * @var array
 	 */
 	private $data = array();
+
+	/**
+	 * @var OrderCreatorInfoManager
+	 */
+	public $InfoManager;
 
 	/**
 	 * @var OrderCreatorAddressManager
@@ -46,83 +52,64 @@ class OrderCreator extends Order implements Serializable
 	private $errorMessages = array();
 
 	/**
-	 * @param int $orderId
+	 * @var AccountsReceivableModule
 	 */
-	public function __construct($orderId = 0) {
-		if ($orderId > 0){
-			$this->mode = 'edit';
-			$this->setOrderId($orderId);
+	protected $SaleModule = null;
 
-			$Qorder = Doctrine_Query::create()
-				->from('Orders o')
-				->leftJoin('o.OrdersAddresses oa')
-				->leftJoin('oa.Zones z')
-				->leftJoin('oa.Countries c')
-				->leftJoin('c.AddressFormat af')
-				->leftJoin('o.OrdersTotal ot')
-				->leftJoin('o.OrdersPaymentsHistory oph')
-				->leftJoin('o.OrdersStatusHistory osh')
-				->leftJoin('osh.OrdersStatus s')
-				->leftJoin('s.OrdersStatusDescription sd')
-				->leftJoin('o.OrdersProducts op')
-				->where('o.orders_id = ?', $orderId)
-				->andWhere('sd.language_id = ?', Session::get('languages_id'))
-				->orderBy('ot.sort_order, osh.date_added DESC');
+	public function __construct() {
+		$this->InfoManager = new OrderCreatorInfoManager();
+		$this->AddressManager = new OrderCreatorAddressManager();
+		$this->ProductManager = new OrderCreatorProductManager();
 
-			EventManager::notify('OrderQueryBeforeExecute', &$Qorder);
+		$SubTotalModule = OrderTotalModules::getModule('subtotal');
+		$TaxModule = OrderTotalModules::getModule('tax');
+		$TotalModule = OrderTotalModules::getModule('total');
 
-			$Order = $Qorder->execute()->toArray();
-			$this->Order = $Order[0];
-			$this->customerId = $this->Order['customers_id'];
+		$SubTotal = new OrderCreatorTotal();
+		$SubTotal->setModule($SubTotalModule->getCode());
+		$SubTotal->setModuleType($SubTotalModule->getModuleType());
+		$SubTotal->setTitle($SubTotalModule->getTitle());
+		$SubTotal->setSortOrder(1);
+		$SubTotal->setValue(0.0000);
 
-			$this->AddressManager = new OrderCreatorAddressManager($this->Order['OrdersAddresses']);
-			$this->AddressManager->setOrderId($this->Order['orders_id']);
+		$Tax = new OrderCreatorTotal();
+		$Tax->setModule($TaxModule->getCode());
+		$Tax->setModuleType($TaxModule->getModuleType());
+		$Tax->setTitle($TaxModule->getTitle());
+		$Tax->setSortOrder(2);
+		$Tax->setValue(0.0000);
 
-			$this->ProductManager = new OrderCreatorProductManager($this->Order['OrdersProducts']);
-			$this->ProductManager->setOrderId($this->Order['orders_id']);
+		$Total = new OrderCreatorTotal();
+		$Total->setModule($TotalModule->getCode());
+		$Total->setModuleType($TotalModule->getModuleType());
+		$Total->setTitle($TotalModule->getTitle());
+		$Total->setSortOrder(3);
+		$Total->setValue(0.0000);
 
-			$this->TotalManager = new OrderCreatorTotalManager($this->Order['OrdersTotal']);
-			$this->TotalManager->setOrderId($this->Order['orders_id']);
+		$this->TotalManager = new OrderCreatorTotalManager();
+		$this->TotalManager->add($SubTotal);
+		$this->TotalManager->add($Tax);
+		$this->TotalManager->add($Total);
 
-			$this->PaymentManager = new OrderCreatorPaymentManager($this->Order['OrdersPaymentsHistory']);
-			$this->PaymentManager->setOrderId($this->Order['orders_id']);
-		}
-		else {
-			$this->mode = 'new';
-			$this->Order = array(
-				'orders_status'         => 1,
-				'currency'              => Session::get('currency'),
-				'currency_value'        => Session::get('currency_value'),
-				'OrdersStatusHistory'   => array(),
-				'OrdersPaymentsHistory' => array()
-			);
-			$this->AddressManager = new OrderCreatorAddressManager();
-			$this->ProductManager = new OrderCreatorProductManager();
-			$this->TotalManager = new OrderCreatorTotalManager(array(
-				array(
-					'module_type' => 'subtotal',
-					'title'       => 'Sub-Total:',
-					'value'       => 0.00,
-					'sort_order'  => 1
-				),
-				array(
-					'module_type' => 'tax',
-					'title'       => 'Tax:',
-					'value'       => 0.00,
-					'sort_order'  => 2
-				),
-				array(
-					'module_type' => 'total',
-					'editable'    => false,
-					'title'       => 'Total:',
-					'value'       => 0.00,
-					'sort_order'  => 3
-				)
-			));
-			$this->PaymentManager = new OrderCreatorPaymentManager();
-		}
+		$this->PaymentManager = new OrderCreatorPaymentManager();
+
+		$this->InfoManager->setInfo('status', 1);
+		$this->InfoManager->setInfo('currency', Session::get('currency'));
+		$this->InfoManager->setInfo('currency_value', Session::get('currency_value'));
 
 		$this->errorMessages = array();
+
+		AccountsReceivableModules::loadModules();
+		foreach(AccountsReceivableModules::getModules() as $Module){
+			if ($Module->ownsSale() === true){
+				$Module->load(
+					$this,
+					true,
+					(isset($_GET['sale_id']) ? (int) $_GET['sale_id'] : 0),
+					(isset($_GET['sale_revision']) ? (int) $_GET['sale_revision'] : 0)
+				);
+			}
+		}
 
 		EventManager::notify('OrderCreatorLoadOrder', $this);
 	}
@@ -135,9 +122,22 @@ class OrderCreator extends Order implements Serializable
 			print_r(debug_print_backtrace());
 		}
 		$this->ProductManager->init();
+
+		if (isset($this->SaleModule)){
+			$this->SaleModule = AccountsReceivableModules::getModule($this->SaleModule);
+			$this->SaleModule->load($this, false);
+		}
 		/*$this->AddressManager->init();
 		$this->TotalManager->init();
 		$this->PaymentManager->init();*/
+	}
+
+	public function hasSaleModule(){
+		return !($this->SaleModule === null);
+	}
+
+	public function getSaleModule(){
+		return $this->SaleModule;
 	}
 
 	/**
@@ -149,6 +149,7 @@ class OrderCreator extends Order implements Serializable
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
 			'Order'          => $this->Order,
+			'InfoManager'    => $this->InfoManager,
 			'ProductManager' => $this->ProductManager,
 			'AddressManager' => $this->AddressManager,
 			'TotalManager'   => $this->TotalManager,
@@ -156,17 +157,23 @@ class OrderCreator extends Order implements Serializable
 			'errorMessages'  => $this->errorMessages,
 			'data'           => $this->data
 		);
+
+		if (is_object($this->SaleModule)){
+			$data['SaleModule'] = $this->SaleModule->getCode();
+		}
 		return serialize($data);
 	}
 
 	/**
 	 * @param string $data
+	 * @return mixed|string
 	 */
 	public function unserialize($data) {
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
 			$this->$key = $dInfo;
 		}
+		return $data;
 	}
 
 	/**

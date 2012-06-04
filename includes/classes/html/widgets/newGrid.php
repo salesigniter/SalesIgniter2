@@ -221,7 +221,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 
 		if (!empty($this->buttons)){
 			$buttonBar = htmlBase::newElement('div')
-				->addClass('ui-widget ui-widget-header ui-corner-all gridButtonBar')
+				->addClass('ui-widget ui-widget-header ui-corner-all gridButtonBar unselectable')
 				->css(array(
 				'margin-bottom' => '.5em',
 				'text-align'    => 'right'
@@ -260,7 +260,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 
 		if ($this->usePages === true && isset($this->pagerBar)){
 			$pageElement = htmlBase::newElement('div')
-				->addClass('ui-widget ui-widget-header ui-corner-all gridPagerBar')
+				->addClass('ui-widget ui-widget-header ui-corner-all gridPagerBar unselectable')
 				->css(array(
 				'margin-top' => '.5em',
 				'text-align' => 'right'
@@ -384,7 +384,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 			$col->click($settings['click']);
 		}
 
-		if (isset($settings['useSort']) && $settings['useSort'] === true){
+		if ($this->useSortBy === true && isset($settings['useSort']) && $settings['useSort'] === true){
 			if (isset($settings['sortKey']) && !empty($settings['sortKey'])){
 				$sortInfo = $this->getSortInfo($settings['sortKey']);
 				$sortDir = ($sortInfo['sortDir'] === false ? 'none' : ($sortInfo['sortDir'] == 'DESC' ? 'desc' : 'asc'));
@@ -787,7 +787,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 		if ($this->usePages === false){
 			$result = $this->dataQuery->execute();
 			if ($returnArray === true){
-				return $result->toArray(true);
+				$result = $result->toArray(true);
 			}
 			return $result;
 		}

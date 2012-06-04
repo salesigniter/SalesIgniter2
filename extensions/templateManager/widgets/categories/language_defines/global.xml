@@ -1,7 +1,10 @@
 <definitions>
-	<define key="INFOBOX_HEADING_CATEGORIES"><![CDATA[Categories]]></define>
-	<define key="INFOBOX_CATEGORIES_ALL_PRODUCTS"><![CDATA[All Products]]></define>
-	<define key="INFOBOX_CATEGORIES_VIEW_PRODUCTS"><![CDATA[All Products]]></define>
-	<define key="INFOBOX_CATEGORIES_SELECT_PARENT_CATEGORY"><![CDATA[Please select a parent category]]></define>
-	<define key="INFOBOX_CATEGORIES_SELECT_PARENT_CATEGORY_OPTION"><![CDATA[--Select--]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_CATEGORIES_TEXT_TITLE"><![CDATA[Categories]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_CATEGORIES_TEXT_DESCRIPTION"><![CDATA[Categories]]></define>
+
+	<define key="WIDGET_HEADING_CATEGORIES"><![CDATA[Categories]]></define>
+	<define key="WIDGET_CATEGORIES_ALL_PRODUCTS"><![CDATA[All Products]]></define>
+	<define key="WIDGET_CATEGORIES_VIEW_PRODUCTS"><![CDATA[All Products]]></define>
+	<define key="WIDGET_CATEGORIES_SELECT_PARENT_CATEGORY"><![CDATA[Please select a parent category]]></define>
+	<define key="WIDGET_CATEGORIES_SELECT_PARENT_CATEGORY_OPTION"><![CDATA[--Select--]]></define>
 </definitions>

@@ -21,10 +21,10 @@
 
 		if($api->listSubscribe($list_id, $_GET['email'], '') === true) {
 			// It worked!
-			return 'Success. Check your inbox for confirmation';//sysLanguage::get('INFOBOX_MAILCHIMP_SUCCESS')
+			return 'Success. Check your inbox for confirmation';//sysLanguage::get('WIDGET_MAILCHIMP_SUCCESS')
 		}else{
 			// An error ocurred, return error message
-			return  'Error:'. $api->errorMessage;//sysLanguage::get('INFOBOX_MAILCHIMP_FAIL')
+			return  'Error:'. $api->errorMessage;//sysLanguage::get('WIDGET_MAILCHIMP_FAIL')
 		}
 	}
 

@@ -364,8 +364,8 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 		return $return;
 	}
 
-	public function hasEnoughInventory(OrderCreatorProduct &$Product){
-		if ($this->checkAvailableBarcodes($Product) === false){
+	public function hasEnoughInventory(OrderProduct &$Product, $Qty = null){
+		if (parent::hasEnoughInventory($Product, $Qty) === false){
 			$Product->setConfirmationMessage('This Product Does Not have Enough Inventory For The Selected Dates.');
 			return false;
 		}

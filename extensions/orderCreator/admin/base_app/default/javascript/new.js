@@ -1,9 +1,3 @@
-function number_format(number) {
-	return Math.round(
-		(number * 100)
-	) / 100;
-}
-
 function removeFromCart(options){
 	$.ajax({
 		cache : false,
@@ -27,7 +21,10 @@ function recheckInventory(id){
 		},
 		success : function (data) {
 			removeAjaxLoader($Row);
-			if (data.hasInventory === false){
+			if (data.hasNoInv.length > 0){
+				$.each(data.hasNoInv, function (){
+					$Row.addClass('noInventory');
+				});
 				if (confirm(data.confirmMessage) === false){
 					removeFromCart({
 						id: id,
@@ -577,7 +574,23 @@ $(document).ready(function () {
 		}
 	});
 
-	if (!$_GET['error'] && !$_GET['oID']){
+	if (!$_GET['error'] && !$_GET['sale_id']){
 		$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
 	}
+
+	$(window).scroll(function (e){
+		var scrollTop = $(this).scrollTop();
+		var buttonContainer = $('.buttonContainer');
+		if (scrollTop > buttonContainer.offset().top){
+			buttonContainer.data('originalOffset', buttonContainer.offset().top);
+			buttonContainer.addClass('fixed');
+		}else if (scrollTop < buttonContainer.data('originalOffset')){
+			buttonContainer.removeClass('fixed');
+		}
+	});
+
+	$('button[name=print]').click(function (e){
+		e.preventDefault();
+		window.open(js_app_link('appExt=orderCreator&app=default&appPage=new&action=print&type=' + $(this).val() + '&' + $(this).data('print_vars')));
+	});
 });

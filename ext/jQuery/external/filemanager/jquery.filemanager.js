@@ -117,6 +117,11 @@
 			if (self.element.data('listing_type')){
 				self.options.type = self.element.data('listing_type');
 			}
+			if (self.options.onSelect){
+				self.inputElement.bind('onSelect', function (){
+					self.options.onSelect.apply(self, arguments);
+				});
+			}
 
 			self.inputElement.bind('selectFile', function () {
 				var selected = [];
@@ -126,9 +131,7 @@
 				});
 
 				$(this).val(selected.join(','));
-				if (self.options.onSelect){
-					self.options.onSelect.apply(this, [selected]);
-				}
+				$(this).trigger('onSelect', [selected]);
 
 				if (self.isWindow === true){
 					window.close();

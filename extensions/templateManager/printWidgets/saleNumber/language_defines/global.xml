@@ -1,0 +1,4 @@
+<definitions>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_SALENUMBER_TEXT_TITLE"><![CDATA[Sale Number]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_SALENUMBER_TEXT_DESCRIPTION"><![CDATA[This widget will show the sale id and the revision number ( optional )]]></define>
+</definitions>

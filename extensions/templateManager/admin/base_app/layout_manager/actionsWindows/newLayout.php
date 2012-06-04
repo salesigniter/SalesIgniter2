@@ -7,28 +7,10 @@
  * To change this template use File | Settings | File Templates.
  */
 
-$layoutName = '';
-$layoutType = 'desktop';
-$layoutPageType = 'template';
-$layoutPageTitle = 'My Title';
-$layoutPageSubTitle = 'My Sub Title';
-$layoutAppName = 'MyApp';
-$layoutAppPageName = 'default';
 $selApps = array();
-if (isset($_GET['lID'])){
-	$QLayout = Doctrine_Query::create()
-	->from('TemplateManagerLayouts')
-	->where('layout_id = ?', (int) $_GET['lID'])
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-	$layoutId = $QLayout[0]['layout_id'];
-	$layoutName = $QLayout[0]['layout_name'];
-	$layoutType = $QLayout[0]['layout_type'];
-	$layoutPageType = $QLayout[0]['page_type'];
-	$layoutAppName = $QLayout[0]['app_name'];
-	$layoutAppPageName = $QLayout[0]['app_page_name'];
-	$layoutPageTitle = $QLayout[0]['app_page_title'];
-	$layoutPageSubTitle = $QLayout[0]['app_page_sub_title'];
+$TemplateManagerLayouts = Doctrine_Core::getTable('TemplateManagerLayouts');
+if (isset($_GET['layout_id'])){
+	$Layout = $TemplateManagerLayouts->find((int) $_GET['layout_id']);
 
 	$QselApps = Doctrine_Query::create()
 	->from('TemplatePages')
@@ -38,21 +20,25 @@ if (isset($_GET['lID'])){
 		$layouts = explode(',', $sInfo['layout_id']);
 		$pageType = explode(',', $sInfo['page_type']);
 		$assocurls = explode(',', $sInfo['associative_url']);
-		if (in_array($layoutId, $layouts)){
+		if (in_array($Layout->layout_id, $layouts)){
 			if (!empty($sInfo['extension'])){
 				$selApps['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = true;
-				$pageTypes['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $pageType[array_search($layoutId,$layouts)];
-				$assocurl['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $assocurls[array_search($layoutId,$layouts)];
+				$pageTypes['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $pageType[array_search($Layout->layout_id,$layouts)];
+				$assocurl['ext'][$sInfo['extension']][$sInfo['application']][$sInfo['page']] = $assocurls[array_search($Layout->layout_id,$layouts)];
 
 			}
 			else {
 				$selApps[$sInfo['application']][$sInfo['page']] = true;
-				$pageTypes[$sInfo['application']][$sInfo['page']] = $pageType[array_search($layoutId,$layouts)];
-				$assocurl[$sInfo['application']][$sInfo['page']] = $assocurls[array_search($layoutId,$layouts)];
+				$pageTypes[$sInfo['application']][$sInfo['page']] = $pageType[array_search($Layout->layout_id,$layouts)];
+				$assocurl[$sInfo['application']][$sInfo['page']] = $assocurls[array_search($Layout->layout_id,$layouts)];
 			}
 		}
 	}
+}else{
+	$Layout = $TemplateManagerLayouts->getRecord();
 }
+$LayoutSettings = json_decode($Layout->layout_settings);
+
 $SettingsTable = htmlBase::newElement('table')
 ->setCellPadding(3)
 ->setCellSpacing(0);
@@ -63,265 +49,18 @@ $SettingsTable->addBodyRow(array(
 		array('text' => htmlBase::newElement('input')
 		->setName('layoutName')
 		->attr('id', 'layoutName')
-		->val($layoutName)
+		->val($Layout->layout_name)
 		->draw())
 	)
 ));
 
-$SettingsTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => 'Display Type:'),
-			array('text' => htmlBase::newElement('selectbox')
-				->setName('layoutType')
-				->addOption('desktop', 'Desktop')
-				->addOption('smartphone', 'Smart Phone')
-				->addOption('tablet', 'Tablet')
-				->selectOptionByValue($layoutType)
-				->draw())
-		)
-	));
-
-$iTemplate = Doctrine_Query::create()
-	->from('TemplateManagerTemplates')
-	->where('template_id = ?', $_GET['tID'])
-	->fetchOne();
-
-if($iTemplate->Configuration['NAME']->configuration_value == 'codeGeneration'){
+if($Layout->Template->Configuration['NAME']->configuration_value == 'codeGeneration'){
 	$associativeUrl = htmlBase::newElement('input')
 		->setLabel('Show in page:');
 
 }
 
-function makeCategoriesArray($parentId = 0){
-	$catArr = array();
-	$Qcategories = Doctrine_Query::create()
-		->from('Categories c')
-		->leftJoin('c.CategoriesDescription cd')
-		->where('parent_id = ?', $parentId)
-		->andWhere('language_id = ?', Session::get('languages_id'))
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-	foreach($Qcategories as $category){
-		$catArr[$category['categories_id']] = array(
-			'name' => $category['CategoriesDescription'][0]['categories_seo_url']
-		);
-
-		$Children = makeCategoriesArray($category['categories_id']);
-		if (!empty($Children)){
-			$catArr[$category['categories_id']]['children'] = $Children;
-		}
-	}
-
-	return $catArr;
-}
-$CatArr = makeCategoriesArray(0);
-
-function buildCategorisPages($CatArr, &$AppArray, $appName){
-	global $selApps;
-	foreach($CatArr as $cat){
-		$pageName = $cat['name'];
-		$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
-		if (isset($cat['children']) && sizeof($cat['children']) > 0){
-			buildCategorisPages($cat['children'], $AppArray, $appName, $pageName);
-		}
-	}
-}
-
-function buildProductPages(&$AppArray, $appName){
-	global $selApps;
-	$QProducts = Doctrine_Query::create()
-	->from('Products p')
-	->leftJoin('p.ProductsDescription pd')
-	->where('pd.language_id = ?', Session::get('languages_id'));
-
-	EventManager::notify('AdminProductListingTemplateQueryBeforeExecute', $QProducts);
-
-	$QProducts = $QProducts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-	foreach($QProducts as $prod){
-		$pageName = $prod['products_id'];
-		$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
-	}
-}
-
-$Applications = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'applications/');
-$AppArray = array();
-foreach($Applications as $AppDir){
-	if ($AppDir->isDot() || $AppDir->isFile()){
-		continue;
-	}
-	$appName = $AppDir->getBasename();
-
-	$AppArray[$appName] = array();
-	if($appName == 'index'){
-		buildCategorisPages($CatArr, $AppArray, $appName);
-	}
-	if($appName == 'product' && isset($associativeUrl)){
-		buildProductPages($AppArray, $appName);
-	}
-	if (is_dir($AppDir->getPathname() . '/pages/')){
-		$Pages = new DirectoryIterator($AppDir->getPathname() . '/pages/');
-		foreach($Pages as $Page){
-			if ($Page->isDot() || $Page->isDir()){
-				continue;
-			}
-			$pageName = $Page->getBasename();
-
-			$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
-		}
-	}
-	ksort($AppArray[$appName]);
-}
-
-$Extensions = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
-foreach($Extensions as $Extension){
-	if ($Extension->isDot() || $Extension->isFile()){
-		continue;
-	}
-
-	if (is_dir($Extension->getPathName() . '/catalog/base_app/')){
-		$extName = $Extension->getBasename();
-
-		$AppArray['ext'][$extName] = array();
-
-		$ExtApplications = new DirectoryIterator($Extension->getPathname() . '/catalog/base_app/');
-		foreach($ExtApplications as $ExtApplication){
-			if ($ExtApplication->isDot() || $ExtApplication->isFile()){
-				continue;
-			}
-			$appName = $ExtApplication->getBasename();
-
-			$AppArray['ext'][$extName][$appName] = array();
-			if ($Extension->getBasename() == 'infoPages'){
-				$Qpages = Doctrine_Query::create()
-					->select('page_key')
-					->from('Pages')
-					->where('page_type = ?', 'page')
-					->orderBy('page_key asc')
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-				if ($Qpages){
-					foreach($Qpages as $pInfo){
-						$pageName = $pInfo['page_key'];
-
-						$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
-					}
-				}
-			}elseif ($Extension->getBasename() == 'categoriesPages' && $appExtension->isInstalled('categoriesPages') && $appExtension->isEnabled('categoriesPages')){
-				$Qpages = Doctrine_Query::create()
-					->select('page_key')
-					->from('CategoriesPages')
-					->orderBy('page_key asc')
-					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-				if ($Qpages){
-					foreach($Qpages as $pInfo){
-						$pageName = $pInfo['page_key'];
-
-						$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
-					}
-				}
-			}elseif (is_dir($ExtApplication->getPathname() . '/pages/')){
-				$ExtPages = new DirectoryIterator($ExtApplication->getPathname() . '/pages/');
-				foreach($ExtPages as $ExtPage){
-					if ($ExtPage->isDot() || $ExtPage->isDir()){
-						continue;
-					}
-					$pageName = $ExtPage->getBasename();
-
-					$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
-				}
-			}
-			ksort($AppArray['ext'][$extName][$appName]);
-		}
-		ksort($AppArray['ext']);
-	}
-}
-
-$Extensions = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
-foreach($Extensions as $Extension){
-	if ($Extension->isDot() || $Extension->isFile()){
-		continue;
-	}
-
-	if (is_dir($Extension->getPathName() . '/catalog/ext_app/')){
-		$ExtCheck = new DirectoryIterator($Extension->getPathname() . '/catalog/ext_app/');
-		foreach($ExtCheck as $eInfo){
-			if ($eInfo->isDot() || $eInfo->isFile()){
-				continue;
-			}
-
-			if (is_dir($eInfo->getPathName() . '/pages')){
-				$appName = $eInfo->getBasename();
-
-				$Pages = new DirectoryIterator($eInfo->getPathname() . '/pages/');
-				foreach($Pages as $Page){
-					if ($Page->isDot() || $Page->isDir()){
-						continue;
-					}
-					$pageName = $Page->getBasename();
-
-					if (!isset($AppArray[$appName][$pageName])){
-						$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
-					}
-				}
-			}
-			elseif (isset($AppArray['ext'][$eInfo->getBasename()])) {
-				$Apps = new DirectoryIterator($eInfo->getPathName());
-				$extName = $eInfo->getBasename();
-
-				foreach($Apps as $App){
-					if ($App->isDot() || $App->isFile()){
-						continue;
-					}
-					$appName = $App->getBasename();
-
-					if (is_dir($App->getPathname() . '/pages')){
-						$Pages = new DirectoryIterator($App->getPathname() . '/pages/');
-						foreach($Pages as $Page){
-							if ($Page->isDot() || $Page->isDir()){
-								continue;
-							}
-							$pageName = $Page->getBasename();
-
-							if (!isset($AppArray['ext'][$extName][$App->getBasename()])){
-								$AppArray['ext'][$extName][$App->getBasename()] = array();
-							}
-
-							$AppArray['ext'][$extName][$appName][$pageName] = (isset($selApps['ext'][$extName][$appName][$pageName]) ? $selApps['ext'][$extName][$appName][$pageName] : false);
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-if (is_dir(sysConfig::getDirFsCatalog() . 'templates/kingdom/applications/')){
-	$TemplateApps = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/kingdom/applications/');
-	foreach($TemplateApps as $Application){
-		if ($Application->isDot() || $Application->isFile()){
-			continue;
-		}
-
-		$appName = $Application->getBasename();
-		if (!isset($AppArray[$appName])){
-			$AppArray[$appName] = array();
-		}
-
-		if (is_dir($Application->getPathname() . '/pages/')){
-			$Pages = new DirectoryIterator($Application->getPathname() . '/pages/');
-			foreach($Pages as $Page){
-				if ($Page->isDot() || $Page->isDir()){
-					continue;
-				}
-				$pageName = $Page->getBasename();
-
-				$AppArray[$appName][$pageName] = (isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
-			}
-		}
-		ksort($AppArray[$appName]);
-	}
-}
-
-ksort($AppArray);
+$AppArray = $App->getApplications($selApps, false);
 
 $BoxesContainer = htmlBase::newElement('div');
 
@@ -427,7 +166,7 @@ foreach($AppArray['ext'] as $ExtName => $eInfo){
 }
 $BoxesContainer->append(htmlBase::newElement('div')->addClass('ui-helper-clearfix'));
 
-if (!isset($_GET['lID'])){
+if ($Layout->layout_id <= 0){
 	$layoutTemplatesContainer = htmlBase::newElement('div');
 	$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/layoutTemplates/');
 	foreach($Dir as $d){
@@ -463,30 +202,48 @@ if (!isset($_GET['lID'])){
 
 $PageTypeSelect = htmlBase::newElement('selectbox')
 	->setName('pageType')
-	->selectOptionByValue($layoutPageType)
+	->selectOptionByValue($Layout->page_type)
 	->addOption('template', 'Layout Template')
-	->addOption('page', 'Standalone Page');
+	->addOption('page', 'Standalone Page')
+	->addOption('print', 'Print Layout Template')
+	->addOption('email', 'Email Layout Template');
 
 $ApplicationNameInput = htmlBase::newElement('input')
 	->setName('appName')
-	->setValue($layoutAppName);
+	->setValue((isset($LayoutSettings->appName) ? $LayoutSettings->appName : ''));
 
 $ApplicationPageTitleInput = htmlBase::newElement('input')
 	->setName('appPageTitle')
-	->setValue($layoutPageTitle);
+	->setValue((isset($LayoutSettings->appPageTitle) ? $LayoutSettings->appPageTitle : ''));
 
 $ApplicationPageSubTitleInput = htmlBase::newElement('input')
 	->setName('appPageSubTitle')
-	->setValue($layoutPageSubTitle);
+	->setValue((isset($LayoutSettings->appPageSubTitle) ? $LayoutSettings->appPageSubTitle : ''));
 
 $ApplicationPageNameInput = htmlBase::newElement('input')
 	->setName('appPageName')
-	->setValue($layoutAppPageName);
+	->setValue((isset($LayoutSettings->appPageName) ? $LayoutSettings->appPageName : ''));
 
 $SettingsTable->addBodyRow(array(
 	'columns' => array(
 		array('text' => 'Page Type:'),
-		array('text' => $PageTypeSelect)
+		array('text' => $PageTypeSelect->draw())
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'page'
+	),
+	'columns' => array(
+		array('text' => 'Display Type:'),
+		array('text' => htmlBase::newElement('selectbox')
+			->setName('layoutType')
+			->addOption('desktop', 'Desktop')
+			->addOption('smartphone', 'Smart Phone')
+			->addOption('tablet', 'Tablet')
+			->selectOptionByValue($Layout->layout_type)
+			->draw())
 	)
 ));
 
@@ -516,7 +273,7 @@ $SettingsTable->addBodyRow(array(
 	),
 	'columns' => array(
 		array('text' => 'Application Page Title:'),
-		array('text' => $ApplicationPageTitleInput->draw())
+		array('text' => $ApplicationPageTitleInput)
 	)
 ));
 
@@ -526,7 +283,24 @@ $SettingsTable->addBodyRow(array(
 	),
 	'columns' => array(
 		array('text' => 'Application Page Sub Title:'),
-		array('text' => $ApplicationPageSubTitleInput->draw())
+		array('text' => $ApplicationPageSubTitleInput)
+	)
+));
+
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'template'
+	),
+	'columns' => array(
+		array('text' => 'Display Type:'),
+		array('text' => htmlBase::newElement('selectbox')
+			->setName('layoutType')
+			->addOption('desktop', 'Desktop')
+			->addOption('smartphone', 'Smart Phone')
+			->addOption('tablet', 'Tablet')
+			->selectOptionByValue($Layout->layout_type)
+			->draw())
 	)
 ));
 
@@ -545,7 +319,96 @@ $SettingsTable->addBodyRow(array(
 		'data-for_page_type' => 'template'
 	),
 	'columns' => array(
-		array('colspan' => 2, 'text' => '<input type="checkbox" id="checkAll"/> <span id="checkAllText">Check All Pages</span>' . $BoxesContainer->draw())
+		array('colspan' => 2, 'text' => '<input type="checkbox" class="checkAll"/> <span class="checkAllText">Check All</span>' . $BoxesContainer->draw())
+	)
+));
+
+$EmailTemplates = Doctrine_Core::getTable('EmailTemplates')
+	->findAll();
+
+$boxes = array();
+foreach($EmailTemplates as $EmailTemplate){
+	$boxes[] = array(
+		'labelPosition' => 'after',
+		'label' => $EmailTemplate->email_templates_name,
+		'value' => $EmailTemplate->email_templates_event
+	);
+}
+$EventsCheckboxes = htmlBase::newElement('checkbox')
+	->addGroup(array(
+	'name' => 'email_template[]',
+	'checked' => (isset($LayoutSettings->emailTemplates) ? (array) $LayoutSettings->emailTemplates: ''),
+	'separator' => array(
+		'type' => 'table',
+		'cols' => 3
+	),
+	'data' => $boxes
+));
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'email'
+	),
+	'columns' => array(
+		array('valign' => 'top', 'text' => 'Email Events: '),
+		array('text' => '<input type="checkbox" class="checkAll"/> <span class="checkAllText">Check All</span><br><br>' . $EventsCheckboxes->draw())
+	)
+));
+
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'print'
+	),
+	'columns' => array(
+		array('text' => 'Orientation:'),
+		array('text' => htmlBase::newElement('selectbox')
+			->setName('layoutOrientation')
+			->addOption('portrait', 'Portrait')
+			->addOption('landscape', 'Landscape')
+			->selectOptionByValue((isset($LayoutSettings->layoutOrientation) ? $LayoutSettings->layoutOrientation : 'portrait'))
+			->draw())
+	)
+));
+
+AccountsReceivableModules::loadModules();
+$boxes = array();
+foreach(AccountsReceivableModules::getModules() as $Module){
+	$boxes[] = array(
+		'labelPosition' => 'after',
+		'label' => $Module->getTitle(),
+		'value' => $Module->getCode()
+	);
+	if (is_dir(sysConfig::getDirFsCatalog() . 'templates/chater/modules/accountsReceivableModules/' . $Module->getCode() . '/print')){
+		$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/chater/modules/accountsReceivableModules/' . $Module->getCode() . '/print');
+		foreach($Dir as $dInfo){
+			if ($dInfo->isDot() || $dInfo->isDir()){
+				continue;
+			}
+
+			$boxes[] = array(
+				'labelPosition' => 'after',
+				'label' => $Module->getTitle() . ' - ' . ucfirst($dInfo->getBasename('.php')),
+				'value' => $Module->getCode() . '_' . $dInfo->getBasename('.php')
+			);
+		}
+	}
+}
+$SettingsTable->addBodyRow(array(
+	'attr' => array(
+		'data-for_page_type' => 'print'
+	),
+	'columns' => array(
+		array('text' => 'Which Modules:'),
+		array('text' => htmlBase::newElement('checkbox')
+			->addGroup(array(
+			'name' => 'print_modules[]',
+			'checked' => (isset($LayoutSettings->printModules) ? (array) $LayoutSettings->printModules: ''),
+			'separator' => array(
+				'type' => 'table',
+				'cols' => 3
+			),
+			'data' => $boxes
+		))->draw()
+		)
 	)
 ));
 
@@ -559,64 +422,5 @@ $cancelButton = htmlBase::newElement('button')->addClass('cancelButton')->usePre
 $infoBox->addButton($saveButton)->addButton($cancelButton);
 $infoBox->addContentRow($SettingsTable->draw());
 
-ob_start();
-?>
-<script type="text/javascript">
-	function newWindowOnLoad() {
-		var height = 0;
-		var width = 0;
-		$('.mainBox').each(function () {
-			if ($(this).outerWidth() > width){
-				width = $(this).outerWidth();
-			}
-
-			if ($(this).outerHeight() > height){
-				height = $(this).outerHeight();
-			}
-		});
-
-		$('.mainBox').width(width).height(height);
-
-		$('#checkAll').click(function(){
-			var self = this;
-			$(this).parent().find('.appBox').each(function (){
-				this.checked = self.checked;
-			});
-			$(this).parent().find('.pageBox').each(function (){
-				this.checked = self.checked;
-			});
-			$(this).parent().find('.extensionBox').each(function (){
-				this.checked = self.checked;
-			});
-
-			if (self.checked){
-				$('#checkAllText').html('Uncheck All Elements');
-			}else{
-				$('#checkAllText').html('Check All Elements');
-			}
-		});
-
-		$('.checkAllPages').click(function (){
-			var self = this;
-			$(self).parent().parent().find('.pageBox').each(function (){
-				this.checked = self.checked;
-			});
-		});
-
-		$('.checkAllApps').click(function (){
-			var self = this;
-			$(self).parent().parent().find('.appBox').each(function (){
-				this.checked = self.checked;
-			});
-			$(self).parent().parent().find('.pageBox').each(function (){
-				this.checked = self.checked;
-			});
-		});
-	}
-</script>
-<?php
-$javascript = ob_get_contents();
-ob_end_clean();
-
-EventManager::attachActionResponse($javascript . $infoBox->draw(), 'html');
+EventManager::attachActionResponse($infoBox->draw(), 'html');
 ?>
