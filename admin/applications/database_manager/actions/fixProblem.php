@@ -1,6 +1,6 @@
 <?php
 /**
- * @author   "Sebasti�n Grignoli" <grignoli@framework2.com.ar>
+ * @author   Sebasti�n Grignoli <grignoli@framework2.com.ar>
  * @package  Encoding
  * @version  1.1
  * @link     http://www.framework2.com.ar/dzone/forceUTF8-es/
