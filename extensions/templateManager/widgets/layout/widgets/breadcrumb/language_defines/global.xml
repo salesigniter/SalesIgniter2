@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_BREADCRUMB"><![CDATA[BreadCrumb]]></define>
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_BREADCRUMB_TEXT_TITLE"><![CDATA[Breadcrumb]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BREADCRUMB_TEXT_DESCRIPTION"><![CDATA[Breadcrumb]]></define>
+</definitions>

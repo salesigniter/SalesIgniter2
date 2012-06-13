@@ -1,3 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_BLOG_CATEGORIES"><![CDATA[Blog Categories]]></define>	
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGPOSTTITLE_TEXT_TITLE"><![CDATA[Blog Post Title]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGPOSTTITLE_TEXT_DESCRIPTION"><![CDATA[Blog Post Title]]></define>
 </definitions>

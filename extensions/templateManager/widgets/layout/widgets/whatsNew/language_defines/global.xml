@@ -1,4 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_WHATSNEW"><![CDATA[What's New?]]></define>
-	<define key="WIDGET_WHATSNEW_ALLPRODS"><![CDATA[All Products]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_WHATSNEW_TEXT_TITLE"><![CDATA[Whats New]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_WHATSNEW_TEXT_DESCRIPTION"><![CDATA[Whats New]]></define>
 </definitions>

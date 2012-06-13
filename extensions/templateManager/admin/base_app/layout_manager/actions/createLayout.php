@@ -116,7 +116,7 @@ if (isset($_POST['layout_template'])){
 	}
 }
 
-$Module->onSave();
+$Module->onSave($Layout);
 
 //echo '<pre>';print_r($Layout->toArray(true));itwExit();
 $Layout->save();

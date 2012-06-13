@@ -1,5 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_BLOGLATESTARTICLES"><![CDATA[Blog Latest Articles]]></define>
-	<define key="INFOBOX_BLOGLATESTARTICLES_TEXT_READ_MORE"><![CDATA[Read More]]></define>
-
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGPOSTARTICLE_TEXT_TITLE"><![CDATA[Blog Post Article]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGPOSTARTICLE_TEXT_DESCRIPTION"><![CDATA[Blog Post Article]]></define>
 </definitions>

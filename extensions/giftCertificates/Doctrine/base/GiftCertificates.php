@@ -24,12 +24,12 @@ class GiftCertificates extends Doctrine_Record {
         parent::setUp();
         $this->setUpParent();
 
-        $this->hasOne('GiftCertificatesDescription', array(
+        $this->hasMany('GiftCertificatesDescription as Descriptions', array(
             'local' => 'gift_certificates_id',
             'foreign' => 'gift_certificates_id',
             'cascade' => array('delete')
         ));
-        $this->hasOne('GiftCertificatesToPurchaseTypes', array(
+        $this->hasMany('GiftCertificatesToPurchaseTypes as PurchaseTypes', array(
             'local' => 'gift_certificates_id',
             'foreign' => 'gift_certificates_id',
             'cascade' => array('delete')

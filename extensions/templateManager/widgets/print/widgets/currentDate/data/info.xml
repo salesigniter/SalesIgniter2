@@ -1,7 +1,7 @@
 <info>
-	<code>templateManagerPrintWidget{ucfirst}</code>
-	<title_key>TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_TITLE</title_key>
-	<description_key>TEMPLATE_MANAGER_PRINT_WIDGET_{strtoupper}_TEXT_DESCRIPTION</description_key>
+	<code>templateManagerPrintWidgetCurrentDate</code>
+	<title_key>TEMPLATE_MANAGER_PRINT_WIDGET_CURRENTDATE_TEXT_TITLE</title_key>
+	<description_key>TEMPLATE_MANAGER_PRINT_WIDGET_CURRENTDATE_TEXT_DESCRIPTION</description_key>
 	<installed_key>INSTALLED</installed_key>
 	<status_key>STATUS</status_key>
 </info>

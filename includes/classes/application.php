@@ -53,7 +53,7 @@ class Application
 		}
 		else {
 			$this->envDirs = array(
-				sysConfig::get('DIR_FS_TEMPLATE') . '/' . $this->env . '/applications/' . $this->appName . '/',
+				sysConfig::get('DIR_FS_TEMPLATE') . $this->env . '/applications/' . $this->appName . '/',
 				sysConfig::getDirFsCatalog() . 'applications/' . $this->appName . '/'
 			);
 		}
@@ -66,7 +66,7 @@ class Application
 
 		$this->appLocation = false;
 		foreach($this->envDirs as $dir){
-			if (file_exists($dir . 'app.php')){
+			if (file_exists($dir . 'app.php') && file_exists($dir . 'pages/' . $this->appPage . '.php')){
 				$this->appLocation = $dir;
 				break;
 			}

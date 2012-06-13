@@ -1,3 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_BLOG_ARCHIVES"><![CDATA[Blog Archives]]></define>	
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGARCHIVES_TEXT_TITLE"><![CDATA[Blog Archives]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BLOGARCHIVES_TEXT_DESCRIPTION"><![CDATA[Blog Archives]]></define>
 </definitions>

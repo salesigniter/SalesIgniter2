@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUSTOM_TEXT"><![CDATA[]]></define>
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_PRODUCTDESCRIPTION_TEXT_TITLE"><![CDATA[Product Description]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_PRODUCTDESCRIPTION_TEXT_DESCRIPTION"><![CDATA[Product Description]]></define>
+</definitions>

@@ -1,3 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_INFOPAGES"><![CDATA[Information]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_INFOPAGES_TEXT_TITLE"><![CDATA[Info Pages]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_INFOPAGES_TEXT_DESCRIPTION"><![CDATA[Info Pages]]></define>
 </definitions>

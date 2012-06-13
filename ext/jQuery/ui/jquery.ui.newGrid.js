@@ -391,25 +391,33 @@
 				o.data = o.data.apply(o.windowEl);
 			}
 
+			var SuccessFunc = function (data) {
+				removeAjaxLoader(o.buttonEl);
+				if (data.success){
+					js_redirect(self.buildCurrentAppRedirect());
+				}
+				else {
+					var ErrorMessage = 'An Unknown Error Occured!';
+					if (data.error){
+						ErrorMessage = data.error.message;
+					}
+					self.newWindow.find('#messageStack').html(ErrorMessage);
+				}
+			};
+
+			if (o.onSuccess && $.isFunction(o.onSuccess)){
+				SuccessFunc = function (data){
+					o.onSuccess.apply(o.windowEl, [self, data, o]);
+				};
+			}
+
 			$.ajax({
 				cache    : false,
 				url      : url.join('&'),
 				dataType : o.dataType || 'json',
 				data     : o.data || o.windowEl.find('*').serialize(),
 				type     : o.type || 'post',
-				success  : o.onSuccess || function (data) {
-					removeAjaxLoader(o.buttonEl);
-					if (data.success){
-						js_redirect(self.buildCurrentAppRedirect());
-					}
-					else {
-						var ErrorMessage = 'An Unknown Error Occured!';
-						if (data.error){
-							ErrorMessage = data.error.message;
-						}
-						self.newWindow.find('#messageStack').html(ErrorMessage);
-					}
-				}
+				success  : SuccessFunc
 			});
 		},
 		baseLinkParams          : function (pageName) {

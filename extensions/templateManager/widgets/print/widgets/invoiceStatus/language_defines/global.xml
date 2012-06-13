@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUSTOM_TEXT"><![CDATA[IRONMAN.com]]></define>
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICESTATUS_TEXT_TITLE"><![CDATA[Invoice Status]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_INVOICESTATUS_TEXT_DESCRIPTION"><![CDATA[Invoice Status]]></define>
+</definitions>

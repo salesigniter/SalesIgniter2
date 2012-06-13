@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_LANGUAGES"><![CDATA[Languages]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_LANGUAGES_TEXT_TITLE"><![CDATA[Languages]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_LANGUAGES_TEXT_DESCRIPTION"><![CDATA[Languages]]></define>
 </definitions>

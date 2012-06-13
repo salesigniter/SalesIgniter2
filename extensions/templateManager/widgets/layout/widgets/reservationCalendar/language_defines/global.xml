@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUSTOM_TEXT"><![CDATA[]]></define>
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_RESERVATIONCALENDAR_TEXT_TITLE"><![CDATA[Reservation Calendar]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_RESERVATIONCALENDAR_TEXT_DESCRIPTION"><![CDATA[Reservation Calendar]]></define>
+</definitions>

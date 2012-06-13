@@ -3,7 +3,11 @@
 ?>
 function getUrlVars() {
 	var vars = [], hash;
-	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+	var WindowUrl = window.location.href;
+	if (WindowUrl.indexOf('#') > -1){
+		WindowUrl = WindowUrl.substr(0, WindowUrl.indexOf('#'));
+	}
+	var hashes = WindowUrl.slice(WindowUrl.indexOf('?') + 1).split('&');
 
 	for(var i = 0; i < hashes.length; i++){
 		if (hashes[i] == 'showErrors'){

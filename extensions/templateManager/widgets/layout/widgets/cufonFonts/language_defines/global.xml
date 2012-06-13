@@ -1,7 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUFON_FONTS"><![CDATA[Cufon Fonts]]></define>
-
-	<define key="TEXT_WIDGET_CUFON_FONT_FILE"><![CDATA[Font file(if multiple add cufon.tpl to only one):]]></define>
-	<define key="TEXT_WIDGET_CUFON_ELEMENTS"><![CDATA[Elements To apply font to elements:]]></define>
-
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_CUFONFONTS_TEXT_TITLE"><![CDATA[Cufon Fonts]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_CUFONFONTS_TEXT_DESCRIPTION"><![CDATA[Cufon Fonts]]></define>
+</definitions>

@@ -14,18 +14,9 @@
 
         public function setUp(){
             parent::setUp();
-            $this->setUpParent();
+			$this->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'language_id');
 
-            $this->hasOne('GiftCertificates', array(
-                'local' => 'gift_certificates_id',
-                'foreign' => 'gift_certificates_id'
-            ));
-        }
-
-        public function setUpParent(){
-            $GiftCertificates = Doctrine::getTable('GiftCertificates')->getRecordInstance();
-
-            $GiftCertificates->hasMany('GiftCertificatesDescription', array(
+			$this->hasOne('GiftCertificates', array(
                 'local' => 'gift_certificates_id',
                 'foreign' => 'gift_certificates_id'
             ));

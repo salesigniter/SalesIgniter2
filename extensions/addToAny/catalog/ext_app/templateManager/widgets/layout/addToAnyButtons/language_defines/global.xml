@@ -1,6 +1,4 @@
 <definitions>
-
-	<define key="INFOBOX_HEADING_SOCIAL_BUTTONS"><![CDATA[Share this!]]></define>
-
+	<define key="TEMPLATE_MANAGER_WIDGET_ADDTOANYBUTTONS_TEXT_TITLE"><![CDATA[Add To Any Buttons]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_ADDTOANYBUTTONS_TEXT_DESCRIPTION"><![CDATA[Add To Any Buttons]]></define>
 </definitions>
-

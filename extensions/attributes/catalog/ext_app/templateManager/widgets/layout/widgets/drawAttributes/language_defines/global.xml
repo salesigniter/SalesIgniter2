@@ -1,3 +1,4 @@
 <definitions>
-	<define key="INFOBOX_HEADING_INFOPAGES"><![CDATA[Information]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_DRAWATTRIBUTES_TEXT_TITLE"><![CDATA[Draw Attributes]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_DRAWATTRIBUTES_TEXT_DESCRIPTION"><![CDATA[Draw Attributes]]></define>
 </definitions>

@@ -1,11 +1,4 @@
 <definitions>
-
-	<define key="WIDGET_HEADING_SOCIAL_NETWORKS"><![CDATA[Get Social]]></define>
-
-	<define key="WIDGET_SOCIAL_NETWORKS_TEXT"><![CDATA[]]></define>
-
-	<define key="WIDGET_SOCIAL_NETWORKS_FACEBOOK_TEXT"><![CDATA[<span style="display:inline-block;width:140px;vertical-align:top;padding-top:10px;">Be a "Fan" of your local dive shop in Facebook</span>]]></define>
-	<define key="WIDGET_SOCIAL_NETWORKS_TWITTER_TEXT"><![CDATA[<span style="display:inline-block;width:140px;vertical-align:top;padding-top:10px;">Follow us on Twitter - scuba news and dive gear specials</span>]]></define>
-	<define key="WIDGET_SOCIAL_NETWORKS_EMAIL_TEXT"><![CDATA[]]></define>
-
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_SOCIALNETWORKS_TEXT_TITLE"><![CDATA[Social Networks]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_SOCIALNETWORKS_TEXT_DESCRIPTION"><![CDATA[Social Networks]]></define>
+</definitions>

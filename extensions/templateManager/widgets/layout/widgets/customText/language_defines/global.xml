@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUSTOM_TEXT"><![CDATA[IRONMAN.com]]></define>
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_CUSTOMTEXT_TEXT_TITLE"><![CDATA[Custom Text]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_CUSTOMTEXT_TEXT_DESCRIPTION"><![CDATA[Custom Text]]></define>
+</definitions>

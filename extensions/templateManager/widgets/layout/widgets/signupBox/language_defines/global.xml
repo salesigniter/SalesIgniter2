@@ -1,10 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_SIGNUPBOX"><![CDATA[Signup]]></define>
-	<define key="WIDGET_LOGINBOX_PASSWORD"><![CDATA[Password]]></define>
-	<define key="WIDGET_LOGINBOX_RE_PASSWORD"><![CDATA[Confirm Password]]></define>
-	<define key="WIDGET_LOGINBOX_EMAIL"><![CDATA[Email]]></define>
-	<define key="WIDGET_LOGINBOX_RE_EMAIL"><![CDATA[Confirm Email]]></define>
-	<define key="WIDGET_LOGINBOX_LOGIN"><![CDATA[Submit]]></define>
-	<define key="WIDGET_LOGINBOX_INFO"><![CDATA[<p align="center">We will not sell or rent your email address, <br>We may contact you about our service. <br>See ourprivacy notice.</p>]]></define>
-	<define key="WIDGET_LOGINBOX_MY_ACCOUNT"><![CDATA[My Account]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_SIGNUPBOX_TEXT_TITLE"><![CDATA[Signup Box]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_SIGNUPBOX_TEXT_DESCRIPTION"><![CDATA[Signup Box]]></define>
 </definitions>

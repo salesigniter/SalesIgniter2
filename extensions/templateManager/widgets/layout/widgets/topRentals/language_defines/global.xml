@@ -1,3 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_TOPRENTALS"><![CDATA[Top Rentals]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_TOPRENTALS_TEXT_TITLE"><![CDATA[Top Rentals]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_TOPRENTALS_TEXT_DESCRIPTION"><![CDATA[Top Rentals]]></define>
 </definitions>

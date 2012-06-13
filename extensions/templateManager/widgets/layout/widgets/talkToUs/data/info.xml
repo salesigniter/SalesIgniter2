@@ -1,7 +1,7 @@
 <info>
-	<code>templateManagerWidget{ucfirst}</code>
-	<title_key>TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_TITLE</title_key>
-	<description_key>TEMPLATE_MANAGER_WIDGET_{strtoupper}_TEXT_DESCRIPTION</description_key>
+	<code>templateManagerWidgetTalkToUs</code>
+	<title_key>TEMPLATE_MANAGER_WIDGET_TALKTOUS_TEXT_TITLE</title_key>
+	<description_key>TEMPLATE_MANAGER_WIDGET_TALKTOUS_TEXT_DESCRIPTION</description_key>
 	<installed_key>INSTALLED</installed_key>
 	<status_key>STATUS</status_key>
 </info>

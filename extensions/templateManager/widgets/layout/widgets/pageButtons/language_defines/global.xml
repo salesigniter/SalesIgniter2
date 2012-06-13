@@ -1,3 +1,4 @@
 <definitions>
-
+	<define key="TEMPLATE_MANAGER_WIDGET_PAGEBUTTONS_TEXT_TITLE"><![CDATA[Page Buttons]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_PAGEBUTTONS_TEXT_DESCRIPTION"><![CDATA[Page Buttons]]></define>
 </definitions>

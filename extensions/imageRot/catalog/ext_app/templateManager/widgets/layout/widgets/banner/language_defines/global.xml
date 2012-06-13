@@ -1,3 +1,4 @@
 <definitions>
-
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_BANNER_TEXT_TITLE"><![CDATA[Banner]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_BANNER_TEXT_DESCRIPTION"><![CDATA[Banner]]></define>
+</definitions>

@@ -29,10 +29,6 @@ if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'accountsReceivable' |
 			$Module = OrderPaymentModules::getModule($moduleCode, true);
 			$moduleDir = 'orderPaymentModules';
 			break;
-		case 'infoboxes':
-			//$Module = TemplateInfoboxModules::getModule($moduleCode);
-			$moduleDir = 'infoboxes';
-			break;
 	}
 	$ModuleConfig = $Module->getConfig();
 

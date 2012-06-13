@@ -1,6 +1,6 @@
 <ConfigurationGroup>
-	<title>{ucfirst}</title>
-	<key>templateManagerWidget{ucfirst}</key>
+	<title>Product Types</title>
+	<key>templateManagerWidgetProductTypes</key>
 	<description>Configuration Settings</description>
 	<tabs>
 		<general>
@@ -9,12 +9,12 @@
 			<configurations>
 				<INSTALLED editable="false">
 					<title><![CDATA[Installed Status]]></title>
-					<value><![CDATA[False]]></value>
+					<value><![CDATA[True]]></value>
 					<description><![CDATA[Tells if the widget is installed or not]]></description>
 				</INSTALLED>
 				<STATUS editable="false">
 					<title><![CDATA[Enable Widget]]></title>
-					<value><![CDATA[False]]></value>
+					<value><![CDATA[True]]></value>
 					<description><![CDATA[Enable widget]]></description>
 					<set_function>
 						<type>radio</type>

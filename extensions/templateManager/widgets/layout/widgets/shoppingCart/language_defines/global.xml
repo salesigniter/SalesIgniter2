@@ -1,12 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_SHOPPINGCART"><![CDATA[Shopping Cart]]></define>
-	<define key="WIDGET_SHOPPINGCART_EMPTY"><![CDATA[0 items]]></define>
-	<define key="WIDGET_SHOPPINGCART_COUPON"><![CDATA[Coupon :]]></define>
-	<define key="WIDGET_SHOPPINGCART_VOUCHER_BALANCE"><![CDATA[Voucher Balance]]></define>
-	<define key="WIDGET_SHOPPINGCART_SEND_TO_FRIEND"><![CDATA[Send Gift Voucher To A Friend]]></define>
-	<define key="WIDGET_SHOPPINGCART_VOUCHER_REDEEMED"><![CDATA[Voucher Redeemed]]></define>
-	<define key="WIDGET_SHOPPINGCART_CHECKOUT"><![CDATA[Checkout]]></define>
-
-	<define key="TEXT_SHOPPING_CART_BOX_MODE"><![CDATA[Box Mode: ]]></define>
-	<define key="WIDGET_SHOPPINGCART_ITEMS_IN_CART"><![CDATA[ Items In <a href="%s">Shopping Cart</a>]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_TEXT_TITLE"><![CDATA[Shopping Cart]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_TEXT_DESCRIPTION"><![CDATA[Shopping Cart]]></define>
 </definitions>

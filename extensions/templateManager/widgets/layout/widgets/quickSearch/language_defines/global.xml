@@ -1,4 +1,4 @@
 <definitions>
-	<define key="WIDGET_QUICK_SEARCH_TEXT"><![CDATA[Use keywords to find the product you are looking for.]]></define>
-	<define key="WIDGET_QUICK_SEARCH_LABEL"><![CDATA[Search: ]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_QUICKSEARCH_TEXT_TITLE"><![CDATA[Quick Search]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_QUICKSEARCH_TEXT_DESCRIPTION"><![CDATA[Quick Search]]></define>
 </definitions>

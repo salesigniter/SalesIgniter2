@@ -1,15 +1,4 @@
 <definitions>
-	<define key="WIDGET_HEADING_CUSTOM_TEXT"><![CDATA[Newsletter Sign up]]></define>
-	<define key="WIDGET_MAILCHIMP_TEXT_LIST_ID"><![CDATA[List ID:]]></define>
-	<define key="WIDGET_MAILCHIMP_TEXT_API_KEY"><![CDATA[API KEY:]]></define>
-	<define key="WIDGET_MAILCHIMP_EMAIL_ADDRESS"><![CDATA[Email Address:]]></define>
-	<define key="WIDGET_MAILCHIMP_SEND"><![CDATA[Submit]]></define>
-
-	<define key="WIDGET_MAILCHIMP_SUCCESS"><![CDATA[Success, You should check your inbox for confirmation]]></define>
-	<define key="WIDGET_MAILCHIMP_FAIL"><![CDATA[An error occured, Please try again.The error is: ]]></define>
-
-	<define key="WIDGET_MAILCHIMP_TITLE"><![CDATA[<b>Custom MailChimp Properties</b>]]></define>
-	<define key="TEXT_API_KEY"><![CDATA[API KEY: ]]></define>
-	<define key="TEXT_LIST_ID"><![CDATA[List ID: ]]></define>
-
-</definitions>                                                                       
+	<define key="TEMPLATE_MANAGER_WIDGET_MAILCHIMP_TEXT_TITLE"><![CDATA[Mail Chimp]]></define>
+	<define key="TEMPLATE_MANAGER_WIDGET_MAILCHIMP_TEXT_DESCRIPTION"><![CDATA[Mail Chimp]]></define>
+</definitions>
