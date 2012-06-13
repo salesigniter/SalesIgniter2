@@ -1,12 +1,12 @@
 <?php
 //echo '<pre>';print_r($_POST);itwExit();
-if (isset($_GET['oID']) === false){
+if (isset($_GET['sale_id']) === false){
 	$createAccount = false;
 	if (isset($_POST['customers_id'])){
 		$Editor->setCustomerId($_POST['customers_id']);
 	}
 	elseif ((isset($_POST['account_password']) && !empty($_POST['account_password'])) || sysConfig::get('EXTENSION_ORDER_CREATOR_AUTOGENERATE_PASSWORD') == 'True') {
-		if ($_POST['isType'] == 'walkin'){
+		if (isset($_POST['isType']) && $_POST['isType'] == 'walkin'){
 			if (isset($_POST['email']) && !empty($_POST['email'])){
 				$Editor->setEmailAddress($_POST['email']);
 			}
@@ -67,16 +67,9 @@ $Editor->setData('dhl_track_num2', $_POST['dhl_track_num2']);
 $Editor->setData('ip_address', $_SERVER['REMOTE_ADDR']);
 $Editor->setData('admin_id', Session::get('login_id'));
 
-/**
- * @TODO: Specific to Chater Camera Rentals
- */
-$Editor->InfoManager->setInfo('job_name', $_POST['job_name']);
-$Editor->InfoManager->setInfo('sale_notes', $_POST['sale_notes']);
-
-
-$Editor->AddressManager->updateFromPost();
-$Editor->ProductManager->updateFromPost();
-$Editor->TotalManager->updateFromPost();
+//$Editor->AddressManager->updateFromPost();
+//$Editor->ProductManager->updateFromPost();
+//$Editor->TotalManager->updateFromPost();
 
 //EventManager::notify('OrderSaveBeforeSave', $NewOrder);
 //echo '<pre>';print_r($_POST);itwExit();

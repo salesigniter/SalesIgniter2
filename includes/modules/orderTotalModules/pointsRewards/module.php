@@ -51,10 +51,6 @@ class OrderTotalPointsRewards extends OrderTotalModuleBase {
 		}
 	}
 
-	public function selection_test(){
-		return true;
-	}
-
 	public function user_has_points($c_id, $purchaseType){
 		$QpointsTable = Doctrine_Query::create()
 				->select('sum(points) as totalPoints')

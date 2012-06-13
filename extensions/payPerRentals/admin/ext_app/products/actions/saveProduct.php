@@ -5,7 +5,8 @@ if (isset($_POST['purchase_type']) && (in_array('reservation', $_POST['purchase_
 	$PayPerRental->max_period = (int)$_POST['reservation_max_period'];
 	$PayPerRental->max_type = (int)$_POST['reservation_max_type'];
 	$PayPerRental->deposit_amount = (float)$_POST['reservation_deposit_amount'];
-	$PayPerRental->insurance = (float)$_POST['reservation_insurance'];
+	$PayPerRental->insurance_value = (float)$_POST['reservation_insurance_value'];
+	$PayPerRental->insurance_cost = (float)$_POST['reservation_insurance_cost'];
 	$PayPerRental->min_period = (int)$_POST['reservation_min_period'];
 	$PayPerRental->min_type = (int)$_POST['reservation_min_type'];
 
@@ -83,7 +84,7 @@ if (isset($_POST['purchase_type']) && (in_array('reservation', $_POST['purchase_
 
 		foreach($_POST['pprp'] as $pprid => $iPrice){
 			$PricePerProduct = new PricePerRentalPerProducts();
-			$Description = $PricePerProduct->PricePayPerRentalPerProductsDescription;
+			$Description = $PricePerProduct->Description;
 			if (isset($iPrice['details'])){
 				foreach($iPrice['details'] as $langId => $Name){
 					if (isset($Name) && !empty($Name)){

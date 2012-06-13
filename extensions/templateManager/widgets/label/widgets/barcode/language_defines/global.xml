@@ -1,0 +1,4 @@
+<definitions>
+	<define key="TEMPLATE_MANAGER_LABEL_WIDGET_BARCODE_TEXT_TITLE"><![CDATA[Barcode]]></define>
+	<define key="TEMPLATE_MANAGER_LABEL_WIDGET_BARCODE_TEXT_DESCRIPTION"><![CDATA[Barcode]]></define>
+</definitions>

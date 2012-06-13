@@ -150,10 +150,10 @@ $finalTable->addBodyRow(array('columns' => array(
 	array('addCls' => 'main', 'text' => $showOnGroup)
 )));
 
-EventManager::notify('CustomersCustomFieldsNewOptions', $Field, $finalTable, $windowAction);
+EventManager::notify('CustomersCustomFieldsNewOptions', $Field, $finalTable);
 
 $infoBox->addContentRow($finalTable->draw());
 
-EventManager::notify('CustomersCustomFieldsNewEditFieldWindowBeforeDraw', $infoBox, $Group);
+EventManager::notify('CustomersCustomFieldsNewEditFieldWindowBeforeDraw', $infoBox);
 
 EventManager::attachActionResponse($infoBox->draw(), 'html');

@@ -23,106 +23,142 @@ class OrderTotal
 {
 
 	/**
-	 * @var array|null
+	 * @var OrderTotalModuleBase
 	 */
-	protected $totalInfo = array();
+	protected $Module;
 
 	/**
-	 * @param array|null $tInfo
+	 * @var array
 	 */
-	public function __construct(array $tInfo = null)
+	protected $data = array();
+
+	/**
+	 * @param            $ModuleCode
+	 * @param array|null $mInfo
+	 */
+	public function __construct($ModuleCode, array $mInfo = null)
 	{
-		if (is_null($tInfo) === false){
-			$this->totalInfo = $tInfo;
+		$this->Module = OrderTotalModules::getModule($ModuleCode);
+		$this->Module->updateData($mInfo);
+		$this->data['module_code'] = $ModuleCode;
+	}
+
+	/**
+	 * @return ModuleBase|OrderTotalModuleBase
+	 */
+	public function &getModule()
+	{
+		return $this->Module;
+	}
+
+	/**
+	 * @param array $options
+	 */
+	public function setData($options = array())
+	{
+		$options = array_merge(array(
+			'sort_order'  => 0,
+			'value'       => 0.0000
+		), $options);
+
+		$this->Module->setData($options);
+	}
+
+	/**
+	 * @param      $k
+	 * @param null $v
+	 */
+	public function updateData($k, $v = null)
+	{
+		if (is_array($k)){
+			foreach($k as $key => $value){
+				$this->Module->updateData($key, $value);
+			}
+		}
+		else {
+			$this->Module->updateData($k, $v);
 		}
 	}
 
 	/**
-	 * @return bool
+	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function hasOrderTotalId()
-	{
-		return array_key_exists('orders_total_id', $this->totalInfo);
+	public function onSaveProgress(AccountsReceivableSalesTotals &$Total){
+		$Module = $this->getModule();
+
+		$Total->module_code = $Module->getCode();
+		$Total->total_value = $Module->getValue();
+		$Total->display_order = $Module->getDisplayOrder();
+		$Total->total_json = json_encode($this->prepareJsonSave());
+
+		if (method_exists($Module, 'onSaveProgress')){
+			$Module->onSaveProgress($Total);
+		}
 	}
 
 	/**
-	 * @return int
+	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function getOrderTotalId()
-	{
-		return (int)$this->totalInfo['orders_total_id'];
+	public function onSaveSale(AccountsReceivableSalesTotals &$Total){
+		$Module = $this->getModule();
+
+		$Total->module_code = $Module->getCode();
+		$Total->total_value = $Module->getValue();
+		$Total->display_order = $Module->getDisplayOrder();
+		$Total->total_json = json_encode($this->prepareJsonSave());
+
+		if (method_exists($Module, 'onSaveSale')){
+			$Module->onSaveSale($Total);
+		}
 	}
 
 	/**
-	 * @return string
+	 * @param OrderProductManager $ProductManager
 	 */
-	public function getModuleType()
-	{
-		return (string)$this->totalInfo['module_type'];
+	public function onProductAdded(OrderProductManager &$ProductManager){
+		$Module = $this->getModule();
+		if (method_exists($Module, 'onProductAdded')){
+			$Module->onProductAdded($ProductManager);
+		}
 	}
 
 	/**
-	 * @return string
+	 * @param OrderProductManager $ProductManager
 	 */
-	public function getTitle()
-	{
-		return (string)$this->totalInfo['title'];
+	public function onProductUpdated(OrderProductManager &$ProductManager){
+		$Module = $this->getModule();
+		if (method_exists($Module, 'onProductUpdated')){
+			$Module->onProductUpdated($ProductManager);
+		}
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getText()
+	public function prepareJsonSave()
 	{
-		return (string)$this->totalInfo['text'];
+		$toEncode = array(
+			'data' => $this->data
+		);
+		if (method_exists($this->Module, 'prepareJsonSave')){
+			$toEncode['module_json'] = $this->Module->prepareJsonSave();
+		}
+		return $toEncode;
 	}
 
 	/**
-	 * @return float
+	 * @param array $Decoded
 	 */
-	public function getValue()
+	public function jsonDecode(array $Decoded)
 	{
-		return (float)$this->totalInfo['value'];
-	}
+		if ($Decoded){
+			$this->data = $Decoded['data'];
 
-	/**
-	 * @return int
-	 */
-	public function getSortOrder()
-	{
-		return (int)$this->totalInfo['sort_order'];
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getModule()
-	{
-		return (string)$this->totalInfo['module'];
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getMethod()
-	{
-		return (string)$this->totalInfo['method'];
-	}
-
-	/**
-	 * @return string
-	 */
-	public function jsonEncode()
-	{
-		return json_encode($this->totalInfo);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function jsonDencode($data)
-	{
-		$this->totalInfo = json_decode($data, true);
+			$this->Module = OrderTotalModules::getModule($this->data['module_code']);
+			if (isset($Decoded['module_json'])){
+				$this->Module->jsonDecode($Decoded['module_json']);
+			}
+		}
 	}
 }
 

@@ -7,9 +7,7 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-require(dirname(__FILE__) . '/Product.php');
-
-class OrderCreatorProductManager extends OrderProductManager implements Serializable
+class OrderCreatorProductManager extends OrderProductManager
 {
 
 	/**
@@ -31,29 +29,8 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 	}
 
 	/**
-	 * @return string
-	 */
-	public function serialize() {
-		$data = array(
-			'orderId'  => $this->orderId,
-			'Contents' => $this->Contents
-		);
-		return serialize($data);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
-		}
-	}
-
-	/**
 	 * @param int $id
-	 * @return OrderCreatorProduct|bool
+	 * @return bool|OrderProduct
 	 */
 	public function get($id) {
 		$OrderedProduct = parent::get((int) $id);
@@ -145,6 +122,7 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 
 	/**
 	 * @param OrderProduct $OrderProduct
+	 * @return bool|void
 	 */
 	public function add(OrderProduct &$OrderProduct) {
 		$addAllowed = true;
@@ -162,6 +140,7 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 			$this->cleanUp();
 		}
+		return $addAllowed;
 	}
 
 	/**
@@ -191,22 +170,31 @@ class OrderCreatorProductManager extends OrderProductManager implements Serializ
 		}
 	}
 
-	public function jsonDecodeProduct($Product){
+	/**
+	 * Used when loading the sale from the database
+	 *
+	 * @param AccountsReceivableSalesProducts $Product
+	 */
+	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product){
 		$OrderProduct = new OrderCreatorProduct();
-		$OrderProduct->regenerateId();
 		$OrderProduct->jsonDecodeProduct($Product);
 		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 	}
 
+	/**
+	 * Used from init method in OrderCreator class
+	 *
+	 * @param string $data
+	 */
 	public function jsonDecode($data){
 		$Contents = json_decode($data, true);
-		foreach($Contents as $Id => $opInfo){
+		foreach($Contents as $Id => $pInfo){
 			$OrderProduct = new OrderCreatorProduct();
-			$OrderProduct->regenerateId();
-			$OrderProduct->jsonDecode($opInfo);
+			$OrderProduct->jsonDecode($pInfo);
+
 			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 		}
 	}
 }
 
-?>
+require(dirname(__FILE__) . '/Product.php');

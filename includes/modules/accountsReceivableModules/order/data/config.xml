@@ -36,6 +36,18 @@
 						</values>
 					</set_function>
 				</ASSIGN_INVENTORY>
+				<ACCEPT_PAYMENTS>
+					<title><![CDATA[Accept Payments]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Accept payments for this sale type?]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</ACCEPT_PAYMENTS>
 			</configurations>
 		</general>
 		<salesingiter>

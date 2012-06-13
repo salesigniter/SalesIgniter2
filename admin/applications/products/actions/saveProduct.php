@@ -31,7 +31,6 @@ $Product->products_date_available = $products_date_available;
 $Product->products_weight = ((float)$_POST['products_weight'] <= 0) ? '1' : (float)$_POST['products_weight'];
 $Product->products_status = $_POST['products_status'];
 $Product->products_featured = $_POST['products_featured'];
-$Product->products_tax_class_id = $_POST['products_tax_class_id'];
 $Product->products_type = $_POST['products_type'];
 $Product->products_in_box = (int)(isset($_POST['products_in_box']) ? $_POST['products_in_box'] : '0');
 $Product->products_display_order = (int)$_POST['products_display_order'];

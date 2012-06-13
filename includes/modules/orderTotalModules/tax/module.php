@@ -12,6 +12,34 @@ class OrderTotalTax extends OrderTotalModuleBase
 		$this->init('tax');
 	}
 
+	/**
+	 * @TODO: Need to figure out a way to not have to go through the ProductManager for every order total!
+	 *
+	 * @param OrderProductManager $ProductManager
+	 */
+	public function onProductAdded(OrderProductManager $ProductManager){
+		$NewTax = 0;
+		foreach($ProductManager->getContents() as $Product){
+			$NewTax += $Product->getFinalPrice(true) * $Product->getTaxRate();
+		}
+
+		$this->setValue($NewTax);
+	}
+
+	/**
+	 * @TODO: Need to figure out a way to not have to go through the ProductManager for every order total!
+	 *
+	 * @param OrderProductManager $ProductManager
+	 */
+	public function onProductUpdated(OrderProductManager $ProductManager){
+		$NewTax = 0;
+		foreach($ProductManager->getContents() as $Product){
+			$NewTax += $Product->getFinalPrice(true) * $Product->getTaxRate();
+		}
+
+		$this->setValue($NewTax);
+	}
+
 	public function process(array &$outputData) {
 		global $order, $currencies;
 		reset($order->info['tax_groups']);

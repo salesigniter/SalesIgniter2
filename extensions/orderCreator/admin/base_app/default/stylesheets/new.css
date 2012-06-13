@@ -1,114 +1,299 @@
 @media screen and (min-width: 1px) {
-	.buttonContainer {
-		text-align   : left;
-		margin-right : 2em;
-		margin-left  : auto;
-		padding      : .5em;
-		font-size    : .9em;
-		top          : 205px;
-		position     : absolute;
-		right        : 0;
-		width: 190px;
+	#bodyWrapper {
+		padding-top: 0;
+		margin: 0 10px 10px 10px;
 	}
 
-	.buttonContainer .column {
-		vertical-align : top;
-		width: 93px;
-	}
-
-	.buttonContainer.fixed {
+	.ApplicationPageMenu.fixed {
 		top          : 0;
 		position     : fixed;
 		z-index      : 1;
 		margin-right : 51px;
 	}
 
-	.buttonContainer button {
-		width      : 100%;
-		text-align : left;
+	.ApplicationPageMenu {
+		line-height: 4em;
+		text-align: center;
+		background: #fafafa;
+		color: #444444;
+		border: 1px solid #ccc;
+		border-top: 0px;
+		position: relative;
 	}
 
-	.buttonContainer .ui-button .ui-icon {
+	.ApplicationPageMenu button {
+		width: 100%;
+		margin: 0;
+		line-height: inherit;
+		border: 0;
+		-webkit-border-radius: 0;
+		padding:0;
+	}
+
+	.ApplicationPageMenu .subMenu button {
+		text-align: left;
+		padding-left: 20px;
+	}
+
+	.ApplicationPageMenu button.ui-state-default, .ApplicationPageMenu button.ui-state-hover, .ApplicationPageMenu button.ui-state-active {
+		background: none;
+	}
+
+	.ApplicationPageMenu ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.ApplicationPageMenu .rootItem {
+		vertical-align: middle;
+		display: inline-block;
+		width: 200px;
+		position: relative;
+		border-left: 1px solid #cccccc;
+		border-right: 1px solid #efefef;
+	}
+
+	.ApplicationPageMenu .rootItem span, .ApplicationPageMenu .rootItem a {
+		vertical-align: middle;
+		margin-right: .5em;
+		color: #555;
+	}
+
+	.ApplicationPageMenu .subMenu {
+		display:none;
+		position: absolute;
+		background: #fafafa;
+		width: 201px;
+		text-align: left;
+		border: 1px solid #ccc;
+		border-top: 0;
+		left:-1px;
+	}
+
+	.addressTable {
+		width:100%;
+	}
+
+	table.generalInfo, table.addresses, table.customFields {
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	table.generalInfo > tbody > tr > td, table.customFields > tbody > tr > td {
+		padding: 0 20px;
+		vertical-align: middle;
+		border: 1px solid #a6c9e2;
+		border-width: 0 0 1px 0;
+	}
+
+	table.generalInfo > tbody > tr > td:first-child, table.customFields > tbody > tr > td:first-child {
+		background: #ecfaff;
+		padding:20px;
+		color: #444;
+	}
+
+	table.generalInfo > tbody > tr:nth-child(1) td:first-child, table.customFields > tbody > tr:nth-child(1) td:first-child {
+		<?php echo buildBorderRadius('3px', 0, 0, 0);?>
+	}
+
+	table.generalInfo > tbody > tr:nth-last-child(1) td:first-child, table.customFields > tbody > tr:nth-last-child(1) td:first-child {
+		<?php echo buildBorderRadius(0, 0, 0, '3px');?>
+	}
+
+	table.generalInfo  > tbody > tr:nth-last-child(1) td, table.customFields  > tbody > tr:nth-last-child(1) td {
+		border-width: 0;
+	}
+
+	.sameAsContainer {
+		font-size:10px;
+	}
+
+	.sameAsContainer input {
+		vertical-align: middle;
+	}
+
+	table.addresses {
+		margin: 0 10px;
+	}
+
+	table.addresses table input {
+		width: 98%;
+		padding: 0;
+		line-height: 2em;
+		text-indent: .2em;
+	}
+
+	table.addresses label {
+		margin-left: .5em;
+		display: block;
+	}
+
+	table.addresses table select {
+		width: 100%;
+	}
+
+	.customerTabPage {
+		width:700px;
+	}
+
+	.customerTabPage {
 		display:none;
 	}
 
-	.loadRevision {
-		width : 100%;
+	table.addresses > tbody > tr > td:first-child {
+		background: #ecfaff;
+		padding:0;
+		color: #444;
+		<?php echo buildBorderRadius('3px', 0, 0, '3px');?>
 	}
 
-	#bodyWrapper {
-		padding-top: 315px;
+	table.addresses > tbody > tr > td:last-child {
+		padding:10px;
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul {
+		list-style: none;
+		margin:0;
+		padding:0;
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li {
+		padding:15px;
+		border: 1px solid #a6c9e2;
+		border-width: 0 1px 1px 0;
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li:nth-child(1) {
+		padding:20px 15px;
+		<?php echo buildBorderRadius('3px', 0, 0, 0);?>
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li:nth-last-child(1) {
+		<?php echo buildBorderRadius(0, 0, 0, '3px');?>
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li.ui-state-default {
+		background: #ecfaff;
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li.ui-state-active {
+		background: #ffffff;
+		border-right-width: 0;
+	}
+
+	table.addresses > tbody > tr > td:first-child > ul > li.ui-state-hover {
+		background: #a6c9e2;
+	}
+
+	table.generalInfo > tbody > tr > td {
+		padding: 0 20px;
+		vertical-align: middle;
+		border: 1px solid #a6c9e2;
+		border-width: 0 0 1px 0;
+	}
+
+	table.generalInfo > tbody > tr > td:first-child {
+		background: #ecfaff;
+		padding:20px;
+		color: #444;
+	}
+
+	table.generalInfo > tbody > tr:nth-child(1) td:first-child {
+		<?php echo buildBorderRadius('3px', 0, 0, 0);?>
+	}
+
+	table.generalInfo > tbody > tr:nth-last-child(1) td:first-child {
+		<?php echo buildBorderRadius(0, 0, 0, '3px');?>
+	}
+
+	table.generalInfo  > tbody > tr:nth-last-child(1) td {
+		border-width: 0;
 	}
 }
 
 @media screen and (min-width: 240px) {
+	.ApplicationPageMenu .rootItem {
+		width: 50px;
+		line-height: 3em;
+		padding-top: 10px;
+	}
 }
 
 @media screen and (min-width: 320px) {
-	.buttonContainer {
-		width: 270px;
+	.ApplicationPageMenu .rootItem {
+		width: 72px;
 	}
-	.buttonContainer .column {
-		width: 133px;
-	}
-	#bodyWrapper {
-		padding-top: 275px;
+	.ApplicationPageMenu .rootItem .ui-icon {
+		display:block;
+		margin-left:auto;
+		margin-right:auto;
+		line-height:1em;
 	}
 }
 
 @media screen and (min-width: 480px) {
-	.buttonContainer {
-		top : 10px;
-		width: 430px;
+	.ApplicationPageMenu .rootItem {
+		width: 110px;
 	}
-	.buttonContainer .column {
-		width: 104px;
-	}
-	#bodyWrapper {
-		padding-top : 175px;
+	.customerTabPage {
+		width: 300px;
 	}
 }
 
 @media screen and (min-width: 768px) {
-	.buttonContainer {
-		margin-right : .5em;
-		width        : 664px;
+	.ApplicationPageMenu .rootItem {
+		width: 160px;
+		line-height: inherit;
+		padding-top: 0px;
 	}
-	.buttonContainer .column {
-		width          : 163px;
-	}
-	.buttonContainer .ui-button .ui-icon {
+	.ApplicationPageMenu .rootItem .ui-icon {
 		display:inline-block;
+		margin-right:.5em;
 	}
-	#bodyWrapper {
-		padding-top: 150px;
+	.customerTabPage {
+		width: 480px;
 	}
 }
 
 @media screen and (min-width: 992px) {
-	.buttonContainer {
-		margin-right : 2em;
+	.ApplicationPageMenu .rootItem {
+		width: 200px;
+	}
+	table.addresses {
+		margin: 0px 10px;
+	}
+	.customerTabPage {
+		width: 295px;
 	}
 }
 
 @media screen and (min-width: 1200px) {
-	.buttonContainer {
-		top : -75px;
+	.customerTabPage {
+		width: 400px;
 	}
+}
 
-	#bodyWrapper {
-		padding-top : 65px;
+@media screen and (min-width: 1400px) {
+	.customerTabPage {
+		width: 600px;
 	}
 }
 
 @media screen and (min-width: 1600px) {
+	.customerTabPage {
+		width: 800px;
+	}
 }
 
 @media screen and (min-width: 1800px) {
+	.customerTabPage {
+		width: 1000px;
+	}
 }
 
 @media screen and (min-width: 1900px) {
-	#bodyWrapper {
-		padding-top : 0;
+	.customerTabPage {
+		width: 1100px;
 	}
 }

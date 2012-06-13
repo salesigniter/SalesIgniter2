@@ -79,10 +79,12 @@ class OrderProductManager
 
 	/**
 	 * @param OrderProduct $orderProduct
+	 * @return bool
 	 */
 	public function add(OrderProduct &$orderProduct)
 	{
 		$this->Contents[$orderProduct->getId()] = $orderProduct;
+		return true;
 	}
 
 	/**
@@ -263,18 +265,20 @@ class OrderProductManager
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
 		$ProductsJsonArray = array();
 		foreach($this->getContents() as $Id => $OrderProduct){
-			$ProductsJsonArray[$Id] = $OrderProduct->jsonEncode();
+			$ProductsJsonArray[$Id] = $OrderProduct->prepareJsonSave();
 		}
-		return json_encode($ProductsJsonArray);
+		return $ProductsJsonArray;
 	}
 
 	/**
+	 * Used when loading the sale from the database
+	 *
 	 * @param AccountsReceivableSalesProducts $Product
 	 */
 	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product)
@@ -282,19 +286,6 @@ class OrderProductManager
 		$OrderProduct = new OrderProduct();
 		$OrderProduct->jsonDecodeProduct($Product);
 		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$Contents = json_decode($data, true);
-		foreach($Contents as $Id => $opInfo){
-			$OrderProduct = new OrderProduct();
-			$OrderProduct->jsonDecode($opInfo);
-			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
-		}
 	}
 }
 

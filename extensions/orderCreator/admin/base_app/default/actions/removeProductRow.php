@@ -1,7 +1,9 @@
 <?php
-	$Editor->ProductManager->remove((int) $_GET['id']);
+$Editor->ProductManager->remove((int)$_GET['id']);
 
-	EventManager::attachActionResponse(array(
-		'success' => true
-	), 'json');
+$Editor->getSaleModule()->saveProgress($Editor);
+
+EventManager::attachActionResponse(array(
+	'success' => true
+), 'json');
 ?>

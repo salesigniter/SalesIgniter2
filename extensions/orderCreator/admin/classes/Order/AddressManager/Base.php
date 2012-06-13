@@ -9,7 +9,7 @@
 
 require(dirname(__FILE__) . '/Address.php');
 
-class OrderCreatorAddressManager extends OrderAddressManager implements Serializable
+class OrderCreatorAddressManager extends OrderAddressManager
 {
 
 	/**
@@ -42,28 +42,6 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 					'address_type' => $type
 				));
 			}
-		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function serialize() {
-		$data = array(
-			'orderId'         => $this->orderId,
-			'addressHeadings' => $this->addressHeadings,
-			'addresses'       => $this->addresses
-		);
-		return serialize($data);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
 		}
 	}
 
@@ -274,22 +252,56 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 			$aType = $Address->getAddressType();
 		}
 
-		$nameInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_name]');
-		$companyInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_company]');
-		$addressInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_street_address]');
-		$suburbInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_suburb]');
-		$cityInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_city]');
-		$cifInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_cif]');
-		$vatInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_vat]');
-		$cityBirthInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_city_birth]');
-		$dobInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_dob]');
-		$postcodeInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_postcode]');
+		$htmlTable->addClass('addressTable ' . $aType . 'Address');
 
-		$countryInput = htmlBase::newElement('selectbox')
+		$nameInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_NAME'))
+			->setName('address[' . $aType . '][entry_name]');
+
+		$companyInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_COMPANY'))
+			->setName('address[' . $aType . '][entry_company]');
+
+		$addressInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_STREET_ADDRESS'))
+			->setName('address[' . $aType . '][entry_street_address]');
+
+		$suburbInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_SUBURB'))
+			->setName('address[' . $aType . '][entry_suburb]');
+
+		$cityInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_CITY'))
+			->setName('address[' . $aType . '][entry_city]');
+
+		$cifInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_CIF'))
+			->setName('address[' . $aType . '][entry_cif]');
+
+		$vatInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_VAT'))
+			->setName('address[' . $aType . '][entry_vat]');
+
+		$cityBirthInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_CITY_BIRTH'))
+			->setName('address[' . $aType . '][entry_city_birth]');
+
+		$dobInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_DOB'))
+			->setName('address[' . $aType . '][entry_dob]');
+
+		$postcodeInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_POST_CODE'))
+			->setName('address[' . $aType . '][entry_postcode]');
+
+		$stateInput = htmlBase::newInput()
+			->setPlaceholder(sysLanguage::get('ENTRY_STATE'))
+			->setName('address[' . $aType . '][entry_state]');
+
+		$countryInput = htmlBase::newSelectbox()
 			->addClass('country')
 			->attr('data-address_type', $aType)
-			->setName('address[' . $aType . '][entry_country]')
-			->css(array('width' => '150px'));
+			->setName('address[' . $aType . '][entry_country]');
 
 		$Qcountries = Doctrine_Query::create()
 			->select('countries_name')
@@ -324,7 +336,6 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 		}
 
 		if (!isset($stateInput)){
-			$stateInput = htmlBase::newElement('input')->setName('address[' . $aType . '][entry_state]');
 		}
 
 		if (is_null($Address) === false){
@@ -361,34 +372,32 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 			}
 		}
 
-		$htmlTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_NAME')),
-				array('text' => $nameInput)
-			)
-		));
-
 		if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
 			$htmlTable->addBodyRow(array(
 				'columns' => array(
-					array('text' => sysLanguage::get('ENTRY_COMPANY')),
-					array('text' => $companyInput)
+					array('colspan' => 3, 'text' => $companyInput)
 				)
 			));
 		}
+
+		$htmlTable->addBodyRow(array(
+			'columns' => array(
+				array('colspan' => 3, 'text' => $nameInput)
+			)
+		));
+
 		if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
 			$htmlTable->addBodyRow(array(
 				'columns' => array(
-					array('text' => sysLanguage::get('ENTRY_CIF')),
-					array('text' => $cifInput)
+					array('colspan' => 3, 'text' => $cifInput)
 				)
 			));
 		}
+
 		if (sysConfig::get('ACCOUNT_VAT_NUMBER') == 'true'){
 			$htmlTable->addBodyRow(array(
 				'columns' => array(
-					array('text' => sysLanguage::get('ENTRY_VAT')),
-					array('text' => $vatInput)
+					array('colspan' => 3, 'text' => $vatInput)
 				)
 			));
 		}
@@ -396,8 +405,7 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 		if (sysConfig::get('ACCOUNT_DOB') == 'true'){
 			$htmlTable->addBodyRow(array(
 				'columns' => array(
-					array('text' => sysLanguage::get('ENTRY_DOB')),
-					array('text' => $dobInput)
+					array('colspan' => 3, 'text' => $dobInput)
 				)
 			));
 		}
@@ -405,54 +413,34 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 		if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
 			$htmlTable->addBodyRow(array(
 				'columns' => array(
-					array('text' => sysLanguage::get('ENTRY_CITY_BIRTH')),
-					array('text' => $cityBirthInput)
+					array('colspan' => 3, 'text' => $cityBirthInput)
 				)
 			));
 		}
 
 		$htmlTable->addBodyRow(array(
 			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_STREET_ADDRESS')),
-				array('text' => $addressInput)
+				array('colspan' => 3, 'text' => $addressInput)
 			)
 		));
 
 		$htmlTable->addBodyRow(array(
 			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_SUBURB')),
-				array('text' => $suburbInput)
+				array('css' => array('width' => '40%'), 'text' => $cityInput),
+				array('css' => array('width' => '40%'), 'addCls' => 'stateCol', 'text' => $stateInput),
+				array('css' => array('width' => '20%'), 'text' => $postcodeInput)
 			)
 		));
 
 		$htmlTable->addBodyRow(array(
 			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_CITY')),
-				array('text' => $cityInput)
+				array('colspan' => 3, 'text' => $suburbInput)
 			)
 		));
 
 		$htmlTable->addBodyRow(array(
 			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_POST_CODE')),
-				array('text' => $postcodeInput)
-			)
-		));
-
-		$htmlTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_STATE')),
-				array(
-					'addCls' => 'stateCol',
-					'text'   => $stateInput
-				)
-			)
-		));
-
-		$htmlTable->addBodyRow(array(
-			'columns' => array(
-				array('text' => sysLanguage::get('ENTRY_COUNTRY')),
-				array('text' => $countryInput)
+				array('colspan' => 3, 'text' => $countryInput)
 			)
 		));
 
@@ -483,10 +471,12 @@ class OrderCreatorAddressManager extends OrderAddressManager implements Serializ
 	}
 
 	public function jsonDecode($data){
-		$addresses = json_decode($data, true);
-		foreach($addresses as $Type => $aInfo){
-			$this->addresses[$Type] = new OrderCreatorAddress();
-			$this->addresses[$Type]->jsonDecode($aInfo);
+		$Decoded = json_decode($data, true);
+		$this->orderId = $Decoded['orderId'];
+		foreach($Decoded['addresses'] as $Type => $aInfo){
+			$this->addresses[$Type] = new OrderCreatorAddress(array_merge($aInfo['addressInfo'], array(
+				'address_type' => $Type
+			)));
 		}
 	}
 }

@@ -1,23 +1,28 @@
 <?php
-$windowAction = $_GET['windowAction'];
-if ($windowAction == 'new'){
-	$header = '<b>' . 'Create New Field' . '</b>';
+$Fields = Doctrine_Core::getTable('OrdersCustomFields');
+if (isset($_GET['field_id'])){
+	$Field = $Fields->find((int)$_GET['field_id']);
+	$header = '<b>' . 'Edit Field' . '</b>';
 }
 else {
-	$Field = Doctrine_Core::getTable('OrdersCustomFields')->findOneByFieldId((int)$_GET['fID']);
-	$FieldDescription = $Field->OrdersCustomFieldsDescription;
-	$FieldOptions = $Field->OrdersCustomFieldsOptionsToFields;
-	$header = '<b>' . $FieldDescription[Session::get('languages_id')]['field_name'] . '</b>';
+	$Field = $Fields->create();
+	$header = '<b>' . 'Create New Field' . '</b>';
 }
 
-$fieldNames = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0');
+$windowAction = $_GET['windowAction'];
+
+$fieldNames = htmlBase::newElement('table')
+	->setCellPadding('3')
+	->setCellSpacing('0');
+
 foreach(sysLanguage::getLanguages() as $lInfo){
 	$langId = $lInfo['id'];
 
-	$fieldNameInput = htmlBase::newElement('input')->setName('field_name[' . $langId . ']');
+	$fieldNameInput = htmlBase::newElement('input')
+		->setName('field_name[' . $langId . ']');
 
-	if (isset($Field) && $Field !== false){
-		$fieldNameInput->setValue($FieldDescription[$langId]['field_name']);
+	if ($Field->Description->count() > 0){
+		$fieldNameInput->setValue($Field->Description[$langId]['field_name']);
 	}
 
 	$fieldNames->addBodyRow(array(
@@ -37,10 +42,14 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 $sortOrder = htmlBase::newElement('input')->setName('sort_order');
 $sortOrder->setValue($Field->sort_order);
 $requiredCheckbox = htmlBase::newElement('checkbox')
-	->setName('input_required');
+	->setName('input_required')
+	->setChecked(($Field->input_required == 1));
 
-$sizeOfOptions = sizeof($FieldOptions);
-$selectInputOptions = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0')->css('width', '100%')
+$sizeOfOptions = $Field->Options->count();
+$selectInputOptions = htmlBase::newElement('table')
+	->setCellPadding('3')
+	->setCellSpacing('0')
+	->css('width', '100%')
 	->addHeaderRow(array(
 	'columns' => array(
 		array(
@@ -55,16 +64,16 @@ $selectInputOptions = htmlBase::newElement('table')->setCellPadding('3')->setCel
 ));
 
 $lId = Session::get('languages_id');
-for($i = 0; $i < $sizeOfOptions; $i++){
+foreach($Field->Options as $i => $Option){
 	$nameInput = htmlBase::newElement('input')->addClass('text')->setType('text')->setName('option_name[' . $i . ']');
 	$sortInput = htmlBase::newElement('input')->addClass('sort')->setType('hidden')->setName('option_sort[' . $i . ']');
 	$dataInput = htmlBase::newElement('input')->addClass('data')->setType('hidden')->setName('option_data[' . $i . ']');
 
-	$Option = $FieldOptions[$i]['OrdersCustomFieldsOptions'];
+	$Option = $Option->Option;
 
-	$nameInput->setValue($Option['OrdersCustomFieldsOptionsDescription'][$lId]['option_name']);
-	$sortInput->setValue($Option['sort_order']);
-	$dataInput->setValue(urlencode($Option['extra_data']));
+	$nameInput->setValue($Option->Description[$lId]->option_name);
+	$sortInput->setValue($Option->sort_order);
+	$dataInput->setValue(urlencode($Option->extra_data));
 
 	$selectInputOptions->addBodyRow(array(
 		'rowAttr' => array(
@@ -98,20 +107,39 @@ $inputTypeMenu->addOption('text', 'Text')
 	->addOption('textarea', 'Textarea')
 	->addOption('select_address', 'Address Select')
 	->addOption('select', 'Select Box Without Other')
-	->addOption('select_other', 'Select Box With Other');
+	->addOption('select_other', 'Select Box With Other')
+	->selectOptionByValue($Field->input_type);
 
-if (!isset($Field) || ($Field !== false && ($Field['input_type'] != 'select' && $Field['input_type'] != 'select_other' && $Field['input_type'] != 'select_address'))){
+if ($Field->input_type != 'select' && $Field->input_type != 'select_other' && $Field->input_type != 'select_address'){
 	$optionsWrapper->css('display', 'none');
 }
 
 $finalTable = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0')->css('width', '100%');
 
-if (isset($Field) && $Field !== false){
-	$inputTypeMenu->selectOptionByValue($Field['input_type']);
-	$requiredCheckbox->setChecked(($Field['input_required'] == 1));
-
-	$finalTable->attr('field_id', $Field['field_id']);
+if ($Field->field_id > 0){
+	$finalTable->attr('field_id', $Field->field_id);
 }
+
+$finalTable->addBodyRow(array(
+	'columns' => array(
+		array(
+			'addCls' => 'main',
+			'text'   => '<b>' . sysLanguage::get('ENTRY_FIELD_IDENTIFIER') . '</b>'
+		)
+	)
+));
+
+$finalTable->addBodyRow(array(
+	'columns' => array(
+		array(
+			'addCls' => 'main',
+			'text'   => htmlBase::newInput()
+			->setName('field_identifier')
+			->val($Field->field_identifier)
+			->draw()
+		)
+	)
+));
 
 $finalTable->addBodyRow(array(
 	'columns' => array(

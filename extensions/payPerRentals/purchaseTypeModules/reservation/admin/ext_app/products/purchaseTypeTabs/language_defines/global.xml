@@ -7,4 +7,11 @@
 
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_PRICING"><![CDATA[Pricing]]></define>
 	<define key="PURCHASE_TYPE_TAB_RESERVATION_HEADING_DISCOUNTS"><![CDATA[Discounts]]></define>
+
+	<define key="ENTRY_PAY_PER_RENTAL_INSURANCE_VALUE"><![CDATA[Insurance Value: ]]></define>
+	<define key="ENTRY_PAY_PER_RENTAL_INSURANCE_COST"><![CDATA[Insurance Cost: ]]></define>
+	<define key="ENTRY_PAY_PER_RENTAL_OVERBOOKING"><![CDATA[Allow Overbooking: ]]></define>
+	<define key="ENTRY_PAY_PER_RENTAL_DEPOSIT_AMOUNT"><![CDATA[Deposit Amount: ]]></define>
+	<define key="ENTRY_PAY_PER_RENTAL_MIN_RENTAL_PERIOD"><![CDATA[Minimum Rental Period: ]]></define>
+	<define key="ENTRY_PAY_PER_RENTAL_MAX_RENTAL_PERIOD"><![CDATA[Maximum Rental Period: ]]></define>
 </definitions>

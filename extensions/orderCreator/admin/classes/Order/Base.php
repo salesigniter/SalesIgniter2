@@ -7,19 +7,13 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-require(dirname(__FILE__) . '/InfoManager/Base.php');
-require(dirname(__FILE__) . '/AddressManager/Base.php');
-require(dirname(__FILE__) . '/ProductManager/Base.php');
-require(dirname(__FILE__) . '/TotalManager/Base.php');
-require(dirname(__FILE__) . '/PaymentManager/Base.php');
-
 class OrderCreator extends Order implements Serializable
 {
 
 	/**
 	 * @var array
 	 */
-	private $data = array();
+	protected $data = array();
 
 	/**
 	 * @var OrderCreatorInfoManager
@@ -55,61 +49,59 @@ class OrderCreator extends Order implements Serializable
 	 * @var AccountsReceivableModule
 	 */
 	protected $SaleModule = null;
+	protected $SaleModuleId = null;
+	protected $SaleModuleRev = null;
 
-	public function __construct() {
+	public function __construct($saleType, $saleId = 0, $revision = 0) {
 		$this->InfoManager = new OrderCreatorInfoManager();
 		$this->AddressManager = new OrderCreatorAddressManager();
 		$this->ProductManager = new OrderCreatorProductManager();
-
-		$SubTotalModule = OrderTotalModules::getModule('subtotal');
-		$TaxModule = OrderTotalModules::getModule('tax');
-		$TotalModule = OrderTotalModules::getModule('total');
-
-		$SubTotal = new OrderCreatorTotal();
-		$SubTotal->setModule($SubTotalModule->getCode());
-		$SubTotal->setModuleType($SubTotalModule->getModuleType());
-		$SubTotal->setTitle($SubTotalModule->getTitle());
-		$SubTotal->setSortOrder(1);
-		$SubTotal->setValue(0.0000);
-
-		$Tax = new OrderCreatorTotal();
-		$Tax->setModule($TaxModule->getCode());
-		$Tax->setModuleType($TaxModule->getModuleType());
-		$Tax->setTitle($TaxModule->getTitle());
-		$Tax->setSortOrder(2);
-		$Tax->setValue(0.0000);
-
-		$Total = new OrderCreatorTotal();
-		$Total->setModule($TotalModule->getCode());
-		$Total->setModuleType($TotalModule->getModuleType());
-		$Total->setTitle($TotalModule->getTitle());
-		$Total->setSortOrder(3);
-		$Total->setValue(0.0000);
-
 		$this->TotalManager = new OrderCreatorTotalManager();
-		$this->TotalManager->add($SubTotal);
-		$this->TotalManager->add($Tax);
-		$this->TotalManager->add($Total);
-
 		$this->PaymentManager = new OrderCreatorPaymentManager();
 
-		$this->InfoManager->setInfo('status', 1);
-		$this->InfoManager->setInfo('currency', Session::get('currency'));
-		$this->InfoManager->setInfo('currency_value', Session::get('currency_value'));
+		if (AccountsReceivableModules::loadModule($saleType)){
+			$Module = AccountsReceivableModules::getModule($saleType);
+			$this->SaleModule = $Module;
+			$this->SaleModule->load($this, true, $saleId, $revision);
+		}
 
-		$this->errorMessages = array();
+		if ($saleId == 0){
+			$this->InfoManager->setInfo('status', 1);
+			$this->InfoManager->setInfo('currency', Session::get('currency'));
+			$this->InfoManager->setInfo('currency_value', Session::get('currency_value'));
 
-		AccountsReceivableModules::loadModules();
-		foreach(AccountsReceivableModules::getModules() as $Module){
-			if ($Module->ownsSale() === true){
-				$Module->load(
-					$this,
-					true,
-					(isset($_GET['sale_id']) ? (int) $_GET['sale_id'] : 0),
-					(isset($_GET['sale_revision']) ? (int) $_GET['sale_revision'] : 0)
-				);
+			$SubTotalModule = $this->TotalManager->getTotal('subtotal');
+			if ($SubTotalModule === false){
+				$SubTotal = new OrderCreatorTotal('subtotal', array(
+					'sort_order' => 1,
+					'value' => 0
+				));
+
+				$this->TotalManager->add($SubTotal);
+			}
+
+			$TaxModule = $this->TotalManager->getTotal('tax');
+			if ($TaxModule === false){
+				$Tax = new OrderCreatorTotal('tax', array(
+					'sort_order' => 2,
+					'value' => 0
+				));
+
+				$this->TotalManager->add($Tax);
+			}
+
+			$TotalModule = $this->TotalManager->getTotal('total');
+			if ($TotalModule === false){
+				$Total = new OrderCreatorTotal('total', array(
+					'sort_order' => 3,
+					'value' => 0
+				));
+
+				$this->TotalManager->add($Total);
 			}
 		}
+
+		$this->errorMessages = array();
 
 		EventManager::notify('OrderCreatorLoadOrder', $this);
 	}
@@ -118,18 +110,39 @@ class OrderCreator extends Order implements Serializable
 	 *
 	 */
 	public function init() {
-		if (is_object($this->ProductManager) === false){
-			print_r(debug_print_backtrace());
-		}
-		$this->ProductManager->init();
+		$InfoManagerJson = $this->InfoManager;
+		$this->InfoManager = new OrderCreatorInfoManager();
+		$this->InfoManager->jsonDecode($InfoManagerJson);
+
+		$AddressManagerJson = $this->AddressManager;
+		$this->AddressManager = new OrderCreatorAddressManager();
+		$this->AddressManager->jsonDecode($AddressManagerJson);
+
+		$ProductManagerJson = $this->ProductManager;
+		$this->ProductManager = new OrderCreatorProductManager();
+		$this->ProductManager->jsonDecode($ProductManagerJson);
+
+		$TotalManagerJson = $this->TotalManager;
+		$this->TotalManager = new OrderCreatorTotalManager();
+		$this->TotalManager->jsonDecode($TotalManagerJson);
+
+		$PaymentManagerJson = $this->PaymentManager;
+		$this->PaymentManager = new OrderCreatorPaymentManager();
+		$this->PaymentManager->jsonDecode($PaymentManagerJson);
 
 		if (isset($this->SaleModule)){
 			$this->SaleModule = AccountsReceivableModules::getModule($this->SaleModule);
-			$this->SaleModule->load($this, false);
+			$this->SaleModule->load(
+				$this,
+				false,
+				$this->SaleModuleId,
+				$this->SaleModuleRev
+			);
 		}
-		/*$this->AddressManager->init();
-		$this->TotalManager->init();
-		$this->PaymentManager->init();*/
+	}
+
+	public function hasSaleId(){
+		return $this->getOrderId() > 0;
 	}
 
 	public function hasSaleModule(){
@@ -149,17 +162,19 @@ class OrderCreator extends Order implements Serializable
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
 			'Order'          => $this->Order,
-			'InfoManager'    => $this->InfoManager,
-			'ProductManager' => $this->ProductManager,
-			'AddressManager' => $this->AddressManager,
-			'TotalManager'   => $this->TotalManager,
-			'PaymentManager' => $this->PaymentManager,
+			'InfoManager'    => $this->InfoManager->prepareJsonSave(),
+			'ProductManager' => $this->ProductManager->prepareJsonSave(),
+			'AddressManager' => $this->AddressManager->prepareJsonSave(),
+			'TotalManager'   => $this->TotalManager->prepareJsonSave(),
+			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
 			'errorMessages'  => $this->errorMessages,
 			'data'           => $this->data
 		);
 
 		if (is_object($this->SaleModule)){
 			$data['SaleModule'] = $this->SaleModule->getCode();
+			$data['SaleModuleId'] = $this->SaleModule->getSaleId();
+			$data['SaleModuleRev'] = $this->SaleModule->getCurrentRevision();
 		}
 		return serialize($data);
 	}
@@ -171,7 +186,11 @@ class OrderCreator extends Order implements Serializable
 	public function unserialize($data) {
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
+			if (in_array($key, array('InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'))){
+				$this->$key = json_encode($dInfo);
+			}else{
+				$this->$key = $dInfo;
+			}
 		}
 		return $data;
 	}
@@ -211,16 +230,35 @@ class OrderCreator extends Order implements Serializable
 	 * @return bool
 	 */
 	public function hasErrors() {
-		return (sizeof($this->errorMessages) > 0);
+		global $messageStack;
+		return ($messageStack->size('OrderCreator') > 0);
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getErrors() {
-		$return = $this->errorMessages;
-		$this->errorMessages = array();
-		return $return;
+		global $messageStack;
+		return $messageStack->output('OrderCreator', true);
+	}
+
+	/**
+	 * @param int $ProductId
+	 * @param int $Quantity
+	 * @return OrderCreatorProduct|void
+	 */
+	public function addProduct($ProductId, $Quantity = 1){
+		$OrderProduct = new OrderCreatorProduct();
+		$OrderProduct->setProductId($ProductId);
+		$OrderProduct->setQuantity($Quantity);
+
+		$Success = $this->ProductManager->add($OrderProduct);
+		if ($Success === false){
+			$this->addErrorMessage('Unable to add product to order!');
+		}else{
+			$this->TotalManager->onProductAdded($this->ProductManager);
+		}
+		return $OrderProduct;
 	}
 
 	/**
@@ -655,4 +693,8 @@ class OrderCreator extends Order implements Serializable
 	}
 }
 
-?>
+require(dirname(__FILE__) . '/InfoManager/Base.php');
+require(dirname(__FILE__) . '/AddressManager/Base.php');
+require(dirname(__FILE__) . '/ProductManager/Base.php');
+require(dirname(__FILE__) . '/TotalManager/Base.php');
+require(dirname(__FILE__) . '/PaymentManager/Base.php');

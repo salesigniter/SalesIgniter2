@@ -31,7 +31,64 @@ class Extension_ordersCustomFields extends ExtensionBase {
 			'OnepageCheckoutProcessCheckout'
 		), null, $this);
 	}
-	
+
+	public function getFields(){
+		$Qfields = Doctrine_Query::create()
+			->from('OrdersCustomFields f')
+			->leftJoin('f.Description fd')
+			->where('fd.language_id = ?', Session::get('languages_id'))
+			->orderBy('sort_order')
+			->execute();
+		return $Qfields;
+	}
+
+	public function getFieldHtml(OrdersCustomFields $Field, Order $Order = null){
+		switch($Field->input_type){
+			case 'select':
+			case 'select_other':
+				$oArr = array();
+
+				$input = htmlBase::newSelectbox()
+					->setRequired($Field->input_required == 1);
+
+				if ($Field->Options && $Field->Options->count()){
+					foreach($Field->Options as $Option){
+						$input->addOption(
+							$Option->Description[Session::get('languages_id')]->option_name,
+							$Option->Description[Session::get('languages_id')]->option_name
+						);
+					}
+				}
+
+				if ($Field->input_type == 'select_other'){
+					$input->addOption('Other', 'Other (Fill in below)');
+
+					$otherInput = '<div class="main" style="clear:both;margin-top:.3em;">Other: ' . htmlBase::newInput()->setName('orders_custom_field_other[' . $Field->field_id . ']')->draw() . '</div>';
+				}
+				break;
+			case 'text':
+				$input = htmlBase::newInput();
+				break;
+			case 'textarea':
+				$input = htmlBase::newElement('textarea')->attr('rows', 3);
+				break;
+		}
+		$input->addClass('orderCustomField')->setName('orders_custom_field[' . $Field->field_id . ']');
+
+		if ($Order !== null){
+			$FieldValues = $Order->InfoManager->getInfo('OrdersCustomFieldsValues');
+			//echo '<pre>';print_r($FieldValues);
+			if (isset($FieldValues[$Field->field_id])){
+				$input->val($FieldValues[$Field->field_id]['value']);
+			}
+		}
+
+		return array(
+			'label' => $Field->Description[Session::get('languages_id')]->field_name,
+			'field' => $input->draw() . (isset($otherInput) ? $otherInput : '')
+		);
+	}
+
 	public function OrderInfoAddBlock($orderId){
 		$Qfields = Doctrine_Query::create()
 		->from('OrdersCustomFieldsToOrders')

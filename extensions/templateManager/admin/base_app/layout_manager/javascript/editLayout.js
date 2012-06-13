@@ -245,8 +245,7 @@ function containerAdd() {
 }
 
 function columnAdd() {
-	// if no selected container, just cancel
-	if ($('.container.' + selectedClass).size() < 1){
+	if ($(this).hasClass('ui-state-disabled')){
 		return false;
 	}
 
@@ -275,6 +274,10 @@ function columnAdd() {
 }
 
 function subColumnAdd(){
+	if ($(this).hasClass('ui-state-disabled')){
+		return false;
+	}
+
 	// if no selected container, just cancel
 	if (!$(this).data('current_column')){
 		return false;
@@ -624,8 +627,6 @@ function updateBreadcrumb() {
 				.append('<span class="ui-icon ui-icon-closethick deleteElement" tooltip="Delete Element And Children"></span>');
 		}
 
-
-		$elementBlock.append('<span> &raquo; </span>');
 		var typeText = '';
 		if ($(this).hasClass('wrapper')){
 			typeText = 'Wrapper';
@@ -689,7 +690,7 @@ function updateBreadcrumb() {
 			});
 		}
 
-		$('.containerBreadcrumb').append(' ').append($elementBlock);
+		$('.containerBreadcrumb').append('<span class="crumbSeparator"> &raquo; </span>').append($elementBlock);
 		$icons.find('.ui-icon').each(function () {
 			$(this).data('element', El);
 		});
@@ -759,7 +760,10 @@ $(document).ready(function() {
 		}
 	});
 
-	$('#saveLayoutT').click(function() { runLayoutAction('save'); });
+	$('#construct-save').click(function(e) {
+		e.preventDefault();
+		runLayoutAction('save');
+	});
 	$('#noSaveLayout').click(function () { hideSaveLayout(); });
 
 	/* column and container properties */
@@ -802,6 +806,7 @@ $(document).ready(function() {
 			}
 
 			$(this).removeClass(hoverClass).addClass(selectedClass).fadeTo(0, selectedOpacity);
+			$('#construct-addColumn, #construct-addSubColumn').removeClass('ui-state-disabled');
 
 			if (isFirstClick === true && $(this).hasClass('column')){
 				$('#construct-addSubColumn').data('current_column', this);

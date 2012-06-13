@@ -31,9 +31,13 @@ class OrderCreatorInfoManager extends OrderInfoManager
 
 	public function jsonDecode($data){
 		$infoArray = json_decode($data, true);
-		foreach($infoArray as $k => $info){
-			$this->info[$k] = new OrderCreatorInfo();
-			$this->info[$k]->jsonDecode($info);
+		if ($infoArray){
+			foreach($infoArray as $k => $info){
+				$this->info[$k] = new OrderCreatorInfo(
+					$info['key'],
+					$info['value']
+				);
+			}
 		}
 	}
 }

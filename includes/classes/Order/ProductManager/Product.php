@@ -25,7 +25,14 @@ class OrderProduct
 	/**
 	 * @var array|null
 	 */
-	protected $pInfo = array();
+	protected $pInfo = array(
+		'products_id'        => 0,
+		'orders_products_id' => 0,
+		'products_tax'       => 0,
+		'products_quantity'  => 0,
+		'products_model'     => '',
+		'products_name'      => ''
+	);
 
 	/**
 	 * @var int
@@ -180,7 +187,7 @@ class OrderProduct
 
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'displayOrderedProductBarcodes')){
-			$return = $ProductType->displayOrderedProductBarcodes($this->pInfo);
+			$return = $ProductType->displayOrderedProductBarcodes($this);
 		}
 		return $return;
 	}
@@ -343,6 +350,19 @@ class OrderProduct
 	}
 
 	/**
+	 * @param $SaleProduct
+	 */
+	public function onSaveProgress(&$SaleProduct)
+	{
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'onSaveProgress')){
+			$ProductType->onSaveProgress($this, $SaleProduct);
+		}
+
+		$SaleProduct->product_json = json_encode($this->prepareJsonSave());
+	}
+
+	/**
 	 * @param      $SaleProduct
 	 * @param bool $AssignInventory
 	 */
@@ -353,23 +373,62 @@ class OrderProduct
 			$ProductType->onSaveSale($this, $SaleProduct, $AssignInventory);
 		}
 
-		$SaleProduct->product_json = $this->jsonEncode();
+		$SaleProduct->product_json = json_encode($this->prepareJsonSave());
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
-		return json_encode($this->pInfo);
+		$toEncode = array(
+			'id'    => $this->id,
+			'pInfo' => $this->pInfo
+		);
+
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'prepareJsonSave')){
+			$toEncode['ProductTypeJson'] = $ProductType->prepareJsonSave($this);
+		}
+		return $toEncode;
 	}
 
 	/**
+	 * Used when loading the sale from the database
+	 *
 	 * @param AccountsReceivableSalesProducts $Product
 	 */
 	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product)
 	{
-		$this->pInfo = json_decode($Product->product_json, true);
+		$ProductInfo = json_decode($Product->product_json, true);
+		if ($ProductInfo){
+			//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
+			$this->id = $ProductInfo['id'];
+			$this->pInfo = $ProductInfo['pInfo'];
+
+			$this->productClass = new Product($this->pInfo['products_id']);
+			$this->products_weight = $this->productClass->getWeight();
+
+			$this->loadProductTypeClass($this->productClass->getProductType());
+
+			$ProductType = $this->getProductTypeClass();
+			if (method_exists($ProductType, 'jsonDecodeProduct')){
+				$ProductType->jsonDecode($this, $ProductInfo['ProductTypeJson']);
+			}else{
+				if (method_exists($ProductType, 'setProductId')){
+					$ProductType->setProductId($this->pInfo['products_id']);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param array $ProductInfo
+	 */
+	public function jsonDecode(array $ProductInfo)
+	{
+		$this->id = $ProductInfo['id'];
+		$this->pInfo = $ProductInfo['pInfo'];
 
 		$this->productClass = new Product($this->pInfo['products_id']);
 		$this->products_weight = $this->productClass->getWeight();
@@ -377,9 +436,12 @@ class OrderProduct
 		$this->loadProductTypeClass($this->productClass->getProductType());
 
 		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'setProductId')){
-			$ProductType->setProductId($this->pInfo['products_id']);
+		if (method_exists($ProductType, 'jsonDecode')){
+			$ProductType->jsonDecode($this, $ProductInfo['ProductTypeJson']);
+		}else{
+			if (method_exists($ProductType, 'setProductId')){
+				$ProductType->setProductId($this->pInfo['products_id']);
+			}
 		}
-		$ProductType->jsonDecodeProduct($this, $Product);
 	}
 }

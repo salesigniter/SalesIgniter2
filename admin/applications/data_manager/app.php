@@ -1,6 +1,4 @@
 <?php
-require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
-
 $appContent = $App->getAppContentFile();
 
 $separator = "\t";

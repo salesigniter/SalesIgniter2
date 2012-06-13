@@ -39,70 +39,13 @@ $(document).ready(function () {
 					buttonEl   : this,
 					contentUrl : GridClass.buildActionWindowLink('newLayout'),
 					onAfterShow: function (){
-						var height = 0;
-						var width = 0;
-						$('.mainBox').each(function () {
-							if ($(this).outerWidth() > width){
-								width = $(this).outerWidth();
-							}
-
-							if ($(this).outerHeight() > height){
-								height = $(this).outerHeight();
-							}
-						});
-
-						$('.mainBox').width(width).height(height);
-
-						$('.checkAll').click(function(){
-							var self = this;
-							$(this).parent().find('input:checkbox').each(function (){
-								this.checked = self.checked;
-							});
-
-							if (self.checked){
-								$(this).parent().find('.checkAllText').html('Uncheck All');
-							}else{
-								$(this).parent().find('.checkAllText').html('Check All');
-							}
-						});
-
-						$('.checkAllPages').click(function (){
-							var self = this;
-							$(self).parent().parent().find('.pageBox').each(function (){
-								this.checked = self.checked;
-							});
-						});
-
-						$('.checkAllApps').click(function (){
-							var self = this;
-							$(self).parent().parent().find('.appBox').each(function (){
-								this.checked = self.checked;
-							});
-							$(self).parent().parent().find('.pageBox').each(function (){
-								this.checked = self.checked;
-							});
-						});
-
 						$(this).find('select[name=pageType]').change(function (){
-							$('tr[data-for_page_type]').hide();
-							var self = this;
-							$('tr[data-for_page_type="' + $(this).val() + '"]').show('fast', function (){
-								if ($(self).val() == 'template'){
-									$('.mainBox').width('auto').height('auto');
-									var height = 0;
-									var width = 0;
-									$('.mainBox').each(function () {
-										if ($(this).outerWidth() > width){
-											width = $(this).outerWidth();
-										}
+							$('#layoutSettings').empty();
 
-										if ($(this).outerHeight() > height){
-											height = $(this).outerHeight();
-										}
-									});
-
-									$('.mainBox').width(width).height(height);
-								}
+							$.get(GridClass.buildActionLink('getLayoutSettings', [
+								'layout_type=' + $(this).val()
+							]), function (data){
+								$('#layoutSettings').html(data);
 							});
 						}).change();
 					},
@@ -128,70 +71,13 @@ $(document).ready(function () {
 					buttonEl   : this,
 					contentUrl : GridClass.buildActionWindowLink('newLayout', true),
 					onAfterShow: function (){
-						var height = 0;
-						var width = 0;
-						$('.mainBox').each(function () {
-							if ($(this).outerWidth() > width){
-								width = $(this).outerWidth();
-							}
-
-							if ($(this).outerHeight() > height){
-								height = $(this).outerHeight();
-							}
-						});
-
-						$('.mainBox').width(width).height(height);
-
-						$('.checkAll').click(function(){
-							var self = this;
-							$(this).parent().find('input:checkbox').each(function (){
-								this.checked = self.checked;
-							});
-
-							if (self.checked){
-								$(this).parent().find('.checkAllText').html('Uncheck All');
-							}else{
-								$(this).parent().find('.checkAllText').html('Check All');
-							}
-						});
-
-						$('.checkAllPages').click(function (){
-							var self = this;
-							$(self).parent().parent().find('.pageBox').each(function (){
-								this.checked = self.checked;
-							});
-						});
-
-						$('.checkAllApps').click(function (){
-							var self = this;
-							$(self).parent().parent().find('.appBox').each(function (){
-								this.checked = self.checked;
-							});
-							$(self).parent().parent().find('.pageBox').each(function (){
-								this.checked = self.checked;
-							});
-						});
-
 						$(this).find('select[name=pageType]').change(function (){
-							$('tr[data-for_page_type]').hide();
-							var self = this;
-							$('tr[data-for_page_type="' + $(this).val() + '"]').show('fast', function (){
-								if ($(self).val() == 'template'){
-									$('.mainBox').width('auto').height('auto');
-									var height = 0;
-									var width = 0;
-									$('.mainBox').each(function () {
-										if ($(this).outerWidth() > width){
-											width = $(this).outerWidth();
-										}
+							$('#layoutSettings').empty();
 
-										if ($(this).outerHeight() > height){
-											height = $(this).outerHeight();
-										}
-									});
-
-									$('.mainBox').width(width).height(height);
-								}
+							$.get(GridClass.buildActionLink('getLayoutSettings', [
+								GridClass.getDataKey() + '=' + GridClass.getSelectedData()
+							]), function (data){
+								$('#layoutSettings').html(data);
 							});
 						}).change();
 					},

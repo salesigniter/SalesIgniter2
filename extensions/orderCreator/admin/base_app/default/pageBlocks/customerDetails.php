@@ -143,7 +143,7 @@ if (!empty($contents)){
 	}
 }
 
-if (!isset($_GET['oID'])){
+if (!isset($_GET['sale_id'])){
 	if (sysConfig::get('EXTENSION_ORDER_CREATOR_CHOOSE_CUSTOMER_TYPE') == 'True'){
 		$hotelGuest = htmlBase::newElement('button')
 			->addClass('hotelGuest')

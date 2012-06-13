@@ -245,7 +245,7 @@ function buildNormalInventoryBarcodeTable(Product $Product, $PurchaseType) {
 
 			$lastColHtml = $deleteButton->draw() . ' ' . $updateButton->draw() . ' ' . $commentButton->draw();
 
-			EventManager::notify('NewProductAddBarcodeListingButtons', &$lastColHtml, &$buttonData);
+			EventManager::notify('NewProductAddBarcodeListingButtons', $bInfo, $purchaseTypeCode, &$lastColHtml);
 
 			$currentBarcodesTableBody[] = array(
 				'css'   => array(

@@ -12,6 +12,14 @@ class AccountsReceivableSales extends Doctrine_Record {
 		$this->hasMany('AccountsReceivableSalesProducts as Products', array(
 			'local' => 'id',
 			'foreign' => 'sale_id',
+			'orderBy' => 'id',
+			'cascade' => array('delete')
+		));
+
+		$this->hasMany('AccountsReceivableSalesTotals as Totals', array(
+			'local' => 'id',
+			'foreign' => 'sale_id',
+			'orderBy' => 'display_order',
 			'cascade' => array('delete')
 		));
 	}

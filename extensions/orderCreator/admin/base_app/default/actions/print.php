@@ -6,7 +6,10 @@ $PrintTemplate = $SaleModule->getPrintTemplate($_GET['type']);
 
 $Construct = htmlBase::newElement('p')->attr('id', 'bodyContainer');
 $ExtTemplateManager = $appExtension->getExtension('templateManager');
-$ExtTemplateManager->buildLayout($Construct, $PrintTemplate->layout_id);
+$LayoutBuilder = $ExtTemplateManager->getLayoutBuilder();
+$LayoutBuilder->addVar('Sale', $Editor);
+$LayoutBuilder->setLayoutId($PrintTemplate->layout_id);
+$LayoutBuilder->build($Construct);
 
 ob_start();
 ?>

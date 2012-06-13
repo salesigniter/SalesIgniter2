@@ -1,0 +1,35 @@
+<?php
+/*
+	I.T. Web Experts, Rental Store v2
+	http://www.itwebexperts.com
+
+	Copyright (c) 2009 I.T. Web Experts
+
+	This script and it's source is not redistributable
+*/
+
+class TemplateManagerPrintWidgetCustomPhp extends TemplateManagerPrintWidget
+{
+
+	public function __construct() {
+		global $App;
+		$this->init('customPhp');
+	}
+
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder) {
+		global $appExtension;
+		$boxWidgetProperties = $this->getWidgetProperties();
+		$htmlText = '';
+		if (isset($boxWidgetProperties->php_text)){
+			$htmlCode = $boxWidgetProperties->php_text;
+			ob_start();
+			eval("?>" . $htmlCode);
+			$htmlText = ob_get_contents();
+			ob_end_clean();
+		}
+		$this->setBoxContent($htmlText);
+		return $this->draw();
+	}
+}
+
+?>

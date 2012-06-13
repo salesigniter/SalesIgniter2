@@ -7,29 +7,15 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-require(dirname(__FILE__) . '/Total.php');
-
 class OrderCreatorTotalManager extends OrderTotalManager
 {
 
 	/**
-	 * @param array|null $orderTotals
+	 * @param string $ModuleCode
 	 */
-	public function __construct(array $orderTotals = null) {
-		if (is_null($orderTotals) === false){
-			foreach($orderTotals as $i => $tInfo){
-				$orderTotal = new OrderCreatorTotal($tInfo);
-				$this->totals[$orderTotal->getModule()] = $orderTotal;
-			}
-		}
-	}
-
-	/**
-	 * @param string $moduleType
-	 */
-	public function remove($moduleType) {
-		if (isset($this->totals[$moduleType]) === true){
-			unset($this->totals[$moduleType]);
+	public function remove($ModuleCode) {
+		if (isset($this->totals[$ModuleCode]) === true){
+			unset($this->totals[$ModuleCode]);
 		}
 	}
 
@@ -115,15 +101,34 @@ class OrderCreatorTotalManager extends OrderTotalManager
 		}
 	}
 
+	/**
+	 * Used when loading the sale from the database
+	 *
+	 * @param AccountsReceivableSalesTotals $Total
+	 */
+	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total){
+		$TotalDecoded = json_decode($Total->total_json, true);
+		$OrderTotal = new OrderCreatorTotal($TotalDecoded['data']['module_code']);
+		$OrderTotal->jsonDecode($TotalDecoded);
+
+		$this->add($OrderTotal);
+	}
+
+	/**
+	 * Used from init method in OrderCreator class
+	 *
+	 * @param string $data
+	 */
 	public function jsonDecode($data){
 		$this->totals = array();
 		$Totals = json_decode($data, true);
 		foreach($Totals as $tInfo){
 			$OrderTotal = new OrderCreatorTotal();
-			$OrderTotal->jsonDencode($tInfo);
-			$this->totals[$OrderTotal->getModule()] = $OrderTotal;
+			$OrderTotal->jsonDecode($tInfo);
+
+			$this->add($OrderTotal);
 		}
 	}
 }
 
-?>
+require(dirname(__FILE__) . '/Total.php');

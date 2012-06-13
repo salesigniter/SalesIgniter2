@@ -16,6 +16,7 @@ class CustomersCustomFieldsGroups extends Doctrine_Record {
 		$this->hasMany('CustomersCustomFieldsToGroups as Fields', array(
 			'local'   => 'group_id',
 			'foreign' => 'group_id',
+			'orderBy' => 'sort_order',
 			'cascade' => array('delete')
 		));
 	}

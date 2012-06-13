@@ -194,15 +194,17 @@ class OrderAddressManager
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
-		$jsonArray = array();
+		$toEncode = array(
+			'orderId' => $this->orderId
+		);
 		foreach($this->getAddresses() as $Type => $Address){
-			$jsonArray[$Type] = $Address->jsonEncode();
+			$toEncode['addresses'][$Type] = $Address->prepareJsonSave();
 		}
-		return json_encode($jsonArray);
+		return $toEncode;
 	}
 
 	/**
@@ -210,10 +212,12 @@ class OrderAddressManager
 	 */
 	public function jsonDecode($data)
 	{
-		$addresses = json_decode($data, true);
-		foreach($addresses as $Type => $aInfo){
-			$this->addresses[$Type] = new OrderAddress();
-			$this->addresses[$Type]->jsonDecode($aInfo);
+		$Decoded = json_decode($data, true);
+		$this->orderId = $Decoded['orderId'];
+		foreach($Decoded['addresses'] as $Type => $aInfo){
+			$this->addresses[$Type] = new OrderAddress(array_merge($aInfo, array(
+				'address_type' => $Type
+			)));
 		}
 	}
 }

@@ -216,6 +216,10 @@ class htmlElement_table implements htmlElementPlugin
 			$col->attr('colspan', $settings['colspan']);
 		}
 
+		if (isset($settings['rowspan'])){
+			$col->attr('rowspan', $settings['rowspan']);
+		}
+
 		if (isset($settings['addCls'])){
 			$col->addClass($settings['addCls']);
 		}

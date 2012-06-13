@@ -55,6 +55,8 @@ $Editor->AddressManager->addAddressObj($OrderBillingAddress);
 $Editor->AddressManager->addAddressObj($OrderDeliveryAddress);
 $Editor->AddressManager->addAddressObj($OrderPickupAddress);
 
+$Editor->getSaleModule()->saveProgress($Editor);
+
 $response = array(
 	'success' => true,
 	'customer' => $Editor->AddressManager->editAddress('customer') . $customerId->draw(),

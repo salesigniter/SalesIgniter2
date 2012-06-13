@@ -1,9 +1,9 @@
 <?php
 class ProductTypeBase extends ModuleBase {
 
-	public function jsonEncode(OrderProduct &$OrderProduct){
+	public function prepareJsonSave(OrderProduct &$OrderProduct){
 	}
 
-	public function jsonDecode(OrderProduct &$OrderProduct){
+	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson){
 	}
 }

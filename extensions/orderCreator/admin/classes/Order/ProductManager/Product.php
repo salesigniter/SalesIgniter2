@@ -9,7 +9,7 @@
 
 require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/product/Base.php');
 
-class OrderCreatorProduct extends OrderProduct implements Serializable
+class OrderCreatorProduct extends OrderProduct
 {
 
 	/**
@@ -110,27 +110,6 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 		$ProductType =& $this->getProductTypeClass();
 		if (method_exists($ProductType, 'OrderCreatorProductOnInit')){
 			$ProductType->OrderCreatorProductOnInit(&$this->pInfo);
-		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function serialize() {
-		$data = array(
-			'id'	=> $this->id,
-			'pInfo' => $this->pInfo
-		);
-		return serialize($data);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
 		}
 	}
 
@@ -338,6 +317,7 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 			$newProductInfo[$k] = $v;
 		}
 		$this->pInfo = $newProductInfo;
+
 		//$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
 	}
 
@@ -362,21 +342,6 @@ class OrderCreatorProduct extends OrderProduct implements Serializable
 		}
 
 		EventManager::notify('OrderCreatorProductAddToCollection', $this, $OrderedProduct);
-	}
-
-	public function jsonDecodeProduct($Product){
-		$this->pInfo = json_decode($Product->product_json, true);
-
-		$this->productClass = new Product($this->pInfo['products_id']);
-		$this->products_weight = $this->productClass->getWeight();
-
-		$this->loadProductTypeClass($this->productClass->getProductType());
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'setProductId')){
-			$ProductType->setProductId($this->pInfo['products_id']);
-		}
-		$ProductType->jsonDecodeProduct($this, $Product);
 	}
 }
 

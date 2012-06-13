@@ -296,26 +296,12 @@ class OrderAddress
 	/**
 	 * @return string
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
-		return json_encode(array(
+		return array(
 			'addressInfo' => $this->addressInfo,
-			'Type'        => $this->Type,
-			'Zone'        => $this->Zone,
-			'Country'     => $this->Country,
-			'Format'      => $this->Format
-		));
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$addressInfo = json_decode($data, true);
-		foreach($addressInfo as $k => $info){
-			$this->$k = $info;
-		}
+			'Type'        => $this->Type
+		);
 	}
 }
 

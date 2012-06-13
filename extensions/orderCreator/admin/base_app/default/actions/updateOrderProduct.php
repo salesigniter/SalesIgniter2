@@ -27,4 +27,6 @@ if ($OrderedProduct !== false){
 	);
 }
 
+$Editor->getSaleModule()->saveProgress($Editor);
+
 EventManager::attachActionResponse($response, 'json');

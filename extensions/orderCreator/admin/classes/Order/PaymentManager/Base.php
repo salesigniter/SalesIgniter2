@@ -2,46 +2,26 @@
 /**
  * Payment manager class for the order creator
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
+ * @package   OrderCreator
+ * @author    Stephen Walker <stephen@itwebexperts.com>
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializable
+class OrderCreatorPaymentManager extends OrderPaymentManager
 {
 
-	/**
-	 * @return string
-	 */
-	public function serialize() {
-		$data = array(
-			'orderId'	   => $this->orderId,
-			'History'	   => $this->History,
-			'PaymentsTotal' => $this->PaymentsTotal
-		);
-		return serialize($data);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
-		}
-	}
-
-	public function getHistory(){
+	public function getHistory()
+	{
 		return $this->History;
 	}
 
 	/**
-	 * @param array $paymentInfo
+	 * @param array       $paymentInfo
 	 * @param null|Orders $CollectionObj
 	 * @return array|bool
 	 */
-	public function processPayment(array $paymentInfo, Orders &$CollectionObj = null) {
+	public function processPayment(array $paymentInfo, Orders &$CollectionObj = null)
+	{
 		global $Editor;
 		$Module = OrderPaymentModules::getModule($paymentInfo['payment_method']);
 		if (is_null($CollectionObj) === false){
@@ -54,20 +34,20 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 		}
 
 		$RequestData = array(
-			'amount'				=> $paymentInfo['payment_amount'],
-			'currencyCode'		  => $Editor->getCurrency(),
-			'orderID'			   => $Editor->getOrderId(),
-			'description'		   => (isset($paymentInfo['comments']) && !empty($paymentInfo['comments']) ? $paymentInfo['comments'] : 'Administration Order Payment'),
-			'customerId'			=> $Editor->getCustomerId(),
-			'customerEmail'		 => $Editor->getEmailAddress(),
-			'customerTelephone'	 => $Editor->getTelephone(),
-			'customerFirstName'	 => $Address->getFirstName(),
-			'customerLastName'	  => $Address->getLastName(),
+			'amount'                => $paymentInfo['payment_amount'],
+			'currencyCode'          => $Editor->getCurrency(),
+			'orderID'               => $Editor->getOrderId(),
+			'description'           => (isset($paymentInfo['comments']) && !empty($paymentInfo['comments']) ? $paymentInfo['comments'] : 'Administration Order Payment'),
+			'customerId'            => $Editor->getCustomerId(),
+			'customerEmail'         => $Editor->getEmailAddress(),
+			'customerTelephone'     => $Editor->getTelephone(),
+			'customerFirstName'     => $Address->getFirstName(),
+			'customerLastName'      => $Address->getLastName(),
 			'customerStreetAddress' => $Address->getStreetAddress(),
-			'customerPostcode'	  => $Address->getPostcode(),
-			'customerCity'		  => $Address->getCity(),
-			'customerState'		 => $Address->getState(),
-			'customerCountry'	   => $Address->getCountry()
+			'customerPostcode'      => $Address->getPostcode(),
+			'customerCity'          => $Address->getCity(),
+			'customerState'         => $Address->getState(),
+			'customerCountry'       => $Address->getCountry()
 		);
 
 		if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
@@ -96,13 +76,14 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 	}
 
 	/**
-	 * @param string $moduleName
-	 * @param int $history_id
-	 * @param float $amount
+	 * @param string      $moduleName
+	 * @param int         $history_id
+	 * @param float       $amount
 	 * @param Orders|null $CollectionObj
 	 * @return array|bool
 	 */
-	public function refundPayment($moduleName, $history_id, $amount, Orders &$CollectionObj = null) {
+	public function refundPayment($moduleName, $history_id, $amount, Orders &$CollectionObj = null)
+	{
 		global $Editor;
 		$Module = OrderPaymentModules::getModule($moduleName);
 		if (is_null($CollectionObj) === false){
@@ -118,11 +99,11 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 		$paymentHistory = $Qhistory[0];
 
 		$requestData = array(
-			'amount'		=> (isset($amount) ? $amount : $paymentHistory['payment_amount']),
-			'orderID'	   => $paymentHistory['orders_id'],
+			'amount'        => (isset($amount) ? $amount : $paymentHistory['payment_amount']),
+			'orderID'       => $paymentHistory['orders_id'],
 			'transactionID' => $paymentHistory['gateway_message'],
 			'cardDetails'   => unserialize(cc_decrypt($paymentHistory['card_details'])),
-			'is_refund'	 => 1
+			'is_refund'     => 1
 		);
 
 		$success = $Module->refundPayment($requestData);
@@ -133,6 +114,30 @@ class OrderCreatorPaymentManager extends OrderPaymentManager implements Serializ
 			return array(
 				'error_message' => $Module->getErrorMessage()
 			);
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function prepareJsonSave()
+	{
+		$data = array(
+			'orderId'       => $this->orderId,
+			'History'       => $this->History,
+			'PaymentsTotal' => $this->PaymentsTotal
+		);
+		return $data;
+	}
+
+	/**
+	 * @param string $data
+	 */
+	public function jsonDecode($data)
+	{
+		$data = json_decode($data, true);
+		foreach($data as $key => $dInfo){
+			$this->$key = $dInfo;
 		}
 	}
 }

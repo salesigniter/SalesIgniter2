@@ -19,6 +19,11 @@ if (!class_exists('Template')){
 	require(sysConfig::getDirFsCatalog() . '/includes/classes/template.php');
 }
 
+if (!class_exists('TemplateManagerLayoutTypeModules')){
+	require(sysConfig::getDirFsCatalog() . '/extensions/templateManager/layoutTypeModules/moduleBase.php');
+	require(sysConfig::getDirFsCatalog() . '/extensions/templateManager/layoutTypeModules/modules.php');
+}
+
 $appContent = $App->getAppContentFile();
 $TemplateManager = $appExtension->getExtension('templateManager');
 

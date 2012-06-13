@@ -35,7 +35,7 @@ class Extension_payPerRentals extends ExtensionBase {
 			'OrderBeforeSendEmail',
             'ProductBeforeTaxAddress',
 			'NewProductAddBarcodeListingHeader',
-			'NewProductAddBarcodeListingBody',
+			'NewProductAddBarcodeListingButtons',
 			'ApplicationTopAction_add_reservation_product',
 			'CouponEditPurchaseTypeBeforeOutput',
 			'CouponEditBeforeSave',
@@ -545,9 +545,14 @@ class Extension_payPerRentals extends ExtensionBase {
 		}
 	}
 
-	public function NewProductAddBarcodeListingBody(&$bInfo, &$currentBarcodesTableBody){
-
-		$currentBarcodesTableBody[1]['text'] = $currentBarcodesTableBody[1]['text'] . "<a href='" . itw_app_link('appExt=payPerRentals&product_id=' . $_GET['pID'] . '&barcode_id=' . $bInfo['barcode_id'], 'show_reports', 'default_orders') . "'>&nbsp;&nbsp;<img src='images/money-icon.png' alt='Rental Orders Report'/></a>";
+	public function NewProductAddBarcodeListingButtons($bInfo, $purchaseTypeCode, &$lastColHtml){
+		if ($purchaseTypeCode == 'reservation' && isset($_GET['product_id'])){
+			$lastColHtml .= ' ' . htmlBase::newElement('a')
+				->setHref(itw_app_link('appExt=payPerRentals&product_id=' . $_GET['product_id'] . '&barcode_id=' . $bInfo['barcode_id'], 'show_reports', 'default_orders'))
+				->attr('tooltip', 'Rental Orders Report')
+				->html('<img src="images/money-icon.png" />')
+				->draw();
+		}
 	}
 
 	public function NewProductAddBarcodeListingHeader(&$currentBarcodesTableHeaders){

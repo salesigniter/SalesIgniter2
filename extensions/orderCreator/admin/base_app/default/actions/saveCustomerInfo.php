@@ -18,7 +18,9 @@ $Editor->AddressManager->addAddressObj($OrderPickupAddress);
 
 $Editor->AddressManager->updateFromPost();
 
+$Editor->getSaleModule()->saveProgress($Editor);
+
 EventManager::notify('OrderCreatorSaveCustomerInfoResponse');
 
-	EventManager::attachActionResponse('', 'html');
+EventManager::attachActionResponse('', 'html');
 ?>

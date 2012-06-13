@@ -24,6 +24,17 @@ class AccountsReceivableModulesEstimatePrintDefault
 
 	/**
 	 * @static
+	 * @return array
+	 */
+	public static function getModuleInfo(){
+		return array(
+			'code' => 'default',
+			'title' => 'Estimate Default'
+		);
+	}
+
+	/**
+	 * @static
 	 * @return mixed
 	 */
 	public static function getButton(){

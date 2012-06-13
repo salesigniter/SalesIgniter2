@@ -45,10 +45,50 @@ class htmlBase {
 
 	/**
 	 * @static
+	 * @return htmlWidget_checkbox
+	 */
+	public static function newCheckbox(){
+		return self::newElement('checkbox');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_radio
+	 */
+	public static function newRadio(){
+		return self::newElement('radio');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_selectbox
+	 */
+	public static function newSelectbox(){
+		return self::newElement('selectbox');
+	}
+
+	/**
+	 * @static
 	 * @return htmlWidget_newGrid
 	 */
 	public static function newGrid(){
 		return self::newElement('newGrid');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_table
+	 */
+	public static function newTable(){
+		return self::newElement('table');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_list
+	 */
+	public static function newList(){
+		return self::newElement('list');
 	}
 }
 ?>

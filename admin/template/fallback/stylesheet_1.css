@@ -57,7 +57,7 @@
 		vertical-align: middle;
 	}
 	.ui-icon { width:24px;height:24px;display: inline-block;vertical-align: middle; }
-	.ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
+	.ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
 
 	.ui-icon-warning { background-position: -2px -2px }
 	.ui-icon-calendar { background-position: -114px -2px; }
@@ -121,6 +121,9 @@
 	.ui-icon-link-break { background-position: -58px -198px; }
 	.ui-icon-email-compose { background-position: -86px -198px; }
 	.ui-icon-user-group { background-position: -114px -198px; }
+	.ui-icon-save { background-position: -142px -198px; }
+	.ui-icon-save-as { background-position: -170px -198px; }
+	.ui-icon-revision { background-position: -198px -198px; }
 
 	.ui-state-error, .ui-widget-content .ui-state-error {border: 1px solid #e60018; background: #fef1ec url(<?php echo $jqueryThemeImages;?>/ui-bg_glass_95_fcccca_1x400.png) 50% 50% repeat-x; color: #333333; }
 	.ui-state-error a, .ui-widget-content .ui-state-error a { color: #333333; }

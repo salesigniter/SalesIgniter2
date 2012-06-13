@@ -1,4 +1,4 @@
-<ConfigurationGroup>
+ <ConfigurationGroup>
 	<title>Refund</title>
 	<key>orderTotalRefund</key>
 	<description>Configuration Settings For The Refund Order Total</description>

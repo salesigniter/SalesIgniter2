@@ -61,15 +61,15 @@ class OrderInfoManager
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
-		$jsonArray = array();
+		$toEncode = array();
 		foreach($this->getInfo() as $k => $Info){
-			$jsonArray[$k] = $Info->jsonEncode();
+			$toEncode[$k] = $Info->prepareJsonSave();
 		}
-		return json_encode($jsonArray);
+		return $toEncode;
 	}
 
 	/**
@@ -79,8 +79,10 @@ class OrderInfoManager
 	{
 		$infoArray = json_decode($data, true);
 		foreach($infoArray as $k => $info){
-			$this->info[$k] = new OrderInfo();
-			$this->info[$k]->jsonDecode($info);
+			$this->info[$k] = new OrderInfo(
+				$info['key'],
+				$info['value']
+			);
 		}
 	}
 }

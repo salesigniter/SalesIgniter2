@@ -11,6 +11,7 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
+$SaleModule = $Editor->getSaleModule();
 ?>
 <style>
 	.ui-datepicker-group {
@@ -48,125 +49,101 @@
 	}
 </style>
 <script>
-	var autoSaveLength;
-	var autoSaveInterval;
-	var autoSaveNoticeInterval;
-	var autoSaveNoticeStart;
-	var autoSaveNoticeCount = 0;
-	function setAutoSave(seconds){
-		autoSaveLength = parseInt(seconds) * 1000;
-		if (autoSaveLength > 60000){
-			autoSaveNoticeStart = (autoSaveLength - 60000);
-		}else{
-			autoSaveNoticeStart = 0;
-		}
-		autoSaveInterval = setInterval(function (){
-			alert('Auto Saved');
-			autoSaveNoticeCount = 0;
-		}, autoSaveLength);
-
-		autoSaveNoticeInterval = setInterval(function (){
-			autoSaveNoticeCount += 1000;
-			if (autoSaveNoticeCount >= autoSaveNoticeStart){
-				$('.nextSave').html((autoSaveLength - autoSaveNoticeCount) / 1000);
-			}
-		}, 1000);
-	}
-
-	function clearAutoSave(){
-		window.clearInterval(autoSaveInterval);
-		window.clearInterval(autoSaveNoticeInterval);
-		autoSaveNoticeCount = 0;
-	}
-
 	$(document).ready(function (){
-		$('input[name=autosave]').click(function (){
-			if (this.checked){
-				setAutoSave($('select[name=autosavelength]').val());
-			}else{
-				clearAutoSave();
-			}
-		});
-
-		$('select[name=autosavelength]').change(function (){
-			if ($('input[name=autosave]:checked').size() > 0){
-				clearAutoSave();
-				setAutoSave($(this).val());
-			}
-		});
-
 		$('.loadRevision').change(function (){
 			js_redirect(js_app_link(js_get_all_get_params() + '&rev=' + $(this).val()));
 		});
 	});
 </script>
 <form name="new_order" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=saveOrder');?>" method="post">
-<div class="buttonContainer ui-widget ui-widget-content ui-corner-all">
-	<div class="column"><div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Auto Save</div>
-		<div>
-			Turn On: <input type="checkbox" name="autosave" value="1"><br>
-			Interval: <select name="autosavelength">
-			<option value="30">30 Sec</option>
-			<option value="60">1 Min</option>
-			<option value="300">5 Min</option>
-		</select>
-		</div>
-		<hr>
-		<div>
-			Next Save In <span class="nextSave">N/A</span> Sec
-		</div>
-		<?php
-		if ($Editor->hasSaleModule() === true){
-			$SaleModule = $Editor->getSaleModule();
-			echo '<hr>' . $SaleModule->getSaveButton();
-		}
-		?>
-	</div>
-	<?php
-	if ($Editor->hasSaleModule() === true){
-		$SaleModule = $Editor->getSaleModule();
-		if ($SaleModule->canConvert()){
-			?>
-			<div class="column">
-				<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Convert To</div>
-				<?php echo $SaleModule->getConvertButtons();?>
-			</div>
-			<?php
-		}
-		?>
-		<div class="column">
-			<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Print</div>
-			<?php echo $SaleModule->getPrintButtons();?>
-		</div>
-		<?php
-		if ($SaleModule->hasRevisions() === true){
-			?>
-			<div class="column">
-				<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Load A Revision</div>
-				Current Loaded Revision: <?php echo $SaleModule->getCurrentRevision(); ?>
-				<hr>
-				<?php echo $SaleModule->getRevisionSelect(); ?>
-			</div>
-			<?php
-		}
-	}else{
-		?>
-		<div class="column">
-			<div class="ui-widget-header ui-corner-all" style="padding:.5em;text-align:center;">Save As</div>
-		<hr>
-		<?php
-		foreach(AccountsReceivableModules::getModules() as $Module){
-			echo $Module->getSaveAsButton();
-		}
-		?>
-		</div>
-		<?php
-	}
-	?>
-</div>
-<br />
-<span style="font-size:2em;color:red;line-height:1em;">To add products to order, first enter customer details and click update customer</span>
+<script>
+	$(document).ready(function (){
+		$('.ApplicationPageMenu .rootItem').click(function (e){
+			$('.subMenu:visible').slideUp('fast');
+			if ($(this).find('.subMenu').size() > 0){
+				e.stopPropagation();
+				$(this).find('.subMenu').first().slideDown('fast');
+				$(document).one('click', function (){
+					$('.subMenu:visible').slideUp('fast');
+				});
+			}
+		});
+	});
+</script>
+<div class="ApplicationPageMenu ui-corner-bottom"><?php
+	$Menu = htmlBase::newList();
 
+	$SaveButton = htmlBase::newElement('button')
+		->setType('submit')
+		->setName('save')
+		->val($SaleModule->getCode())
+		->usePreset('save')
+		->setText('Save');
+
+	$SaveListItem = htmlBase::newElement('li')
+		->addClass('rootItem')
+		->html($SaveButton->draw());
+	$Menu->addItemObj($SaveListItem);
+
+	if ($SaleModule->canConvert()){
+		$ConvertSubList = htmlBase::newList();
+		$ConvertSubList->addClass('subMenu ui-corner-bottom');
+		foreach($SaleModule->getConvertOptions() as $oInfo){
+			$ConvertButton = htmlBase::newElement('button')
+				->setType('submit')
+				->setName('convertTo')
+				->val($oInfo['code'])
+				->setText('To ' . $oInfo['title']);
+
+			$ConvertItem = htmlBase::newElement('li')
+				->addClass('subItem')
+				->html($ConvertButton->draw());
+			$ConvertSubList->addItemObj($ConvertItem);
+		}
+
+		$ConvertIcon = htmlBase::newElement('icon')
+			->setType('transferthick-e-w');
+		$ConvertListItem = htmlBase::newElement('li')
+			->addClass('rootItem')
+			->html($ConvertIcon->draw() . '<span>Convert</span>' . $ConvertSubList->draw());
+		$Menu->addItemObj($ConvertListItem);
+	}
+
+	if ($SaleModule->canPrint()){
+		$PrintSubList = htmlBase::newList();
+		$PrintSubList->addClass('subMenu ui-corner-bottom');
+		foreach($SaleModule->getPrintOptions() as $oInfo){
+			$PrintButton = htmlBase::newElement('button')
+				->setType('submit')
+				->setName('print')
+				->val($oInfo['code'])
+				->setText($oInfo['title']);
+
+			$PrintItem = htmlBase::newElement('li')
+				->addClass('subItem')
+				->html($PrintButton->draw());
+			$PrintSubList->addItemObj($PrintItem);
+		}
+
+		$PrintIcon = htmlBase::newElement('icon')
+			->setType('print');
+		$PrintListItem = htmlBase::newElement('li')
+			->addClass('rootItem')
+			->attr('id', 'print')
+			->html($PrintIcon->draw() . '<span>Print</span>' . $PrintSubList->draw());
+		$Menu->addItemObj($PrintListItem);
+	}
+
+	$RevisionIcon = htmlBase::newElement('icon')
+		->setType('revision');
+	$RevisionListItem = htmlBase::newElement('li')
+		->addClass('rootItem')
+		->attr('id', 'revision')
+		->html($RevisionIcon->draw() . '<span>Revision</span>');
+	$Menu->addItemObj($RevisionListItem);
+
+	echo $Menu->draw();
+	?></div>
 <div class="ui-widget">
 	<div class="customerSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_CUSTOMER_INFORMATION');?></u></h2>
@@ -202,7 +179,7 @@
 		?>
 	</div>
 	<br>
-	<div class="productSection">
+	<div class="totalsSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_ORDER_TOTALS');?></u></h2>
 		<?php
 		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/orderTotals.php')){
@@ -215,6 +192,9 @@
 		require($requireFile);
 		?>
 	</div>
+	<?php
+	if ($SaleModule->acceptsPayments() === true){
+	?>
 	<br>
 	<div class="paymentSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_PAYMENT_HISTORY');?></u></h2>
@@ -229,6 +209,9 @@
 		require($requireFile);
 		?>
 	</div>
+	<?php
+	}
+	?>
 	<?php if (sysConfig::get('EXTENSION_ORDER_CREATOR_HIDE_ORDER_STATUS') == 'False'){ ?>
 	<br>
 	<div class="statusSection">

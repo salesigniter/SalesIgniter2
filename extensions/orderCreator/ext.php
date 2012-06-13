@@ -23,9 +23,19 @@ class Extension_orderCreator extends ExtensionBase {
 			 * Require any extension specific classes
 			 */
 			require(dirname(__FILE__) . '/admin/classes/Order/Base.php');
+		}else{
+			EventManager::attachEvents(array(
+				'SessionBeforeReadValue'
+			), null, $this);
 		}
 	}
-	
+
+	public function SessionBeforeReadValue(&$value){
+		if (stristr($value, 'OrderCreator')){
+			$value = preg_replace('/OrderCreator\|(.*)(}}|N)/', '', $value) . '<br>';
+		}
+	}
+
 	public function postSessionInit(){
 		if (Session::exists('OrderCreator')){
 			if (basename($_SERVER['PHP_SELF']) != 'stylesheet.php' && basename($_SERVER['PHP_SELF']) != 'javascript.php'){

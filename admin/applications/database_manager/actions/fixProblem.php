@@ -276,8 +276,8 @@ $isCharset = false;
 
 $Resolution = $_GET['resolution'];
 $extName = (isset($_GET['extension']) ? $_GET['extension'] : null);
-$modelName = (isset($_GET['model']) ? $_GET['model'] : null);
-$columnName = (isset($_GET['column']) ? $_GET['column'] : null);
+$ModelName = (isset($_GET['model']) ? $_GET['model'] : null);
+$ColumnName = (isset($_GET['column']) ? $_GET['column'] : null);
 $tableName = (isset($_GET['table']) ? $_GET['table'] : null);
 
 function getColumnsToEncode($TableName, $collation) {
@@ -342,10 +342,10 @@ function processUpdateQueries($UpdateQueries) {
 switch($Resolution){
 	case 'addTable':
 		Doctrine_Core::createTablesFromArray(array(
-			$modelName
+			$ModelName
 		));
 
-		$tableObj = Doctrine_Core::getTable($modelName);
+		$tableObj = Doctrine_Core::getTable($ModelName);
 		if ($dbConn->import->tableExists($tableObj->getTableName())){
 			$message = 'Database table added.';
 			$isOk = true;
@@ -355,28 +355,28 @@ switch($Resolution){
 		}
 		break;
 	case 'addColumn':
-		$tableObj = Doctrine_Core::getTable($modelName);
-		$colSettings = $tableObj->getColumnDefinition($columnName);
+		$tableObj = Doctrine_Core::getTable($ModelName);
+		$colSettings = $tableObj->getColumnDefinition($ColumnName);
 
 		$dbConn->export->alterTable($tableObj->getTableName(), array(
 			'add' => array(
-				$columnName => (array)$colSettings
+				$ColumnName => (array)$colSettings
 			)
 		));
 
 		$message = 'Database table column added.';
 		$isOk = true;
-		if (Session::exists('DatabaseError', $ModelName . '-' . $columnName) === true){
-			Session::remove('DatabaseError', $ModelName . '-' . $columnName);
+		if (Session::exists('DatabaseError', $ModelName . '-' . $ColumnName) === true){
+			Session::remove('DatabaseError', $ModelName . '-' . $ColumnName);
 		}
 		break;
 	case 'syncColumnSettings':
-		$tableObj = Doctrine_Core::getTable($modelName);
-		$colSettings = $tableObj->getColumnDefinition($columnName);
+		$tableObj = Doctrine_Core::getTable($ModelName);
+		$colSettings = $tableObj->getColumnDefinition($ColumnName);
 
 		$dbConn->export->alterTable($tableObj->getTableName(), array(
 			'change' => array(
-				$columnName => array(
+				$ColumnName => array(
 					'definition' => (array)$colSettings
 				)
 			)
@@ -388,7 +388,7 @@ switch($Resolution){
 	case 'removeColumn':
 		Doctrine_Manager::getInstance()
 			->getCurrentConnection()
-			->exec('alter table ' . $tableName . ' drop ' . $columnName);
+			->exec('alter table ' . $tableName . ' drop ' . $ColumnName);
 		$message = 'Database table column removed.';
 		$isOk = true;
 		break;
@@ -421,7 +421,7 @@ switch($Resolution){
 
 		$EncodeInfo = getColumnsToEncode($tableName, $collation);
 		foreach($EncodeInfo['encodeCols'] as $colName => $eInfo){
-			if ($colName != $columnName){
+			if ($colName != $ColumnName){
 				unset($EncodeInfo['encodeCols'][$colName]);
 			}
 		}
@@ -432,7 +432,7 @@ switch($Resolution){
 
 		$success = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
-			->exec('alter table ' . $tableName . ' modify ' . $columnName . ' ' . $EncodeInfo['encodeCols'][$columnName]['ntype'] . ' character set ' . $charset . ' collate ' . $collation . ($DBcolumn['notnull'] === true ? ' NOT NULL' : ''));
+			->exec('alter table ' . $tableName . ' modify ' . $ColumnName . ' ' . $EncodeInfo['encodeCols'][$ColumnName]['ntype'] . ' character set ' . $charset . ' collate ' . $collation . ($DBcolumn['notnull'] === true ? ' NOT NULL' : ''));
 
 		if (isset($UpdateQueries) && !empty($UpdateQueries)){
 			processUpdateQueries($UpdateQueries);
@@ -526,9 +526,9 @@ if (Session::exists('DatabaseError') === true && Session::sizeOf('DatabaseError'
 		'<td style="width:150px;text-align:left;line-height: 1.5em;vertical-align:top;"><b>Table Name:</b></td>' .
 		'<td style="text-align:left;line-height: 1.5em;vertical-align:top;">' . $tableName . '</td>' .
 		'</tr>' : '') .
-	(isset($columnName) ? '<tr>' .
+	(isset($ColumnName) ? '<tr>' .
 		'<td style="width:150px;text-align:left;line-height: 1.5em;vertical-align:top;"><b>Column Name:</b></td>' .
-		'<td style="text-align:left;line-height: 1.5em;vertical-align:top;">' . $columnName . '</td>' .
+		'<td style="text-align:left;line-height: 1.5em;vertical-align:top;">' . $ColumnName . '</td>' .
 		'</tr>' : '') .
 	'</table>';
 */

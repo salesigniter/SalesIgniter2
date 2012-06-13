@@ -33,11 +33,6 @@ class AccountsReceivableModuleOrder extends AccountsReceivableModule
 		$this->setDescription('Order');
 
 		$this->init('order');
-
-		$this->canShowDetails(($this->getConfigData('CAN_SHOW_DETAILS') == 'True'));
-		$this->canCancel(($this->getConfigData('CAN_CANCEL') == 'True'));
-		$this->canPrint(($this->getConfigData('CAN_PRINT') == 'True'));
-		$this->canExport(($this->getConfigData('CAN_EXPORT') == 'True'));
 	}
 
 	/**

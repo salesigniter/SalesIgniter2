@@ -322,14 +322,6 @@ $(document).ready(function () {
 		$Row.find('.priceEx').trigger('keyup');
 	});
 
-	function setUpOrderTotalRowClick($el){
-		$el.click(function (){
-			if ($(this).hasClass('state-active')) return;
-
-			$(this).parentsUntil('.totalSection').last().find('.gridButtonBar button').button('enable');
-		});
-	}
-
 	function updateOrderTotalSortOrder(){
 		var newSort = 0;
 		$('.totalSortOrder').each(function (k, el){
@@ -347,46 +339,65 @@ $(document).ready(function () {
 		return $totalRow;
 	}
 
-	setUpOrderTotalRowClick($('.totalSection .gridBodyRow'));
+	var TotalsGrid = $('.orderTotalTable');
+	TotalsGrid.newGrid('option', 'buttons', [
+		{
+			selector          : '.addOrderTotalButton',
+			disableIfNone     : false,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				var $selectBox = GridClass.GridElement.find('.orderTotalType:first');
 
-	$('.addOrderTotalButton').click(function () {
-		var $GridContainer = $(this).parentsUntil('.totalSection').last();
-		var $TableBody = $GridContainer.find('.grid tbody');
+				var count = parseInt(GridClass.GridElement.attr('data-next_id'));
+				GridClass.GridElement.attr('data-next_id', count + 1);
 
-		var count = parseInt($GridContainer.attr('data-next_id'));
-		$GridContainer.attr('data-next_id', count + 1);
-
-		var $selectBox = $TableBody.find('.orderTotalType:first')
-
-		$TableBody.prepend('<tr class="gridBodyRow" data-count="' + count + '">' +
-			'<td class="gridBodyRowColumn centerAlign"><input class="ui-widget-content" type="text" style="width:98%;" name="order_total[' + count + '][title]" value=""></td>' +
-			'<td class="gridBodyRowColumn centerAlign"><input class="ui-widget-content orderTotalValue" type="text" size="10" name="order_total[' + count + '][value]" value="0"><input type="hidden" name="order_total[' + count + '][sort_order]" class="totalSortOrder"></td>' +
-			'<td class="gridBodyRowColumnLast rightAlign"><select name="order_total[' + count + '][type]" class="orderTotalType">' + $selectBox.html() + '</select></td>' +
-			'</tr>');
-
-		var $domRow = $TableBody.find('tr:first');
-		setUpOrderTotalRowClick($domRow);
-		$domRow.find('input:first').focus().trigger('click');
-		updateOrderTotalSortOrder();
-	});
-
-	$('.deleteOrderTotalButton').click(function () {
-		var $SelectedRow = $('.totalSection .gridBody > .gridBodyRow.state-active');
-		$SelectedRow.remove();
-		$('.deleteOrderTotalButton, .moveOrderTotalButton').trigger('mouseout').button('disable');
-		updateOrderTotalSortOrder();
-	});
-
-	$('.moveOrderTotalButton').click(function () {
-		var $SelectedRow = $('.totalSection .gridBody > .gridBodyRow.state-active');
-		var direction = $(this).data('direction');
-		if (direction == 'up'){
-			$SelectedRow.insertBefore($SelectedRow.prev());
-		}else{
-			$SelectedRow.insertAfter($SelectedRow.next());
+				GridClass.addBodyRow({
+					prepend: true,
+					rowAttr: {
+						'data-count': count
+					},
+					columns: [
+						{
+							text: '<input class="ui-widget-content" type="text" name="order_total[' + count + '][title]" value="">'
+						},
+						{
+							text: '<input class="ui-widget-content orderTotalValue" type="text" size="10" name="order_total[' + count + '][value]" value="0"><input type="hidden" name="order_total[' + count + '][sort_order]" class="totalSortOrder">'
+						},
+						{
+							text: '<select name="order_total[' + count + '][type]" class="orderTotalType">' + $selectBox.html() + '</select>'
+						}
+					]
+				});
+				updateOrderTotalSortOrder();
+			}
+		},
+		{
+			selector          : '.deleteOrderTotalButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				GridClass.getSelectedRows().each(function (){
+					$(this).remove();
+				});
+				updateOrderTotalSortOrder();
+			}
+		},
+		{
+			selector          : '.moveOrderTotalButton',
+			disableIfNone     : true,
+			disableIfMultiple : false,
+			click             : function (e, GridClass) {
+				var $Rows = GridClass.getSelectedRows();
+				var direction = $(this).data('direction');
+				if (direction == 'up'){
+					$Rows.insertBefore($Rows.prev());
+				}else{
+					$Rows.insertAfter($Rows.next());
+				}
+				updateOrderTotalSortOrder();
+			}
 		}
-		updateOrderTotalSortOrder();
-	});
+	]);
 
 	$('.orderTotalType').live('change', function () {
 		var $self = $(this);
@@ -575,16 +586,18 @@ $(document).ready(function () {
 	});
 
 	if (!$_GET['error'] && !$_GET['sale_id']){
-		$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
+		//$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
 	}
 
 	$(window).scroll(function (e){
 		var scrollTop = $(this).scrollTop();
-		var buttonContainer = $('.buttonContainer');
+		var buttonContainer = $('.ApplicationPageMenu');
 		if (scrollTop > buttonContainer.offset().top){
+			buttonContainer.width(buttonContainer.width());
 			buttonContainer.data('originalOffset', buttonContainer.offset().top);
 			buttonContainer.addClass('fixed');
 		}else if (scrollTop < buttonContainer.data('originalOffset')){
+			buttonContainer.width('auto');
 			buttonContainer.removeClass('fixed');
 		}
 	});

@@ -43,10 +43,6 @@ class OrderTotalCoupon extends OrderTotalModuleBase
 		}
 	}
 
-	public function selection_test() {
-		return false;
-	}
-
 	public function pre_confirmation_check($order_total) {
 		return $this->calculate_credit($order_total);
 	}

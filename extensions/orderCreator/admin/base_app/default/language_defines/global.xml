@@ -36,8 +36,9 @@
 	<define key="HEADING_ORDER_TOTALS"><![CDATA[Order Totals]]></define>
 	<define key="HEADING_PAYMENT_HISTORY"><![CDATA[Payment History]]></define>
 	<define key="HEADING_STATUS_HISTORY"><![CDATA[Status History]]></define>
-	<define key="HEADING_COMMENTS_AND_TRACKING"><![CDATA[Comments And Tracking]]></define>
-	
+	<define key="HEADING_COMMENTS"><![CDATA[Comments]]></define>
+	<define key="HEADING_TRACKING"><![CDATA[Tracking]]></define>
+
 	<define key="TEXT_UNPAID_BALANCE"><![CDATA[Unpaid Balance:]]></define>
 	<define key="TEXT_PENDING_PAYMENTS"><![CDATA[Pending Payments:]]></define>
 	<define key="TEXT_OVERPAID_BALANCE"><![CDATA[Overpaid Balance:]]></define>

@@ -36,18 +36,19 @@ class TemplateManagerLayoutBuilder
 		$this->LayoutInfo = $LayoutInfo[0];
 
 		if ($this->LayoutInfo['page_type'] == 'print'){
-			$this->widgetDirectory = 'printWidgets';
-			$this->widgetTemplateDirectory = 'printWidgetTemplates';
+			$this->widgetDirectory = 'print';
 			$this->widgetClassPrefix = 'TemplateManagerPrintWidget';
 		}
 		elseif ($this->LayoutInfo['page_type'] == 'email'){
-			$this->widgetDirectory = 'emailWidgets';
-			$this->widgetTemplateDirectory = 'emailWidgetTemplates';
+			$this->widgetDirectory = 'email';
 			$this->widgetClassPrefix = 'TemplateManagerEmailWidget';
 		}
+		elseif ($this->LayoutInfo['page_type'] == 'label'){
+			$this->widgetDirectory = 'label';
+			$this->widgetClassPrefix = 'TemplateManagerLabelWidget';
+		}
 		else {
-			$this->widgetDirectory = 'widgets';
-			$this->widgetTemplateDirectory = 'widgetTemplates';
+			$this->widgetDirectory = 'layout';
 			$this->widgetClassPrefix = 'TemplateManagerWidget';
 		}
 
@@ -59,7 +60,7 @@ class TemplateManagerLayoutBuilder
 		$this->widgetPaths = array();
 		$this->widgetTemplatePaths = array();
 
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/' . $this->widgetDirectory);
+		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
 		foreach($dir as $dInfo){
 			if ($dInfo->isDot() || $dInfo->isFile()){
 				continue;
@@ -67,7 +68,7 @@ class TemplateManagerLayoutBuilder
 			$this->widgetPaths[$dInfo->getBasename()] = $dInfo->getPathname();
 		}
 
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/' . $this->widgetTemplateDirectory);
+		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
 		foreach($dir as $dInfo){
 			if ($dInfo->isDot() || $dInfo->isDir()){
 				continue;
@@ -85,8 +86,8 @@ class TemplateManagerLayoutBuilder
 				continue;
 			}
 
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/' . $this->widgetDirectory)){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/' . $this->widgetDirectory);
+			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/widgets/')){
+				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
 				foreach($subDir as $sdInfo){
 					if ($sdInfo->isDot() || $sdInfo->isFile()){
 						continue;
@@ -95,8 +96,8 @@ class TemplateManagerLayoutBuilder
 				}
 			}
 
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/' . $this->widgetTemplateDirectory)){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/' . $this->widgetTemplateDirectory);
+			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/templates/')){
+				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
 				foreach($subDir as $sdInfo){
 					if ($sdInfo->isDot() || $sdInfo->isDir()){
 						continue;
@@ -111,8 +112,8 @@ class TemplateManagerLayoutBuilder
 			if ($dInfo->isDot() || $dInfo->isFile()){
 				continue;
 			}
-			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/' . $this->widgetDirectory)){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/' . $this->widgetDirectory);
+			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/')){
+				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
 				foreach($subDir as $sdInfo){
 					if ($sdInfo->isDot() || $sdInfo->isFile()){
 						continue;
@@ -121,8 +122,8 @@ class TemplateManagerLayoutBuilder
 				}
 			}
 
-			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/' . $this->widgetTemplateDirectory)){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/' . $this->widgetTemplateDirectory);
+			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/')){
+				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
 				foreach($subDir as $sdInfo){
 					if ($sdInfo->isDot() || $sdInfo->isDir()){
 						continue;

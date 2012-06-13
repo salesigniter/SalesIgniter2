@@ -7,83 +7,74 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-class OrderCreatorTotal extends OrderTotal implements Serializable
+class OrderCreatorTotal extends OrderTotal
 {
 
 	/**
-	 * @return string
+	 * @param string     $ModuleCode
+	 * @param array|null $mInfo
 	 */
-	public function serialize() {
-		$data = array(
-			'totalInfo' => $this->totalInfo
-		);
-		return serialize($data);
+	public function __construct($ModuleCode = '', array $mInfo = null)
+	{
+		if (!empty($ModuleCode)){
+			$this->Module = $this->getOrderTotalModule($ModuleCode);
+			$this->Module->setData($mInfo);
+			$this->data['module_code'] = $ModuleCode;
+		}
 	}
 
 	/**
-	 * @param string $data
+	 * @param $ModuleCode
+	 * @return ModuleBase|OrderTotalModuleBase
 	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
+	private function getOrderTotalModule($ModuleCode){
+		if (file_exists(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/OrderTotalModules/' . $ModuleCode . '/module.php')){
+			$className = 'OrderCreatorOrderTotal' . ucfirst($ModuleCode);
+			if (!class_exists($className)){
+				require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/OrderTotalModules/' . $ModuleCode . '/module.php');
+			}
+			$Module = new $className();
+		}else{
+			$Module = OrderTotalModules::getModule($ModuleCode);
 		}
+		return $Module;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEditable() {
-		return (isset($this->totalInfo['editable']) && $this->totalInfo['editable'] === false ? false : true);
+		if (method_exists($this->Module, 'isEditable')){
+			return $this->Module->isEditable();
+		}
+		return true;
 	}
 
 	/**
-	 * @param string $val
+	 * @return bool
 	 */
-	public function setModuleType($val) {
-		$this->totalInfo['module_type'] = (string) $val;
+	public function hasTotalId(){
+		return (isset($this->data['total_id']));
 	}
 
 	/**
-	 * @param string $val
+	 * @return int
 	 */
-	public function setTitle($val) {
-		$this->totalInfo['title'] = (string) $val;
+	public function getTotalId(){
+		return (int)$this->data['total_id'];
 	}
 
 	/**
-	 * @param string $val
+	 * @param array $TotalInfo
 	 */
-	public function setText($val) {
-		$this->totalInfo['text'] = (string) $val;
-	}
+	public function jsonDecode(array $TotalInfo)
+	{
+		$this->data = array_merge($this->data, $TotalInfo['data']);
 
-	/**
-	 * @param float $val
-	 */
-	public function setValue($val) {
-		$this->totalInfo['value'] = (float) $val;
-	}
-
-	/**
-	 * @param int $val
-	 */
-	public function setSortOrder($val) {
-		$this->totalInfo['sort_order'] = (int) $val;
-	}
-
-	/**
-	 * @param string $val
-	 */
-	public function setModule($val) {
-		$this->totalInfo['module'] = (string) $val;
-	}
-
-	/**
-	 * @param string $val
-	 */
-	public function setMethod($val) {
-		$this->totalInfo['method'] = (string) $val;
+		$this->Module = $this->getOrderTotalModule($this->data['module_code']);
+		if (isset($TotalInfo['module_json'])){
+			$this->Module->jsonDecode($TotalInfo['module_json']);
+		}
 	}
 }
 

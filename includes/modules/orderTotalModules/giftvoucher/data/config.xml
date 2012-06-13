@@ -18,6 +18,11 @@
 					<description><![CDATA[Do you want to display the total order value?]]></description>
 					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
 				</STATUS>
+				<DISPLAY_ORDER>
+					<title><![CDATA[Display Order]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+				</DISPLAY_ORDER>
 				<TAX_CLASS>
 					<title><![CDATA[Tax Class]]></title>
 					<value><![CDATA[0]]></value>
@@ -25,11 +30,6 @@
 					<set_function><![CDATA[tep_cfg_pull_down_tax_classes(]]></set_function>
 					<use_function><![CDATA[tep_get_tax_class_title]]></use_function>
 				</TAX_CLASS>
-				<DISPLAY_ORDER>
-					<title><![CDATA[Display Order]]></title>
-					<value><![CDATA[0]]></value>
-					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
-				</DISPLAY_ORDER>
 				<MODULE_ORDER_TOTAL_GV_QUEUE>
 					<title><![CDATA[Queue Purchases]]></title>
 					<value><![CDATA[True]]></value>

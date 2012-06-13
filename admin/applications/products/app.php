@@ -1,6 +1,4 @@
 <?php
-//PurchaseTypeModules::loadModules();
-
 $appContent = $App->getAppContentFile();
 switch($App->getPageName()){
 	case 'default':

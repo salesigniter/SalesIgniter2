@@ -23,6 +23,7 @@ function onShutdown() {
 	if (is_object($ExceptionManager) && $ExceptionManager->size() > 0){
 		echo '<br /><div style="width:98%;margin-right:auto;margin-left:auto;">' . $ExceptionManager->output() . '</div>';
 	}
+	session_write_close();
 }
 
 register_shutdown_function('onShutdown');

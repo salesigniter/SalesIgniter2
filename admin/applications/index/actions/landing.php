@@ -37,9 +37,13 @@ function makeLandingDashboard($item) {
 	return $return;
 }
 
+ob_start();
 echo '<span class="ui-icon ui-icon-window-close removeLanding" style="position:absolute;right:.5em;top:.5em;"></span>';
 require(sysConfig::getDirFsAdmin() . 'includes/boxes/' . $_GET['box'] . '.php');
 foreach($contents['children'] as $cInfo){
 	echo makeLandingDashboard($cInfo);
 }
-EventManager::attachActionResponse('', 'html');
+$html = ob_get_contents();
+ob_end_clean();
+
+EventManager::attachActionResponse($html, 'html');

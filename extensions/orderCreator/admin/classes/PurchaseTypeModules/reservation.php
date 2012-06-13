@@ -6,9 +6,18 @@ if (class_exists('PurchaseType_reservation') === false){
 class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 
 	public function OrderCreatorAllowAddToContents(OrderCreatorProduct $OrderProduct){
+		global $messageStack;
 		$allow = false;
-		if (isset($_POST['start_date']) && isset($_POST['end_date'])){
+		if (isset($_POST['reservation_begin']) && isset($_POST['reservation_end'])){
 			$allow = true;
+		}else{
+			if (!isset($_POST['reservation_begin'])){
+				$messageStack->add('OrderCreator', 'No Start Date Entered', 'error');
+			}
+
+			if (!isset($_POST['reservation_end'])){
+				$messageStack->add('OrderCreator', 'No End Date Entered', 'error');
+			}
 		}
 		/**
 		 * @TODO Add in reservation availability check
@@ -21,10 +30,10 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 		$ProductInfo = $OrderProduct->getInfo();
 
 		$ProductInfo['reservationInfo'] = array(
-			'start_date' => $_POST['start_date'],
-			'start_date_time' => $_POST['start_date_time'],
-			'end_date' => $_POST['end_date'],
-			'end_date_time' => $_POST['end_date_time'],
+			'start_date' => $_POST['reservation_begin'],
+			'start_date_time' => $_POST['reservation_begin_time'],
+			'end_date' => $_POST['reservation_end'],
+			'end_date_time' => $_POST['reservation_end_time'],
 			'quantity' => $OrderProduct->getQuantity(),
 			'weight' => $OrderProduct->getWeight(),
 			'days_before' => (isset($_POST['days_before']) ? $_POST['days_before'] : 0),

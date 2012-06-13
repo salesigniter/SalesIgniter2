@@ -1,11 +1,33 @@
 <?php
-class PackagePurchaseTypeReservation {
+class PackagePurchaseTypeReservation
+{
 
-	public static function getSettingsAddToPackage(PurchaseType_reservation $PurchaseType){
+	public static function getPackagedTableHeaders()
+	{
+		return array(
+			array('id' => 'insurance_value', 'text' => 'Insurance Value'),
+			array('id' => 'insurance_cost', 'text' => 'Insurance Cost')
+		);
+	}
+
+	public static function getPackagedTableBody($pInfo)
+	{
+		global $currencies;
+		$PayPerRental = Doctrine_Core::getTable('ProductsPayPerRental')
+			->findOneByProductsId($pInfo['id']);
+
+		return array(
+			array('text' => $currencies->format($PayPerRental->insurance_value)),
+			array('text' => $currencies->format($PayPerRental->insurance_cost))
+		);
+	}
+
+	public static function getSettingsAddToPackage(PurchaseType_reservation $PurchaseType)
+	{
 		$Fields = array(
 			array(
 				'colspan' => 2,
-				'label' => '<b>Product Pricing</b>'
+				'label'   => '<b>Product Pricing</b>'
 			)
 		);
 		foreach(PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId()) as $iPrices){
@@ -34,7 +56,8 @@ class PackagePurchaseTypeReservation {
 		return $Fields;
 	}
 
-	public static function addPackageRowData(PurchaseType_reservation $PurchaseType, $sInfo, &$NewRow){
+	public static function addPackageRowData(PurchaseType_reservation $PurchaseType, $sInfo, &$NewRow)
+	{
 		$hiddenField = '';
 		if (isset($sInfo['override_price'])){
 			$showPrice = '';
@@ -47,12 +70,14 @@ class PackagePurchaseTypeReservation {
 				if (isset($sInfo['override_price'][$pprId][$priceId][$numberOf])){
 					$showPrice .= $sInfo['price'][$pprId][$priceId][$numberOf];
 					$hiddenField .= '<input type="hidden" name="package_product_settings[' . $PurchaseType->getProductId() . '][price][' . $pprId . '][' . $priceId . '][' . $numberOf . ']" value="' . $sInfo['price'][$pprId][$priceId][$numberOf] . '">';
-				}else{
+				}
+				else {
 					$showPrice .= 'Period Current Price';
 				}
 				$showPrice .= '<br>';
 			}
-		}else{
+		}
+		else {
 			$showPrice = 'Products Current Period Prices';
 		}
 

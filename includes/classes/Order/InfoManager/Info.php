@@ -40,6 +40,12 @@ class OrderInfo
 	{
 		$this->key = $k;
 		$this->val = $v;
+		if (($k == 'date_added' || $k == 'last_modified') && is_array($v)){
+			$Date = $this->val['date'];
+			$TimeZone = $this->val['timezone'];
+			$this->val = SesDateTime::createFromFormat(DATE_TIMESTAMP, $this->val['date']);
+			$this->val->setTimezone(new DateTimeZone($TimeZone));
+		}
 	}
 
 	/**
@@ -59,24 +65,14 @@ class OrderInfo
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
-		return json_encode(array(
+		return array(
 			'key'   => $this->getKey(),
 			'value' => $this->getValue()
-		));
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$data = json_decode($data, true);
-		$this->key = $data['key'];
-		$this->val = $data['value'];
+		);
 	}
 }
 

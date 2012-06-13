@@ -44,8 +44,8 @@ $ProductsGrid = htmlBase::newElement('newGrid')
 	->addClass('PackagedProductsGrid');
 
 $ProductsGrid->addButtons(array(
-	htmlBase::newElement('button')->addClass('deleteButton')->usePreset('delete')->disable()/*,
-	htmlBase::newElement('button')->usePreset('edit')->disable()*/
+	htmlBase::newElement('button')->addClass('deleteButton')->usePreset('delete')->disable(),
+	htmlBase::newElement('button')->addClass('editProductButton')->usePreset('edit')->setText('Edit Product')->disable()
 ));
 
 $GridHeaders = array(
@@ -90,6 +90,9 @@ foreach($Product->getProductTypeClass()->getProducts() as $pInfo){
 	}
 
 	$ProductsGrid->addBodyRow(array(
+		'rowAttr' => array(
+			'data-product_id' => $pInfo['id']
+		),
 		'columns' => $BodyCols
 	));
 }

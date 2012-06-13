@@ -40,6 +40,11 @@ class htmlElement_input extends htmlElement
 		return $this;
 	}
 
+	public function setPlaceholder($val){
+		$this->attr('placeholder', $val);
+		return $this;
+	}
+
 	public function draw()
 	{
 		$html = '';

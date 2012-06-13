@@ -4,6 +4,7 @@ require(dirname(__FILE__) . '/Abstract.php');
 class OrderTotalModules extends SystemModulesLoader {
 	public static $dir = 'orderTotalModules';
 	public static $classPrefix = 'OrderTotal';
+	public static $alwaysLoadFresh = true;
 	private static $TotalsData = array();
 
 	/**

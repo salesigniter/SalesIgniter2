@@ -14,13 +14,13 @@ class Products extends Doctrine_Record {
 
 	public function setUp(){
 		parent::setUp();
-		
+
 		$this->hasMany('ProductsDescription', array(
 			'local' => 'products_id',
 			'foreign' => 'products_id',
 			'cascade' => array('delete')
 		));
-		
+
 		$this->hasMany('ProductsToBox', array(
 			'local'   => 'products_id',
 			'foreign' => 'products_id',

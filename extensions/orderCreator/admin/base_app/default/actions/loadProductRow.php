@@ -1,9 +1,5 @@
 <?php
-$OrderProduct = new OrderCreatorProduct();
-$OrderProduct->setProductId($_GET['pID']);
-$OrderProduct->setQuantity(1);
-
-$Editor->ProductManager->add($OrderProduct);
+$Editor->addProduct($_GET['pID']);
 
 if ($Editor->hasErrors() === false){
 	$html = '<tr data-product_id="' . (int)$_GET['pID'] . '" data-id="' . $OrderProduct->getId() . '">' .
@@ -32,4 +28,7 @@ else {
 		'errorMessage' => $Editor->getErrors()
 	);
 }
+
+$Editor->getSaleModule()->saveProgress($Editor);
+
 EventManager::attachActionResponse($response, 'json');

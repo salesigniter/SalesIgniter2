@@ -338,7 +338,11 @@
 				$Row.append('<td class="gridBodyRowColumn">' + this.text + '</td>');
 			});
 
-			this.GridElement.find('tbody').append($Row);
+			if (data.prepend){
+				this.GridElement.find('tbody').prepend($Row);
+			}else{
+				this.GridElement.find('tbody').append($Row);
+			}
 			this.GridElement.find('tbody').trigger('rowAdded');
 			return $Row;
 		},

@@ -28,8 +28,8 @@ class orderCreator_admin_accounts_receivable_sales extends Extension_orderCreato
 	}
 
 	public function SalesGridButtonsBeforeAdd(&$gridButtons) {
-		if (isset($_GET['type'])){
-			$Module = AccountsReceivableModules::getModule($_GET['type']);
+		if (isset($_GET['sale_module'])){
+			$Module = AccountsReceivableModules::getModule($_GET['sale_module']);
 			if ($Module){
 				$NewButtonText = $Module->getButtonText('new');
 				$EditButtonText = $Module->getButtonText('edit');
@@ -38,7 +38,7 @@ class orderCreator_admin_accounts_receivable_sales extends Extension_orderCreato
 					->usePreset('new')
 					->setText($NewButtonText)
 					->addClass('createButton')
-					->setHref(itw_app_link('appExt=orderCreator', 'default', 'new'));
+					->setHref(itw_app_link('appExt=orderCreator&sale_module=' . $Module->getCode(), 'default', 'new'));
 
 				$gridButtons[] = htmlBase::newElement('button')
 					->usePreset('edit')

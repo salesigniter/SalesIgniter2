@@ -11,6 +11,15 @@
  * This script and its source are not distributable without the written conscent of I.T. Web Experts
  */
 
+function SesPrintR($arr){
+	echo '<pre>';
+	print_r($arr);
+	echo '</pre>';
+	echo '<pre>';
+	debug_print_backtrace();
+	echo '</pre>';
+}
+
 function itwExit(){
 	Session::stop();
 	exit;
@@ -546,7 +555,7 @@ function tep_get_products_name($product_id, $language_id = 0) {
 	if ($language_id == 0) $language_id = Session::get('languages_id');
 	$ResultSet = Doctrine_Manager::getInstance()
 		->getCurrentConnection()
-		->fetchArray("select products_name from products_description where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language_id . "'");
+		->fetchAssoc("select products_name from products_description where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language_id . "'");
 
 	return $ResultSet[0]['products_name'];
 }
@@ -959,10 +968,10 @@ function tep_round($value, $precision) {
 function tep_add_tax($price, $tax) {
 	global $currencies;
 
-	if (DISPLAY_PRICE_WITH_TAX == 'true') {
-		return tep_round($price, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']) + tep_calculate_tax($price, $tax);
+	if (sysConfig::get('DISPLAY_PRICE_WITH_TAX') == 'true') {
+		return tep_round($price, $currencies->currencies[sysConfig::get('DEFAULT_CURRENCY')]['decimal_places']) + tep_calculate_tax($price, $tax);
 	} else {
-		return tep_round($price, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+		return tep_round($price, $currencies->currencies[sysConfig::get('DEFAULT_CURRENCY')]['decimal_places']);
 	}
 }
 
@@ -970,7 +979,7 @@ function tep_add_tax($price, $tax) {
 function tep_calculate_tax($price, $tax) {
 	global $currencies;
 
-	return tep_round($price * $tax / 100, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+	return tep_round($price * $tax / 100, $currencies->currencies[sysConfig::get('DEFAULT_CURRENCY')]['decimal_places']);
 }
 
 ////
@@ -981,8 +990,8 @@ function tep_get_tax_rate($class_id, $country_id = -1, $zone_id = -1) {
 
 	if ( ($country_id == -1) && ($zone_id == -1) ) {
 		if (Session::exists('customer_id') === false) {
-			$country_id = STORE_COUNTRY;
-			$zone_id = STORE_ZONE;
+			$country_id = sysConfig::get('STORE_COUNTRY');
+			$zone_id = sysConfig::get('STORE_ZONE');
 		} else {
 			$country_id = $customer_country_id;
 			$zone_id = $customer_zone_id;
@@ -1574,6 +1583,7 @@ function tep_cfg_show_installed_status($value, $key = ''){
 }
 
 function tep_cfg_select_multioption_element($select_array, $key_value, $key = '') {
+	$elArr = array();
 	for($i = 0; $i < sizeof($select_array); $i++){
 		if (is_array($select_array[$i]) && array_key_exists('id', $select_array[$i])){
 			$val = $select_array[$i]['id'];

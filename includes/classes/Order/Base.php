@@ -75,7 +75,7 @@ class Order
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct($saleType, $saleId = 0, $revision = 0)
 	{
 		$this->InfoManager = new OrderInfoManager();
 		$this->AddressManager = new OrderAddressManager();
@@ -83,12 +83,10 @@ class Order
 		$this->TotalManager = new OrderTotalManager();
 		$this->PaymentManager = new OrderPaymentManager();
 
-		AccountsReceivableModules::loadModules();
-		foreach(AccountsReceivableModules::getModules() as $Module){
-			if ($Module->ownsSale() === true){
-				$this->SaleModule = $Module;
-				$this->SaleModule->load($this);
-			}
+		if (AccountsReceivableModules::loadModule($saleType)){
+			$Module = AccountsReceivableModules::getModule($saleType);
+			$this->SaleModule = $Module;
+			$this->SaleModule->load($this, true, $saleId, $revision);
 		}
 	}
 
@@ -106,6 +104,23 @@ class Order
 	public function getSaleModule()
 	{
 		return $this->SaleModule;
+	}
+
+	/**
+	 * @param int $ProductId
+	 * @param int $Quantity
+	 */
+	public function addProduct($ProductId, $Quantity = 1){
+		$OrderProduct = new OrderProduct();
+		$OrderProduct->setProductId($ProductId);
+		$OrderProduct->setQuantity($Quantity);
+
+		$Success = $this->ProductManager->add($OrderProduct);
+		if ($Success === false){
+			$this->addErrorMessage('Unable to add product to order!');
+		}else{
+			$this->TotalManager->onProductAdded($this->ProductManager);
+		}
 	}
 
 	/**
@@ -142,7 +157,7 @@ class Order
 			->where('orders_status_id = ?', $this->InfoManager->getInfo('status'))
 			->andWhere('language_id = ?', Session::get('languages_id'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-		return $Status[0]['orders_status_name'];
+		return (isset($Status[0]) ? $Status[0]['orders_status_name'] : 'Unknown');
 	}
 
 	/**
@@ -206,7 +221,7 @@ class Order
 	 */
 	public function getCurrency()
 	{
-		return (string)$this->Order['currency'];
+		return (string)$this->InfoManager->getInfo('currency');
 	}
 
 	/**
@@ -214,7 +229,7 @@ class Order
 	 */
 	public function getCurrencyValue()
 	{
-		return (float)$this->Order['currency_value'];
+		return (float)$this->InfoManager->getInfo('currency_value');
 	}
 
 	/**
@@ -230,7 +245,7 @@ class Order
 	 */
 	public function hasShippingMethod()
 	{
-		return (empty($this->Order['shipping_method']) === false);
+		return ($this->InfoManager->getInfo('shipping_method') != '');
 	}
 
 	/**
@@ -238,7 +253,7 @@ class Order
 	 */
 	public function getShippingMethod()
 	{
-		return (string)$this->Order['shipping_method'];
+		return (string)$this->InfoManager->getInfo('shipping_method');
 	}
 
 	/**

@@ -6,27 +6,33 @@ class PurchaseTypeTabReservation_tab_pricing
 
 	private $displayOrder = 1;
 
-	public function __construct() {
+	public function __construct()
+	{
 		//$this->setHeading(sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING'));
 	}
 
-	public function setHeading($val) {
+	public function setHeading($val)
+	{
 		$this->heading = $val;
 	}
 
-	public function getHeading() {
+	public function getHeading()
+	{
 		return $this->heading;
 	}
 
-	public function getDisplayOrder() {
+	public function getDisplayOrder()
+	{
 		return $this->displayOrder;
 	}
 
-	public function setDisplayOrder($val) {
+	public function setDisplayOrder($val)
+	{
 		$this->displayOrder = $val;
 	}
 
-	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType) {
+	public function addTab(htmlWidget_tabs &$TabsObj, Product $Product, PurchaseType_reservation $PurchaseType)
+	{
 		$typeName = $PurchaseType->getCode();
 		$typeText = sysLanguage::get('PURCHASE_TYPE_TAB_RESERVATION_HEADING_PRICING');
 
@@ -54,8 +60,10 @@ class PurchaseTypeTabReservation_tab_pricing
 		$Table->addHeaderRow(array(
 			'addCls'  => 'ui-state-hover pprPriceTableHeader',
 			'columns' => array(
-				array('text' => '<div style="float:left;width:80px;">' . sysLanguage::get('TABLE_HEADING_NUMBER_OF') . '</div>' . '<div style="float:left;width:100px;">' . sysLanguage::get('TABLE_HEADING_TYPE') . '</div>' . '<div style="float:left;width:80px;">' . sysLanguage::get('TABLE_HEADING_PRICE') . '</div>' . '<div style="float:left;width:150px;">' . sysLanguage::get('TABLE_HEADING_DETAILS') . '</div>' . '<div style="float:left;width:40px;">' . htmlBase::newElement('icon')
-					->setType('insert')->addClass('insertIcon')->draw() . '</div><br style="clear:both"/>')
+				array(
+					'text' => '<div style="float:left;width:80px;">' . sysLanguage::get('TABLE_HEADING_NUMBER_OF') . '</div>' . '<div style="float:left;width:100px;">' . sysLanguage::get('TABLE_HEADING_TYPE') . '</div>' . '<div style="float:left;width:80px;">' . sysLanguage::get('TABLE_HEADING_PRICE') . '</div>' . '<div style="float:left;width:150px;">' . sysLanguage::get('TABLE_HEADING_DETAILS') . '</div>' . '<div style="float:left;width:40px;">' . htmlBase::newElement('icon')
+						->setType('insert')->addClass('insertIcon')->draw() . '</div><br style="clear:both"/>'
+				)
 			)
 		));
 
@@ -75,7 +83,7 @@ class PurchaseTypeTabReservation_tab_pricing
 					->css(array(
 					'width' => '100%'
 				));
-				foreach($iPrice['PricePayPerRentalPerProductsDescription'] as $desc){
+				foreach($iPrice['Description'] as $desc){
 					if ($lInfo['id'] == $desc['language_id']){
 						$Textl->val($desc['price_per_rental_per_products_name']);
 						break;
@@ -127,9 +135,11 @@ class PurchaseTypeTabReservation_tab_pricing
 
 		$Table->addBodyRow(array(
 			'columns' => array(
-				array('align'  => 'center',
-				      'text'   => $sortableList->draw(),
-				      'addCls' => 'pricePPR')
+				array(
+					'align'  => 'center',
+					'text'   => $sortableList->draw(),
+					'addCls' => 'pricePPR'
+				)
 			)
 		));
 
@@ -169,8 +179,10 @@ class PurchaseTypeTabReservation_tab_pricing
 
 				$pricingPeriods->addBodyRow(array(
 					'columns' => array(
-						array('addCls' => 'main',
-						      'text'   => $periodPrice->draw()),
+						array(
+							'addCls' => 'main',
+							'text'   => $periodPrice->draw()
+						),
 					)
 				));
 			}
@@ -182,8 +194,10 @@ class PurchaseTypeTabReservation_tab_pricing
 
 		$pricingTable->addBodyRow(array(
 			'columns' => array(
-				array('addCls' => 'mainPricePPR',
-				      'text'   => '<b>' . $Table->draw() . $htype->draw() . '</b>'),
+				array(
+					'addCls' => 'mainPricePPR',
+					'text'   => '<b>' . $Table->draw() . $htype->draw() . '</b>'
+				),
 			)
 		));
 		$TabsObj->addTabHeader('productPricingTab_' . $typeName, array('text' => $typeText))

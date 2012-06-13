@@ -279,11 +279,11 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function displayOrderedProductBarcodes($pInfo) {
+	public function displayOrderedProductBarcodes(OrderProduct $OrderedProduct) {
 		$return = '';
-		$PurchaseType = $this->getPurchaseType($pInfo['purchase_type']);
+		$PurchaseType = $OrderedProduct->getProductTypeClass()->getPurchaseType();
 		if (method_exists($PurchaseType, 'displayOrderedProductBarcodes')){
-			$return = $PurchaseType->displayOrderedProductBarcodes($pInfo);
+			$return = $PurchaseType->displayOrderedProductBarcodes($OrderedProduct);
 		}
 		return $return;
 	}
@@ -449,8 +449,10 @@ class ProductTypeStandard extends ProductTypeBase
 				}
 
 				if ($PurchaseType->configExists('PRICING_ENABLED') && $PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
-					$Product->ProductsPurchaseTypes[$pType]->price = $_POST['pricing'][$pType]['global']['price'];
-					$Product->ProductsPurchaseTypes[$pType]->tax_class_id = $_POST['pricing'][$pType]['global']['tax_class_id'];
+					if (isset($_POST['pricing'][$pType])){
+						$Product->ProductsPurchaseTypes[$pType]->price = $_POST['pricing'][$pType]['global']['price'];
+						$Product->ProductsPurchaseTypes[$pType]->tax_class_id = $_POST['pricing'][$pType]['global']['tax_class_id'];
+					}
 				}
 
 				EventManager::notify('AdminProductPurchaseTypeOnSave', $PurchaseType, $Product->ProductsPurchaseTypes[$pType]);
@@ -889,6 +891,13 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
+	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct){
+		$PurchaseType = $this->getPurchaseType();
+		if (method_exists($PurchaseType, 'onSaveProgress')){
+			$PurchaseType->onSaveProgress($OrderProduct, $SaleProduct);
+		}
+	}
+
 	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false){
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onSaveSale')){
@@ -896,13 +905,13 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function jsonEncode(OrderProduct &$OrderProduct){
+	public function prepareJsonSave(OrderProduct &$OrderProduct){
 		$toEncode = array();
 		$PurchaseType = $this->getPurchaseType();
-		if (method_exists($PurchaseType, 'jsonEncode')){
-			$toEncode = $PurchaseType->jsonEncode($OrderProduct);
+		if (method_exists($PurchaseType, 'prepareJsonSave')){
+			$toEncode = $PurchaseType->prepareJsonSave($OrderProduct);
 		}
-		return json_encode($toEncode);
+		return $toEncode;
 	}
 
 	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
@@ -915,13 +924,13 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function jsonDecode(OrderProduct &$OrderProduct){
+	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson){
 		$this->cartPurchaseType = $OrderProduct->getInfo('purchase_type');
 		$this->loadPurchaseType();
 
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'jsonDecode')){
-			$PurchaseType->jsonDecode($OrderProduct);
+			$PurchaseType->jsonDecode($OrderProduct, $ProductTypeJson);
 		}
 	}
 }

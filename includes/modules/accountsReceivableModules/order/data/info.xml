@@ -5,4 +5,9 @@
 	<installed_key>INSTALLED</installed_key>
 	<status_key>STATUS</status_key>
 	<assign_inventory_key>ASSIGN_INVENTORY</assign_inventory_key>
+	<show_details_key>CAN_SHOW_DETAILS</show_details_key>
+	<can_cancel_key>CAN_CANCEL</can_cancel_key>
+	<can_print_key>CAN_PRINT</can_print_key>
+	<can_export_key>CAN_EXPORT</can_export_key>
+	<accepts_payments_key>ACCEPT_PAYMENTS</accepts_payments_key>
 </info>

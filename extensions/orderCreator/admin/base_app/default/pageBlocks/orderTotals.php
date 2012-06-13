@@ -33,11 +33,13 @@ $totalTypes['custom'] = 'Custom';
 
 foreach($Editor->TotalManager->getAll() as $orderTotal){
 	$editable = $orderTotal->isEditable();
-	$totalType = $orderTotal->getModuleType();
+	$totalTitle = $orderTotal->getModule()->getTitle();
+	$totalCode = $orderTotal->getModule()->getCode();
+	$totalValue = $orderTotal->getModule()->getValue();
 
 	$hiddenField = '';
-	$typeMenu = '<div class="orderTotalType">' . $totalType . '<input type="hidden" name="order_total[' . $count . '][type]" value="' . $totalType . '"></div>';
-	$totalValue = '<div class="orderTotalValue" style="width:82px;text-align:left;"><span>' . $orderTotal->getValue() . '</span><input type="hidden" name="order_total[' . $count . '][value]" value="' . $orderTotal->getValue() . '"></div>';
+	$typeMenu = '<div class="orderTotalType">' . $totalCode . '<input type="hidden" name="order_total[' . $count . '][type]" value="' . $totalCode . '"></div>';
+	$totalValueDisplay = '<div class="orderTotalValue" style="width:82px;text-align:left;"><span>' .$totalValue . '</span><input type="hidden" name="order_total[' . $count . '][value]" value="' . $totalValue . '"></div>';
 	if ($editable === true){
 		$typeMenu = htmlBase::newElement('selectbox')
 			->addClass('orderTotalType')
@@ -46,18 +48,17 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 			$typeMenu->addOption($k, $v);
 		}
 
-		$typeMenu->selectOptionByValue($orderTotal->getModule());
+		$typeMenu->selectOptionByValue($totalCode);
 		$typeMenu = $typeMenu->draw();
 
-		$hiddenField = '';
-		if ($orderTotal->hasOrderTotalId()){
-			$hiddenField .= '<input type="hidden" name="order_total[' . $count . '][id]" value="' . $orderTotal->getOrderTotalId() . '">';
-		}
+		/*if ($orderTotal->getModule()->hasOrderTotalId()){
+			$hiddenField .= '<input type="hidden" name="order_total[' . $count . '][id]" value="' . $orderTotal->getModule()->getOrderTotalId() . '">';
+		}*/
 
-		$totalValue = '<input class="ui-widget-content orderTotalValue" type="text" size="10" name="order_total[' . $count . '][value]" value="' . $orderTotal->getValue() . '">';
+		$totalValueDisplay = '<input class="ui-widget-content orderTotalValue" type="text" size="10" name="order_total[' . $count . '][value]" value="' . $totalValue . '">';
 	}
 
-	if ($totalType == 'shipping'){
+	if ($totalCode == 'shipping'){
 		$total_weight = $Editor->ProductManager->getTotalWeight();
 		OrderShippingModules::setDeliveryAddress($Editor->AddressManager->getAddress('delivery'));
 
@@ -76,17 +77,17 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 	}
 	else {
 		if ($editable === true){
-			$titleField = '<input class="ui-widget-content" type="text" style="width:98%;" name="order_total[' . $count . '][title]" value="' . $orderTotal->getTitle() . '">';
+			$titleField = '<input class="ui-widget-content" type="text" style="width:98%;" name="order_total[' . $count . '][title]" value="' . $totalTitle . '">';
 		}
 		else {
-			$titleField = '<div style="width:98%;text-align:left;">' . $orderTotal->getTitle() . '<input type="hidden" name="order_total[' . $count . '][title]" value="' . $orderTotal->getTitle() . '"></div>';
+			$titleField = '<div style="width:98%;text-align:left;">' . $totalTitle . '<input type="hidden" name="order_total[' . $count . '][title]" value="' . $totalTitle . '"></div>';
 		}
 	}
 
 	$orderTotalTable->addBodyRow(array(
 		'attr'    => array(
 			'data-count' => $count,
-			'data-code'  => $totalType
+			'data-code'  => $totalCode
 		),
 		'columns' => array(
 			array(
@@ -95,7 +96,7 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 			),
 			array(
 				'align' => 'center',
-				'text'  => $totalValue . '<input type="hidden" name="order_total[' . $count . '][sort_order]" class="totalSortOrder" value="' . $count . '"></span>'
+				'text'  => $totalValueDisplay . '<input type="hidden" name="order_total[' . $count . '][sort_order]" class="totalSortOrder" value="' . $count . '"></span>'
 			),
 			array(
 				'align' => 'right',

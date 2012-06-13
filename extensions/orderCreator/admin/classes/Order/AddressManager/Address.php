@@ -7,33 +7,8 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-class OrderCreatorAddress extends OrderAddress implements Serializable
+class OrderCreatorAddress extends OrderAddress
 {
-
-	/**
-	 * @return string
-	 */
-	public function serialize() {
-		$data = array(
-			'addressInfo' => $this->addressInfo,
-			'Id'          => $this->Id,
-			'Type'        => $this->Type,
-			'Zone'        => $this->Zone,
-			'Country'     => $this->Country,
-			'Format'      => $this->Format
-		);
-		return serialize($data);
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function unserialize($data) {
-		$data = unserialize($data);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
-		}
-	}
 
 	/**
 	 * @param string $val
@@ -135,13 +110,6 @@ class OrderCreatorAddress extends OrderAddress implements Serializable
 			$this->Country = $Qcheck[0];
 			$this->addressInfo['entry_country_id'] = $Qcheck[0]['countries_id'];
 			$this->Format = $Qcheck[0]['AddressFormat'];
-		}
-	}
-
-	public function jsonDecode($data){
-		$addressInfo = json_decode($data, true);
-		foreach($addressInfo as $k => $info){
-			$this->$k = $info;
 		}
 	}
 }

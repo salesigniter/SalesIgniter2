@@ -21,11 +21,11 @@ $Result = $QcustomerName->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 if ($Result){
 	$jsonData[] = array(
 		'value' => 'no-select',
-		'label' => '<span style="display:inline-block;width:20%;font-weight:bold;">Member Number</span>' .
-			'<span style="display:inline-block;width:20%;font-weight:bold;">Telephone Number</span>' .
-			'<span style="display:inline-block;width:20%;font-weight:bold;">First Name</span>' .
-			'<span style="display:inline-block;width:20%;font-weight:bold;">Last Name</span>' .
-			'<span style="display:inline-block;width:20%;font-weight:bold;">Email Address</span>'
+		'label' => '<span style="display:inline-block;width:150px;font-weight:bold;">Member Number</span>' .
+			'<span style="display:inline-block;width:150px;font-weight:bold;">Telephone Number</span>' .
+			'<span style="display:inline-block;width:150px;font-weight:bold;">First Name</span>' .
+			'<span style="display:inline-block;width:150px;font-weight:bold;">Last Name</span>' .
+			'<span style="display:inline-block;width:250px;font-weight:bold;">Email Address</span>'
 	);
 	foreach($Result as $cInfo){
 		$msg = '';
@@ -50,11 +50,11 @@ if ($Result){
 		$jsonData[] = array(
 			'value' => $value,
 			'reason' => $msg,
-			'label' => '<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:20%;">' . $cInfo['customers_number'] . '</span>' .
-				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:20%;">' . $cInfo['customers_telephone'] . '</span>' .
-				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:20%;">' . $cInfo['customers_firstname'] . '</span>' .
-				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:20%;">' . $cInfo['customers_lastname'] . '</span>' .
-				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:20%;">' . $cInfo['customers_email_address'] . '</span>'
+			'label' => '<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:150px;">' . $cInfo['customers_number'] . '</span>' .
+				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:150px;">' . $cInfo['customers_telephone'] . '</span>' .
+				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:150px;">' . $cInfo['customers_firstname'] . '</span>' .
+				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:150px;">' . $cInfo['customers_lastname'] . '</span>' .
+				'<span class="' . ($value == 'disabled' ? 'ui-state-disabled' : '') . '" style="display:inline-block;width:250px;">' . $cInfo['customers_email_address'] . '</span>'
 		);
 	}
 }

@@ -15,7 +15,7 @@ class OrdersCustomFieldsToOrders extends Doctrine_Record {
 	public function setUp(){
 		$this->setUpParent();
 		
-		$this->hasOne('OrdersCustomFields', array(
+		$this->hasOne('OrdersCustomFields as Field', array(
 			'local' => 'field_id',
 			'foreign' => 'field_id'
 		));
@@ -24,7 +24,7 @@ class OrdersCustomFieldsToOrders extends Doctrine_Record {
 	public function setUpParent(){
 		$Orders = Doctrine::getTable('Orders')->getRecordInstance();
 		
-		$Orders->hasMany('OrdersCustomFieldsToOrders', array(
+		$Orders->hasMany('OrdersCustomFieldsToOrders as CustomFields', array(
 			'local' => 'orders_id',
 			'foreign' => 'orders_id',
 			'cascade' => array('delete')
@@ -67,10 +67,19 @@ class OrdersCustomFieldsToOrders extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
-		
+
 		$this->hasColumn('field_label', 'string', 64, array(
 			'type' => 'string',
 			'length' => 64,
+			'fixed' => false,
+			'primary' => false,
+			'notnull' => true,
+			'autoincrement' => false,
+		));
+
+		$this->hasColumn('field_identifier', 'string', 255, array(
+			'type' => 'string',
+			'length' => 255,
 			'fixed' => false,
 			'primary' => false,
 			'notnull' => true,

@@ -1,7 +1,7 @@
 <?php
 $pID = (int)$_GET['product_id'];
 $barcode = (isset($_POST['barcodeNumber']) ? $_POST['barcodeNumber'] : false);
-$type = $_GET['purchaseType'];
+$type = $_GET['purchase_type'];
 $status = 'A';
 if (array_key_exists('aID_string', $_GET)){
 	$aID_string = $_GET['aID_string'];

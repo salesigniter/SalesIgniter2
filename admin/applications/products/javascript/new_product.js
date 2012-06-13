@@ -363,8 +363,8 @@ $(document).ready(function () {
 		linkParams.push('action=addBarcode');
 		linkParams.push('product_id=' + $_GET['product_id']);
 
-		if ($(this).attr('data-purchase_type')){
-			linkParams.push('purchaseType=' + $(this).attr('data-purchase_type'));
+		if ($(this).data('purchase_type')){
+			linkParams.push('purchase_type=' + $(this).data('purchase_type'));
 		}
 
 		if ($(this).attr('data-attribute_string')){

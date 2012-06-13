@@ -19,13 +19,13 @@ class PricePerRentalPerProducts extends Doctrine_Record {
 			'local' => 'pay_per_rental_id',
 			'foreign' => 'pay_per_rental_id'
 		));
-		 $this->hasMany('PricePayPerRentalPerProductsDescription', array(
+		 $this->hasMany('PricePayPerRentalPerProductsDescription as Description', array(
 			'local' => 'price_per_rental_per_products_id',
 			'foreign' => 'price_per_rental_per_products_id',
 			'cascade' => array('delete')
 		));
 
-		$this->hasOne('PayPerRentalTypes', array(
+		$this->hasOne('PayPerRentalTypes as Type', array(
 			'local' => 'pay_per_rental_types_id',
 			'foreign' => 'pay_per_rental_types_id'
 		));

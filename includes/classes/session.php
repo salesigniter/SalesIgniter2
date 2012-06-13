@@ -160,6 +160,12 @@ class Session
 		if (sizeof($ResultSet) > 0){
 			$value = stripslashes($ResultSet[0]['value']);
 			if (!empty($value)){
+				if (
+					basename($_SERVER['PHP_SELF']) != 'stylesheet.php' &&
+					basename($_SERVER['PHP_SELF']) != 'javascript.php'
+				){
+					EventManager::notify('SessionBeforeReadValue', &$value);
+				}
 				return $value;
 			}
 		}
@@ -169,7 +175,8 @@ class Session
 	public static function _write($key, $val) {
 		if (
 			basename($_SERVER['PHP_SELF']) != 'stylesheet.php' &&
-			basename($_SERVER['PHP_SELF']) != 'javascript.php'
+			basename($_SERVER['PHP_SELF']) != 'javascript.php' &&
+			($_GET['app'] != 'index' || (!isset($_GET['action']) || $_GET['action'] != 'landing'))
 		){
 			$Check = Doctrine_Manager::getInstance()
 				->getCurrentConnection()
@@ -230,19 +237,7 @@ class Session
 	}
 
 	public static function stop() {
-		global $ErrorException;
-		unset($ErrorException);
-		try {
-			/**
-			 * @TODO: Remove This Ugly Fix When You Figure Out The 503 Error On Chater Camera's Packages
-			 */
-			print_r($_SESSION, true);
-			serialize($_SESSION);
-		} catch(Exception $e){
-			echo '<pre>' . $e->__toString() . '</pre>';
-		}
-
-		return session_write_close();
+		//echo serialize($_SESSION);
 	}
 
 	public static function recreate() {
@@ -277,17 +272,19 @@ class Session
 	}
 
 	public static function &getReference($varName, $useKey = null) {
+		$return = '';
 		if (self::exists($varName, $useKey)){
 			if (is_null($useKey) === false){
-				return $_SESSION[$varName][$useKey];
+				$return =& $_SESSION[$varName][$useKey];
 			}
 			else {
-				return $_SESSION[$varName];
+				$return =& $_SESSION[$varName];
 			}
 		}
 		else {
 			ExceptionManager::report('Undefined Array Index', E_USER_ERROR);
 		}
+		return $return;
 	}
 
 	public static function remove($varName, $useKey = null) {
@@ -370,7 +367,6 @@ class Session
 	}
 
 	public function __destruct() {
-		//return session_write_close();
 	}
 }
 

@@ -1,16 +1,48 @@
 <?php
 class PackageProductTypeStandard {
 
+	private static $PurchaseTypes = array();
+
+	private static function getPurchaseTypes(){
+		if (empty(self::$PurchaseTypes)){
+			$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/packageProducts/productTypeModules/package/modules/purchaseType/');
+			foreach($Dir as $File){
+				if ($File->isDot() || $File->isDir()){
+					continue;
+				}
+				require($File->getPathName());
+				$className = 'PackagePurchaseType' . ucfirst($File->getBasename('.php'));
+
+				self::$PurchaseTypes[] = $className;
+			}
+		}
+		return self::$PurchaseTypes;
+	}
+
 	public static function getPackagedTableHeaders(){
-		return array(
+		$return = array(
 			array('id' => 'purchase_type', 'text' => 'Purchase Type')
 		);
+
+		foreach(self::getPurchaseTypes() as $PurchaseType){
+			if (method_exists($PurchaseType, 'getPackagedTableHeaders')){
+				$return = array_merge($return, $PurchaseType::getPackagedTableHeaders());
+			}
+		}
+		return $return;
 	}
 
 	public static function getPackagedTableBody($pInfo){
-		return array(
+		$return = array(
 			array('text' => '<input type="hidden" name="package_product_settings[' . $pInfo['id'] . '][purchase_type]" value="' . $pInfo['packageData']->purchase_type . '">' . $pInfo['packageData']->purchase_type)
 		);
+
+		foreach(self::getPurchaseTypes() as $PurchaseType){
+			if (method_exists($PurchaseType, 'getPackagedTableBody')){
+				$return = array_merge($return, $PurchaseType::getPackagedTableBody($pInfo));
+			}
+		}
+		return $return;
 	}
 
 	public static function getSettingsAddToPackage(Product $Product){

@@ -9,7 +9,7 @@
 	$Qfields = Doctrine_Query::create()
 	->select('f.field_id, f.input_type, f.input_required, fd.field_name, f.sort_order')
 	->from('OrdersCustomFields f')
-	->leftJoin('f.OrdersCustomFieldsDescription fd')
+	->leftJoin('f.Description fd')
 	->where('fd.language_id = ?', Session::get('languages_id'))
 	->execute();
 	if ($Qfields->count() > 0){
@@ -22,7 +22,7 @@
 
 		foreach($Qfields->toArray(true) as $fInfo){
 			$fieldId = $fInfo['field_id'];
-			$fieldName = $fInfo['OrdersCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
+			$fieldName = $fInfo['Description'][Session::get('languages_id')]['field_name'];
 			$inputType = $fInfo['input_type'];
 			$inputRequired = $fInfo['input_required'];
 			$sortOrder = $fInfo['sort_order'];
@@ -32,7 +32,7 @@
 			->css($iconCss);
 
 			$editIcon = htmlBase::newElement('icon')->setType('wrench')->setTooltip('Click to edit field')
-			->setHref(itw_app_link('appExt=ordersCustomFields&windowAction=edit&action=getFieldWindow&fID=' . $fieldId))
+			->setHref(itw_app_link('appExt=ordersCustomFields&windowAction=edit&action=getFieldWindow&field_id=' . $fieldId))
 			->css($iconCss);
 
 			$newFieldWrapper = htmlBase::newElement('div')->css(array(

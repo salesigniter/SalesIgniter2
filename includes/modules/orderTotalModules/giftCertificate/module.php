@@ -60,10 +60,6 @@ class OrderTotalGiftCertificate extends OrderTotalModuleBase
 		}
 	}
 
-	public function selection_test() {
-		return true;
-	}
-
 	public function getCustomersBalance($customers_id, $purchase_type) {
 		$GiftCertificatesCustomersBalance = Doctrine::getTable('GiftCertificatesCustomersBalance')
 			->findOneByCustomersIdAndPurchaseType($customers_id, $purchase_type);

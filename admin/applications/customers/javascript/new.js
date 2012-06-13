@@ -51,7 +51,7 @@ $(document).ready(function () {
 		if ($stateColumn.size() > 0){
 			showAjaxLoader($stateColumn, 'large');
 			$.ajax({
-				url      : js_app_link('app=customers&appPage=edit&action=getCountryZones'),
+				url      : js_app_link('app=customers&appPage=new&action=getCountryZones'),
 				cache    : false,
 				dataType : 'html',
 				data     : 'cID=' + $(this).val() + '&state_type=' + stateType + '&state=' + $stateColumn.val(),

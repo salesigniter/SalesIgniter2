@@ -13,12 +13,12 @@
 class OrdersCustomFieldsOptionsToFields extends Doctrine_Record {
 	
 	public function setUp(){
-		$this->hasOne('OrdersCustomFields', array(
+		$this->hasOne('OrdersCustomFields as Field', array(
 			'local' => 'field_id',
 			'foreign' => 'field_id'
 		));
 		
-		$this->hasOne('OrdersCustomFieldsOptions', array(
+		$this->hasOne('OrdersCustomFieldsOptions as Option', array(
 			'local' => 'option_id',
 			'foreign' => 'option_id',
 			'cascade' => array('delete')

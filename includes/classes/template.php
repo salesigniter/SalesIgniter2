@@ -99,7 +99,11 @@ class Template {
 		if ($this->isPopup === true){
 			echo $this->templateVars['pageContent'];
 		}else{
-			require($this->baseDir . $file);
+			if (file_exists($this->baseDir . $file)){
+				require($this->baseDir . $file);
+			}else{
+				echo 'Template File Does Not Exist: ' . $this->baseDir . $file;
+			}
 		}
 		$contents = ob_get_contents();
 		ob_end_clean();

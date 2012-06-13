@@ -11,8 +11,6 @@
 class TemplateManagerWidget extends TemplateManagerWidgetBase
 {
 
-	protected $widgetDir = 'widgets';
-
-	protected $widgetTemplateDir = 'widgetTemplates';
+	protected $widgetDir = 'layout';
 
 }

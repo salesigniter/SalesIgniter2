@@ -32,12 +32,26 @@ if (isset($_GET['zID'])){
 	$name = $GoogleZones->google_zones_name;
 
 	if (!empty($GoogleZones->gmaps_polygon)){
-		$address = '';
 		$polygon = unserialize($GoogleZones->gmaps_polygon);
-		$scriptCommands = '';
-		for($i = 0, $n = sizeof($polygon); $i < $n; $i++){
-			if (!empty($polygon[$i]['lat']) || !empty($polygon[$i]['lng'])){
-				$scriptCommands .= 'leftClick(poly, new GLatLng(' . $polygon[$i]['lat'] . ', ' . $polygon[$i]['lng'] . ', true));';
+		for($i=0, $n=sizeof($polygon); $i<$n; $i++){
+			if(!empty($polygon[$i]['lat']) || !empty($polygon[$i]['lng'])){
+				$hiddenFields .= htmlBase::newElement('input')
+					->setType('hidden')
+					->addClass('polyPoint')
+					->attr('data-marker_number', $i)
+					->attr('data-which', 'lat')
+					->setName('poly_point[' . $i . '][lat]')
+					->val($polygon[$i]['lat'])
+					->draw();
+
+				$hiddenFields .= htmlBase::newElement('input')
+					->setType('hidden')
+					->addClass('polyPoint')
+					->attr('data-marker_number', $i)
+					->attr('data-which', 'lng')
+					->setName('poly_point[' . $i . '][lng]')
+					->val($polygon[$i]['lng'])
+					->draw();
 			}
 		}
 	}
@@ -64,11 +78,9 @@ $Settings->addBodyRow(array(
 $Settings->addBodyRow(array(
 	'columns' => array(
 		array('text' => sysLanguage::get('TEXT_GOOGLE_ZONES_MAP')),
-		array('text' => '<div id="mapHolder"><div id="googleMap" style="width:650px;height:450px;"></div></div>')
+		array('text' => '<div id="mapHolder"><div id="googleMap" style="width:650px;height:450px;"></div>' . $hiddenFields . '</div>')
 	)
 ));
-
-$script = '<script>var windowOnLoad = function (){ ' . $scriptCommands . ' recenterMap(); };</script>';
 
 $infoBox->addContentRow($script . $Settings->draw());
 

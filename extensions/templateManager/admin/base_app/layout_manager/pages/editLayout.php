@@ -205,20 +205,16 @@ foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
 	var layoutType = '<?php echo $Layout->layout_type;?>';
 	var pageType = '<?php echo $Layout->page_type;?>';
 </script>
-<div style="margin:1em;text-align:right;"><?php
-	echo htmlBase::newElement('button')->usePreset('back')->setText('Back To Layout Listing')
-		->setHref(itw_app_link('appExt=templateManager&template_id=' . $Layout->Template->template_id, 'layout_manager', 'layouts'))
-		->draw();
-	?></div>
-<div style="text-align:center;">
+<div style="text-align:center;padding: 5px 0;">
 	<a href="#" id="construct-save" tooltip="Save Layout" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-save"></a>
 	<!--<a href="#" id="construct-saveAs" tooltip="Save Layout As" class="ui-icon ui-action-icon ui-action-icon-save-as"></a>-->
 	<a href="#" id="construct-addContainer" tooltip="Add container" class="ui-icon ui-action-icon ui-action-icon-add-container"></a>
-	<a href="#" id="construct-addColumn" tooltip="Add column" class="ui-icon ui-action-icon ui-action-icon-add-column"></a>
-	<a href="#" id="construct-addSubColumn" tooltip="Add a column inside selected column" class="ui-icon ui-action-icon ui-action-icon-add-subcolumn"></a>
+	<a href="#" id="construct-addColumn" tooltip="Add column" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-add-column"></a>
+	<a href="#" id="construct-addSubColumn" tooltip="Add a column inside selected column" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-add-subcolumn"></a>
 	<a href="#" id="construct-widgets" tooltip="Add widgets to template" class="ui-icon ui-action-icon ui-action-icon-add-widget"></a>
 	<a href="#" id="construct-link" tooltip="Create a linked container to use on other templates" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-create-link"></a>
 	<a href="#" id="construct-importlink" tooltip="Import a linked container" class="ui-icon ui-action-icon ui-action-icon-import-link"></a>
+	<a href="<?php echo itw_app_link('appExt=templateManager&template_id=' . $Layout->Template->template_id, 'layout_manager', 'layouts');?>" tooltip="Back To Layout Listing" class="ui-icon ui-action-icon ui-action-icon-back-to-listing"></a>
 </div>
 <div id="saveLayoutText" style="display:none;"><?php
 	echo '<span class="changedText">Layout Has Been Changed</span>';

@@ -33,6 +33,61 @@ class Extension_customersCustomFields extends ExtensionBase
 		}
 	}
 
+	public function getGroups(){
+		$Qfields = Doctrine_Query::create()
+			->from('CustomersCustomFieldsGroups')
+			->orderBy('group_name')
+			->execute();
+		return $Qfields;
+	}
+
+	public function getFieldHtml(CustomersCustomFields $Field, Order $Order = null){
+		switch($Field->input_type){
+			case 'select':
+			case 'select_other':
+				$oArr = array();
+
+				$input = htmlBase::newSelectbox()
+					->setRequired($Field->input_required == 1);
+
+				if ($Field->Options && $Field->Options->count()){
+					foreach($Field->Options as $Option){
+						$input->addOption(
+							$Option->Description[Session::get('languages_id')]->option_name,
+							$Option->Description[Session::get('languages_id')]->option_name
+						);
+					}
+				}
+
+				if ($Field->input_type == 'select_other'){
+					$input->addOption('Other', 'Other (Fill in below)');
+
+					$otherInput = '<div class="main" style="clear:both;margin-top:.3em;">Other: ' . htmlBase::newInput()->setName('orders_custom_field_other[' . $Field->field_id . ']')->draw() . '</div>';
+				}
+				break;
+			case 'text':
+				$input = htmlBase::newInput();
+				break;
+			case 'textarea':
+				$input = htmlBase::newElement('textarea')->attr('rows', 3);
+				break;
+		}
+		$input->addClass('customerCustomField')->setName('customers_custom_field[' . $Field->field_id . ']');
+
+		if ($Order !== null){
+			$FieldValues = $Order->InfoManager->getInfo('CustomersCustomFieldsValues');
+			//echo '<pre>';print_r($FieldValues);
+			if (isset($FieldValues[$Field->field_id])){
+				$input->val($FieldValues[$Field->field_id]['value']);
+			}
+		}
+
+		return array(
+			'label' => $Field->Description[Session::get('languages_id')]->field_name,
+			'field' => $input->draw() . (isset($otherInput) ? $otherInput : '')
+		);
+	}
+
 	public function CustomerInfoAddTableContainer(&$customer) {
 		//Add tabs for custom fields:
 
@@ -122,21 +177,6 @@ class Extension_customersCustomFields extends ExtensionBase
 		}
 
 		return $Query;
-	}
-
-	public function getFields($pId = null, $languageId = null, $shownOnProductInfo = false, $shownOnLabels = false, $shownOnListing = false, $groupId = null) {
-		$Query = $this->_getFieldsQuery(array(
-			'product_id'      => $pId,
-			'group_id'        => $groupId,
-			'language_id'     => $languageId,
-			'show_on_site'    => $shownOnProductInfo,
-			'show_on_labels'  => $shownOnLabels,
-			'show_on_listing' => $shownOnListing
-		));
-
-		$Result = $Query->execute()->toArray(true);
-
-		return $Result;
 	}
 }
 

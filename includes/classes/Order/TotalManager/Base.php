@@ -28,16 +28,24 @@ class OrderTotalManager
 	protected $totals = array();
 
 	/**
-	 * @param array|null $orderTotals
+	 *
 	 */
-	public function __construct(array $orderTotals = null)
+	public function __construct()
 	{
-		if (is_null($orderTotals) === false){
-			foreach($orderTotals as $i => $tInfo){
-				$orderTotal = new OrderTotal($tInfo);
-				$this->totals[$orderTotal->getModule()] = $orderTotal;
-			}
+
+	}
+
+	/**
+	 * @param $ModuleCode
+	 * @return bool|OrderTotal
+	 */
+	public function &getTotal($ModuleCode)
+	{
+		$return = false;
+		if (isset($this->totals[$ModuleCode])){
+			$return =& $this->totals[$ModuleCode];
 		}
+		return $return;
 	}
 
 	/**
@@ -45,7 +53,7 @@ class OrderTotalManager
 	 */
 	public function add(OrderTotal $orderTotal)
 	{
-		$this->totals[$orderTotal->getModule()] = $orderTotal;
+		$this->totals[$orderTotal->getModule()->getCode()] = $orderTotal;
 	}
 
 	/**
@@ -55,19 +63,19 @@ class OrderTotalManager
 	public function getTotalValue($type)
 	{
 		$OrderTotal = $this->get($type);
-		if (is_null($OrderTotal) === false){
-			return (float)$OrderTotal->getValue();
+		if ($OrderTotal !== false){
+			return (float)$OrderTotal->getModule()->getValue();
 		}
 		return null;
 	}
 
 	/**
 	 * @param string $moduleType
-	 * @return OrderTotal|null
+	 * @return bool|OrderTotal
 	 */
 	public function get($moduleType)
 	{
-		$orderTotal = null;
+		$orderTotal = false;
 		if (isset($this->totals[$moduleType])){
 			$orderTotal = $this->totals[$moduleType];
 		}
@@ -82,7 +90,7 @@ class OrderTotalManager
 		$TotalsSorted = $this->totals;
 		usort($TotalsSorted, function ($a, $b)
 		{
-			return ($a->getSortOrder() < $b->getSortOrder() ? -1 : 1);
+			return ($a->getModule()->getDisplayOrder() < $b->getModule()->getDisplayOrder() ? -1 : 1);
 		});
 		return $TotalsSorted;
 	}
@@ -101,11 +109,11 @@ class OrderTotalManager
 				'columns' => array(
 					array(
 						'align' => 'right',
-						'text'  => $OrderTotal->getTitle()
+						'text'  => $OrderTotal->getModule()->getTitle()
 					),
 					array(
 						'align' => 'right',
-						'text'  => $OrderTotal->getText()
+						'text'  => $OrderTotal->getModule()->getText()
 					)
 				)
 			));
@@ -115,27 +123,45 @@ class OrderTotalManager
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function jsonEncode()
+	public function prepareJsonSave()
 	{
 		$TotalJsonArray = array();
 		foreach($this->totals as $OrderTotal){
-			$TotalJsonArray[] = $OrderTotal->jsonEncode();
+			$TotalJsonArray[] = $OrderTotal->prepareJsonSave();
 		}
-		return json_encode($TotalJsonArray);
+		return $TotalJsonArray;
 	}
 
 	/**
-	 * @param string $data
+	 * Used when loading the sale from the database
+	 *
+	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function jsonDecode($data)
-	{
-		$Totals = json_decode($data, true);
-		foreach($Totals as $tInfo){
-			$OrderTotal = new OrderTotal();
-			$OrderTotal->jsonDencode($tInfo);
-			$this->totals[$OrderTotal->getModule()] = $OrderTotal;
+	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total){
+		$TotalDecoded = json_decode($Total->total_json, true);
+		$OrderTotal = new OrderTotal($TotalDecoded['data']['module_code']);
+		$OrderTotal->jsonDecode($TotalDecoded);
+
+		$this->add($OrderTotal);
+	}
+
+	/**
+	 * @param OrderProductManager $ProductManager
+	 */
+	public function onProductAdded(OrderProductManager $ProductManager){
+		foreach($this->getAll() as $Module){
+			$Module->onProductAdded($ProductManager);
+		}
+	}
+
+	/**
+	 * @param OrderProductManager $ProductManager
+	 */
+	public function onProductUpdated(OrderProductManager $ProductManager){
+		foreach($this->getAll() as $Module){
+			$Module->onProductUpdated($ProductManager);
 		}
 	}
 }

@@ -1,33 +1,28 @@
 <?php
-	$jsonData = array();
+$jsonData = array();
 
-	$QProductsInventoryBarcodes = Doctrine_Query::create()
+$SearchTerm = $_GET['term'];
+$QSearch = Doctrine_Query::create()
 	->from('Products p')
+	->leftJoin('p.ProductsDescription pd')
 	->leftJoin('p.ProductsInventory pi')
 	->leftJoin('pi.ProductsInventoryBarcodes pib')
-	->where('pib.barcode = ?', $_GET['term'])
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	->where('pd.language_id = ?', Session::get('languages_id'))
+	->andWhere('(pib.barcode LIKE ? OR pd.products_name LIKE ?)', array(
+		$SearchTerm . '%',
+		$SearchTerm . '%'
+	));
 
-	$QproductName = Doctrine_Query::create()
-	->from('ProductsDescription');
-    $prtype = 'none';
-    if(count($QProductsInventoryBarcodes) > 0){
-	    $QproductName->where('products_id =?', $QProductsInventoryBarcodes[0]['products_id']);
-	    $prtype = $QProductsInventoryBarcodes[0]['ProductsInventory'][0]['type'];
-    }else{
-		$QproductName->where('products_name LIKE ?', $_GET['term'] . '%')
-		->andWhere('language_id = ?', Session::get('languages_id'));
-    }
-	$QproductName = $QproductName->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-	if ($QproductName){
-		foreach($QproductName as $pInfo){
-			$jsonData[] = array(
-				'value' => $pInfo['products_id'],
-				'label' => $pInfo['products_name'],
-				'prtype' => $prtype
-			);
-		}
+$Results = $QSearch->execute();
+
+if ($Results){
+	foreach($Results as $Result){
+		$jsonData[] = array(
+			'value' => $Result->products_id,
+			'label' => $Result->ProductsDescription[Session::get('languages_id')]->products_name
+		);
 	}
-	
-	EventManager::attachActionResponse($jsonData, 'json');
+}
+
+EventManager::attachActionResponse($jsonData, 'json');
 ?>

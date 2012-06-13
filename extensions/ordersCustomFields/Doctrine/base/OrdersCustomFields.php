@@ -13,19 +13,19 @@
 class OrdersCustomFields extends Doctrine_Record {
 	
 	public function setUp(){
-		$this->hasMany('OrdersCustomFieldsDescription', array(
+		$this->hasMany('OrdersCustomFieldsDescription as Description', array(
 			'local' => 'field_id',
 			'foreign' => 'field_id',
 			'cascade' => array('delete')
 		));
 		
-		$this->hasMany('OrdersCustomFieldsOptionsToFields', array(
+		$this->hasMany('OrdersCustomFieldsOptionsToFields as Options', array(
 			'local'   => 'field_id',
 			'foreign' => 'field_id',
 			'cascade' => array('delete')
 		));
 		
-		$this->hasMany('OrdersCustomFieldsToOrders', array(
+		$this->hasMany('OrdersCustomFieldsToOrders as Orders', array(
 			'local' => 'field_id',
 			'foreign' => 'field_id',
 			'cascade' => array('delete')
@@ -42,6 +42,8 @@ class OrdersCustomFields extends Doctrine_Record {
 			'primary' => true,
 			'autoincrement' => true,
 		));
+
+		$this->hasColumn('field_identifier', 'string', '255');
 		
 		$this->hasColumn('input_type', 'string', 16, array(
 			'type' => 'string',

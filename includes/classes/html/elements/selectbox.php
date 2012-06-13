@@ -129,7 +129,7 @@ class htmlElement_selectbox implements htmlElementPlugin
 
 		if (is_null($attributes) === false){
 			foreach($attributes as $k => $v){
-				//$optionEl->attr($k, $v);
+				$optionEl->attr($k, $v);
 			}
 		}
 

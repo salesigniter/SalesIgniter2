@@ -21,7 +21,7 @@ $infoBox->addButton($saveButton)->addButton($cancelButton);
 $groupInput = htmlBase::newInput()
 	->setName('group_name')
 	->setRequired(true)
-	->setValidation(true, '/[a-z0-9 ]/i')
+	->setValidation(true, '[a-zA-Z0-9 ]+')
 	->val($Group->group_name);
 
 $infoBox->addContentRow(sysLanguage::get('ENTRY_GROUP_NAME') . '<br>' . $groupInput->draw());

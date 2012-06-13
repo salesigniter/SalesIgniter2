@@ -53,7 +53,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
 		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
 			if ($ignoreStatus === false){
-				return null;
+				$return = null;
+				return $return;
 			}
 		}
 
@@ -216,7 +217,7 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 				'purchase_type' => $_GET['purchase_type']
 			));
 
-			$this->setPurchaseType($pInfo['purchase_type']);
+			$this->setPurchaseType($OrderProduct->getInfo('purchase_type'));
 		}
 
 		$return = true;

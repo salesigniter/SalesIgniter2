@@ -1,5 +1,5 @@
 <?php
-$SalesModule = AccountsReceivableModules::getModule($_GET['type']);
+$SalesModule = AccountsReceivableModules::getModule($_GET['sale_module']);
 $QSales = $SalesModule->getSalesQuery();
 
 $SalesGrid = htmlBase::newGrid()
@@ -131,10 +131,11 @@ $SalesGrid->addHeaderRow(array(
 
 $Sales = $SalesGrid->getResults();
 foreach($Sales as $sInfo){
-	$Sale = new Order();
-
-	$SaleModule = AccountsReceivableModules::getModule($sInfo['sale_module']);
-	$SaleModule->load($Sale, true, $sInfo['sale_id'], $sInfo['sale_revision']);
+	$Sale = new Order(
+		$sInfo['sale_module'],
+		$sInfo['sale_id'],
+		$sInfo['sale_revision']
+	);
 
 	$gridBodyColumns = array(
 		array('text' => $Sale->getId()),
@@ -142,7 +143,7 @@ foreach($Sales as $sInfo){
 		array('text' => $Sale->getSaleModule()->getTitle()),
 		array('text' => $Sale->getCustomersName()),
 		array(
-			'text'  => $currencies->format($Sale->getTotal()),
+			'text'  => $currencies->format($Sale->TotalManager->getTotalValue('total')),
 			'align' => 'right'
 		),
 		array(

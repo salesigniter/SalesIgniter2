@@ -20,8 +20,7 @@
 		$html = htmlBase::newElement('input');
 	}
 	
-	$html->setName('address[' . $aType . '][entry_state]')
-	->css(array('width' => '150px'));
+	$html->setName('address[' . $aType . '][entry_state]');
 	
 	EventManager::attachActionResponse($html->draw(), 'html');
 ?>

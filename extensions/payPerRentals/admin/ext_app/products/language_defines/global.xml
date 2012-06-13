@@ -3,15 +3,6 @@
 	<define key="TEXT_PURCHASE_TYPE_PAY_PER_RENTAL"><![CDATA[Pay Per Rental]]></define>
 	<define key="TEXT_PAY_PER_RENTAL_DEPOSIT_AMOUNT"><![CDATA[Deposit Amount: ]]></define>
 	<define key="TEXT_PAY_PER_RENTAL_PRICING"><![CDATA[Pay Per Rental Pricing ]]></define>
-    <define key="TEXT_PAY_PER_RENTAL_PRICE_ONEH"><![CDATA[Hourly]]></define>
-    <define key="TEXT_PAY_PER_RENTAL_PRICE_TWOH"><![CDATA[2 Hours]]></define>
-    <define key="TEXT_PAY_PER_RENTAL_PRICE_FOURH"><![CDATA[4 Hours]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_DAILY"><![CDATA[Daily]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_WEEKLY"><![CDATA[Weekly]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_MONTHLY"><![CDATA[Monthly]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_SIX_MONTH"><![CDATA[6 Month]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_YEAR"><![CDATA[1 Year]]></define>
-	<define key="TEXT_PAY_PER_RENTAL_PRICE_THREE_YEAR"><![CDATA[3 Year]]></define>
 	<define key="TEXT_PAY_PER_RENTAL_SHIPPING"><![CDATA[Shipping Methods: ]]></define>
 	<define key="TEXT_PAY_PER_RENTAL_MAX_INFO"><![CDATA[Only days or months can be used, not both. the system defaults to days if both are greater than 0.]]></define>
 	<define key="TEXT_PAY_PER_RENTAL_MAX_DAYS"><![CDATA[Max rental days: ]]></define>
