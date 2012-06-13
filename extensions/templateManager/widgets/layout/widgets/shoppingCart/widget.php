@@ -23,7 +23,7 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 	public function showLayoutPreview($WidgetSettings){
 		$return = $this->getTitle();
 		if ($WidgetSettings['settings']->box_mode == 'mini'){
-			$return = 'X ' . sysLanguage::get('WIDGET_SHOPPINGCART_ITEMS_IN_CART');
+			$return = 'X ' . sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_ITEMS_IN_CART');
 		}
 		return $return;
 	}
@@ -38,7 +38,7 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 		}
 
 		if ($boxMode == 'mini'){
-			$htmlContent = $ShoppingCart->countContents() . sprintf(sysLanguage::get('WIDGET_SHOPPINGCART_ITEMS_IN_CART'), itw_app_link(null, 'shoppingCart', 'default'));
+			$htmlContent = $ShoppingCart->countContents() . sprintf(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_ITEMS_IN_CART'), itw_app_link(null, 'shoppingCart', 'default'));
 		}else{
 			if ($ShoppingCart->countContents() > 0){
 				$productAdded = false;
