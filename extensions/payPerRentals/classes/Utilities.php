@@ -1439,8 +1439,8 @@ class ReservationUtilities {
 			background: #F7C8D3;
 		}
 
-		.datePicker .ui-state-active {
-			background: #CACEE6;
+		.datePicker .ui-state-active, .ui-datepicker-selected-day-hover-info {
+			background: #cacee6;
 		}
 	</style>
 	<div id="reserv<?php echo $pID_string[0]; ?>" class="reservationTable">
@@ -1495,11 +1495,11 @@ class ReservationUtilities {
 				<div colspan="2">
 					<table cellpadding="0" cellspacing="3" border="0" width="100%">
 						<tr>
-							<td style="width:10px;height:10px;" class="ui-datepicker-reserved ui-state-disabled">&nbsp;</td>
+							<td style="width:10px;height:10px;" class="ui-datepicker-reserved ui-datepicker-shipping-day-hover-info">&nbsp;</td>
 							<td style="font-size:.8em"> - Unavailable Days.</td>
 						</tr>
 						<tr>
-							<td style="width:10px;height:10px;" class="ui-datepicker-shipping-day-hover-info">&nbsp;</td>
+							<td style="width:10px;height:10px;" class="ui-datepicker-selected-day-hover-info">&nbsp;</td>
 							<td style="font-size:.8em"> - Selected Days.</td>
 						</tr>
 						<?php if ($options['showShipping'] === true && $purchaseTypeClass->shippingIsNone() === false && $purchaseTypeClass->shippingIsStore() === false){ ?>
