@@ -93,7 +93,7 @@ class Application
 
 	public function isValid() {
 		$return = true;
-		if (in_array(basename(strtolower($_SERVER['PHP_SELF'])), array('stylesheet.php', 'javascript.php'))){
+		if (in_array(basename(strtolower($_SERVER['PHP_SELF'])), array('runupdate.php', 'stylesheet.php', 'javascript.php'))){
 			return true;
 		}
 		if ($this->appLocation === false){
