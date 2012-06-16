@@ -139,7 +139,9 @@ class ReservationUtilities {
 			'selectedDate'         => null,
 			'showSelectedInputs'   => true,
 			'shippingDays'         => null,
-			'showInfoKey'          => true
+			'showInfoKey'          => true,
+			'allowHourly'          => (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_HOURLY') == 'True' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'),
+			'minTime'              => 15
 		);
 
 		$options = array_merge($defaults, $settings);
@@ -177,60 +179,42 @@ class ReservationUtilities {
 			$purchaseTypeClass = $options['purchaseTypeClasses'][0];
 		}
 
-		$pprTable = Doctrine_Core::getTable('ProductsPayPerRental')
-			->findOneByProductsId($purchaseTypeClass->getProductId());//only for first product
-
-		$QPeriods = Doctrine_Query::create()
-		->from('ProductsPayPerPeriods')
-		->whereIn('products_id', $pID_string)
-		->andWhere('price > 0')
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
 		$semDates = array();
 
 		$sDate = array();
-		if (count($QPeriods)) {
-			$QPeriodsNames = Doctrine_Query::create()
-			->from('PayPerRentalPeriods')
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-			foreach ($QPeriods as $iPeriod) {
-				$periodName = '';
-				foreach ($QPeriodsNames as $periodNames) {
-					if ($periodNames['period_id'] == $iPeriod['period_id']) {
-						$periodName = $periodNames;
-						break;
-					}
-				}
-				if ($periodName != '') {
-					$sDate['start_date'] = $periodName['period_start_date'];
-					$sDate['end_date'] = $periodName['period_end_date'];
-					$sDate['period_id'] = $iPeriod['period_id'];
-					$sDate['period_name'] = $periodName['period_name'];
-					$sDate['price'] = $iPeriod['price'];
-					$semDates[] = $sDate;
-				}
+		$Periods = PurchaseType_reservation_utilities::getProductPeriods($pID_string);
+		if (sizeof($Periods) > 0) {
+			foreach($Periods as $pInfo){
+				$sDate['start_date'] = $pInfo['Period']['period_start_date'];
+				$sDate['end_date'] = $pInfo['Period']['period_end_date'];
+				$sDate['period_id'] = $pInfo['period_id'];
+				$sDate['period_name'] = $pInfo['Period']['period_name'];
+				$sDate['price'] = $pInfo['price'];
+				$semDates[] = $sDate;
 			}
 		}
 		/*end periods*/
 
-		$allowHourly = (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_HOURLY') == 'True') ? true : false;
-		$minTime = 15; //slotMinutes
-
+		$minRentalMessage = sysLanguage::get('PPR_ERR_AT_LEAST') . ' %s ' . sysLanguage::get('PPR_ERR_DAYS_RESERVED');
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GLOBAL_MIN_RENTAL_DAYS') == 'False') {
-			$minRentalPeriod = ReservationUtilities::getPeriodTime($pprTable->min_period, $pprTable->min_type) * 60 * 1000;
-			$minRentalMessage = sysLanguage::get('PPR_ERR_AT_LEAST') . ' ' . $pprTable->min_period . ' ' . ReservationUtilities::getPeriodType($pprTable->min_type) . ' ' . sysLanguage::get('PPR_ERR_DAYS_RESERVED');
+			$PeriodTime = PurchaseType_reservation_utilities::getRentalTypes($purchaseTypeClass->getMinType());
+			$minRentalPeriod = $PeriodTime['minutes'] * $purchaseTypeClass->getMinPeriod() * 60 * 1000;
+			$minRentalMessage = sprintf($minRentalMessage, $purchaseTypeClass->getMinPeriod() . ' ' . $PeriodTime['pay_per_rental_types_name']);
 		} else {
 			$minRentalPeriod = (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS') * 24 * 60 * 60 * 1000;
-			$minRentalMessage = sysLanguage::get('PPR_ERR_AT_LEAST') . ' ' . sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS') . ' ' . 'Days' . ' ' . sysLanguage::get('PPR_ERR_DAYS_RESERVED');
+			$minRentalMessage = sprintf($minRentalMessage, sysConfig::get('EXTENSION_PAY_PER_RENTALS_MIN_RENTAL_DAYS') . ' Days');
 		}
 
 		$maxRentalPeriod = -1;
 		$maxRentalMessage = '';
-		if ($pprTable->max_period > 0) {
-			$maxRentalPeriod = ReservationUtilities::getPeriodTime($pprTable->max_period, $pprTable->max_type) * 60 * 1000;
-			$maxRentalMessage = sysLanguage::get('PPR_ERR_MAXIMUM') . ' ' . $pprTable->max_period . ' ' . ReservationUtilities::getPeriodType($pprTable->max_type) . ' ' . sysLanguage::get('PPR_ERR_DAYS_RESERVED');
+		if ($purchaseTypeClass->getMaxPeriod() > 0) {
+			$PeriodTime = PurchaseType_reservation_utilities::getRentalTypes($purchaseTypeClass->getMaxType());
+			$maxRentalPeriod = $PeriodTime['minutes'] * $purchaseTypeClass->getMaxPeriod() * 60 * 1000;
+			$maxRentalMessage = sysLanguage::get('PPR_ERR_MAXIMUM') . ' ' . $purchaseTypeClass->getMaxPeriod() . ' ' . $PeriodTime['pay_per_rental_types_name'] . ' ' . sysLanguage::get('PPR_ERR_DAYS_RESERVED');
 		}
 
+		$StartDate = new SesDateTime('now');
+		$StartDate->setTime(0,0,0);
 		$startTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		//$endTime = mktime(0,0,0,date('m'), 1, date('Y')+3);
 
@@ -241,19 +225,19 @@ class ReservationUtilities {
 		$isDisabled = false;
 		$disabledBy = '""';
 		foreach($pID_string as $nr => $pID_stringElem){
-
+			$ProductsName = ReservationUtilities::getProductName($pID_stringElem);
 			$reservArr = array();
 			$barcodesBooked = array();
-			$bookingsF = $options['purchaseTypeClasses'][$nr]->getBookedDaysArray(date('Y-m-d', $startTime), $options['quantity'], &$reservArr, &$barcodesBooked, $options['usableBarcodes']);
+			$bookingsF = $options['purchaseTypeClasses'][$nr]->getBookedDaysArray($StartDate, $options['quantity'], &$reservArr, &$barcodesBooked, $options['usableBarcodes']);
 			if($bookingsF === false){
 				$isDisabled = true;
-				$disabledBy = '"'. ReservationUtilities::getProductName($pID_stringElem) . '"';
+				$disabledBy = '"'. $ProductsName . '"';
 				$bookingsF = array();
 			}
 			for($i=0;$i<count($bookings);$i++){
-				$popArr[] =  '"' .ReservationUtilities::getProductName($pID_stringElem) .'"';
+				$popArr[] =  '"' . $ProductsName .'"';
 			}
-			$timeBookingsF = $options['purchaseTypeClasses'][$nr]->getBookedTimeDaysArray(date('Y-m-d', $startTime), $options['quantity'], $minTime, $reservArr, $barcodesBooked);
+			$timeBookingsF = $options['purchaseTypeClasses'][$nr]->getBookedTimeDaysArray($StartDate, $options['quantity'], $options['minTime'], $reservArr, $barcodesBooked);
 
 			$bookings = array_merge($bookings, $bookingsF);
 			$timeBookings = array_merge($timeBookings, $timeBookingsF);
@@ -266,7 +250,7 @@ class ReservationUtilities {
 			if($options['showShipping']){
 				$shippingTable = $purchaseTypeClass->buildShippingTable();
 			}
-			$maxShippingDays = $purchaseTypeClass->getMaxShippingDays(date('Y-m-d', $startTime));
+			$maxShippingDays = $purchaseTypeClass->getMaxShippingDays($StartDate);
 		}
 		/**
 		 * Days Bookings
@@ -281,7 +265,7 @@ class ReservationUtilities {
 			//period
 			$op = 0;
 			foreach ($semDates as $sDate) {
-				if (strtotime($iBook) >= strtotime($sDate['start_date']) && strtotime($iBook) <= strtotime($sDate['end_date'])) {
+				if (strtotime($iBook) >= $sDate['start_date']->getTimestamp() && strtotime($iBook) <= $sDate['end_date']->getTimestamp()) {
 					unset($semDates[$op]);
 				}
 				$op++;
@@ -299,7 +283,7 @@ class ReservationUtilities {
 					//period
 					$op = 0;
 					foreach ($semDates as $sDate) {
-						if (strtotime($dateFormattedS) >= strtotime($sDate['start_date']) && strtotime($dateFormattedS) <= strtotime($sDate['end_date'])) {
+						if (strtotime($dateFormattedS) >= $sDate['start_date']->getTimestamp() && strtotime($dateFormattedS) <= $sDate['end_date']->getTimestamp()) {
 							unset($semDates[$op]);
 						}
 						$op++;
@@ -322,7 +306,7 @@ class ReservationUtilities {
 					//period
 					$op = 0;
 					foreach ($semDates as $sDate) {
-						if (strtotime($dateFormattedS) >= strtotime($sDate['start_date']) && strtotime($dateFormattedS) <= strtotime($sDate['end_date'])) {
+						if (strtotime($dateFormattedS) >= $sDate['start_date']->getTimestamp() && strtotime($dateFormattedS) <= $sDate['end_date']->getTimestamp()) {
 							unset($semDates[$op]);
 						}
 						$op++;
@@ -828,7 +812,7 @@ class ReservationUtilities {
 						}
 					}
 					<?php
-					if ($allowHourly && sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'){
+					if ($options['allowHourly']){
 						?>
 						$selfID.find('.calendarTime').show();
 						$selfID.find('.calendarTime').fullCalendar('gotoDate', date);
@@ -1072,7 +1056,7 @@ class ReservationUtilities {
 			},
 			theme: true,
 			allDaySlot:false,
-			slotMinutes:<?php echo $minTime;?>,
+			slotMinutes:<?php echo $options['minTime'];?>,
 			editable: false,
 			disableDragging: true,
 			disableResizing: true,
@@ -1639,104 +1623,105 @@ class ReservationUtilities {
 		return $calendar;
 	}
 
-	public static function getMaxShippingDays($productId, $start, $allowOverbooking = false){
+	public static function getMaxShippingDays($productId, DateTime $StartDate, $allowOverbooking = false){
 
 		$maxDays = 0;
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_OVERBOOKING') == 'False' && $allowOverbooking === false){
-
 			$Qcheck = Doctrine_Query::create()
-			->select('MAX(shipping_days_before) as max_before, MAX(shipping_days_after) as max_after')
-			->from('OrdersProductsReservation opr')
-			->leftJoin('opr.ProductsInventoryBarcodes ib')
-			->leftJoin('ib.ProductsInventory i')
-			->where('i.products_id = ?', $productId)
-			->andWhereIn('opr.rental_state', array('reserved', 'out'))
-			->andWhere('opr.parent_id IS NULL')
-			->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $start);
+				->select('MAX(shipping_days_before) as max_before, MAX(shipping_days_after) as max_after')
+				->from('PayPerRentalReservations')
+				->where('products_id = ?', $productId)
+				->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $StartDate->format(sysLanguage::getDateFormat('short')))
+				->andWhereIn('rental_state', array('reserved', 'out'));
 
-			EventManager::notify('OrdersProductsReservationListingBeforeExecute', &$Qcheck);
+			EventManager::notify('OrdersProductsReservationListingBeforeExecuteUtilities', $Qcheck);
 
-			$Qcheck = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			$Result = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-			if($Qcheck[0]['max_before'] > $Qcheck[0]['max_after']){
-				$maxDays = $Qcheck[0]['max_before'];
+			if ($Result[0]['max_before'] > $Result[0]['max_after']){
+				$maxDays = (int)$Result[0]['max_before'];
 			}else{
-				$maxDays = $Qcheck[0]['max_after'];
+				$maxDays = (int)$Result[0]['max_after'];
 			}
 		}
 		return $maxDays;
 	}
 
-	public static function getMyReservations($productId, $start, $allowOverbooking = false, $usableBarcodes = array()){
-
+	public static function getMyReservations($productId, DateTime $StartDate, $allowOverbooking = false, $usableBarcodes = array())
+	{
 		$reservArr = array();
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_OVERBOOKING') == 'False' && $allowOverbooking === false){
-
 			$Qcheck = Doctrine_Query::create()
-			->from('OrdersProductsReservation opr')
-			->leftJoin('opr.ProductsInventoryBarcodes ib')
-			->leftJoin('ib.ProductsInventory i')
-			->where('i.products_id = ?', $productId)
-			->andWhereIn('opr.rental_state', array('reserved', 'out'))
-			->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $start);
+				->from('PayPerRentalReservations')
+				->where('products_id = ?', $productId)
+				->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $StartDate->format(sysLanguage::getDateFormat('short')))
+				->andWhereIn('rental_state', array('reserved', 'out'));
 
-			if(count($usableBarcodes) > 0){
-				$Qcheck->andWhereIn('ib.barcode_id', $usableBarcodes);
-			}
+			EventManager::notify('OrdersProductsReservationListingBeforeExecuteUtilities', $Qcheck);
 
-			EventManager::notify('OrdersProductsReservationListingBeforeExecuteUtilities', &$Qcheck);
+			$Result = $Qcheck->execute();
+			foreach($Result as $Reservation){
+				$reservationArr = array();
 
-			$Qcheck = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-			foreach($Qcheck as $iReservation){
-					$reservationArr = array();
-
-					$startDateArr = date_parse($iReservation['start_date']);
-					$endDateArr = date_parse($iReservation['end_date']);
-
-					$startTime = mktime($startDateArr['hour'],$startDateArr['minute'],$startDateArr['second'],$startDateArr['month'],$startDateArr['day']-$iReservation['shipping_days_before'],$startDateArr['year']);
-					$endTime = mktime($endDateArr['hour'],$endDateArr['minute'],$endDateArr['second'],$endDateArr['month'],$endDateArr['day']+$iReservation['shipping_days_after'],$endDateArr['year']);
-
-					$dateStart = date('Y-n-j', $startTime);
-					$timeStart = date('G:i', $startTime);
-
-					$dateEnd = date('Y-n-j', $endTime);
-					$timeEnd = date('G:i', $endTime);
-
-					if($timeStart == '0:00' || (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'True')){
-						$reservationArr['start'] = $dateStart;
-					}else{
-						$reservationArr['start_time'] = $timeStart;
-						$reservationArr['start_date'] = $dateStart;
-						$reservationArr['end_time'] = '23:59';
-						$reservationArr['end_date'] = $dateStart;
-						$nextStartTime = strtotime('+1 day', strtotime($dateStart));
-						$prevEndTime = strtotime('-1 day', strtotime($dateEnd));
-						if( $nextStartTime <= $prevEndTime){
-							$reservationArr['start'] = date('Y-n-j', $nextStartTime);
-						}
+				$barcodeId = $Reservation->SaleProduct->SaleInventory->Barcode->Inventory->barcode_id;
+				if (!empty($usableBarcodes)){
+					if (!in_array($barcodeId, $usableBarcodes)){
+						continue;
 					}
+				}
 
-					if($timeEnd == '0:00' || (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'True')){
-						$reservationArr['end'] = $dateEnd;
-					}else{
-						if(!isset($reservationArr['start_time'])){
-							$reservationArr['start_time'] = '0:00';
-						}
-						$reservationArr['start_date'] = $dateEnd;
-						$reservationArr['end_time'] = $timeEnd;
-						$reservationArr['end_date'] = $dateEnd;
-						$nextStartTime = strtotime('+1 day', strtotime($dateStart));
-						$prevEndTime = strtotime('-1 day', strtotime($dateEnd));
-						if( $nextStartTime <= $prevEndTime){
-							$reservationArr['end'] = date('Y-n-j', $prevEndTime);
-						}
+				$StartDateModified = $Reservation->start_date->modify('-' . (int)$Reservation['shipping_days_before'] . ' Days');
+				$EndDateModified = $Reservation->end_date->modify('+' . (int)$Reservation['shipping_days_after'] . ' Days');
+
+				/*$reservationArr['start'] = $StartDateModified;
+				$reservationArr['end'] = $EndDateModified;
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'){
+					$nextStartDate = $StartDateModified->modify('+1 Days');
+					$prevEndDate = $EndDateModified->modify('-1 Days');
+					if ($nextStartDate <= $prevEndDate){
+						$reservationArr['start'] = $nextStartDate;
+						$reservationArr['end'] = $prevEndDate;
 					}
+				}*/
 
-				    $reservationArr['barcode'] = $iReservation['barcode_id'];//if barcode_id is null or 0 this means is quantity and check will be made with the total qty at some point.
-					$reservationArr['qty'] = 1;
+				if ($StartTimeFormatted == '0:00' || (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'True')){
+					$reservationArr['start'] = $StartDateModified;
+				}
+				else {
+					$reservationArr['start_time'] = $StartTimeFormatted;
+					$reservationArr['start_date'] = $StartDateFormatted;
+					$reservationArr['end_time'] = '23:59';
+					$reservationArr['end_date'] = $StartDateFormatted;
 
-					$reservArr[] = $reservationArr;
+					$nextStartDate = $StartDateModified->modify('+1 Days');
+					$prevEndTime = $EndDateModified->modify('-1 Days');
+					if ($nextStartDate <= $prevEndTime){
+						$reservationArr['start'] = $nextStartDate->format('Y-n-j');
+					}
+				}
+
+				if ($EndTimeFormatted == '0:00' || (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'True')){
+					$reservationArr['end'] = $EndDateModified;
+				}
+				else {
+					if (!isset($reservationArr['start_time'])){
+						$reservationArr['start_time'] = '0:00';
+					}
+					$reservationArr['start_date'] = $EndDateFormatted;
+					$reservationArr['end_time'] = $EndTimeFormatted;
+					$reservationArr['end_date'] = $EndDateFormatted;
+
+					$nextStartDate = $StartDateModified->modify('+1 Days');
+					$prevEndDate = $EndDateModified->modify('-1 Days');
+					if ($nextStartDate <= $prevEndDate){
+						$reservationArr['end'] = $prevEndDate->format('Y-n-j');
+					}
+				}
+
+				$reservationArr['barcode'] = $barcodeId; //if barcode_id is null or 0 this means is quantity and check will be made with the total qty at some point.
+				$reservationArr['qty'] = 1;
+
+				$reservArr[] = $reservationArr;
 			}
 		}
 
@@ -1805,7 +1790,7 @@ class ReservationUtilities {
 			$Result = $Qcheck->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			$returnVal = ($Result ? sizeof($Result) : 0);
 
-			EventManager::notify('ReservationCheckQueryAfterExecute', &$Result, $settings, &$returnVal);
+			EventManager::notify('ReservationCheckQueryAfterExecute', $Result, $settings, &$returnVal);
 		}
 		return $returnVal;
 	}

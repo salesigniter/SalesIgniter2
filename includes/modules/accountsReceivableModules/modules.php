@@ -323,11 +323,11 @@ class AccountsReceivableModule extends ModuleBase
 				}
 
 				if (file_exists($dInfo->getPathname() . '/convert/' . $this->getCode() . '.php')){
-					$Module = AccountsReceivableModules::getModule($dInfo->getBasename());
+					/*$Module = AccountsReceivableModules::getModule($dInfo->getBasename());
 					$this->convertTo[] = array(
 						'code'  => $Module->getCode(),
 						'title' => $Module->getTitle()
-					);
+					);*/
 				}
 			}
 		}

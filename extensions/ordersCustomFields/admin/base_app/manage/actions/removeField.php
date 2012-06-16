@@ -1,5 +1,6 @@
 <?php
-	$Field = Doctrine_Core::getTable('OrdersCustomFields')->findOneByFieldId((int)$_GET['field_id']);
+	$Field = Doctrine_Core::getTable('OrdersCustomFields')
+		->find((int)$_GET['field_id']);
 	if ($Field){
 		$Field->delete();
 		

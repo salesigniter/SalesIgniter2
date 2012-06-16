@@ -14,12 +14,14 @@
 class TemplateManagerWidgetCustomText extends TemplateManagerWidget
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $App;
 		$this->init('customText');
 	}
 
-	public function showLayoutPreview($WidgetSettings) {
+	public function showLayoutPreview($WidgetSettings)
+	{
 		global $appExtension;
 		$return = '';
 		$infoPageExt = $appExtension->getExtension('infoPages');
@@ -35,7 +37,8 @@ class TemplateManagerWidgetCustomText extends TemplateManagerWidget
 		return $return;
 	}
 
-	public function show() {
+	public function show()
+	{
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();
 		$htmlText = '';

@@ -106,7 +106,7 @@ class OrderAddress
 	 * @param null $arrayName
 	 * @return string
 	 */
-	private function getValue($key, $arrayName = null)
+	public function getValue($key, $arrayName = null)
 	{
 		if (is_null($arrayName) === false){
 			$Arr = $this->$arrayName;
@@ -291,6 +291,35 @@ class OrderAddress
 	public function getCountryId()
 	{
 		return $this->getValue('countries_id', 'Country');
+	}
+
+	/**
+	 * @param array $AddressInfo
+	 */
+	public function updateFromArray(array $AddressInfo)
+	{
+		foreach($AddressInfo as $k => $v){
+			$this->addressInfo[$k] = $v;
+		}
+
+		if (!empty($this->addressInfo['entry_country_id'])){
+			$Country = Doctrine_Query::create()
+				->from('Countries c')
+				->leftJoin('c.AddressFormat f')
+				->where('c.countries_id = ?', $this->addressInfo['entry_country_id'])
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			$this->Country = $Country[0];
+			$this->Format = $this->Country['AddressFormat'];
+		}
+
+		if (!empty($this->addressInfo['entry_zone_id'])){
+			$Zone = Doctrine_Query::create()
+				->from('Zones')
+				->where('zone_country_id = ?', $this->getCountryId())
+				->andWhere('zone_id = ?', $this->addressInfo['entry_zone_id'])
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			$this->Zone = $Zone[0];
+		}
 	}
 
 	/**

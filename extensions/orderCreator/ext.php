@@ -32,7 +32,7 @@ class Extension_orderCreator extends ExtensionBase {
 
 	public function SessionBeforeReadValue(&$value){
 		if (stristr($value, 'OrderCreator')){
-			$value = preg_replace('/OrderCreator\|(.*)(}}|N)/', '', $value) . '<br>';
+			$value = preg_replace('/OrderCreator\|(.*)(}}|N)/', '', $value);
 		}
 	}
 
@@ -49,67 +49,6 @@ class Extension_orderCreator extends ExtensionBase {
 	public function init(){
 		global $appExtension;
 		if ($this->isEnabled() === false) return;
-
-		EventManager::attachEvents(array(
-			'OrdersListingBeforeExecute',
-			'OrdersProductsReservationListingBeforeExecuteUtilities',
-			'OrderQueryBeforeExecute',
-			'ReservationCheckQueryBeforeExecute',
-			'ProductInventoryReportsListingQueryBeforeExecute',
-			'CustomerGroupsExportQueryBeforeExecute'
-
-		), null, $this);
-
-		if ($appExtension->isAdmin()){
-			EventManager::attachEvent('BoxCustomersAddLink', null, $this);
-		}
-	}
-
-	public function OrdersProductsReservationListingBeforeExecuteUtilities(&$Qorders){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('opr.is_estimate = ?', '0');
-		}
-	}
-
-	public function OrdersListingBeforeExecute(&$Qorders){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('o.orders_status != ?', sysConfig::get('ORDERS_STATUS_ESTIMATE_ID'));
-		}
-	}
-
-	public function OrderQueryBeforeExecute(&$Qorders){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('o.orders_status != ?', sysConfig::get('ORDERS_STATUS_ESTIMATE_ID'));
-		}
-	}
-
-	public function ReservationCheckQueryBeforeExecute(&$Qorders, $settings){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('is_estimate = ?', '0');
-		}
-	}
-
-	public function ProductInventoryReportsListingQueryBeforeExecute(&$Products){
-		if(!isset($_GET['isEstimate'])){
-			$Products->andWhere('opr.is_estimate = 0 or opr.is_estimate is null');
-		}
-	}
-
-	public function CustomerGroupsExportQueryBeforeExecute(&$Qorders){
-		if(!isset($_GET['isEstimate'])){
-			$Qorders->andWhere('o.orders_status != ?', sysConfig::get('ORDERS_STATUS_ESTIMATE_ID'));
-		}
-	}
-
-
-
-	public function BoxCustomersAddLink(&$contents){
-		if (sysPermissions::adminAccessAllowed('estimates', 'default','orderCreator') === true){
-			$contents['children'][] = array(
-				'link' => itw_app_link('appExt=orderCreator','estimates','default'),
-				'text' => 'Estimates'
-			);
-		}
 	}
 }
 ?>

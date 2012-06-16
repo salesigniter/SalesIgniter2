@@ -13,35 +13,41 @@ $PageKey = $InfoPage->page_key;
 $Pages = Doctrine_Core::getTable('Pages');
 $PagesDescription = Doctrine_Core::getTable('PagesDescription');
 
-$Page = $Pages->findOneByPageKey('<?php echo $InfoPage->page_key;?>');
+$Page = $Pages->findOneByPageKey('<?php echo $InfoPage->page_key; ?>');
 if (!$Page){
 $Page = $Pages->create();
 <?php
 foreach($Pages->getColumns() as $colName => $cInfo){
 	if (
 		$colName == 'pages_id'
-	) continue;
+	) {
+		continue;
+	}
 	?>
-$Page-><?php echo $colName;?> = '<?php echo $InfoPage->$colName;?>';
+$Page-><?php echo $colName; ?> = '<?php echo $InfoPage->$colName; ?>';
 <?php
-		}
+}
 ?>
 
 $PageDescription = $PagesDescription->create();
 <?php
 $Descriptions = $InfoPage->PagesDescription;
 foreach($Descriptions as $InfoPageDescription){
-	if ($InfoPageDescription->language_id != 1) continue;
+	if ($InfoPageDescription->language_id != 1) {
+		continue;
+	}
 
 	foreach($PagesDescription->getColumns() as $colName => $cInfo){
 		if (
 			$colName == 'pages_id' ||
 			$colName == 'id'
-		) continue;
+		) {
+			continue;
+		}
 		?>
-	$PageDescription-><?php echo $colName;?> = '<?php echo cleanString($InfoPageDescription->$colName);?>';
+	$PageDescription-><?php echo $colName; ?> = '<?php echo cleanString($InfoPageDescription->$colName); ?>';
 	<?php
- 			}
+	}
 }
 ?>
 

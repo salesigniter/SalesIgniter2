@@ -11,21 +11,22 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget {
+class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('categoryProductListing');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_CATEGORYPRODUCTLISTING'));
 	}
 
-	public function show(){
+	public function show()
+	{
 		global $ShoppingCart, $currencies;
 		$WidgetProperties = $this->getWidgetProperties();
 
 		$Qcategories = Doctrine_Core::getTable('Categories')
-			->findByParentId((int) $WidgetProperties->category_id);
+			->findByParentId((int)$WidgetProperties->category_id);
 		$catList = '<ul>';
 		foreach($Qcategories as $Category){
 			$catList .= '<li>';
@@ -52,7 +53,8 @@ class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget 
 						}
 					}
 					$catList .= '</ul>';
-				}else{
+				}
+				else {
 					$catList .= '<ul>';
 					foreach($Category->Children as $SubCategory){
 						$catList .= '<li>' .
@@ -73,4 +75,5 @@ class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget 
 		return $this->draw();
 	}
 }
+
 ?>

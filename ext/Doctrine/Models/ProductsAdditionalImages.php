@@ -29,9 +29,9 @@ class ProductsAdditionalImages extends Doctrine_Record {
 			'primary'       => true,
 			'autoincrement' => false
 		));
-		$this->hasColumn('file_name', 'string', 64, array(
+		$this->hasColumn('file_name', 'string', 255, array(
 			'type'          => 'string',
-			'length'        => 64,
+			'length'        => 255,
 			'fixed'         => false,
 			'primary'       => true,
 			'notnull'       => false,

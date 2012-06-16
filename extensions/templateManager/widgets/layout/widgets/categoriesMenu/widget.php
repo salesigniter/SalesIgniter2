@@ -14,12 +14,14 @@
 class TemplateManagerWidgetCategoriesMenu extends TemplateManagerWidget
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $App;
 		$this->init('categoriesMenu');
 	}
 
-	public function getCategories($parentId) {
+	public function getCategories($parentId)
+	{
 
 		$Qcategories = Doctrine_Query::create()
 			->select('c.categories_id, cd.categories_name, c.parent_id')
@@ -35,7 +37,8 @@ class TemplateManagerWidgetCategoriesMenu extends TemplateManagerWidget
 		return $Qcategories->execute(array(), Doctrine::HYDRATE_ARRAY);
 	}
 
-	public function buildStylesheet() {
+	public function buildStylesheet()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 		$idW = (isset($boxWidgetProperties->widgetId) ? $boxWidgetProperties->widgetId : 'menuCategories');
 		$css =
@@ -61,7 +64,8 @@ class TemplateManagerWidgetCategoriesMenu extends TemplateManagerWidget
 		return $css;
 	}
 
-	public function buildJavascript() {
+	public function buildJavascript()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 		ob_start();
 		?>
@@ -90,7 +94,8 @@ class TemplateManagerWidgetCategoriesMenu extends TemplateManagerWidget
 		return $javascript;
 	}
 
-	public function getChildCategories($parentCategoryId, $currentPath = '') {
+	public function getChildCategories($parentCategoryId, $currentPath = '')
+	{
 		if ($parentCategoryId === ''){
 			return null;
 		}
@@ -158,7 +163,8 @@ class TemplateManagerWidgetCategoriesMenu extends TemplateManagerWidget
 		}
 	}
 
-	public function show() {
+	public function show()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 
 		$excludedCategories = isset($boxWidgetProperties->excludedCategories) ? explode(';', $boxWidgetProperties->excludedCategories) : array();

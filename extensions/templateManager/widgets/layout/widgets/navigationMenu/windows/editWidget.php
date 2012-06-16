@@ -2,16 +2,16 @@
 ob_start();
 if (!isset($WidgetSettings->linked_to)){
 	$menuIcons = array(
-		'none' => '-- No Icon --',
+		'none'   => '-- No Icon --',
 		'jquery' => 'jQuery Icon',
 		'custom' => 'My Own Icon'
 	);
 
 	$menuItemConditions = array(
-		'' => '-- No Condition --',
-		'customer_logged_in' => 'Customer is logged in',
-		'customer_not_logged_in' => 'Customer is not logged in',
-		'shopping_cart_empty' => 'Shopping cart is empty',
+		''                        => '-- No Condition --',
+		'customer_logged_in'      => 'Customer is logged in',
+		'customer_not_logged_in'  => 'Customer is not logged in',
+		'shopping_cart_empty'     => 'Shopping cart is empty',
 		'shopping_cart_not_empty' => 'Shopping cart is not empty'
 	);
 
@@ -27,15 +27,15 @@ if (!isset($WidgetSettings->linked_to)){
 
 	$(document).ready(function () {
 		$('#navMenuTable').find('ol.sortable').nestedSortable({
-			disableNesting: 'no-nest',
-			forcePlaceholderSize: true,
-			handle: 'div',
-			items: 'li',
-			opacity: .6,
-			placeholder: 'placeholder',
-			tabSize: 25,
-			tolerance: 'pointer',
-			toleranceElement: '> div'
+			disableNesting       : 'no-nest',
+			forcePlaceholderSize : true,
+			handle               : 'div',
+			items                : 'li',
+			opacity              : .6,
+			placeholder          : 'placeholder',
+			tabSize              : 25,
+			tolerance            : 'pointer',
+			toleranceElement     : '> div'
 		});
 
 		$('#navMenuTable').find('.addMainBlock').click(function () {
@@ -101,11 +101,11 @@ if (!isset($WidgetSettings->linked_to)){
 
 			if ($(this).val() == 'jquery'){
 				$(this).parent().find('.menuItemIconSrc').selectmenu({
-					style: 'dropdown',
-					width: 60,
-					menuWidth: 60,
-					maxHeight: 300,
-					format: function (text) {
+					style     : 'dropdown',
+					width     : 60,
+					menuWidth : 60,
+					maxHeight : 300,
+					format    : function (text) {
 						return '<span class="ui-icon ' + text + '" style="position:relative;top:.5em;"></span>';
 					}
 				});
@@ -117,11 +117,11 @@ if (!isset($WidgetSettings->linked_to)){
 		});
 
 		$('select.menuItemIconSrc').selectmenu({
-			style: 'dropdown',
-			width: 60,
-			menuWidth: 60,
-			maxHeight: 300,
-			format: function (text) {
+			style     : 'dropdown',
+			width     : 60,
+			menuWidth : 60,
+			maxHeight : 300,
+			format    : function (text) {
 				return '<span class="ui-icon ' + text + '" style="position:relative;top:.5em;"></span>';
 			}
 		});
@@ -179,8 +179,7 @@ if (!isset($WidgetSettings->linked_to)){
 		margin-right : .5em;
 	}
 </style>
-				<?php
-
+<?php
 }
 $editTable = htmlBase::newElement('table')
 	->setId('navMenuTable')
@@ -200,10 +199,10 @@ $editTable->addBodyRow(array(
 ));
 
 $editTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => '<input type="checkbox" name="force_fit" value="true"' . (isset($WidgetSettings->forceFit) && $WidgetSettings->forceFit == 'true' ? ' checked=checked' : '') . '> Expand To Fit Container')
-		)
-	));
+	'columns' => array(
+		array('text' => '<input type="checkbox" name="force_fit" value="true"' . (isset($WidgetSettings->forceFit) && $WidgetSettings->forceFit == 'true' ? ' checked=checked' : '') . '> Expand To Fit Container')
+	)
+));
 
 $LinkToSelect = htmlBase::newElement('selectbox')
 	->setName('linked_to')
@@ -231,19 +230,19 @@ if ($NavMenus && $NavMenus->count() > 0){
 			$mInfo->widget_id,
 			$Container->Layout->Template->Configuration['NAME']->configuration_value .
 				' >> ' .
-			$Container->Layout->layout_name .
-			' (' . $Container->Layout->layout_type . ')' .
+				$Container->Layout->layout_name .
+				' (' . $Container->Layout->layout_type . ')' .
 				' >> ' .
-			$settings->menuId
+				$settings->menuId
 		);
 	}
 }
 
 $editTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => 'Link With Other Navigation Menu: <br>' . $LinkToSelect->draw())
-		)
-	));
+	'columns' => array(
+		array('text' => 'Link With Other Navigation Menu: <br>' . $LinkToSelect->draw())
+	)
+));
 
 if (!isset($WidgetSettings->linked_to)){
 	$editTable->addBodyRow(array(
@@ -252,7 +251,8 @@ if (!isset($WidgetSettings->linked_to)){
 		)
 	));
 
-	function parseMenuItem($item, &$i) {
+	function parseMenuItem($item, &$i)
+	{
 		global $AppArray, $CatArr, $menuIcons, $menuLinkTypes, $jqueryIcons, $menuItemConditions, $menuLinkTargets, $template;
 
 		$baseInputName = 'menu_item_link[' . $i . ']';

@@ -14,7 +14,8 @@
 class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $App;
 		$this->init('navigationMenu');
 		$this->firstAdded = false;
@@ -22,7 +23,8 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = true;
 	}
 
-	public function showLayoutPreview($WidgetSettings) {
+	public function showLayoutPreview($WidgetSettings)
+	{
 		$return = '';
 		if (isset($WidgetSettings['settings']->menuSettings) && !empty($WidgetSettings['settings']->menuSettings)){
 			$menuItems = '';
@@ -40,13 +42,15 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 				$menuItems .= '<span style="' . $css . '">' . $Text . '</span>';
 			}
 			$return = $menuItems;
-		}else{
+		}
+		else {
 			$return = $this->getTitle();
 		}
 		return $return;
 	}
 
-	private function checkCondition($condition){
+	private function checkCondition($condition)
+	{
 		global $ShoppingCart, $userAccount;
 		switch($condition){
 			case 'customer_logged_in':
@@ -73,7 +77,8 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return true;
 	}
 
-	private function parseMenuItem($item, $isRoot = false, $isLast = false) {
+	private function parseMenuItem($item, $isRoot = false, $isLast = false)
+	{
 		global $appExtension;
 		if (isset($item->link->condition) && $this->checkCondition($item->link->condition) === false){
 			return '';
@@ -129,10 +134,10 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 				$addCls .= ' ui-state-active';
 			}
 		}
-		elseif (isset($application) && $App->getAppName() == $application && $App->getPageName() == $Data->app->page){
+		elseif (isset($application) && $App->getAppName() == $application && $App->getPageName() == $Data->app->page) {
 			$addCls .= ' ui-state-active';
 		}
-		elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $Data->app->page){
+		elseif (isset($application) && $App->getAppName() == $application && isset($_GET['appPage']) && $_GET['appPage'] == $Data->app->page) {
 			if ($application != 'index' || ($application == 'index' && !isset($_GET['cPath']))){
 				$addCls .= ' ui-state-active';
 			}
@@ -156,7 +161,8 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return $itemTemplate;
 	}
 
-	public function buildStylesheet() {
+	public function buildStylesheet()
+	{
 		$css = '/* Navigation Menu --BEGIN-- */' . "\n" .
 			'.ui-navigation-menu { position:relative;background-color:transparent;border: none;line-height:inherit;font-size:inherit; }' . "\n" .
 			'.ui-navigation-menu ol { background-color:transparent;list-style:none;padding:0;margin:0;border:none;line-height:inherit;z-index: 100; }' . "\n" .
@@ -184,16 +190,17 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return $css;
 	}
 
-	public function buildJavascript() {
+	public function buildJavascript()
+	{
 		$WidgetProperties = $this->loadLinkedSettings($this->getWidgetProperties());
 
 		ob_start();
 		?>
-		$(document).ready(function (){
+	$(document).ready(function (){
 	$('#<?php echo $WidgetProperties->menuId; ?>.ui-navigation-menu').each(function (){
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
-		var Roots = [];
-		<?php } ?>
+	var Roots = [];
+	<?php } ?>
 	$(this).find('li').each(function (){
 	$(this).addClass('ui-state-default');
 	$(this).mouseover(function (){
@@ -245,32 +252,32 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 	}
 
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
-		if ($(this).hasClass('root')){
-		Roots.push(this);
-		}
-		<?php } ?>
+	if ($(this).hasClass('root')){
+	Roots.push(this);
+	}
+	<?php } ?>
 	});
 
 	<?php if ($WidgetProperties->forceFit == 'true'){ ?>
-		var numRoots = Roots.length;
-		var totalWidth = $(Roots[0]).parent().parent().width();
-		var RootsWidth = 0;
-		$.each(Roots, function (i, el){
-		RootsWidth += $(this).outerWidth(true);
-		});
-
-		var totalSpace = totalWidth - RootsWidth;
-		var newPadding = (totalSpace / numRoots);
-		$.each(Roots, function (i, el){
-		$(this).css({
-		width: $(this).innerWidth() + Math.floor(newPadding) + 'px'
-		});
-		});
-		<?php } ?>
+	var numRoots = Roots.length;
+	var totalWidth = $(Roots[0]).parent().parent().width();
+	var RootsWidth = 0;
+	$.each(Roots, function (i, el){
+	RootsWidth += $(this).outerWidth(true);
 	});
-		});
+
+	var totalSpace = totalWidth - RootsWidth;
+	var newPadding = (totalSpace / numRoots);
+	$.each(Roots, function (i, el){
+	$(this).css({
+	width: $(this).innerWidth() + Math.floor(newPadding) + 'px'
+	});
+	});
+	<?php } ?>
+	});
+	});
 	<?php
- 		$javascript = '/* Navigation Menu --BEGIN-- */' . "\n" .
+		$javascript = '/* Navigation Menu --BEGIN-- */' . "\n" .
 			ob_get_contents();
 		'/* Navigation Menu --END-- */' . "\n";
 		ob_end_clean();
@@ -278,7 +285,8 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return $javascript;
 	}
 
-	function loadLinkedSettings($WidgetProperties) {
+	function loadLinkedSettings($WidgetProperties)
+	{
 		if (isset($WidgetProperties->linked_to)){
 			$Qsettings = Doctrine_Query::create()
 				->select('configuration_value')
@@ -292,7 +300,8 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return $WidgetProperties;
 	}
 
-	public function show() {
+	public function show()
+	{
 		$WidgetProperties = $this->loadLinkedSettings($this->getWidgetProperties());
 
 		$menuItems = '';

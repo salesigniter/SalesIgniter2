@@ -20,7 +20,7 @@ class ProductsPayPerPeriods extends Doctrine_Record {
 			'local' => 'products_id',
 			'foreign' => 'products_id'
 		));
-		$this->hasOne('PayPerRentalPeriods', array(
+		$this->hasOne('PayPerRentalPeriods as Period', array(
 			'local' => 'period_id',
 			'foreign' => 'period_id'
 		));

@@ -11,24 +11,25 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetTopRentals extends TemplateManagerWidget {
+class TemplateManagerWidgetTopRentals extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('topRentals');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_TOPRENTALS'));
 	}
 
-	public function show(){
+	public function show()
+	{
 
 		$datePast = date('Y-m-d H:i:s', mktime(0,
-							  	    0,
-								    0,
-									date("m")-2,
-									date("d"),
-									date("Y")
-							)
+				0,
+				0,
+				date("m") - 2,
+				date("d"),
+				date("Y")
+			)
 		);
 
 		$Qproduct = Doctrine_Query::create()
@@ -45,20 +46,21 @@ class TemplateManagerWidgetTopRentals extends TemplateManagerWidget {
 
 		$rows = 0;
 		$boxContent = '<table border="0" width="100%" cellspacing="0" cellpadding="1">';
-		if($Qproduct){
-			foreach ($Qproduct as $tInfo) {							
+		if ($Qproduct){
+			foreach($Qproduct as $tInfo){
 				$rows++;
 				$boxContent .= '<tr>
 									<td class="infoBoxContents" valign="top">' .
-										'<a href="' . itw_app_link('products_id=' . $tInfo['products_id'], 'product', 'info') . '">' . tep_row_number_format($rows) . '. ' . $tInfo['ProductsDescription'][0]['products_name'] . '</a>
+					'<a href="' . itw_app_link('products_id=' . $tInfo['products_id'], 'product', 'info') . '">' . tep_row_number_format($rows) . '. ' . $tInfo['ProductsDescription'][0]['products_name'] . '</a>
 									</td>
 								</tr>';
 			}
 		}
-			$boxContent .= '</table>';
-			$this->setBoxContent($boxContent);
-			
+		$boxContent .= '</table>';
+		$this->setBoxContent($boxContent);
+
 		return $this->draw();
 	}
 }
+
 ?>

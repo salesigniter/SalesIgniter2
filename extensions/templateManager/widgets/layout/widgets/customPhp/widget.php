@@ -11,24 +11,28 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetCustomPhp extends TemplateManagerWidget {
+class TemplateManagerWidgetCustomPhp extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('customPhp');
 	}
 
-	public function show(){
-			global $appExtension, $shoppingCart;
-			$boxWidgetProperties = $this->getWidgetProperties();
-			$htmlCode = $boxWidgetProperties->php_text;
+	public function show()
+	{
+		global $appExtension, $shoppingCart;
+		$boxWidgetProperties = $this->getWidgetProperties();
+		$htmlCode = $boxWidgetProperties->php_text;
 
-			ob_start();
-			eval("?>".$htmlCode);
-			$htmlText = ob_get_contents();
-			ob_end_clean();
-			$this->setBoxContent($htmlText);
-			return $this->draw();
+		ob_start();
+		eval("?>" . $htmlCode);
+		$htmlText = ob_get_contents();
+		ob_end_clean();
+		$this->setBoxContent($htmlText);
+		return $this->draw();
 	}
 }
+
 ?>

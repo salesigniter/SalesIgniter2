@@ -179,7 +179,8 @@ $editTable->addBodyRow(array(
 	)
 ));
 
-function parseImages($images, &$i) {
+function parseImages($images, &$i)
+{
 	$ItemTemplates = array();
 	foreach($images as $iInfo){
 		$Tabs = htmlBase::newElement('tabs');
@@ -251,7 +252,8 @@ function parseImages($images, &$i) {
 	return implode('', $ItemTemplates);
 }
 
-function parseImage($item, &$i) {
+function parseImage($item, &$i)
+{
 	global $AppArray, $CatArr, $LinkTypes, $LinkTargets, $template;
 }
 

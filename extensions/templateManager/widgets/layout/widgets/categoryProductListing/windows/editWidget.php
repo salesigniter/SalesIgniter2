@@ -27,15 +27,15 @@ $MaxProducts = htmlBase::newElement('input')
 
 $WhenMaxProducts = htmlBase::newElement('radio')
 	->addGroup(array(
-		'name' => 'when_max_products',
-		'checked' => $WhenMaxVal,
-		'labelPosition' => 'after',
-		'separator' => '<br>',
-		'data' => array(
-			array('value' => 'show_sub', 'label' => 'Show Sub Categories'),
-			array('value' => 'limit_products', 'label' => 'Show Products Up To Max')
-		)
-	));
+	'name'          => 'when_max_products',
+	'checked'       => $WhenMaxVal,
+	'labelPosition' => 'after',
+	'separator'     => '<br>',
+	'data'          => array(
+		array('value' => 'show_sub', 'label' => 'Show Sub Categories'),
+		array('value' => 'limit_products', 'label' => 'Show Products Up To Max')
+	)
+));
 
 $WidgetSettingsTable->addBodyRow(array(
 	'columns' => array(

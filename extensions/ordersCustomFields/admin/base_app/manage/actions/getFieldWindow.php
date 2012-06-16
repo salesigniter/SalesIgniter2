@@ -22,7 +22,7 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 		->setName('field_name[' . $langId . ']');
 
 	if ($Field->Description->count() > 0){
-		$fieldNameInput->setValue($Field->Description[$langId]['field_name']);
+		$fieldNameInput->setValue($Field->Description[$langId]->field_name);
 	}
 
 	$fieldNames->addBodyRow(array(
@@ -39,8 +39,8 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	));
 }
 
-$sortOrder = htmlBase::newElement('input')->setName('sort_order');
-$sortOrder->setValue($Field->sort_order);
+$displayOrder = htmlBase::newElement('input')->setName('display_order');
+$displayOrder->setValue($Field->display_order);
 $requiredCheckbox = htmlBase::newElement('checkbox')
 	->setName('input_required')
 	->setChecked(($Field->input_required == 1));
@@ -65,15 +65,23 @@ $selectInputOptions = htmlBase::newElement('table')
 
 $lId = Session::get('languages_id');
 foreach($Field->Options as $i => $Option){
-	$nameInput = htmlBase::newElement('input')->addClass('text')->setType('text')->setName('option_name[' . $i . ']');
-	$sortInput = htmlBase::newElement('input')->addClass('sort')->setType('hidden')->setName('option_sort[' . $i . ']');
-	$dataInput = htmlBase::newElement('input')->addClass('data')->setType('hidden')->setName('option_data[' . $i . ']');
+	$nameInput = htmlBase::newElement('input')
+		->addClass('text')
+		->setType('text')
+		->setName('option_name[' . $i . ']')
+		->setValue($Option->Option->Description[$lId]->option_name);
 
-	$Option = $Option->Option;
+	$sortInput = htmlBase::newElement('input')
+		->addClass('sort')
+		->setType('hidden')
+		->setName('option_sort[' . $i . ']')
+		->setValue($Option->display_order);
 
-	$nameInput->setValue($Option->Description[$lId]->option_name);
-	$sortInput->setValue($Option->sort_order);
-	$dataInput->setValue(urlencode($Option->extra_data));
+	$dataInput = htmlBase::newElement('input')
+		->addClass('data')
+		->setType('hidden')
+		->setName('option_data[' . $i . ']')
+		->setValue(urlencode($Option->Option->extra_data));
 
 	$selectInputOptions->addBodyRow(array(
 		'rowAttr' => array(
@@ -114,7 +122,10 @@ if ($Field->input_type != 'select' && $Field->input_type != 'select_other' && $F
 	$optionsWrapper->css('display', 'none');
 }
 
-$finalTable = htmlBase::newElement('table')->setCellPadding('3')->setCellSpacing('0')->css('width', '100%');
+$finalTable = htmlBase::newElement('table')
+	->setCellPadding('3')
+	->setCellSpacing('0')
+	->css('width', '100%');
 
 if ($Field->field_id > 0){
 	$finalTable->attr('field_id', $Field->field_id);

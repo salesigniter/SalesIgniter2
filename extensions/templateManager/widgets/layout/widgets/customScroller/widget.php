@@ -16,7 +16,8 @@ abstract class InfoBoxCustomScrollerAbstract
 
 	abstract function show();
 
-	public function buildPrevButton($image) {
+	public function buildPrevButton($image)
+	{
 		$imgInfo = getimagesize(sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $image);
 		return htmlBase::newElement('image')
 			->addClass('scrollerPrevImage')
@@ -25,7 +26,8 @@ abstract class InfoBoxCustomScrollerAbstract
 			->setSource($image);
 	}
 
-	public function buildNextButton($image) {
+	public function buildNextButton($image)
+	{
 		$imgInfo = getimagesize(sysConfig::get('DIR_FS_DOCUMENT_ROOT') . $image);
 		return htmlBase::newElement('image')
 			->addClass('scrollerNextImage')
@@ -34,11 +36,12 @@ abstract class InfoBoxCustomScrollerAbstract
 			->setSource($image);
 	}
 
-	public function buildList($products, $cInfo) {
-		$numOfLists = isset($cInfo->rows)?$cInfo->rows:1;
+	public function buildList($products, $cInfo)
+	{
+		$numOfLists = isset($cInfo->rows) ? $cInfo->rows : 1;
 
 		$Lists = array();
-		for($i=0; $i<$numOfLists; $i++){
+		for($i = 0; $i < $numOfLists; $i++){
 			$Lists[] = htmlBase::newElement('ul')->addClass('scrollerList');
 		}
 
@@ -101,21 +104,23 @@ abstract class InfoBoxCustomScrollerAbstract
 		return $ListContainer;
 	}
 
-    public function getAllSubCategories($categoriesId, &$categoriesArray){
-        $Categories = Doctrine_Query::create()
-            ->select('categories_id')
-            ->from('Categories')
-            ->where('parent_id = ?', $categoriesId)
-            ->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-        if (!empty($Categories)) {
-            foreach($Categories as $catInfo){
-                $categoriesArray[] = $catInfo['categories_id'];
-                $this->getAllSubCategories($catInfo['categories_id'],$categoriesArray);
-            }
-        }
-    }
+	public function getAllSubCategories($categoriesId, &$categoriesArray)
+	{
+		$Categories = Doctrine_Query::create()
+			->select('categories_id')
+			->from('Categories')
+			->where('parent_id = ?', $categoriesId)
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		if (!empty($Categories)){
+			foreach($Categories as $catInfo){
+				$categoriesArray[] = $catInfo['categories_id'];
+				$this->getAllSubCategories($catInfo['categories_id'], $categoriesArray);
+			}
+		}
+	}
 
-	public function getQueryResults($queryType, $queryLimit, $selectedCategory = 0) {
+	public function getQueryResults($queryType, $queryLimit, $selectedCategory = 0)
+	{
 		$Query = Doctrine_Query::create()
 			->select('p.products_id, p.products_image, pd.products_name')
 			->from('Products p')
@@ -138,18 +143,18 @@ abstract class InfoBoxCustomScrollerAbstract
 				$Query->andWhere('p.products_featured = ?', '1');
 				EventManager::notify('ScrollerFeaturedQueryBeforeExecute', &$Query);
 				break;
-            case 'category_featured':
-                $catsArray = array($selectedCategory);
-                $this->getAllSubCategories($selectedCategory, $catsArray);
+			case 'category_featured':
+				$catsArray = array($selectedCategory);
+				$this->getAllSubCategories($selectedCategory, $catsArray);
 
-                $Query->andWhere('p.products_featured = ?', '1')
-                        ->leftJoin('p.ProductsToCategories p2c')
-                        //->leftJoin('p2c.Categories c')
-                        ->andWhere('p2c.categories_id in (' . implode(',',$catsArray) . ')');//, '"' . array(implode(',',$catsArray) . '"'));
+				$Query->andWhere('p.products_featured = ?', '1')
+					->leftJoin('p.ProductsToCategories p2c')
+				//->leftJoin('p2c.Categories c')
+					->andWhere('p2c.categories_id in (' . implode(',', $catsArray) . ')');
+				//, '"' . array(implode(',',$catsArray) . '"'));
 
-
-                EventManager::notify('ScrollerFeaturedQueryBeforeExecute', &$Query);
-                break;
+				EventManager::notify('ScrollerFeaturedQueryBeforeExecute', &$Query);
+				break;
 			case 'new_products':
 				$Query->orderBy('p.products_date_added desc, pd.products_name asc');
 
@@ -162,7 +167,7 @@ abstract class InfoBoxCustomScrollerAbstract
 				EventManager::notify('ScrollerSpecialsQueryBeforeExecute', &$Query);
 				break;
 			case 'related':
-				global $current_product_id;				
+				global $current_product_id;
 				EventManager::notify('ScrollerRelatedQueryBeforeExecute', &$Query);
 				break;
 			case 'category':
@@ -182,21 +187,23 @@ abstract class InfoBoxCustomScrollerAbstract
 class InfoBoxCustomScrollerStack extends InfoBoxCustomScrollerAbstract
 {
 
-	public function __construct($scrollers) {
+	public function __construct($scrollers)
+	{
 		$this->Scrollers = $scrollers;
 		$this->ScrollersConfig = $scrollers->configs;
 	}
 
-	public function show() {
+	public function show()
+	{
 		$ScrollInterface = htmlBase::newElement('div')
 			->addClass('scrollBoxesStackedContainer');
 
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category)?$cInfo->selected_category:''));
-			
-			if (!empty($Results)) {
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category) ? $cInfo->selected_category : ''));
+
+			if (!empty($Results)){
 				$ProductsList = $this->buildList($Results, $cInfo);
 
 				$Scoller = htmlBase::newElement('div')
@@ -216,12 +223,14 @@ class InfoBoxCustomScrollerStack extends InfoBoxCustomScrollerAbstract
 class InfoBoxCustomScrollerTabs extends InfoBoxCustomScrollerAbstract
 {
 
-	public function __construct($scrollers) {
+	public function __construct($scrollers)
+	{
 		$this->Scrollers = $scrollers;
 		$this->ScrollersConfig = $scrollers->configs;
 	}
 
-	public function show() {
+	public function show()
+	{
 		$ScrollInterface = htmlBase::newElement('div')
 			->addClass('scrollBoxesTabsContainer');
 
@@ -229,7 +238,7 @@ class InfoBoxCustomScrollerTabs extends InfoBoxCustomScrollerAbstract
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category)?$cInfo->selected_category:''));
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, (isset($cInfo->selected_category) ? $cInfo->selected_category : ''));
 			$ProductsList = $this->buildList($Results, $cInfo);
 
 			$Scoller = htmlBase::newElement('div')
@@ -251,12 +260,14 @@ class InfoBoxCustomScrollerTabs extends InfoBoxCustomScrollerAbstract
 class InfoBoxCustomScrollerButtons extends InfoBoxCustomScrollerAbstract
 {
 
-	public function __construct($scrollers) {
+	public function __construct($scrollers)
+	{
 		$this->Scrollers = $scrollers;
 		$this->ScrollersConfig = $scrollers->configs;
 	}
 
-	public function show() {
+	public function show()
+	{
 		$ScrollInterface = htmlBase::newElement('div')
 			->addClass('scrollBoxesButtonsContainer');
 
@@ -265,7 +276,7 @@ class InfoBoxCustomScrollerButtons extends InfoBoxCustomScrollerAbstract
 		foreach($this->ScrollersConfig as $i => $cInfo){
 			$PrevButton = $this->buildPrevButton($cInfo->prev_image);
 			$NextButton = $this->buildNextButton($cInfo->next_image);
-			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, isset($cInfo->selected_category)?$cInfo->selected_category:'');
+			$Results = $this->getQueryResults($cInfo->query, $cInfo->query_limit, isset($cInfo->selected_category) ? $cInfo->selected_category : '');
 			$ProductsList = $this->buildList($Results, $cInfo);
 
 			$uniquePageNum = floor(time() / ($i + 1));
@@ -287,7 +298,8 @@ class InfoBoxCustomScrollerButtons extends InfoBoxCustomScrollerAbstract
 		return $ScrollInterface->draw();
 	}
 
-	public static function buildJavascript() {
+	public static function buildJavascript()
+	{
 		$javascript = '' . "\n" .
 			'	$(\'.scrollBoxButtonsContent\').each(function (){' . "\n" .
 			'		$(this).bind(\'scrollerReady\', function (){' . "\n" .
@@ -334,7 +346,8 @@ class InfoBoxCustomScrollerButtons extends InfoBoxCustomScrollerAbstract
 class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $App;
 		$this->init('customScroller');
 		$this->firstAdded = false;
@@ -342,7 +355,8 @@ class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = false;
 	}
 
-	public function show() {
+	public function show()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 
 		$className = 'InfoBoxCustomScroller' . ucfirst($boxWidgetProperties->scrollers->type);
@@ -351,7 +365,8 @@ class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 		return $this->draw();
 	}
 
-	public function buildStylesheet() {
+	public function buildStylesheet()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 
 		$css = '/* Custom Scroller --BEGIN-- */' . "\n" .
@@ -418,7 +433,7 @@ class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 			'text-align: center;' .
 			'margin-top: 1em;' .
 			' }' . "\n" .
-			'.scrollerReflectImage img, .scrollerReflectImage canvas { display:block;margin-right:auto;margin-left:auto; }' . 
+			'.scrollerReflectImage img, .scrollerReflectImage canvas { display:block;margin-right:auto;margin-left:auto; }' .
 			'/* Custom Scroller --END-- */' . "\n";
 
 		$className = 'InfoBoxCustomScroller' . ucfirst($boxWidgetProperties->scrollers->type);
@@ -429,108 +444,110 @@ class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 		return $css;
 	}
 
-	public function buildJavascript() {
+	public function buildJavascript()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
-		$autostart = isset($boxWidgetProperties->scrollers->autostart)?(($boxWidgetProperties->scrollers->autostart == 'autostart')?true:false):true;
+		$autostart = isset($boxWidgetProperties->scrollers->autostart) ? (($boxWidgetProperties->scrollers->autostart == 'autostart') ? true : false) : true;
 		$javascript = '';
 		$className = 'InfoBoxCustomScroller' . ucfirst($boxWidgetProperties->scrollers->type);
 		if (method_exists($className, 'buildJavascript')){
 			$javascript .= $className::buildJavascript();
 		}
 		ob_start();
-?>
+		?>
 
-			$('.scrollBoxesStackedContainer, .scrollBoxesTabsContainer, .scrollBoxesButtonsContainer').each(function (){
-				var $Container = $(this);
+	$('.scrollBoxesStackedContainer, .scrollBoxesTabsContainer, .scrollBoxesButtonsContainer').each(function (){
+	var $Container = $(this);
 
-				$Container.find('.scrollBoxStacked, .scrollBoxTabContent, .scrollBoxButtonsContent').each(function (){
-					var $Scroller = $(this);
-					var $ListContainer = $Scroller.find('.scrollerListContainer');
-					var $PrevButton = $Scroller.find('.scrollerPrevImage');
-					var $NextButton = $Scroller.find('.scrollerNextImage');
-					var PrevLoaded = false;
-					var NextLoaded = false;
+	$Container.find('.scrollBoxStacked, .scrollBoxTabContent, .scrollBoxButtonsContent').each(function (){
+	var $Scroller = $(this);
+	var $ListContainer = $Scroller.find('.scrollerListContainer');
+	var $PrevButton = $Scroller.find('.scrollerPrevImage');
+	var $NextButton = $Scroller.find('.scrollerNextImage');
+	var PrevLoaded = false;
+	var NextLoaded = false;
 
-					var ContainerWidth = parseInt($Scroller.innerWidth());
-					var PrevButtonWidth = parseInt($PrevButton.data('width'));
-					var NextButtonWidth = parseInt($NextButton.data('width'));
+	var ContainerWidth = parseInt($Scroller.innerWidth());
+	var PrevButtonWidth = parseInt($PrevButton.data('width'));
+	var NextButtonWidth = parseInt($NextButton.data('width'));
 
-					var ListWidth = ContainerWidth - PrevButtonWidth - NextButtonWidth - 10;
-					$ListContainer.width(ListWidth + 'px');
+	var ListWidth = ContainerWidth - PrevButtonWidth - NextButtonWidth - 10;
+	$ListContainer.width(ListWidth + 'px');
 
-					var maxOffset;
-					
-					//Calculate actual width of scroll elements
-					var blocksWidth = 0;
-					$ListContainer.find('.scrollerList li').each(function(){
-						blocksWidth += $(this).outerWidth(true);
-					});
-					$Scroller.data('maxOffset', -blocksWidth);
+	var maxOffset;
 
-					$ListContainer.find('.scrollerReflectImage').reflect();
+	//Calculate actual width of scroll elements
+	var blocksWidth = 0;
+	$ListContainer.find('.scrollerList li').each(function(){
+	blocksWidth += $(this).outerWidth(true);
+	});
+	$Scroller.data('maxOffset', -blocksWidth);
 
-					$Scroller.trigger('scrollerReady');
+	$ListContainer.find('.scrollerReflectImage').reflect();
+
+	$Scroller.trigger('scrollerReady');
 
 
-					var listOffset = 0;
+	var listOffset = 0;
 
-					
-					function scrollPrev(){
-						if (listOffset == 0) return false;
 
-							listOffset += $ListContainer.outerWidth();
-							$ListContainer.find('ul').animate({
-								left: listOffset
-							});
-							
-						return true;
-					}
-					
-					function scrollNext(){					
-						if ((listOffset - $ListContainer.outerWidth()) < $Scroller.data('maxOffset')) return false;
+	function scrollPrev(){
+	if (listOffset == 0) return false;
 
-						listOffset -= $ListContainer.outerWidth();
+	listOffset += $ListContainer.outerWidth();
+	$ListContainer.find('ul').animate({
+	left: listOffset
+	});
 
-						$ListContainer.find('ul').animate({
-							left: listOffset
-						});
-						
-						return true;
-					}
-					
+	return true;
+	}
 
-					$PrevButton.click(function (){
-						scrollPrev();
-					});
-					
-					$NextButton.click(function (){
-						scrollNext();
-					});					
-					
-					//Autoscroll
-					var autoScrollNext = true;									
-					
-					function scroll(){
-						if (autoScrollNext===true) {
-							if (!scrollNext()) {
-								autoScrollNext = false;
-							}
-						} 
-						
-						
-						if (!autoScrollNext) {
-							if (!scrollPrev()) {
-								autoScrollNext = true;
-								scrollNext();
-							}
-						}
-						
-					}
+	function scrollNext(){
+	if ((listOffset - $ListContainer.outerWidth()) < $Scroller.data('maxOffset')) return false;
+
+	listOffset -= $ListContainer.outerWidth();
+
+	$ListContainer.find('ul').animate({
+	left: listOffset
+	});
+
+	return true;
+	}
+
+
+	$PrevButton.click(function (){
+	scrollPrev();
+	});
+
+	$NextButton.click(function (){
+	scrollNext();
+	});
+
+	//Autoscroll
+	var autoScrollNext = true;
+
+	function scroll(){
+	if (autoScrollNext===true) {
+	if (!scrollNext()) {
+	autoScrollNext = false;
+	}
+	}
+
+
+	if (!autoScrollNext) {
+	if (!scrollPrev()) {
+	autoScrollNext = true;
+	scrollNext();
+	}
+	}
+
+	}
 
 	<?php
-  		            if($autostart){
+		if ($autostart){
 			echo 'var autoscroll_interval = 10000;';
-		}else{
+		}
+		else {
 			echo 'var autoscroll_interval = 0;';
 		}
 		?>
@@ -546,13 +563,13 @@ class TemplateManagerWidgetCustomScroller extends TemplateManagerWidget
 	}
 	);
 	}
-					
-				});
+
+	});
 
 	$Container.trigger('containerReady');
 	});
 
-<?php
+	<?php
 		$javascriptSource = ob_get_contents();
 		ob_end_clean();
 

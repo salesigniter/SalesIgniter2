@@ -15,7 +15,7 @@ class OrderCreatorProduct extends OrderProduct
 	/**
 	 * @var
 	 */
-	private $ProductTypeClass;
+	protected $ProductTypeClass;
 
 	/**
 	 * @var bool

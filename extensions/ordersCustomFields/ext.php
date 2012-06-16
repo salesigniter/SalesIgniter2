@@ -32,14 +32,17 @@ class Extension_ordersCustomFields extends ExtensionBase {
 		), null, $this);
 	}
 
-	public function getFields(){
-		$Qfields = Doctrine_Query::create()
+	public function getFields($options = array()){
+		$Fields = Doctrine_Query::create()
 			->from('OrdersCustomFields f')
 			->leftJoin('f.Description fd')
 			->where('fd.language_id = ?', Session::get('languages_id'))
-			->orderBy('sort_order')
-			->execute();
-		return $Qfields;
+			->orderBy('display_order');
+
+		if (isset($options['type'])){
+			$Fields->andWhere('f.input_type = ?', $options['type']);
+		}
+		return $Fields->execute();
 	}
 
 	public function getFieldHtml(OrdersCustomFields $Field, Order $Order = null){
@@ -155,29 +158,20 @@ class Extension_ordersCustomFields extends ExtensionBase {
 	}
 
 	public function getCustomFieldByType($type){
-		$Qfields = Doctrine_Query::create()
-			->select('f.field_id, f.input_type, f.input_required, fd.field_name')
-			->from('OrdersCustomFields f')
-			->leftJoin('f.OrdersCustomFieldsDescription fd')
-			->where('fd.language_id = ?', Session::get('languages_id'))
-			->andWhere('f.input_type = ?', $type)
-			->execute();
-		return $Qfields[0];
+		$Field = $this->getFields(array(
+			'type' => $type
+		));
+		return $Field[0];
 	}
 	
 	public function CheckoutAddBlock(){
-		$Qfields = Doctrine_Query::create()
-		->select('f.field_id, f.input_type, f.input_required, fd.field_name')
-		->from('OrdersCustomFields f')
-		->leftJoin('f.OrdersCustomFieldsDescription fd')
-		->where('fd.language_id = ?', Session::get('languages_id'))
-		->execute();
+		$Fields = $this->getFields();
 		if ($Qfields->count() > 0){
-			foreach($Qfields->toArray(true) as $fInfo){
-				$fieldId = $fInfo['field_id'];
-				$fieldType = $fInfo['input_type'];
-				$fieldName = $fInfo['OrdersCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
-				$fieldRequired = ($fInfo['input_required'] == 1);
+			foreach($Fields as $Field){
+				$fieldId = $Field->field_id;
+				$fieldType = $Field->input_type;
+				$fieldName = $Field->Description[Session::get('languages_id')]->field_name;
+				$fieldRequired = ($Field->input_required == 1);
 			
 				$input = '';
 				switch($fieldType){
@@ -186,20 +180,12 @@ class Extension_ordersCustomFields extends ExtensionBase {
 						$oArr = array();
 					
 						$input = htmlBase::newElement('selectbox');
-						
-						$Qoptions = Doctrine_Query::create()
-						->select('o.option_id, od.option_name')
-						->from('OrdersCustomFieldsOptions o')
-						->leftJoin('o.OrdersCustomFieldsOptionsDescription od')
-						->leftJoin('o.OrdersCustomFieldsOptionsToFields o2f')
-						->where('o2f.field_id = ?', $fieldId)
-						->orderBy('sort_order')
-						->execute();
-						if ($Qoptions->count()){
-							foreach($Qoptions->toArray(true) as $option){
+
+						if ($Field->Options && $Field->Options->count()){
+							foreach($Field->Options as $Option){
 								$input->addOption(
-									$option['OrdersCustomFieldsOptionsDescription'][Session::get('languages_id')]['option_name'],
-									$option['OrdersCustomFieldsOptionsDescription'][Session::get('languages_id')]['option_name']
+									$Option->Description[Session::get('languages_id')]->option_name,
+									$Option->Description[Session::get('languages_id')]->option_name
 								);
 							}
 						}

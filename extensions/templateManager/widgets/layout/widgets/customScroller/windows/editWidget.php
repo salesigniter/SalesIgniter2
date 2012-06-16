@@ -1,47 +1,49 @@
 <?php
 ob_start();
-function getCategoryTree($parentId, $namePrefix = '', &$categoriesTree){
-    global $lID, $allGetParams, $cInfo;
-    $Qcategories = Doctrine_Query::create()
-            ->select('c.*, cd.categories_name')
-            ->from('Categories c')
-            ->leftJoin('c.CategoriesDescription cd')
-            ->where('cd.language_id = ?', (int)Session::get('languages_id'))
-            ->andWhere('c.parent_id = ?', $parentId)
-            ->orderBy('c.sort_order, cd.categories_name');
+function getCategoryTree($parentId, $namePrefix = '', &$categoriesTree)
+{
+	global $lID, $allGetParams, $cInfo;
+	$Qcategories = Doctrine_Query::create()
+		->select('c.*, cd.categories_name')
+		->from('Categories c')
+		->leftJoin('c.CategoriesDescription cd')
+		->where('cd.language_id = ?', (int)Session::get('languages_id'))
+		->andWhere('c.parent_id = ?', $parentId)
+		->orderBy('c.sort_order, cd.categories_name');
 
-    EventManager::notify('CategoryListingQueryBeforeExecute', &$Qcategories);
+	EventManager::notify('CategoryListingQueryBeforeExecute', &$Qcategories);
 
-    $Result = $Qcategories->execute();
-    if ($Result->count() > 0){
-        foreach($Result->toArray(true) as $Category){
-            if ($Category['parent_id'] > 0){
-                //$namePrefix .= '&nbsp;';
-            }
+	$Result = $Qcategories->execute();
+	if ($Result->count() > 0){
+		foreach($Result->toArray(true) as $Category){
+			if ($Category['parent_id'] > 0){
+				//$namePrefix .= '&nbsp;';
+			}
 
-            $categoriesTree[] = array(
-                'categoryId'           => $Category['categories_id'],
-                'categoryName'         => $namePrefix . $Category['CategoriesDescription'][Session::get('languages_id')]['categories_name'],
-            );
+			$categoriesTree[] = array(
+				'categoryId'           => $Category['categories_id'],
+				'categoryName'         => $namePrefix . $Category['CategoriesDescription'][Session::get('languages_id')]['categories_name'],
+			);
 
-            getCategoryTree($Category['categories_id'], '&nbsp;&nbsp;&nbsp;' . $namePrefix, &$categoriesTree);
-        }
-    }
+			getCategoryTree($Category['categories_id'], '&nbsp;&nbsp;&nbsp;' . $namePrefix, &$categoriesTree);
+		}
+	}
 }
+
 $scrollerQueryTypes = array(
-	'best_sellers' => 'Best Selling Products',
-	'featured' => 'Featured Products',
-	'new_products' => 'New Products',
-	'top_rentals' => 'Top Rented Products',
-	'specials' => 'Specials Products',
-	'related' => 'Current Product Related Products',
-	'category' => 'Current Category Products',
-    'category_featured' => 'Featured Products From Selected Category'
+	'best_sellers'      => 'Best Selling Products',
+	'featured'          => 'Featured Products',
+	'new_products'      => 'New Products',
+	'top_rentals'       => 'Top Rented Products',
+	'specials'          => 'Specials Products',
+	'related'           => 'Current Product Related Products',
+	'category'          => 'Current Category Products',
+	'category_featured' => 'Featured Products From Selected Category'
 );
 
 $scrollerTypes = array(
-	'stack' => 'Stacked',
-	'tabs' => 'Tabs',
+	'stack'   => 'Stacked',
+	'tabs'    => 'Tabs',
 	'buttons' => 'Tabs As Buttons'
 );
 ?>
@@ -111,25 +113,26 @@ $scrollerTypes = array(
 
 	$(document).ready(function () {
 		$('.scrollerSortable').nestedSortable({
-			disableNesting: 'no-nest',
-			forcePlaceholderSize: true,
-			handle: 'div',
-			items: 'li',
-			opacity: .6,
-			placeholder: 'placeholder',
-			tabSize: 25,
-			tolerance: 'pointer',
-			toleranceElement: '> div'
+			disableNesting       : 'no-nest',
+			forcePlaceholderSize : true,
+			handle               : 'div',
+			items                : 'li',
+			opacity              : .6,
+			placeholder          : 'placeholder',
+			tabSize              : 25,
+			tolerance            : 'pointer',
+			toleranceElement     : '> div'
 		});
 
-        $('select[name="new_scroller_query"]').change(function (){
-            if($(this).val() == 'category_featured') {
-                $('select[name="new_selected_category"]').parent().parent().show();
-            } else {
-                $('select[name="new_selected_category"]').parent().parent().hide();
-            }
-        });
-        $('select[name="new_scroller_query"]').trigger('change');
+		$('select[name="new_scroller_query"]').change(function () {
+			if ($(this).val() == 'category_featured'){
+				$('select[name="new_selected_category"]').parent().parent().show();
+			}
+			else {
+				$('select[name="new_selected_category"]').parent().parent().hide();
+			}
+		});
+		$('select[name="new_scroller_query"]').trigger('change');
 
 		$('.addScroller').click(function () {
 			var inputKey = $('ol.scrollerSortable > li').size();
@@ -171,16 +174,17 @@ $scrollerTypes = array(
 			$li.find('.configTable').append($configTable);
 
 			$('.scrollerSortable').append($li);
-            $li.find('select[name="scroller_query[' + inputKey + ']"]').change(function (){
-                var thisName = $(this).attr('name');
-                thisName = (thisName.substr(thisName.indexOf('['), thisName.lastIndexOf(']')));
-                if($(this).val() == 'category_featured') {
-                    $('select[name="selected_category' + thisName + '"]').parent().parent().show();
-                } else {
-                    $('select[name="selected_category' + thisName + '"]').parent().parent().hide();
-                }
-            });
-            $li.find('select[name="scroller_query[' + inputKey + ']"]').trigger('change');
+			$li.find('select[name="scroller_query[' + inputKey + ']"]').change(function () {
+				var thisName = $(this).attr('name');
+				thisName = (thisName.substr(thisName.indexOf('['), thisName.lastIndexOf(']')));
+				if ($(this).val() == 'category_featured'){
+					$('select[name="selected_category' + thisName + '"]').parent().parent().show();
+				}
+				else {
+					$('select[name="selected_category' + thisName + '"]').parent().parent().hide();
+				}
+			});
+			$li.find('select[name="scroller_query[' + inputKey + ']"]').trigger('change');
 			$li.find('input[name="scroller_heading[' + inputKey + '][' + languageId + ']"]').keyup(function () {
 				$(this).parent().parent().parent().parent().parent().parent().find('.langHeading').html($(this).val());
 			});
@@ -199,23 +203,24 @@ $scrollerTypes = array(
 				function () {
 					this.style.cursor = 'pointer';
 				}).mouseout(function () {
-				this.style.cursor = 'default';
-			});
+					this.style.cursor = 'default';
+				});
 		});
 
-        var inputKey = $('ol.scrollerSortable > li').size();
-        for(var i=0; i < inputKey; i++){
-            $('select[name="scroller_query\\[' + i + '\\]"]').change(function (){
-                var thisName = $(this).attr('name');
-                thisName = (thisName.substr(thisName.indexOf('['), thisName.lastIndexOf(']')));
-                if($(this).val() == 'category_featured') {
-                    $('select[name="selected_category' + thisName + '"]').parent().parent().show();
-                } else {
-                    $('select[name="selected_category' + thisName + '"]').parent().parent().hide();
-                }
-            });
-            $('select[name="scroller_query\\[' + i + '\\]"]').trigger('change');
-        }
+		var inputKey = $('ol.scrollerSortable > li').size();
+		for(var i = 0; i < inputKey; i++){
+			$('select[name="scroller_query\\[' + i + '\\]"]').change(function () {
+				var thisName = $(this).attr('name');
+				thisName = (thisName.substr(thisName.indexOf('['), thisName.lastIndexOf(']')));
+				if ($(this).val() == 'category_featured'){
+					$('select[name="selected_category' + thisName + '"]').parent().parent().show();
+				}
+				else {
+					$('select[name="selected_category' + thisName + '"]').parent().parent().hide();
+				}
+			});
+			$('select[name="scroller_query\\[' + i + '\\]"]').trigger('change');
+		}
 
 		$('.tableExpander').click(
 			function () {
@@ -231,8 +236,8 @@ $scrollerTypes = array(
 			function () {
 				this.style.cursor = 'pointer';
 			}).mouseout(function () {
-			this.style.cursor = 'default';
-		});
+				this.style.cursor = 'default';
+			});
 
 		$('.headingInput').keyup(function () {
 			$(this).parent().parent().parent().parent().parent().parent().find('.langHeading').html($(this).val());
@@ -270,7 +275,6 @@ $displayQty = isset($WidgetSettings->scrollers->displayQty) ? $WidgetSettings->s
 $moveQty = isset($WidgetSettings->scrollers->moveQty) ? $WidgetSettings->scrollers->moveQty : 'auto';
 $easing = '<select name="easing"><option value="swing">swing</option><option value="easeInQuad">easeInQuad</option><option value="easeOutQuad">easeOutQuad</option><option value="easeInOutQuad">easeInOutQuad</option><option value="easeInCubic">easeInCubic</option><option value="easeOutCubic">easeOutCubic</option><option value="easeInOutCubic">easeInOutCubic</option><option value="easeInQuart">easeInQuart</option><option value="easeOutQuart">easeOutQuart</option><option value="easeInOutQuart">easeInOutQuart</option><option value="easeInQuint">easeInQuint</option><option value="easeOutQuint">easeOutQuint</option><option value="easeInOutQuint">easeInOutQuint</option><option value="easeInSine">easeInSine</option><option value="easeOutSine">easeOutSine</option><option value="easeInOutSine">easeInOutSine</option><option value="easeInExpo">easeInExpo</option><option value="easeOutExpo">easeOutExpo</option><option value="easeInOutExpo">easeInOutExpo</option><option value="easeInCirc">easeInCirc</option><option value="easeOutCirc">easeOutCirc</option><option value="easeInOutCirc">easeInOutCirc</option><option value="easeInElastic">easeInElastic</option><option value="easeOutElastic">easeOutElastic</option><option value="easeInOutElastic">easeInOutElastic</option><option value="easeInBack">easeInBack</option><option value="easeOutBack">easeOutBack</option><option value="easeInOutBack">easeInOutBack</option><option value="easeInBounce">easeInBounce</option><option value="easeOutBounce">easeOutBounce</option><option value="easeInOutBounce">easeInOutBounce</option></select>';
 
-
 $editTable = htmlBase::newElement('table')
 	->setId('scrollerBuilderTable')
 	->setCellPadding(2)
@@ -287,7 +291,7 @@ $editTable->addBodyRow(array(
 		array('text' => '<b>Interface: </b><select name="scroller_type">' . $scrollerTypeOptions . '</select>')
 	)
 ));
-    $tableData = '<table>'.
+$tableData = '<table>' .
 	'<tr>' .
 	'<td>Display Items: </td>' .
 	'<td><input type="text" name="displayQty" value="' . $displayQty . '" size="4"></td>' .
@@ -306,19 +310,19 @@ $editTable->addBodyRow(array(
 	'</tr>' .
 	'<tr>' .
 	'<td>Easing: </td>' .
-	'<td>'.$easing.'</td>' .
+	'<td>' . $easing . '</td>' .
 	'</tr>' .
 	'<tr>' .
 	'<td>Auto Start: </td>' .
-	'<td><input type="checkbox" name="scroller_autostart" value="1"' . ((isset($WidgetSettings->scrollers->autostart)?($WidgetSettings->scrollers->autostart=='autostart'?true:false):true) === true ? ' checked=checked' : '') . '></td>' .
+	'<td><input type="checkbox" name="scroller_autostart" value="1"' . ((isset($WidgetSettings->scrollers->autostart) ? ($WidgetSettings->scrollers->autostart == 'autostart' ? true : false) : true) === true ? ' checked=checked' : '') . '></td>' .
 	'</tr>' .
 	'</table>';
 
 $editTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => $tableData)
-		)
-	));
+	'columns' => array(
+		array('text' => $tableData)
+	)
+));
 
 echo $editTable->draw();
 
@@ -327,13 +331,13 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 	$headingInputs .= $lInfo['showName']('&nbsp;') . ': <input type="text" name="new_scroller_heading_' . $lInfo['id'] . '"><br>';
 }
 $categoryTreeList = false;
-getCategoryTree(0,'',&$categoryTreeList);
+getCategoryTree(0, '', &$categoryTreeList);
 $categoryTreeNew = htmlBase::newElement('selectbox')
-        ->setName('new_selected_category')
-        ->setId('new_selected_category');
+	->setName('new_selected_category')
+	->setId('new_selected_category');
 $categoryTreeNew->addOption('', '--select--');
 foreach($categoryTreeList as $category){
-    $categoryTreeNew->addOption($category['categoryId'], $category['categoryName']);
+	$categoryTreeNew->addOption($category['categoryId'], $category['categoryName']);
 }
 ?>
 <fieldset>
@@ -349,13 +353,13 @@ foreach($categoryTreeList as $category){
 			<td><select name="new_scroller_query" class="scrollerQuery"><?php echo $scrollerQueryOptions;?></select>
 			</td>
 		</tr>
-        <tr>
-            <td>Show featured products from selected category:</td>
-            <td><?php
-                echo $categoryTreeNew->draw();
-                ?>
-            </td>
-        </tr>
+		<tr>
+			<td>Show featured products from selected category:</td>
+			<td><?php
+				echo $categoryTreeNew->draw();
+				?>
+			</td>
+		</tr>
 		<tr>
 			<td>Scroller Rows:</td>
 			<td><input type="text" name="new_scroller_rows" value="1" size="3"></td>
@@ -397,98 +401,98 @@ foreach($categoryTreeList as $category){
 <span class="ui-icon ui-icon-plusthick addScroller"></span> Add Scroller
 <ol class="ui-widget scrollerSortable sortable"><?php
 	if (isset($WidgetSettings->scrollers)){
-	foreach($WidgetSettings->scrollers->configs as $i => $cInfo){
-		$scrollerQuery = $cInfo->query;
+		foreach($WidgetSettings->scrollers->configs as $i => $cInfo){
+			$scrollerQuery = $cInfo->query;
 
-		$headingInputs = '';
-		$langHeading = '';
-		foreach(sysLanguage::getLanguages() as $lInfo){
-			$headingInputs .= $lInfo['showName']('&nbsp;') . ': <input type="text" name="scroller_heading[' . $i . '][' . $lInfo['id'] . ']" class="headingInput" value="' . $cInfo->headings->$lInfo['id'] . '"><br>';
+			$headingInputs = '';
+			$langHeading = '';
+			foreach(sysLanguage::getLanguages() as $lInfo){
+				$headingInputs .= $lInfo['showName']('&nbsp;') . ': <input type="text" name="scroller_heading[' . $i . '][' . $lInfo['id'] . ']" class="headingInput" value="' . $cInfo->headings->$lInfo['id'] . '"><br>';
 
-			if ($lInfo['id'] == Session::get('languages_id')){
-				$langHeading = $cInfo->headings->$lInfo['id'];
+				if ($lInfo['id'] == Session::get('languages_id')){
+					$langHeading = $cInfo->headings->$lInfo['id'];
+				}
 			}
+
+			$scrollerQueryOptions = '';
+			foreach($scrollerQueryTypes as $k => $v){
+				$scrollerQueryOptions .= '<option value="' . $k . '"' . ($k == $cInfo->query ? ' selected' : '') . '>' . $v . '</option>';
+			}
+
+			$selectedCategory = isset($cInfo->selected_category) ? $cInfo->selected_category : '';
+
+			$categoryTree = htmlBase::newElement('selectbox')
+				->setName('selected_category[' . $i . ']');
+			$categoryTree->addOption('', '--select--');
+			foreach($categoryTreeList as $category){
+				$categoryTree->addOption($category['categoryId'], $category['categoryName']);
+			}
+			if (isset($selectedCategory)){
+				$categoryTree->selectOptionByValue($selectedCategory);
+			}
+
+			$imgPrev = $cInfo->prev_image;
+			$imgNext = $cInfo->next_image;
+
+			echo '<li id="scroller_config_' . $i . '" data-input_key="' . $i . '">' .
+				'<div>' .
+				'<span class="ui-icon ui-icon-closethick scrollerDelete" tooltip="Delete Scroller"></span>' .
+				'<span class="langHeading">' . $langHeading . '</span><br>' .
+				'<span class="tableExpander">[ Show Settings ]</span><br>' .
+				'<div class="configTable" style="font-size:.8em;">' .
+				'<table cellpadding="0" cellspacing="0" border="0">' .
+				'<tr>' .
+				'<td valign="top">Heading: </td>' .
+				'<td>' . $headingInputs . '</td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Scroller Type: </td>' .
+				'<td><select name="scroller_query[' . $i . ']" class="scrollerQuery">' . $scrollerQueryOptions . '</select></td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Show featured products from selected category: </td>' .
+				'<td>' .
+				$categoryTree->draw() .
+				'</td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Scroller Rows:</td>' .
+				'<td><input type="text" name="scroller_rows[' . $i . ']" value="' . (!isset($cInfo->rows) ? 1 : $cInfo->rows) . '" size="3"></td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Limit Query Results: </td>' .
+				'<td><input type="text" name="scroller_query_limit[' . $i . ']" size="3" value="' . $cInfo->query_limit . '"> 0 for no limit</td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Block Width: </td>' .
+				'<td><input type="text" name="scroller_block_width[' . $i . ']" value="' . $cInfo->block_width . '" size="4"> In Pixels</td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Block Height: </td>' .
+				'<td><input type="text" name="scroller_block_height[' . $i . ']" value="' . $cInfo->block_height . '" size="4"> In Pixels</td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Show Product Name: </td>' .
+				'<td><input type="checkbox" name="scroller_show_product_name[' . $i . ']" value="1"' . ((isset($cInfo->show_product_name) ? $cInfo->show_product_name : false) === true ? ' checked=checked' : '') . '></td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Reflect Blocks: </td>' .
+				'<td><input type="checkbox" name="scroller_block_reflect[' . $i . ']" value="1"' . ($cInfo->reflect_blocks === true ? ' checked=checked' : '') . '></td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Previous Scroll Image: </td>' .
+				'<td><input type="text" name="scroller_prev_image[' . $i . ']" class="BrowseServerField" value="' . $imgPrev . '"></td>' .
+				'</tr>' .
+				'<tr>' .
+				'<td>Next Scroll Image: </td>' .
+				'<td><input type="text" name="scroller_next_image[' . $i . ']" class="BrowseServerField" value="' . $imgNext . '"></td>' .
+				'</tr>' .
+				'</table>' .
+				'</div>' .
+				'</div>' .
+				'</li>';
 		}
-
-		$scrollerQueryOptions = '';
-		foreach($scrollerQueryTypes as $k => $v){
-			$scrollerQueryOptions .= '<option value="' . $k . '"' . ($k == $cInfo->query ? ' selected' : '') . '>' . $v . '</option>';
-		}
-
-        $selectedCategory = isset($cInfo->selected_category) ? $cInfo->selected_category : '';
-
-        $categoryTree = htmlBase::newElement('selectbox')
-                ->setName('selected_category[' . $i . ']');
-        $categoryTree->addOption('', '--select--');
-        foreach($categoryTreeList as $category){
-            $categoryTree->addOption($category['categoryId'], $category['categoryName']);
-        }
-        if(isset($selectedCategory)){
-            $categoryTree->selectOptionByValue($selectedCategory);
-        }
-
-		$imgPrev = $cInfo->prev_image;
-		$imgNext = $cInfo->next_image;
-
-		echo '<li id="scroller_config_' . $i . '" data-input_key="' . $i . '">' .
-			'<div>' .
-			'<span class="ui-icon ui-icon-closethick scrollerDelete" tooltip="Delete Scroller"></span>' .
-			'<span class="langHeading">' . $langHeading . '</span><br>' .
-			'<span class="tableExpander">[ Show Settings ]</span><br>' .
-			'<div class="configTable" style="font-size:.8em;">' .
-			'<table cellpadding="0" cellspacing="0" border="0">' .
-			'<tr>' .
-			'<td valign="top">Heading: </td>' .
-			'<td>' . $headingInputs . '</td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Scroller Type: </td>' .
-			'<td><select name="scroller_query[' . $i . ']" class="scrollerQuery">' . $scrollerQueryOptions . '</select></td>' .
-			'</tr>' .
-            '<tr>' .
-            '<td>Show featured products from selected category: </td>' .
-            '<td>' .
-             $categoryTree->draw() .
-             '</td>' .
-            '</tr>' .
-			'<tr>' .
-			'<td>Scroller Rows:</td>' .
-			'<td><input type="text" name="scroller_rows[' . $i . ']" value="' . (!isset($cInfo->rows) ? 1 : $cInfo->rows) . '" size="3"></td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Limit Query Results: </td>' .
-			'<td><input type="text" name="scroller_query_limit[' . $i . ']" size="3" value="' . $cInfo->query_limit . '"> 0 for no limit</td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Block Width: </td>' .
-			'<td><input type="text" name="scroller_block_width[' . $i . ']" value="' . $cInfo->block_width . '" size="4"> In Pixels</td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Block Height: </td>' .
-			'<td><input type="text" name="scroller_block_height[' . $i . ']" value="' . $cInfo->block_height . '" size="4"> In Pixels</td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Show Product Name: </td>' .
-			'<td><input type="checkbox" name="scroller_show_product_name[' . $i . ']" value="1"' . ((isset($cInfo->show_product_name)?$cInfo->show_product_name:false) === true ? ' checked=checked' : '') . '></td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Reflect Blocks: </td>' .
-			'<td><input type="checkbox" name="scroller_block_reflect[' . $i . ']" value="1"' . ($cInfo->reflect_blocks === true ? ' checked=checked' : '') . '></td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Previous Scroll Image: </td>' .
-			'<td><input type="text" name="scroller_prev_image[' . $i . ']" class="BrowseServerField" value="' . $imgPrev . '"></td>' .
-			'</tr>' .
-			'<tr>' .
-			'<td>Next Scroll Image: </td>' .
-			'<td><input type="text" name="scroller_next_image[' . $i . ']" class="BrowseServerField" value="' . $imgNext . '"></td>' .
-			'</tr>' .
-			'</table>' .
-			'</div>' .
-			'</div>' .
-			'</li>';
 	}
-}
 	?></ol>
 
 <?php

@@ -49,6 +49,24 @@ class CreditCardModule extends PaymentModuleBase
 		return $cc_images;
 	}
 
+	public function validate(OrderPaymentManager $PaymentManager){
+		global $messageStack;
+		$validateSuccess = true;
+		$Result = self::validateCreditCard(array(
+			$PaymentManager->getInfo('cardNumber'),
+			$PaymentManager->getInfo('cardExpMonth'),
+			$PaymentManager->getInfo('cardExpYear'),
+			$PaymentManager->getInfo('cardCvvNumber'),
+			$PaymentManager->getInfo('cardType')
+		), $this->requireCvv);
+
+		if ($Result['error'] !== false){
+			$messageStack->addSession('pageStack', $Result['error']);
+			$validateSuccess = false;
+		}
+		return $validateSuccess;
+	}
+
 	public function validatePost() {
 		global $messageStack, $onePageCheckout;
 		$result = self::validateCreditCard($_POST, $this->requireCvv);
@@ -242,7 +260,7 @@ class CreditCardModule extends PaymentModuleBase
 			);
 		}
 
-		$error = '';
+		$error = false;
 		if ($result !== true){
 			switch($result){
 				case -1:

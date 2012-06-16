@@ -3,7 +3,7 @@
 class AccountsReceivableSalesProducts extends Doctrine_Record {
 
 	public function setUp(){
-		$this->hasMany('AccountsReceivableSalesProductsInventory as Inventory', array(
+		$this->hasMany('AccountsReceivableSalesProductsInventory as SaleInventory', array(
 			'local' => 'id',
 			'foreign' => 'sale_product_id',
 			'cascade' => array('delete')

@@ -14,14 +14,14 @@
 class TemplateManagerWidgetLoginBox extends TemplateManagerWidget
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $App;
 		$this->init('loginBox');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_LOGINBOX'));
 	}
 
-	public function show() {
+	public function show()
+	{
 		global $App, $userAccount;
 		$dontShow = array(
 			'login',
@@ -32,8 +32,8 @@ class TemplateManagerWidgetLoginBox extends TemplateManagerWidget
 				$loginboxcontent = htmlBase::newElement('form')
 					->attr('action', itw_app_link('action=processLogin', 'account', 'login', 'SSL'))
 					->css(array(
-						'text-align' => 'left'
-					))
+					'text-align' => 'left'
+				))
 					->attr('method', 'post');
 
 				$loginTable = htmlBase::newElement('table')

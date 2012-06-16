@@ -23,6 +23,7 @@ function onShutdown() {
 	if ($ExceptionManager->size() > 0){
 		echo '<br /><div style="width:98%;margin-right:auto;margin-left:auto;">' . $ExceptionManager->output('text') . '</div>';
 	}
+
 	session_write_close();
 }
 
@@ -143,7 +144,8 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/navigation_history.php'
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ProductBase.php');
 
 //Include the order class
-//require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/Base.php');
+require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/Base.php');
+require(sysConfig::getDirFsCatalog() . 'includes/classes/CheckoutSale/Base.php');
 
 /*
  * All Classes that will be registered in sessions must go here -- END
@@ -200,6 +202,8 @@ $appExtension->postSessionInit();
 
 $ExceptionManager->initSessionMessages();
 
+require(sysConfig::getDirFsCatalog() . 'includes/classes/AccountsReceivable.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/accountsReceivableModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderShippingModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderPaymentModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderTotalModules/modules.php');
@@ -238,6 +242,13 @@ $appExtension->initApplicationPlugins();
 $App->loadLanguageDefines();
 
 if (APPLICATION_ENVIRONMENT == 'catalog'){
+	if (Session::exists('CheckoutSale')){
+		if ($App->getAppName() != 'checkout'){
+			echo 'WHAT!::' . $App->getAppName() . '<br>';
+			Session::remove('CheckoutSale');
+		}
+	}
+
 	$ShoppingCart->initContents();
 
 	EventManager::notify('ApplicationTopBeforeCartAction');

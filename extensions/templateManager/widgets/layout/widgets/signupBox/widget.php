@@ -11,20 +11,25 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetSignupBox extends TemplateManagerWidget {
-	public function __construct(){
+class TemplateManagerWidgetSignupBox extends TemplateManagerWidget
+{
+
+	public function __construct()
+	{
 		global $App;
 		$this->init('signupBox');
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_SIGNUPBOX'));
 	}
 
-	public function show(){
+	public function show()
+	{
 		global $App, $userAccount;
 		$boxWidgetProperties = $this->getWidgetProperties();
-		$dontShow = array('login',
-			'create');
-		if(!in_array($App->getAppName(), $dontShow) && $userAccount->isLoggedIn() === false){
-			if($userAccount->isLoggedIn() === false){
+		$dontShow = array(
+			'login',
+			'create'
+		);
+		if (!in_array($App->getAppName(), $dontShow) && $userAccount->isLoggedIn() === false){
+			if ($userAccount->isLoggedIn() === false){
 				$loginboxcontent = htmlBase::newElement('form')
 					->attr('action', itw_app_link('checkoutType=rental', 'checkout', 'default', 'SSL'))
 					->css(array('text-align' => 'left'))
@@ -33,8 +38,10 @@ class TemplateManagerWidgetSignupBox extends TemplateManagerWidget {
 				$loginTable = htmlBase::newElement('table')
 					->setCellPadding(2)
 					->setCellSpacing(0)
-					->css(array('width' => '95%',
-					'margin' => '10px auto'));
+					->css(array(
+					'width'  => '95%',
+					'margin' => '10px auto'
+				));
 				$loginEmailAddress = htmlBase::newElement('input')
 					->css('width', '90%')
 					->setName('email_address1');
@@ -62,32 +69,49 @@ class TemplateManagerWidgetSignupBox extends TemplateManagerWidget {
 					->usePreset('save')
 					->setName('saveBtn')
 					->setText(sysLanguage::get('WIDGET_LOGINBOX_LOGIN'));
-				$loginTable->addBodyRow(array('columns' => array(array('align' => 'center',
-					'text' => $loginSubmit))));
-				$loginTable->addBodyRow(array('columns' => array(array('css' => array('font-size' => '9px'),
-					'text' => sysLanguage::get('WIDGET_LOGINBOX_INFO')))));
+				$loginTable->addBodyRow(array(
+					'columns' => array(
+						array(
+							'align' => 'center',
+							'text'  => $loginSubmit
+						)
+					)
+				));
+				$loginTable->addBodyRow(array(
+					'columns' => array(
+						array(
+							'css'  => array('font-size' => '9px'),
+							'text' => sysLanguage::get('WIDGET_LOGINBOX_INFO')
+						)
+					)
+				));
 				$loginboxcontent->append($loginTable);
 				$boxContent = $loginboxcontent->draw();
-			} else {
+			}
+			else {
 				// If you want to display anything when the user IS logged in, put it
 				// in here...  Possibly a "You are logged in as :" box or something.
 			}
 			// WebMakers.com Added: My Account Info Box
-		} else {
-			if($userAccount->isLoggedIn() === true){
+		}
+		else {
+			if ($userAccount->isLoggedIn() === true){
 				$this->setBoxHeading(sysLanguage::get('WIDGET_LOGINBOX_MY_ACCOUNT'));
 				$boxContent = '<a href="' . itw_app_link(null, 'account', 'default', 'SSL') . '">' . sysLanguage::get('WIDGET_LOGINBOX_MY_ACCOUNT') . '</a><br>' . '<a href="' . itw_app_link(null, 'account', 'edit', 'SSL') . '">' . sysLanguage::get('WIDGET_LOGINBOX_ACCOUNT_EDIT') . '</a><br>' . '<a href="' . itw_app_link(null, 'account', 'history', 'SSL') . '">' . sysLanguage::get('WIDGET_LOGINBOX_ACCOUNT_HISTORY') . '</a><br>' . '<a href="' . itw_app_link(null, 'account', 'address_book', 'SSL') . '">' . sysLanguage::get('WIDGET_LOGINBOX_ADDRESS_BOOK') . '</a><br>' . '<a href="' . itw_app_link(null, 'account', 'logoff') . '">' . sysLanguage::get('WIDGET_LOGINBOX_LOGOFF') . '</a>';
 			}
 		}
-		if(isset($boxContent)){
+		if (isset($boxContent)){
 			$this->setBoxContent($boxContent);
-			if($userAccount->isRentalMember() === false){
+			if ($userAccount->isRentalMember() === false){
 				$contentTable = htmlBase::newElement('table')
 					->setCellPadding(2)
 					->setCellSpacing(0)
-					->css(array('width' => '100%',
-					'margin' => '5px 4px'));
-				$contentTable->addBodyRow(array('columns' => array(/* array('css' => array('width' => '460px', 'vertical-align' => 'top'), 'text' => '<img src="/templates/faithflix/images/bannerbig.jpg">'),
+					->css(array(
+					'width'  => '100%',
+					'margin' => '5px 4px'
+				));
+				$contentTable->addBodyRow(array(
+					'columns' => array( /* array('css' => array('width' => '460px', 'vertical-align' => 'top'), 'text' => '<img src="/templates/faithflix/images/bannerbig.jpg">'),
 												   array('css' => array('width' => '200px', 'vertical-align' => 'top'), 'text' => '<div>
 		<span style="font-size:20px;"><span style="color:#0196cf;">Featuring Family Approved, Faith Asserting Movies</span></span></div>
 	<div>
@@ -98,16 +122,23 @@ class TemplateManagerWidgetSignupBox extends TemplateManagerWidget {
 		&nbsp;</div>
 	<div>
 		<span style="font-size:20px;"><span style="color:#0196cf;">No Late Fees</span></span></div>'),*/
-					array('css' => array('width' => '280px',
-						'vertical-align' => 'top'),
-						'text' => $this->draw()))));
+						array(
+							'css'  => array(
+								'width'          => '280px',
+								'vertical-align' => 'top'
+							),
+							'text' => $this->draw()
+						)
+					)
+				));
 				return $contentTable->draw();
 			}
 		}
 		return false;
 	}
 
-	public function buildJavascript(){
+	public function buildJavascript()
+	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 		$js = '';
 		$js .= //'	$(document).ready(function (){' . "\n" .
@@ -184,4 +215,5 @@ class TemplateManagerWidgetSignupBox extends TemplateManagerWidget {
 		return $js;
 	}
 }
+
 ?>

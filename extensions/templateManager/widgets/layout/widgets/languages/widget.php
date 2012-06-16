@@ -11,24 +11,26 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetLanguages extends TemplateManagerWidget {
+class TemplateManagerWidgetLanguages extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('languages');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_LANGUAGES'));
 	}
 
-	public function show(){
+	public function show()
+	{
 		$boxContent = '';
-		foreach(sysLanguage::getLanguages() as $lInfo) {
+		foreach(sysLanguage::getLanguages() as $lInfo){
 			$boxContent .= ' <a href="' . itw_app_link(tep_get_all_get_params(array('language', 'currency')) . 'language=' . $lInfo['code']) . '">' . $lInfo['showName']('&nbsp;') . '</a><br>';
 		}
-		
+
 		$this->setBoxContent($boxContent);
 
 		return $this->draw();
 	}
 }
+
 ?>

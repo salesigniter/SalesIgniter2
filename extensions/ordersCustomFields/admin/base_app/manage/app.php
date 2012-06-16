@@ -10,5 +10,7 @@
 	This script and it's source is not redistributable
 */
 
-	$appContent = $App->getAppContentFile();
+$appContent = $App->getAppContentFile();
+$ExtOrdersCustomFields = $appExtension->getExtension('ordersCustomFields');
+
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

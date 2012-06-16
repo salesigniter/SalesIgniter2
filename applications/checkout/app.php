@@ -1,15 +1,14 @@
 <?php
-	$appPage = $App->getAppPage();
-	$appContent = $App->getAppContentFile();
+$appPage = $App->getAppPage();
+$appContent = $App->getAppContentFile();
 if ($appPage == 'success' && $userAccount->isLoggedIn()){
-
-}else{
-
+}
+else {
 	$App->addJavascriptFile('ext/jQuery/external/pass_strength/jQuery.pstrength.js');
 
 	require('includes/classes/http_client.php');
 	include('includes/functions/crypt.php');
-    $navigation->set_snapshot();
+	$navigation->set_snapshot();
 	if (sysConfig::get('ONEPAGE_LOGIN_REQUIRED') == 'true'){
 		if ($userAccount->isLoggedIn() === false){
 			if (!isset($_GET['checkoutType']) || (isset($_GET['checkoutType']) && $_GET['checkoutType'] == 'default')){
@@ -29,7 +28,11 @@ if ($appPage == 'success' && $userAccount->isLoggedIn()){
 	}
 
 	if ($userAccount->isLoggedIn() && $userAccount->plugins['membership']->isRentalMember() && $userAccount->plugins['membership']->isActivated() && isset($_GET['checkoutType']) && $_GET['checkoutType'] == 'rental' && !isset($_GET['isUpgrade'])){
-		tep_redirect(itw_app_link(null, 'account', 'default', 'SSL'));	
+		tep_redirect(itw_app_link(null, 'account', 'default', 'SSL'));
+	}
+
+	if ($ShoppingCart->countContents() == 0){
+		tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
 	}
 
 	EventManager::notify('CheckoutBeforeExecute');
@@ -43,84 +46,31 @@ if ($appPage == 'success' && $userAccount->isLoggedIn()){
 		Session::set('cartID', $ShoppingCart->getId());
 	}
 
-	require('includes/classes/onepage_checkout.php');
-	$onePageCheckout = new osC_onePageCheckout();
-
-    if (isset($_GET['checkoutType'])){
-        switch($_GET['checkoutType']){
-            case 'rental':
-                if ($onePageCheckout->getMode() == ''){
-                    $onePageCheckout->setMode('membership');
-                }
-                break;
-            case 'giftCertificate':
-                if ($onePageCheckout->getMode() == ''){
-                    $onePageCheckout->setMode('giftCertificate');
-                }
-                break;
-            default:
-                if ($onePageCheckout->getMode() == ''){
-                    $onePageCheckout->setMode('default');
-                }
-                break;
-        }
-    }
-    /*
-	if (isset($_GET['checkoutType']) && $_GET['checkoutType'] == 'rental'){
-		if ($onePageCheckout->getMode() == ''){
-			$onePageCheckout->setMode('membership');
-		}
-	}else{
-		if ($onePageCheckout->getMode() == ''){
-			$onePageCheckout->setMode('default');
-		}
-	}
-    */
-	if ($isPostPage === false && $action != 'remotePaymentProcess'){
-		EventManager::notify('CheckoutPreInit');
-
-		$onePageCheckout->init();
-
-		EventManager::notify('CheckoutPostInit');
-
-		$onePageCheckout->setShippingStatus();
-	}
-
-	if ($onePageCheckout->onePage['shippingEnabled'] === true){
-		if ($onePageCheckout->isNormalCheckout() === true){
-			$total_weight = $ShoppingCart->showWeight();
-			$total_count = $ShoppingCart->countContents();
-		}else{
-			$total_weight = 1;
-			$total_count = 1;
-		}
-
-		OrderShippingModules::calculateWeight();
-	}
-    if ($action != 'remotePaymentProcess'){
-		if (isset($onePageCheckout->onePage['info']['payment']['id'])){
-			OrderPaymentModules::setSelected($onePageCheckout->onePage['info']['payment']['id']);
-		}
-
-		if ($onePageCheckout->onePage['info']['shipping'] !== false && !empty($onePageCheckout->onePage['info']['shipping'])){
-			$mInfo = explode('_', $onePageCheckout->onePage['info']['shipping']['id']);
-			OrderShippingModules::setSelected($mInfo[0], $mInfo[1]);
-		}
-	}
-
-
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/order.php');
-	$order = new OrderProcessor;
-	OrderShippingModules::loadModules();
 	OrderPaymentModules::loadModules();
+	OrderShippingModules::loadModules();
 	OrderTotalModules::loadModules();
-	if ($onePageCheckout->isMembershipCheckout() === true){
-		$onePageCheckout->loadMembershipPlan();
-	} else if($onePageCheckout->isGiftCertificateCheckout() === true){
-            $onePageCheckout->loadGiftCertificates();
-        }
 
-	$breadcrumb->add('Checkout');
-	$breadcrumb->add('Address Entry');
+	$runInit = false;
+	if (!isset($_GET['action'])){
+		if (Session::exists('CheckoutSale')){
+			$runInit = true;
+		}
+		else {
+			$CheckoutSale = new CheckoutSale('order');
+			$CheckoutSale->importUserAccount($userAccount);
+
+			Session::set('CheckoutSale', $CheckoutSale);
+		}
+	}
+	else {
+		$runInit = true;
+	}
+
+	$CheckoutSale =& Session::getReference('CheckoutSale');
+	if ($runInit === true){
+		//echo __FILE__ . '::' . __LINE__ . '<br>';
+		$CheckoutSale->init();
+	}
+	$CheckoutSale->importShoppingCart($ShoppingCart);
 }
 ?>

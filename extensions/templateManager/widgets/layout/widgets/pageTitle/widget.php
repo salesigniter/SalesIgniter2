@@ -11,21 +11,26 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetPageTitle extends TemplateManagerWidget {
+class TemplateManagerWidgetPageTitle extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('pageTitle');
 	}
 
-	public function showLayoutPreview($WidgetSettings) {
+	public function showLayoutPreview($WidgetSettings)
+	{
 		return 'Demo Page Title';
 	}
 
-	public function show(){
+	public function show()
+	{
 		global $Template, $pageContent;
 		$this->setBoxContent('<h1 class="headingTitle">' . $pageContent->getVar('pageTitle') . '</h1>');
 		return $this->draw();
 	}
 }
+
 ?>

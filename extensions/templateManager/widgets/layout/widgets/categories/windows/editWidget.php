@@ -2,8 +2,8 @@
 $lID = (int)Session::get('languages_id');
 
 $widgetIdHtml = htmlBase::newElement('input')
-->setName('widgetId')
-->setValue(isset($WidgetSettings->widgetId)?$WidgetSettings->widgetId:'');
+	->setName('widgetId')
+	->setValue(isset($WidgetSettings->widgetId) ? $WidgetSettings->widgetId : '');
 
 $checkedshowSubcategory = '';
 if (isset($WidgetSettings->showSubcategory) && $WidgetSettings->showSubcategory == 'showSubcategory'){
@@ -15,15 +15,16 @@ if (isset($WidgetSettings->showAlways) && $WidgetSettings->showAlways == 'showAl
 	$checkedshowAlways = 'checked="checked"';
 }
 
-function getCategoryTree($parentId, $namePrefix = '', &$categoriesTree){
+function getCategoryTree($parentId, $namePrefix = '', &$categoriesTree)
+{
 	global $lID, $allGetParams, $cInfo;
 	$Qcategories = Doctrine_Query::create()
-			->select('c.*, cd.categories_name')
-			->from('Categories c')
-			->leftJoin('c.CategoriesDescription cd')
-			->where('cd.language_id = ?', $lID)
-			->andWhere('c.parent_id = ?', $parentId)
-			->orderBy('c.sort_order, cd.categories_name');
+		->select('c.*, cd.categories_name')
+		->from('Categories c')
+		->leftJoin('c.CategoriesDescription cd')
+		->where('cd.language_id = ?', $lID)
+		->andWhere('c.parent_id = ?', $parentId)
+		->orderBy('c.sort_order, cd.categories_name');
 
 	EventManager::notify('CategoryListingQueryBeforeExecute', &$Qcategories);
 
@@ -48,29 +49,29 @@ $categoryTreeList[] = array(
 	'categoryId'           => '0',
 	'categoryName'         => 'Root'
 );
-getCategoryTree(0,'',&$categoryTreeList);
+getCategoryTree(0, '', &$categoryTreeList);
 
-$selectedCategory = isset($WidgetSettings->selected_category)?$WidgetSettings->selected_category:'';
+$selectedCategory = isset($WidgetSettings->selected_category) ? $WidgetSettings->selected_category : '';
 
 $categoryTree = htmlBase::newElement('selectbox')
-		->setName('selected_category')
-		->setId('selectedCategory')
-		->setLabel(sysLanguage::get('TEXT_SELECT_PARENT_CATEGORY'))
-		->setLabelPosition('before');
+	->setName('selected_category')
+	->setId('selectedCategory')
+	->setLabel(sysLanguage::get('TEXT_SELECT_PARENT_CATEGORY'))
+	->setLabelPosition('before');
 $categoryTree->addOption('', sysLanguage::get('WIDGET_CATEGORIES_SELECT_PARENT_CATEGORY_OPTION'));
 foreach($categoryTreeList as $category){
 	$categoryTree->addOption($category['categoryId'], $category['categoryName']);
 }
-if(isset($selectedCategory)){
+if (isset($selectedCategory)){
 	$categoryTree->selectOptionByValue($selectedCategory);
 }
 
 $WidgetSettingsTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => 'Widget ID'),
-			array('text' => $widgetIdHtml->draw())
-		)
-	));
+	'columns' => array(
+		array('text' => 'Widget ID'),
+		array('text' => $widgetIdHtml->draw())
+	)
+));
 
 /*$WidgetSettingsTable->addBodyRow(array(
 		'columns' => array(
@@ -87,22 +88,22 @@ $WidgetSettingsTable->addBodyRow(array(
 	));
 */
 $WidgetSettingsTable->addBodyRow(array(
-                                      'columns' => array(
-	                                      array('colspan' => 2, 'text' => $categoryTree->draw())
-                                      )
-                                 ));
+	'columns' => array(
+		array('colspan' => 2, 'text' => $categoryTree->draw())
+	)
+));
 $checkedCats = array();
-if(isset($WidgetSettings->excludedCategories)){
-	$checkedCats = explode(';',$WidgetSettings->excludedCategories);
+if (isset($WidgetSettings->excludedCategories)){
+	$checkedCats = explode(';', $WidgetSettings->excludedCategories);
 }
 
 $categoriesList = tep_get_category_tree_list('0', $checkedCats);
 
 $WidgetSettingsTable->addBodyRow(array(
-		'columns' => array(
-			array('text' => 'Exclude from infobox'),
-			array('text' => $categoriesList)
-		)
-	));
+	'columns' => array(
+		array('text' => 'Exclude from infobox'),
+		array('text' => $categoriesList)
+	)
+));
 
 ?>

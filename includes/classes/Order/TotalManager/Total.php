@@ -116,10 +116,13 @@ class OrderTotal
 	 * @param OrderProductManager $ProductManager
 	 */
 	public function onProductAdded(OrderProductManager &$ProductManager){
+		//echo __FILE__ . '::' . __LINE__  . '<br>';
+		//echo '<div style="margin-left:15px">';
 		$Module = $this->getModule();
 		if (method_exists($Module, 'onProductAdded')){
 			$Module->onProductAdded($ProductManager);
 		}
+		//echo '</div>';
 	}
 
 	/**
@@ -127,9 +130,12 @@ class OrderTotal
 	 */
 	public function onProductUpdated(OrderProductManager &$ProductManager){
 		$Module = $this->getModule();
+		//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getTitle() . '<br>';
+		//echo '<div style="margin-left:15px">';
 		if (method_exists($Module, 'onProductUpdated')){
 			$Module->onProductUpdated($ProductManager);
 		}
+		//echo '</div>';
 	}
 
 	/**

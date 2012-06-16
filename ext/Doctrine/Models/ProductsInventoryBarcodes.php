@@ -15,7 +15,7 @@ class ProductsInventoryBarcodes extends Doctrine_Record {
 	public function setUp(){
 		parent::setUp();
 		
-		$this->hasOne('ProductsInventory', array(
+		$this->hasOne('ProductsInventory as Inventory', array(
 			'local'   => 'inventory_id',
 			'foreign' => 'inventory_id'
 		));

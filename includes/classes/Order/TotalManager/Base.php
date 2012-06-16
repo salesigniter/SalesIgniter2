@@ -152,7 +152,10 @@ class OrderTotalManager
 	 */
 	public function onProductAdded(OrderProductManager $ProductManager){
 		foreach($this->getAll() as $Module){
+			//echo __FILE__ . '::' . __LINE__ . '<br>';
+			//echo '<div style="margin-left:15px;">';
 			$Module->onProductAdded($ProductManager);
+			//echo '</div>';
 		}
 	}
 
@@ -161,7 +164,10 @@ class OrderTotalManager
 	 */
 	public function onProductUpdated(OrderProductManager $ProductManager){
 		foreach($this->getAll() as $Module){
+			//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getModule()->getTitle() . '<br>';
+			//echo '<div style="margin-left:15px;">';
 			$Module->onProductUpdated($ProductManager);
+			//echo '</div>';
 		}
 	}
 }

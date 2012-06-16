@@ -161,9 +161,11 @@ class Session
 			$value = stripslashes($ResultSet[0]['value']);
 			if (!empty($value)){
 				if (
-					basename($_SERVER['PHP_SELF']) != 'stylesheet.php' &&
-					basename($_SERVER['PHP_SELF']) != 'javascript.php'
+					basename($_SERVER['PHP_SELF']) == 'stylesheet.php' ||
+					basename($_SERVER['PHP_SELF']) == 'javascript.php'
 				){
+					$value = preg_replace('/CheckoutSale\|(.*)(}}|N)/', '', $value);
+
 					EventManager::notify('SessionBeforeReadValue', &$value);
 				}
 				return $value;

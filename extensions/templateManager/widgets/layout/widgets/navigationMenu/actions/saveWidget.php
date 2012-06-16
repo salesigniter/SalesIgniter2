@@ -9,7 +9,7 @@ if (!isset($_POST['linked_to']) || $_POST['linked_to'] == 'none'){
 				$menuItem = $_POST['menu_item_link'][$itemId];
 
 				$menuConfig[$i] = array(
-					'link' => $menuItem,
+					'link'     => $menuItem,
 					'children' => array()
 				);
 
@@ -21,7 +21,8 @@ if (!isset($_POST['linked_to']) || $_POST['linked_to'] == 'none'){
 		}
 	}
 	$WidgetProperties['menuSettings'] = $menuConfig;
-}else{
+}
+else {
 	$WidgetProperties['linked_to'] = $_POST['linked_to'];
 }
 

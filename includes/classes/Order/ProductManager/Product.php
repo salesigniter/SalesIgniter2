@@ -45,6 +45,11 @@ class OrderProduct
 	protected $products_weight = 0;
 
 	/**
+	 * @var
+	 */
+	protected $ProductTypeClass;
+
+	/**
 	 * @param array|null $pInfo
 	 */
 	public function __construct(array $pInfo = null)

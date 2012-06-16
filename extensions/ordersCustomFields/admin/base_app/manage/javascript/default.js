@@ -43,7 +43,12 @@ function editOptionData(el){
 		width: '28em',
 		buttons: {
 			'Save': function (){
-				$tr.find('.data').val($(this).find('*').serialize());
+				var jsonData = {};
+				$(this).find('input, select, textarea').each(function (){
+					jsonData[$(this).attr('name')] = $(this).val();
+				});
+
+				$tr.find('.data').val(encodeURI(JSON.stringify(jsonData)));
 				$(this).dialog('close').remove();
 			},
 			'Cancel': function (){

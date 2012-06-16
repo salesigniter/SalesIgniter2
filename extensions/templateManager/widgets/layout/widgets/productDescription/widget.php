@@ -8,22 +8,26 @@
 	This script and it's source is not redistributable
 */
 
-class TemplateManagerWidgetProductDescription extends TemplateManagerWidget {
+class TemplateManagerWidgetProductDescription extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('productDescription');
 	}
 
-	public function show(){
-			global $appExtension;
-			$htmlText = '';
-			if (isset($_GET['products_id'])){
-				$Product = new product((int)$_GET['products_id']);
-				$htmlText = $Product->getDescription();
-			}
-			$this->setBoxContent('<div class="proddesc">'.$htmlText.'</div>');
-			return $this->draw();
+	public function show()
+	{
+		global $appExtension;
+		$htmlText = '';
+		if (isset($_GET['products_id'])){
+			$Product = new product((int)$_GET['products_id']);
+			$htmlText = $Product->getDescription();
+		}
+		$this->setBoxContent('<div class="proddesc">' . $htmlText . '</div>');
+		return $this->draw();
 	}
 }
+
 ?>

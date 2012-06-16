@@ -43,5 +43,14 @@ class OrdersCustomFieldsOptionsToFields extends Doctrine_Record {
 			'primary' => true,
 			'autoincrement' => false,
 		));
+
+		$this->hasColumn('display_order', 'integer', 4, array(
+			'type' => 'integer',
+			'length' => 4,
+			'unsigned' => 0,
+			'primary' => false,
+			'notnull' => true,
+			'autoincrement' => false,
+		));
 	}
 }

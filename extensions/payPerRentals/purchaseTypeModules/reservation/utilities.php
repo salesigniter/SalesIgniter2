@@ -25,6 +25,7 @@ class PurchaseType_reservation_utilities
 		if (!isset(self::$ProductPeriodCache[$productId][$periodId])){
 			$ResultSet = Doctrine_Query::create()
 				->from('ProductsPayPerPeriods p')
+				->leftJoin('p.Period pd')
 				->where('p.products_id = ?', $productId);
 
 			if (is_null($periodId) === false){
@@ -75,16 +76,21 @@ class PurchaseType_reservation_utilities
 		return self::$GatesCache[$gateName];
 	}
 
-	public static function getRentalTypes()
+	public static function getRentalTypes($typeId = null)
 	{
-		if (empty(self::$RentalTypesCache)){
+		if (empty(self::$RentalTypesCache[$typeId])){
 			$Query = Doctrine_Query::create()
-				->from('PayPerRentalTypes')
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+				->from('PayPerRentalTypes');
 
-			self::$RentalTypesCache = ($Query && sizeof($Query) > 0 ? $Query : false);
+			if ($typeId !== null){
+				$Query->where('pay_per_rental_types_id = ?', $typeId);
+			}
+
+			$Query->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+			self::$RentalTypesCache[$typeId] = ($Query && sizeof($Query) > 0 ? $Query : false);
 		}
-		return self::$RentalTypesCache;
+		return self::$RentalTypesCache[$typeId];
 	}
 
 	public static function getRentalPricing($PayPerRentalId)

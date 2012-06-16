@@ -95,14 +95,14 @@ class ShoppingCart implements Serializable
 	}
 
 	/**
-	 * @return ShoppingCartContents
+	 * @return ShoppingCartProduct[]
 	 */
 	public function getContents(){
 		return $this->contents;
 	}
 
 	/**
-	 * @return ShoppingCartContents
+	 * @return ShoppingCartProduct[]
 	 */
 	public function getProducts(){
 		return $this->getContents();
@@ -201,6 +201,7 @@ class ShoppingCart implements Serializable
 	 * @return bool
 	 */
 	public function allowAdd($CartProductData, Product $Product) {
+		global $messageStack;
 		$return = $Product->isActive();
 		if ($return === true){
 			$return = $Product->allowAddToCart($CartProductData);
@@ -213,6 +214,8 @@ class ShoppingCart implements Serializable
 					}
 				}
 			}
+		}else{
+			$messageStack->addSession('pageStack', 'The Product Is Not Active.');
 		}
 		return $return;
 	}
@@ -277,12 +280,23 @@ class ShoppingCart implements Serializable
 		$CartProduct->updateFromPost();
 	}
 
+	/**
+	 * @param string $id
+	 * @return bool
+	 */
 	public function remove($id) {
-		$this->contents->offsetUnset($id);
-		$this->cartID = $this->generateCartId();
+		$success = false;
+		if ($this->contents->offsetExists($id)){
+			$CartProduct = $this->contents->offsetGet($id);
+
+			$success = $this->contents->remove($CartProduct);
+			if ($success === true){
+				$this->cartID = $this->generateCartId();
+			}
+		}
 
 		$this->storeCart();
-		return true;
+		return $success;
 	}
 
 	public function calculate() {

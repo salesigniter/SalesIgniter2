@@ -12,6 +12,7 @@ class PayPerRentalReservations extends Doctrine_Record {
 	public function setTableDefinition(){
 		$this->setTableName('pay_per_rental_reservation');
 
+		$this->hasColumn('products_id', 'integer', 4);
 		$this->hasColumn('sale_product_id', 'integer', 4);
 
 		$this->hasColumn('rental_status_id', 'integer', 4);

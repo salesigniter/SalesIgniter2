@@ -22,6 +22,7 @@ class OrdersCustomFields extends Doctrine_Record {
 		$this->hasMany('OrdersCustomFieldsOptionsToFields as Options', array(
 			'local'   => 'field_id',
 			'foreign' => 'field_id',
+			'orderBy' => 'display_order',
 			'cascade' => array('delete')
 		));
 		
@@ -65,7 +66,7 @@ class OrdersCustomFields extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('sort_order', 'integer', 4, array(
+		$this->hasColumn('display_order', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 4,
 			'fixed' => false,

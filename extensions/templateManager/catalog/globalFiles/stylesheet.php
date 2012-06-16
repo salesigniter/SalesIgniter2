@@ -29,13 +29,14 @@ else {
 	require(sysConfig::getDirFsCatalog() . 'ext/cssMin/CssMin.php');
 
 	$sourceInfo = '';
-	function getSourceFile($fileName, $filePath) {
+	function getSourceFile($fileName, $filePath)
+	{
 		global $sourceInfo;
 		if (isset($_GET['noMin'])){
 			return $filePath . $fileName;
 		}
+		$cacheFileName = md5($filePath . $fileName);
 		if (file_exists($filePath . $fileName)){
-			$cacheFileName = md5($filePath . $fileName);
 			$sourceInfo .= '/**' . "\n";
 			$sourceInfo .= 'Real Filename: ' . $filePath . $fileName . "\n";
 			$sourceInfo .= 'Cache Filename: ' . sysConfig::getDirFsCatalog() . 'cache/preminified/' . $cacheFileName . '.cache' . "\n";
@@ -112,7 +113,8 @@ else {
 		$boxStylesheetSourcesEntered = array();
 		$addCss = '';
 
-		function getElementId($dataArr) {
+		function getElementId($dataArr)
+		{
 			if (isset($dataArr['widget_id'])){
 				$idCol = 'widget_id';
 				$idVal = $dataArr['widget_id'];
@@ -138,7 +140,8 @@ else {
 			return (sizeof($QconfigId) > 0 ? $QconfigId[0]['configuration_value'] : '');
 		}
 
-		function parseContainer($Container) {
+		function parseContainer($Container)
+		{
 			global $LayoutBuilder, $boxStylesEntered, $infoBoxSources, $boxStylesheetSourcesEntered, $addCss;
 
 			if (isset($Container['widget_id'])){
@@ -294,7 +297,8 @@ else {
 
 	if ($App->getEnv() == 'admin'){
 		$TemplatePath = sysConfig::getDirFsAdmin() . 'template/' . $templateDir . '/';
-	}else{
+	}
+	else {
 		$TemplatePath = sysConfig::getDirFsCatalog() . 'templates/' . $templateDir . '/';
 	}
 
@@ -368,7 +372,7 @@ else {
 		$Result['headers']['Last-Modified'] = gmdate('D, d M Y H:i:s \G\M\T', $nowTime);
 		$Result['headers']['Cache-Control'] = 'no-cache, must-revalidate';
 	}
-	
+
 	if ($noMin === true || sysConfig::get('TEMPLATE_STYLESHEET_COMPRESSION') == 'none'){
 		$Result['content'] = $fileContent;
 	}

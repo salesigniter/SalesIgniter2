@@ -48,6 +48,7 @@ class TemplateManagerWidgetBase extends ModuleBase
 		}
 		parent::init($moduleCode, false, $moduleDir);
 
+		$this->setBoxHeading(sysLanguage::get($this->getModuleInfo('title_key')));
 		$this->boxTemplateDefaultDir = sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/' . $this->widgetDir . '/templates/';
 	}
 

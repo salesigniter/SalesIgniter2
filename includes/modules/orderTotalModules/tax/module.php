@@ -12,6 +12,11 @@ class OrderTotalTax extends OrderTotalModuleBase
 		$this->init('tax');
 	}
 
+	public function getText(){
+		global $currencies;
+		return $currencies->format($this->getValue());
+	}
+
 	/**
 	 * @TODO: Need to figure out a way to not have to go through the ProductManager for every order total!
 	 *

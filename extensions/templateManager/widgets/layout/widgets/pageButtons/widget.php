@@ -11,19 +11,23 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetPageButtons extends TemplateManagerWidget {
-	
-	public function __construct(){
+class TemplateManagerWidgetPageButtons extends TemplateManagerWidget
+{
+
+	public function __construct()
+	{
 		$this->init('pageButtons', __DIR__);
 	}
 
-	public function show(){
+	public function show()
+	{
 		global $Template;
 		/* Page Content is the only widget that parses directly into its tpl file */
 		$PageButtons = $Template->getVar('pageContent')->getVar('pageButtons');
 		$this->setBoxContent($PageButtons);
-		
+
 		return $this->draw();
 	}
 }
+
 ?>

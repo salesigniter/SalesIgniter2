@@ -45,13 +45,19 @@ class ShoppingCartContents extends ArrayObject
 
 	/**
 	 * @param ShoppingCartProduct $CartProduct
+	 * @return bool
 	 */
 	public function remove(ShoppingCartProduct &$CartProduct) {
+		$success = false;
 		if ($this->offsetExists($CartProduct->getId())){
 			$this->offsetUnset($CartProduct->getId());
 
-			$this->cleanUp();
+			$success = ($this->offsetExists($CartProduct->getId()) === false);
+			if ($success === true){
+				$this->cleanUp();
+			}
 		}
+		return $success;
 	}
 
 	private function cleanUp() {

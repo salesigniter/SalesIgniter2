@@ -157,6 +157,7 @@ class ProductTypeStandard extends ProductTypeBase
 	}
 
 	public function allowAddToCart(&$CartProductData) {
+		global $messageStack;
 		$allowed = true;
 		$PurchaseType = $this->getPurchaseType($CartProductData['purchase_type']);
 		if (
@@ -168,6 +169,10 @@ class ProductTypeStandard extends ProductTypeBase
 
 		if ($allowed === true && method_exists($PurchaseType, 'allowAddToCart')){
 			$allowed = $PurchaseType->allowAddToCart();
+		}else{
+			if ($allowed === false){
+				$messageStack->addSession('pageStack', 'The Product Does Not Have Enough Inventory.');
+			}
 		}
 		return $allowed;
 	}

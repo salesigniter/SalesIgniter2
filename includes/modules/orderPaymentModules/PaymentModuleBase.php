@@ -315,6 +315,10 @@ class PaymentModuleBase extends ModuleBase
 
 		return $Main->draw();
 	}
+
+	public function validate(OrderPaymentManager $PaymentManager){
+		return true;
+	}
 }
 
 ?>

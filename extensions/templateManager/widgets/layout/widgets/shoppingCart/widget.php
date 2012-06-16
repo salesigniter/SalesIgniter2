@@ -8,19 +8,21 @@
 	This script and it's source is not redistributable
 */
 
-class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
+class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('shoppingCart');
 
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_SHOPPINGCART'));
 		if ($App->getEnv() == 'catalog'){
 			$this->setBoxHeadingLink(itw_app_link(null, 'shoppingCart', 'default'));
 		}
 	}
 
-	public function showLayoutPreview($WidgetSettings){
+	public function showLayoutPreview($WidgetSettings)
+	{
 		$return = $this->getTitle();
 		if ($WidgetSettings['settings']->box_mode == 'mini'){
 			$return = 'X ' . sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_ITEMS_IN_CART');
@@ -28,7 +30,8 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 		return $return;
 	}
 
-	public function show(){
+	public function show()
+	{
 		global $ShoppingCart, $currencies;
 		$WidgetProperties = $this->getWidgetProperties();
 
@@ -39,7 +42,8 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 
 		if ($boxMode == 'mini'){
 			$htmlContent = $ShoppingCart->countContents() . sprintf(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SHOPPINGCART_ITEMS_IN_CART'), itw_app_link(null, 'shoppingCart', 'default'));
-		}else{
+		}
+		else {
 			if ($ShoppingCart->countContents() > 0){
 				$productAdded = false;
 				if (Session::exists('new_products_id_in_cart') === true){
@@ -69,7 +73,8 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 						$quantity->addClass('newItemInCart');
 
 						$productName->append(htmlBase::newElement('span')->html($cartProduct->productClass->getName()));
-					}else{
+					}
+					else {
 						$productName->html($cartProduct->productClass->getName());
 					}
 
@@ -83,7 +88,7 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 				}
 				$htmlButton = htmlBase::newElement('a')
 					->setHref(itw_app_link(null, 'checkout', 'default', 'SSL'))
-					->attr('id','infoboxCheckout')
+					->attr('id', 'infoboxCheckout')
 					->addClass('checkoutFormButton')
 					->html(sysLanguage::get('WIDGET_SHOPPINGCART_CHECKOUT'));
 
@@ -96,10 +101,10 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 				$boxContent->addBodyRow(array(
 					'columns' => array(
 						array(
-							'addCls' => 'main',
+							'addCls'  => 'main',
 							'colspan' => '3',
-							'align' => 'right',
-							'text' => $currencies->format($ShoppingCart->showTotal())
+							'align'   => 'right',
+							'text'    => $currencies->format($ShoppingCart->showTotal())
 						)
 					)
 				));
@@ -108,7 +113,8 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 				$this->addGiftVoucher(&$boxContent);
 				$this->addCouponInfo(&$boxContent);
 				$htmlContent = $boxContent->draw() . '<br/>' . $htmlButton->draw();
-			}else{
+			}
+			else {
 				$boxContent = htmlBase::newElement('span')->html(sysLanguage::get('WIDGET_SHOPPINGCART_EMPTY'));
 				$htmlContent = $boxContent->draw();
 			}
@@ -119,14 +125,15 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 		return $this->draw();
 	}
 
-	public function addCouponInfo(&$boxContent){
-		if (Session::exists('cc_id') === true && Session::get('cc_id') > 0) {
+	public function addCouponInfo(&$boxContent)
+	{
+		if (Session::exists('cc_id') === true && Session::get('cc_id') > 0){
 			$Qcoupon = Doctrine_Query::create()
-			->from('Coupons c')
-			->leftJoin('c.CouponsDescription cd')
-			->where('c.coupon_id = ?', Session::get('cc_id'))
-			->andWhere('cd.language_id = ?', Session::get('languages_id'))
-			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+				->from('Coupons c')
+				->leftJoin('c.CouponsDescription cd')
+				->where('c.coupon_id = ?', Session::get('cc_id'))
+				->andWhere('cd.language_id = ?', Session::get('languages_id'))
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 			if (count($Qcoupon)){
 				$boxContent->addBodyRow(array(
@@ -138,9 +145,9 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 				$boxContent->addBodyRow(array(
 					'columns' => array(
 						array(
-							'addCls' => 'main',
+							'addCls'  => 'main',
 							'colspan' => '3',
-							'text' => sysLanguage::get('WIDGET_SHOPPINGCART_COUPON') . $Qcoupon[0]['CouponsDescription'][0]['coupon_name']
+							'text'    => sysLanguage::get('WIDGET_SHOPPINGCART_COUPON') . $Qcoupon[0]['CouponsDescription'][0]['coupon_name']
 						)
 					)
 				));
@@ -148,9 +155,12 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 		}
 	}
 
-	public function addGiftVoucher(&$boxContent){
+	public function addGiftVoucher(&$boxContent)
+	{
 		global $currencies;
-		if (sysConfig::get('MODULE_ORDER_TOTAL_GV_STATUS') != 'true') return;
+		if (sysConfig::get('MODULE_ORDER_TOTAL_GV_STATUS') != 'true') {
+			return;
+		}
 
 		$userAccount =& Session::getReference('userAccount');
 		if ($userAccount->isLoggedIn() === true){
@@ -169,9 +179,9 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 				$voucherBalance->addBodyRow(array(
 					'columns' => array(
 						array(
-							'addCls' => 'main',
+							'addCls'  => 'main',
 							'colspan' => '2',
-							'text' => '<a href="'. itw_app_link(null, 'gv_send', 'default') . '">' . sysLanguage::get('WIDGET_SHOPPINGCART_SEND_TO_FRIEND') . '</a>'
+							'text'    => '<a href="' . itw_app_link(null, 'gv_send', 'default') . '">' . sysLanguage::get('WIDGET_SHOPPINGCART_SEND_TO_FRIEND') . '</a>'
 						)
 					)
 				));
@@ -192,10 +202,10 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 
 		if (Session::exists('gv_id') === true){
 			$Qcoupon = Doctrine_Query::create()
-			->select('coupon_amount')
-			->from('Coupons')
-			->where('coupon_id = ?', Session::get('gv_id'))
-			->fetchOne();
+				->select('coupon_amount')
+				->from('Coupons')
+				->where('coupon_id = ?', Session::get('gv_id'))
+				->fetchOne();
 			if ($Qcoupon){
 				$couponAmount = htmlBase::newElement('table')->setCellPadding(2)->setCellSpacing(0);
 				$couponAmount->addBodyRow(array(
@@ -220,4 +230,5 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget {
 		}
 	}
 }
+
 ?>

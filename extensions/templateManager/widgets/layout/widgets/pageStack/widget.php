@@ -11,23 +11,25 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetPageStack extends TemplateManagerWidget {
+class TemplateManagerWidgetPageStack extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('pageStack');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_PAGE_STACK_OUTPUT'));
 	}
 
-	public function show(){
-		    global $messageStack;
-		    $pageStackOutput = ($messageStack->size('pageStack') > 0 ? $messageStack->output('pageStack') : '');
-			$this->setBoxContent($pageStackOutput);
+	public function show()
+	{
+		global $messageStack;
+		$pageStackOutput = ($messageStack->size('pageStack') > 0 ? $messageStack->output('pageStack', true) : '');
+		$this->setBoxContent($pageStackOutput);
 
-			return $this->draw();
+		return $this->draw();
 
-			return false;
+		return false;
 	}
 }
+
 ?>

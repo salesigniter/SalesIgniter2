@@ -25,7 +25,7 @@ class messageStack implements SplObserver {
 		$this->messages = array();
 		$this->msgTemplate = '<div class="ui-messageStack ui-messageStack-%s">' .
 			'<div class="ui-messageStack-message ui-messageStack-%s ui-corner-all">' .
-				'<span class="ui-messageStack-message-icon ui-icon ui-icon-%s"></span>' .
+				'<span class="ui-messageStack-message-icon ui-messageStack-message-icon-%s"></span>' .
 				'<span class="ui-messageStack-message-text">%s</span>' .
 			'</div>' .
 		'</div>';

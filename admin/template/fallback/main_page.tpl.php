@@ -4,6 +4,7 @@ $stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 	'&' . Session::getSessionName() . '=' . Session::getSessionId() .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
 	'&import[]=' . implode('&import[]=', $App->getStylesheetFiles()) .
+	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '') .
 	(isset($_GET['noMin']) ? '&noMin' : '');
 
@@ -12,6 +13,7 @@ $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 	'&' . Session::getSessionName() . '=' . Session::getSessionId() .
 	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
 	'&import[]=' . implode('&import[]=', $App->getJavascriptFiles()) .
+	'&showErrors' .
 	(isset($_GET['noCache']) ? '&noCache' : '') .
 	(isset($_GET['noMin']) ? '&noMin' : '');
 
@@ -42,11 +44,6 @@ ob_end_clean();
 	<script><?php
 		echo $App->getAddedJavascript();
 		?></script>
-	<?php
-	if (isset($_GET['oError'])){
-		echo '		<script type="text/javascript">alert(\'Onetime rentals has been disabled. If you would like to enable it, please contact www.itwebexperts.com\');</script>' . "\n";
-	}
-	?>
 	<script>
 		$(document).ready(function () {
 			$(window).resize(function () {

@@ -1,14 +1,14 @@
 <?php
 
 
-    $selectedFont = isset($WidgetSettings->applied_font)?$WidgetSettings->applied_font:'';
+$selectedFont = isset($WidgetSettings->applied_font) ? $WidgetSettings->applied_font : '';
 
-	$elementFont = htmlBase::newElement('input')
+$elementFont = htmlBase::newElement('input')
 	->setName('applied_font')
 	->setValue($selectedFont)
 	->setLabelPosition('before');
 
-	$WidgetSettingsTable->addBodyRow(array(
+$WidgetSettingsTable->addBodyRow(array(
 	'columns' => array(
 		array('colspan' => 2, 'text' => sysLanguage::get('TEXT_WIDGET_GOOGLE_FONTS_HEADING_NAME'))
 	)

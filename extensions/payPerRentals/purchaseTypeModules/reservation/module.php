@@ -147,11 +147,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function getEnabledShippingMethods() { return $this->enabledShipping; }
 
-	public function getMaxShippingDays($starting)
+	public function getMaxShippingDays(DateTime $StartDate)
 	{
 		return ReservationUtilities::getMaxShippingDays(
 			$this->getData('products_id'),
-			$starting,
+			$StartDate,
 			$this->overBookingAllowed()
 		);
 	}
@@ -923,8 +923,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$ReservationInfo = array(
 				'shipping_module' => $shippingInfo[0],
 				'shipping_method' => $shippingInfo[1],
-				'start_date'      => DateTime::createFromFormat('m/d/Y', $_POST['start_date']),
-				'end_date'        => DateTime::createFromFormat('m/d/Y', $_POST['end_date']),
+				'start_date'      => DateTime::createFromFormat(sysLanguage::getDateFormat('short'), $_POST['start_date']),
+				'end_date'        => DateTime::createFromFormat(sysLanguage::getDateFormat('short'), $_POST['end_date']),
 				'days_before'     => $_POST['days_before'],
 				'days_after'      => $_POST['days_after'],
 				'quantity'        => $_POST['rental_qty']
@@ -966,7 +966,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$ReservationInfo['semester_name'] = $CartProductData['reservationInfo']['semester_name'];
 		}
 
-		$this->processAddToOrderOrCart($reservationInfo, $CartProductData);
+		$this->processAddToOrderOrCart($ReservationInfo, $CartProductData);
 
 		EventManager::notify('ReservationProcessAddToCart', &$CartProductData['reservationInfo']);
 	}
@@ -2740,23 +2740,24 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		return $this->getInventoryItems();
 	}
 
-	public function getBookedDaysArray($starting, $qty, &$reservationsArr, &$bookedDates, $usableBarcodes = array())
+	public function getBookedDaysArray(DateTime $StartDate, $qty, &$reservationsArr, &$bookedDates, $usableBarcodes = array())
 	{
 		$reservationsArr = ReservationUtilities::getMyReservations(
 			$this->getProductId(),
-			$starting,
+			$StartDate,
 			$this->overBookingAllowed(),
 			$usableBarcodes
 		);
-		//$bookedDates = array();
-		foreach($reservationsArr as $iReservation){
-			if (isset($iReservation['start']) && isset($iReservation['end'])){
-				$startTime = strtotime($iReservation['start']);
-				$endTime = strtotime($iReservation['end']);
+
+		$bookedDates = array();
+		foreach($reservationsArr as $rInfo){
+			if (isset($rInfo['start']) && isset($rInfo['end'])){
+				$startTime = $rInfo['start']->getTimestamp();
+				$endTime = $rInfo['end']->getTimestamp();
 				while($startTime <= $endTime){
 					$dateFormated = date('Y-n-j', $startTime);
 					if ($this->getTrackMethod() == 'barcode'){
-						$bookedDates[$dateFormated]['barcode'][] = $iReservation['barcode'];
+						$bookedDates[$dateFormated]['barcode'][] = $rInfo['barcode'];
 						//check if all the barcodes are already or make a new function to make checks by qty... (this function can return also the free barcode?)
 					}
 					else {
@@ -2773,11 +2774,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				}
 			}
 		}
+
 		$bookingsArr = array();
 		$prodBarcodes = array();
-
 		foreach($this->getProductsBarcodes() as $iBarcode){
-			if (count($usableBarcodes) == 0 || in_array($iBarcode['id'], $usableBarcodes)){
+			if (sizeof($usableBarcodes) == 0 || in_array($iBarcode['id'], $usableBarcodes)){
 				$prodBarcodes[] = $iBarcode['id'];
 			}
 		}
@@ -2785,7 +2786,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		//echo '------------'.$qty;
 		//print_r($bookedDates);
 
-		if (count($prodBarcodes) < $qty && count($reservationsArr) > 0){
+		if (sizeof($prodBarcodes) < $qty && sizeof($reservationsArr) > 0){
 			return false;
 		}
 		else {
@@ -2811,11 +2812,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		return $bookingsArr;
 	}
 
-	public function getBookedTimeDaysArray($starting, $qty, $minTime, &$reservationsArr, &$bookedDates)
+	public function getBookedTimeDaysArray(DateTime $StartDate, $qty, $minTime, &$reservationsArr, &$bookedDates)
 	{
 		/*$reservationsArr = ReservationUtilities::getMyReservations(
 			$this->getProductId(),
-			$starting,
+			$StartDate,
 			$this->overBookingAllowed()
 		);*/
 		$bookedTimes = array();
@@ -3228,7 +3229,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 					$i = 1;
 					foreach(PurchaseType_reservation_utilities::getRentalPricing($this->getPayPerRentalId()) as $iPrices){
 						$tableRow[$i] = '<tr>
-                                    <td class="main">' . $iPrices['PricePayPerRentalPerProductsDescription'][0]['price_per_rental_per_products_name'] . ':</td>
+                                    <td class="main">' . $iPrices['Description'][0]['price_per_rental_per_products_name'] . ':</td>
                                     <td class="main">' . $this->displayReservePrice($iPrices['price']) . '</td>
 				                  </tr>';
 						$i++;

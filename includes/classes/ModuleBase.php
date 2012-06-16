@@ -186,6 +186,8 @@ class ModuleBase extends MI_Base
 			'callArgs' => $backtrace[0]['args'][1]
 		);
 		echo '<pre>';print_r($debugInfo);
+		debug_print_backtrace();
+		echo '<br><br>';
 		die('You should be verifying a configuration key exists: Configuration Group (' . $this->code . ') -> Configuration Key (' . $key . ')');
 	}
 

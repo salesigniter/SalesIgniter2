@@ -1,9 +1,6 @@
 <?php
 	$appContent = $App->getAppContentFile();
 
-	if (isset($_GET['eID'])){
-		$App->setInfoBoxId($_GET['eID']);
-	}
 switch($App->getPageName()){
 	case 'new':
 		$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');

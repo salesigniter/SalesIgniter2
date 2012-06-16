@@ -11,23 +11,25 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-class TemplateManagerWidgetBreadcrumb extends TemplateManagerWidget {
+class TemplateManagerWidgetBreadcrumb extends TemplateManagerWidget
+{
 
-	public function __construct(){
+	public function __construct()
+	{
 		global $App;
 		$this->init('breadcrumb');
-
-		$this->setBoxHeading(sysLanguage::get('WIDGET_HEADING_BREADCRUMB'));
 	}
 
-	public function show(){
-		    global $breadcrumb;
+	public function show()
+	{
+		global $breadcrumb;
 
-			$this->setBoxContent('<div class="breadcrumbTrail">'.$breadcrumb->trail(' &raquo; ').'</div>');
+		$this->setBoxContent('<div class="breadcrumbTrail">' . $breadcrumb->trail(' &raquo; ') . '</div>');
 
-			return $this->draw();
+		return $this->draw();
 
-			return false;
+		return false;
 	}
 }
+
 ?>
