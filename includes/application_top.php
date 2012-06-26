@@ -14,6 +14,13 @@ if (isset($_GET['runProfile'])){
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
+/**
+ * Core classes that do not depend on and sales igniter classes
+ */
+require('includes/classes/SesBrowserDetect.php');
+require('includes/classes/SesRequestInfo.php');
+require('includes/classes/SesDateTime.php');
+
 function onShutdown() {
 	global $ExceptionManager;
 	// This is our shutdown function, in
@@ -41,7 +48,6 @@ require('includes/classes/MainConfigReader.php');
 require('includes/classes/ModuleConfigReader.php');
 require('includes/classes/ExtensionConfigReader.php');
 require('includes/classes/system_configuration.php');
-require('includes/classes/SesDateTime.php');
 
 /* TO BE MOVED LATER -- BEGIN -- */
 include('includes/conversionArrays.php');
@@ -244,7 +250,7 @@ $App->loadLanguageDefines();
 if (APPLICATION_ENVIRONMENT == 'catalog'){
 	if (Session::exists('CheckoutSale')){
 		if ($App->getAppName() != 'checkout'){
-			echo 'WHAT!::' . $App->getAppName() . '<br>';
+			//echo 'WHAT!::' . $App->getAppName() . '<br>';
 			Session::remove('CheckoutSale');
 		}
 	}
@@ -331,7 +337,7 @@ if (APPLICATION_ENVIRONMENT == 'catalog'){
 					}
 				}
 
-				if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+				if (SesRequestInfo::isAjax() === true){
 					echo json_encode(array(
 						'success' => ($error === false)
 					));

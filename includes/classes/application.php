@@ -58,8 +58,8 @@ class Application
 			$StandAlone = Doctrine_Query::create()
 				->from('TemplateManagerLayouts')
 				->where('page_type = ?', 'page')
-				->andWhere('layout_settings LIKE ?', '%\"appName\": \"' . $this->appName . '\"%')
-				->andWhere('layout_settings LIKE ?', '%\"appPageName\": \"' . $this->appPage . '\"%')
+				->andWhere('layout_settings LIKE ?', '%\"appName\":\"' . $this->appName . '\"%')
+				->andWhere('layout_settings LIKE ?', '%\"appPageName\":\"' . $this->appPage . '\"%')
 				->execute();
 			if ($StandAlone && $StandAlone->count() == 1){
 				$this->appLocation = 'virtual';
@@ -111,6 +111,9 @@ class Application
 
 	public function isValid() {
 		$return = true;
+		if (file_exists($_SERVER['SCRIPT_FILENAME'])){
+			return true;
+		}
 		if (in_array(basename(strtolower($_SERVER['PHP_SELF'])), array('runupdate.php', 'stylesheet.php', 'javascript.php'))){
 			return true;
 		}
@@ -179,7 +182,7 @@ class Application
 
 	public function getAppContentFile($useFile = false) {
 		if ($this->isIgnoredApp()){
-			return '';
+			return false;
 		}
 
 		if ($useFile === false){
@@ -295,10 +298,15 @@ class Application
 
 		$stylesheetFiles = array();
 
+		$appExtension->getGlobalFiles('stylesheets', array(
+			'env'    => $this->env,
+			'format' => 'relative'
+		), $stylesheetFiles);
+
 		$pageCssFile = $this->getAppPage() . '.css';
 		foreach($this->getAppOverrideDirs() as $Path){
 			if (file_exists($Path . 'stylesheets/' . $pageCssFile)){
-				$javascriptFiles[] = $Path . 'stylesheets/' . $pageCssFile;
+				$stylesheetFiles[] = $Path . 'stylesheets/' . $pageCssFile;
 				break;
 			}
 		}
@@ -375,15 +383,15 @@ class Application
 	public function getFunctionFiles() {
 		global $appExtension;
 		if ($this->isIgnoredApp()){
-			return '';
+			return array();
 		}
 
 		$functionFiles = array();
 		$pageFunctionFile = $this->getAppPage() . '.php';
 
 		foreach($this->getAppOverrideDirs() as $Path){
-			if (file_exists($Path . 'pages_functions/' . $useFile)){
-				$functionFiles[] = $Path . 'pages_functions/' . $useFile;
+			if (file_exists($Path . 'pages_functions/' . $pageFunctionFile)){
+				$functionFiles[] = $Path . 'pages_functions/' . $pageFunctionFile;
 				break;
 			}
 		}

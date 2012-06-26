@@ -354,7 +354,7 @@ class ConfigurationReader
 							'name'          => $fieldName . '[' . $Config->getKey() . '][]',
 							'separator'     => '<br>',
 							'labelPosition' => 'after',
-							'checked'       => explode($Config->getGlue(), $Config->getValue()),
+							'checked'       => $Config->getValue(),
 							'data'          => $data
 						));
 

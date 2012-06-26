@@ -1,5 +1,5 @@
 <?php
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	$success = false;
 	if ($userAccount->processPasswordForgotten($_POST['email_address']) === true){
 		$success = true;

@@ -628,6 +628,9 @@ $(document).ready(function () {
 	});
 
 	$('.ui-icon-closethick').live('mouseover mouseout', function (event) {
+		if ($(this).hasClass('ui-state-disabled')){
+			return false;
+		}
 		switch(event.type){
 			case 'mouseover':
 				this.style.cursor = 'pointer';
@@ -638,6 +641,49 @@ $(document).ready(function () {
 				//$(this).removeClass('ui-state-hover');
 				break;
 		}
+	});
+
+	$('.additionalImagesList').on('click', '.removeAdditionalImage', function (){
+		if ($(this).hasClass('ui-state-disabled')){
+			return false;
+		}
+		var self = $(this);
+		self.addClass('ui-state-disabled');
+
+		var $ImageBox = self.parent();
+		$ImageBox.addClass('ui-state-disabled');
+		$ImageBox.find('input').attr('disabled', 'disabled');
+
+		$('<button icon="ui-icon-undo"><span>Changed My Mind</span></button>')
+			.insertBefore($(this).parent())
+			.css({
+				position: 'absolute',
+				zIndex: 99
+			})
+			.position({
+				at: 'center center',
+				my: 'center center',
+				of: $ImageBox
+			})
+			.button()
+			.click(function (){
+				self.removeClass('ui-state-disabled');
+				$ImageBox.removeClass('ui-state-disabled');
+				$ImageBox.find('input').removeAttr('disabled');
+				$(this).remove();
+			});
+	});
+
+	$('.addAdditionalImage').click(function (){
+		var Value = $(this).parent().find('.fileManagerInput').val();
+		$.each(Value.split(','), function (){
+			var boxHtml = '<div class="ui-widget ui-widget-content additionalImageBox" style="width:300px;display:inline-block;margin:10px;text-align:center;padding:5px;position: relative;vertical-align: top;height: 190px;">' +
+			'<span class="ui-icon ui-icon-closethick removeAdditionalImage" style="position: absolute;top: -12px;right: -12px;"></span>' +
+			'<div style="height:160px;"><img src="imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' + this + '"></div>' +
+			'<input class="fileManager" data-is_multiple="false" name="additional_image[]" value="' + this + '" style="width:95%;box-sizing:border-box;margin:0 5px;">' +
+			'</div>';
+			$('.additionalImagesList').prepend(boxHtml);
+		});
 	});
 
 	/*

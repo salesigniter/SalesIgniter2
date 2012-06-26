@@ -184,4 +184,6 @@
 	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_RANGE_UNDERFLOW" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
 	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_RANGE_OVERFLOW" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
 	<define key="CUSTOMERS_EMAIL_ADDRESS_VALIDATION_ERROR_STEP_MISMATCH" php="true" javascript="true"><![CDATA[Never Supposed To Get This Error!!!]]></define>
+
+	<define key="TEXT_LANGUAGE_ID_ERROR_NOTBLANK"><![CDATA[You Must Select A Language Id]]></define>
 </definitions>

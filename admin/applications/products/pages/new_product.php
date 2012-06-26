@@ -6,6 +6,49 @@ $Product = new Product(
 if (!isset($_GET['product_id']) && isset($_GET['productType'])){
 	$Product->setProductType($_GET['productType']);
 }
+?>
+<form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'action=saveProduct' . ((int)$Product->getId() > 0	? '&product_id=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
+	<div class="ApplicationPageMenu"><?php
+	$Menu = htmlBase::newList();
+
+	$AjaxSaveButton = htmlBase::newElement('button')
+		->setType('submit')
+		->usePreset('save')
+		->addClass('ajaxSave')
+		->setText(sysLanguage::get('TEXT_BUTTON_AJAX_SAVE'));
+
+	$AjaxSaveListItem = htmlBase::newElement('li')
+		->addClass('rootItem')
+		->html($AjaxSaveButton->draw());
+	$Menu->addItemObj($AjaxSaveListItem);
+
+	$SaveButton = htmlBase::newElement('button')
+		->setType('submit')
+		->usePreset('save')
+		->setText(sysLanguage::get('TEXT_BUTTON_SAVE'));
+
+	$SaveListItem = htmlBase::newElement('li')
+		->addClass('rootItem')
+		->html($SaveButton->draw());
+	$Menu->addItemObj($SaveListItem);
+
+	$CancelButton = htmlBase::newButton()
+		->usePreset('cancel');
+	if (Session::exists('categories_cancel_link') === true){
+		$CancelButton->setHref(Session::get('categories_cancel_link'));
+	}
+	else {
+		$CancelButton->setHref(itw_app_link((isset($_GET['product_id']) ? 'product_id=' . $_GET['product_id'] : ''), null, 'default'));
+	}
+
+	$CancelListItem = htmlBase::newElement('li')
+		->addClass('rootItem')
+		->html($CancelButton->draw());
+	$Menu->addItemObj($CancelListItem);
+
+	echo $Menu->draw();
+	?></div>
+<?php
 
 $tax_class_array = array(array('id'   => '0',
 							   'text' => sysLanguage::get('TEXT_NONE')
@@ -67,18 +110,6 @@ $is_box_array[] = array('id'   => 1,
 );
 //------------------------- BOX set end block -----------------------------//
 
-$ajaxSaveButton = htmlBase::newElement('button')->setType('submit')->usePreset('save')->addClass('ajaxSave')
-	->setText(sysLanguage::get('TEXT_BUTTON_AJAX_SAVE'));
-$saveButton = htmlBase::newElement('button')->setType('submit')->usePreset('save')
-	->setText(sysLanguage::get('TEXT_BUTTON_SAVE'));
-$cancelButton = htmlBase::newElement('button')->usePreset('cancel');
-
-if (Session::exists('categories_cancel_link') === true){
-	$cancelButton->setHref(Session::get('categories_cancel_link'));
-}
-else {
-	$cancelButton->setHref(itw_app_link((isset($_GET['product_id']) ? 'product_id=' . $_GET['product_id'] : ''), null, 'default'));
-}
 ?>
 <script language="javascript">
 	var tax_rates = new Array();
@@ -133,21 +164,13 @@ if (file_exists($ProductType->getPath() . 'admin/applications/products/pages/new
 }
 
 EventManager::notify('NewProductAddTabs', $Product, $ProductType, $Tabs);
-$pageButtons = $ajaxSaveButton->draw() . $saveButton->draw() . $cancelButton->draw();
 ?>
-<form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'action=saveProduct' . ((int)$Product->getId() > 0
-	? '&product_id=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
-	<div style="position:relative;text-align:right;"><?php echo $pageButtons; ?></div>
-	<br />
 	<?php
 	echo $Tabs->draw();
-	?>
-	<div style="position:relative;text-align:right;margin-top:.5em;margin-left:250px;"><?php
+
 		if (Session::exists('categories_cancel_link') === true){
 			echo tep_draw_hidden_field('categories_save_redirect', Session::get('categories_save_redirect'));
 		}
-		echo $pageButtons;
 		?>
-	</div>
 	<input type="hidden" name="products_type" value="<?php echo $ProductType->getCode();?>">
 </form>

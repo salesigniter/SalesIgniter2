@@ -139,50 +139,45 @@ class OrderPaymentRealex extends CreditCardModule
 		return $this->onResponse($CurlResponse);
 	}
 
-	public function processPayment($orderID = null, $amount = null) {
-		global $order, $onePageCheckout;
-
+	public function processPayment(Order $Order) {
 		$this->removeOrderOnFail = true;
 		if (isset($_POST['canReuse'])){
-			$onePageCheckout->onePage['info']['payment']['cardDetails']['canReuse'] = true;
+			$Order->PaymentManager->setInfo('canReuse', true);
 		}
 
-		$paymentAmount = $order->info['total'];
+		$paymentAmount = $Order->TotalManager->getTotalValue('total');
 
-		$userAccount = OrderPaymentModules::getUserAccount();
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
+		$paymentInfo = $Order->PaymentManager->getInfo();
 
-		$addressBook =& $userAccount->plugins['addressBook'];
-		$billingAddress = $addressBook->getAddress('billing');
-		$countryInfo = $userAccount->plugins['addressBook']->getCountryInfo($billingAddress['entry_country_id']);
+		$billingAddress = $Order->AddressManager->getAddress('billing');
 
-		$xExpDate = $paymentInfo['cardDetails']['cardExpMonth'] . $paymentInfo['cardDetails']['cardExpYear'];
-		$expirationDate = $paymentInfo['cardDetails']['cardExpYear'] . '-' . $paymentInfo['cardDetails']['cardExpMonth'];
+		$xExpDate = $paymentInfo['cardExpMonth'] . $paymentInfo['cardExpYear'];
+		$expirationDate = $paymentInfo['cardExpYear'] . '-' . $paymentInfo['cardExpMonth'];
 		return $this->sendPaymentRequest(array(
 			'amount'                => $paymentAmount,
-			'currencyCode'          => $order->info['currency'],
-			'orderID'               => $order->newOrder['orderID'],
+			'currencyCode'          => $Order->getCurrency(),
+			'saleId'               => $Order->getSaleId(),
 			'description'           => 'description',
-			'cardNum'               => $paymentInfo['cardDetails']['cardNumber'],
+			'cardNum'               => $paymentInfo['cardNumber'],
 			'cardExpDate'           => $xExpDate,
-			'customerId'            => $userAccount->getCustomerId(),
-			'customerEmail'         => $userAccount->getEmailAddress(),
+			'customerId'            => $Order->getCustomerId(),
+			'customerEmail'         => $Order->getEmailAddress(),
 			'customerIp'            => $_SERVER['REMOTE_ADDR'],
-			'customerFirstName'     => $billingAddress['entry_firstname'],
-			'customerLastName'      => $billingAddress['entry_lastname'],
-			'customerCompany'       => $billingAddress['entry_company'],
-			'customerStreetAddress' => $billingAddress['entry_street_address'],
-			'customerPostcode'      => $billingAddress['entry_postcode'],
-			'customerCity'          => $billingAddress['entry_city'],
-			'customerState'         => $billingAddress['entry_state'],
-			'customerTelephone'     => $userAccount->getTelephoneNumber(),
-			'customerFax'           => $userAccount->getFaxNumber(),
-			'customerCountry'       => $countryInfo['countries_name'],
-			'cardCvv'               => $paymentInfo['cardDetails']['cardCvvNumber']
+			'customerFirstName'     => $billingAddress->getFirstName(),
+			'customerLastName'      => $billingAddress->getLastName(),
+			'customerCompany'       => $billingAddress->getCompany(),
+			'customerStreetAddress' => $billingAddress->getStreetAddress(),
+			'customerPostcode'      => $billingAddress->getPostcode(),
+			'customerCity'          => $billingAddress->getCity(),
+			'customerState'         => $billingAddress->getZone(),
+			'customerTelephone'     => $Order->getInfo('customers_telephone_number'),
+			'customerFax'           => $Order->getInfo('customers_fax_number'),
+			'customerCountry'       => $billingAddress->getCountry(),
+			'cardCvv'               => $paymentInfo['cardCvvNumber']
 		));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		$this->removeOrderOnFail = false;
 
 		$Qorder = Doctrine_Query::create()
@@ -191,7 +186,7 @@ class OrderPaymentRealex extends CreditCardModule
 			->leftJoin('o.OrdersAddresses oa')
 			->leftJoin('o.OrdersTotal ot')
 			->leftJoin('c.CustomersMembership m')
-			->where('o.orders_id = ?', $orderID)
+			->where('o.orders_id = ?', $saleId)
 			->andWhere('oa.address_type = ?', 'billing')
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -201,7 +196,7 @@ class OrderPaymentRealex extends CreditCardModule
 		return $this->sendPaymentRequest(array(
 			'amount'                => $Qorder[0]['OrdersTotal'][0]['value'],
 			'currencyCode'          => $Qorder[0]['currency'],
-			'orderID'               => $orderID,
+			'saleId'               => $saleId,
 			'description'           => sysConfig::get('STORE_NAME') . ' Subscription Payment',
 			'cardNum'               => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
 			'cardExpDate'           => $xExpDate,
@@ -224,7 +219,7 @@ class OrderPaymentRealex extends CreditCardModule
 		global $messageStack;
 		$timestamp = strftime("%Y%m%d%H%M%S");
 		$merchantid = $this->login;
-		$orderid = $requestParams['orderID'];
+		$saleId = $requestParams['saleId'];
 		$curr = $requestParams['currencyCode'];
 		$amount = number_format(($requestParams['amount'] * 100), 0, '', '');
 		$amount2 = $requestParams['amount'];
@@ -232,7 +227,7 @@ class OrderPaymentRealex extends CreditCardModule
 		$ccnum = $requestParams['cardNum'];
 		$expdate = substr($requestParams['cardExpDate'], 0, 2) . substr($requestParams['cardExpDate'], 4);
 		// creating the hash.
-		$tmp = "$timestamp.$merchantid.$orderid.$amount.$curr.$ccnum";
+		$tmp = "$timestamp.$merchantid.$saleId.$amount.$curr.$ccnum";
 		$md5hash = md5($tmp);
 		$tmp = "$md5hash.$secret";
 		$md5hash = md5($tmp);
@@ -257,7 +252,7 @@ class OrderPaymentRealex extends CreditCardModule
 		$xml = "<request type='auth' timestamp='" . $timestamp . "'>
 				<merchantid>" . $merchantid . "</merchantid>
 				<account>internet</account>
-				<orderid>" . $orderid . "</orderid>
+				<orderid>" . $saleId . "</orderid>
 				<amount currency='" . $curr . "'>" . $amount . "</amount>
 				<card>
 					<number>" . $ccnum . "</number>
@@ -330,7 +325,7 @@ class OrderPaymentRealex extends CreditCardModule
 
 	private function onSuccess($info) {
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = $RequestData['orderID'];
+		$saleId = $RequestData['saleId'];
 
 		$cardDetails = array(
 			'cardOwner'    => $RequestData['customerFirstName'] . ' ' . $RequestData['customerLastName'],
@@ -341,7 +336,7 @@ class OrderPaymentRealex extends CreditCardModule
 		);
 
 		$this->logPayment(array(
-			'orderID'     => $orderId,
+			'saleId'     => $saleId,
 			'amount'      => $RequestData['amount'],
 			'message'     => $info['message'],
 			'success'     => 1,
@@ -353,10 +348,10 @@ class OrderPaymentRealex extends CreditCardModule
 	private function onFail($info) {
 		global $messageStack;
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = $RequestData['orderID'];
+		$saleId = $RequestData['saleId'];
 		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete();
 			}
@@ -365,7 +360,7 @@ class OrderPaymentRealex extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-				'orderID'     => $orderId,
+				'saleId'     => $saleId,
 				'amount'      => $RequestData['amount'],
 				'message'     => $info['message'],
 				'success'     => 0,

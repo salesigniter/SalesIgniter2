@@ -106,7 +106,7 @@
 				self.options.fileSource = self.element.data('files_source');
 			}
 			if (self.element.data('is_multiple')){
-				self.options.allowMultiple = (self.element.data('is_multiple') == 'true');
+				self.options.allowMultiple = (self.element.data('is_multiple') === true);
 			}
 			if (self.element.data('allowed_extensions')){
 				self.options.allowedTypes = self.element.data('allowed_extensions').split(',');

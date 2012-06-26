@@ -1,7 +1,7 @@
 <?php
 $success = $ShoppingCart->remove($productsId);
 
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	EventManager::attachActionResponse(array(
 		'success' => $success
 	), 'json');

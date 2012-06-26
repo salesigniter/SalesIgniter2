@@ -290,12 +290,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 	}
 
-	public function processPayment($orderID = null, $amount = null) {
-		global $order, $onePageCheckout, $ShoppingCart, $Editor;
-
+	public function processPayment(Order $Order) {
 		$this->removeOrderOnFail = true;
 		if (isset($_POST['canReuse'])){
-			$onePageCheckout->onePage['info']['payment']['cardDetails']['canReuse'] = true;
+			$Order->PaymentManager->setInfo('canReuse', true);
 		}
 
 		if ($this->getConfigData('MODULE_PAYMENT_AUTHORIZENET_CCMODE') == 'Authorize Only'){
@@ -308,102 +306,45 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$xType = 'PRIOR_AUTH_CAPTURE';
 		}
 
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
-		$xExpDate = $paymentInfo['cardDetails']['cardExpMonth'] . $paymentInfo['cardDetails']['cardExpYear'];
-		$expirationDate = $paymentInfo['cardDetails']['cardExpYear'] . '-' . $paymentInfo['cardDetails']['cardExpMonth'];
+		$paymentInfo = $Order->PaymentManager->getInfo();
+		$xExpDate = $paymentInfo['cardExpMonth'] . $paymentInfo['cardExpYear'];
+		$expirationDate = $paymentInfo['cardExpYear'] . '-' . $paymentInfo['cardExpMonth'];
 
 		/*For each product i calculate deposit amount and make the sum for auth type and then substract for auth and sale*/
 		/*if on editor i get all product from editor too*/
 		$totalDeposit = 0;
-		if (isset($ShoppingCart) && !is_null($ShoppingCart) && is_object($ShoppingCart)){
-			foreach($ShoppingCart->getProducts() as $iProduct){
-				$resInfo = $iProduct->getInfo();
-				if (isset($resInfo['reservationInfo']['deposit_amount'])){
-					$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
-				}
-				//can be for insurance too
-			}
-		}
-		elseif (isset($Editor)) {
-			foreach($Editor->ProductManager->getContents() as $iProduct){
-				$resInfo = $iProduct->getInfo();
-				if (isset($resInfo['reservationInfo']['deposit_amount'])){
-					$totalDeposit += $resInfo['reservationInfo']['deposit_amount'];
-				}
+		foreach($ORder->ProductManager->getContents() as $OrderedProduct){
+			$resInfo = $OrderedProduct->getInfo('ReservationInfo');
+			if (isset($resInfo['deposit_amount'])){
+				$totalDeposit += $resInfo['deposit_amount'];
 			}
 		}
 
-		if (is_null($orderID)){
-			$userAccount = OrderPaymentModules::getUserAccount();
+		$billingAddress = $Order->AddressManager->getAddress('billing');
 
-			$addressBook =& $userAccount->plugins['addressBook'];
-			$billingAddress = $addressBook->getAddress('billing');
-			$countryInfo = $userAccount->plugins['addressBook']->getCountryInfo($billingAddress['entry_country_id']);
-
-			$total = $order->info['total'];
-			$dataArray = array(
-				'currencyCode'          => $order->info['currency'],
-				'orderID'               => $order->newOrder['orderID'],
-				'description'           => 'description',
-				'cardNum'               => $paymentInfo['cardDetails']['cardNumber'],
-				'cardExpDate'           => $xExpDate,
-				'cardExpDateCIM'        => $expirationDate,
-				'customerId'            => $userAccount->getCustomerId(),
-				'customerEmail'         => $userAccount->getEmailAddress(),
-				'customerIp'            => $_SERVER['REMOTE_ADDR'],
-				'customerFirstName'     => $billingAddress['entry_firstname'],
-				'customerLastName'      => $billingAddress['entry_lastname'],
-				'customerCompany'       => (isset($billingAddress['entry_company']) ? $billingAddress['entry_company'] : ''),
-				'customerStreetAddress' => $billingAddress['entry_street_address'],
-				'customerPostcode'      => $billingAddress['entry_postcode'],
-				'customerCity'          => $billingAddress['entry_city'],
-				'customerState'         => $billingAddress['entry_state'],
-				'customerTelephone'     => $userAccount->getTelephoneNumber(),
-				'customerFax'           => $userAccount->getFaxNumber(),
-				'customerCountry'       => $countryInfo['countries_name'],
-				'cardCvv'               => (isset($paymentInfo['cardDetails']['cardCvvNumber']) ? $paymentInfo['cardDetails']['cardCvvNumber'] : '')
-			);
-		}
-		else {
-			$Qorder = Doctrine_Query::create()
-				->from('Orders o')
-				->leftJoin('o.OrdersPaymentsHistory oph')
-				->leftJoin('o.Customers c')
-				->leftJoin('o.OrdersAddresses oa')
-				->leftJoin('o.OrdersTotal ot')
-				->where('o.orders_id = ?', $orderID)
-				->andWhere('oa.address_type = ?', 'billing')
-				->andWhereIn('ot.module_type', array('total', 'ot_total'))
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-			if (!is_null($amount)){
-				$total = $amount;
-			}
-			else {
-				$total = $Qorder[0]['OrdersTotal'][0]['value'];
-			}
-			$cardDetails = unserialize(cc_decrypt($Qorder[0]['OrdersPaymentsHistory'][0]['card_details']));
-			$xExpDate = $cardDetails['cardExpMonth'] . $cardDetails['cardExpYear'];
-			$dataArray = array(
-				'currencyCode'          => $Qorder[0]['currency'],
-				'orderID'               => $orderID,
-				'description'           => sysConfig::get('STORE_NAME') . ' Subscription Payment',
-				'cardNum'               => $cardDetails['cardNumber'],
-				'cardExpDate'           => $xExpDate,
-				'customerId'            => $Qorder[0]['customers_id'],
-				'customerEmail'         => $Qorder[0]['customers_email_address'],
-				'customerFirstName'     => $Qorder[0]['Customers']['customers_firstname'],
-				'customerLastName'      => $Qorder[0]['Customers']['customers_lastname'],
-				'customerCompany'       => $Qorder[0]['OrdersAddresses'][0]['entry_company'],
-				'customerStreetAddress' => $Qorder[0]['OrdersAddresses'][0]['entry_street_address'],
-				'customerPostcode'      => $Qorder[0]['OrdersAddresses'][0]['entry_postcode'],
-				'customerCity'          => $Qorder[0]['OrdersAddresses'][0]['entry_city'],
-				'customerState'         => $Qorder[0]['OrdersAddresses'][0]['entry_state'],
-				'customerTelephone'     => $Qorder[0]['customers_telephone'],
-				'customerCountry'       => $Qorder[0]['OrdersAddresses'][0]['entry_country'],
-				'cardCvv'               => $cardDetails['cardCvvNumber']
-			);
-		}
+		$total = $order->info['total'];
+		$dataArray = array(
+			'currencyCode'          => $Order->getCurrency(),
+			'saleId'                => $Order->getSaleId(),
+			'description'           => 'description',
+			'cardNum'               => $paymentInfo['cardNumber'],
+			'cardExpDate'           => $xExpDate,
+			'cardExpDateCIM'        => $expirationDate,
+			'customerId'            => $Order->getCustomerId(),
+			'customerEmail'         => $Order->getEmailAddress(),
+			'customerIp'            => $_SERVER['REMOTE_ADDR'],
+			'customerFirstName'     => $billingAddress->getFirstName(),
+			'customerLastName'      => $billingAddress->getLastName(),
+			'customerCompany'       => $billingAddress->getCompany(),
+			'customerStreetAddress' => $billingAddress->getStreetAddress(),
+			'customerPostcode'      => $billingAddress->getPostcode(),
+			'customerCity'          => $billingAddress->getCity(),
+			'customerState'         => $billingAddress->getZone(),
+			'customerTelephone'     => $Order->getInfo('customers_telephone_number'),
+			'customerFax'           => $Order->getInfo('customers_fax_number'),
+			'customerCountry'       => $billingAddress->getCountry(),
+			'cardCvv'               => (isset($paymentInfo['cardCvvNumber']) ? $paymentInfo['cardCvvNumber'] : '')
+		);
 
 		if ($totalDeposit > 0){
 			$xType = 'AUTH_ONLY';
@@ -429,7 +370,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		$this->removeOrderOnFail = false;
 
 		$Qorder = Doctrine_Query::create()
@@ -438,7 +379,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			->leftJoin('o.OrdersAddresses oa')
 			->leftJoin('o.OrdersTotal ot')
 			->leftJoin('c.CustomersMembership m')
-			->where('o.orders_id = ?', $orderID)
+			->where('o.orders_id = ?', $saleId)
 			->andWhere('oa.address_type = ?', 'billing')
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -462,7 +403,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		$dataArray = array(
 			'amount'                => $Qorder[0]['OrdersTotal'][0]['value'],
 			'currencyCode'          => $Qorder[0]['currency'],
-			'orderID'               => $orderID,
+			'saleId'                => $saleId,
 			'description'           => sysConfig::get('STORE_NAME') . ' Subscription Payment',
 			'cardNum'               => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
 			'cardExpDate'           => $xExpDate,
@@ -510,9 +451,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 			$dataArray['x_test_request'] = 'TRUE';
 		}
 
-		if (isset($requestParams['orderID'])){
-			$dataArray['x_invoice_num'] = $requestParams['orderID'];
-			$this->setParameter('orderInvoiceNumber', $requestParams['orderID']);
+		if (isset($requestParams['saleId'])){
+			$dataArray['x_invoice_num'] = $requestParams['saleId'];
+			$this->setParameter('orderInvoiceNumber', $requestParams['saleId']);
 		}
 		if (isset($requestParams['description'])){
 			$dataArray['x_description'] = $requestParams['description'];
@@ -655,10 +596,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				$message = $this->getResponse();
 				//echo 'gs'.$message;
 				if (isset($this->params['orderInvoiceNumber'])){
-					$info['orderID'] = $this->params['orderInvoiceNumber'];
+					$info['saleId'] = $this->params['orderInvoiceNumber'];
 				}
 				else {
-					$info['orderID'] = '';
+					$info['saleId'] = '';
 				}
 
 				if (isset($this->params['customerProfileId'])){
@@ -713,10 +654,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 				$message = $this->getResponse();
 
 				if (isset($this->params['orderInvoiceNumber'])){
-					$info['orderID'] = $this->params['orderInvoiceNumber'];
+					$info['saleId'] = $this->params['orderInvoiceNumber'];
 				}
 				else {
-					$info['orderID'] = '';
+					$info['saleId'] = '';
 				}
 
 				if (isset($this->params['customerProfileId'])){
@@ -824,7 +765,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 
 		$this->logPayment(array(
-			'orderID'     => $info['orderID'],
+			'saleId'      => $info['saleId'],
 			'amount'      => $info['amount'],
 			'message'     => $info['message'],
 			'success'     => 1,
@@ -840,9 +781,9 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		if ($isCron === true){
 			$this->cronMsg = $this->getTitle() . ' : ' . $info['message'];
 		}
-		$orderId = $info['orderID'];
+		$saleId = $info['saleId'];
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete();
 			}
@@ -851,7 +792,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-				'orderID'     => $orderId,
+				'saleId'      => $saleId,
 				'amount'      => $info['amount'],
 				'message'     => $info['message'],
 				'success'     => 0,
@@ -866,7 +807,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 
 	private function onSuccess($info) {
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = $RequestData['x_invoice_num'];
+		$saleId = $RequestData['x_invoice_num'];
 
 		$cardDetails = array(
 			'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
@@ -877,7 +818,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		);
 
 		$this->logPayment(array(
-			'orderID'     => $orderId,
+			'saleId'      => $saleId,
 			'amount'      => $RequestData['x_amount'],
 			'message'     => $info['message'],
 			'success'     => 1,
@@ -889,10 +830,10 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 	private function onFail($info) {
 		global $messageStack;
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = $RequestData['x_invoice_num'];
+		$saleId = $RequestData['x_invoice_num'];
 		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete();
 			}
@@ -901,7 +842,7 @@ class OrderPaymentAuthorizenet extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-				'orderID'     => $orderId,
+				'saleId'      => $saleId,
 				'amount'      => $RequestData['x_amount'],
 				'message'     => $info['message'],
 				'success'     => 0,

@@ -1,6 +1,11 @@
 <?php
 	$html = '';
-	$Qreservations = Doctrine_Query::create()
+$Reservations = Doctrine_Query::create()
+	->from('PayPerRentalReservations')
+	->where('start_date BETWEEN ? AND ?', array($_GET['start_date'], $_GET['end_date']))
+	->andWhere('rental_state = ?', 'reserved')
+	->execute();
+	/*$Qreservations = Doctrine_Query::create()
 	->from('Orders o')
 	->leftJoin('o.OrdersAddresses oa')
 	->leftJoin('o.OrdersProducts op')
@@ -34,7 +39,7 @@
 			$Qreservations->andWhere('opr.rental_status_id = ?', $_GET['filter_status']);
 		}
 	}
-
+*/
 
 EventManager::notify('OrdersListingBeforeExecute', &$Qreservations);
 

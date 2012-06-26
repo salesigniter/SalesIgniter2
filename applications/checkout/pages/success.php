@@ -1,5 +1,5 @@
 <?php
-$isAjax = (isset($_GET['rType']) && $_GET['rType'] == 'ajax');
+$isAjax = (SesRequestInfo::isAjax() === true);
 
 $QlastOrder = Doctrine_Query::create()
 	->from('Orders o')
@@ -31,7 +31,7 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True' && sysConfi
 }
 
 if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_LOS_SUCCESS_PAGE') == 'True'){
-	//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
+	//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$Order->getSaleId(), 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$Order->getSaleId(), 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
 	$htmlTermsDetails = $LastOrder->terms;
 }
 
@@ -69,7 +69,7 @@ else {
 		<table border="0" width="100%" cellspacing="0" cellpadding="2">
 			<tr>
 				<td class="main" colspan="2">
-					<b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'), $Order->getOrderId()) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b>
+					<b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'), $Order->getSaleId()) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b>
 				</td>
 			</tr>
 			<tr>
@@ -191,7 +191,7 @@ else {
 <tr>
 	<td>
 		<?php
-		$contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $Order->getOrderId());
+		$contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $Order->getSaleId());
 		if (!empty($contents)){
 			foreach($contents as $content){
 				echo $content;
@@ -243,7 +243,7 @@ else {
 <tr>
 	<td>
 		<?php
-		$contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory', $Order->getOrderId());
+		$contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory', $Order->getSaleId());
 		if (!empty($contents)){
 			foreach($contents as $content){
 				echo $content;

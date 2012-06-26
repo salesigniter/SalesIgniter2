@@ -15,6 +15,8 @@
 		background:#ecfaff;
 		border: 1px solid #a6c9e2;
 		padding: .3em;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
 		<?php echo buildBorderRadius('5px', '5px', '5px', '5px');?>
 	}
 
@@ -57,7 +59,7 @@
 		vertical-align: middle;
 	}
 	.ui-icon { width:24px;height:24px;display: inline-block;vertical-align: middle; }
-	.ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
+	.ui-icon, .ui-widget-content .ui-icon, .ui-state-default .ui-icon, .ui-state-error .ui-icon, .ui-state-highlight .ui-icon, div.containerBreadcrumb .ui-icon, .ui-widget-header .ui-icon { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
 
 	.ui-icon-warning { background-position: -2px -2px }
 	.ui-icon-calendar { background-position: -114px -2px; }
@@ -104,7 +106,7 @@
 	.ui-icon-document { background-position: -2px -142px; }
 	.ui-icon-export, .ui-icon-arrowreturnthick-1-s { background-position: -30px -142px;}
 	.ui-icon-link { background-position: -58px -142px; }
-	.ui-icon-arrowreturnthick-1-w { background-position: -86px -142px; }
+	.ui-icon-arrowreturnthick-1-w, .ui-icon-undo { background-position: -86px -142px; }
 	.ui-icon-wrap, .wrapElement { background-position: -86px -142px; }
 	.ui-icon-unwrap, .removeWrapper { background-position: -114px -142px; }
 	.ui-icon-transferthick-e-w { background-position: -142px -142px; }
@@ -125,18 +127,6 @@
 	.ui-icon-save-as { background-position: -170px -198px; }
 	.ui-icon-revision { background-position: -198px -198px; }
 
-	.ui-state-error, .ui-widget-content .ui-state-error {border: 1px solid #e60018; background: #fef1ec url(<?php echo $jqueryThemeImages;?>/ui-bg_glass_95_fcccca_1x400.png) 50% 50% repeat-x; color: #333333; }
-	.ui-state-error a, .ui-widget-content .ui-state-error a { color: #333333; }
-	.ui-state-error-text, .ui-widget-content .ui-state-error-text { color: #333333; }
-
-	.ui-state-success, .ui-widget-content .ui-state-success {border: 1px solid #24e600; background: #fef1ec url(<?php echo $jqueryThemeImages;?>/ui-bg_glass_95_cafccc_1x400.png) 50% 50% repeat-x; color: #333333; }
-	.ui-state-success a, .ui-widget-content .ui-state-success a { color: #333333; }
-	.ui-state-success-text, .ui-widget-content .ui-state-success-text { color: #333333; }
-
-	.ui-state-warning, .ui-widget-content .ui-state-warning {border: 1px solid #c0c4de; background: #fef1ec url(<?php echo $jqueryThemeImages;?>/ui-bg_glass_95_cae0fc_1x400.png) 50% 50% repeat-x; color: #333333; }
-	.ui-state-warning a, .ui-widget-content .ui-state-warning a { color: #333333; }
-	.ui-state-warning-text, .ui-widget-content .ui-state-warning-text { color: #333333; }
-
 	.ui-ajax-loader { display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; }
 	.ui-ajax-loader-xsmall { width: 10px; height: 10px;  background-image:url(<?php echo $jqueryThemeIcons;?>/ajax_loader_xsmall.gif); }
 	.ui-ajax-loader-icon { width:16px; height:16px;  background-image:url(<?php echo $jqueryThemeIcons;?>/ajax_loader_icon.gif); }
@@ -149,6 +139,7 @@
 	.gridInfoRow { <?php echo buildSimpleGradient('#FFF6BF', '#ffffff');?>;display: none; }
 	.gridInfoRow .gridBodyRowColumn { border:none; }
 	.gridButtonBar { background:#87b6d9;border-color:#4297d7; }
+	.gridButtonBar *  { vertical-align: middle; }
 	.gridHeader { <?php echo buildLinearGradient(270, array(array('#88b6d9', 0), array('#88b6d9', .5), array('#73aad3', .5), array('#6ea6d1', 1)));?>;background-repeat: repeat; }
 	.gridHeaderRow {  }
 	.gridHeaderRowColumn { color:#ffffff;border: 1px solid #4297d7;border-left:0px;border-top:0px; }
@@ -189,17 +180,17 @@
 	.ui-filemanager-icon-action.ui-state-hover,
 	.ui-widget-content .ui-filemanager-icon-action.ui-state-hover,
 	.ui-filemanager-icon-action.ui-state-active,
-	.ui-widget-content .ui-filemanager-icon-action.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
+	.ui-widget-content .ui-filemanager-icon-action.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
 	.ui-filemanager-icon-view,
 	.ui-filemanager-icon-view.ui-state-hover,
 	.ui-widget-content .ui-filemanager-icon-view.ui-state-hover,
 	.ui-widget-content .ui-filemanager-icon-view.ui-state-active,
-	.ui-filemanager-icon-view.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
+	.ui-filemanager-icon-view.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
 	.ui-filemanager-icon-breadcrumb,
 	.ui-filemanager-icon-breadcrumb.ui-state-hover,
 	.ui-widget-content .ui-filemanager-icon-breadcrumb.ui-state-hover,
 	.ui-filemanager-icon-breadcrumb.ui-state-active,
-	.ui-widget-content .ui-filemanager-icon-breadcrumb.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/icons-new.png); }
+	.ui-widget-content .ui-filemanager-icon-breadcrumb.ui-state-active { background-image: url(<?php echo sysConfig::get('DIR_WS_TEMPLATE');?>images/ses-icons.png); }
 
 	.ui-filemanager-icon-action-edit, .ui-filemanager-icon-action-edit.ui-state-hover, .ui-filemanager-icon-action-edit.ui-state-active   { background-position: -142px   -114px; }
 	.ui-filemanager-icon-action-delete, .ui-filemanager-icon-action-delete.ui-state-hover, .ui-filemanager-icon-action-delete.ui-state-active  { background-position: -198px   -2px; }
@@ -397,3 +388,162 @@
 		margin-left: .5em;
 	}
 
+	.ApplicationPageMenu.fixed {
+		top          : 0;
+		position     : fixed;
+		z-index      : 1;
+		margin-right : 51px;
+	}
+
+	.ApplicationPageMenu {
+		line-height: 4em;
+		text-align: center;
+		background: #fafafa;
+		color: #444444;
+		border: 1px solid #ccc;
+		border-top: 0px;
+		position: relative;
+	}
+
+	.ApplicationPageMenu .ui-button {
+		width: 100%;
+		margin: 0;
+		line-height: inherit;
+		border: 0;
+		-webkit-border-radius: 0;
+		padding:0;
+	}
+
+	.ApplicationPageMenu .subMenu .ui-button {
+		text-align: left;
+		padding-left: 20px;
+	}
+
+	.ApplicationPageMenu .ui-button.ui-state-default, .ApplicationPageMenu .ui-button.ui-state-hover, .ApplicationPageMenu .ui-button.ui-state-active {
+		background: none;
+	}
+
+	.ApplicationPageMenu ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.ApplicationPageMenu .rootItem {
+		vertical-align: middle;
+		display: inline-block;
+		width: 200px;
+		position: relative;
+		border-left: 1px solid #cccccc;
+		border-right: 1px solid #efefef;
+	}
+
+	.ApplicationPageMenu .rootItem span, .ApplicationPageMenu .rootItem a {
+		vertical-align: middle;
+		margin-right: .5em;
+		color: #555;
+	}
+
+	.ApplicationPageMenu .subMenu {
+		display:none;
+		position: absolute;
+		background: #fafafa;
+		width: 201px;
+		text-align: left;
+		border: 1px solid #ccc;
+		border-top: 0;
+		left:-1px;
+	}
+
+	.fieldsetForm {
+		border-color: #cccccc;
+		background:#f9f9f9;
+		margin-bottom: 10px;
+	}
+
+	.fieldsetForm legend {
+		color: #333333;
+		border-color: #cccccc;
+		<?php echo buildSimpleGradient('#f7f7f7', '#ededed');?>
+	}
+
+	.fieldsetForm ul {
+		border-color: #e8e8e8;
+	}
+
+	.fieldsetForm li {
+		border-color: #e8e8e8;
+	}
+
+	.fieldsetForm label {
+		font-style: italic;
+		font-size:.8em;
+		color: #999999;
+	}
+
+	.fieldsetFormMainLabel {
+		text-transform: uppercase;
+		color: #555555;
+		font-size: 11px;
+		font-weight: bold;
+	}
+
+	.ui-selectbox-searchable {
+		display: inline-block;
+		width: 100%;
+		position: relative;
+	}
+
+	.ui-selectbox-searchable-value-box {
+		border: 1px solid #d8d8d8;
+		background: -webkit-linear-gradient(top, #EEE, #ffffff);
+		padding: .5em;
+	}
+	.ui-selectbox-searchable-value-box.ui-state-default {}
+	.ui-selectbox-searchable-value-box.ui-state-hover {}
+	.ui-selectbox-searchable-value-box.ui-state-active {}
+
+	.ui-selectbox-searchable-trigger {
+		position: absolute;
+		background-color:transparent;
+		cursor: default;
+		background-position: -31px -114px;
+		top: .3em;
+		right: .3em;
+	}
+
+	.ui-selectbox-searchable-value {
+		color: #9999a7;
+		padding-left: .5em;
+	}
+
+	.ui-selectbox-searchable-search-input {
+		margin-top:.5em;
+		width: 100%;
+		box-shadow: 0 0 5px 1px #ccc;
+		display:none;
+	}
+
+	.ui-selectbox-searchable-options-box {
+		border: 1px solid #d8d8d8;
+		border-top-width: 0;
+		background: white;
+		max-height: 20em;
+		overflow-x: none;
+		overflow-y: auto;
+		position: absolute;
+		width: 99.9%;
+		margin-bottom: 10px;
+		display:none;
+	}
+
+	.ui-selectbox-searchable-options-box ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.ui-selectbox-searchable-options-box ul li {
+		border-bottom: 1px solid #D8D8D8;
+		padding: .5em;
+	}

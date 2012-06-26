@@ -1,6 +1,15 @@
 <?php
-$appPage = $App->getAppPage();
-$appContent = $App->getAppContentFile();
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
 
 $App->addJavascriptFile('ext/jQuery/external/pass_strength/jQuery.pstrength.js');
 
@@ -16,7 +25,7 @@ if (sysConfig::get('ONEPAGE_LOGIN_REQUIRED') == 'true'){
 	}
 }
 
-if (isset($_GET['rType'])){
+if (SesRequestInfo::isAjax() === true){
 	header('content-type: text/html; charset=' . sysLanguage::getCharset());
 }
 

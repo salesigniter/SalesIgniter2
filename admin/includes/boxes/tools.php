@@ -75,6 +75,12 @@ if (sysPermissions::adminAccessAllowed('index', 'manageFavorites') === true){
 		'text' => 'Manage Favorites'
 	);
 }
+if (sysPermissions::adminAccessAllowed('label_maker', 'default') === true){
+	$cartTools[] = array(
+		'link' => itw_app_link(null, 'label_maker', 'default', 'SSL'),
+		'text' => sysLanguage::get('BOX_RENTAL_GENERAL_BATCH_PRINT')
+	);
+}
 
 if (sysPermissions::adminAccessAllowed('cleardb', 'default') === true){
 	$databaseTools[] = array(

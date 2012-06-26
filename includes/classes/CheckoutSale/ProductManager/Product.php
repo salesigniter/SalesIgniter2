@@ -11,42 +11,12 @@ class CheckoutSaleProduct extends OrderProduct
 {
 
 	/**
-	 * @param array|null $pInfo
+	 * @var CheckoutSaleProductTypeStandard|CheckoutSaleProductTypePackage
 	 */
-	public function __construct(array $pInfo = null)
-	{
-		if (is_null($pInfo) === false){
-			$this->setProductId($pInfo['products_id']);
-
-			$ProductType =& $this->getProductTypeClass();
-			if (method_exists($ProductType, 'processAddToCheckoutSale')){
-				$ProductType->processAddToCheckoutSale(&$pInfo);
-			}
-
-			$this->updateInfo($pInfo);
-		}
-	}
-
-	public function updateFromCart(ShoppingCartProduct $CartProduct)
-	{
-		$this->setQuantity($CartProduct->getQuantity());
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'updateFromCart')){
-			$ProductType->updateFromCart($CartProduct);
-		}
-	}
-
-	public function setCartProductHashId($hashId){
-		$this->setInfo('cart_product_hash', $hashId);
-	}
-
-	public function getCartProductHashId(){
-		return $this->getInfo('cart_product_hash');
-	}
+	protected $ProductTypeClass;
 
 	/**
-	 * @return ProductTypeGiftVoucher|ProductTypeMembership|ProductTypePackage|ProductTypeStandard
+	 * @return CheckoutSaleProductTypeStandard|CheckoutSaleProductTypePackage|ProductTypeBase
 	 */
 	public function &getProductTypeClass()
 	{
@@ -54,90 +24,19 @@ class CheckoutSaleProduct extends OrderProduct
 	}
 
 	/**
-	 *
+	 * @param string $hashId
 	 */
-	public function init()
+	public function setCartProductHashId($hashId)
 	{
-		$this->setProductId((int)$this->pInfo['products_id']);
-
-		$ProductType =& $this->getProductTypeClass();
-		if (method_exists($ProductType, 'CheckoutSaleProductOnInit')){
-			$ProductType->CheckoutSaleProductOnInit(&$this->pInfo);
-		}
+		$this->setInfo('cart_product_hash', $hashId);
 	}
 
 	/**
-	 * @param int $pID
+	 * @return string
 	 */
-	public function setProductId($pID)
+	public function getCartProductHashId()
 	{
-		global $CheckoutSale;
-		$this->productClass = new Product($pID);
-		$this->loadProductTypeClass($this->productClass->getProductType());
-
-		$this->pInfo['products_id'] = $pID;
-		$this->pInfo['products_name'] = $this->getProductClass()->getName();
-		$this->pInfo['products_weight'] = $this->getProductClass()->getWeight();
-		$this->pInfo['products_model'] = $this->getProductClass()->getModel();
-
-		$taxAddress = null;
-		if (is_object($CheckoutSale->AddressManager)){
-			$taxAddress = $CheckoutSale->AddressManager->getAddress('billing');
-		}
-		$this->setTaxRate(tep_get_tax_rate(
-			$this->getProductTypeClass()->getTaxClassId(),
-			(is_object($taxAddress) ? $taxAddress->getCountryId() : -1),
-			(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
-		));
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'setProductId')){
-			$ProductType->setProductId($this->pInfo['products_id']);
-		}
-	}
-
-	/**
-	 *
-	 */
-	public function CheckoutSaleUpdateProductInfo()
-	{
-		$updateAllowed = true;
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'CheckoutSaleAllowProductUpdate')){
-			$updateAllowed = $ProductType->CheckoutSaleAllowProductUpdate($this);
-		}
-
-		if ($updateAllowed === true && method_exists($ProductType, 'CheckoutSaleUpdateProductInfo')){
-			$pInfo = $this->pInfo;
-			$ProductType->CheckoutSaleUpdateProductInfo(&$pInfo);
-			$this->pInfo = $pInfo;
-		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function CheckoutSaleAllowAddToContents()
-	{
-		$addAllowed = true;
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'CheckoutSaleAllowAddToContents')){
-			$addAllowed = $ProductType->CheckoutSaleAllowAddToContents($this);
-		}
-		return $addAllowed;
-	}
-
-	/**
-	 *
-	 */
-	public function CheckoutSaleOnAddToContents()
-	{
-		//echo __FILE__ . '::' . __LINE__ . '<br>';
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'CheckoutSaleOnAddToContents')){
-			//echo __FILE__ . '::' . __LINE__ . '<br>';
-			$ProductType->CheckoutSaleOnAddToContents($this);
-		}
+		return $this->getInfo('cart_product_hash');
 	}
 
 	/**
@@ -155,9 +54,8 @@ class CheckoutSaleProduct extends OrderProduct
 	{
 		$this->pInfo['products_quantity'] = (int)$val;
 
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'onSetQuantity')){
-			$ProductType->onSetQuantity($this);
+		if (method_exists($this->ProductTypeClass, 'onSetQuantity')){
+			$this->ProductTypeClass->onSetQuantity($this);
 		}
 	}
 
@@ -168,6 +66,10 @@ class CheckoutSaleProduct extends OrderProduct
 	{
 		$this->pInfo['products_price'] = (float)$val;
 		$this->pInfo['final_price'] = (float)$val;
+
+		if (method_exists($this->ProductTypeClass, 'onSetPrice')){
+			$this->ProductTypeClass->onSetPrice($this);
+		}
 	}
 
 	/**
@@ -176,62 +78,125 @@ class CheckoutSaleProduct extends OrderProduct
 	public function setBarcodes(array $val)
 	{
 		$this->pInfo['Barcodes'] = $val;
+
+		if (method_exists($this->ProductTypeClass, 'onSetBarcodes')){
+			$this->ProductTypeClass->onSetBarcodes($this);
+		}
 	}
 
 	/**
-	 * @return array
+	 * @param int $productId
 	 */
-	public function getBarcodes()
+	public function loadProduct($productId)
 	{
-		return $this->pInfo['Barcodes'];
+		$this->ProductClass = new Product((int)$productId);
+
+		$ProductType = $this->ProductClass->getProductType();
+		ProductTypeModules::$classPrefix = 'CheckoutSaleProductType';
+		$isLoaded = ProductTypeModules::loadModule(
+			$ProductType,
+			sysConfig::getDirFsCatalog() . 'includes/classes/CheckoutSale/ProductManager/ProductTypeModules/' . $ProductType . '/'
+		);
+		if ($isLoaded === true){
+			$this->ProductTypeClass = ProductTypeModules::getModule($ProductType);
+			if ($this->ProductTypeClass === false){
+				echo '<pre>';
+				debug_print_backtrace();
+				echo '</pre>';
+				die('Error loading product type: ' . $ProductType);
+			}
+			$this->ProductTypeClass->setProductId($this->ProductClass->getId());
+		}
+	}
+
+	/**
+	 * @param int $pID
+	 */
+	public function setProductId($pID)
+	{
+		global $CheckoutSale;
+		$this->loadProduct($pID);
+
+		$this->pInfo['products_id'] = $pID;
+		$this->pInfo['products_name'] = $this->getProductClass()->getName();
+		$this->pInfo['products_weight'] = $this->getProductClass()->getWeight();
+		$this->pInfo['products_model'] = $this->getProductClass()->getModel();
+
+		$taxAddress = null;
+		if (is_object($CheckoutSale->AddressManager)){
+			$taxAddress = $CheckoutSale->AddressManager->getAddress('billing');
+		}
+		$this->setTaxRate(tep_get_tax_rate(
+			$this->ProductTypeClass->getTaxClassId(),
+			(is_object($taxAddress) ? $taxAddress->getCountryId() : -1),
+			(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
+		));
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasBarcodes()
+	public function CheckoutSaleAllowAddToContents()
 	{
-		return (isset($this->pInfo['Barcodes']));
+		$addAllowed = true;
+		if (method_exists($this->ProductTypeClass, 'AllowAddToContents')){
+			$addAllowed = $this->ProductTypeClass->allowAddToContents($this);
+		}
+		return $addAllowed;
 	}
 
 	/**
-	 * @param string $k
-	 * @param mixed  $v
+	 *
 	 */
-	public function setInfo($k, $v = '')
+	public function onAddToContents()
 	{
-		if (is_array($k)){
-			$this->pInfo = $k;
+		if (method_exists($this->ProductTypeClass, 'OnAddToContents')){
+			$this->ProductTypeClass->onAddToContents($this);
+		}
+	}
+
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
+	public function onAddFromCart(ShoppingCartProduct $CartProduct)
+	{
+		global $messageStack;
+		$this->setCartProductHashId($CartProduct->getId());
+		$this->setProductId($CartProduct->getIdString());
+		$this->setQuantity($CartProduct->getQuantity());
+		$this->setPrice($CartProduct->getPrice());
+
+		if (method_exists($this->ProductTypeClass, 'OnAddFromCart')){
+			$this->ProductTypeClass->onAddFromCart($this, $CartProduct);
+		}
+		if ($this->hasEnoughInventory($CartProduct->getQuantity()) === false){
+			$Success = false;
+			$messageStack->addSession('pageStack', 'One or more of your products are not available anymore.<br> - ' . $CartProduct->getName(), 'error');
+			tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
+		}
+	}
+
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @return bool
+	 */
+	public function updateFromCart(ShoppingCartProduct $CartProduct)
+	{
+		global $messageStack;
+		$Success = true;
+		if ($this->hasEnoughInventory($CartProduct->getQuantity()) === false){
+			$Success = false;
+			$messageStack->addSession('pageStack', 'One or more of your products are not available anymore.<br> - ' . $CartProduct->getName(), 'error');
+			tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
 		}
 		else {
-			$this->pInfo[$k] = $v;
-		}
-	}
+			$this->setQuantity($CartProduct->getQuantity());
+			$this->setPrice($CartProduct->getFinalPrice());
 
-	/**
-	 * @param array $newInfo
-	 */
-	public function updateInfo(array $newInfo)
-	{
-		$newProductInfo = $this->pInfo;
-		foreach($newInfo as $k => $v){
-			$newProductInfo[$k] = $v;
+			if (method_exists($this->ProductTypeClass, 'OnUpdateFromCart')){
+				$this->ProductTypeClass->onUpdateFromCart($this, $CartProduct);
+			}
 		}
-		$this->pInfo = $newProductInfo;
-		//$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
-	}
-
-	public function onUpdateCheckoutSaleProduct()
-	{
-		$this->updateInfo(array(
-			'purchase_type' => $_GET['purchase_type']
-		));
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'onUpdateCheckoutSaleProduct')){
-			$ProductType->onUpdateCheckoutSaleProduct($this);
-		}
+		return $Success;
 	}
 }
-
-?>

@@ -176,6 +176,7 @@ class htmlWidget_icon implements htmlWidgetPlugin
 				$icon .= 'trash';
 				break;
 			case 'save':
+			case 'enabled':
 				$icon .= 'check';
 				break;
 			case 'wrench':
@@ -195,6 +196,7 @@ class htmlWidget_icon implements htmlWidgetPlugin
 			case 'closeThick':
 			case 'delete':
 			case 'remove':
+			case 'disabled':
 				$icon .= 'closethick';
 				break;
 			case 'search':
@@ -249,6 +251,11 @@ class htmlWidget_icon implements htmlWidgetPlugin
 
 	public function hide() {
 		$this->iconElement->css('display', 'none');
+		return $this;
+	}
+
+	public function show() {
+		$this->iconElement->removeCss('display');
 		return $this;
 	}
 }

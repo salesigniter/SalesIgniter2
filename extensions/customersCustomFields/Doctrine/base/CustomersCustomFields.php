@@ -19,7 +19,7 @@ class CustomersCustomFields extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 		
-		$this->hasMany('CustomersCustomFieldsOptionsToFields as Options', array(
+		$this->hasMany('CustomersCustomFieldsOptions as Options', array(
 			'local'   => 'field_id',
 			'foreign' => 'field_id',
 			'cascade' => array('delete')
@@ -57,7 +57,29 @@ class CustomersCustomFields extends Doctrine_Record {
 			'notnull' => false,
 			'autoincrement' => false,
 		));
-		
+
+		$this->hasColumn('field_default_value', 'string', 255);
+
+		$this->hasColumn('input_required', 'integer', 1, array(
+			'type' => 'integer',
+			'length' => 1,
+			'fixed' => false,
+			'primary' => false,
+			'default' => '0',
+			'notnull' => true,
+			'autoincrement' => false,
+		));
+
+		$this->hasColumn('is_multiple', 'integer', 1, array(
+			'type' => 'integer',
+			'length' => 1,
+			'fixed' => false,
+			'primary' => false,
+			'default' => '0',
+			'notnull' => true,
+			'autoincrement' => false,
+		));
+
 		$this->hasColumn('show_on_site', 'integer', 1, array(
 			'type' => 'integer',
 			'length' => 1,

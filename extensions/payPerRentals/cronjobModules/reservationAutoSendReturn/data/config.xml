@@ -1,0 +1,30 @@
+<ConfigurationGroup>
+	<title>Reservation Auto Send/Return</title>
+	<key>cronjobModulereservationAutoSendReturn</key>
+	<description>Configuration Settings For The Reservation Auto Send/Return Cron Job Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Module Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<STATUS>
+					<title><![CDATA[Enable Reservation Auto Send/Return Module]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to use this module?]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

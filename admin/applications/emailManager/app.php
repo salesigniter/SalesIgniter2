@@ -1,0 +1,30 @@
+<?php
+$SendOnArray = array(
+	array('eventName' => 'ADMIN_MEMBERSHIP_ACTIVATED_EMAIL',   'type' => 'admin', 'text' => '(Admin) Membership activated email', 'description' => 'This email is sent to the customer when their rental membership has been activated'),
+	array('eventName' => 'ADMIN_MEMBERSHIP_CANCELED_EMAIL',    'type' => 'admin', 'text' => '(Admin) Membership cancelled email', 'description' => 'This email is sent to the customer when their rental membership has been cancelled'),
+	array('eventName' => 'ADMIN_MEMBERSHIP_UPGRADED_EMAIL',    'type' => 'admin', 'text' => '(Admin) Membership upgraded email', 'description' => 'This email is sent to the customer when their rental membership has been upgraded'),
+	array('eventName' => 'ONETIME_RENTAL_SENT_EMAIL',          'type' => 'admin', 'text' => '(Admin) Onetime rental sent email', 'description' => 'This email is sent to the customer when their reservation has been sent'),
+	array('eventName' => 'ONETIME_RENTAL_RETURNED_EMAIL',      'type' => 'admin', 'text' => '(Admin) Onetime rental returned email', 'description' => 'This email is sent to the customer when their reservation has been returned'),
+	array('eventName' => 'ORDER_UPDATE_EMAIL',                 'type' => 'admin', 'text' => '(Admin) Order update email', 'description' => 'This email is sent to the customer when their order has been updatedt'),
+	array('eventName' => 'ORDER_PROCESS_EMAIL',                'type' => 'admin', 'text' => '(Admin) Order process email', 'description' => 'This email is sent to the customer when their order is being processed'),
+	array('eventName' => 'RENTAL_SENT_EMAIL',                  'type' => 'admin', 'text' => '(Admin) Rental sent email', 'description' => 'This email is sent to the customer when their membership rental has been sent'),
+	array('eventName' => 'RENTAL_RETURNED_EMAIL',              'type' => 'admin', 'text' => '(Admin) Rental returned email', 'description' => 'This email is sent to the customer when their membership rental has been returned'),
+	array('eventName' => 'RENTAL_ISSUES_EMAIL',                'type' => 'admin', 'text' => '(Admin) Rental issues email', 'description' => 'This email is sent to the administrator when a rental issue has been reported'),
+	array('eventName' => 'RENTAL_QUEUE_EMPTY_EMAIL',           'type' => 'admin', 'text' => '(Admin) Rental queue empty email', 'description' => 'This email is sent to the customer when their rental qeue has been emptied'),
+	array('eventName' => 'CREATE_ACCOUNT_EMAIL',               'type' => 'site',  'text' => '(Site) Account creation email', 'description' => 'This email is sent to the customer when their account has been created'),
+	array('eventName' => 'GIFT_VOUCHER_SEND_EMAIL',            'type' => 'site',  'text' => '(Site) Gift voucher send email', 'description' => 'This email is sent to the customers friend when they are sent a gift voucher'),
+	array('eventName' => 'MEMBERSHIP_CANCEL_REQUEST_EMAIL',    'type' => 'site',  'text' => '(Site) Membership cancel request email', 'description' => 'This email is sent to the administrator when a customer has requested to cancel their rental membership'),
+	array('eventName' => 'NEW_RENTAL_CUSTOMER_EMAIL',          'type' => 'site',  'text' => '(Site) New rental customer email', 'description' => 'This email is sent to the customer when their rental membership has been created'),
+	array('eventName' => 'ORDER_SUCCESS_EMAIL',                'type' => 'site',  'text' => '(Site) Order success email', 'description' => 'This email is sent to the customer when they have successfully submitted an order'),
+	array('eventName' => 'PASSWORD_FORGOTTEN_EMAIL',           'type' => 'site',  'text' => '(Site) Password forgotten email', 'description' => 'This email is sent to the customer when they have forgotten their password'),
+	array('eventName' => 'RENTAL_ORDER_SUCCESS_EMAIL',         'type' => 'site',  'text' => '(Site) Rental order success email', 'description' => 'This email is sent to the customer when they have successfully submitted a rental membership order'),
+	array('eventName' => 'TALK_TO_US_EMAIL',                   'type' => 'site',  'text' => '(Site) Talk to us email', 'description' => 'This email is sent to the administrator when a customer has submitted a talk to us request'),
+	array('eventName' => 'MEMBERSHIP_EXPIRED_EMAIL',           'type' => 'site',  'text' => '(Site) Membership expired email', 'description' => 'This email is sent to the customer when their rental membership has expired'),
+	array('eventName' => 'MEMBERSHIP_RENEWAL_FAIL',            'type' => 'site',  'text' => '(Site) Membership payment failure email', 'description' => 'This email is sent to the customer when their rental membership payment failed to process'),
+	array('eventName' => 'RENTAL_ORDER_SUCCESS_ADMIN_EMAIL',   'type' => 'site',  'text' => '(Site) Admin email for membership', 'description' => 'This email is sent to the administrator when a new rental membership has been created'),
+	array('eventName' => 'ORDER_INVENTORY_SUCCESS_EMAIL',      'type' => 'site',  'text' => '(Site) Inventory Owner Email when a order is placed', 'description' => 'This email is sent to the inventory owner when an order is placed for a product they control the inventory for'),
+	array('eventName' => 'ORDER_UPDATE_EMAIL_INVENTORY',       'type' => 'site',  'text' => '(Site) Email from Inventory Owner when order is approved or cancelled', 'description' => 'This email is sent to the inventory owner when an order has been approved or cancelled for a product they control the inventory for'),
+	array('eventName' => 'ORDER_TIME_SPECIFIC_EMAIL',          'type' => 'site',  'text' => '(Cron) Order Time Specific Email', 'description' => 'This email will be sent to the customer the specified period before or after an order has been placed ( Must have cron job "Order Time Emails" enabled )')
+);
+
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

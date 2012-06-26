@@ -36,7 +36,7 @@ class OrderCreatorPaymentManager extends OrderPaymentManager
 		$RequestData = array(
 			'amount'                => $paymentInfo['payment_amount'],
 			'currencyCode'          => $Editor->getCurrency(),
-			'orderID'               => $Editor->getOrderId(),
+			'saleId'                => $Editor->getSaleId(),
 			'description'           => (isset($paymentInfo['comments']) && !empty($paymentInfo['comments']) ? $paymentInfo['comments'] : 'Administration Order Payment'),
 			'customerId'            => $Editor->getCustomerId(),
 			'customerEmail'         => $Editor->getEmailAddress(),
@@ -100,7 +100,7 @@ class OrderCreatorPaymentManager extends OrderPaymentManager
 
 		$requestData = array(
 			'amount'        => (isset($amount) ? $amount : $paymentHistory['payment_amount']),
-			'orderID'       => $paymentHistory['orders_id'],
+			'saleId'        => $paymentHistory['orders_id'],
 			'transactionID' => $paymentHistory['gateway_message'],
 			'cardDetails'   => unserialize(cc_decrypt($paymentHistory['card_details'])),
 			'is_refund'     => 1
@@ -123,7 +123,6 @@ class OrderCreatorPaymentManager extends OrderPaymentManager
 	public function prepareJsonSave()
 	{
 		$data = array(
-			'orderId'       => $this->orderId,
 			'History'       => $this->History,
 			'PaymentsTotal' => $this->PaymentsTotal
 		);

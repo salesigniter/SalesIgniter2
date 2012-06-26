@@ -69,7 +69,7 @@ if (!isset($redirectUrl)){
 	$redirectUrl = itw_app_link(null, 'account', 'login', 'SSL');
 }
 
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	EventManager::attachActionResponse(array(
 		'success' => $success
 	), 'json');

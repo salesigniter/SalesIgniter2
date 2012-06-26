@@ -1,5 +1,4 @@
 <?php
-/*
 $Customers = Doctrine_Core::getTable('Customers');
 if (isset($_GET['customer_id'])){
 	$Customer = $Customers->find((int) $_GET['customer_id']);
@@ -20,35 +19,40 @@ $error = false;
 $Customer->customers_firstname = $_POST['customers_firstname'];
 $Customer->customers_lastname = $_POST['customers_lastname'];
 $Customer->customers_email_address = $_POST['customers_email_address'];
-$Customer->customers_number = (!empty($_POST['customers_number']) ? $_POST['customers_number'] : tep_create_random_value(8));
-$Customer->customers_account_frozen = (isset($_POST['customers_account_frozen']) ? 1 : 0);
+//$Customer->customers_number = (!empty($_POST['customers_number']) ? $_POST['customers_number'] : tep_create_random_value(8));
+//$Customer->customers_account_frozen = (isset($_POST['customers_account_frozen']) ? 1 : 0);
+$Customer->language_id = $_POST['customers_language'];
 
 if (isset($_POST['customers_password'])){
 	$Customer->customers_password = $_POST['customers_password'];
 }
 
-if (isset($_POST['customers_city_birth'])){
-	$Customer->customers_city_birth = $_POST['customers_city_birth'];
+if (isset($_POST['entry_city_birth'])){
+//	$Customer->customers_city_birth = $_POST['entry_city_birth'];
 }
 
 if (isset($_POST['customers_gender'])){
-	$Customer->customers_gender = $_POST['customers_gender'];
+//	$Customer->customers_gender = $_POST['customers_gender'];
 }
 
 if (isset($_POST['customers_newsletter'])){
-	$Customers->customers_newsletter = $_POST['customers_newsletter'];
+//	$Customer->customers_newsletter = $_POST['customers_newsletter'];
 }
 
 if (isset($_POST['customers_telephone'])){
-	$Customers->customers_telephone = $_POST['customers_telephone'];
+//	$Customer->customers_telephone = $_POST['customers_telephone'];
 }
 
 if (isset($_POST['customers_fax'])){
-	$Customers->customers_fax = $_POST['customers_fax'];
+//	$Customer->customers_fax = $_POST['customers_fax'];
 }
 
 if (isset($_POST['customers_dob'])){
-	$Customers->customers_dob = $_POST['customers_dob'];
+//	$Customer->customers_dob = SesDateTime::createFromFormat(sysLanguage::getDateFormat('short'), $_POST['customers_dob']);
+}
+
+if (isset($_POST['customers_notes'])){
+//	$Customer->customers_notes = $_POST['customers_notes'];
 }
 
 $Address->entry_firstname = $_POST['customers_firstname'];
@@ -69,18 +73,18 @@ if (isset($_POST['entry_suburb'])){
 }
 
 if (isset($_POST['entry_company'])){
-	$Address->entry_company = $_POST['entry_company'];
+//	$Address->entry_company = $_POST['entry_company'];
 }
 
 if (isset($_POST['entry_cif'])){
-	$Address->entry_cif = $_POST['entry_cif'];
+//	$Address->entry_cif = $_POST['entry_cif'];
 }
 
 if (isset($_POST['entry_vat'])){
-	$Address->entry_vat = $_POST['entry_vat'];
+//	$Address->entry_vat = $_POST['entry_vat'];
 }
 
-echo '<pre>';print_r($Customer->toArray());
+//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($Customer->toArray());
 if ($Customer->isValid(true) === false){
 	$CustomerErrorStack = $Customer->getErrorStack();
 
@@ -91,7 +95,7 @@ if ($Customer->isValid(true) === false){
 	}
 	$noExit = true;
 }else{
-	echo '<pre>';print_r($Customer->toArray());
+	//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($Customer->toArray());itwExit();
 
 	if (!isset($_GET['customer_id'])){
 		EventManager::notify('AdminNewCustomerAccountBeforeSave', $Customer, $Address);
@@ -102,26 +106,10 @@ if ($Customer->isValid(true) === false){
 		$Customer->save();
 
 		if (isset($_POST['email_new_customer'])){
-			$firstName = $Customer->customers_firstname;
-			$lastName = $Customer->customers_lastname;
-			$emailAddress = $Customer->customers_email_address;
-			$fullName = $firstName . ' ' . $lastName;
-
-			$emailEvent = new emailEvent('create_account');
-
-			$emailEvent->setVars(array(
-				'email_address' => $emailAddress,
-				'password'      => (isset($_POST['customers_password']) ? $_POST['customers_password'] : $Customer->customers_password),
-				'firstname'     => $firstName,
-				'lastname'      => $lastName,
-				'full_name'     => $fullName
+			$Module = EmailModules::getModule('customer');
+			$Module->process('NEW_CUSTOMER_EMAIL', array(
+				'CustomerObj' => $Customer
 			));
-
-			$emailEvent->sendEmail(array(
-				'email' => $emailAddress,
-				'name'  => $fullName
-			));
-
 			EventManager::notify('AdminNewCustomerAccountSendEmail', $Customer);
 		}
 	}else{
@@ -132,8 +120,8 @@ if ($Customer->isValid(true) === false){
 	EventManager::attachActionResponse(itw_app_link(tep_get_all_get_params(array('customer_id', 'action')) . 'customer_id=' . $Customer->customers_id, null, 'default'), 'redirect');
 }
 //echo '<pre>';print_r($CustomerErrorStack);print_r($AddressErrorStack);itwExit();
-*/
 
+/*
 $hasError = false;
 $userAccount = new rentalStoreUser((isset($_GET['customer_id']) ? $_GET['customer_id'] : false));
 $userAccount->loadPlugins();
@@ -327,4 +315,4 @@ elseif ($error == true) {
 	$cInfo = new objectInfo($_POST);
 	$noExit = true;
 }
-?>
+*/

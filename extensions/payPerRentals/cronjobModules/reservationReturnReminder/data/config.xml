@@ -1,0 +1,35 @@
+<ConfigurationGroup>
+	<title>Reservation Return Reminder</title>
+	<key>cronjobModulereservationReturnReminder</key>
+	<description>Configuration Settings For The Reservation Return Reminder Cron Job Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Module Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<STATUS>
+					<title><![CDATA[Enable Reservation Return Reminder Module]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to use this module?]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+				<DAYS_BEFORE_DUE>
+					<title><![CDATA[Days Before Due]]></title>
+					<value><![CDATA[2]]></value>
+					<description><![CDATA[How many days before the reservation is due back should it email the customer?]]></description>
+				</DAYS_BEFORE_DUE>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

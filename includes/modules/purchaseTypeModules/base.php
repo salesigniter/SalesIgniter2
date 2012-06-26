@@ -24,6 +24,11 @@ class PurchaseTypeBase extends ModuleBase
 	/**
 	 * @var array
 	 */
+	private $_errors = array();
+
+	/**
+	 * @var array
+	 */
 	private $data = array(
 		'global' => array(
 			'status'                 => 0,
@@ -88,6 +93,28 @@ class PurchaseTypeBase extends ModuleBase
 				$this->data = array_merge($this->data, $data);
 			}
 		}
+	}
+
+	/**
+	 * @param $val
+	 */
+	public function addError($val){
+		$this->_errors[] = $val;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getErrors(){
+		return implode('<br>', $this->_errors);
+	}
+
+	/**
+	 * @param array $CartProductData
+	 * @return bool
+	 */
+	public function allowAddToCart(array $CartProductData){
+		return true;
 	}
 
 	/**

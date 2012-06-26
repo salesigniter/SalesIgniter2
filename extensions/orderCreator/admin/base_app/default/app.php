@@ -1,5 +1,15 @@
 <?php
-$appContent = $App->getAppContentFile();
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
 
 require(sysConfig::getDirFsCatalog() . 'includes/functions/crypt.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/http_client.php');
@@ -15,7 +25,7 @@ if ($App->getAppPage() == 'new'){
 		$Editor = new OrderCreator(
 			$_GET['sale_module'],
 			(isset($_GET['sale_id']) ? $_GET['sale_id'] : 0),
-			(isset($_GET['sale_revision']) ? $_GET['sale_revision'] : 0)
+			(isset($_GET['sale_revision']) ? $_GET['sale_revision'] : null)
 		);
 
 		Session::set('OrderCreator', $Editor);

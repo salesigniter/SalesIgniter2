@@ -1,4 +1,6 @@
 <?php
+$_GET['sale_module'] = (isset($_GET['sale_module']) ? $_GET['sale_module'] : 'order');
+
 $SalesModule = AccountsReceivableModules::getModule($_GET['sale_module']);
 $QSales = $SalesModule->getSalesQuery();
 
@@ -138,7 +140,7 @@ foreach($Sales as $sInfo){
 	);
 
 	$gridBodyColumns = array(
-		array('text' => $Sale->getId()),
+		array('text' => $Sale->getSaleId()),
 		array('align' => 'center', 'text' => $Sale->getRevision()),
 		array('text' => $Sale->getSaleModule()->getTitle()),
 		array('text' => $Sale->getCustomersName()),
@@ -160,7 +162,7 @@ foreach($Sales as $sInfo){
 
 	$SalesGrid->addBodyRow(array(
 		'rowAttr' => array(
-			'data-sale_id' => $Sale->getId(),
+			'data-sale_id' => $Sale->getSaleId(),
 			'data-sale_module' => $Sale->getSaleModule()->getCode(),
 			'data-revision' => $Sale->getRevision()
 		),

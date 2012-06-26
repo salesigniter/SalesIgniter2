@@ -56,7 +56,7 @@ class Products extends Doctrine_Record {
 	}
 	
 	public function preUpdate($event){
-		if ($this->products_last_modified instanceof SesDateTime){
+		if ($this->products_last_modified instanceof DateTime || $this->products_last_modified instanceof SesDateTime){
 			$this->products_last_modified->setTimestamp(time());
 		}else{
 			$this->products_last_modified = date(DATE_TIMESTAMP);

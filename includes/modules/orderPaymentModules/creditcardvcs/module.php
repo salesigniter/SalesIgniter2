@@ -51,30 +51,24 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 	}
 
 	/**
-	 * @param null $orderID
-	 * @param null $amount
-	 * @return bool
+	 * @param Order $Order
+	 * @return bool|void
 	 */
-	public function processPayment($orderID = null, $amount = null) {
-		global $order, $onePageCheckout;
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
-
-		$userAccount = OrderPaymentModules::getUserAccount();
-		$addressBook = $userAccount->plugins['addressBook'];
-
-		$billingAddress = $addressBook->getAddress('billing');
+	public function processPayment(Order $Order) {
+		$paymentInfo = $Order->PaymentManager->getInfo();
+		$billingAddress = $Order->AddressManager->getAddress('billing');
 
 		$dataArray = array(
 			'AuthorisationRequest' => array(
 				'UserId' => $this->getConfigData('MODULE_PAYMENT_CC_VCS_LOGIN'),
-				'Reference' => $order->newOrder['orderID'] . '-' . date('YmdHis'),
-				'Description' => sysConfig::get('STORE_NAME') . ' Order #' . $order->newOrder['orderID'],
-				'Amount' => $order->info['total'],
-				'CardholderName' => $billingAddress['entry_firstname'] . ' ' . $billingAddress['entry_lastname'],
-				'CardNumber' => trim(str_replace(' ', '', $paymentInfo['cardDetails']['cardNumber'])),
-				'ExpiryMonth' => $paymentInfo['cardDetails']['cardExpMonth'],
-				'ExpiryYear' => substr($paymentInfo['cardDetails']['cardExpYear'], 2),
-				'CardValidationCode' => $paymentInfo['cardDetails']['cardCvvNumber'],
+				'Reference' => $Order->getSaleId() . '-' . date('YmdHis'),
+				'Description' => sysConfig::get('STORE_NAME') . ' Order #' . $Order->getSaleId(),
+				'Amount' => $Order->TotalManager->getTotalValue('total'),
+				'CardholderName' => $billingAddress->getName(),
+				'CardNumber' => trim(str_replace(' ', '', $paymentInfo['cardNumber'])),
+				'ExpiryMonth' => $paymentInfo['cardExpMonth'],
+				'ExpiryYear' => substr($paymentInfo['cardExpYear'], 2),
+				'CardValidationCode' => $paymentInfo['cardCvvNumber'],
 				'CardPresent' => 'N'
 			)
 		);
@@ -88,10 +82,10 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 
 	/**
 	 * Called from the membership_update.php, which is run via a cron job, to send any requests required
-	 * @param $orderID The order id currently being processed by the cron script
+	 * @param $saleId The order id currently being processed by the cron script
 	 * @return bool
 	 */
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		$this->isCron = true;
 		$Qorder = Doctrine_Query::create()
 			->from('Orders o')
@@ -99,7 +93,7 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 			->leftJoin('o.OrdersAddresses oa')
 			->leftJoin('o.OrdersTotal ot')
 			->leftJoin('c.CustomersMembership m')
-			->where('o.orders_id = ?', $orderID)
+			->where('o.orders_id = ?', $saleId)
 			->andWhere('oa.address_type = ?', 'billing')
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -109,8 +103,8 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 		$dataArray = array(
 			'AuthorisationRequest' => array(
 				'UserId' => $this->getConfigData('MODULE_PAYMENT_CC_VCS_LOGIN'),
-				'Reference' => $orderID . '-' . date('YmdHis'),
-				'Description' => sysConfig::get('STORE_NAME') . ' Order #' . $orderID,
+				'Reference' => $saleId . '-' . date('YmdHis'),
+				'Description' => sysConfig::get('STORE_NAME') . ' Order #' . $saleId,
 				'Amount' => $Qorder[0]['OrdersTotal'][0]['value'],
 				'CardholderName' => $Qorder[0]['OrdersAddresses'][0]['entry_name'],
 				'CardNumber' => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
@@ -161,9 +155,9 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 
 	private function onSuccess($info) {
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = substr($RequestData['Reference'], 0, strpos($RequestData['Reference'], '-') - 1);
+		$saleId = substr($RequestData['Reference'], 0, strpos($RequestData['Reference'], '-') - 1);
 		$this->logPayment(array(
-				'orderID' => $orderId,
+				'saleId' => $saleId,
 				'amount' => $RequestData['Amount'],
 				'message' => $info['message'],
 				'success' => 1,
@@ -180,8 +174,8 @@ class OrderPaymentCreditcardvcs extends CreditCardModule
 		global $messageStack, $order;
 		if ($this->isCron === false){
 			$RequestData = $info['curlResponse']->getDataRaw();
-			$orderId = substr($RequestData['Reference'], 0, strpos($RequestData['Reference'], '-') - 1);
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$saleId = substr($RequestData['Reference'], 0, strpos($RequestData['Reference'], '-') - 1);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete();
 			}

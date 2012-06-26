@@ -46,8 +46,8 @@
 						)
 					));
 				}
-				echo $FieldsGrid->draw();
 			}
+			echo $FieldsGrid->draw();
 			?>
 		</div>
 	</div>
@@ -125,8 +125,8 @@
 						)
 					));
 				}
-				echo $GroupsGrid->draw();
 			}
+			echo $GroupsGrid->draw();
 			?>
 		</div>
 	</div>

@@ -49,7 +49,7 @@
 					break;
 				case 'movie':
 				case 'text':
-					$input = tep_draw_input_field('fields[' . $fieldId . ']', $value);
+					$input = htmlBase::newElement('fileManager')->setName('fields[' . $fieldId . ']')->val($value)->draw();
 					break;
 				case 'search':
 				case 'textarea':

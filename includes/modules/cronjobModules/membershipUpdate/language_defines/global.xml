@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_CRONJOB_MEMBERSHIPUPDATE_TEXT_TITLE"><![CDATA[Membership Update]]></define>
+	<define key="MODULE_CRONJOB_MEMBERSHIPUPDATE_TEXT_DESCRIPTION"><![CDATA[This cron script will upgrade, cancel and bill all rental membership accounts]]></define>
+</definitions>

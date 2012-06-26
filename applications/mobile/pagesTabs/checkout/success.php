@@ -29,7 +29,7 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True' && sysConfi
 }
 
 if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_LOS_SUCCESS_PAGE') == 'True'){
-	//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$Order->getOrderId(), 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
+	//$htmlViewTerms = '<a href="' . itw_app_link('action=viewTerms&oID='.$Order->getSaleId(), 'account', 'default') . '" onclick="popupWindowTerms(\'' . itw_app_link('action=viewTerms&oID='.$Order->getSaleId(), 'account', 'default', 'SSL') . '\',400,300);return false;">' . 'View Terms and Conditions You Agreed' . '</a>';
 	$htmlTermsDetails = $LastOrder->terms;
 }
 ?>
@@ -49,7 +49,7 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_LOS_SUCCESS_PAGE') == 'True')
 	<p><?php echo sysLanguage::get('TEXT_THANKS_FOR_SHOPPING_SUCCESS');?></p>
 </div>
 <p>
-	<b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'), $Order->getOrderId()) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b>
+	<b><?php echo sprintf(sysLanguage::get('HEADING_ORDER_NUMBER'), $Order->getSaleId()) . ' <small>(' . $Order->getCurrentStatus() . ')</small>'; ?></b>
 </p>
 <div class="ui-grid-a">
 	<div class="ui-block-a"><?php
@@ -149,7 +149,7 @@ echo $ProductsTable->draw();
 ?>
 <br>
 <div><?php
-	$contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $Order->getOrderId());
+	$contents = EventManager::notifyWithReturn('OrderInfoAddBlock', $Order->getSaleId());
 	if (!empty($contents)){
 		foreach($contents as $content){
 			echo $content;
@@ -177,7 +177,7 @@ echo $ProductsTable->draw();
 </div>
 <br>
 <div><?php
-	$contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory', $Order->getOrderId());
+	$contents = EventManager::notifyWithReturn('AccountHistoryBeforeShowOrderHistory', $Order->getSaleId());
 	if (!empty($contents)){
 		foreach($contents as $content){
 			echo $content;

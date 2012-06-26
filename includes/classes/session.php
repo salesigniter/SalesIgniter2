@@ -48,7 +48,7 @@ class Session
 		elseif (sysConfig::get('REQUEST_TYPE') == 'SSL' && isset($_GET[$sessionName])) {
 			self::setSessionId($_GET[$sessionName]);
 		}
-		elseif ((isset($_GET['rType']) && $_GET['rType'] == 'ajax') && isset($_GET[$sessionName])) {
+		elseif (SesRequestInfo::isAjax() === true && isset($_GET[$sessionName])) {
 			self::setSessionId($_GET[$sessionName]);
 		}
 		elseif ($sessionName == 'osCAdminID' && isset($_GET[$sessionName])) {

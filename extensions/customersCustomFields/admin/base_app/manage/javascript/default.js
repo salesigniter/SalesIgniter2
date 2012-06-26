@@ -1,4 +1,122 @@
+function addOption(el){
+	var nextId = parseInt($(el).data('next_id'));
+	$(el).data('next_id', nextId+1);
+
+	var sortOrder = parseInt($(el).data('next_sort'));
+	$(el).data('next_sort', sortOrder+1);
+
+	$(el).parentsUntil('#inputOptions').last().find('tbody').append('<tr>' +
+		'<td>' +
+		'<input class="text" type="text" name="option_name[' + nextId + ']" value="">' +
+		'</td>' +
+		'<td>' +
+		//'<span class="ui-icon ui-icon-wrench editData" tooltip="Edit Data"></span>' +
+		'<span class="ui-icon ui-icon-arrowthick-1-n moveOptionUp" tooltip="Move Up"></span>' +
+		'<span class="ui-icon ui-icon-arrowthick-1-s moveOptionDown" tooltip="Move Down"></span>' +
+		'<span class="ui-icon ui-icon-circle-minus removeOption" tooltip="Remove Option"></span>' +
+		'<input class="sort" type="hidden" name="option_sort[' + nextId + ']" value="' + sortOrder + '">' +
+		'<input class="data" type="hidden" name="option_data[' + nextId + ']" value="">' +
+		'</td>' +
+		'</tr>');
+}
+
+function removeOption(el){
+	var nextTd = $(el).parentsUntil('tbody').last().next();
+	while(nextTd.size() > 0){
+		nextTd.find('.sort').val(parseInt(nextTd.find('.sort').val()) - 1);
+		nextTd = nextTd.next();
+	}
+	$(el).parentsUntil('tbody').last().remove();
+}
+
+function showOptionEntry(el) {
+	if (el.value != 'select' && el.value != 'radio' && el.value != 'checkbox'){
+		$('#inputOptions').hide();
+	}
+	else {
+		$('#inputOptions').show();
+	}
+}
+
+function moveOptionUp(el){
+	var Row = $(el).parentsUntil('tbody').last();
+	var SortField = Row.find('.sort');
+	Row.prev().find('.sort').val(SortField.val());
+	SortField.val(parseInt(SortField.val()) - 1);
+	Row.insertBefore(Row.prev());
+}
+
+function moveOptionDown(el){
+	var Row = $(el).parentsUntil('tbody').last();
+	var SortField = Row.find('.sort');
+	Row.next().find('.sort').val(SortField.val());
+	SortField.val(parseInt(SortField.val()) + 1);
+	Row.insertAfter(Row.next());
+}
+
+function makeGroupDroppable($el) {
+	$el.each(function () {
+		var $groupBox = $(this);
+		$(this).droppable({
+			accept     : '.draggableField',
+			hoverClass : 'ui-state-highlight',
+			drop       : function (e, ui) {
+				var $this = $(this);
+				$.ajax({
+					cache      : false,
+					url        : js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=addFieldToGroup&group_id=' + $this.attr('group_id') + '&field_id=' + $('.fieldName', ui.draggable).attr('field_id')),
+					dataType   : 'json',
+					beforeSend : function () {
+						showAjaxLoader($this, 'xlarge');
+					},
+					complete   : function () {
+						hideAjaxLoader($this);
+					},
+					success    : function (data) {
+						if (data.success == true){
+							var $newLi = $('<li></li>')
+								.attr('id', 'field_' + $('.fieldName', ui.draggable).attr('field_id'))
+								.css('font-size', '.8em')
+								.html($('.fieldName', ui.draggable).html());
+							$newLi.hover(function () {
+								this.style.cursor = 'move';
+							}, function () {
+								this.style.cursor = 'default';
+							});
+							$('ul', $this).append($newLi);
+							$('.sortableList', $this).sortable('refresh');
+						}
+						else {
+							alert('That field already belongs to this group');
+						}
+					}
+				});
+			}
+		});
+	});
+}
+
 $(document).ready(function () {
+	$('.addOption').live('click', function (){
+		addOption(this);
+	});
+
+	$('.removeOption').live('click', function (){
+		removeOption(this);
+	});
+
+	$('.moveOptionUp').live('click', function (){
+		moveOptionUp(this);
+	});
+
+	$('.moveOptionDown').live('click', function (){
+		moveOptionDown(this);
+	});
+
+	$('.editData').live('click', function (){
+		editOptionData(this);
+	});
+
 	var $FieldsGrid = $('#fields_grid');
 	$FieldsGrid.newGrid('option', 'buttons', ['new', 'edit', 'delete']);
 
@@ -146,54 +264,3 @@ $(document).ready(function () {
 		}
 	});
 });
-
-function showOptionEntry(el) {
-	if (el.value != 'select'){
-		$('#selectOptions').hide();
-	}
-	else {
-		$('#selectOptions').show();
-	}
-}
-
-function makeGroupDroppable($el) {
-	$el.each(function () {
-		var $groupBox = $(this);
-		$(this).droppable({
-			accept     : '.draggableField',
-			hoverClass : 'ui-state-highlight',
-			drop       : function (e, ui) {
-				var $this = $(this);
-				$.ajax({
-					cache      : false,
-					url        : js_app_link('appExt=customersCustomFields&app=manage&appPage=default&action=addFieldToGroup&group_id=' + $this.attr('group_id') + '&field_id=' + $('.fieldName', ui.draggable).attr('field_id')),
-					dataType   : 'json',
-					beforeSend : function () {
-						showAjaxLoader($this, 'xlarge');
-					},
-					complete   : function () {
-						hideAjaxLoader($this);
-					},
-					success    : function (data) {
-						if (data.success == true){
-							var $newLi = $('<li></li>')
-								.attr('id', 'field_' + $('.fieldName', ui.draggable).attr('field_id'))
-								.css('font-size', '.8em')
-								.html($('.fieldName', ui.draggable).html());
-							$newLi.hover(function () {
-								this.style.cursor = 'move';
-							}, function () {
-								this.style.cursor = 'default';
-							});
-							$('ul', $this).append($newLi);
-							$('.sortableList', $this).sortable('refresh');
-						}
-						else {
-							alert('That field already belongs to this group');
-						}
-					}
-				});
-			}
-		});
-	});
-}

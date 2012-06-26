@@ -699,6 +699,7 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
 				switch($columnType){
 					case 'timestamp':
 					case 'datetime':
+					case 'date':
 						$this->_data[$column] = new SesDateTime();
 						$this->_data[$column]->setTimestamp(0);
 						break;
@@ -1557,20 +1558,20 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
             return $old != $new;
         } else if ($type == 'timestamp' || $type == 'date') {
 			if (is_object($old)){
-				if ($old instanceof SesDateTime){
+				if ($old instanceof DateTime || $new instanceof SesDateTime){
 					return true;
 				}else{
-					die('Date is an object, but bot from SesDateTime');
+					die('Date is an object, but not from DateTime');
 				}
 			}else{
 				$oldStrToTime = strtotime($old);
 			}
 
 			if (is_object($new)){
-				if ($new instanceof SesDateTime){
+				if ($new instanceof DateTime || $new instanceof SesDateTime){
 					return true;
 				}else{
-					die('Date is an object, but bot from SesDateTime');
+					die('Date is an object, but not from DateTime');
 				}
 			}else{
 				$newStrToTime = strtotime($new);
@@ -1873,12 +1874,19 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
                 break;
 				case 'timestamp':
 				case 'datetime':
-					if ($this->_data[$field] instanceof SesDateTime){
+					if ($this->_data[$field] instanceof DateTime || $this->_data[$field] instanceof SesDateTime){
 						$a[$field] = $this->_data[$field]->format(DATE_TIMESTAMP);
 					}else{
 						$a[$field] = $this->_data[$field];
 					}
 				break;
+				case 'date':
+					if ($this->_data[$field] instanceof DateTime || $this->_data[$field] instanceof SesDateTime){
+						$a[$field] = $this->_data[$field]->format('Y-m-d');
+					}else{
+						$a[$field] = $this->_data[$field];
+					}
+					break;
                 default:
                     if ($this->_data[$field] instanceof Doctrine_Record) {
                         $a[$field] = $this->_data[$field]->getIncremented();

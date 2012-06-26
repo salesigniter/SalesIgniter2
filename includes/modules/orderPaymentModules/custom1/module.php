@@ -21,7 +21,7 @@ class OrderPaymentCustom1 extends StandardPaymentModule
 
 	public function sendPaymentRequest($requestData) {
 		return $this->onResponse(array(
-				'orderID'   => $requestData['orderID'],
+				'saleId'   => $requestData['saleId'],
 				'amount'    => $requestData['amount'],
 				'message'   => (isset($requestData['message']) ? $requestData['message'] : 'Awaiting Payment'),
 				'success'   => 1,
@@ -29,25 +29,23 @@ class OrderPaymentCustom1 extends StandardPaymentModule
 			));
 	}
 
-	public function processPayment($orderID = null, $amount = null) {
-		global $order;
-
+	public function processPayment(Order $Order) {
 		return $this->sendPaymentRequest(array(
-				'orderID' => $order->newOrder['orderID'],
-				'amount' => $order->info['total']
-			));
+			'saleId' => $Order->getSaleId(),
+			'amount'  => $Order->TotalManager->getTotalValue('total')
+		));
 	}
 
 	public function refundPayment($requestData){
 		return $this->sendPaymentRequest(array(
-			'orderID' => $requestData['orderID'],
+			'saleId' => $requestData['saleId'],
 			'amount'  => -$requestData['amount'],
 			'message' => 'Refund Issued In Amount Of: -' . $requestData['amount'],
 			'is_refund' => 1
 		));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		global $order;
 		$order->info['payment_method'] = $this->getTitle();
 

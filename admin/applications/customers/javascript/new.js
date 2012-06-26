@@ -1,7 +1,7 @@
 $(document).ready(function () {
-	$('#customers_dob').datepicker({
+	$('.makeDatepicker').datepicker({
 		dateFormat : 'mm/dd/yy',
-		yearRange  : '1920:2010',
+		yearRange  : '-100:-5',
 		changeYear : true
 	});
 
@@ -14,8 +14,8 @@ $(document).ready(function () {
 	});
 
 	$('#orderHistoryTab').find('.gridButtonBar .detailsButton').click(function () {
-		var orderId = $('#orderHistoryTab').find('.gridBodyRow.state-active').attr('data-order_id');
-		js_redirect(js_app_link('app=orders&appPage=details&oID=' + orderId));
+		var saleId = $('#orderHistoryTab').find('.gridBodyRow.state-active').attr('data-sale_id');
+		js_redirect(js_app_link('app=accounts_receivable&appPage=details&sale_id=' + saleId));
 	});
 
 	$('#orderHistoryTab').find('.gridButtonBar .invoiceButton').click(function () {

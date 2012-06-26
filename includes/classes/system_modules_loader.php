@@ -251,7 +251,7 @@ class SystemModulesLoader
 	 * @static
 	 * @param $moduleName
 	 * @param bool $ignoreStatus
-	 * @return ModuleBase
+	 * @return bool|ModuleBase
 	 */
 	public static function getModule($moduleName, $ignoreStatus = false) {
 		$Module = false;

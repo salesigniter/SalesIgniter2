@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 /*
 	Product Specials Extension Version 1
 
@@ -10,7 +22,4 @@
 	This script and it's source is not redistributable
 */
 
-	$appContent = $App->getAppContentFile();
-	
-	$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE'), itw_app_link('appExt=specials', 'show_specials', 'defualt'));
-?>
+$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE'), itw_app_link('appExt=specials', 'show_specials', 'defualt'));

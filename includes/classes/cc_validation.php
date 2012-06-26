@@ -32,7 +32,9 @@
           }
           
           $current_year = date('Y');
-          $expiry_y = substr($current_year, 0, 2) . $expiry_y;
+		  if (strlen($expiry_y) == 2){
+			  $expiry_y = substr($current_year, 0, 2) . $expiry_y;
+		  }
           if (is_numeric($expiry_y) && ($expiry_y >= $current_year) && ($expiry_y <= ($current_year + 10))){
               $this->cc_expiry_year = $expiry_y;
           }else{

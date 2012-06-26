@@ -3,8 +3,8 @@
 	<code><![CDATA[en]]></code>
 	<date_format><![CDATA[m/d/Y]]></date_format>
 	<date_format_js><![CDATA[mm/dd/yy]]></date_format_js>
-	<date_format_short><![CDATA[m/d/y]]></date_format_short>
-	<date_format_short_js><![CDATA[mm/dd/y]]></date_format_short_js>
+	<date_format_short><![CDATA[m/d/Y]]></date_format_short>
+	<date_format_short_js><![CDATA[yy-mm-dd]]></date_format_short_js>
 	<date_format_long><![CDATA[F d, Y]]></date_format_long>
 	<date_format_long_js><![CDATA[F d, Y]]></date_format_long_js>
 	<date_time_format><![CDATA[m/d/Y h:i:s]]></date_time_format>

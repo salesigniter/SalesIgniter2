@@ -7,6 +7,10 @@ class PayPerRentalReservations extends Doctrine_Record {
 			'local'   => 'sale_product_id',
 			'foreign' => 'id'
 		));
+		$this->hasOne('Products as Product', array(
+			'local'   => 'products_id',
+			'foreign' => 'products_id'
+		));
 	}
 
 	public function setTableDefinition(){

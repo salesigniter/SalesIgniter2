@@ -34,5 +34,7 @@
 	<define key="TEXT_BUTTON_NEW_FIELD"><![CDATA[New Field]]></define>
 	<define key="TEXT_BUTTON_NEW_GROUP"><![CDATA[New Group]]></define>
 	<define key="ENTRY_INCLUDE_IN_SEARCH"><![CDATA[Include in quick search:]]></define>
-
+	<define key="ENTRY_INPUT_REQUIRED"><![CDATA[Input Required]]></define>
+	<define key="ENTRY_INPUT_DEFAULT_VALUE"><![CDATA[Default Value]]></define>
+	<define key="ENTRY_INPUT_MULTIPLE"><![CDATA[Multiple Entries Allowed ( Select Box/Text inputs only )]]></define>
 </definitions>

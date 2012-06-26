@@ -3,6 +3,11 @@
 class AccountsReceivableSalesProducts extends Doctrine_Record {
 
 	public function setUp(){
+		$this->hasOne('AccountsReceivableSales as Sale', array(
+			'local' => 'sale_id',
+			'foreign' => 'id'
+		));
+
 		$this->hasMany('AccountsReceivableSalesProductsInventory as SaleInventory', array(
 			'local' => 'id',
 			'foreign' => 'sale_product_id',

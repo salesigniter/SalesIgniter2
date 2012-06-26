@@ -1,0 +1,20 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[cPanel&reg; Management - Cron Jobs]]></define>
+
+	<define key="WINDOW_HEADING_NEW"><![CDATA[New Cron Job]]></define>
+	<define key="WINDOW_HEADING_EDIT"><![CDATA[Edit Cron Job]]></define>
+
+	<define key="ENTRY_CRONJOB_COMMON_SETTINGS"><![CDATA[Common Settings]]></define>
+	<define key="ENTRY_CRONJOB_MINUTE"><![CDATA[Minute: ]]></define>
+	<define key="ENTRY_CRONJOB_HOUR"><![CDATA[Hour: ]]></define>
+	<define key="ENTRY_CRONJOB_DAY"><![CDATA[Day: ]]></define>
+	<define key="ENTRY_CRONJOB_MONTH"><![CDATA[Month: ]]></define>
+	<define key="ENTRY_CRONJOB_WEEKDAY"><![CDATA[Weekday: ]]></define>
+	<define key="ENTRY_CRONJOB_COMMAND"><![CDATA[Modules: ]]></define>
+
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Cron Job Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this cron job?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete these cron jobs?]]></define>
+
+	<define key="BUTTON_TEXT_BACK_TO_MAIN"><![CDATA[Back To cPanel&reg;]]></define>
+</definitions>

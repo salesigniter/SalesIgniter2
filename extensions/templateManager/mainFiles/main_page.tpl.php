@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 require(sysConfig::getDirFsCatalog() . 'includes/classes/template.php');
 $thisTemplate = sysConfig::get('TEMPLATE_DIRECTORY');
 $thisApp = $App->getAppName();
@@ -12,17 +24,17 @@ $layoutType = 'desktop';
 $tplFile = 'layout.tpl';
 $PageContentFile = 'pageContent.tpl';
 if (Session::exists('kiosk_active') && Session::get('kiosk_active') == 'True'){
-	$layoutType = 'smartphone';
+	//$layoutType = 'smartphone';
 }
 elseif (preg_match('/(ipad|xoom)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
-	$layoutType = 'tablet';
-	$tplFile = 'layout-tablet.tpl';
-	$PageContentFile = 'tabletPageContent.tpl';
+	//$layoutType = 'tablet';
+	//$tplFile = 'layout-tablet.tpl';
+	//$PageContentFile = 'tabletPageContent.tpl';
 }
 elseif (preg_match('/(smartphone|phone|iphone|ipod|android)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
-	$layoutType = 'smartphone';
-	$tplFile = 'layout-mobile.tpl';
-	$PageContentFile = 'mobilePageContent.tpl';
+	//$layoutType = 'smartphone';
+	//$tplFile = 'layout-mobile.tpl';
+	//$PageContentFile = 'mobilePageContent.tpl';
 }
 
 $layoutPath = sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles';
@@ -99,21 +111,8 @@ if (isset($PageLayoutId[0]['app_page_title'])){
 	$pageContent->set('pageTitle', $PageLayoutId[0]['app_page_title']);
 	$pageContent->set('pageSubTitle', $PageLayoutId[0]['app_page_sub_title']);
 }
-$checkFiles = array(
-	sysConfig::get('DIR_FS_TEMPLATE') . '/catalog/applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
-	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
-	(isset($appContent) ? $appContent : false),
-	sysConfig::getDirFsCatalog() . 'applications/' . $appContent
-);
 
-$requireFile = false;
-foreach($checkFiles as $filePath){
-	if (file_exists($filePath) && is_file($filePath)){
-		$requireFile = $filePath;
-		break;
-	}
-}
-
+$requireFile = $App->getAppContentFile();
 if ($requireFile !== false){
 	require($requireFile);
 }

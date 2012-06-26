@@ -43,8 +43,8 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
 		if ($OrderProduct->hasInfo('PackagedProducts')){
 			foreach($OrderProduct->getInfo('PackagedProducts') as $PackagedProduct){
 				if ($PackagedProduct->getInfo('purchase_type') == 'reservation'){
-					if ($PackagedProduct->hasInfo('reservationInfo')){
-						$resInfo = $PackagedProduct->getInfo('reservationInfo');
+					if ($PackagedProduct->hasInfo('ReservationInfo')){
+						$resInfo = $PackagedProduct->getInfo('ReservationInfo');
 					}else{
 						$resInfo = array();
 					}
@@ -53,13 +53,13 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
 					$resInfo['end_date'] = $ending_date;
 
 					$PackagedProduct->updateInfo(array(
-						'reservationInfo' => $resInfo
+						'ReservationInfo' => $resInfo
 					));
 				}
 			}
 		}else{
-			if ($OrderProduct->hasInfo('reservationInfo')){
-				$resInfo = $OrderProduct->getInfo('reservationInfo');
+			if ($OrderProduct->hasInfo('ReservationInfo')){
+				$resInfo = $OrderProduct->getInfo('ReservationInfo');
 			}else{
 				$resInfo = array();
 			}
@@ -68,7 +68,7 @@ if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
 			$resInfo['end_date'] = $ending_date;
 
 			$OrderProduct->updateInfo(array(
-				'reservationInfo' => $resInfo
+				'ReservationInfo' => $resInfo
 			));
 		}
 	}
@@ -116,8 +116,8 @@ else {
 			}
 
 			if (!$dateIsReserved){
-				if ($OrderProduct->hasInfo('reservationInfo')){
-					$resInfo = $OrderProduct->getInfo('reservationInfo');
+				if ($OrderProduct->hasInfo('ReservationInfo')){
+					$resInfo = $OrderProduct->getInfo('ReservationInfo');
 				}else{
 					$resInfo = array();
 				}
@@ -127,7 +127,7 @@ else {
 					->modify('+' . $event_duration . ' Day');
 
 				$OrderProduct->updateInfo(array(
-					'reservationInfo' => $resInfo
+					'ReservationInfo' => $resInfo
 				));
 			}
 		}
@@ -139,36 +139,36 @@ else {
 function setShippingInfo(&$ProductData) {
 	if (isset($_POST['shipping']) && $_POST['shipping'] != 'undefined'){
 		$shippingInfo = explode('_', $_POST['shipping']);
-		$ProductData['reservationInfo']['shipping_module'] = $shippingInfo[0];
-		$ProductData['reservationInfo']['shipping_method'] = $shippingInfo[1];
-		$ProductData['reservationInfo']['days_before'] = (isset($_POST['days_before']) ? $_POST['days_before'] : 0);
-		$ProductData['reservationInfo']['days_after'] = (isset($_POST['days_after']) ? $_POST['days_after'] : 0);
+		$ProductData['ReservationInfo']['shipping_module'] = $shippingInfo[0];
+		$ProductData['ReservationInfo']['shipping_method'] = $shippingInfo[1];
+		$ProductData['ReservationInfo']['days_before'] = (isset($_POST['days_before']) ? $_POST['days_before'] : 0);
+		$ProductData['ReservationInfo']['days_after'] = (isset($_POST['days_after']) ? $_POST['days_after'] : 0);
 	}
 	else {
-		$ProductData['reservationInfo']['rental_shipping'] = false;
+		$ProductData['ReservationInfo']['rental_shipping'] = false;
 	}
 }
 
 function setQuantityData(&$ProductData) {
 	if (isset($_POST['qty']) && $_POST['qty'] != 'undefined'){
-		$ProductData['reservationInfo']['quantity'] = $_POST['qty'];
+		$ProductData['ReservationInfo']['quantity'] = $_POST['qty'];
 	}else{
-		$ProductData['reservationInfo']['quantity'] = 1;
+		$ProductData['ReservationInfo']['quantity'] = 1;
 	}
 }
 
 function setEventData(&$ProductData) {
 	global $Qevent, $starting_date;
 	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True' && $Qevent){
-		$ProductData['reservationInfo']['event_name'] = $Qevent->events_name;
-		$ProductData['reservationInfo']['event_date'] = $starting_date;
+		$ProductData['ReservationInfo']['event_name'] = $Qevent->events_name;
+		$ProductData['ReservationInfo']['event_date'] = $starting_date;
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True' && isset($_POST['gate'])){
 			$Qgate = Doctrine_Query::create()
 				->from('PayPerRentalGates')
 				->where('gates_id = ?', $_POST['gate'])
 				->fetchOne();
 			if ($Qgate){
-				$ProductData['reservationInfo']['event_gate'] = $Qgate->gate_name;
+				$ProductData['ReservationInfo']['event_gate'] = $Qgate->gate_name;
 			}
 		}
 	}
@@ -192,14 +192,14 @@ function setInsuranceData(&$ProductData) {
 			->where('products_id = ?', $ProductData['products_id'])
 			->fetchOne();
 
-		$ProductData['reservationInfo']['insurance'] = $payPerRentals->insurance;
+		$ProductData['ReservationInfo']['insurance'] = $payPerRentals->insurance;
 		$ProductData['price'] += $payPerRentals->insurance;
 	}
 }
 
 $ProductInfo = $OrderProduct->getInfo();
 if (
-	(isset($ProductInfo['reservationInfo']['start_date']) && isset($ProductInfo['reservationInfo']['end_date'])) ||
+	(isset($ProductInfo['ReservationInfo']['start_date']) && isset($ProductInfo['ReservationInfo']['end_date'])) ||
 	$ProductType->getCode() == 'package'
 ){
 
@@ -213,13 +213,13 @@ if (
 					setShippingInfo(&$PackageProductInfo);
 					setQuantityData(&$PackageProductInfo);
 
-					$PackagedProductPurchaseType->processAddToOrderOrCart(&$PackageProductInfo['reservationInfo'], &$PackageProductInfo);
+					$PackagedProductPurchaseType->processAddToOrderOrCart(&$PackageProductInfo['ReservationInfo'], &$PackageProductInfo);
 
 					setEventData(&$PackageProductInfo);
 					setAttributesData(&$PackageProductInfo);
 
 					$ProductInfo['price'] += ($PackageProductInfo['price'] * $PackageData->quantity);
-					$PackageProductInfo['reservationInfo']['quantity'] = $PackageData->quantity;
+					$PackageProductInfo['ReservationInfo']['quantity'] = $PackageData->quantity;
 				}else{
 					$PackageProductInfo['quantity'] = $PackageData->quantity;
 					if (isset($PackageData->price)){
@@ -236,7 +236,7 @@ if (
 		setShippingInfo(&$ProductInfo);
 		setQuantityData(&$ProductInfo);
 
-		$PurchaseType->processAddToOrderOrCart(&$ProductInfo['reservationInfo'], &$ProductInfo);
+		$PurchaseType->processAddToOrderOrCart(&$ProductInfo['ReservationInfo'], &$ProductInfo);
 
 		setEventData(&$ProductInfo);
 		setAttributesData(&$ProductInfo);

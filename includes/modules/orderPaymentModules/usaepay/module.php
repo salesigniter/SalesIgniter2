@@ -189,21 +189,20 @@ class OrderPaymentUsaepay extends CreditCardModule
 		return $process_button_string;
 	}
 
-	function processPayment($orderID = null, $amount = null){
-		global $order, $userAccount;
+	function processPayment(Order $Order){
 		switch($_GET['UMstatus']){
 			case 'Approved':
-				$sql = 'insert into ' . TABLE_MEMBERSHIP_BILLING_REPORT . ' set customers_id=' . (int)$customer_id . ', error = "Transaction Approved", date=now(), status="A"';
+				$sql = 'insert into membership_billing_report set customers_id=' . (int)$Order->getCustomerId() . ', error = "Transaction Approved", date=now(), status="A"';
 				break;
 			case 'Declined':
-				$sql = 'insert into ' . TABLE_MEMBERSHIP_BILLING_REPORT . ' set customers_id=' . (int)$customer_id . ', error = "' . $_GET['UMerror'] . '", date=now(), status="D"';
+				$sql = 'insert into membership_billing_report set customers_id=' . (int)$Order->getCustomerId() . ', error = "' . $_GET['UMerror'] . '", date=now(), status="D"';
 				Doctrine_Manager::getInstance()
 					->getCurrentConnection()
 					->exec($sql);
 				tep_redirect(itw_app_link('error_message=' . urlencode(MODULE_PAYMENT_USAEPAY_TEXT_DECLINED_MESSAGE), 'checkout', 'default', 'SSL', true, false));
 				break;
 			case 'Error':
-				$sql = 'insert into ' . TABLE_MEMBERSHIP_BILLING_REPORT . ' set customers_id=' . (int)$customer_id . ', error = "' . $_GET['UMerror'] . '", date=now(), status="D"';
+				$sql = 'insert into membership_billing_report set customers_id=' . (int)$Order->getCustomerId() . ', error = "' . $_GET['UMerror'] . '", date=now(), status="D"';
 				Doctrine_Manager::getInstance()
 					->getCurrentConnection()
 					->exec($sql);

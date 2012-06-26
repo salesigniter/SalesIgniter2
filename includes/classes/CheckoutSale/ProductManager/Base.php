@@ -15,18 +15,14 @@ class CheckoutSaleProductManager extends OrderProductManager
 	 */
 	public $Contents = array();
 
-	/**
-	 * @param array|null $orderedProducts
-	 * @param int|null   $order
-	 */
-	public function __construct(array $orderedProducts = null, $order = nul)
-	{
+	public function addErrorMessage(){
+
 	}
 
 	/**
 	 * @return array|CheckoutSaleProduct[]|OrderProduct[]
 	 */
-	public function getContents()
+	public function &getContents()
 	{
 		return $this->Contents;
 	}
@@ -35,64 +31,74 @@ class CheckoutSaleProductManager extends OrderProductManager
 	 * @param int $id
 	 * @return bool|CheckoutSaleProduct|OrderProduct
 	 */
-	public function get($id)
+	public function &get($id)
 	{
-		$OrderedProduct = parent::get((int)$id);
-		return $OrderedProduct;
-	}
-
-	/**
-	 *
-	 */
-	public function init()
-	{
-		foreach($this->getContents() as $OrderedProduct){
-			$OrderedProduct->init();
+		$id = (int)$id;
+		if (array_key_exists($id, $this->Contents)){
+			return $this->Contents[$id];
 		}
+		return false;
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
+	 * @param OrderProduct $CheckoutSaleProduct
 	 * @return bool
 	 */
-	public function add(OrderProduct &$OrderProduct)
+	public function add(OrderProduct &$CheckoutSaleProduct)
 	{
 		$addAllowed = true;
-		if (method_exists($OrderProduct, 'CheckoutSaleAllowAddToContents')){
-			$addAllowed = $OrderProduct->CheckoutSaleAllowAddToContents();
+		if (method_exists($CheckoutSaleProduct, 'allowAddToContents')){
+			$addAllowed = $CheckoutSaleProduct->allowAddToContents();
 		}
 
 		$Success = false;
 		if ($addAllowed === true){
-			$OrderProduct->regenerateId();
-			while(array_key_exists($OrderProduct->getId(), $this->Contents)){
-				$OrderProduct->regenerateId();
+			$CheckoutSaleProduct->regenerateId();
+			while(array_key_exists($CheckoutSaleProduct->getId(), $this->Contents)){
+				$CheckoutSaleProduct->regenerateId();
 			}
 
 			//echo __FILE__ . '::' . __LINE__ . '<br>';
-			$OrderProduct->CheckoutSaleOnAddToContents();
-			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
+			$CheckoutSaleProduct->onAddToContents();
+			$this->Contents[$CheckoutSaleProduct->getId()] = $CheckoutSaleProduct;
 			$this->cleanUp();
 			$Success = true;
 		}
 		return $Success;
 	}
 
-	/**
-	 * @param ShoppingCartProduct $CartProduct
-	 * @return bool
-	 */
-	public function addFromCart(ShoppingCartProduct &$CartProduct)
-	{
-		$SaleProduct = new CheckoutSaleProduct();
-		$SaleProduct->setCartProductHashId($CartProduct->getId());
-		$SaleProduct->setProductId($CartProduct->getIdString());
-		$SaleProduct->setQuantity($CartProduct->getQuantity());
-		$SaleProduct->setPrice($CartProduct->getPrice());
+	public function importShoppingCartProduct(ShoppingCartProduct $CartProduct, CheckoutSale &$CheckoutSale){
+		if ($this->cartProductExists($CartProduct->getId())){
+			$OrderProduct = $this->getByCartProductHash($CartProduct->getId());
+			//echo __FILE__ . '::' . __LINE__ . '<br>';
+			$Success = $OrderProduct->updateFromCart($CartProduct);
+			if ($Success === false){
+				$this->addErrorMessage('There was an error updating a cart product!');
+			}
+			else {
+				$CheckoutSale->TotalManager->onProductUpdated($this);
+			}
+		}
+		else {
+			//echo __FILE__ . '::' . __LINE__ . '<br>';
+			//echo '<div style="margin-left:15px;">';
+			$SaleProduct = new CheckoutSaleProduct();
 
-		//echo __FILE__ . '::' . __LINE__ . '<br>';
-		$Success = $this->add($SaleProduct);
-		return $Success;
+			$SaleProduct->onAddFromCart($CartProduct);
+
+			//echo __FILE__ . '::' . __LINE__ . '<br>';
+			$Success = $this->add($SaleProduct);
+			if ($Success === false){
+				$this->addErrorMessage('There was an error adding a cart product to the sale!');
+			}
+			else {
+				//echo '</div>';
+				//echo __FILE__ . '::' . __LINE__ . '<br>';
+				//echo '<div style="margin-left:15px;">';
+				$CheckoutSale->TotalManager->onProductAdded($this);
+				//echo '</div>';
+			}
+		}
 	}
 
 	/**

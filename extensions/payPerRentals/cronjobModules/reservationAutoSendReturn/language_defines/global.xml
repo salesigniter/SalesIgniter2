@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_CRONJOB_RESERVATIONAUTOSENDRETURN_TEXT_TITLE"><![CDATA[Reservation Auto Send & Return]]></define>
+	<define key="MODULE_CRONJOB_RESERVATIONAUTOSENDRETURN_TEXT_DESCRIPTION"><![CDATA[This cron script sends/returns all reservations, recommended to be run nightly]]></define>
+</definitions>

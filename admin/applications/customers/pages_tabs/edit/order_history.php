@@ -1,29 +1,12 @@
 <?php
-$Qorders = Doctrine_Query::create()
-	->select('o.orders_id, a.entry_name, o.date_purchased, o.customers_id, o.last_modified, o.currency, o.currency_value, s.orders_status_id, sd.orders_status_name, ot.text as order_total, o.payment_module')
-	->from('Orders o')
-	->leftJoin('o.OrdersTotal ot')
-	->leftJoin('o.OrdersAddresses a')
-	->leftJoin('o.OrdersStatus s')
-	->leftJoin('s.OrdersStatusDescription sd')
-	->where('sd.language_id = ?', Session::get('languages_id'))
-	->andWhereIn('ot.module_type', array('total', 'ot_total'))
-	->andWhere('a.address_type = ?', 'customer')
-	->andWhere('o.customers_id = ?', $Customer->customers_id)
-	->orderBy('o.date_purchased desc');
-
-$tableGrid = htmlBase::newElement('newGrid')
-	->usePagination(false)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit'] : 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1))
-	->setQuery($Qorders);
+$tableGrid = htmlBase::newElement('newGrid');
 
 $gridButtons = array(
-	htmlBase::newElement('button')->setText('Details')->addClass('detailsButton')->disable(),
+	htmlBase::newElement('button')->usePreset('details')->addClass('detailsButton')->disable(),
 	//htmlBase::newElement('button')->setText('Delete')->addClass('deleteButton')->disable(),
 	//htmlBase::newElement('button')->setText('Cancel')->addClass('cancelButton')->disable(),
-	htmlBase::newElement('button')->setText('Invoice')->addClass('invoiceButton')->disable(),
-	htmlBase::newElement('button')->setText('Packing Slip')->addClass('packingSlipButton')->disable()
+	//htmlBase::newElement('button')->setText('Invoice')->addClass('invoiceButton')->disable(),
+	//htmlBase::newElement('button')->setText('Packing Slip')->addClass('packingSlipButton')->disable()
 );
 
 $tableGrid->addButtons($gridButtons);
@@ -36,51 +19,34 @@ $gridHeaderColumns = array(
 	array('text' => sysLanguage::get('TABLE_HEADING_ORDER_TOTAL'))
 );
 
-$gridHeaderColumns[] = array('text' => 'info');
-
 $tableGrid->addHeaderRow(array(
 	'columns' => $gridHeaderColumns
 ));
 
-$orders = &$tableGrid->getResults();
 $noOrders = false;
-if ($orders){
-	foreach($orders as $order){
-		$orderId = $order['orders_id'];
-
-		$arrowIcon = htmlBase::newElement('icon')->setType('info');
-
-		$htmlCheckbox = htmlBase::newElement('checkbox')
-			->setName('selectedOrder[]')
-			->addClass('selectedOrder')
-			->setValue($orderId);
+if ($Customer->Sales && $Customer->Sales->count() > 0){
+	foreach($Customer->Sales as $sInfo){
+		$Sale = AccountsReceivable::getSale($sInfo->sale_module, $sInfo->sale_id);
 
 		$gridBodyColumns = array(
-			//array('text' => $htmlCheckbox->draw(), 'align' => 'center'),
-			array('text' => $orderId),
-			//array('text' => $order['OrdersAddresses']['customer']['entry_name']),
+			array('text' => $Sale->getSaleId()),
 			array(
-				'text'  => $order['date_purchased']->format(sysLanguage::getDateFormat('short')),
+				'text'  => $Sale->getDateAdded()->format(sysLanguage::getDateFormat('short')),
 				'align' => 'center'
 			),
 			array(
-				'text'  => $order['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name'],
+				'text'  => $Sale->getStatusName(),
 				'align' => 'center'
 			),
 			array(
-				'text'  => strip_tags($order['order_total']),
+				'text'  => $Sale->getTotal(true),
 				'align' => 'right'
 			)
 		);
 
-		$gridBodyColumns[] = array(
-			'text'  => $arrowIcon->draw(),
-			'align' => 'right'
-		);
-
 		$tableGrid->addBodyRow(array(
 			'rowAttr' => array(
-				'data-order_id' => $orderId
+				'data-sale_id' => $Sale->getSaleId()
 			),
 			'columns' => $gridBodyColumns
 		));
@@ -93,14 +59,10 @@ if ($orders){
 					'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
 						'<tr>' .
 						'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_CREATED') . '</b></td>' .
-						'<td> ' . $order['date_purchased']->format(sysLanguage::getDateFormat('short')) . '</td>' .
+						'<td> ' . $Sale->getDateAdded()->format(sysLanguage::getDateFormat('short')) . '</td>' .
 						'<td><b>' . sysLanguage::get('TEXT_DATE_ORDER_LAST_MODIFIED') . '</b></td>' .
-						'<td>' . $order['last_modified']->format(sysLanguage::getDateFormat('short')) . '</td>' .
+						'<td>' . $Sale->getDateModified()->format(sysLanguage::getDateFormat('short')) . '</td>' .
 						'<td></td>' .
-						'</tr>' .
-						'<tr>' .
-						'<td><b>' . sysLanguage::get('TEXT_INFO_PAYMENT_METHOD') . '</b></td>' .
-						'<td>' . $order['payment_module'] . '</td>' .
 						'</tr>' .
 						'</table>'
 				)

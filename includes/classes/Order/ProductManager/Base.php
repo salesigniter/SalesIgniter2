@@ -23,50 +23,15 @@ class OrderProductManager
 {
 
 	/**
-	 * @var int|null
-	 */
-	protected $orderId = null;
-
-	/**
-	 * @var array
+	 * @var OrderProduct[]
 	 */
 	protected $Contents = array();
 
 	/**
-	 * @param array|null $orderedProducts
-	 * @param int|null   $order
+	 *
 	 */
-	public function __construct(array $orderedProducts = null, $order = null)
+	public function __construct()
 	{
-		if (is_null($orderedProducts) === false){
-			$is_gift_certificate = 0;
-			if (is_null($order) === false && isset($order['is_gift_certificate']) && $order['is_gift_certificate']){
-				$is_gift_certificate = $order['is_gift_certificate'];
-			}
-
-			foreach($orderedProducts as $i => $pInfo){
-				if ($is_gift_certificate){
-					$orderedProduct = new OrderGiftCertificateProduct($pInfo);
-				}
-				else {
-					if (!isset($pInfo['purchase_type']) || $pInfo['purchase_type'] != 'membership'){
-						$orderedProduct = new OrderProduct($pInfo);
-					}
-					else {
-						$orderedProduct = new OrderRentalMembershipProduct($pInfo);
-					}
-				}
-				$this->add($orderedProduct);
-			}
-		}
-	}
-
-	/**
-	 * @param int $val
-	 */
-	public function setOrderId($val)
-	{
-		$this->orderId = $val;
 	}
 
 	/**
@@ -91,7 +56,7 @@ class OrderProductManager
 	 * @param int $id
 	 * @return OrderProduct|bool
 	 */
-	public function get($id)
+	public function &get($id)
 	{
 		$id = (int)$id;
 		if (array_key_exists($id, $this->Contents)){
@@ -179,7 +144,7 @@ class OrderProductManager
 		));
 
 		foreach($this->getContents() as $orderedProduct){
-			$orderedProductId = $orderedProduct->getOrderedProductId();
+			//$orderedProductId = $orderedProduct->getOrderedProductId();
 			$finalPrice = $orderedProduct->getPrice();
 			$finalPriceWithTax = $orderedProduct->getPrice(true);
 			$taxRate = $orderedProduct->getTaxRate();
@@ -273,6 +238,7 @@ class OrderProductManager
 		foreach($this->getContents() as $Id => $OrderProduct){
 			$ProductsJsonArray[$Id] = $OrderProduct->prepareJsonSave();
 		}
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
 		return $ProductsJsonArray;
 	}
 

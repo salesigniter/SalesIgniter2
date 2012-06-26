@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 function checkModel($modelName, $charset, $collation) {
 	global $manager;
 	$dbConn = $manager->getCurrentConnection();
@@ -155,7 +167,6 @@ function checkModel($modelName, $charset, $collation) {
 }
 
 Doctrine_Core::loadAllModels();
-$appContent = $App->getAppContentFile();
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
 
 OrderPaymentModules::loadModules(true);

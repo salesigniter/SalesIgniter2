@@ -13,6 +13,13 @@ if (isset($_GET['runProfile'])){
 }
 
 error_reporting(E_ALL & ~E_DEPRECATED);
+/**
+ * Core classes that do not depend on and sales igniter classes
+ */
+require((isset($basePath) ? $basePath : '') . '../includes/classes/SesDateTime.php');
+require((isset($basePath) ? $basePath : '') . '../includes/classes/SesBrowserDetect.php');
+require((isset($basePath) ? $basePath : '') . '../includes/classes/SesRequestInfo.php');
+
 
 function onShutdown() {
 	global $ExceptionManager;
@@ -44,8 +51,6 @@ require((isset($basePath) ? $basePath : '') . '../includes/classes/MainConfigRea
 require((isset($basePath) ? $basePath : '') . '../includes/classes/ModuleConfigReader.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/ExtensionConfigReader.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/system_configuration.php');
-require((isset($basePath) ? $basePath : '') . '../includes/classes/SesDateTime.php');
-require((isset($basePath) ? $basePath : '') . '../includes/classes/SesBrowserDetect.php');
 
 /*
  * Load system path/database settings
@@ -146,6 +151,8 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/ModuleInstaller.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/ModuleBase.php');
 require(sysConfig::getDirFsCatalog() . 'includes/classes/AccountsReceivable.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/accountsReceivableModules/modules.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/emailModules/modules.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/cronjobModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/dataManagementModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderShippingModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderPaymentModules/modules.php');

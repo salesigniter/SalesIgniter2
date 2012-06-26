@@ -30,10 +30,7 @@ class CustomersCustomFieldsOptionsDescription extends Doctrine_Record {
 		$this->hasColumn('option_name', 'string', 64, array(
 			'type' => 'string',
 			'length' => 64,
-			'fixed' => false,
-			'primary' => false,
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		
 		$this->hasColumn('language_id', 'integer', 4, array(

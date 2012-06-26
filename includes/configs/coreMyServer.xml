@@ -1,0 +1,66 @@
+<ConfigurationGroup>
+	<title>My Server</title>
+	<key>coreMyServer</key>
+	<description>Configuration values to access different server services</description>
+	<tabs>
+		<ftp>
+			<title>Ftp</title>
+			<description>Ftp Server Settings</description>
+			<configurations>
+				<MY_SERVER_FTP_HOST_NAME>
+					<title><![CDATA[FTP Host Name]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[The host name or ip address you use to connect to the ftp server]]></description>
+				</MY_SERVER_FTP_HOST_NAME>
+				<MY_SERVER_FTP_USERNAME>
+					<title><![CDATA[FTP Username]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[The ftp user you wish to use for all Sales Igniter ftp actions]]></description>
+				</MY_SERVER_FTP_USERNAME>
+				<MY_SERVER_FTP_PASSWORD>
+					<title><![CDATA[FTP Password]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[The ftp users password]]></description>
+				</MY_SERVER_FTP_PASSWORD>
+				<MY_SERVER_FTP_PORT>
+					<title><![CDATA[FTP Port]]></title>
+					<value><![CDATA[22]]></value>
+					<description><![CDATA[22 is the normal ftp port, do not change unless you know it's different]]></description>
+				</MY_SERVER_FTP_PORT>
+				<MY_SERVER_FTP_USE_PASV>
+					<title><![CDATA[Use PASV]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Select true if your ftp server requires pasv connections]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</MY_SERVER_FTP_USE_PASV>
+			</configurations>
+		</ftp>
+		<cpanel>
+			<title>cPanel&#174;</title>
+			<description>cPanel&#174; Settings</description>
+			<configurations>
+				<MY_SERVER_CPANEL_HOST>
+					<title><![CDATA[cPanel&reg; Host Name]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[The host name or ip address you use to connect to the cPanel&reg; server application]]></description>
+				</MY_SERVER_CPANEL_HOST>
+				<MY_SERVER_CPANEL_USERNAME>
+					<title><![CDATA[cPanel&reg; Username]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[Your cPanel&reg; username]]></description>
+				</MY_SERVER_CPANEL_USERNAME>
+				<MY_SERVER_CPANEL_PASSWORD>
+					<title><![CDATA[cPanel&reg; Password]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[Your cPanel&reg; password]]></description>
+				</MY_SERVER_CPANEL_PASSWORD>
+			</configurations>
+		</cpanel>
+	</tabs>
+</ConfigurationGroup>

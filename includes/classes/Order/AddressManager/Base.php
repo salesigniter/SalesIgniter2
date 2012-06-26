@@ -33,11 +33,6 @@ class OrderAddressManager
 	protected $addressHeadings = array();
 
 	/**
-	 * @var int
-	 */
-	protected $orderId = 0;
-
-	/**
 	 * @param array|null $addressArray
 	 */
 	public function __construct(array $addressArray = null)
@@ -64,14 +59,6 @@ class OrderAddressManager
 				));
 			}
 		}
-	}
-
-	/**
-	 * @param int $val
-	 */
-	public function setOrderId($val)
-	{
-		$this->orderId = (int)$val;
 	}
 
 	/**
@@ -198,9 +185,7 @@ class OrderAddressManager
 	 */
 	public function prepareJsonSave()
 	{
-		$toEncode = array(
-			'orderId' => $this->orderId
-		);
+		$toEncode = array();
 		foreach($this->getAddresses() as $Type => $Address){
 			$toEncode['addresses'][$Type] = $Address->prepareJsonSave();
 		}
@@ -213,11 +198,9 @@ class OrderAddressManager
 	public function jsonDecode($data)
 	{
 		$Decoded = json_decode($data, true);
-		$this->orderId = $Decoded['orderId'];
 		foreach($Decoded['addresses'] as $Type => $aInfo){
-			$this->addresses[$Type] = new OrderAddress(array_merge($aInfo, array(
-				'address_type' => $Type
-			)));
+			$this->addresses[$Type] = new OrderAddress();
+			$this->addresses[$Type]->jsonDecode($aInfo);
 		}
 	}
 }

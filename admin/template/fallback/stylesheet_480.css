@@ -107,4 +107,7 @@
 	.gridButtonBar button {
 		width : 50px;
 	}
+	.ApplicationPageMenu .rootItem {
+		width: 110px;
+	}
 }

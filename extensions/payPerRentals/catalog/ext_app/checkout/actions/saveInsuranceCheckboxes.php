@@ -1,7 +1,7 @@
 <?php
 $isRemove = false;
 foreach ($ShoppingCart->getProducts() as $cartProduct){
-		if ($cartProduct->hasInfo('reservationInfo')){
+		if ($cartProduct->hasInfo('ReservationInfo')){
 			$pInfo = $cartProduct->getInfo();
 			$pID = $cartProduct->getIdString();
 			if (isset($_POST['insure_all_products']) || (isset($_POST['insure_product']) && array_search($pID, $_POST['insure_product']) !== false)){
@@ -11,11 +11,11 @@ foreach ($ShoppingCart->getProducts() as $cartProduct){
 								 ->where('products_id = ?', $pID)
 								 ->fetchOne();
 
-				if (!isset($pInfo['reservationInfo']['insurance']) || (isset($pInfo['reservationInfo']['insurance']) && $pInfo['reservationInfo']['insurance'] == 0)){
-					$pInfo['reservationInfo']['insurance'] = $payPerRentals->insurance;//getInsurance from db
+				if (!isset($pInfo['ReservationInfo']['insurance']) || (isset($pInfo['ReservationInfo']['insurance']) && $pInfo['ReservationInfo']['insurance'] == 0)){
+					$pInfo['ReservationInfo']['insurance'] = $payPerRentals->insurance;//getInsurance from db
 					$isRemove = true;
 				}else{
-					$pInfo['reservationInfo']['insurance'] = 0;
+					$pInfo['ReservationInfo']['insurance'] = 0;
 					$isRemove = false;
 				}
 				$ShoppingCart->updateProduct($pID, $pInfo);

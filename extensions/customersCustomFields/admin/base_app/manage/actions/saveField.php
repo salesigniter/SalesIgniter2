@@ -8,7 +8,10 @@ else {
 }
 
 $Field->input_type = $_POST['input_type'];
+$Field->input_required = (isset($_POST['input_required']) ? 1 : 0);
+$Field->is_multiple = (isset($_POST['is_multiple']) ? 1 : 0);
 $Field->field_key = $_POST['field_key'];
+$Field->field_default_value = $_POST['field_default_value'];
 if (isset($_POST['show_on'])){
 	$Field->show_on_site = 0;
 	$Field->show_on_listing = 0;
@@ -35,16 +38,16 @@ if ($Field->Options && $Field->Options->count() > 0){
 	$Field->Options->clear();
 }
 
-if ($_POST['input_type'] == 'select'){
+if ($_POST['input_type'] == 'select' || $_POST['input_type'] == 'radio' || $_POST['input_type'] == 'checkbox'){
 	$lID = Session::get('languages_id');
 
 	$i = 0;
 	foreach($_POST['option_name'] as $index => $val){
 		if (!empty($val)){
-			$NewOption = new CustomersCustomFieldsOptionsToFields();
-			$NewOption->Option->sort_order = $_POST['option_sort'][$index];
-			$NewOption->Option->Description[$lID]->option_name = $val;
-			$NewOption->Option->Description[$lID]->language_id = $lID;
+			$NewOption = $Field->Options->getTable()->getRecord();
+			$NewOption->display_order = $_POST['option_sort'][$index];
+			$NewOption->Description[$lID]->language_id = $lID;
+			$NewOption->Description[$lID]->option_name = $val;
 
 			$Field->Options->add($NewOption);
 			$i++;

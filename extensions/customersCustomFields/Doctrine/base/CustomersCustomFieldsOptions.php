@@ -19,16 +19,16 @@ class CustomersCustomFieldsOptions extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 		
-		$this->hasOne('CustomersCustomFieldsOptionsToFields as Field', array(
-			'local'   => 'option_id',
-			'foreign' => 'option_id',
+		$this->hasOne('CustomersCustomFields as Field', array(
+			'local'   => 'field_id',
+			'foreign' => 'field_id',
 			'cascade' => array('delete')
 		));
 	}
 	
 	public function setTableDefinition(){
 		$this->setTableName('customers_custom_fields_options');
-		
+
 		$this->hasColumn('option_id', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 4,
@@ -36,8 +36,16 @@ class CustomersCustomFieldsOptions extends Doctrine_Record {
 			'primary' => true,
 			'autoincrement' => true,
 		));
-		
-		$this->hasColumn('sort_order', 'integer', 4, array(
+
+		$this->hasColumn('field_id', 'integer', 4, array(
+			'type' => 'integer',
+			'length' => 4,
+			'unsigned' => 0,
+			'primary' => false,
+			'autoincrement' => false,
+		));
+
+		$this->hasColumn('display_order', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 4,
 			'unsigned' => 0,

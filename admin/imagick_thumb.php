@@ -24,9 +24,9 @@
 				$img->thumbnailImage($_GET['width'],$_GET['height'],$bestFit);
 			}else{
 				if (isset($_GET['width'])){
-					$img->thumbnailImage($_GET['width'],0,true);
+					$img->thumbnailImage($_GET['width'],0);
 				}elseif (isset($_GET['height'])){
-					$img->thumbnailImage(0,$_GET['height'],true);
+					$img->thumbnailImage(0,$_GET['height']);
 				}
 			}
 			

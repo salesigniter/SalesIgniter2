@@ -406,7 +406,7 @@ class htmlElement
 					$arr[] = $name . '="' . $val . '"';
 				}
 				else {
-					$arr[] = $name . '="' . str_replace('"', '\"', stripslashes($val)) . '"';
+					$arr[] = $name . '="' . htmlspecialchars(stripslashes($val)) . '"';
 				}
 			}
 			$html .= ' ' . implode(' ', $arr);
@@ -447,7 +447,7 @@ class htmlElement
 			if (sizeof($this->appendElements) > 0){
 				foreach($this->appendElements as $elObj){
 					if (is_object($elObj)){
-						if ($elObj instanceof SesDateTime){
+						if ($elObj instanceof DateTime || $elObj instanceof SesDateTime){
 							$html .= $elObj->format(sysLanguage::getDateTimeFormat());
 						}else{
 							$html .= $elObj->draw();

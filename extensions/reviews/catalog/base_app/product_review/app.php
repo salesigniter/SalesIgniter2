@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 /*
 	Reviews Extension Version 1
 
@@ -9,29 +21,26 @@
 
 	This script and it's source is not redistributable
 */
+$App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');
+$App->addJavascriptFile('ext/jQuery/external/jqzoom/jquery.jqzoom.js');
 
-	$appContent = $App->getAppContentFile();
-    $App->addJavascriptFile('ext/jQuery/external/fancybox/jquery.fancybox.js');
-	$App->addJavascriptFile('ext/jQuery/external/jqzoom/jquery.jqzoom.js');
+$App->addStylesheetFile('ext/jQuery/external/fancybox/jquery.fancybox.css');
+$App->addStylesheetFile('ext/jQuery/external/jqzoom/jquery.jqzoom.css');
 
-	$App->addStylesheetFile('ext/jQuery/external/fancybox/jquery.fancybox.css');
-	$App->addStylesheetFile('ext/jQuery/external/jqzoom/jquery.jqzoom.css');
+$pageTabsFolder = sysConfig::getDirFsCatalog() . 'extensions/reviews/catalog/base_app/product_review/pages_tabs/';
+switch($App->getPageName()){
+	case 'default':
+		$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_DEFAULT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'default'));
+		break;
+	case 'details':
+		$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_INFO_PRODUCT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'details'));
+		break;
+	case 'write':
+		$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_WRITE_PRODUCT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'write'));
+		if ($userAccount->isLoggedIn() === false){
+			$navigation->set_snapshot();
+			tep_redirect(itw_app_link(null, 'account', 'login', 'SSL'));
+		}
 
-    $pageTabsFolder = sysConfig::getDirFsCatalog() . 'extensions/reviews/catalog/base_app/product_review/pages_tabs/';
-	switch($App->getPageName()){
-		case 'default':
-			$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_DEFAULT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'default'));
-			break;
-		case 'details':
-			$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_INFO_PRODUCT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'details'));
-			break;
-		case 'write':
-			$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE_WRITE_PRODUCT'), itw_app_link(tep_get_all_get_params(), 'product_review', 'write'));
-			if($userAccount->isLoggedIn() === false){
-				$navigation->set_snapshot();
-				tep_redirect(itw_app_link(null, 'account', 'login', 'SSL'));
-			}
-
-			break;
-	}
-?>
+		break;
+}

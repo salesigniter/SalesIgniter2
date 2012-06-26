@@ -27,25 +27,29 @@ class OrderProduct
 	 */
 	protected $pInfo = array(
 		'products_id'        => 0,
-		'orders_products_id' => 0,
 		'products_tax'       => 0,
 		'products_quantity'  => 0,
 		'products_model'     => '',
-		'products_name'      => ''
+		'products_name'      => '',
+		'products_weight'    => 0
 	);
 
+	/**
+	 * @var array
+	 */
+	protected $inventory = array();
 	/**
 	 * @var int
 	 */
 	protected $id = 0;
 
 	/**
-	 * @var float
+	 * @var Product
 	 */
-	protected $products_weight = 0;
+	protected $ProductClass;
 
 	/**
-	 * @var
+	 * @var ProductTypeBase
 	 */
 	protected $ProductTypeClass;
 
@@ -57,18 +61,14 @@ class OrderProduct
 		$this->regenerateId();
 		if (is_null($pInfo) === false){
 			$this->pInfo = $pInfo;
-			//$this->id = $pInfo['orders_products_id'];
 
-			$this->productClass = new Product((int)$this->pInfo['products_id']);
-			$this->products_weight = $this->productClass->getWeight();
+			$this->loadProduct($this->pInfo['products_id']);
 		}
 	}
 
-	/**
-	 *
-	 */
-	public function init()
-	{
+	public function loadProduct($productId){
+		$this->ProductClass = new Product((int)$productId);
+		$this->ProductTypeClass = $this->ProductClass->getProductTypeClass();
 	}
 
 	/**
@@ -76,23 +76,15 @@ class OrderProduct
 	 */
 	public function &getProductClass()
 	{
-		return $this->productClass;
+		return $this->ProductClass;
 	}
 
 	/**
-	 *
-	 */
-	public function loadProductTypeClass()
-	{
-		$this->ProductTypeClass = $this->getProductClass()->getProductTypeClass();
-	}
-
-	/**
-	 * @return ProductTypeStandard|ProductTypePackage|ProductTypeGiftVoucher|ProductTypeMembership
+	 * @return ProductTypeBase
 	 */
 	public function &getProductTypeClass()
 	{
-		return $this->getProductClass()->getProductTypeClass();
+		return $this->ProductTypeClass;
 	}
 
 	/**
@@ -108,7 +100,7 @@ class OrderProduct
 	 */
 	public function setWeight($val)
 	{
-		$this->products_weight = (float)$val;
+		$this->pInfo['products_weight'] = (float)$val;
 	}
 
 	/**
@@ -122,25 +114,9 @@ class OrderProduct
 	/**
 	 * @return int
 	 */
-	public function getOrderedProductId()
-	{
-		return (int)$this->pInfo['orders_products_id'];
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getProductsId()
 	{
 		return (int)$this->pInfo['products_id'];
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getIdString()
-	{
-		return (int)$this->pInfo['orders_products_id'];
 	}
 
 	/**
@@ -184,15 +160,26 @@ class OrderProduct
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasBarcodes()
+	{
+		return (isset($this->pInfo['Barcodes']));
+	}
+
+	/**
 	 * @return string
 	 */
 	public function displayBarcodes()
 	{
-		$return = '';
+		$return = array();
+		foreach($this->inventory as $BarcodeInfo){
+			$return[] = $BarcodeInfo['barcode'];
+		}
+		$return = implode('<br>', $return);
 
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'displayOrderedProductBarcodes')){
-			$return = $ProductType->displayOrderedProductBarcodes($this);
+		if (method_exists($this->ProductTypeClass, 'displayOrderedProductBarcodes')){
+			$return .= $this->ProductTypeClass->displayOrderedProductBarcodes($this);
 		}
 		return $return;
 	}
@@ -204,9 +191,8 @@ class OrderProduct
 	{
 		$barcode = '';
 
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'getOrderedProductBarcodes')){
-			$barcode = $ProductType->getOrderedProductBarcodes($this->pInfo);
+		if (method_exists($this->ProductTypeClass, 'getOrderedProductBarcodes')){
+			$barcode = $this->ProductTypeClass->getOrderedProductBarcodes($this->pInfo);
 		}
 		return (string)$barcode;
 	}
@@ -248,7 +234,7 @@ class OrderProduct
 	 */
 	public function getWeight()
 	{
-		return (float)($this->products_weight * $this->getQuantity());
+		return (float)($this->productClass->getWeight() * $this->getQuantity());
 	}
 
 	/**
@@ -284,11 +270,9 @@ class OrderProduct
 			->attr('target', '_blank')
 			->html($this->getName());
 
-		$ProductType = $this->getProductClass()->getProductTypeClass();
-
 		$name = $nameHref->draw() .
 			'<br />' .
-			$ProductType->showOrderedProductInfo($this, $showExtraInfo);
+			$this->ProductTypeClass->showOrderedProductInfo($this, $showExtraInfo);
 
 		$Result = EventManager::notifyWithReturn('OrderProductAfterProductName', $this, $showExtraInfo);
 		foreach($Result as $html){
@@ -341,41 +325,49 @@ class OrderProduct
 	}
 
 	/**
+	 * @param array $newInfo
+	 */
+	public function updateInfo(array $newInfo)
+	{
+		foreach($this->pInfo as $k => $v){
+			$this->setInfo($k, $v);
+		}
+	}
+
+	/**
 	 * @param null $Qty
 	 * @return bool
 	 */
 	public function hasEnoughInventory($Qty = null)
 	{
 		$return = true;
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'hasEnoughInventory')){
-			$return = $ProductType->hasEnoughInventory($this, $Qty);
+		if (method_exists($this->ProductTypeClass, 'hasEnoughInventory')){
+			$return = $this->ProductTypeClass->hasEnoughInventory($this, $Qty);
 		}
 		return $return;
 	}
 
 	/**
-	 * @param $SaleProduct
+	 * @param AccountsReceivableSalesProducts $SaleProduct
 	 */
-	public function onSaveProgress(&$SaleProduct)
+	public function onSaveProgress(AccountsReceivableSalesProducts &$SaleProduct)
 	{
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'onSaveProgress')){
-			$ProductType->onSaveProgress($this, $SaleProduct);
+		if (method_exists($this->ProductTypeClass, 'onSaveProgress')){
+			$this->ProductTypeClass->onSaveProgress($this, $SaleProduct);
 		}
 
 		$SaleProduct->product_json = json_encode($this->prepareJsonSave());
 	}
 
-	/**
-	 * @param      $SaleProduct
-	 * @param bool $AssignInventory
+	/**+
+	 * @param AccountsReceivableSalesProducts $SaleProduct
+	 * @param bool                            $AssignInventory
 	 */
-	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
 	{
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'onSaveSale')){
-			$ProductType->onSaveSale($this, $SaleProduct, $AssignInventory);
+		if (method_exists($this->ProductTypeClass, 'onSaveSale')){
+			//echo __FILE__ . '::' . __LINE__ . '<br>';
+			$this->ProductTypeClass->onSaveSale($this, $SaleProduct, $AssignInventory);
 		}
 
 		$SaleProduct->product_json = json_encode($this->prepareJsonSave());
@@ -391,9 +383,8 @@ class OrderProduct
 			'pInfo' => $this->pInfo
 		);
 
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'prepareJsonSave')){
-			$toEncode['ProductTypeJson'] = $ProductType->prepareJsonSave($this);
+		if (method_exists($this->ProductTypeClass, 'prepareJsonSave')){
+			$toEncode['ProductTypeJson'] = $this->ProductTypeClass->prepareJsonSave($this);
 		}
 		return $toEncode;
 	}
@@ -407,22 +398,26 @@ class OrderProduct
 	{
 		$ProductInfo = json_decode($Product->product_json, true);
 		if ($ProductInfo){
-			//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
 			$this->id = $ProductInfo['id'];
 			$this->pInfo = $ProductInfo['pInfo'];
 
-			$this->productClass = new Product($this->pInfo['products_id']);
-			$this->products_weight = $this->productClass->getWeight();
-
-			$this->loadProductTypeClass($this->productClass->getProductType());
-
-			$ProductType = $this->getProductTypeClass();
-			if (method_exists($ProductType, 'jsonDecodeProduct')){
-				$ProductType->jsonDecode($this, $ProductInfo['ProductTypeJson']);
-			}else{
-				if (method_exists($ProductType, 'setProductId')){
-					$ProductType->setProductId($this->pInfo['products_id']);
+			$this->inventory = array();
+			foreach($Product->SaleInventory as $Inventory){
+				if ($Inventory->barcode_id > 0){
+					$BarcodeInfo = $Inventory->Barcode;
+					$this->inventory[] = array(
+						'barcode_id' => $BarcodeInfo->barcode_id,
+						'barcode' => $BarcodeInfo->barcode,
+						'status' => $BarcodeInfo->status
+					);
 				}
+			}
+
+			//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($this->inventory);
+
+			$this->loadProduct($this->pInfo['products_id']);
+			if (method_exists($this->ProductTypeClass, 'jsonDecode')){
+				$this->ProductTypeClass->jsonDecode($this, $ProductInfo['ProductTypeJson']);
 			}
 		}
 	}
@@ -432,21 +427,13 @@ class OrderProduct
 	 */
 	public function jsonDecode(array $ProductInfo)
 	{
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
 		$this->id = $ProductInfo['id'];
 		$this->pInfo = $ProductInfo['pInfo'];
 
-		$this->productClass = new Product($this->pInfo['products_id']);
-		$this->products_weight = $this->productClass->getWeight();
-
-		$this->loadProductTypeClass($this->productClass->getProductType());
-
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'jsonDecode')){
-			$ProductType->jsonDecode($this, $ProductInfo['ProductTypeJson']);
-		}else{
-			if (method_exists($ProductType, 'setProductId')){
-				$ProductType->setProductId($this->pInfo['products_id']);
-			}
+		$this->loadProduct($this->pInfo['products_id']);
+		if (method_exists($this->ProductTypeClass, 'jsonDecode')){
+			$this->ProductTypeClass->jsonDecode($this, $ProductInfo['ProductTypeJson']);
 		}
 	}
 }

@@ -38,6 +38,20 @@ class CheckoutSaleAddressManager extends OrderAddressManager
 		}
 	}
 
+	/**
+	 * @param $rType
+	 * @return null|OrderAddress|CheckoutSaleAddress
+	 */
+	public function getAddress($rType)
+	{
+		return parent::getAddress($rType);
+	}
+
+	/**
+	 * @param array $addresses
+	 * @param null  $againstGoogleZone
+	 * @return bool
+	 */
 	public function validate($addresses = array(), $againstGoogleZone = null)
 	{
 		global $messageStack;
@@ -62,14 +76,15 @@ class CheckoutSaleAddressManager extends OrderAddressManager
 		return $validated;
 	}
 
+	/**
+	 * @param string $data
+	 */
 	public function jsonDecode($data)
 	{
 		$Decoded = json_decode($data, true);
-		$this->orderId = $Decoded['orderId'];
 		foreach($Decoded['addresses'] as $Type => $aInfo){
-			$this->addresses[$Type] = new CheckoutSaleAddress(array_merge($aInfo['addressInfo'], array(
-				'address_type' => $Type
-			)));
+			$this->addresses[$Type] = new CheckoutSaleAddress();
+			$this->addresses[$Type]->jsonDecode($aInfo);
 		}
 	}
 }

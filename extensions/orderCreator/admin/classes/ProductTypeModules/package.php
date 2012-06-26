@@ -153,7 +153,7 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 					$PurchaseType = $ProductType->getPurchaseType('reservation');
 					$pprId = $PurchaseType->getPayPerRentalId();
 
-					$ReservationInfo = $PackageOrderProduct->getInfo('reservationInfo');
+					$ReservationInfo = $PackageOrderProduct->getInfo('ReservationInfo');
 
 					$PricingInfo = PurchaseType_reservation_utilities::getPricingPeriodInfo(
 						$pprId,
@@ -335,15 +335,15 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 		/*
 		 * @TODO: Figure out a way to hand this off to the reservation purchase type?!?!
 		 */
-		if (isset($ProductTypeJson['reservationInfo'])){
-			$StartDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['reservationInfo']['start_date']['date']);
-			$StartDate->setTimezone(new DateTimeZone($ProductTypeJson['reservationInfo']['start_date']['timezone']));
+		if (isset($ProductTypeJson['ReservationInfo'])){
+			$StartDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['ReservationInfo']['start_date']['date']);
+			$StartDate->setTimezone(new DateTimeZone($ProductTypeJson['ReservationInfo']['start_date']['timezone']));
 
-			$EndDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['reservationInfo']['end_date']['date']);
-			$EndDate->setTimezone(new DateTimeZone($ProductTypeJson['reservationInfo']['end_date']['timezone']));
+			$EndDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['ReservationInfo']['end_date']['date']);
+			$EndDate->setTimezone(new DateTimeZone($ProductTypeJson['ReservationInfo']['end_date']['timezone']));
 
-			$Info['reservationInfo']['start_date'] = $StartDate;
-			$Info['reservationInfo']['end_date'] = $EndDate;
+			$Info['ReservationInfo']['start_date'] = $StartDate;
+			$Info['ReservationInfo']['end_date'] = $EndDate;
 		}
 
 		if (isset($ProductTypeJson['PackagedProducts'])){

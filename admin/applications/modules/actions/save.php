@@ -1,5 +1,5 @@
 <?php
-if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'accountsReceivable' || $_GET['moduleType'] == 'orderTotal' || $_GET['moduleType'] == 'orderPayment' || $_GET['moduleType'] == 'orderShipping' || $_GET['moduleType'] == 'purchaseType' || $_GET['moduleType'] == 'productType')){
+if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'accountsReceivable' || $_GET['moduleType'] == 'orderTotal' || $_GET['moduleType'] == 'orderPayment' || $_GET['moduleType'] == 'orderShipping' || $_GET['moduleType'] == 'purchaseType' || $_GET['moduleType'] == 'productType' || $_GET['moduleType'] == 'cronjob')){
 	$moduleCode = $_GET['module'];
 	$moduleType = $_GET['moduleType'];
 	$modulePath = $_GET['modulePath'];
@@ -28,6 +28,10 @@ if (isset($_GET['moduleType']) && ($_GET['moduleType'] == 'accountsReceivable' |
 		case 'orderPayment':
 			$Module = OrderPaymentModules::getModule($moduleCode, true);
 			$moduleDir = 'orderPaymentModules';
+			break;
+		case 'cronjob':
+			$Module = CronJobModules::getModule($moduleCode, true);
+			$moduleDir = 'cronjobModules';
 			break;
 	}
 	$ModuleConfig = $Module->getConfig();

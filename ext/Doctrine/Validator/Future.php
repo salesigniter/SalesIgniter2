@@ -43,7 +43,10 @@ class Doctrine_Validator_Future extends Doctrine_Validator_Driver
         if (is_null($value)) {
             return true;
         }
-        $e = explode('-', $value);
+		if ($value instanceof DateTime || $value instanceof SesDateTime){
+			$value = $value->format('Y-m-d');
+		}
+		$e = explode('-', $value);
 
         if (count($e) !== 3) {
             return false;

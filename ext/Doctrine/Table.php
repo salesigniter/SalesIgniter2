@@ -2323,7 +2323,7 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
     {
 		// sw45859 Added For Sales Igniter Version 2 --BEGIN--
 		$type = is_null($typeHint) ? $this->getTypeOf($fieldName) : $typeHint;
-		$processAnyway = array('timestamp', 'datetime');
+		$processAnyway = array('timestamp', 'datetime','date');
 		// sw45859 Added For Sales Igniter Version 2 --END--
 
         if ($value === self::$_null && !in_array($type, $processAnyway)) {
@@ -2360,6 +2360,16 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
 				case 'datetime':
 					if (is_string($value) || is_null($value)){
 						$value = SesDateTime::createFromFormat(DATE_TIMESTAMP, $value);
+
+						if ($value === false) {
+							throw new Doctrine_Table_Exception('Failed to turn ' . $fieldName . ' into DateTime object.');
+						}
+						return $value;
+					}
+					break;
+				case 'date':
+					if (is_string($value) || is_null($value)){
+						$value = SesDateTime::createFromFormat('Y-m-d', $value);
 
 						if ($value === false) {
 							throw new Doctrine_Table_Exception('Failed to turn ' . $fieldName . ' into DateTime object.');

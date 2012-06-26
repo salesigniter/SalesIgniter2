@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_CRONJOB_RESERVATIONRETURNREMINDER_TEXT_TITLE"><![CDATA[Reservation Return Reminder]]></define>
+	<define key="MODULE_CRONJOB_RESERVATIONRETURNREMINDER_TEXT_DESCRIPTION"><![CDATA[This cron script will send reminders to return reservations that are nearing their end date. Recommeded to run nightly]]></define>
+</definitions>

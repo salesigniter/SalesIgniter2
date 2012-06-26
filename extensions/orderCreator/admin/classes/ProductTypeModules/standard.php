@@ -2,8 +2,8 @@
 /**
  * Standard product type class for the order creator product manager class
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
+ * @package   OrderCreator
+ * @author    Stephen Walker <stephen@itwebexperts.com>
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
@@ -11,11 +11,17 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 {
 
 	/**
+	 * @var PurchaseTypeBase
+	 */
+	protected $PurchaseTypeClass;
+
+	/**
 	 * @param bool $PurchaseType
 	 * @param bool $ignoreStatus
 	 * @return null
 	 */
-	public function loadPurchaseType($PurchaseType = false, $ignoreStatus = false) {
+	public function loadPurchaseType($PurchaseType = false, $ignoreStatus = false)
+	{
 		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
 		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
 			if ($ignoreStatus === false){
@@ -23,55 +29,45 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 			}
 		}
 
-		if (!isset($this->purchaseTypes[$PurchaseType])){
-			$className = 'OrderCreatorPurchaseType' . ucfirst($PurchaseType);
-			if (class_exists($className) === false){
-				$fileName = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/PurchaseTypeModules/' . $PurchaseType . '.php';
-				if (file_exists($fileName)){
-					require($fileName);
-				}
-			}
+		if (is_object($this->PurchaseTypeClass) === false){
+			PurchaseTypeModules::$classPrefix = 'OrderCreatorPurchaseType';
+			$isLoaded = PurchaseTypeModules::loadModule(
+				$PurchaseType,
+			sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/PurchaseTypeModules/' . $PurchaseType . '/'
+			);
 
-			$this->purchaseTypes[$PurchaseType] = new $className;
-			if ($this->purchaseTypes[$PurchaseType] === false){
-				echo '<pre>';
-				debug_print_backtrace();
-				echo '</pre>';
-				die('Error loading purchase type: ' . $PurchaseType);
+			if ($isLoaded === true){
+				$this->PurchaseTypeClass = PurchaseTypeModules::getModule($PurchaseType);
+				if ($this->PurchaseTypeClass === false){
+					echo '<pre>';
+					debug_print_backtrace();
+					echo '</pre>';
+					die('Error loading purchase type: ' . $PurchaseType);
+				}
+				$this->PurchaseTypeClass->loadData($this->getProductId());
+				$this->PurchaseTypeClass->loadInventoryData($this->getProductId());
 			}
-			$this->purchaseTypes[$PurchaseType]->loadData($this->getProductId());
-			$this->purchaseTypes[$PurchaseType]->loadInventoryData($this->getProductId());
 		}
 	}
 
 	/**
-	 * @param bool $PurchaseType
-	 * @param bool $ignoreStatus
-	 * @return null
+	 * @return PurchaseTypeBase
 	 */
-	public function &getPurchaseType($PurchaseType = false, $ignoreStatus = false) {
-		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
-		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
-			if ($ignoreStatus === false){
-				$return = null;
-				return $return;
-			}
-		}
-
-		if (empty($this->purchaseTypes) || array_key_exists($PurchaseType, $this->purchaseTypes) === false){
-			$this->loadPurchaseType($PurchaseType, $ignoreStatus);
-		}
-		return $this->purchaseTypes[$PurchaseType];
+	public function &getPurchaseTypeClass()
+	{
+		return $this->PurchaseTypeClass;
 	}
 
 	/**
 	 * @param array $pInfo
 	 */
-	public function OrderCreatorProductOnInit(array $pInfo) {
+	public function OrderCreatorProductOnInit(array $pInfo)
+	{
 		$this->setPurchaseType($pInfo['purchase_type']);
 	}
 
-	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct){
+	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct)
+	{
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onUpdateOrderProduct')){
 			$PurchaseType->onUpdateOrderProduct($OrderedProduct);
@@ -82,7 +78,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	 * @param OrderCreatorProduct $OrderedProduct
 	 * @return array
 	 */
-	public function getExcludedPurchaseTypes(OrderCreatorProduct $OrderedProduct) {
+	public function getExcludedPurchaseTypes(OrderCreatorProduct $OrderedProduct)
+	{
 		global $Editor;
 		$excludedTypes = array();
 		foreach($Editor->ProductManager->getContents() as $Product){
@@ -98,21 +95,24 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 
 	/**
 	 * @param OrderCreatorProduct $OrderedProduct
-	 * @param array $SelectedBarcodes
+	 * @param array               $SelectedBarcodes
 	 * @return string
 	 */
-	public function OrderCreatorBarcodeEdit(OrderCreatorProduct $OrderedProduct, &$SelectedBarcodes = array()) {
+	public function OrderCreatorBarcodeEdit(OrderCreatorProduct $OrderedProduct, &$SelectedBarcodes = array())
+	{
 		$return = '';
-		$PurchaseType = $OrderedProduct->getProductTypeClass()
-			->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
+		$PurchaseType = $OrderedProduct
+		->getProductTypeClass()
+		->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
 		if ($PurchaseType && $PurchaseType->getTrackMethod() == 'barcode'){
 			$barcodeInput = htmlBase::newElement('selectbox')
-				->css('width', '75%')
-				->addClass('ui-widget-content barcode')
-				->setName('product[' . $OrderedProduct->getId() . '][barcode_id][]');
+			->css('width', '75%')
+			->addClass('ui-widget-content barcode')
+			->setName('product[' . $OrderedProduct->getId() . '][barcode_id][]');
 			$barcodeInput->addOption('', sysLanguage::get('TEXT_PLEASE_SELECT'));
 
-			EventManager::attachEvent('ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute', function ($invData, &$Qcheck) {
+			EventManager::attachEvent('ProductInventoryBarcodeGetInventoryItemsQueryBeforeExecute', function ($invData, &$Qcheck)
+			{
 				global $appExtension, $Editor;
 				$MultiStore = $appExtension->getExtension('multiStore');
 				if ($MultiStore && $MultiStore->isEnabled() === true){
@@ -141,51 +141,34 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 
 	/**
 	 * @param OrderCreatorProduct $OrderedProduct
-	 * @param bool $allowEdit
+	 * @param bool                $allowEdit
 	 * @return string
 	 */
-	public function OrderCreatorAfterProductName(OrderCreatorProduct $OrderedProduct, $allowEdit = true) {
+	public function OrderCreatorAfterProductName(OrderCreatorProduct $OrderedProduct, $allowEdit = true)
+	{
 		$return = '';
-		$selectedPurchaseType = '';
-		if ($OrderedProduct->hasInfo('purchase_type')){
-			$PurchaseTypeClass = $OrderedProduct
-				->getProductTypeClass()
-				->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
-			if ($OrderedProduct->getInfo('purchase_type') == 'membership'){
-				$allowEdit = false;
-				$PurchaseTypeHtml = $PurchaseTypeClass->getTitle();
-			}else{
-				$PurchaseTypeHtml = $PurchaseTypeClass->getTitle();
-				$selectedPurchaseType = $PurchaseTypeClass->getCode();
+
+		//It should show reservation so the product can have it's purchase type selected as reservation
+		//On editing an order
+		//$excludedPurchaseTypes = $this->getExcludedPurchaseTypes($OrderedProduct);
+		$excludedPurchaseTypes = array();
+
+		$purchaseTypeInput = htmlBase::newElement('selectbox')
+		->addClass('ui-widget-content purchaseType')
+		->setName('product[' . $OrderedProduct->getId() . '][purchase_type]')
+		->selectOptionByValue($this->PurchaseTypeClass->getCode())
+		->addOption('', sysLanguage::get('TEXT_PLEASE_SELECT'));
+
+		foreach(PurchaseTypeModules::getModules() as $k => $pType){
+			if (!in_array($k, $excludedPurchaseTypes)){
+				$purchaseTypeInput->addOption($pType->getCode(), $pType->getTitle());
 			}
 		}
 
-		if ($allowEdit === true){
-			$PurchaseTypes = $this->getPurchaseTypes(true);
-			//It should show reservation so the product can have it's purchase type selected as reservation
-			//On editing an order
-			//$excludedPurchaseTypes = $this->getExcludedPurchaseTypes($OrderedProduct);
-			$excludedPurchaseTypes = array();
+		$return = '<br><nobr><small>&nbsp;<i> - Purchase Type: ' . $purchaseTypeInput->draw() . '</i></small></nobr>';
 
-			$purchaseTypeInput = htmlBase::newElement('selectbox')
-				->addClass('ui-widget-content purchaseType')
-				->setName('product[' . $OrderedProduct->getId() . '][purchase_type]');
-			$purchaseTypeInput->addOption('', sysLanguage::get('TEXT_PLEASE_SELECT'));
-			foreach($PurchaseTypes as $k => $pType){
-				if (!in_array($k, $excludedPurchaseTypes)){
-					$purchaseTypeInput->addOption($pType->getCode(), $pType->getTitle());
-				}
-			}
-			$purchaseTypeInput->selectOptionByValue($selectedPurchaseType);
-			$PurchaseTypeHtml = $purchaseTypeInput->draw();
-		}
-
-		$return = '<br><nobr><small>&nbsp;<i> - Purchase Type: ' . $PurchaseTypeHtml . '</i></small></nobr>';
-
-		if (isset($PurchaseTypeClass) && is_object($PurchaseTypeClass)){
-			if (method_exists($PurchaseTypeClass, 'OrderCreatorAfterProductName')){
-				$return .= $PurchaseTypeClass->OrderCreatorAfterProductName($OrderedProduct, $allowEdit);
-			}
+		if (method_exists($this->PurchaseTypeClass, 'OrderCreatorAfterProductName')){
+			$return .= $this->PurchaseTypeClass->OrderCreatorAfterProductName($OrderedProduct, $allowEdit);
 		}
 		return $return;
 	}
@@ -193,7 +176,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	/**
 	 * @param array $pInfo
 	 */
-	public function OrderCreatorUpdateProductInfo(array &$pInfo) {
+	public function OrderCreatorUpdateProductInfo(array &$pInfo)
+	{
 		if (isset($_GET['purchase_type']) && !empty($_GET['purchase_type'])){
 			$pInfo['purchase_type'] = $_GET['purchase_type'];
 
@@ -211,7 +195,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	 * @param OrderCreatorProduct $OrderProduct
 	 * @return bool
 	 */
-	public function OrderCreatorAllowAddToContents(OrderCreatorProduct &$OrderProduct) {
+	public function OrderCreatorAllowAddToContents(OrderCreatorProduct &$OrderProduct)
+	{
 		if (isset($_GET['purchase_type']) && !empty($_GET['purchase_type'])){
 			$OrderProduct->updateInfo(array(
 				'purchase_type' => $_GET['purchase_type']
@@ -233,14 +218,15 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	/**
 	 * @param OrderCreatorProduct $OrderProduct
 	 */
-	public function OrderCreatorOnAddToContents(OrderCreatorProduct &$OrderProduct) {
+	public function OrderCreatorOnAddToContents(OrderCreatorProduct &$OrderProduct)
+	{
 		if ($OrderProduct->hasInfo('purchase_type')){
 			$PurchaseType = $this->getPurchaseType($OrderProduct->getInfo('purchase_type'));
 
 			$OrderProduct->updateInfo(array(
 				'purchase_type'  => $PurchaseType->getCode(),
 				'products_price' => $PurchaseType->getPrice(),
-				'final_price'	=> $PurchaseType->getPrice(),
+				'final_price'    => $PurchaseType->getPrice(),
 				'products_tax'   => $PurchaseType->getPrice() * $PurchaseType->getTaxRate()
 			));
 
@@ -254,7 +240,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	 * @param OrderCreatorProduct $OrderProduct
 	 * @return bool
 	 */
-	public function OrderCreatorAllowProductUpdate(OrderCreatorProduct $OrderProduct) {
+	public function OrderCreatorAllowProductUpdate(OrderCreatorProduct $OrderProduct)
+	{
 		$return = true;
 		$PurchaseTypeName = $OrderProduct->getInfo('purchase_type');
 		if (!empty($PurchaseTypeName)){
@@ -268,9 +255,10 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 
 	/**
 	 * @param OrderCreatorProduct $OrderProduct
-	 * @param OrdersProducts $OrderedProduct
+	 * @param OrdersProducts      $OrderedProduct
 	 */
-	public function addToOrdersProductCollection(OrderCreatorProduct $OrderProduct, OrdersProducts &$OrderedProduct) {
+	public function addToOrdersProductCollection(OrderCreatorProduct $OrderProduct, OrdersProducts &$OrderedProduct)
+	{
 		$OrderedProduct->purchase_type = $OrderProduct->getInfo('purchase_type');
 		if ($OrderProduct->hasInfo('Barcodes')){
 			foreach($OrderProduct->getInfo('Barcodes') as $bInfo){
@@ -294,7 +282,8 @@ class OrderCreatorProductTypeStandard extends ProductTypeStandard
 	/**
 	 * @param OrderCreatorProduct $Product
 	 */
-	public function OrderCreatorProductManagerUpdateFromPost(OrderCreatorProduct &$Product){
+	public function OrderCreatorProductManagerUpdateFromPost(OrderCreatorProduct &$Product)
+	{
 		$PurchaseType = $this->getPurchaseType($Product->getInfo('purchase_type'));
 		if (method_exists($PurchaseType, 'OrderCreatorProductManagerUpdateFromPost')){
 			$PurchaseType->OrderCreatorProductManagerUpdateFromPost($Product);

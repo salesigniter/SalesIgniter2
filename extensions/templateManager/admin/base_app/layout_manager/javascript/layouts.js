@@ -84,7 +84,22 @@ $(document).ready(function () {
 					buttons    : ['cancel', {
 						type: 'save',
 						click: GridClass.windowButtonEvent('save', {
-							actionName: 'createLayout'
+							actionName: 'createLayout',
+							onSuccess: function (GridClass, data, o){
+								removeAjaxLoader(o.buttonEl);
+								if (data.success){
+									js_redirect(GridClass.buildCurrentAppRedirect(null, [
+										'template_id=' + $_GET['template_id']
+									]));
+								}
+								else {
+									var ErrorMessage = 'An Unknown Error Occured!';
+									if (data.error){
+										ErrorMessage = data.error.message;
+									}
+									GridClass.newWindow.find('#messageStack').html(ErrorMessage);
+								}
+							}
 						})
 					}]
 				});

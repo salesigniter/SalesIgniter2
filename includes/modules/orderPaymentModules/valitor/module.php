@@ -94,26 +94,24 @@ class OrderPaymentValitor extends CreditCardModule {
 	}
 	
 	
-	public function processPayment($orderID = null, $amount = null){
-		global $order, $onePageCheckout;
+	public function processPayment(Order $Order){
+		$paymentAmount = $Order->TotalManager->getTotalValue('total');
 
-		$paymentAmount = $order->info['total'];
-
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
+		$paymentInfo = $Order->PaymentManager->getInfo();
 		
-		$cardInfo = $paymentInfo['cardDetails']['cardNumber'].'-'.substr($paymentInfo['cardDetails']['cardExpYear'],2).$paymentInfo['cardDetails']['cardExpMonth'];		
-		$cardLast4Digits = substr($paymentInfo['cardDetails']['cardNumber'], -4, 4);
+		$cardInfo = $paymentInfo['cardNumber'].'-'.substr($paymentInfo['cardExpYear'],2).$paymentInfo['cardExpMonth'];
+		$cardLast4Digits = substr($paymentInfo['cardNumber'], -4, 4);
 		
 
 		return $this->sendPaymentRequest(array(
-		    'orderID' => $order->newOrder['orderID'],
+		    'saleId' => $Order->getSaleId(),
 		    'Notandanafn' => $this->terminalUsername, //username
 		    'Lykilord' => $this->terminalPassword, //password
 		    'PosiId' => $this->terminalPOSTermID, //POSTermID
 		    'Adgerd' => 'NETGREIDSLA', //operation = net payment
 		    'Kortaupplysingar' => $cardInfo, //Credit card number + expiration date
 		    'SidustuFjorirIKortnumeri' => $cardLast4Digits,
-		    'Oryggisnumer' => $paymentInfo['cardDetails']['cardCvvNumber'], //Verification number (CVV)
+		    'Oryggisnumer' => $paymentInfo['cardCvvNumber'], //Verification number (CVV)
 		    'Chipgogn' => null, //Chipdata
 		    'Faerslunumer' => null, //Transaction number
 		    'Upphaed' => $paymentAmount, //Amount
@@ -164,7 +162,7 @@ class OrderPaymentValitor extends CreditCardModule {
 	
 	private function _getResponseDetails($RequestData)
 	{
-	    $orderId = $RequestData['orderID'];
+	    $saleId = $RequestData['saleId'];
 
 	    $card_info = explode('-', $RequestData['Kortaupplysingar']);
 
@@ -177,7 +175,7 @@ class OrderPaymentValitor extends CreditCardModule {
 	    );
 
 	    return array(
-		    'orderID' => $orderId,
+		    'saleId' => $saleId,
 		    'amount'  => $RequestData['Upphaed'],
 		    'message' => $info['message'],
 		    'can_reuse' => (isset($_POST['canReuse'])?1:0),
@@ -196,11 +194,11 @@ class OrderPaymentValitor extends CreditCardModule {
 		global $messageStack;
 		
 		$RequestData = $info['curlResponse']->getDataRaw();
-		$orderId = $RequestData['orderID'];
+		$saleId = $RequestData['saleId'];
 		
 		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete();
 			}

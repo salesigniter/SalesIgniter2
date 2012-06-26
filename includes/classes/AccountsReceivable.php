@@ -29,7 +29,7 @@ class AccountsReceivable
 	 * @param int $Revision
 	 * @return Order
 	 */
-	public static function getSale($SaleType, $SaleId, $Revision = 0){
+	public static function getSale($SaleType, $SaleId, $Revision = null){
 		$Module = AccountsReceivableModules::getModule($SaleType);
 		return $Module->getSale($SaleId, $Revision);
 	}
@@ -118,6 +118,7 @@ class AccountsReceivable
 	 * @static
 	 * @param Order  $Order
 	 * @param string $saleType
+	 * @return int
 	 */
 	public static function saveSale(Order $Order, $saleType = ''){
 		if (!empty($saleType)){
@@ -125,6 +126,6 @@ class AccountsReceivable
 		}else{
 			$Module = $Order->getSaleModule();
 		}
-		$Module->saveSale($Order);
+		return $Module->saveSale($Order);
 	}
 }

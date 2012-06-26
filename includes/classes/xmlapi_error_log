@@ -1,0 +1,21 @@
+URL: https://kingdomcamerarentals.com:2083/json-api/cpanel
+DATA: cpanel_jsonapi_user=kingdomc&cpanel_jsonapi_module=Cron&cpanel_jsonapi_func=listcron&cpanel_jsonapi_apiversion=2
+Authentication Header: Authorization: Basic a2luZ2RvbWM6dGRmd156NmMsR31i
+
+RESPONSE:
+ {"cpanelresult":{"data":[{"command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/membership_update.php&quot;","weekday":"*","hour":"0","linekey":"24dbbc2a6a918a95fe409d376d9d04ca","count":1,"day":"*","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/membership_update.php\"","minute":"0","month":"*"},{"command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/cron_auto_send_return.php&quot;","weekday":"*","hour":"0","linekey":"315fa00a5106b2ca1523c9a6fe3c899a","count":2,"day":"*","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/cron_auto_send_return.php\"","minute":"0","month":"*"},{"command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/cron_return_reminders.php&quot;","weekday":"*","hour":"0","linekey":"23c91bdcb476a4902c4603bb1d9a35ca","count":3,"day":"*","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/cron_return_reminders.php\"","minute":"0","month":"*"},{"command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/cron_ship_reminders.php&quot;","weekday":"*","hour":"0","linekey":"5efbd4d561204d631de3a92d74e521ff","count":4,"day":"*","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/cron_ship_reminders.php\"","minute":"0","month":"*"},{"count":5}],"event":{"result":1},"module":"Cron","func":"listcron","apiversion":2}}
+
+URL: https://kingdomcamerarentals.com:2083/json-api/cpanel
+DATA: cpanel_jsonapi_user=kingdomc&cpanel_jsonapi_module=Cron&cpanel_jsonapi_func=listcron&cpanel_jsonapi_apiversion=2
+Authentication Header: Authorization: Basic a2luZ2RvbWM6dGRmd156NmMsR31i
+
+RESPONSE:
+ {"cpanelresult":{"apiversion":2,"data":[{"linekey":"812719fc06e44fbeb727ea35652b822a","month":"*","hour":"0","count":1,"command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/processCron_cPanel.php?id=12\"","weekday":"0","minute":"0","command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/processCron_cPanel.php?id=12&quot;","day":"*"},{"linekey":"bd53e9790e48afc3ea49bdd6780f5e8d","month":"*","hour":"0","count":2,"command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/processCron_cPanel.php?id=13\"","weekday":"*","minute":"0","command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/processCron_cPanel.php?id=13&quot;","day":"*"},{"count":3}],"event":{"result":1},"func":"listcron","module":"Cron"}}
+
+URL: https://kingdomcamerarentals.com:2083/json-api/cpanel
+DATA: cpanel_jsonapi_user=kingdomc&cpanel_jsonapi_module=Cron&cpanel_jsonapi_func=listcron&cpanel_jsonapi_apiversion=2
+Authentication Header: Authorization: Basic a2luZ2RvbWM6dGRmd156NmMsR31i
+
+RESPONSE:
+ {"cpanelresult":{"apiversion":2,"func":"listcron","module":"Cron","event":{"result":1},"data":[{"minute":"0","count":1,"linekey":"812719fc06e44fbeb727ea35652b822a","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/processCron_cPanel.php?id=12\"","hour":"0","weekday":"0","month":"*","command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/processCron_cPanel.php?id=12&quot;","day":"*"},{"minute":"0","count":2,"linekey":"bd53e9790e48afc3ea49bdd6780f5e8d","command":"wget -q -O /dev/null \"http://kingdomcamerarentals.com/processCron_cPanel.php?id=13\"","hour":"0","weekday":"*","month":"*","command_htmlsafe":"wget -q -O /dev/null &quot;http://kingdomcamerarentals.com/processCron_cPanel.php?id=13&quot;","day":"*"},{"count":3}]}}
+

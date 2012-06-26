@@ -168,21 +168,7 @@ if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . 'popup.tpl')){
 
 $pageContent = new Template('popup.tpl', $pageContentPath);
 
-$checkFiles = array(
-	sysConfig::get('DIR_FS_TEMPLATE') . '/applications/' . $App->getAppName() . '/' . $App->getPageName() . '.php',
-	sysConfig::getDirFsCatalog() . 'applications/' . $App->getAppName() . '/pages/' . $App->getPageName() . '.php',
-	sysConfig::getDirFsCatalog() . 'applications/' . $appContent,
-	(isset($appContent) ? $appContent : false)
-);
-
-$requireFile = false;
-foreach($checkFiles as $filePath){
-	if (file_exists($filePath)){
-		$requireFile = $filePath;
-		break;
-	}
-}
-
+$requireFile = $App->getAppContentFile();
 if ($requireFile !== false){
 	require($requireFile);
 }

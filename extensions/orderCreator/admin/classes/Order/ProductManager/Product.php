@@ -7,15 +7,8 @@
  * @copyright Copyright (c) 2011, I.T. Web Experts
  */
 
-require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/product/Base.php');
-
 class OrderCreatorProduct extends OrderProduct
 {
-
-	/**
-	 * @var
-	 */
-	protected $ProductTypeClass;
 
 	/**
 	 * @var bool
@@ -28,19 +21,29 @@ class OrderCreatorProduct extends OrderProduct
 	private $confirmationMessage = '';
 
 	/**
-	 * @param array|null $pInfo
+	 * @param int $productId
 	 */
-	public function __construct(array $pInfo = null) {
-		if (is_null($pInfo) === false){
-			$this->setProductId($pInfo['products_id']);
+	public function loadProduct($productId){
+		$this->ProductClass = new Product((int)$productId);
 
-			$ProductType =& $this->getProductTypeClass();
-			if (method_exists($ProductType, 'processAddToOrder')){
-				$ProductType->processAddToOrder(&$pInfo);
+		$TypeName = $this->ProductClass->getProductType();
+		if (file_exists(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $TypeName . '.php')){
+			$ClassName = 'OrderCreatorProductType' . ucfirst($TypeName);
+			if (class_exists($ClassName) === false){
+				require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $TypeName . '.php');
 			}
-
-			$this->updateInfo($pInfo);
+			$this->ProductTypeClass = new $ClassName();
+			$this->ProductTypeClass->setProductId($this->ProductClass->getId());
+		}else{
+			$this->ProductTypeClass = $this->ProductClass->getProductTypeClass();
 		}
+	}
+
+	/**
+	 * @return ProductTypeBase|OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
+	 */
+	public function &getProductTypeClass() {
+		return $this->ProductTypeClass;
 	}
 
 	/**
@@ -74,52 +77,11 @@ class OrderCreatorProduct extends OrderProduct
 	}
 
 	/**
-	 * @param string $type
-	 */
-	public function loadProductTypeClass($type) {
-		$className = 'OrderCreatorProductType' . ucfirst($type);
-		if (class_exists($className) === false){
-			$fileName = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $type . '.php';
-			if (file_exists($fileName)){
-				require($fileName);
-			}
-		}
-
-		if (class_exists($className)){
-			$this->ProductTypeClass = new $className;
-			$this->ProductTypeClass->setProductId($this->getProductsId());
-		}
-		else {
-			$this->ProductTypeClass = $this->getProductClass()->getProductTypeClass();
-		}
-	}
-
-	/**
-	 * @return OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
-	 */
-	public function &getProductTypeClass() {
-		return $this->ProductTypeClass;
-	}
-
-	/**
-	 *
-	 */
-	public function init() {
-		$this->setProductId((int)$this->pInfo['products_id']);
-
-		$ProductType =& $this->getProductTypeClass();
-		if (method_exists($ProductType, 'OrderCreatorProductOnInit')){
-			$ProductType->OrderCreatorProductOnInit(&$this->pInfo);
-		}
-	}
-
-	/**
 	 * @param int $pID
 	 */
 	public function setProductId($pID) {
 		global $Editor;
-		$this->productClass = new Product($pID);
-		$this->loadProductTypeClass($this->productClass->getProductType());
+		$this->loadProduct($pID);
 
 		$this->pInfo['products_id'] = $pID;
 		$this->pInfo['products_name'] = $this->getProductClass()->getName();
@@ -216,20 +178,6 @@ class OrderCreatorProduct extends OrderProduct
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getBarcodes() {
-		return $this->pInfo['Barcodes'];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasBarcodes() {
-		return (isset($this->pInfo['Barcodes']));
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getTaxRateEdit() {
@@ -294,18 +242,6 @@ class OrderCreatorProduct extends OrderProduct
 			$barcodeDrop = $ProductType->OrderCreatorBarcodeEdit($this);
 		}
 		return $barcodeDrop;
-	}
-
-	/**
-	 * @param string $k
-	 * @param mixed $v
-	 */
-	public function setInfo($k, $v = ''){
-		if (is_array($k)){
-			$this->pInfo = $k;
-		}else{
-			$this->pInfo[$k] = $v;
-		}
 	}
 
 	/**

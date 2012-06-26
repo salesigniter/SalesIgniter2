@@ -32,7 +32,7 @@ class OrderPaymentCashondelivery extends StandardPaymentModule
 
 	public function sendPaymentRequest($requestData) {
 		return $this->onResponse(array(
-			'orderID' => $requestData['orderID'],
+			'saleId' => $requestData['saleId'],
 			'amount'  => $requestData['amount'],
 			'message' => (isset($requestData['message']) ? $requestData['message'] : sysLanguage::get('PAYMENT_MODULE_COD_AWAITING_PAYMENT')),
 			'success' => 1,
@@ -40,32 +40,23 @@ class OrderPaymentCashondelivery extends StandardPaymentModule
 		));
 	}
 
-	public function processPayment($orderID = null, $amount = null) {
-		global $order;
-		if (is_null($orderID) && is_null($amount)){
-			return $this->sendPaymentRequest(array(
-				'orderID' => $order->newOrder['orderID'],
-				'amount'  => $order->info['total']
-			));
-		}
-		else {
-			return $this->sendPaymentRequest(array(
-				'orderID' => $orderID,
-				'amount'  => $amount
-			));
-		}
+	public function processPayment(Order $Order) {
+		return $this->sendPaymentRequest(array(
+			'saleId' => $Order->getSaleId(),
+			'amount'  => $Order->TotalManager->getTotalValue('total')
+		));
 	}
 
 	public function refundPayment($requestData){
 		return $this->sendPaymentRequest(array(
-			'orderID' => $requestData['orderID'],
+			'saleId' => $requestData['saleId'],
 			'amount'  => -$requestData['amount'],
 			'message' => 'Refund Issued In Amount Of: -' . $requestData['amount'],
 			'is_refund' => 1
 		));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		global $order;
 		$order->info['payment_method'] = $this->getTitle();
 
@@ -82,7 +73,7 @@ class OrderPaymentCashondelivery extends StandardPaymentModule
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
 
-		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . ($Editor->getOrderId() ? htmlBase::newElement('button')
+		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . ($Editor->getSaleId() ? htmlBase::newElement('button')
 			->addClass('paymentProcessButton')->setText('Process')->draw() : 'Will process on save') . '</td>';
 	}
 

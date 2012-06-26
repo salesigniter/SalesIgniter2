@@ -86,6 +86,14 @@ class OrderAddress
 	}
 
 	/**
+	 * @param $val
+	 */
+	public function setAddressType($val)
+	{
+		$this->Type = $val;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getAddressType()
@@ -178,7 +186,7 @@ class OrderAddress
 	 */
 	public function getLastName()
 	{
-		return substr($this->getValue('entry_name'), strpos($this->getValue('entry_name'), ' '));
+		return substr($this->getValue('entry_name'), strpos($this->getValue('entry_name'), ' ') + 1);
 	}
 
 	/**
@@ -286,11 +294,51 @@ class OrderAddress
 	}
 
 	/**
+	 * @param int $type
+	 * @return string
+	 */
+	public function getCountryCode($type = 2)
+	{
+		return $this->getValue('countries_iso_code_' . $type, 'Country');
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getCountryId()
 	{
 		return $this->getValue('countries_id', 'Country');
+	}
+
+	/**
+	 * @param bool $asHtml
+	 * @return string
+	 */
+	public function format($asHtml = true)
+	{
+		$Format = $this->getFormat();
+
+		if ($asHtml === true){
+			$Format = nl2br($Format);
+		}
+
+		$company = $this->getCompany();
+		$firstname = $this->getFirstName();
+		$lastname = $this->getLastName();
+		$street_address = $this->getStreetAddress();
+		$suburb = $this->getSuburb();
+		$city = $this->getCity();
+		$vat = $this->getVAT();
+		$cif = $this->getCIF();
+		$city_birth = $this->getCityBirth();
+		$state = $this->getZone();
+		$country = $this->getCountry();
+		$abbrstate = $this->getZoneCode();
+		$postcode = $this->getPostcode();
+
+		eval("\$address = \"$Format\";");
+
+		return $address;
 	}
 
 	/**
@@ -302,7 +350,7 @@ class OrderAddress
 			$this->addressInfo[$k] = $v;
 		}
 
-		if (!empty($this->addressInfo['entry_country_id'])){
+		if (!empty($AddressInfo['entry_country_id'])){
 			$Country = Doctrine_Query::create()
 				->from('Countries c')
 				->leftJoin('c.AddressFormat f')
@@ -312,7 +360,7 @@ class OrderAddress
 			$this->Format = $this->Country['AddressFormat'];
 		}
 
-		if (!empty($this->addressInfo['entry_zone_id'])){
+		if (!empty($AddressInfo['entry_zone_id'])){
 			$Zone = Doctrine_Query::create()
 				->from('Zones')
 				->where('zone_country_id = ?', $this->getCountryId())
@@ -320,6 +368,26 @@ class OrderAddress
 				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			$this->Zone = $Zone[0];
 		}
+		elseif (!empty($AddressInfo['entry_state'])) {
+			$Zone = Doctrine_Query::create()
+				->from('Zones')
+				->where('zone_country_id = ?', $this->getCountryId())
+				->andWhere('zone_name LIKE ? OR zone_code LIKE ?', array(
+				$this->addressInfo['entry_state'] . '%',
+				$this->addressInfo['entry_state'] . '%'
+			))
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			$this->Zone = $Zone[0];
+		}
+	}
+
+	/**
+	 * @param array $data
+	 */
+	public function jsonDecode(array $data)
+	{
+		$this->Type = $data['Type'];
+		$this->updateFromArray($data['addressInfo']);
 	}
 
 	/**

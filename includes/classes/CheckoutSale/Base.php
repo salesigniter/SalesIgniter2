@@ -41,7 +41,7 @@ class CheckoutSale extends Order implements Serializable
 
 	protected $SaleModuleRev = null;
 
-	public function __construct($saleType, $saleId = 0, $revision = 0)
+	public function __construct($saleType, $saleId = 0, $revision = null)
 	{
 		$this->InfoManager = new CheckoutSaleInfoManager();
 		$this->AddressManager = new CheckoutSaleAddressManager();
@@ -134,7 +134,7 @@ class CheckoutSale extends Order implements Serializable
 
 	public function hasSaleId()
 	{
-		return $this->getOrderId() > 0;
+		return $this->getSaleId() > 0;
 	}
 
 	public function hasSaleModule()
@@ -153,7 +153,7 @@ class CheckoutSale extends Order implements Serializable
 	public function serialize()
 	{
 		$data = array(
-			'orderId'        => $this->getOrderId(),
+			'saleId'         => $this->getSaleId(),
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
 			'Order'          => $this->Order,
@@ -253,36 +253,11 @@ class CheckoutSale extends Order implements Serializable
 	{
 		$toRemove = array();
 		foreach($this->ProductManager->getContents() as $SaleProduct){
-			$toRemove[$SaleProduct->getId()] = $SaleProduct->getId();
+			$toRemove[$SaleProduct->getCartProductHashId()] = $SaleProduct->getId();
 		}
 
 		foreach($ShoppingCart->getContents() as $CartProduct){
-			if ($this->ProductManager->cartProductExists($CartProduct->getId())){
-				$OrderProduct = $this->ProductManager->getByCartProductHash($CartProduct->getId());
-				//echo __FILE__ . '::' . __LINE__ . '<br>';
-				$Success = $OrderProduct->updateFromCart($CartProduct);
-				if ($Success === false){
-					$this->addErrorMessage('There was an error updating a cart product!');
-				}
-				else {
-					$this->TotalManager->onProductUpdated($this->ProductManager);
-				}
-			}
-			else {
-				//echo __FILE__ . '::' . __LINE__ . '<br>';
-				//echo '<div style="margin-left:15px;">';
-				$Success = $this->ProductManager->addFromCart($CartProduct);
-				if ($Success === false){
-					$this->addErrorMessage('There was an error adding a cart product to the sale!');
-				}
-				else {
-					//echo '</div>';
-					//echo __FILE__ . '::' . __LINE__ . '<br>';
-					//echo '<div style="margin-left:15px;">';
-					$this->TotalManager->onProductAdded($this->ProductManager);
-					//echo '</div>';
-				}
-			}
+			$this->ProductManager->importShoppingCartProduct($CartProduct, $this);
 
 			if (isset($toRemove[$CartProduct->getId()])){
 				unset($toRemove[$CartProduct->getId()]);

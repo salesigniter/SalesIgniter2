@@ -1,26 +1,49 @@
 <?php
-/*
-  Package Products Version 1
-
-  I.T. Web Experts, Rental Store v2
-  http://www.itwebexperts.com
-
-  Copyright (c) 2011 I.T. Web Experts
-
-  This script and it's source is not redistributable
+/**
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * Extension: PackageProducts
+ * Extension Version: 1.0
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
+/**
+ * @package   Order
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2012, I.T. Web Experts
+ */
 class ProductTypePackage extends ProductTypeBase
 {
 
+	/**
+	 * @var string
+	 */
 	private $_moduleCode = 'package';
 
+	/**
+	 * @var array
+	 */
 	private $purchaseTypes = array();
 
+	/**
+	 * @var string
+	 */
 	private $cartPurchaseType = '';
 
+	/**
+	 * @var array
+	 */
 	private $checked = array();
 
+	/**
+	 * @var array
+	 */
 	private $info = array(
 		'id'          => 0,
 		'name'        => array(),
@@ -28,8 +51,14 @@ class ProductTypePackage extends ProductTypeBase
 		'products'    => array()
 	);
 
+	/**
+	 * @var array
+	 */
 	private $purchaseTypeModules = array();
 
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		/*
@@ -45,6 +74,11 @@ class ProductTypePackage extends ProductTypeBase
 		);
 	}
 
+	/**
+	 * @param string $code
+	 * @param bool   $forceEnable
+	 * @param bool   $moduleDir
+	 */
 	public function init($code, $forceEnable = false, $moduleDir = false)
 	{
 		$this->import(new Installable);
@@ -54,37 +88,62 @@ class ProductTypePackage extends ProductTypeBase
 		parent::init($code, $forceEnable, $moduleDir);
 	}
 
+	/**
+	 * @param $val
+	 */
 	public function setProductId($val)
 	{
 		$this->info['id'] = $val;
 		$this->loadPackagedProducts();
 	}
 
+	/**
+	 * @param $val
+	 * @param $langId
+	 */
 	public function setProductName($val, $langId)
 	{
 		$this->info['name'][$langId] = $val;
 	}
 
+	/**
+	 * @param $val
+	 * @param $langId
+	 */
 	public function setProductDescription($val, $langId)
 	{
 		$this->info['description'][$langId] = $val;
 	}
 
+	/**
+	 * @param $val
+	 * @param $langId
+	 */
 	public function setProductShortDescription($val, $langId)
 	{
 		$this->info['short_description'][$langId] = $val;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function getProductId()
 	{
 		return $this->info['id'];
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getTaxClassId()
 	{
 		return 0;
 	}
 
+	/**
+	 * @param bool $langId
+	 * @return mixed
+	 */
 	public function getProductName($langId = false)
 	{
 		if ($langId === false){
@@ -94,6 +153,10 @@ class ProductTypePackage extends ProductTypeBase
 		return $this->info['name'][$langId];
 	}
 
+	/**
+	 * @param bool $langId
+	 * @return mixed
+	 */
 	public function getProductDescription($langId = false)
 	{
 		if ($langId === false){
@@ -102,6 +165,10 @@ class ProductTypePackage extends ProductTypeBase
 		return $this->info['description'][$langId];
 	}
 
+	/**
+	 * @param bool $langId
+	 * @return mixed
+	 */
 	public function getProductShortDescription($langId = false)
 	{
 		if ($langId === false){
@@ -110,6 +177,9 @@ class ProductTypePackage extends ProductTypeBase
 		return $this->info['short_description'][$langId];
 	}
 
+	/**
+	 * @return int|string
+	 */
 	public function getProductPrice()
 	{
 		if (empty($this->info['products'])){
@@ -138,6 +208,9 @@ class ProductTypePackage extends ProductTypeBase
 		return $Price;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function hasInventory()
 	{
 		if (empty($this->info['products'])){
@@ -173,6 +246,10 @@ class ProductTypePackage extends ProductTypeBase
 		return $hasInventory;
 	}
 
+	/**
+	 * @param $CartProductData
+	 * @return bool
+	 */
 	public function allowAddToCart(&$CartProductData)
 	{
 		$return = true;
@@ -192,6 +269,9 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
+	/**
+	 * @param $CartProductData
+	 */
 	public function addToCartPrepare(&$CartProductData)
 	{
 		$CartProductData['PackagedProducts'] = array();
@@ -236,6 +316,9 @@ class ProductTypePackage extends ProductTypeBase
 		$CartProductData['tax_class_id'] = 0;
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
 	public function addToCartBeforeAction(ShoppingCartProduct &$CartProduct)
 	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
@@ -246,6 +329,9 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
 	public function addToCartAfterAction(ShoppingCartProduct &$CartProduct)
 	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
@@ -256,6 +342,9 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
 	public function onCartProductLoad(ShoppingCartProduct &$CartProduct)
 	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
@@ -268,6 +357,10 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct $OrderedProduct
+	 * @return string
+	 */
 	public function displayOrderedProductBarcodes(OrderProduct $OrderedProduct)
 	{
 		$return = '';
@@ -284,6 +377,11 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
+	/**
+	 * @param OrderProduct $OrderedProduct
+	 * @param bool         $showExtraInfo
+	 * @return string
+	 */
 	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true)
 	{
 		$PackageHtml = '';
@@ -309,6 +407,11 @@ class ProductTypePackage extends ProductTypeBase
 		return $PackageHtml;
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @param array               $settings
+	 * @return string
+	 */
 	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array())
 	{
 		$html = '';
@@ -335,6 +438,12 @@ class ProductTypePackage extends ProductTypeBase
 		return $html;
 	}
 
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @param                     $orderID
+	 * @param OrdersProducts      $orderedProduct
+	 * @param                     $products_ordered
+	 */
 	public function onInsertOrderedProduct(ShoppingCartProduct &$CartProduct, $orderID, OrdersProducts &$orderedProduct, &$products_ordered)
 	{
 		foreach($CartProduct->getData('PackagedProducts') as $PackageCartProduct){
@@ -364,6 +473,9 @@ class ProductTypePackage extends ProductTypeBase
 		$orderedProduct->save();
 	}
 
+	/**
+	 * @param Products $Product
+	 */
 	public function onSaveProduct(Products $Product)
 	{
 		if ($_POST['products_type'] == 'package' && isset($_POST['package_product'])){
@@ -385,6 +497,9 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 *
+	 */
 	private function loadPackagedProducts()
 	{
 		$Query = Doctrine_Query::create()
@@ -405,6 +520,9 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function hasReservation()
 	{
 		$hasReservation = false;
@@ -417,6 +535,9 @@ class ProductTypePackage extends ProductTypeBase
 		return $hasReservation;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function getProductsRaw()
 	{
 		if (empty($this->info['products'])){
@@ -425,6 +546,9 @@ class ProductTypePackage extends ProductTypeBase
 		return $this->info['products'];
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getProducts()
 	{
 		foreach($this->getProductsRaw() as $pInfo){
@@ -474,6 +598,10 @@ class ProductTypePackage extends ProductTypeBase
 	/*
 	 * @TODO: Figure out something better
 	 */
+	/**
+	 * @param $priceName
+	 * @return int
+	 */
 	public function getReservationPrice($priceName)
 	{
 		global $currencies;
@@ -513,6 +641,10 @@ class ProductTypePackage extends ProductTypeBase
 		return (isset($prices[$priceName]) ? $prices[$priceName] : 0);
 	}
 
+	/**
+	 * @param $col
+	 * @return string
+	 */
 	public function showProductListing($col)
 	{
 		global $currencies;
@@ -619,6 +751,10 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
+	/**
+	 * @param $Product
+	 * @param $CurrentRow
+	 */
 	public function processProductImport(&$Product, $CurrentRow)
 	{
 		$PackageProducts =& $Product->PackageProducts;
@@ -660,19 +796,32 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 *
+	 */
 	public function getExportTableColumns()
 	{
 	}
 
+	/**
+	 * @param $QfileLayout
+	 */
 	public function addExportQueryConditions(&$QfileLayout)
 	{
 	}
 
+	/**
+	 * @param $headerRow
+	 */
 	public function addExportHeaderColumns(&$headerRow)
 	{
 		$headerRow->addColumn('v_packaged_products');
 	}
 
+	/**
+	 * @param $CurrentRow
+	 * @param $Product
+	 */
 	public function addExportRowColumns(&$CurrentRow, $Product)
 	{
 		$RowData = array();
@@ -703,6 +852,9 @@ class ProductTypePackage extends ProductTypeBase
 		$CurrentRow->addColumn(implode("\n", $RowData), 'v_packaged_products');
 	}
 
+	/**
+	 * @param $PackageProducts
+	 */
 	public function loadReservationPricing($PackageProducts)
 	{
 		foreach($PackageProducts as $PackagedProduct){
@@ -731,6 +883,9 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 */
 	public function onSetQuantity(OrderProduct $OrderProduct){
 		if ($OrderProduct->hasInfo('PackagedProducts')){
 			$Info = $OrderProduct->getInfo();
@@ -743,6 +898,11 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param null         $Qty
+	 * @return bool
+	 */
 	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null)
 	{
 		$return = true;
@@ -757,6 +917,10 @@ class ProductTypePackage extends ProductTypeBase
 		return $return;
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param              $SaleProduct
+	 */
 	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct)
 	{
 		foreach($OrderProduct->getInfo('PackagedProducts') as $k => $PackagedProduct){
@@ -766,6 +930,11 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct                    $OrderProduct
+	 * @param AccountsReceivableSalesProducts $SaleProduct
+	 * @param bool                            $AssignInventory
+	 */
 	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false)
 	{
 		foreach($OrderProduct->getInfo('PackagedProducts') as $k => $PackagedProduct){
@@ -782,6 +951,10 @@ class ProductTypePackage extends ProductTypeBase
 		$OrderProduct->setInfo($Info);
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param              $Product
+	 */
 	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
 		if ($Product->Packaged){
 			$Info = $OrderProduct->getInfo();
@@ -794,6 +967,10 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param              $ProductTypeJson
+	 */
 	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson)
 	{
 		if (isset($ProductTypeJson['PackagedProducts'])){
@@ -807,6 +984,10 @@ class ProductTypePackage extends ProductTypeBase
 		}
 	}
 
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @return array|bool|null|void
+	 */
 	public function prepareJsonSave(OrderProduct &$OrderProduct)
 	{
 		$toEncode = array();

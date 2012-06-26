@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 $stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/stylesheet.php?' .
 	'env=admin' .
 	'&' . Session::getSessionName() . '=' . Session::getSessionId() .
@@ -20,14 +32,9 @@ $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/cat
 $CurrencyInfo = $currencies->get(Session::get('currency'));
 
 ob_start();
-if (isset($appContent) && file_exists(sysConfig::getDirFsAdmin() . 'applications/' . $appContent)){
-	require(sysConfig::getDirFsAdmin() . 'applications/' . $appContent);
-}
-elseif (isset($appContent) && file_exists($appContent)) {
-	require($appContent);
-}
-else {
-	require('template/content/' . $pageContent . '.tpl.php');
+$requireFile = $App->getAppContentFile();
+if ($requireFile !== false){
+	require($requireFile);
 }
 $BodyContent = ob_get_contents();
 ob_end_clean();
@@ -36,6 +43,7 @@ ob_end_clean();
 <html <?php echo sysLanguage::getHtmlParams(); ?>>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo sysLanguage::getCharset(); ?>">
+	<meta name=viewport content="width=device-width, initial-scale=1.0, minimum-scale=0.5 maximum-scale=1.0">
 	<title><?php echo sprintf(sysLanguage::get('TITLE'), sysConfig::get('STORE_NAME')); ?></title>
 	<base href="<?php echo ((sysConfig::get('REQUEST_TYPE') == 'SSL') ? sysConfig::get('HTTPS_SERVER') : sysConfig::get('HTTP_SERVER')) . sysConfig::get('DIR_WS_ADMIN'); ?>">
 	<link rel="stylesheet" type="text/css" href="<?php echo $stylesheetLink;?>" />
@@ -173,8 +181,8 @@ if (Session::exists('login_id') === true){
 			<li data-load_ajax="true">
 				<span class="ui-icon ui-icon-disk"></span><a href="<?php echo itw_app_link('action=landing&box=modules', 'index', 'default');?>">Modules</a>
 			</li>
-			<li data-load_ajax="true">
-				<span class="ui-icon ui-icon-myaccount"></span><a href="<?php echo itw_app_link('action=landing&box=customers', 'index', 'default');?>">Customers</a>
+			<li>
+				<span class="ui-icon ui-icon-myaccount"></span><a href="<?php echo itw_app_link(null, 'customers', 'default', 'SSL');?>">Customers</a>
 			</li>
 			<li data-load_ajax="true">
 				<span class="ui-icon ui-icon-wrench"></span><a href="<?php echo itw_app_link('action=landing&box=tools', 'index', 'default');?>">Tools</a>
@@ -191,14 +199,14 @@ if (Session::exists('login_id') === true){
 		<div class="pageHeading"><?php echo sysLanguage::get('PAGE_TITLE');?></div>
 		<?php
 		if ($messageStack->size('pageStack') > 0){
-			echo '<br>' . $messageStack->output('pageStack') . '<br />';
+			echo $messageStack->output('pageStack');
 		}
 		?>
-		<div id="bodyWrapper"><?php echo $BodyContent; ?></div>
-		<br>
-
-		<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
-	</div>
+		<div id="bodyWrapper"><?php
+			echo $BodyContent;
+			?></div>
+	<div class="ui-helper-clearfix"></div>
+</div>
 </div>
 <footer><?php
 	require(sysConfig::getDirFsAdmin() . 'includes/footer.php');
@@ -210,6 +218,7 @@ else {
 }
 ?>
 </body>
+<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
 <div id="expiredSessionWindow" title="Session Has Expired" style="display:none;">
 	<p>Your session has expired, please click ok to log back in.</p>
 </div>

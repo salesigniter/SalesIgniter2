@@ -23,9 +23,9 @@ class OrderPaymentManager
 {
 
 	/**
-	 * @var int
+	 * @var array
 	 */
-	protected $orderId = 0;
+	protected $_info = array();
 
 	/**
 	 * @var array
@@ -66,14 +66,6 @@ class OrderPaymentManager
 	}
 
 	/**
-	 * @param int $val
-	 */
-	public function setOrderId($val)
-	{
-		$this->orderId = (int)$val;
-	}
-
-	/**
 	 * @return float
 	 */
 	public function getPaymentsTotal()
@@ -95,6 +87,25 @@ class OrderPaymentManager
 	public function getPaymentHistory()
 	{
 		return $this->History;
+	}
+
+	/**
+	 * @param $k
+	 * @param $v
+	 */
+	public function setInfo($k, $v){
+		$this->_info[$k] = $v;
+	}
+
+	/**
+	 * @param null $k
+	 * @return mixed
+	 */
+	public function getInfo($k = null){
+		if ($k !== null){
+			return (isset($this->_info[$k]) ? $this->_info[$k] : '');
+		}
+		return $this->_info;
 	}
 
 	/**

@@ -52,7 +52,7 @@ class OrderCreator extends Order implements Serializable
 	protected $SaleModuleId = null;
 	protected $SaleModuleRev = null;
 
-	public function __construct($saleType, $saleId = 0, $revision = 0) {
+	public function __construct($saleType, $saleId = 0, $revision = null) {
 		$this->InfoManager = new OrderCreatorInfoManager();
 		$this->AddressManager = new OrderCreatorAddressManager();
 		$this->ProductManager = new OrderCreatorProductManager();
@@ -142,7 +142,7 @@ class OrderCreator extends Order implements Serializable
 	}
 
 	public function hasSaleId(){
-		return $this->getOrderId() > 0;
+		return $this->getSaleId() > 0;
 	}
 
 	public function hasSaleModule(){
@@ -158,10 +158,9 @@ class OrderCreator extends Order implements Serializable
 	 */
 	public function serialize() {
 		$data = array(
-			'orderId'        => $this->getOrderId(),
+			'saleId'         => $this->getSaleId(),
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
-			'Order'          => $this->Order,
 			'InfoManager'    => $this->InfoManager->prepareJsonSave(),
 			'ProductManager' => $this->ProductManager->prepareJsonSave(),
 			'AddressManager' => $this->AddressManager->prepareJsonSave(),

@@ -23,7 +23,7 @@ class OrderPaymentMoneyorder extends StandardPaymentModule
 
 	public function sendPaymentRequest($requestData) {
 		return $this->onResponse(array(
-				'orderID' => $requestData['orderID'],
+				'saleId' => $requestData['saleId'],
 				'amount' => $requestData['amount'],
 			'message' => sysLanguage::get('PAYMENT_MODULE_MO_AWAITING_PAYMENT'),
 				'success' => /*2*/
@@ -31,23 +31,14 @@ class OrderPaymentMoneyorder extends StandardPaymentModule
 			));
 	}
 
-	public function processPayment($orderID = null, $amount = null){
-		global $order;
-
-		if(is_null($orderID) && is_null($amount)){
-			return $this->sendPaymentRequest(array(
-					'orderID' => $order->newOrder['orderID'],
-					'amount'  => $order->info['total']
-				));
-		}else{
-			return $this->sendPaymentRequest(array(
-					'orderID' => $orderID,
-					'amount'  => $amount
-				));
-		}
+	public function processPayment(Order $Order){
+		return $this->sendPaymentRequest(array(
+			'saleId' => $Order->getSaleId(),
+			'amount'  => $Order->TotalManager->getTotalValue('total')
+		));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		global $order;
 		$order->info['payment_method'] = $this->getTitle();
 

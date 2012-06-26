@@ -1,15 +1,45 @@
 <?php
-class ProductTypeBase extends ModuleBase {
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
 
-	public function CheckoutSaleOnAddToContents(CheckoutSaleProduct $CheckoutSaleProduct){
-		//echo __FILE__ . '::' . __LINE__ . '<br>';
-		//echo '<div style="margin-left:15px;">';
-		//echo '</div>';
+/**
+ *
+ */
+class ProductTypeBase extends ModuleBase
+{
+
+	/**
+	 * @param OrderProduct                    $OrderProduct
+	 * @param AccountsReceivableSalesProducts $SaleProduct
+	 * @param bool                            $AssignInventory
+	 */
+	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	{
 	}
 
-	public function prepareJsonSave(OrderProduct &$OrderProduct){
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @return array
+	 */
+	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	{
+		return array();
 	}
 
-	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson){
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param array        $ProductTypeJson
+	 */
+	public function jsonDecode(OrderProduct &$OrderProduct, array $ProductTypeJson)
+	{
 	}
 }

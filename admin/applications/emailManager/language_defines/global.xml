@@ -1,0 +1,13 @@
+<definitions>
+	<define key="HEADING_TITLE"><![CDATA[Email Template Management]]></define>
+
+	<define key="HEADING_GLOBAL_VARS"><![CDATA[Global Variables]]></define>
+	<define key="HEADING_AVAIL_VARS"><![CDATA[Available Variables]]></define>
+	<define key="HEADING_COND_VARS"><![CDATA[Conditional Variables]]></define>
+
+	<define key="TEXT_INFO_HEADING_NEW"><![CDATA[New Template]]></define>
+	<define key="TEXT_INFO_HEADING_EDIT"><![CDATA[Edit Template]]></define>
+
+	<define key="TEXT_INFO_INSERT_INTRO"><![CDATA[]]></define>
+	<define key="TEXT_INFO_EDIT_INTRO"><![CDATA[]]></define>
+</definitions>

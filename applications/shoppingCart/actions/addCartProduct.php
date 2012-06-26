@@ -1,6 +1,6 @@
 <?php
 $success = $ShoppingCart->add($productsId);
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	echo json_encode(array(
 		'success' => $success
 	));

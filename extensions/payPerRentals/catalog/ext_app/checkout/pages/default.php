@@ -33,13 +33,13 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 			foreach($ShoppingCart->getProducts() as $cartProduct){
 				if ($cartProduct->hasInfo('PackagedProducts')){
 					foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
-						if ($PackageCartProduct->hasInfo('reservationInfo')){
+						if ($PackageCartProduct->hasInfo('ReservationInfo')){
 							$this->hasReservation = true;
 							break 2;
 						}
 					}
 				}
-				elseif ($cartProduct->hasInfo('reservationInfo')){
+				elseif ($cartProduct->hasInfo('ReservationInfo')){
 					$this->hasReservation = true;
 					break;
 				}
@@ -67,12 +67,12 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 		foreach($ShoppingCart->getProducts() as $cartProduct){
 			if ($cartProduct->hasInfo('PackagedProducts')){
 				foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
-					if ($PackageCartProduct->hasInfo('reservationInfo')){
+					if ($PackageCartProduct->hasInfo('ReservationInfo')){
 						$Reservations[] = $PackageCartProduct;
 					}
 				}
 			}
-			elseif ($cartProduct->hasInfo('reservationInfo')) {
+			elseif ($cartProduct->hasInfo('ReservationInfo')) {
 				$Reservations[] = $cartProduct;
 			}
 		}
@@ -89,7 +89,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 
 			if ($payPerRentals->insurance > 0){
 				$insuranceTotal += (float)$payPerRentals->insurance;
-				if (!isset($pInfo['reservationInfo']['insurance']) || $pInfo['reservationInfo']['insurance'] == 0){
+				if (!isset($pInfo['ReservationInfo']['insurance']) || $pInfo['ReservationInfo']['insurance'] == 0){
 					$insuranceText = '(Insurance: ' . $currencies->format($payPerRentals->insurance) . ')';
 				}
 				else {
@@ -165,10 +165,10 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 			foreach($ShoppingCart->getProducts() as $cartProduct){
 				if ($cartProduct->hasInfo('PackagedProducts')){
 					foreach($cartProduct->getInfo('PackagedProducts') as $PackageCartProduct){
-						if ($PackageCartProduct->hasInfo('reservationInfo') === false){
+						if ($PackageCartProduct->hasInfo('ReservationInfo') === false){
 							$onlyReservations = false;
 						}else{
-							$ResInfo = $PackageCartProduct->getInfo('reservationInfo');
+							$ResInfo = $PackageCartProduct->getInfo('ReservationInfo');
 							if (isset($resInfo['shipping'])){
 								if ($hasShipping === false){
 									$hasShipping = true;
@@ -177,10 +177,10 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 						}
 					}
 				}
-				elseif ($cartProduct->hasInfo('reservationInfo') === false){
+				elseif ($cartProduct->hasInfo('ReservationInfo') === false){
 					$onlyReservations = false;
 				}else{
-					$resInfo = $cartProduct->getInfo('reservationInfo');
+					$resInfo = $cartProduct->getInfo('ReservationInfo');
 					if (isset($resInfo['shipping'])){
 						if ($hasShipping === false){
 							$hasShipping = true;
@@ -210,7 +210,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 		if(isset($shippingInfo['module']) && $shippingInfo['module'] == 'upsreservation'){
 			$quote = $Module->quote($shippingInfo['id']);
 			if (!isset($quote['error'])){
-				$pInfo['reservationInfo']['shipping']['cost'] = (float)$quote['methods'][0]['cost'];
+				$pInfo['ReservationInfo']['shipping']['cost'] = (float)$quote['methods'][0]['cost'];
 			}else{
 				$messageStack->addSession('pageStack','Your have changed the shipping address for a reservation product and the new address is not available.','error');
 			}
@@ -242,8 +242,8 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 							continue;
 						}
 
-						if ($PackageCartProduct->hasInfo('reservationInfo')){
-							$reservationInfo = $PackageCartProduct->getInfo('reservationInfo');
+						if ($PackageCartProduct->hasInfo('ReservationInfo')){
+							$reservationInfo = $PackageCartProduct->getInfo('ReservationInfo');
 
 							if (isset($reservationInfo['shipping']) && $reservationInfo['shipping'] !== false){
 								$this->showShippingData($reservationInfo['shipping'], $cartProduct->getName() . ' - ' . $PackageCartProduct->getName(), &$tableRows);
@@ -264,7 +264,7 @@ class payPerRentals_catalog_checkout_default extends Extension_payPerRentals {
 
 				$pInfo = $cartProduct->getInfo();
 				$pID = $cartProduct->getIdString();
-				$reservationInfo = $pInfo['reservationInfo'];
+				$reservationInfo = $pInfo['ReservationInfo'];
 
 				if (isset($reservationInfo['shipping']) && $reservationInfo['shipping'] !== false){
 					$this->showShippingData($reservationInfo['shipping'], $cartProduct->getName(), &$tableRows);

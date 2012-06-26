@@ -153,11 +153,11 @@ class PaymentModuleBase extends ModuleBase
 	/*
 	 * Payment Module Events --BEGIN--
 	 */
-	public function beforeProcessPayment(){
+	public function beforeProcessPayment(Order $Order){
 
 	}
 
-	public function processPayment($orderID = null, $amount = null) {
+	public function processPayment(Order $Order) {
 		return false;
 	}
 
@@ -311,7 +311,7 @@ class PaymentModuleBase extends ModuleBase
 	public function getRemoteLoadingPage(){
 		$Main = htmlBase::newElement('div')
 			->css(array('text-align' => 'center'))
-			->html('<img src="' . sysConfig::getDirWsCatalog() . 'images/ajax-loader.gif"><br>Processing Order, Please Wait...');
+			->html('<span class="ui-ajax-loader ui-ajax-loader-xlarge" style="margin-left:auto;margin-right:auto;"></span><br>Processing Order, Please Wait...');
 
 		return $Main->draw();
 	}

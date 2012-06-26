@@ -472,7 +472,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 
 	public function jsonDecode($data){
 		$Decoded = json_decode($data, true);
-		$this->orderId = $Decoded['orderId'];
 		foreach($Decoded['addresses'] as $Type => $aInfo){
 			$this->addresses[$Type] = new OrderCreatorAddress(array_merge($aInfo['addressInfo'], array(
 				'address_type' => $Type

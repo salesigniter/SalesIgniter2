@@ -12,7 +12,7 @@ class osC_onePageCheckout {
 	public $onePage;
 	
 	public function __construct(){
-		$this->buildSession((isset($_GET['rType']) === false));
+		$this->buildSession(SesRequestInfo::isAjax() === false);
 		//$this->setMode('default');
 	}
 
@@ -436,12 +436,12 @@ class osC_onePageCheckout {
 
 	public function checkStock(){
 		global $ShoppingCart;
-		foreach($ShoppingCart->getProducts() as $cartProduct) {
+		/*foreach($ShoppingCart->getProducts() as $cartProduct) {
 			if (tep_check_stock($cartProduct->getIdString(), $cartProduct->getQuantity())) {
 				//tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
 				break;
 			}
-		}
+		}*/
 	}
 
 	public function removeCCGV(){

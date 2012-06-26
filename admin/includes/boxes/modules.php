@@ -58,6 +58,28 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 				}
 			}
 		}
+
+		if (is_dir(sysConfig::getDirFsCatalog() . 'clientData/extensions/' . $classObj->getExtensionKey() . '/admin/base_app')){
+			$extDir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'clientData/extensions/' . $classObj->getExtensionKey() . '/admin/base_app/');
+			foreach($extDir as $extFileObj){
+				if ($extFileObj->isDot() === true || $extFileObj->isDir() === false) {
+					continue;
+				}
+				if (file_exists($extFileObj->getPath() . '/' . $extFileObj->getBaseName() . '/.menu_ignore')) {
+					continue;
+				}
+
+				if (file_exists($extFileObj->getPath() . '/' . $extFileObj->getBaseName() . '/pages/default.php')){
+					if (sysPermissions::adminAccessAllowed($extFileObj->getBaseName(), 'default', $classObj->getExtensionKey()) === true){
+						$pages[] = array(
+							'link' => itw_app_link('appExt=' . $classObj->getExtensionKey(), $extFileObj->getBaseName(), 'default', 'SSL'),
+							'text' => ucwords(str_replace('_', ' ', $extFileObj->getBaseName()))
+						);
+					}
+				}
+			}
+		}
+
 		if(count($pages) > 0){
 			$extensionPages[] = array(
 				'link' => itw_app_link('ext=' . $classObj->getExtensionKey(), 'extensions', 'default', 'SSL'),
@@ -125,6 +147,11 @@ if (sysPermissions::adminAccessAllowed('modules') === true){
 		'link' => false,
 		'text' => 'Product Modules',
 		'children' => $productModules
+	);
+
+	$contents['children'][] = array(
+		'link' => itw_app_link('moduleType=cronjob', 'modules', 'default', 'SSL'),
+		'text' => 'Cron Job Modules'
 	);
 }
 

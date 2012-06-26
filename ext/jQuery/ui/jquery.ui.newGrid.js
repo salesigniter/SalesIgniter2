@@ -83,7 +83,7 @@
 					var selectedCount = 0;
 					$(self.GridElement).find('.gridBodyRow').each(function (){
 						if ($(this).hasClass('noSelect')){
-							return false;
+							return;
 						}
 						$(this).removeClass('state-hover').addClass('state-active');
 						selectedCount++;
@@ -124,8 +124,6 @@
 							return false;
 						}
 
-						self.enableButton('button');
-
 						if (self.allowMultiple === true && (e.ctrlKey && e.type == 'click')){
 							if ($(this).hasClass('state-active')){
 								$(this).removeClass('state-active');
@@ -142,6 +140,8 @@
 							$(this).parent().find('.state-active').removeClass('state-active');
 							$(this).removeClass('state-hover').addClass('state-active');
 						}
+
+						self.enableButton('button');
 
 						$.each(self.options.buttons, function () {
 							if (this.disableIfMultiple === true && self.getSelectedRows().size() > 1){
@@ -590,6 +590,17 @@
 							removeAjaxLoader($(buttonEl));
 						});
 
+						self.newWindow.find('.makeModFCK').each(function () {
+							CKEDITOR.replace(this, {
+								toolbar : 'Simple'
+							});
+						});
+
+						self.newWindow.find('.makeTabPanel').tabs();
+						self.newWindow.find('.makeTabsVertical').each(function () {
+							makeTabsVertical('#' + $(this).attr('id'));
+						});
+
 						if (o.onAfterShow){
 							o.onAfterShow.apply(self.newWindow, [
 								{
@@ -844,17 +855,6 @@
 						else {
 							$(this).blur(processChange);
 						}
-					});
-
-					$(window).find('.makeModFCK').each(function () {
-						CKEDITOR.replace(this, {
-							toolbar : 'Simple'
-						});
-					});
-
-					$(window).find('.makeTabPanel').tabs();
-					$(window).find('.makeTabsVertical').each(function () {
-						makeTabsVertical('#' + $(this).attr('id'));
 					});
 
 					if (fieldNameError === true){

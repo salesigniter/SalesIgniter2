@@ -86,12 +86,14 @@ if (isset($_POST['categories'])){
 }
 
 $Product->ProductsAdditionalImages->delete();
-if (isset($_POST['additional_images']) && !empty($_POST['additional_images'])){
+if (isset($_POST['additional_image']) && !empty($_POST['additional_image'])){
 	$saved = array();
-	$imgArr = explode(',', $_POST['additional_images']);
-	foreach($imgArr as $fileName){
+	foreach($_POST['additional_image'] as $fileName){
 		if (!in_array($fileName, $saved)){
-			$Product->ProductsAdditionalImages[]->file_name = $fileName;
+			$AdditionalImage = new ProductsAdditionalImages();
+			$AdditionalImage->file_name = $fileName;
+			$Product->ProductsAdditionalImages->add($AdditionalImage);
+
 			$saved[] = $fileName;
 		}
 	}
@@ -172,7 +174,7 @@ foreach($postedQty as $typeShort => $qInfo){
 	);
 }
 
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	EventManager::attachActionResponse(array(
 		'success' => true,
 		'product_id' => $Product->products_id

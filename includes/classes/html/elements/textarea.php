@@ -49,26 +49,48 @@ class htmlElement_textarea implements htmlElementPlugin {
 	public function draw(){
 		$html = '';
 		if ($this->labelElement !== false){
-			if ($this->textareaElement->hasAttr('id') === true){
-				$this->labelElement->attr('for', $this->textareaElement->attr('id'));
+			if ($this->hasAttr('id') === true){
+				$this->labelElement->attr('for', $this->attr('id'));
 			}
-			if ($this->labelElementPosition == 'before'){
+			if ($this->labelElementPosition == 'before' || $this->labelElementPosition == 'left' || $this->labelElementPosition == 'top'){
+				if ($this->labelElementPosition == 'top'){
+					$this->labelElement->css('display', 'block');
+				}
+
 				$html .= $this->labelElement->draw();
+				if (is_object($this->labelElementSeparator)){
+					$html .= $this->labelElementSeparator->draw();
+				}
+				else {
+					$html .= $this->labelElementSeparator;
+				}
 			}
 		}
-		
+
 		$html .= $this->textareaElement->draw();
-		
+
 		if ($this->labelElement !== false){
-			if ($this->labelElementPosition == 'after' || $this->labelElementPosition === false){
+			if ($this->labelElementPosition == 'after' || $this->labelElementPosition == 'right' || $this->labelElementPosition == 'bottom' || $this->labelElementPosition === false){
+				if ($this->labelElementPosition == 'bottom'){
+					$this->labelElement->css('display', 'block');
+				}else{
+					if (is_object($this->labelElementSeparator)){
+						$html .= $this->labelElementSeparator->draw();
+					}
+					else {
+						$html .= $this->labelElementSeparator;
+					}
+				}
+
 				$html .= $this->labelElement->draw();
 			}
 		}
 		return $html;
 	}
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
-	
-	public function setLabel($val){
+
+	public function setLabel($val)
+	{
 		if ($this->labelElement === false){
 			$this->labelElement = new htmlElement('label');
 			if ($this->labelElementPosition === false){
@@ -78,9 +100,16 @@ class htmlElement_textarea implements htmlElementPlugin {
 		$this->labelElement->html($val);
 		return $this;
 	}
-	
-	public function setLabelPosition($val){
+
+	public function setLabelPosition($val)
+	{
 		$this->labelElementPosition = $val;
+		return $this;
+	}
+
+	public function setLabelSeparator($val)
+	{
+		$this->labelElementSeparator = $val;
 		return $this;
 	}
 }

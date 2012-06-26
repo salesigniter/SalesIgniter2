@@ -1611,13 +1611,13 @@ abstract class Doctrine_Query_Abstract
             if ($params !== null) {
                 if (is_array($params)) {
 					foreach($params as $k => $v){
-						if ($v instanceof SesDateTime){
+						if ($v instanceof DateTime || $v instanceof SesDateTime){
 							$params[$k] = $v->format(DATE_TIMESTAMP);
 						}
 					}
                     $this->_params['set'] = array_merge($this->_params['set'], $params);
                 } else {
-					if ($params instanceof SesDateTime){
+					if ($params instanceof DateTime || $params instanceof SesDateTime){
 						$params = $params->format(DATE_TIMESTAMP);
 					}
                     $this->_params['set'][] = $params;

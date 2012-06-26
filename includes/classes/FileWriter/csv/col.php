@@ -9,7 +9,7 @@ class FileWriterCsvCol
 	}
 
 	function getValue() {
-		if ($this->value instanceof SesDateTime){
+		if ($this->value instanceof DateTime || $this->value instanceof SesDateTime){
 			return $this->value->format(sysLanguage::getDateTimeFormat());
 		}else{
 			return $this->value;

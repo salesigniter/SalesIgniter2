@@ -229,7 +229,7 @@ class ExceptionManager {
 			if (is_null($this->sessionMessages) === false){
 				foreach($this->sessionMessages as $type => $messageArr){
 					foreach($messageArr as $i => $Exception){
-						if ($format == 'html' && (!isset($_GET['rType']) || $_GET['rType'] != 'ajax')){
+						if ($format == 'html' && SesRequestInfo::isAjax() === false){
 							echo $Exception;
 						}
 						else{
@@ -241,7 +241,7 @@ class ExceptionManager {
 			}
 			foreach($this->messages as $type => $messageArr){
 				foreach($messageArr as $i => $Exception){
-					if ($format == 'html' && (!isset($_GET['rType']) || $_GET['rType'] != 'ajax')){
+					if ($format == 'html' && SesRequestInfo::isAjax() === false){
 						echo $Exception;
 					}
 					else{

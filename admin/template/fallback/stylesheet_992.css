@@ -22,4 +22,8 @@
 		display : block;
 		width   : 100px;
 	}
+
+	.ApplicationPageMenu .rootItem {
+		width: 200px;
+	}
 }

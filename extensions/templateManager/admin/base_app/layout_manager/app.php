@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 if (!class_exists('phpQuery')){
 	require(sysConfig::getDirFsCatalog() . '/includes/classes/html/dom/phpQuery.php');
 }
@@ -24,7 +36,6 @@ if (!class_exists('TemplateManagerLayoutTypeModules')){
 	require(sysConfig::getDirFsCatalog() . '/extensions/templateManager/layoutTypeModules/modules.php');
 }
 
-$appContent = $App->getAppContentFile();
 $TemplateManager = $appExtension->getExtension('templateManager');
 
 if ($App->getPageName() == 'editLayout'){
@@ -35,12 +46,12 @@ if ($App->getPageName() == 'editLayout'){
 	$LayoutBuilder->setLayoutId($Layout->layout_id);
 
 	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
-    $App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
+	$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/backgroundBuilder.js');
 
 	$Imports = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/admin/base_app/layout_manager/javascript/background/');
 	foreach($Imports as $fInfo){
-		if ($fInfo->isDot() === true || $fInfo->isDir() === true) {
+		if ($fInfo->isDot() === true || $fInfo->isDir() === true){
 			continue;
 		}
 
@@ -50,7 +61,7 @@ if ($App->getPageName() == 'editLayout'){
 		if (is_dir($fInfo->getPath() . '/' . $dirName)){
 			$subImport = new DirectoryIterator($fInfo->getPath() . '/' . $dirName);
 			foreach($subImport as $sfInfo){
-				if ($sfInfo->isDot() === true || $sfInfo->isDir() === true) {
+				if ($sfInfo->isDot() === true || $sfInfo->isDir() === true){
 					continue;
 				}
 
@@ -61,7 +72,7 @@ if ($App->getPageName() == 'editLayout'){
 
 	$Imports = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/admin/base_app/layout_manager/javascript/tabs/');
 	foreach($Imports as $fInfo){
-		if ($fInfo->isDot() === true || $fInfo->isDir() === true) {
+		if ($fInfo->isDot() === true || $fInfo->isDir() === true){
 			continue;
 		}
 
@@ -74,7 +85,8 @@ if ($App->getPageName() == 'editLayout'){
 	$App->addStylesheetFile('ext/jQuery/external/miniColors/jquery.miniColors.css');
 }
 
-function addStyles($El, $Styles) {
+function addStyles($El, $Styles)
+{
 	$css = array();
 	foreach($Styles as $sInfo){
 		if ($sInfo->definition_key == 'table'){
@@ -95,7 +107,8 @@ function addStyles($El, $Styles) {
 	$El->attr('data-styles', htmlspecialchars(json_encode($css)));
 }
 
-function addInputs($El, $Config) {
+function addInputs($El, $Config)
+{
 	$inputVals = array();
 	foreach($Config as $cInfo){
 		if ($cInfo->configuration_key == 'table'){
@@ -111,7 +124,8 @@ function addInputs($El, $Config) {
 	$El->attr('data-inputs', htmlspecialchars(json_encode($inputVals)));
 }
 
-function processContainerChildren($MainObj, &$El) {
+function processContainerChildren($MainObj, &$El)
+{
 	$El->addClass('wrapper');
 	foreach($MainObj->Children as $childObj){
 		$NewEl = htmlBase::newElement('div')
@@ -135,7 +149,8 @@ function processContainerChildren($MainObj, &$El) {
 	}
 }
 
-function processContainerColumns(&$Container, $Columns) {
+function processContainerColumns(&$Container, $Columns)
+{
 	global $LayoutBuilder, $Layout;
 	if (!$Columns){
 		return;

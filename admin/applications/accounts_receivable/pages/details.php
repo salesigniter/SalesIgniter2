@@ -1,29 +1,29 @@
 <?php
-$Sale = AccountsReceivable::getSale($_GET['sale_type'], $_GET['sale_id']);
+$saleType = (isset($_GET['sale_type']) ? $_GET['sale_type'] : null);
+if ($saleType === null){
+	$QSaleType = Doctrine_Query::create()
+	->select('sale_module')
+	->from('AccountsReceivableSales')
+	->where('sale_id = ?', $_GET['sale_id'])
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	$saleType = $QSaleType[0]['sale_module'];
+}
+$Sale = AccountsReceivable::getSale($saleType, $_GET['sale_id']);
 ?>
-<div style="text-align:right"><?php
-	$invoiceButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_INVOICE'))
-		->setHref(itw_app_link('oID=' . $oID, 'orders', 'invoice'));
+<div class="ApplicationPageMenu"><?php
+	$Menu = htmlBase::newList();
 
-	$packingSlipButton = htmlBase::newElement('button')->setText(sysLanguage::get('TEXT_BUTTON_PACKINGSLIP'))
-		->setHref(itw_app_link('oID=' . $oID, 'orders', 'packingslip'));
+	$backButton = htmlBase::newElement('button')
+	->usePreset('back')
+	->setHref(itw_app_link(tep_get_all_get_params(array('action')), null, 'sales'));
 
-	$backButton = htmlBase::newElement('button')->usePreset('back')
-		->setHref(itw_app_link(tep_get_all_get_params(array('action')), null, 'default'));
+	$BackListItem = htmlBase::newElement('li')
+	->addClass('rootItem')
+	->html($backButton->draw());
+	$Menu->addItemObj($BackListItem);
 
-	$infobox = htmlBase::newElement('div');
-
-	$infobox->append($invoiceButton);
-	if (sysConfig::get('SHOW_PACKING_SLIP_BUTTONS') == 'true'){
-		$infobox->append($packingSlipButton);
-	}
-	$infobox->append($backButton);
-
-	EventManager::notify('AdminOrderDetailsAddButton', $oID, &$infobox);
-
-	echo $infobox->draw() . '<br>';
-
-
+	echo $Menu->draw();
 	?></div>
 <br />
 <?php
@@ -297,12 +297,3 @@ $tabsObj->addTabPage('tab_comments', array('text' => $tabContent));
 EventManager::notify('OrderDetailsTabPaneBeforeDraw', $Sale, &$tabsObj);
 
 echo $tabsObj->draw();
-?>
-<br />
-<div style="text-align:right"><?php
-	echo $invoiceButton->draw();
-	if (sysConfig::get('SHOW_PACKING_SLIP_BUTTONS') == 'true'){
-		echo $packingSlipButton->draw();
-	}
-	echo $backButton->draw();
-	?></div>

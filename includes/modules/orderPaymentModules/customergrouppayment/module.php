@@ -65,29 +65,22 @@ class OrderPaymentCustomergrouppayment extends StandardPaymentModule
 		}
 
 		return $this->onResponse(array(
-				'orderID' => $requestData['orderID'],
+				'saleId' => $requestData['saleId'],
 				'amount' => $order->info['total'],
 				'success' => $success
 			));
 	}
 
-	public function processPayment($orderID = null, $amount = null){
-		global $order;
+	public function processPayment(Order $Order){
 	    $this->removeOrderOnFail = true;
-	    if(is_null($orderID) && is_null($amount)){
-		    return $this->sendPaymentRequest(array(
-				    'orderID' => $order->newOrder['orderID'],
-				    'amount'  => $order->info['total']
-			    ));
-	    }else{
-		    return $this->sendPaymentRequest(array(
-				    'orderID' => $orderID,
-				    'amount'  => $amount
-			    ));
-	    }
+
+	    return $this->sendPaymentRequest(array(
+		    'saleId' => $Order->getSaleId(),
+		    'amount'  => $Order->TotalManager->getTotalValue('total')
+	    ));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		global $order;
 		$order->info['payment_method'] = $this->getTitle();
 
@@ -127,7 +120,7 @@ class OrderPaymentCustomergrouppayment extends StandardPaymentModule
 		}
 		if ($isSaved){
 			$this->logPayment(array(
-					'orderID' => $logData['orderID'],
+					'saleId' => $logData['saleId'],
 					'amount' => $logData['amount'],
 					'message' => 'Payment Success',
 					'success' => 1,
@@ -147,7 +140,7 @@ class OrderPaymentCustomergrouppayment extends StandardPaymentModule
 	private function onFail($info) {
 		global $messageStack;
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($info['orderID']);
+			$Order = Doctrine_Core::getTable('Orders')->find($info['saleId']);
 			if ($Order){
 				$Order->delete();
 			}

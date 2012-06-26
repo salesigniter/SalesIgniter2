@@ -182,7 +182,7 @@ class ReservationUtilities {
 		$semDates = array();
 
 		$sDate = array();
-		$Periods = PurchaseType_reservation_utilities::getProductPeriods($pID_string);
+		$Periods = PurchaseType_reservation_utilities::getProductPeriods($pID_string[0]);
 		if (sizeof($Periods) > 0) {
 			foreach($Periods as $pInfo){
 				$sDate['start_date'] = $pInfo['Period']['period_start_date'];
@@ -243,6 +243,8 @@ class ReservationUtilities {
 			$timeBookings = array_merge($timeBookings, $timeBookingsF);
 
 		}
+
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($bookings);
 
 		$maxShippingDays = -1;
 		$shippingTable = '';
@@ -1731,20 +1733,23 @@ class ReservationUtilities {
 	public static function CheckBooking($settings){
 		$returnVal = 0;
 		if(isset($settings['start_date']) && isset($settings['end_date'])){
-			$Qcheck = Doctrine_Query::create();
+			$Qcheck = Doctrine_Query::create()
+				->select('r.id, p.id');
 
 			if ($settings['item_type'] == 'barcode'){
-				$Qcheck->select('barcode_id');
+				$Qcheck->addSelect('i.barcode_id');
 			}else{
-				$Qcheck->select('quantity_id');
+				$Qcheck->addSelect('i.quantity_id');
 			}
 
-			$Qcheck->from('OrdersProductsReservation');
+			$Qcheck->from('PayPerRentalReservations r')
+				->leftJoin('r.SaleProduct p')
+				->leftJoin('p.SaleInventory i');
 
 			if ($settings['item_type'] == 'barcode'){
-				$Qcheck->where('barcode_id = ?', $settings['item_id']);
+				$Qcheck->where('i.barcode_id = ?', $settings['item_id']);
 			}else{
-				$Qcheck->where('quantity_id = ?', $settings['item_id']);
+				$Qcheck->where('i.quantity_id = ?', $settings['item_id']);
 			}
 			/*if (!is_object($settings['start_date'])){
 				debug_print_backtrace();
@@ -1795,252 +1800,146 @@ class ReservationUtilities {
 		return $returnVal;
 	}
 
-	public static function returnReservation($bID, $status, $comment, $lost, $broken){
+	public static function returnReservation(PayPerRentalReservations $Reservation, $status, $comment, $lost, $broken)
+	{
 		global $appExtension, $messageStack, $currencies;
-		
-		$Qcheck = Doctrine_Query::create()
-		->select('orders_products_id')
-		->from('OrdersProductsReservation')
-		->where('orders_products_reservations_id = ?', $bID)
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-		if (isset($Qcheck[0]['orders_products_id']) && is_null($Qcheck[0]['orders_products_id']) === false){
-			$ReservationQuery = Doctrine_Query::create()
-			->from('Orders o')
-			->leftJoin('o.Customers c')
-			->leftJoin('o.OrdersAddresses oa')
-			->leftJoin('o.OrdersProducts op')
-			->leftJoin('op.OrdersProductsReservation opr')
-			->where('opr.orders_products_reservations_id = ?', $bID)
-			->andWhere('oa.address_type = ?', 'customer')
-			->andWhere('parent_id IS NULL');
-		}else{
-			$ReservationQuery = Doctrine_Query::create()
-			->from('OrdersProductsReservation opr')
-			->where('opr.orders_products_reservations_id = ?', $bID);
+		$reservationId = $Reservation->id;
+
+		$Reservation->rental_state = 'returned';
+		$Reservation->date_returned = date('Y-m-d h:i:s');
+		//$Reservation->broken = $broken;
+
+		$isBarcode = ($Reservation->SaleProduct->SaleInventory[0]->barcode_id > 0);
+		$isQuantity = ($Reservation->SaleProduct->SaleInventory[0]->quantity_id > 0);
+		if ($isBarcode === true){
+			$CurrentBarcode =& $Reservation->SaleProduct->SaleInventory[0]->Barcode;
 		}
-		
-		$ReservationQuery->leftJoin('opr.ProductsInventoryBarcodes ib')
-		->leftJoin('ib.ProductsInventory ibi')
-		->leftJoin('opr.ProductsInventoryQuantity iq')
-		->leftJoin('iq.ProductsInventory iqi');
-		
-		if ($appExtension->isInstalled('inventoryCenters') && $appExtension->isEnabled('inventoryCenters')){
-			$extInventoryCenters = $appExtension->getExtension('inventoryCenters');
-			if ($extInventoryCenters->stockMethod == 'Store'){
-				$ReservationQuery->leftJoin('ib.ProductsInventoryBarcodesToStores b2s')
-				->leftJoin('b2s.Stores');
-			}else{
-				$ReservationQuery->leftJoin('ib.ProductsInventoryBarcodesToInventoryCenters b2c')
-				->leftJoin('b2c.ProductsInventoryCenters');
+		elseif ($isQuantity === true){
+			$CurrentQuantity =& $Reservation->SaleProduct->SaleInventory[0]->Quantity;
+		}
+
+		if (!empty($comment)){
+			if ($isBarcode === true){
+				$NewComment = $CurrentBarcode->Comments->getRecord();
+				$NewComment->comments = $comment;
+
+				$CurrentBarcode->Comments->add($NewComment);
+			}
+			elseif ($isQuantity === true) {
+				$NewComment = $CurrentQuantity->Comments->getRecord();
+				$NewComment->comments = $comment;
+
+				$CurrentQuantity->Comments->add($NewComment);
 			}
 		}
-		
-		$Reservation = $ReservationQuery->execute();
-		foreach($Reservation as $oInfo){
-			if (isset($oInfo->OrdersProducts)){
-				$Products = $oInfo->OrdersProducts;
-				$sendEmail = true;
-			}else{
-				$Products = $oInfo;
-				$sendEmail = false;
+
+		if ($isBarcode === true){
+			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
+				$CurrentBarcode->status = $status;
 			}
-			foreach($Products as $pInfo){
-				if (isset($pInfo->OrdersProductsReservation)){
-					$Reservations = $pInfo->OrdersProductsReservation;
-				}else{
-					$Reservations = array($pInfo);
-				}
-				foreach($Reservations as $oprInfo){
-					$reservationId = $oprInfo->orders_products_reservations_id;
-					$trackMethod = $oprInfo->track_method;
+			else {
+				//on return check the maintenance periods and set a new maintenance for all the types which are on return.
+				$QMaintenancePeriod = Doctrine_Query::create()
+					->from('PayPerRentalMaintenancePeriods')
+					->where('after_return = ?', '1')
+					->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-					$oprInfo->rental_state = 'returned';
-					$oprInfo->date_returned = date('Y-m-d h:i:s');
-					$oprInfo->broken = $broken;
-					//$oprInfo->lost = $lost;
-
-					if (!empty($comment)){
-						if ($reservationId == 'barcode'){
-							$oprInfo->ProductsInventoryBarcodes->ProductsInventoryBarcodesComments[]->comments = $comment;
-						}elseif ($reservationId == 'quantity'){
-							$oprInfo->ProductsInventoryQuantity->ProductsInventoryQuantitysComments[]->comments = $comment;
-						}
+				foreach($QMaintenancePeriod as $mPeriod){
+					if ($mPeriod['quarantine_until_completed'] == '1'){
+						$CurrentBarcode->status = 'M';
 					}
 
-					if (isset($extInventoryCenters)){
-						$invCenterChanged = false;
-						if (isset($_POST['inventory_center'][$reservationId])){
-							$invCenter = $_POST['inventory_center'][$reservationId];
-							if ($trackMethod == 'barcode'){
-								if ($extInventoryCenters->stockMethod == 'Store'){
-									$Barcode = $oprInfo->ProductsInventoryBarcodes->ProductsInventoryBarcodesToStores;
-									if ($Barcode->inventory_store_id != $invCenter){
-										$Barcode->inventory_store_id = $invCenter;
-										$invCenterChanged = true;
-									}
-								}else{
-									$Barcode = $oprInfo->ProductsInventoryBarcodes->ProductsInventoryBarcodesToInventoryCenters;
-									if ($Barcode->inventory_center_id != $invCenter){
-										$Barcode->inventory_center_id = $invCenter;
-										$invCenterChanged = true;
-									}
-								}
-							}elseif ($trackMethod == 'quantity'){
-								$Quantity = $oprInfo->ProductsInventoryQuantity;
-								if ($extInventoryCenters->stockMethod == 'Store'){
-									if ($Quantity->inventory_store_id != $invCenter){
-										$Qupdate = Doctrine_Query::create()
-										->update('ProductsInventoryQuantity')
-										->where('inventory_store_id = ?', $invCenter)
-										->andWhere('inventory_id = ?', $Quantity->inventory_id);
-										if ($status == 'B' || $status == 'L'){
-											$Qupdate->set('broken = broken+1');
-										}else{
-											$Qupdate->set('available = available+1');
-										}
-										$Qupdate->execute();
-										$invCenterChanged = true;
-									}
-								}else{
-									if ($Quantity->inventory_center_id != $invCenter){
-										$Qupdate = Doctrine_Query::create()
-										->update('ProductsInventoryQuantity')
-										->where('inventory_center_id = ?', $invCenter)
-										->andWhere('inventory_id = ?', $Quantity->inventory_id);
-										if ($status == 'B' || $status == 'L'){
-											$Qupdate->set('broken = broken+1');
-										}else{
-											$Qupdate->set('available = available+1');
-										}
-										$Qupdate->execute();
-										$invCenterChanged = true;
-									}
-								}
-							}
-						}
-					}else{
-						if ($trackMethod == 'barcode'){
-							if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_MAINTENANCE') == 'False'){
-								$oprInfo->ProductsInventoryBarcodes->status = $status;
-							}else{
-								//on return check the maintenance periods and set a new maintenance for all the types which are on return.
-								$QMaintenancePeriod = Doctrine_Query::create()
-								->from('PayPerRentalMaintenancePeriods')
-								->where('after_return = ?','1')
-								->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-
-
-								foreach($QMaintenancePeriod as $mPeriod){
-									if($mPeriod['quarantine_until_completed'] == '1'){
-										$oprInfo->ProductsInventoryBarcodes->status = 'M';
-									}
-
-									$barcodeHistory = Doctrine_Core::getTable('BarcodeHistoryRented')->find($oprInfo->ProductsInventoryBarcodes->barcode_id);
-									if(!$barcodeHistory){
-										$barcodeHistory = new BarcodeHistoryRented();
-										$barcodeHistory->barcode_id = $oprInfo->ProductsInventoryBarcodes->barcode_id;
-										$barcodeHistory->save();
-									}
-									$barcodeHistory->number_rents = $barcodeHistory->number_rents + 1;
-									$barcodeHistory->current_maintenance_type = $mPeriod['maintenance_period_id'];
-									$barcodeHistory->save();
-									$mAdmins = explode(',',$mPeriod['assign_to']);
-									foreach($mAdmins as $admin_id){
-										$Admin = Doctrine_Core::getTable('Admin')->find($admin_id);
-										$emailEvent = new emailEvent('maintenance_item', Session::get('languages_id'));
-										$emailEvent->setVar('admin_name', $Admin->admin_firstname . ' ' .$Admin->admin_lastname);
-										$emailEvent->setVar('url', itw_app_link('appExt=payPerRentals&type='.$mPeriod['maintenance_period_id'],'maintenance','default'));
-										$emailEvent->sendEmail(array(
-												'email' => $Admin->admin_email_address,
-												'name'  => $Admin->admin_firstname
-											));
-									}
-								}
-
-							}
-							PurchaseTypeModules::loadModule('reservation');
-							$PurchaseType = PurchaseTypeModules::getModule('reservation');
-							$PurchaseType->loadProduct($pInfo['products_id']);
-							$rInfo = '';
-							$semName = '';
-							$curDateNow = date('Y-m-d H:i:s');
-							//get the minimum amount of minutes for the product
-							$pprTypes = array();
-							foreach(PurchaseType_reservation_utilities::getRentalTypes() as $iType){
-								$pprTypes[$iType['pay_per_rental_types_id']] = $iType['minutes'];
-							}
-
-							foreach (PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId()) as $iPrices) {
-								$minutesArray[$iPrices['number_of']*$pprTypes[$iPrices['pay_per_rental_types_id']]] = $iPrices['price'];
-							}
-
-							ksort($minutesArray);
-							reset($minutesArray);
-							$minVal = 0;
-
-							if(count($minutesArray) > 0){
-								$minVal = key($minutesArray)*60*1000;
-							}
-							if(strtotime($oprInfo['end_date']) - strtotime($curDateNow) > $minVal && sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_PRO_RATED_DISCOUNTS') == 'True'){
-								$diffPrice = $PurchaseType->getReservationPrice($curDateNow, $oprInfo['end_date'], $rInfo, $semName, false, false);
-								$QOrderTotal = Doctrine_Query::create()
-								->from('OrdersTotal')
-								->where('orders_id = ?', $oInfo['orders_id'])
-								->andWhereIn('module_type', array('ot_total','total'))
-								->fetchOne();
-
-								$QOrderTotal->value = $QOrderTotal->value - $diffPrice['price'];
-								$QOrderTotal->text = '<b>'.$currencies->format($QOrderTotal->value).'</b>';
-
-								$newOrderTotal = new OrdersTotal;
-								$newOrderTotal->orders_id = $oInfo['orders_id'];
-								$newOrderTotal->title = 'Refund Amount';
-								$newOrderTotal->text = '-' .$currencies->format($diffPrice['price']);
-								$newOrderTotal->value = -$diffPrice['price'];
-								$newOrderTotal->module_type = 'refund';
-								$newOrderTotal->sort_order = $QOrderTotal->sort_order;
-								$QOrderTotal->sort_order = $QOrderTotal->sort_order + 1;
-								$newOrderTotal->save();
-								$QOrderTotal->save();
-							}
-
-						}elseif ($trackMethod == 'quantity'){
-							$oprInfo->ProductsInventoryQuantity->qty_out--;
-							if ($status == 'B' || $status == 'L'){
-								$oprInfo->ProductsInventoryQuantity->broken++;
-							}else{
-								$oprInfo->ProductsInventoryQuantity->available++;
-							}
-						}
+					$barcodeHistory = Doctrine_Core::getTable('BarcodeHistoryRented')
+						->find($CurrentBarcode->barcode_id);
+					if (!$barcodeHistory){
+						$barcodeHistory = new BarcodeHistoryRented();
+						$barcodeHistory->barcode_id = $CurrentBarcode->barcode_id;
+						$barcodeHistory->save();
 					}
-
-					if ($sendEmail === true){
-						$emailEvent = new emailEvent('reservation_returned', $oInfo->Customers->language_id);
-						if (date('Y-m-d h:i:s') > $oprInfo->end_date){
-							$dateArr = date_parse($oprInfo->end_date);
-							$days_late = (mktime(0, 0, 0) - mktime(0, 0, 0, $dateArr['month'], $dateArr['day'], $dateArr['year'])) / (60 * 60 * 24);
-						}else{
-							$days_late = 0;
-						}
-						$emailEvent->setVars(array(
-							'days_late' => $days_late,
-							'full_name' => $oInfo->OrdersAddresses['customer']->entry_name,
-							'email_address' => $oInfo->customers_email_address,
-							'rented_product' => $pInfo->products_name
+					$barcodeHistory->number_rents = $barcodeHistory->number_rents + 1;
+					$barcodeHistory->current_maintenance_type = $mPeriod['maintenance_period_id'];
+					$barcodeHistory->save();
+					$mAdmins = explode(',', $mPeriod['assign_to']);
+					foreach($mAdmins as $admin_id){
+						$Admin = Doctrine_Core::getTable('Admin')->find($admin_id);
+						$emailEvent = new emailEvent('maintenance_item', Session::get('languages_id'));
+						$emailEvent->setVar('admin_name', $Admin->admin_firstname . ' ' . $Admin->admin_lastname);
+						$emailEvent->setVar('url', itw_app_link('appExt=payPerRentals&type=' . $mPeriod['maintenance_period_id'], 'maintenance', 'default'));
+						$emailEvent->sendEmail(array(
+							'email' => $Admin->admin_email_address,
+							'name'  => $Admin->admin_firstname
 						));
-					    if(sysConfig::get('EXTENSION_PAY_PER_RENTALS_SEND_EMAIL_RETURN') == 'True'){
-							$emailEvent->sendEmail(array(
-								'email' => $oInfo->customers_email_address,
-								'name' => $oInfo->OrdersAddresses['customer']->entry_name
-							));
-						}
 					}
 				}
 			}
+
+			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_PRO_RATED_DISCOUNTS') == 'True'){
+				PurchaseTypeModules::loadModule('reservation');
+				$PurchaseType = PurchaseTypeModules::getModule('reservation');
+				$PurchaseType->loadProduct($pInfo['products_id']);
+				$rInfo = '';
+				$semName = '';
+				$curDateNow = date('Y-m-d H:i:s');
+				//get the minimum amount of minutes for the product
+				$pprTypes = array();
+				foreach(PurchaseType_reservation_utilities::getRentalTypes() as $iType){
+					$pprTypes[$iType['pay_per_rental_types_id']] = $iType['minutes'];
+				}
+
+				foreach(PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId()) as $iPrices){
+					$minutesArray[$iPrices['number_of'] * $pprTypes[$iPrices['pay_per_rental_types_id']]] = $iPrices['price'];
+				}
+
+				ksort($minutesArray);
+				reset($minutesArray);
+				$minVal = 0;
+
+				if (count($minutesArray) > 0){
+					$minVal = key($minutesArray) * 60 * 1000;
+				}
+				if (strtotime($oprInfo['end_date']) - strtotime($curDateNow) > $minVal){
+					$diffPrice = $PurchaseType->getReservationPrice($curDateNow, $oprInfo['end_date'], $rInfo, $semName, false, false);
+					$QOrderTotal = Doctrine_Query::create()
+						->from('OrdersTotal')
+						->where('orders_id = ?', $oInfo['orders_id'])
+						->andWhereIn('module_type', array('ot_total', 'total'))
+						->fetchOne();
+
+					$QOrderTotal->value = $QOrderTotal->value - $diffPrice['price'];
+					$QOrderTotal->text = '<b>' . $currencies->format($QOrderTotal->value) . '</b>';
+
+					$newOrderTotal = new OrdersTotal;
+					$newOrderTotal->orders_id = $oInfo['orders_id'];
+					$newOrderTotal->title = 'Refund Amount';
+					$newOrderTotal->text = '-' . $currencies->format($diffPrice['price']);
+					$newOrderTotal->value = -$diffPrice['price'];
+					$newOrderTotal->module_type = 'refund';
+					$newOrderTotal->sort_order = $QOrderTotal->sort_order;
+					$QOrderTotal->sort_order = $QOrderTotal->sort_order + 1;
+					$newOrderTotal->save();
+					$QOrderTotal->save();
+				}
+			}
 		}
+		elseif ($isQuantity === true) {
+			$CurrentQuantity->qty_out--;
+			if ($status == 'B' || $status == 'L'){
+				$CurrentQuantity->broken++;
+			}
+			else {
+				$CurrentQuantity->available++;
+			}
+		}
+
+		$Module = EmailModules::getModule('reservation');
+		$Module->process('RESERVATION_RETURN_EMAIL', array(
+			'ReservationObj' => $Reservation
+		));
+		//echo '<pre>';print_r($Reservation->toArray(true));
 		$Reservation->save();
 	}
+
 	public static function inventoryCenterAddon($hasHeaders, $hasGeographic = true, $showPickup = true, $showDropoff){
 			global $appExtension;
 			$invCentExt = $appExtension->getExtension('inventoryCenters');

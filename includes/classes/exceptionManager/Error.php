@@ -78,7 +78,7 @@ class ExceptionError extends ExceptionParser {
 		$TableContainer->append($ErrorTable);
 		$ReportContainer->append($TableContainer);
 
-		if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+		if (SesRequestInfo::isAjax() === true){
 			return strip_tags(str_replace('</tr>', "\n", $ReportContainer->draw()));
 		}else{
 			return $ReportContainer->draw();

@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_EMAIL_RESERVATION_TEXT_TITLE"><![CDATA[Reservation Based Emails]]></define>
+	<define key="MODULE_EMAIL_RESERVATION_TEXT_DESCRIPTION"><![CDATA[Reservation Based Emails]]></define>
+</definitions>

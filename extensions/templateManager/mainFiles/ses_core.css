@@ -64,6 +64,30 @@ h4 { font-size: inherit;color: inherit;font-weight: inherit; }
 .pageStackContainer { font-family: Verdana, Arial, sans-serif; font-size: .9em; }
 .pageStackContainer .ui-widget { margin-bottom: 1em; }
 
+.ui-messageStack { margin:.5em; }
+.ui-messageStack .ui-messageStack-message { padding:1em;border: 1px solid transparent; }
+.ui-messageStack .ui-messageStack-message-icon { display: inline-block;vertical-align:middle; }
+.ui-messageStack .ui-messageStack-message-text { display: inline-block;vertical-align:middle;margin-left:1em; }
+.ui-messageStack .ui-messageStack-default { border-color:#dddddd;background:#eeeeee;color:#444444; }
+.ui-messageStack .ui-messageStack-error { border-color:#eed3d7;background:#f2dede;color:#b94a48; }
+.ui-messageStack .ui-messageStack-warning { border-color:#fbeed5;background:#fcf8e3;color:#c09853; }
+.ui-messageStack .ui-messageStack-info { border-color:#bce8f1;background:#d9edf7;color:#3a87ad; }
+.ui-messageStack .ui-messageStack-success { border-color:#d6e9c6;background:#dff0d8;color:#468847; }
+.ui-messageStack .ui-messageStack-notice { border-color:#dddddd;background:#eeeeee;color:#444444; }
+
+.ui-messageStack-message-icon { width:24px;height:24px;display: inline-block; }
+.ui-messageStack-message-icon,
+.ui-widget-content .ui-messageStack-message-icon,
+.ui-state-default .ui-messageStack-message-icon,
+div.containerBreadcrumb .ui-messageStack-message-icon,
+.ui-widget-header .ui-messageStack-message-icon { background-image: url(<?php echo sysConfig::getDirWsCatalog();?>extensions/templateManager/mainFiles/ses-icons.png); }
+.ui-messageStack-message-icon-default { background-position: 24px 24px; /* Supposed To Be Blank, Don't Change */ }
+.ui-messageStack-message-icon-error { background-position: -198px -114px; }
+.ui-messageStack-message-icon-warning { background-position: -2px -2px; }
+.ui-messageStack-message-icon-info { background-position: -2px -58px; }
+.ui-messageStack-message-icon-success { background-position: -226px -86px }
+.ui-messageStack-message-icon-notice { background-position:-170px -142px; }
+
 .ui-infobox { background: #dcdcdc;position: relative;margin-bottom: 10px; }
 .ui-infobox-header { color: #ffffff;font-weight: bold;font-size: 1em;position:relative;margin:0; padding:0;line-height:1em;}
 .ui-infobox-header-text { font-weight:normal;margin:0;margin-left:.5em;padding:0;color:#ffffff;;vertical-align:middle }

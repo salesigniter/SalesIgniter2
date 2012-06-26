@@ -19,7 +19,7 @@ class OrdersCustomFields extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 		
-		$this->hasMany('OrdersCustomFieldsOptionsToFields as Options', array(
+		$this->hasMany('OrdersCustomFieldsOptions as Options', array(
 			'local'   => 'field_id',
 			'foreign' => 'field_id',
 			'orderBy' => 'display_order',

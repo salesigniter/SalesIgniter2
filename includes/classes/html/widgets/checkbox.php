@@ -17,6 +17,7 @@
  */
 class htmlWidget_checkbox implements htmlWidgetPlugin {
 	protected $inputElement;
+	protected $required = false;
 
 	public function __construct(){
 		$this->inputElement = htmlBase::newElement('input')->setType('checkbox');
@@ -65,6 +66,9 @@ class htmlWidget_checkbox implements htmlWidgetPlugin {
 					$table = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
 					$columns = array();
 					foreach($this->groupElements as $button){
+						if ($this->required === true){
+							$button->addClass('required')->attr('required', 'required');
+						}
 						$columns[] = array('text' => $button->draw());
 						if (sizeof($columns) == $this->groupSeparator['cols']){
 							$table->addBodyRow(array(
@@ -84,11 +88,17 @@ class htmlWidget_checkbox implements htmlWidgetPlugin {
 			}else{
 				$htmlOutput = array();
 				foreach($this->groupElements as $button){
+					if ($this->required === true){
+						$button->addClass('required')->attr('required', 'required');
+					}
 					$htmlOutput[] = $button->draw();
 				}
 				$html .= implode($this->groupSeparator, $htmlOutput);
 			}
 		}else{
+			if ($this->required === true){
+				$this->inputElement->addClass('required')->attr('required', 'required');
+			}
 			$html = $this->inputElement->draw();
 		}
 
@@ -186,17 +196,7 @@ class htmlWidget_checkbox implements htmlWidgetPlugin {
 	}
 
 	public function setRequired($val){
-		$i = 0;
-		foreach($this->groupElements as $button){
-			if($i == count($this->groupElements) - 1){
-				if ($val === true){
-					$button->addClass('required');
-				}else{
-					$button->removeClass('required');
-				}
-			}
-			$i++;
-		}
+		$this->required = $val;
 		return $this;
 	}
 }

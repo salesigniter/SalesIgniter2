@@ -125,7 +125,7 @@ class OrderPaymentPayflow extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
-					'orderID' => $requestData['orderID'],
+					'saleId' => $requestData['saleId'],
 					'amount' => $requestData['amount'],
 					'message' => 'Refunded',
 					'success' => 1,
@@ -140,52 +140,44 @@ class OrderPaymentPayflow extends CreditCardModule
 		}
 	}
 
-		public function processPayment($orderID = null, $amount = null){
-			global $order, $onePageCheckout;
-
+		public function processPayment(Order $Order){
 		$this->removeOrderOnFail = false;
 
-		$paymentAmount = $order->info['total'];
-		$userAccount = OrderPaymentModules::getUserAccount();
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
+		$paymentAmount = $Order->TotalManager->getTotalValue('total');
+		$billingAddress = $Order->AddressManager->getAddress('billing');
+			$paymentInfo = $Order->PaymentManager->getInfo();
 
-		$addressBook =& $userAccount->plugins['addressBook'];
-		$billingAddress = $addressBook->getAddress('billing');
-		$countryInfo = $userAccount->plugins['addressBook']->getCountryInfo($billingAddress['entry_country_id']);
-
-		$xExpDate = $paymentInfo['cardDetails']['cardExpMonth'] . $paymentInfo['cardDetails']['cardExpYear'];
-		$state_abbr = tep_get_zone_code($billingAddress['entry_country_id'], $billingAddress['entry_zone_id'], $billingAddress['entry_state']);
-
-		$cardOwner = explode(' ', $paymentInfo['cardDetails']['cardOwner']);
+		$xExpDate = $paymentInfo['cardExpMonth'] . $paymentInfo['cardExpYear'];
+		$cardOwner = explode(' ', $paymentInfo['cardOwner']);
 
 		return $this->sendPaymentRequest(array(
 				'amount' => $paymentAmount,
 				'currencyCode' => $this->currencyValue, //$order->info['currency'],//here will need a check for currencies accpeted by paypal
-				'orderID' => $order->newOrder['orderID'],
+				'saleId' => $Order->getSaleId(),
 				'description' => 'description',
-				'cardNum' => $paymentInfo['cardDetails']['cardNumber'],
-				'cardType' => $paymentInfo['cardDetails']['cardType'],
+				'cardNum' => $paymentInfo['cardNumber'],
+				'cardType' => $paymentInfo['cardType'],
 				'cardExpDate' => $xExpDate,
-				'customerId' => $userAccount->getCustomerId(),
-				'customerEmail' => $userAccount->getEmailAddress(),
+				'customerId' => $Order->getCustomerId(),
+				'customerEmail' => $Order->getEmailAddress(),
 				'customerIp' => $_SERVER['REMOTE_ADDR'],
 				'customerFirstName' => (isset($cardOwner[0])?$cardOwner[0]:''),//$billingAddress['entry_firstname'],
 				'customerLastName' => (isset($cardOwner[1]) ? $cardOwner[1] : ''), //$billingAddress['entry_lastname'],
-				'customerCompany' => $billingAddress['entry_company'],
-				'customerStreetAddress' => $billingAddress['entry_street_address'],
-				'customerPostcode' => $billingAddress['entry_postcode'],
-				'customerCity' => $billingAddress['entry_city'],
-				'customerState' => $billingAddress['entry_state'],
-				'customerStateCode' => $state_abbr,
-				'customerTelephone' => $userAccount->getTelephoneNumber(),
-				'customerFax' => $userAccount->getFaxNumber(),
-				'customerCountry' => $countryInfo['countries_name'],
-				'customerCountryCode' => $countryInfo['countries_iso_code_2'],
-				'cardCvv' => $paymentInfo['cardDetails']['cardCvvNumber']
+				'customerCompany' => $billingAddress->getCompany(),
+				'customerStreetAddress' => $billingAddress->getStreetAddress(),
+				'customerPostcode' => $billingAddress->getPostcode(),
+				'customerCity' => $billingAddress->getCity(),
+				'customerState' => $billingAddress->getZone(),
+				'customerStateCode' => $billingAddress->getZoneCode(),
+				'customerTelephone' => $Order->getInfo('customers_telephone_number'),
+				'customerFax' => $Order->getInfo('customers_fax_number'),
+				'customerCountry' => $billingAddress->getCountry(),
+				'customerCountryCode' => $billingAddress->getCountryCode(),
+				'cardCvv' => $paymentInfo['cardCvvNumber']
 			));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		$this->removeOrderOnFail = false;
 
 		$Qorder = Doctrine_Query::create()
@@ -194,7 +186,7 @@ class OrderPaymentPayflow extends CreditCardModule
 			->leftJoin('o.OrdersAddresses oa')
 			->leftJoin('o.OrdersTotal ot')
 			->leftJoin('c.CustomersMembership m')
-			->where('o.orders_id = ?', $orderID)
+			->where('o.orders_id = ?', $saleId)
 			->andWhere('oa.address_type = ?', 'billing')
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -207,7 +199,7 @@ class OrderPaymentPayflow extends CreditCardModule
 		return $this->sendPaymentRequest(array(
 				'amount' => $Qorder[0]['OrdersTotal'][0]['value'],
 				'currencyCode' => $this->currencyValue,
-				'orderID' => $orderID,
+				'saleId' => $saleId,
 				'description' => sysConfig::get('STORE_NAME') . ' Subscription Payment',
 				'cardNum' => cc_decrypt($Qorder[0]['Customers']['CustomersMembership']['card_num']),
 				'cardType' => $validator->getCardType($Qorder[0]['Customers']['CustomersMembership']['card_num']),
@@ -240,8 +232,8 @@ class OrderPaymentPayflow extends CreditCardModule
 			'VERBOSITY' => 'MEDIUM'
 		);
 
-		if (isset($requestParams['orderID'])) {
-			$dataArray['INVNUM'] = $requestParams['orderID'];
+		if (isset($requestParams['saleId'])) {
+			$dataArray['INVNUM'] = $requestParams['saleId'];
 		}
 		if (isset($requestParams['description'])) {
 			$dataArray['ORDERDESC'] = $requestParams['description'];
@@ -382,7 +374,7 @@ class OrderPaymentPayflow extends CreditCardModule
 		$billingAddress = $addressBook->getAddress('billing');
 
 		$this->logPayment(array(
-				'orderID' => $order->newOrder['orderID'],
+				'saleId' => $order->newOrder['saleId'],
 				'amount' => $order->info['total'],
 				'message' => $httpParsedResponseAr['TRANSACTIONID'],
 				'success' => 1,
@@ -397,11 +389,11 @@ class OrderPaymentPayflow extends CreditCardModule
 
 	private function onFail($info) {
 		global $messageStack, $order;
-		$orderId = $order->newOrder['orderID'];
+		$saleId = $order->newOrder['saleId'];
 		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
 		$messageStack->addSession('pageStack', $info['message'], 'error');
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($orderId);
+			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
 			if ($Order){
 				$Order->delete(); //this need revised. For failed transaction Add a button Pay Now in the orders history
 			}
@@ -414,7 +406,7 @@ class OrderPaymentPayflow extends CreditCardModule
 			$billingAddress = $addressBook->getAddress('billing');
 
 			$this->logPayment(array(
-					'orderID' => $order->newOrder['orderID'],
+					'saleId' => $order->newOrder['saleId'],
 					'amount' => $order->info['total'],
 					'message' => '',
 					'success' => 01,

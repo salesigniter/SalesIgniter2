@@ -1,11 +1,9 @@
 <?php
 $FieldsToCustomers =& $Customer->Fields;
-$FieldsToCustomers->delete();
+$FieldsToCustomers->clear();
 
-if (isset($_POST['custom_fields'])){
-	foreach($_POST['custom_fields'] as $fID => $val){
-		$fieldValue = $val;
-
+if (isset($_POST['customers_custom_field'])){
+	foreach($_POST['customers_custom_field'] as $fID => $fieldValue){
 		$QfieldType = Doctrine_Query::create()
 			->select('f.input_type')
 			->from('CustomersCustomFields f')
@@ -14,7 +12,11 @@ if (isset($_POST['custom_fields'])){
 
 		$FieldsToCustomers[$fID]->field_id = $fID;
 		$FieldsToCustomers[$fID]->field_type = $QfieldType[0]['input_type'];
-		$FieldsToCustomers[$fID]->value = $fieldValue;
+		if (is_array($fieldValue)){
+			$FieldsToCustomers[$fID]->value = implode(';', $fieldValue);
+		}else{
+			$FieldsToCustomers[$fID]->value = $fieldValue;
+		}
 	}
 }
 

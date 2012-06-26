@@ -1,19 +1,19 @@
 <?php
 	foreach ($ShoppingCart->getProducts() as $cartProduct){
-		if ($cartProduct->hasInfo('reservationInfo')){
+		if ($cartProduct->hasInfo('ReservationInfo')){
 			$pInfo = $cartProduct->getInfo();
 			$pID = $cartProduct->getIdString();
-			if ($pInfo['reservationInfo']['start_date'] == $_GET['start_date'] && $pInfo['reservationInfo']['end_date'] == $_GET['end_date'] && $pID == $_GET['pID']){
+			if ($pInfo['ReservationInfo']['start_date'] == $_GET['start_date'] && $pInfo['ReservationInfo']['end_date'] == $_GET['end_date'] && $pID == $_GET['pID']){
 
-				if( isset($pInfo['reservationInfo']['insurance']) && $pInfo['reservationInfo']['insurance'] > 0){
-					$pInfo['reservationInfo']['insurance'] = 0;
+				if( isset($pInfo['ReservationInfo']['insurance']) && $pInfo['ReservationInfo']['insurance'] > 0){
+					$pInfo['ReservationInfo']['insurance'] = 0;
 				}else{
 					$payPerRentals = Doctrine_Query::create()
 							         ->select('insurance')
 									->from('ProductsPayPerRental')
 									->where('products_id = ?', $pID)
 									->fetchOne();
-					$pInfo['reservationInfo']['insurance'] = $payPerRentals->insurance;//getInsurance from db
+					$pInfo['ReservationInfo']['insurance'] = $payPerRentals->insurance;//getInsurance from db
 				}
 				$ShoppingCart->updateProduct($pID, $pInfo);
 			}

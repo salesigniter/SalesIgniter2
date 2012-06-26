@@ -1,0 +1,133 @@
+<ConfigurationGroup>
+	<title>First Data Global Gateway</title>
+	<key>orderPaymentFdggc2</key>
+	<description>Configuration Settings For The First Data Global Gateway Payment Module</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Payment Module Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Tells if the module is installed or not]]></description>
+				</INSTALLED>
+				<STATUS>
+					<title><![CDATA[Enable First Data Global Gateway Module]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Do you want to accept First Data Global Gateway payments?]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+				<DISPLAY_ORDER>
+					<title><![CDATA[Display Order]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Display Order. Lowest is displayed first.]]></description>
+				</DISPLAY_ORDER>
+			</configurations>
+		</general>
+		<cart>
+			<title>SalesIgniter Settings</title>
+			<description>Settings special to SalesIgniter</description>
+			<configurations>
+				<ZONE>
+					<title><![CDATA[Payment Zone]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[If a zone is selected, only enable this payment method for that zone.]]></description>
+					<use_function><![CDATA[tep_get_zone_class_title]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_zone_classes(]]></set_function>
+				</ZONE>
+				<ORDER_STATUS_ID>
+					<title><![CDATA[Set Order Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Set the status of orders made with this payment module to this value]]></description>
+					<use_function><![CDATA[tep_get_order_status_name]]></use_function>
+					<set_function><![CDATA[tep_cfg_pull_down_order_statuses(]]></set_function>
+				</ORDER_STATUS_ID>
+				<CHECKOUT_METHOD>
+					<title><![CDATA[Accepted Checkout Method]]></title>
+					<value><![CDATA[Normal]]></value>
+					<description><![CDATA[Allow this payment module to be used for (Rental membership signup, Normal checkout or Both )]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>Membership</value>
+							<value>Normal</value>
+							<value>Both</value>
+						</values>
+					</set_function>
+				</CHECKOUT_METHOD>
+				<VISIBLE>
+					<title><![CDATA[Payment method visible]]></title>
+					<value><![CDATA[Both]]></value>
+					<description><![CDATA[Where is this payment method visible: Admin, Catalog or Both )]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>Admin</value>
+							<value>Catalog</value>
+							<value>Both</value>
+						</values>
+					</set_function>
+				</VISIBLE>
+			</configurations>
+		</cart>
+		<gateway>
+			<title>Gateway Settings</title>
+			<description>Settings special to Auth.net</description>
+			<configurations>
+				<MODULE_PAYMENT_FDGGC2_STORE_ID>
+					<title><![CDATA[Store ID]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[Store id assigned to you by the gateway]]></description>
+				</MODULE_PAYMENT_FDGGC2_STORE_ID>
+				<MODULE_PAYMENT_FDGGC2_SECRET>
+					<title><![CDATA[Secret]]></title>
+					<value><![CDATA[]]></value>
+					<description><![CDATA[The secret given to you by the gateway]]></description>
+				</MODULE_PAYMENT_FDGGC2_SECRET>
+			</configurations>
+		</gateway>
+		<transaction>
+			<title>Transaction Settings</title>
+			<description>Settings for Auth.net Transactions</description>
+			<configurations>
+				<MODULE_PAYMENT_FDGGC2_MODE>
+					<title><![CDATA[Transaction Mode]]></title>
+					<value><![CDATA[payonly]]></value>
+					<description><![CDATA[Transaction mode used for processing orders]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="payonly">PayOnly</value>
+							<value id="payplus">PayPlus</value>
+							<value id="fullpay">FullPay</value>
+						</values>
+					</set_function>
+				</MODULE_PAYMENT_FDGGC2_MODE>
+				<MODULE_PAYMENT_FDGGC2_ACCEPTED_CC>
+					<title><![CDATA[Accepted Credit Cards]]></title>
+					<value><![CDATA[Visa,Mastercard]]></value>
+					<value_glue><![CDATA[,]]></value_glue>
+					<description><![CDATA[The credit cards you currently accept]]></description>
+					<set_function>
+						<type>checkbox</type>
+						<values>
+							<value>Mastercard</value>
+							<value>Visa</value>
+							<value>American Express</value>
+							<value>Diners</value>
+							<value>JCB</value>
+							<value>Discover</value>
+						</values>
+					</set_function>
+				</MODULE_PAYMENT_FDGGC2_ACCEPTED_CC>
+			</configurations>
+		</transaction>
+	</tabs>
+</ConfigurationGroup>

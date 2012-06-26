@@ -95,4 +95,14 @@
 	.gridButtonBar .ui-button .ui-button-text {
 		display : inline-block;
 	}
+
+	.ApplicationPageMenu .rootItem {
+		width: 160px;
+		line-height: inherit;
+		padding-top: 0px;
+	}
+	.ApplicationPageMenu .rootItem .ui-icon {
+		display:inline-block;
+		margin-right:.5em;
+	}
 }

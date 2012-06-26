@@ -15,7 +15,7 @@ class Customers extends Doctrine_Record {
 	public function setUp(){
 		parent::setUp();
 
-		//$this->setAttribute(Doctrine_Core::ATTR_VALIDATE, true);
+		$this->setAttribute(Doctrine_Core::ATTR_VALIDATE, true);
 		
 		$this->hasMany('AddressBook', array(
 			'local' => 'customers_id',
@@ -23,9 +23,10 @@ class Customers extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 
-		$this->hasMany('Orders', array(
+		$this->hasMany('AccountsReceivableSales as Sales', array(
 			'local' => 'customers_id',
 			'foreign' => 'customers_id',
+			'orderBy' => 'date_added',
 			'cascade' => array('delete')
 		));
 
@@ -58,6 +59,7 @@ class Customers extends Doctrine_Record {
 			'autoincrement' => true,
 		));
 		$this->hasColumn('customers_number', 'string', 12, array(
+			'notblank'   => true,
 			'type' => 'string',
 			'length' => 12
 		));
@@ -69,6 +71,7 @@ class Customers extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 		$this->hasColumn('language_id', 'integer', 4, array(
+			'notblank'   => true,
 			'type' => 'integer',
 			'length' => 4,
 			'unsigned' => 0,
@@ -78,11 +81,16 @@ class Customers extends Doctrine_Record {
 		$this->hasColumn('customers_gender', 'string', 1, array(
 			'type' => 'string',
 			'length' => 1,
-			'fixed' => true,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
+		));
+		$this->hasColumn('customers_username', 'string', 32, array(
+			'notblank'   => true,
+			'minlength' => 3,
+			'type' => 'string',
+			'length' => 32,
+			'default' => '',
+			'notnull' => true
 		));
 		$this->hasColumn('customers_firstname', 'string', 32, array(
 			'notblank'   => true,
@@ -134,55 +142,37 @@ class Customers extends Doctrine_Record {
 		$this->hasColumn('customers_telephone', 'string', 32, array(
 			'type' => 'string',
 			'length' => 32,
-			'fixed' => false,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_city_birth', 'string', 250, array(
 				'type' => 'string',
 				'length' => 250,
-				'fixed' => false,
-				'primary' => false,
 				'default' => '',
-				'notnull' => true,
-				'autoincrement' => false,
+				'notnull' => true
 			));
 
 		$this->hasColumn('customers_notes', 'string', 999, array(
 				'type' => 'string',
 				'length' => 999,
-				'fixed' => false,
-				'primary' => false,
 				'default' => '',
-				'notnull' => false,
-				'autoincrement' => false,
+				'notnull' => false
 			));
 		$this->hasColumn('customers_fax', 'string', 32, array(
 			'type' => 'string',
 			'length' => 32,
-			'fixed' => false,
-			'primary' => false,
-			'notnull' => false,
-			'autoincrement' => false,
+			'notnull' => false
 		));
 		$this->hasColumn('customers_password', 'string', 40, array(
 			'type' => 'string',
 			'length' => 40,
-			'fixed' => false,
-			'primary' => false,
 			'default' => '',
-			'notnull' => true,
-			'autoincrement' => false,
+			'notnull' => true
 		));
 		$this->hasColumn('customers_newsletter', 'string', 1, array(
 			'type' => 'string',
 			'length' => 1,
-			'fixed' => true,
-			'primary' => false,
-			'notnull' => false,
-			'autoincrement' => false,
+			'notnull' => false
 		));
 	}
 }

@@ -2,7 +2,7 @@
 $Installer = new ModuleInstaller($_GET['moduleType'], $_GET['module'], (isset($_GET['extName']) ? $_GET['extName'] : null), (isset($_GET['modulePath']) ? $_GET['modulePath'] : null));
 $Installer->install();
 
-if (isset($_GET['rType']) && $_GET['rType'] == 'ajax'){
+if (SesRequestInfo::isAjax() === true){
 	EventManager::attachActionResponse(array(
 		'success' => true
 	), 'json');

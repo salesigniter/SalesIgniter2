@@ -23,24 +23,14 @@ class Order
 {
 
 	/**
+	 * @var int
+	 */
+	public $saleId = 0;
+
+	/**
 	 * @var string
 	 */
 	public $mode = 'details';
-
-	/**
-	 * @var array
-	 */
-	public $Order = array();
-
-	/**
-	 * @var int
-	 */
-	public $orderId = 0;
-
-	/**
-	 * @var int
-	 */
-	public $customerId = 0;
 
 	/**
 	 * @var OrderInfoManager
@@ -75,11 +65,11 @@ class Order
 	/**
 	 *
 	 */
-	public function __construct($saleType, $saleId = 0, $revision = 0)
+	public function __construct($saleType, $saleId = 0, $revision = null)
 	{
 		$this->InfoManager = new OrderInfoManager();
 		$this->AddressManager = new OrderAddressManager();
-		$this->ProductManager = new OrderProductManager();
+		$this->ProductManager = new OrderProductManager($saleId);
 		$this->TotalManager = new OrderTotalManager();
 		$this->PaymentManager = new OrderPaymentManager();
 
@@ -124,11 +114,19 @@ class Order
 	}
 
 	/**
-	 * @return OrderInfo[]
+	 * @return int
 	 */
-	public function getId()
+	public function getSaleId()
 	{
-		return $this->InfoManager->getInfo('sale_id');
+		return $this->saleId;
+	}
+
+	/**
+	 * @param int $val
+	 */
+	public function setSaleId($val)
+	{
+		$this->saleId = $val;
 	}
 
 	/**
@@ -182,22 +180,6 @@ class Order
 	public function getRevision()
 	{
 		return $this->InfoManager->getInfo('revision');
-	}
-
-	/**
-	 * @param int $val
-	 */
-	public function setOrderId($val)
-	{
-		$this->InfoManager->setInfo('order_id', (int)$val);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getOrderId()
-	{
-		return $this->InfoManager->getInfo('order_id');
 	}
 
 	/**
@@ -257,11 +239,22 @@ class Order
 	}
 
 	/**
+	 * @param bool $format
 	 * @return float
 	 */
-	public function getTotal()
+	public function getTotal($format = false)
 	{
-		return (float)$this->TotalManager->getTotalValue('total');
+		global $currencies;
+		$value = $this->TotalManager->getTotalValue('total');
+		if ($format === true){
+			$value = $currencies->format(
+				$value,
+				true,
+				$this->getCurrency(),
+				$this->getCurrencyValue()
+			);
+		}
+		return $value;
 	}
 
 	/**
@@ -282,14 +275,6 @@ class Order
 			}
 		}
 		return ($isID === false ? '' : 0);
-	}
-
-	/**
-	 * @return SesDateTime
-	 */
-	public function getDatePurchased()
-	{
-		return $this->Order['date_purchased'];
 	}
 
 	/**

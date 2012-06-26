@@ -49,6 +49,7 @@ class Extension_ordersCustomFields extends ExtensionBase {
 		switch($Field->input_type){
 			case 'select':
 			case 'select_other':
+			case 'select_address':
 				$oArr = array();
 
 				$input = htmlBase::newSelectbox()
@@ -76,6 +77,10 @@ class Extension_ordersCustomFields extends ExtensionBase {
 				$input = htmlBase::newElement('textarea')->attr('rows', 3);
 				break;
 		}
+		if (is_object($input) === false){
+			echo '<pre>';print_r($Field->toArray());
+		}
+
 		$input->addClass('orderCustomField')->setName('orders_custom_field[' . $Field->field_id . ']');
 
 		if ($Order !== null){

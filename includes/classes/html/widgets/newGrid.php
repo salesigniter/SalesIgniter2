@@ -312,7 +312,7 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	private function parseColumn($tag, $settings) {
 		global $currencies;
 		if (is_object($settings['text'])){
-			if ($settings['text'] instanceof SesDateTime){
+			if ($settings['text'] instanceof DateTime || $settings['text'] instanceof SesDateTime){
 				$colHtml = $settings['text']->format(sysLanguage::getDateFormat('short'));
 			}else{
 				$colHtml = $settings['text']->draw();
@@ -1182,12 +1182,14 @@ class GridSearchObjBetween implements IGridSearchObj
 
 		if (is_object($this->fieldObj)){
 			$this->fieldObj
+				->setId($this->fromFieldName)
 				->setName($this->fromFieldName)
 				->val($fromVal);
 
 			$fieldHtml = $this->fieldObj->draw();
 
 			$this->fieldObj
+				->setId($this->toFieldName)
 				->setName($this->toFieldName)
 				->val($toVal);
 

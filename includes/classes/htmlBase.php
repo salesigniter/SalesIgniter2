@@ -6,6 +6,11 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/html/base/element.php')
  */
 class htmlBase {
 
+	public static function loadElement($elementType){
+		$dummy = self::newElement($elementType);
+		unset($dummy);
+	}
+
 	/**
 	 * Initializes html element/widget based on the element type
 	 * @param string $elementType The element type or widget name to use
@@ -53,6 +58,14 @@ class htmlBase {
 
 	/**
 	 * @static
+	 * @return htmlWidget_checkboxGroup
+	 */
+	public static function newCheckboxGroup(){
+		return self::newElement('checkboxGroup');
+	}
+
+	/**
+	 * @static
 	 * @return htmlWidget_radio
 	 */
 	public static function newRadio(){
@@ -61,10 +74,26 @@ class htmlBase {
 
 	/**
 	 * @static
+	 * @return htmlWidget_radioGroup
+	 */
+	public static function newRadioGroup(){
+		return self::newElement('radioGroup');
+	}
+
+	/**
+	 * @static
 	 * @return htmlElement_selectbox
 	 */
 	public static function newSelectbox(){
 		return self::newElement('selectbox');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_textarea
+	 */
+	public static function newTextarea(){
+		return self::newElement('textarea');
 	}
 
 	/**
@@ -90,5 +119,52 @@ class htmlBase {
 	public static function newList(){
 		return self::newElement('list');
 	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_button
+	 */
+	public static function newButton(){
+		return self::newElement('button');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_fileManager
+	 */
+	public static function newFileManager(){
+		return self::newElement('fileManager');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_icon
+	 */
+	public static function newIcon(){
+		return self::newElement('icon');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_fieldset
+	 */
+	public static function newFieldset(){
+		return self::newElement('fieldset');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_fieldsetFormBlock
+	 */
+	public static function newFieldsetFormBlock(){
+		return self::newElement('fieldsetFormBlock');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_datePicker
+	 */
+	public static function newDatePicker(){
+		return self::newElement('datePicker');
+	}
 }
-?>

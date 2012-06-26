@@ -10,7 +10,13 @@ class SystemCacheFile {
 		$filename = $this->realPath . $this->fileName;
 		if (file_exists($filename) && is_readable($filename)){
 			$data = file_get_contents($filename);
-			$this->data = @unserialize($data);
+			if (preg_match('/{s:7:"content"/', $data)){
+				$this->data = @unserialize($data);
+			}else{
+				$this->data = array(
+					'content' => $data
+				);
+			}
 		}
 	}
 

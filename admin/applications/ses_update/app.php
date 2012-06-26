@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 if (!class_exists('CurlRequest')){
 	require(sysConfig::getDirFsCatalog() . '/includes/classes/curl/Request.php');
 }
@@ -19,9 +31,6 @@ if (!function_exists('striprn')){
 	function striprn(&$v, $k) { $v = rtrim($v, "\r\n"); }
 }
 
-$appContent = $App->getAppContentFile();
-
 $App->addJavascriptFile('admin/applications/ses_update/javascript/jsdifflib.js');
 $App->addJavascriptFile('admin/applications/ses_update/javascript/jsdifflibview.js');
 $App->addStylesheetFile('admin/applications/ses_update/javascript/jsdifflibview.css');
-?>

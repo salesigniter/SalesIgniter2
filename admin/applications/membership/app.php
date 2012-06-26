@@ -1,9 +1,21 @@
 <?php
-$appContent = $App->getAppContentFile();
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
 
-$tax_class_array = array(array('id'   => '0',
-							   'text' => sysLanguage::get('TEXT_NONE')
-)
+$tax_class_array = array(
+	array(
+		'id'   => '0',
+		'text' => sysLanguage::get('TEXT_NONE')
+	)
 );
 $QtaxClass = Doctrine_Query::create()
 	->select('tax_class_id, tax_class_title')
@@ -22,4 +34,3 @@ switch($App->getPageName()){
 		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_REPORTS'));
 		break;
 }
-?>

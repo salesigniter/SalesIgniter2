@@ -122,7 +122,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	public function getOverbooking() { return $this->pprInfo['overbooking']; }
 
 	/* @DEPRECATED */
-	public function getInsurance() { return $this->pprInfo['insurance']; }
+	public function getInsurance() { return $this->getInsuranceCost(); }
 
 	public function getInsuranceValue() { return $this->pprInfo['insurance_value']; }
 
@@ -218,8 +218,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function checkoutAfterProductName(ShoppingCartProduct &$cartProduct)
 	{
-		if ($cartProduct->hasInfo('reservationInfo')){
-			$resData = $cartProduct->getInfo('reservationInfo');
+		if ($cartProduct->hasInfo('ReservationInfo')){
+			$resData = $cartProduct->getInfo('ReservationInfo');
 			if ($resData && $resData['start_date']->getTimestamp() > 0){
 				return $this->parse_reservation_info($cartProduct->getIdString(), $resData);
 			}
@@ -228,8 +228,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function shoppingCartAfterProductName(ShoppingCartProduct &$cartProduct)
 	{
-		if ($cartProduct->hasInfo('reservationInfo')){
-			$resData = $cartProduct->getInfo('reservationInfo');
+		if ($cartProduct->hasInfo('ReservationInfo')){
+			$resData = $cartProduct->getInfo('ReservationInfo');
 			if ($resData && $resData['start_date']->getTimestamp() > 0){
 				return $this->parse_reservation_info($cartProduct->getIdString(), $resData);
 			}
@@ -239,25 +239,25 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	public function formatOrdersReservationArray($resData)
 	{
 		$returningArray = array(
-			'start_date'       => (isset($resData[0]['start_date']) ? $resData[0]['start_date'] : new DateTime()),
-			'end_date'         => (isset($resData[0]['end_date']) ? $resData[0]['end_date'] : new DateTime()),
-			'rental_state'     => (isset($resData[0]['rental_state']) ? $resData[0]['rental_state'] : null),
-			'date_shipped'     => (isset($resData[0]['date_shipped']) ? $resData[0]['date_shipped'] : 0),
-			'date_returned'    => (isset($resData[0]['date_returned']) ? $resData[0]['date_returned'] : 0),
-			'broken'           => (isset($resData[0]['broken']) ? $resData[0]['broken'] : 0),
-			'parent_id'        => (isset($resData[0]['parent_id']) ? $resData[0]['parent_id'] : null),
+			'start_date'       => (isset($resData['start_date']) ? $resData['start_date'] : new DateTime()),
+			'end_date'         => (isset($resData['end_date']) ? $resData['end_date'] : new DateTime()),
+			'rental_state'     => (isset($resData['rental_state']) ? $resData['rental_state'] : null),
+			'date_shipped'     => (isset($resData['date_shipped']) ? $resData['date_shipped'] : 0),
+			'date_returned'    => (isset($resData['date_returned']) ? $resData['date_returned'] : 0),
+			'broken'           => (isset($resData['broken']) ? $resData['broken'] : 0),
+			'parent_id'        => (isset($resData['parent_id']) ? $resData['parent_id'] : null),
 			'deposit_amount'   => $this->getDepositAmount(),
-			'semester_name'    => (isset($resData[0]['semester_name']) ? $resData[0]['semester_name'] : ''),
-			'event_name'       => (isset($resData[0]['event_name']) ? $resData[0]['event_name'] : ''),
-			'event_gate'       => (isset($resData[0]['event_gate']) ? $resData[0]['event_gate'] : ''),
-			'event_date'       => (isset($resData[0]['event_date']) ? $resData[0]['event_date'] : new DateTime()),
+			'semester_name'    => (isset($resData['semester_name']) ? $resData['semester_name'] : ''),
+			'event_name'       => (isset($resData['event_name']) ? $resData['event_name'] : ''),
+			'event_gate'       => (isset($resData['event_gate']) ? $resData['event_gate'] : ''),
+			'event_date'       => (isset($resData['event_date']) ? $resData['event_date'] : new DateTime()),
 			'shipping'         => array(
 				'module'      => 'reservation',
-				'id'          => (isset($resData[0]['shipping_method']) ? $resData[0]['shipping_method'] : 'method1'),
-				'title'       => (isset($resData[0]['shipping_method_title']) ? $resData[0]['shipping_method_title'] : null),
-				'cost'        => (isset($resData[0]['shipping_cost']) ? $resData[0]['shipping_cost'] : 0),
-				'days_before' => (isset($resData[0]['shipping_days_before']) ? $resData[0]['shipping_days_before'] : 0),
-				'days_after'  => (isset($resData[0]['shipping_days_after']) ? $resData[0]['shipping_days_after'] : 0)
+				'id'          => (isset($resData['shipping_method']) ? $resData['shipping_method'] : 'method1'),
+				'title'       => (isset($resData['shipping_method_title']) ? $resData['shipping_method_title'] : null),
+				'cost'        => (isset($resData['shipping_cost']) ? $resData['shipping_cost'] : 0),
+				'days_before' => (isset($resData['shipping_days_before']) ? $resData['shipping_days_before'] : 0),
+				'days_after'  => (isset($resData['shipping_days_after']) ? $resData['shipping_days_after'] : 0)
 			)
 		);
 
@@ -265,16 +265,13 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		return $returningArray;
 	}
 
-	public function showOrderedProductInfo(OrderProduct &$orderedProduct, $showExtraInfo = true)
+	public function showOrderedProductInfo(OrderProduct &$OrderedProduct, $showExtraInfo = true)
 	{
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($OrderedProduct);
 		if ($showExtraInfo){
-			$resData = $orderedProduct->getInfo('OrdersProductsReservation');
-			if ($resData && $resData[0]['start_date']->getTimestamp() > 0){
-				$resInfo = $this->formatOrdersReservationArray($resData);
-				return PurchaseType_reservation_utilities::parse_reservation_info(
-					$orderedProduct->getProductsId(),
-					$resInfo
-				);
+			$resData = $OrderedProduct->getInfo('ReservationInfo');
+			if ($resData && $resData['start_date']->getTimestamp() > 0){
+				return PurchaseType_reservation_utilities::parse_reservation_info($resData);
 			}
 		}
 		return '';
@@ -289,12 +286,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		//print_r($orderedProduct);
 		//itwExit();
 		if ($options['showReservationInfo'] === true){
-			$resData = $CartProduct->getData('reservationInfo');
+			$resData = $CartProduct->getData('ReservationInfo');
 			if ($resData && $resData['start_date']->getTimestamp() > 0){
-				return $this->parse_reservation_info(
-					$this->getProductId(),
-					$resData
-				);
+				return PurchaseType_reservation_utilities::parse_reservation_info($resData);
 			}
 		}
 		return '';
@@ -312,8 +306,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		else {
 			$resData = $orderedProduct->getInfo();
 			//print_r($orderedProduct);
-			if (isset($resData['reservationInfo'])){
-				$resInfo = $resData['reservationInfo'];
+			if (isset($resData['ReservationInfo'])){
+				$resInfo = $resData['ReservationInfo'];
 			}
 		}
 		$id = $orderedProduct->getId();
@@ -436,61 +430,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		//}
 
 		EventManager::notify('ParseReservationInfoEdit', $return, $resInfo);
-		return $return;
-	}
-
-	public function parse_reservation_info($pID_string, $resInfo, $showEdit = true)
-	{
-		global $currencies;
-		$return = '';
-		$return .= '<br /><small><b><i><u>' . sysLanguage::get('TEXT_INFO_RESERVATION_INFO') . '</u></i></b></small>';
-
-		$startTime = $resInfo['start_date']->getTimestamp();
-		$endTime = $resInfo['end_date']->getTimestamp();
-
-		//$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_START_DATE') . ' ' . strftime(sysLanguage::getDateFormat('long'), $startTime) . '</i></small>' .
-		//	'<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_END_DATE') . ' ' . strftime(sysLanguage::getDateFormat('long'), $endTime) . '</i></small>';
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
-			if (!isset($resInfo['semester_name']) || $resInfo['semester_name'] == ''){
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_HOURLY') == 'True'){
-					$DateFormat = 'getDateTimeFormat';
-				}
-				else {
-					$DateFormat = 'getDateFormat';
-				}
-
-				$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_START_DATE') . ' ' . $resInfo['start_date']->format(sysLanguage::$DateFormat('long')) . '</i></small>' .
-					'<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_END_DATE') . ' ' . $resInfo['end_date']->format(sysLanguage::$DateFormat('long')) . '</i></small>';
-			}
-			else {
-				$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_SEMESTER') . ' ' . $resInfo['semester_name'] . '</i></small>';
-			}
-		}
-		else {
-			$return .= '<br /><small><i> - Event Date: ' . $resInfo['start_date']->format(sysLanguage::getDateTimeFormat('long')) . '</i></small>' .
-				'<br /><small><i> - Event Name: ' . $resInfo['event_name'] . '</i></small>';
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$return .= '<br /><small><i> - Event Gate: ' . $resInfo['event_gate'] . '</i></small>';
-			}
-		}
-
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_SHIPPING') == 'True' && isset($resInfo['shipping']) && $resInfo['shipping'] !== false && isset($resInfo['shipping']['title']) && !empty($resInfo['shipping']['title']) && isset($resInfo['shipping']['cost'])){
-			if ($resInfo['shipping']['cost'] > 0){
-				$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_SHIPPING_METHOD') . ' ' . $resInfo['shipping']['title'] . ' (' . $currencies->format($resInfo['shipping']['cost']) . ')</i></small>';
-			}
-			else {
-				$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_SHIPPING_METHOD') . ' ' . $resInfo['shipping']['title'] . ' (' . 'Free Shipping' . ')</i></small>';
-			}
-		}
-
-		if (isset($resInfo['deposit_amount']) && $resInfo['deposit_amount'] > 0){
-			$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_DEPOSIT_AMOUNT') . ' ' . $currencies->format($resInfo['deposit_amount']) . '</i></small>';
-		}
-		if (isset($resInfo['insurance']) && $resInfo['insurance'] > 0){
-			$return .= '<br /><small><i> - ' . sysLanguage::get('TEXT_INFO_INSURANCE') . ' ' . $currencies->format($resInfo['insurance']) . '</i></small>';
-		}
-		//$return .= '<br />';
-		EventManager::notify('ParseReservationInfo', &$return, &$resInfo);
 		return $return;
 	}
 
@@ -723,29 +662,29 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	{
 		global $App, $ShoppingCart;
 
-		$pInfo['reservationInfo'] = array(
+		$pInfo['ReservationInfo'] = array(
 			'start_date'    => $resInfo['start_date'],
 			'end_date'      => $resInfo['end_date'],
 			'quantity'      => $resInfo['quantity']
 		);
 
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-			$pInfo['reservationInfo']['event_date'] = $resInfo['event_date'];
-			$pInfo['reservationInfo']['event_name'] = $resInfo['event_name'];
+			$pInfo['ReservationInfo']['event_date'] = $resInfo['event_date'];
+			$pInfo['ReservationInfo']['event_name'] = $resInfo['event_name'];
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 				if (isset($resInfo['event_gate'])){
-					$pInfo['reservationInfo']['event_gate'] = $resInfo['event_gate'];
+					$pInfo['ReservationInfo']['event_gate'] = $resInfo['event_gate'];
 				}
 			}
 		}
 		if (isset($resInfo['semester_name'])){
-			$pInfo['reservationInfo']['semester_name'] = $resInfo['semester_name'];
+			$pInfo['ReservationInfo']['semester_name'] = $resInfo['semester_name'];
 		}
 		else {
-			$pInfo['reservationInfo']['semester_name'] = '';
+			$pInfo['ReservationInfo']['semester_name'] = '';
 		}
 
-		$pricing = $this->figureProductPricing($pInfo['reservationInfo']);
+		$pricing = $this->figureProductPricing($pInfo['ReservationInfo']);
 
 		$shippingMethod = $resInfo['shipping_method'];
 		$rShipping = false;
@@ -757,16 +696,16 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			if (is_object($Module) && $Module->getType() == 'Order' && $App->getEnv() == 'catalog'){
 
 				foreach($ShoppingCart->getProducts() as $cartProduct){
-					if ($cartProduct->hasInfo('reservationInfo') === true){
+					if ($cartProduct->hasInfo('ReservationInfo') === true){
 						$reservationInfo1 = $cartProduct->getInfo();
 						$cost = 0;
-						if (isset($reservationInfo1['reservationInfo']['shipping']['cost'])){
-							$cost = $reservationInfo1['reservationInfo']['shipping']['cost'];
+						if (isset($reservationInfo1['ReservationInfo']['shipping']['cost'])){
+							$cost = $reservationInfo1['ReservationInfo']['shipping']['cost'];
 						}
 						$totalPrice += $cartProduct->getFinalPrice(true) * $cartProduct->getQuantity() - $cost * $cartProduct->getQuantity();
 						$weight += $cartProduct->getWeight();
-						if (isset($reservationInfo1['reservationInfo']['shipping']) && isset($reservationInfo1['reservationInfo']['shipping']['module']) && $reservationInfo1['reservationInfo']['shipping']['module'] == 'zonereservation' && $reservationInfo1['reservationInfo']['shipping']['module'] == 'upsreservation'){
-							$reservationInfo1['reservationInfo']['shipping']['id'] = $shippingMethod;
+						if (isset($reservationInfo1['ReservationInfo']['shipping']) && isset($reservationInfo1['ReservationInfo']['shipping']['module']) && $reservationInfo1['ReservationInfo']['shipping']['module'] == 'zonereservation' && $reservationInfo1['ReservationInfo']['shipping']['module'] == 'upsreservation'){
+							$reservationInfo1['ReservationInfo']['shipping']['id'] = $shippingMethod;
 							$cartProduct->updateInfo($reservationInfo1, false);
 						}
 					}
@@ -812,14 +751,14 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			if (is_object($Module) && $Module->getType() == 'Order' && $App->getEnv() == 'catalog' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_ONE_SHIPPING_METHOD') == 'True'){
 
 				foreach($ShoppingCart->getProducts() as $cartProduct){
-					if ($cartProduct->hasInfo('reservationInfo') === true){
+					if ($cartProduct->hasInfo('ReservationInfo') === true){
 
 						$reservationInfo1 = $cartProduct->getInfo();
 						$cost = 0;
-						if (isset($reservationInfo1['reservationInfo']['shipping']['cost'])){
-							$cost = $reservationInfo1['reservationInfo']['shipping']['cost'];
+						if (isset($reservationInfo1['ReservationInfo']['shipping']['cost'])){
+							$cost = $reservationInfo1['ReservationInfo']['shipping']['cost'];
 						}
-						$reservationInfo1['reservationInfo']['shipping'] = $rShipping;
+						$reservationInfo1['ReservationInfo']['shipping'] = $rShipping;
 						$reservationInfo1['price'] -= $cost;
 						$reservationInfo1['final_price'] -= $cost;
 
@@ -829,16 +768,16 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 		}
 
-		$pInfo['reservationInfo']['shipping'] = $rShipping;
+		$pInfo['ReservationInfo']['shipping'] = $rShipping;
 
 		if (isset($pricing)){
 			$pInfo['price'] = $pricing['price'];
-			$pInfo['reservationInfo']['deposit_amount'] = $this->getDepositAmount();
+			$pInfo['ReservationInfo']['deposit_amount'] = $this->getDepositAmount();
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') == 'Using calendar after browsing products and clicking Reserve'){
 				$pInfo['final_price'] = $pricing['price'];
 			}
 			else {
-				$pInfo['final_price'] = $pricing['price']; //+ $pInfo['reservationInfo']['deposit_amount'];
+				$pInfo['final_price'] = $pricing['price']; //+ $pInfo['ReservationInfo']['deposit_amount'];
 			}
 		}
 	}
@@ -932,13 +871,13 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		}
 		else {
 			$ReservationInfo = array(
-				'shipping_module' => $CartProductData['reservationInfo']['shipping']['module'],
-				'shipping_method' => $CartProductData['reservationInfo']['shipping']['id'],
-				'start_date'      => $CartProductData['reservationInfo']['start_date'],
-				'end_date'        => $CartProductData['reservationInfo']['end_date'],
-				'days_before'     => $CartProductData['reservationInfo']['days_before'],
-				'days_after'      => $CartProductData['reservationInfo']['days_after'],
-				'quantity'        => $CartProductData['reservationInfo']['quantity']
+				'shipping_module' => $CartProductData['ReservationInfo']['shipping']['module'],
+				'shipping_method' => $CartProductData['ReservationInfo']['shipping']['id'],
+				'start_date'      => $CartProductData['ReservationInfo']['start_date'],
+				'end_date'        => $CartProductData['ReservationInfo']['end_date'],
+				'days_before'     => $CartProductData['ReservationInfo']['days_before'],
+				'days_after'      => $CartProductData['ReservationInfo']['days_after'],
+				'quantity'        => $CartProductData['ReservationInfo']['quantity']
 			);
 		}
 
@@ -951,10 +890,10 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				}
 			}
 			else {
-				$ReservationInfo['event_date'] = $CartProductData['reservationInfo']['event_date'];
-				$ReservationInfo['event_name'] = $CartProductData['reservationInfo']['event_name'];
+				$ReservationInfo['event_date'] = $CartProductData['ReservationInfo']['event_date'];
+				$ReservationInfo['event_name'] = $CartProductData['ReservationInfo']['event_name'];
 				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-					$ReservationInfo['event_gate'] = $CartProductData['reservationInfo']['event_gate'];
+					$ReservationInfo['event_gate'] = $CartProductData['ReservationInfo']['event_gate'];
 				}
 			}
 		}
@@ -963,72 +902,88 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$ReservationInfo['semester_name'] = $_POST['semester_name'];
 		}
 		else {
-			$ReservationInfo['semester_name'] = $CartProductData['reservationInfo']['semester_name'];
+			$ReservationInfo['semester_name'] = $CartProductData['ReservationInfo']['semester_name'];
 		}
 
 		$this->processAddToOrderOrCart($ReservationInfo, $CartProductData);
 
-		EventManager::notify('ReservationProcessAddToCart', &$CartProductData['reservationInfo']);
+		EventManager::notify('ReservationProcessAddToCart', &$CartProductData['ReservationInfo']);
 	}
 
-	public function allowAddToCart(&$CartProductData)
+	/**
+	 * @param array $CartProductData
+	 * @return bool
+	 */
+	public function allowAddToCart(array $CartProductData)
 	{
-		global $ShoppingCart, $messageStack;
-
+		global $ShoppingCart;
 		$allowed = true;
-		$EnabledShipping = $this->getEnabledShippingMethods();
-		$ShippingIsNone = $this->shippingIsNone();
-		$ShippingIsStore = $this->shippingIsStore();
 
-		foreach($ShoppingCart->getProducts() as $CartProduct){
-			$ProductType = $CartProduct->getProductClass()->getProductTypeClass();
-			if (method_exists($ProductType, 'getPurchaseType')){
-				if ($ProductType->getPurchaseType()->getCode() == $this->getCode()){
-					$ReservationInfo = $CartProduct->getData('reservationInfo');
-					if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DIFFERENT_SHIPPING_METHODS') == 'False'){
-						if ($ReservationInfo['shipping']['id'] != $CartProductData['reservationInfo']['shipping']['id']){
-							$allowed = false;
-							$messageStack->addSession('pageStack', 'You are not allowed to use this level of service with this product. Please choose another level of service', 'error');
-						}
-						elseif (is_array($EnabledShipping)) {
-							if (!in_array($CartProductData['reservationInfo']['shipping']['id'], $EnabledShipping)){
-								if (!$ShippingIsNone && !$ShippingIsStore){
-									$allowed = false;
-									$messageStack->addSession('pageStack', 'You are not allowed to use this level of service with this product. Please choose another level of service', 'error');
+		if ($this->getConfigData('INVENTORY_ENABLED') == 'True'){
+			if ($this->overBookingAllowed() === true){
+				$allowed = true;
+			}
+			elseif ($this->getConfigData('INVENTORY_SHOPPING_CART_VERIFY') == 'True'){
+				$allowed = ($this->getCurrentStock() >= $CartProductData['quantity']);
+			}
+		}
+
+		if ($allowed === true){
+			$EnabledShipping = $this->getEnabledShippingMethods();
+			$ShippingIsNone = $this->shippingIsNone();
+			$ShippingIsStore = $this->shippingIsStore();
+
+			foreach($ShoppingCart->getProducts() as $CartProduct){
+				$ProductType = $CartProduct->getProductClass()->getProductTypeClass();
+				if (method_exists($ProductType, 'getPurchaseType')){
+					if ($ProductType->getPurchaseType()->getCode() == $this->getCode()){
+						$ReservationInfo = $CartProduct->getData('ReservationInfo');
+						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DIFFERENT_SHIPPING_METHODS') == 'False'){
+							if ($ReservationInfo['shipping']['id'] != $CartProductData['ReservationInfo']['shipping']['id']){
+								$allowed = false;
+								$this->addError('You are not allowed to use this level of service with this product. Please choose another level of service');
+							}
+							elseif (is_array($EnabledShipping)) {
+								if (!in_array($CartProductData['ReservationInfo']['shipping']['id'], $EnabledShipping)){
+									if (!$ShippingIsNone && !$ShippingIsStore){
+										$allowed = false;
+										$this->addError('You are not allowed to use this level of service with this product. Please choose another level of service');
+									}
 								}
 							}
-						}
 
-						if ($allowed === false){
-							break;
+							if ($allowed === false){
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
+
 		return $allowed;
 	}
 
 	public function processUpdateCart(array &$pInfo)
 	{
 		global $ShoppingCart, $App;
-		$reservationInfo =& $pInfo['reservationInfo'];
+		$reservationInfo =& $pInfo['ReservationInfo'];
 
 		$pInfo['quantity'] = $reservationInfo['quantity'];
 
 		$pricing = $this->figureProductPricing($reservationInfo);
 
-		if (isset($pInfo['reservationInfo']['shipping']['module']) && isset($pInfo['reservationInfo']['shipping']['id'])){
+		if (isset($pInfo['ReservationInfo']['shipping']['module']) && isset($pInfo['ReservationInfo']['shipping']['id'])){
 
-			$shipping_modules = OrderShippingModules::getModule($pInfo['reservationInfo']['shipping']['module']);
+			$shipping_modules = OrderShippingModules::getModule($pInfo['ReservationInfo']['shipping']['module']);
 
 			$totalPrice = 0;
 			$weight = 0;
 			if (is_object($shipping_modules) && $shipping_modules->getType() == 'Order' && $App->getEnv() == 'catalog'){
 
 				foreach($ShoppingCart->getProducts() as $cartProduct){
-					if ($cartProduct->hasInfo('reservationInfo') === true && $cartProduct->getUniqID() != $pInfo['uniqID']){
-						$reservationInfo1 = $cartProduct->getInfo('reservationInfo');
+					if ($cartProduct->hasInfo('ReservationInfo') === true && $cartProduct->getUniqID() != $pInfo['uniqID']){
+						$reservationInfo1 = $cartProduct->getInfo('ReservationInfo');
 						$cost = 0;
 						if (isset($reservationInfo1['shipping']['cost'])){
 							$cost = $reservationInfo1['shipping']['cost'];
@@ -1039,8 +994,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				}
 			}
 
-			if (isset($pInfo['reservationInfo']['quantity'])){
-				$total_weight = (int)$pInfo['reservationInfo']['quantity'] * $pInfo['weight'];
+			if (isset($pInfo['ReservationInfo']['quantity'])){
+				$total_weight = (int)$pInfo['ReservationInfo']['quantity'] * $pInfo['weight'];
 			}
 			else {
 				$total_weight = $pInfo['weight'];
@@ -1049,22 +1004,22 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				$totalPrice += (float)$pricing['price'];
 			}
 
-			$quotes = $shipping_modules->quote($pInfo['reservationInfo']['shipping']['id'], $total_weight + $weight, $totalPrice);
+			$quotes = $shipping_modules->quote($pInfo['ReservationInfo']['shipping']['id'], $total_weight + $weight, $totalPrice);
 			$reservationInfo['shipping'] = array(
 				'title'        => isset($quotes[0]['methods'][0]['title']) ? $quotes[0]['methods'][0]['title'] : $quotes['methods'][0]['title'],
 				'cost'         => isset($quotes[0]['methods'][0]['cost']) ? $quotes[0]['methods'][0]['cost'] : $quotes['methods'][0]['cost'],
 				'id'           => isset($quotes[0]['methods'][0]['id']) ? $quotes[0]['methods'][0]['id'] : $quotes['methods'][0]['id'],
-				'module'       => $pInfo['reservationInfo']['shipping']['module'],
-				'days_before'  => $pInfo['reservationInfo']['shipping']['days_before'],
-				'days_after'   => $pInfo['reservationInfo']['shipping']['days_after']
+				'module'       => $pInfo['ReservationInfo']['shipping']['module'],
+				'days_before'  => $pInfo['ReservationInfo']['shipping']['days_before'],
+				'days_after'   => $pInfo['ReservationInfo']['shipping']['days_after']
 			);
 		}
 
 		if (isset($pricing)){
 			$pInfo['price'] = $pricing['price'];
-			$pInfo['reservationInfo']['deposit_amount'] = $this->getDepositAmount();
+			$pInfo['ReservationInfo']['deposit_amount'] = $this->getDepositAmount();
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') != 'Using calendar after browsing products and clicking Reserve'){
-				$pInfo['final_price'] = $pricing['price']; //+ $pInfo['reservationInfo']['deposit_amount'];
+				$pInfo['final_price'] = $pricing['price']; //+ $pInfo['ReservationInfo']['deposit_amount'];
 			}
 			else {
 				$pInfo['final_price'] = $pricing['price'];
@@ -1075,7 +1030,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	public function onInsertOrderedProduct(ShoppingCartProduct $cartProduct, $orderId, OrdersProducts &$orderedProduct, &$products_ordered)
 	{
 		global $currencies, $onePageCheckout, $appExtension;
-		$resInfo = $cartProduct->getInfo('reservationInfo');
+		$resInfo = $cartProduct->getInfo('ReservationInfo');
 		$pID = (int)$cartProduct->getIdString();
 
 		if (!isset($resInfo['insurance'])){
@@ -1188,59 +1143,55 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	 * Get Available Barcode Function
 	 */
 
-	public function getAvailableBarcode($cartProduct, $excluded, $usableBarcodes = array())
+	public function getAvailableBarcode($cartProduct, $excluded = array(), $usableBarcodes = array())
 	{
 		$barcodeID = -1;
-		if ($cartProduct->hasInfo('barcode_id') === false){
-			$pInfo = $cartProduct->getInfo();
-			if ($cartProduct instanceof OrderCreatorProduct){
-				if (isset($pInfo['reservationInfo'])){
-					$resInfo = $pInfo['reservationInfo'];
-				}
-				else {
-					$resInfo = $pInfo['OrdersProductsReservation'];
-					if (isset($resInfo['shipping_days_before'])){
-						$shippingDaysBefore = (int)$resInfo['shipping_days_before'];
-					}
-					else {
-						$shippingDaysBefore = 0;
-					}
+		if (is_array($cartProduct)){
+			$hasBarcode = (isset($cartProduct['barcode_id']));
+			if ($hasBarcode === true){
+				$barcodeID = $cartProduct['barcode_id'];
+			}
 
-					if (isset($resInfo['shipping_days_after'])){
-						$shippingDaysAfter = (int)$resInfo['shipping_days_after'];
-					}
-					else {
-						$shippingDaysAfter = 0;
-					}
-				}
+			$ReservationInfo = $cartProduct;
+		}
+		elseif ($cartProduct instanceof OrderProduct){
+			$hasBarcode = $cartProduct->hasInfo('barcode_id');
+			if ($hasBarcode === true){
+				$barcodeID = $cartProduct->getInfo('barcode_id');
+			}
+
+			$ReservationInfo = $cartProduct->getInfo('ReservationInfo');
+		}
+
+		if ($barcodeID == -1){
+			if (isset($ReservationInfo['shipping_days_before'])){
+				$shippingDaysBefore = (int)$ReservationInfo['shipping_days_before'];
+			}
+			elseif (isset($ReservationInfo['shipping']['days_before'])){
+				$shippingDaysBefore = (int)$ReservationInfo['shipping']['days_before'];
 			}
 			else {
-				$resInfo = $pInfo['reservationInfo'];
-			}
-
-			if (isset($resInfo['shipping']['days_before'])){
-				$shippingDaysBefore = (int)$resInfo['shipping']['days_before'];
-			}
-			elseif (!isset($shippingDaysBefore)) {
 				$shippingDaysBefore = 0;
 			}
 
-			if (isset($resInfo['shipping']['days_after'])){
-				$shippingDaysAfter = (int)$resInfo['shipping']['days_after'];
+			if (isset($ReservationInfo['shipping_days_after'])){
+				$shippingDaysAfter = (int)$ReservationInfo['shipping_days_after'];
 			}
-			elseif (!isset($shippingDaysAfter)) {
+			elseif (isset($ReservationInfo['shipping']['days_after'])){
+				$shippingDaysAfter = (int)$ReservationInfo['shipping']['days_after'];
+			}
+			else {
 				$shippingDaysAfter = 0;
 			}
 
-			$startDate = $resInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day');
-
-			$endDate = $resInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
+			$startDate = $ReservationInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day');
+			$endDate = $ReservationInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
 
 			$invItems = $this->getInventoryItems();
 			if (is_array($invItems)){
 				foreach($invItems as $barcodeInfo){
 					if (count($usableBarcodes) == 0 || in_array($barcodeInfo['id'], $usableBarcodes)){
-						if (in_array($barcodeInfo['id'], $excluded)){
+						if (is_array($excluded) && in_array($barcodeInfo['id'], $excluded)){
 							continue;
 						}
 
@@ -1267,8 +1218,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 					}
 				}
 			}
-		}else{
-			$barcodeID = $cartProduct->getInfo('barcode_id');
 		}
 		return $barcodeID;
 	}
@@ -1281,7 +1230,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	{
 		$invItems = $this->getInventoryItems();
 		if ($cartProduct->hasInfo('quantity_id') === false){
-			$resInfo = $cartProduct->getInfo('reservationInfo');
+			$resInfo = $cartProduct->getInfo('ReservationInfo');
 			if (isset($resInfo['shipping']['days_before'])){
 				$shippingDaysBefore = (int)$resInfo['shipping']['days_before'];
 			}
@@ -2345,8 +2294,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 					$dontShow = 'none';
 				}
 				foreach($ShoppingCart->getProducts() as $cartProduct){
-					if ($cartProduct->hasInfo('reservationInfo') === true){
-						$reservationInfo1 = $cartProduct->getInfo('reservationInfo');
+					if ($cartProduct->hasInfo('ReservationInfo') === true){
+						$reservationInfo1 = $cartProduct->getInfo('ReservationInfo');
 						if (isset($reservationInfo1['shipping']) && isset($reservationInfo1['shipping']['module']) && $reservationInfo1['shipping']['module'] == 'zonereservation'){
 							$selectedMethod = $reservationInfo1['shipping']['id'];
 							$dontShow = '';
@@ -3101,8 +3050,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			if ($Module->getType() == 'Order' && $App->getEnv() == 'catalog'){
 
 				foreach($ShoppingCart->getProducts() as $cartProduct){
-					if ($cartProduct->hasInfo('reservationInfo') === true){
-						$reservationInfo1 = $cartProduct->getInfo('reservationInfo');
+					if ($cartProduct->hasInfo('ReservationInfo') === true){
+						$reservationInfo1 = $cartProduct->getInfo('ReservationInfo');
 						if (isset($reservationInfo1['shipping']) && isset($reservationInfo1['shipping']['module']) && $reservationInfo1['shipping']['module'] == 'zonereservation'){
 							$cost = 0;
 							if (isset($reservationInfo1['shipping']['cost'])){
@@ -3980,7 +3929,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		}
 		$return = true;
 		$excludedBarcodes = array();
-		$resInfo = $OrderProduct->getInfo('reservationInfo');
+		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		for($count = 0; $count < $Qty; $count++){
 			$AvailableBarcode = $this->getAvailableBarcode($OrderProduct, $excludedBarcodes);
 			if ($AvailableBarcode > -1){
@@ -3997,7 +3946,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
 		$trackMethod = $this->getTrackMethod();
-		$resInfo = $OrderProduct->getInfo('reservationInfo');
+		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		$infoPages = $appExtension->getExtension('infoPages');
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
 			$termInfoPage = $infoPages->getInfoPage('conditions');
@@ -4036,11 +3985,12 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		}
 	}
 
-	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory)
+	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
+		echo __FILE__ . '::' . __LINE__ . '<br>';
 		$trackMethod = $this->getTrackMethod();
-		$resInfo = $OrderProduct->getInfo('reservationInfo');
+		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		$infoPages = $appExtension->getExtension('infoPages');
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
 			$termInfoPage = $infoPages->getInfoPage('conditions');
@@ -4124,9 +4074,13 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		*/
 	}
 
-	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson)
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param array        $PurchaseTypeJson
+	 */
+	public function jsonDecode(OrderProduct &$OrderProduct, array $PurchaseTypeJson)
 	{
-		$ResInfo = $OrderProduct->getInfo('reservationInfo');
+		$ResInfo = $PurchaseTypeJson['ReservationInfo'];
 
 		$StartDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ResInfo['start_date']['date']);
 		$StartDate->setTimezone(new DateTimeZone($ResInfo['start_date']['timezone']));
@@ -4137,7 +4091,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		$ResInfo['start_date'] = $StartDate;
 		$ResInfo['end_date'] = $EndDate;
 
-		$OrderProduct->setInfo('reservationInfo', $ResInfo);
+		$OrderProduct->setInfo('ReservationInfo', $ResInfo);
 	}
 }
 

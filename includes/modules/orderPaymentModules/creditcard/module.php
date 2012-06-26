@@ -55,32 +55,31 @@ class OrderPaymentCreditcard extends CreditCardModule
 		return $return;
 	}
 
-		public function processPayment($orderID = null, $amount = null){
-		global $order, $onePageCheckout, $userAccount;
-		$paymentInfo = OrderPaymentModules::getPaymentInfo();
+		public function processPayment(Order $Order){
+		$paymentInfo = $Order->PaymentManager->getInfo();
 
 		return $this->onResponse(array(
-				'orderID' => $order->newOrder['orderID'],
-				'amount' => $order->info['total'],
+				'saleId' => $Order->getSaleId(),
+				'amount' => $Order->TotalManager->getTotalValue('total'),
 				'message' => 'Payment Successful',
 				'success' => 1,
 				'cardDetails' => array(
-					'cardOwner' => $paymentInfo['cardDetails']['cardOwner'],
-					'cardNumber' => $paymentInfo['cardDetails']['cardNumber'],
-					'cardExpMonth' => $paymentInfo['cardDetails']['cardExpMonth'],
-					'cardExpYear' => $paymentInfo['cardDetails']['cardExpYear'],
-					'cardCvvNumber' => (!empty($paymentInfo['cardDetails']['cardCvv']) ? $paymentInfo['cardDetails']['cardCvv'] : '')
+					'cardOwner' => $paymentInfo['cardOwner'],
+					'cardNumber' => $paymentInfo['cardNumber'],
+					'cardExpMonth' => $paymentInfo['cardExpMonth'],
+					'cardExpYear' => $paymentInfo['cardExpYear'],
+					'cardCvvNumber' => (!empty($paymentInfo['cardCvv']) ? $paymentInfo['cardCvv'] : '')
 				)
 			));
 	}
 
-	public function processPaymentCron($orderID) {
+	public function processPaymentCron($saleId) {
 		$Qorder = Doctrine_Query::create()
 			->from('Orders o')
 			->leftJoin('o.OrdersAddresses oa')
 			->leftJoin('o.OrdersTotal ot')
 			->leftJoin('o.CustomersMembership m ON (customers_id)')
-			->where('o.orders_id = ?', $orderID)
+			->where('o.orders_id = ?', $saleId)
 			->andWhere('oa.address_type = ?', 'billing')
 			->andWhereIn('ot.module_type', array('total', 'ot_total'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
@@ -88,7 +87,7 @@ class OrderPaymentCreditcard extends CreditCardModule
 		$cardExpDate = cc_decrypt($Qorder[0]['CustomersMembership']['exp_date']);
 		$this->cronMsg = 'Payment Successful';
 		$this->onSuccess(array(
-				'orderID' => $orderID,
+				'saleId' => $saleId,
 				'amount' => $Qorder[0]['OrdersTotal'][0]['value'],
 				'message' => 'Payment Successful',
 				'success' => 1,

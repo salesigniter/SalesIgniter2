@@ -22,20 +22,7 @@ class ProductsAdditionalImages extends Doctrine_Record {
 	public function setTableDefinition(){
 		$this->setTableName('products_additional_images');
 
-		$this->hasColumn('products_id', 'integer', 4, array(
-			'type'          => 'integer',
-			'length'        => 4,
-			'unsigned'      => 0,
-			'primary'       => true,
-			'autoincrement' => false
-		));
-		$this->hasColumn('file_name', 'string', 255, array(
-			'type'          => 'string',
-			'length'        => 255,
-			'fixed'         => false,
-			'primary'       => true,
-			'notnull'       => false,
-			'autoincrement' => false
-		));
+		$this->hasColumn('products_id', 'integer', 4);
+		$this->hasColumn('file_name', 'string', 999);
 	}
 }

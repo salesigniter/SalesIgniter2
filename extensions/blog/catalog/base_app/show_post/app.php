@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 /*
 	Blog Extension Version 1
 
@@ -11,28 +23,25 @@
 */
 
 //if (!isset($_GET['post_id'])){
-    $App->setAppPage('default');
+$App->setAppPage('default');
 //}
-	$QCategories = $Query = Doctrine_Query::create()
-		->from('BlogPosts p')
-		->leftJoin('p.BlogPostsDescription pd')
-		->leftJoin('p.BlogPostToCategories c')
-		->leftJoin('c.BlogCategories cc')
-		->leftJoin('cc.BlogCategoriesDescription cd')
-		->where('p.post_status = 1')
-		->orderBy('p.post_date desc')
-		->andWhere('pd.blog_post_seo_url = ?', $_GET['appPage'])
-		->andWhere('pd.language_id = ?', (int) Session::get('languages_id'))
-		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+$QCategories = $Query = Doctrine_Query::create()
+	->from('BlogPosts p')
+	->leftJoin('p.BlogPostsDescription pd')
+	->leftJoin('p.BlogPostToCategories c')
+	->leftJoin('c.BlogCategories cc')
+	->leftJoin('cc.BlogCategoriesDescription cd')
+	->where('p.post_status = 1')
+	->orderBy('p.post_date desc')
+	->andWhere('pd.blog_post_seo_url = ?', $_GET['appPage'])
+	->andWhere('pd.language_id = ?', (int)Session::get('languages_id'))
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
-	if(isset($QCategories[0]['BlogPostToCategories'][0]['BlogCategories']['BlogCategoriesDescription'][0]['blog_categories_seo_url'])){
-		$_GET['actualPage'] = 'posts-'.$QCategories[0]['BlogPostToCategories'][0]['BlogCategories']['BlogCategoriesDescription'][0]['blog_categories_seo_url'];
-	}
-
-	$appContent = $App->getAppContentFile();
+if (isset($QCategories[0]['BlogPostToCategories'][0]['BlogCategories']['BlogCategoriesDescription'][0]['blog_categories_seo_url'])){
+	$_GET['actualPage'] = 'posts-' . $QCategories[0]['BlogPostToCategories'][0]['BlogCategories']['BlogCategoriesDescription'][0]['blog_categories_seo_url'];
+}
 
 if ($App->getAppPage() == 'default'){
-		//$javascriptFiles[] =  'admin/rental_wysiwyg/ckeditor.js';
-		//$javascriptFiles[] = 'admin/rental_wysiwyg/adapters/jquery.js';
-	}
-?>
+	//$javascriptFiles[] =  'admin/rental_wysiwyg/ckeditor.js';
+	//$javascriptFiles[] = 'admin/rental_wysiwyg/adapters/jquery.js';
+}

@@ -26,22 +26,24 @@ class CreditCardModule extends PaymentModuleBase
 	public $acceptedTypes = array();
 
 	public $cardTypes = array(
-		'Visa' => 'Visa',
+		'Visa'       => 'Visa',
 		'Mastercard' => 'Mastercard',
-		'Discover' => 'Discover',
-		'Amex' => 'American Express',
-			'Delta' => 'Delta',
-			'Switch' => 'Switch',
-			'Diners' => 'Diners',
-			'Solo' => 'Solo',
-			'Laser' => 'Laser'
+		'Discover'   => 'Discover',
+		'Amex'       => 'American Express',
+		'Delta'      => 'Delta',
+		'Switch'     => 'Switch',
+		'Diners'     => 'Diners',
+		'Solo'       => 'Solo',
+		'Laser'      => 'Laser'
 	);
 
-	public function useVerificationNumber(){
+	public function useVerificationNumber()
+	{
 		return ($this->requireCvv === true);
 	}
 
-	public function getCardImages() {
+	public function getCardImages()
+	{
 		$cc_images = '';
 		foreach($this->allowedTypes as $k => $v){
 			$cc_images .= tep_image(sysConfig::get('DIR_WS_TEMPLATE_IMAGES') . $k . '.gif', $v);
@@ -49,15 +51,16 @@ class CreditCardModule extends PaymentModuleBase
 		return $cc_images;
 	}
 
-	public function validate(OrderPaymentManager $PaymentManager){
+	public function validate(OrderPaymentManager $PaymentManager)
+	{
 		global $messageStack;
 		$validateSuccess = true;
 		$Result = self::validateCreditCard(array(
-			$PaymentManager->getInfo('cardNumber'),
-			$PaymentManager->getInfo('cardExpMonth'),
-			$PaymentManager->getInfo('cardExpYear'),
-			$PaymentManager->getInfo('cardCvvNumber'),
-			$PaymentManager->getInfo('cardType')
+			'cardNumber'    => $PaymentManager->getInfo('cardNumber'),
+			'cardExpMonth'  => $PaymentManager->getInfo('cardExpMonth'),
+			'cardExpYear'   => $PaymentManager->getInfo('cardExpYear'),
+			'cardCvvNumber' => $PaymentManager->getInfo('cardCvvNumber'),
+			'cardType'      => $PaymentManager->getInfo('cardType')
 		), $this->requireCvv);
 
 		if ($Result['error'] !== false){
@@ -67,16 +70,17 @@ class CreditCardModule extends PaymentModuleBase
 		return $validateSuccess;
 	}
 
-	public function validatePost() {
+	public function validatePost()
+	{
 		global $messageStack, $onePageCheckout;
 		$result = self::validateCreditCard($_POST, $this->requireCvv);
 		$validator = $result['validator'];
 
 		$onePageCheckout->onePage['info']['payment']['cardDetails'] = array(
-			'cardOwner' => $_POST['cardOwner'],
-			'cardNumber' => $validator->cc_number,
+			'cardOwner'    => $_POST['cardOwner'],
+			'cardNumber'   => $validator->cc_number,
 			'cardExpMonth' => $validator->cc_expiry_month,
-			'cardExpYear' => $validator->cc_expiry_year
+			'cardExpYear'  => $validator->cc_expiry_year
 		);
 
 		if (isset($validator->cc_type) && !empty($validator->cc_type)){
@@ -102,13 +106,14 @@ class CreditCardModule extends PaymentModuleBase
 			}
 			return array(
 				'redirectUrl' => $redirectTo,
-				'errorMsg' => $result['error']
+				'errorMsg'    => $result['error']
 			);
 		}
 		return true;
 	}
 
-	public function getCreatorRow($Editor, &$headerPaymentCols) {
+	public function getCreatorRow($Editor, &$headerPaymentCols)
+	{
 
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '&nbsp;' . '</td>';
@@ -118,35 +123,37 @@ class CreditCardModule extends PaymentModuleBase
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '<input type="text" class="ui-widget-content" name="payment_cc_expires" size="6" maxlength="4">' . '</td>';
 		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . '<input type="text" class="ui-widget-content" name="payment_cc_cvv" size="4" maxlength="4">' . '</td>';
 
-			$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">'.($Editor->getOrderId() ? htmlBase::newElement('button')->addClass('paymentProcessButton')->setText('Process')->draw() : 'Will process on save').'</td>';
-
-
+		$headerPaymentCols[] = '<td class="ui-widget-content ui-state-hover" align="left" style="border-top:none;border-left:none;">' . ($Editor->getSaleId() ? htmlBase::newElement('button')
+			->addClass('paymentProcessButton')->setText('Process')->draw() : 'Will process on save') . '</td>';
 	}
 
-	public function getMonthDropMenuArr() {
+	public function getMonthDropMenuArr()
+	{
 		$expires_month = array();
 		for($i = 1; $i < 13; $i++){
 			$expires_month[] = array(
-				'id' => sprintf('%02d', $i),
+				'id'   => sprintf('%02d', $i),
 				'text' => sprintf('%02d', $i) . ' - ' . strftime('%B', mktime(0, 0, 0, $i, 1, 2000))
 			);
 		}
 		return $expires_month;
 	}
 
-	public function getYearDropMenuArr() {
+	public function getYearDropMenuArr()
+	{
 		$expires_year = array();
 		$today = getdate();
 		for($i = $today['year']; $i < $today['year'] + 10; $i++){
 			$expires_year[] = array(
-				'id' => strftime('%y', mktime(0, 0, 0, 1, 1, $i)),
+				'id'   => strftime('%Y', mktime(0, 0, 0, 1, 1, $i)),
 				'text' => strftime('%Y', mktime(0, 0, 0, 1, 1, $i))
 			);
 		}
 		return $expires_year;
 	}
 
-	public function getCreditCardOwnerField() {
+	public function getCreditCardOwnerField()
+	{
 		global $userAccount;
 		$input = htmlBase::newElement('input')->setName('cardOwner')->setId('cardOwner');
 
@@ -167,7 +174,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->draw();
 	}
 
-	public function getCreditCardNumber() {
+	public function getCreditCardNumber()
+	{
 		$input = htmlBase::newElement('input')->setName('cardNumber')->setId('cardNumber');
 
 		$paymentInfo = OrderPaymentModules::getPaymentInfo();
@@ -177,7 +185,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->draw();
 	}
 
-	public function getCreditCardExpMonthField() {
+	public function getCreditCardExpMonthField()
+	{
 		$input = htmlBase::newElement('selectbox')
 			->attr('data-overlay-theme', 'b')
 			->attr('data-native-menu', 'false')
@@ -195,7 +204,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->draw();
 	}
 
-	public function getCreditCardExpYearField() {
+	public function getCreditCardExpYearField()
+	{
 		$input = htmlBase::newElement('selectbox')
 			->attr('data-overlay-theme', 'b')
 			->attr('data-native-menu', 'false')
@@ -213,7 +223,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->draw();
 	}
 
-	public function getCreditCardCvvField() {
+	public function getCreditCardCvvField()
+	{
 		$input = htmlBase::newElement('input')->setName('cardCvvNumber')->setId('cardCvvNumber');
 
 		$paymentInfo = OrderPaymentModules::getPaymentInfo();
@@ -223,7 +234,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->attr('size', 5)->attr('maxlength', 4)->draw();
 	}
 
-	public function getCreditCardTypeField() {
+	public function getCreditCardTypeField()
+	{
 		$input = htmlBase::newElement('selectbox')
 			->attr('data-overlay-theme', 'b')
 			->attr('data-native-menu', 'false')
@@ -240,7 +252,8 @@ class CreditCardModule extends PaymentModuleBase
 		return $input->draw();
 	}
 
-	public function validateCreditCard($arr, $useCvv = false) {
+	public function validateCreditCard($arr, $useCvv = false)
+	{
 		include(sysConfig::getDirFsCatalog() . 'includes/classes/cc_validation.php');
 		$validator = new cc_validation();
 		if ($useCvv === true){
@@ -284,7 +297,7 @@ class CreditCardModule extends PaymentModuleBase
 		}
 
 		return array(
-			'error' => $error,
+			'error'     => $error,
 			'validator' => $validator
 		);
 	}

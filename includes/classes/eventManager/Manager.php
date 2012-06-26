@@ -197,6 +197,7 @@ class EventManager {
 	 * @return void
 	 */
 	public static function notify(){
+		$Profile = SES_Profiler::newProfile('EventManagerNotify', true);
 		$stack = debug_backtrace();
 		$args = array();
 		if (isset($stack[0]['args'])){
@@ -252,6 +253,7 @@ class EventManager {
 				}
 			}
 		}
+		$Profile->end();
 	}
 
 	/**
@@ -265,6 +267,55 @@ class EventManager {
 		$Event = new EventActionResponse($data, $type);
 		$Event->setEventName('ApplicationActionsAfterExecute');
 		self::attach($Event);
+	}
+
+	public static function get($eventName){
+		if (substr($eventName, 0, 1) == '*'){
+			$parsed = explode('\\', $eventName);
+			$eventName = $parsed[1];
+			foreach(self::$Observers as $className => $events){
+				foreach($events as $EventsName => $EventArr){
+					if ($EventsName == $eventName){
+						foreach($EventArr as $idx => $Event){
+							if ($Event->getMethodName() == $eventName){
+								$Event->start();
+								call_user_func_array(array($Event, 'update'), $args);
+								$Event->end();
+							}
+						}
+					}
+				}
+			}
+		}
+		else{
+			if (stristr($eventName, '\\')){
+				$parsed = explode('\\', $eventName);
+				$className = $parsed[0];
+				$eventName = $parsed[1];
+				if (isset(self::$Observers[$className])){
+					$ObserverArray = self::$Observers[$className];
+				}
+				else{
+					$ObserverArray = null;
+				}
+			}
+			else{
+				if (isset(self::$Observers[self::$genericClassName])){
+					$ObserverArray = self::$Observers[self::$genericClassName];
+				}else{
+					$ObserverArray = null;
+				}
+			}
+			if (is_array($ObserverArray)){
+				if (isset($ObserverArray[$eventName])){
+					foreach($ObserverArray[$eventName] as $idx => $Event){
+						$Event->start();
+						call_user_func_array(array($Event, 'update'), $args);
+						$Event->end();
+					}
+				}
+			}
+		}
 	}
 }
 ?>

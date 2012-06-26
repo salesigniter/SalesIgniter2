@@ -7,6 +7,8 @@
 class htmlElement_input extends htmlElement
 {
 
+	protected $_isMultiple = false;
+
 	protected $labelElement;
 
 	protected $labelElementPosition;
@@ -20,6 +22,12 @@ class htmlElement_input extends htmlElement
 		$this->labelElement = false;
 		$this->labelElementPosition = 'before';
 		$this->labelElementSeparator = '';
+	}
+
+	public function isMultiple($val)
+	{
+		$this->_isMultiple = $val;
+		return $this;
 	}
 
 	/* Required Functions From Interface: htmlElementPlugin --BEGIN-- */
@@ -40,7 +48,8 @@ class htmlElement_input extends htmlElement
 		return $this;
 	}
 
-	public function setPlaceholder($val){
+	public function setPlaceholder($val)
+	{
 		$this->attr('placeholder', $val);
 		return $this;
 	}
@@ -52,7 +61,11 @@ class htmlElement_input extends htmlElement
 			if ($this->hasAttr('id') === true){
 				$this->labelElement->attr('for', $this->attr('id'));
 			}
-			if ($this->labelElementPosition == 'before'){
+			if ($this->labelElementPosition == 'before' || $this->labelElementPosition == 'left' || $this->labelElementPosition == 'top'){
+				if ($this->labelElementPosition == 'top'){
+					$this->labelElement->css('display', 'block');
+				}
+
 				$html .= $this->labelElement->draw();
 				if (is_object($this->labelElementSeparator)){
 					$html .= $this->labelElementSeparator->draw();
@@ -63,16 +76,97 @@ class htmlElement_input extends htmlElement
 			}
 		}
 
-		$html .= parent::draw();
+		if ($this->_isMultiple === true){
+			$this->setName($this->attr('name') . '[]');
 
-		if ($this->labelElement !== false){
-			if ($this->labelElementPosition == 'after' || $this->labelElementPosition === false){
-				if (is_object($this->labelElementSeparator)){
-					$html .= $this->labelElementSeparator->draw();
+			$MultipleTable = htmlBase::newTable()
+			->setCellPadding(3)
+			->setCellSpacing(0)
+			->addClass('multipleTextInput')
+			->css('width', '100%');
+
+			$AddIcon = htmlBase::newIcon()
+			->addClass('addInput')
+			->setType('plusthick')
+			->setTooltip('Add More');
+
+			$RemoveIcon = htmlBase::newIcon()
+			->addClass('removeInput')
+			->setType('closethick')
+			->setTooltip('Remove')
+			->hide();
+
+			$UndoIcon = htmlBase::newIcon()
+			->addClass('undoRemove')
+			->setType('undo')
+			->setTooltip('Undo Remove')
+			->hide();
+
+			if ($this->val() != ''){
+				$valStr = $this->val();
+				if (strstr($valStr, ';')){
+					foreach(explode(';', $valStr) as $k => $val){
+						$this->val($val);
+						if ($k > 0){
+							$AddIcon->hide();
+							$RemoveIcon->show();
+						}
+
+						$MultipleTable->addBodyRow(array(
+							'columns' => array(
+								array('text' => parent::draw()),
+								array(
+									'css'  => array('width' => '10px'),
+									'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+								)
+							)
+						));
+					}
 				}
 				else {
-					$html .= $this->labelElementSeparator;
+					$MultipleTable->addBodyRow(array(
+						'columns' => array(
+							array('text' => parent::draw()),
+							array(
+								'css'  => array('width' => '10px'),
+								'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+							)
+						)
+					));
 				}
+			}
+			else {
+				$MultipleTable->addBodyRow(array(
+					'columns' => array(
+						array('text' => parent::draw()),
+						array(
+							'css'  => array('width' => '10px'),
+							'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+						)
+					)
+				));
+			}
+
+			$html .= $MultipleTable->draw();
+		}
+		else {
+			$html .= parent::draw();
+		}
+
+		if ($this->labelElement !== false){
+			if ($this->labelElementPosition == 'after' || $this->labelElementPosition == 'right' || $this->labelElementPosition == 'bottom' || $this->labelElementPosition === false){
+				if ($this->labelElementPosition == 'bottom'){
+					$this->labelElement->css('display', 'block');
+				}
+				else {
+					if (is_object($this->labelElementSeparator)){
+						$html .= $this->labelElementSeparator->draw();
+					}
+					else {
+						$html .= $this->labelElementSeparator;
+					}
+				}
+
 				$html .= $this->labelElement->draw();
 			}
 		}

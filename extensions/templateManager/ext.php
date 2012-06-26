@@ -359,7 +359,7 @@ function buildLinearGradient($deg, $colorStops, $images = false, &$styleObj = fa
 		}
 
 		$cssData['background'][] = '-webkit-gradient(linear, ' . $angle . ', ' . implode(', ', $stops) . ')';
-		$cssData['background-repeat'][] = 'no-repeat';
+		$cssData['background-repeat'][] = 'repeat-x';
 		$cssData['background-attachment'][] = (isset($iInfo['attachment']) ? $iInfo['attachment'] : 'scroll');
 		$cssData['background-position'][] = '0% 0%';
 
@@ -402,7 +402,7 @@ function buildLinearGradient($deg, $colorStops, $images = false, &$styleObj = fa
 			$backgroundStr = 'data:image/svg+xml;base64,' . base64_encode(buildSvgGradientContent($deg, $stops));
 			$cssData['background'][] = 'url(' . $backgroundStr . ')';
 			//$cssData['background'][] = 'url(/extensions/templateManager/catalog/globalFiles/IE9_gradient.php?angle=' . $deg . '&colorStops=' . urlencode(json_encode($stops)) . ')';
-			$cssData['background-repeat'][] = 'no-repeat';
+			$cssData['background-repeat'][] = 'repeat-x';
 			$cssData['background-attachment'][] = (isset($iInfo['attachment']) ? $iInfo['attachment'] : 'scroll');
 			$cssData['background-position'][] = '0% 0%';
 		}
@@ -460,7 +460,7 @@ function buildLinearGradient($deg, $colorStops, $images = false, &$styleObj = fa
 			}
 
 			$cssData['background'][] = $prefix . 'linear-gradient(' . $angle . ', ' . implode(', ', $stops) . ')';
-			$cssData['background-repeat'][] = 'no-repeat';
+			$cssData['background-repeat'][] = 'repeat-x';
 			$cssData['background-attachment'][] = (isset($iInfo['attachment']) ? $iInfo['attachment'] : 'scroll');
 			$cssData['background-position'][] = '0% 0%';
 		}

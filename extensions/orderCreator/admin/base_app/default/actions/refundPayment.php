@@ -5,7 +5,7 @@
 	if ($success === true){
 		$Qhistory = Doctrine_Query::create()
 		->from('OrdersPaymentsHistory')
-		->where('orders_id = ?', $Editor->getOrderId())
+		->where('orders_id = ?', $Editor->getSaleId())
 		->orderBy('payment_history_id DESC')
 		->limit(1)
 		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);

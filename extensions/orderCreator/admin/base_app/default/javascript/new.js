@@ -589,19 +589,6 @@ $(document).ready(function () {
 		//$('.productSection, .totalSection, .paymentSection, .commentSection, .statusSection, .trackingSection').hide();
 	}
 
-	$(window).scroll(function (e){
-		var scrollTop = $(this).scrollTop();
-		var buttonContainer = $('.ApplicationPageMenu');
-		if (scrollTop > buttonContainer.offset().top){
-			buttonContainer.width(buttonContainer.width());
-			buttonContainer.data('originalOffset', buttonContainer.offset().top);
-			buttonContainer.addClass('fixed');
-		}else if (scrollTop < buttonContainer.data('originalOffset')){
-			buttonContainer.width('auto');
-			buttonContainer.removeClass('fixed');
-		}
-	});
-
 	$('button[name=print]').click(function (e){
 		e.preventDefault();
 		window.open(js_app_link('appExt=orderCreator&app=default&appPage=new&action=print&type=' + $(this).val() + '&' + $(this).data('print_vars')));

@@ -1,27 +1,70 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 define('IMPORT_MODE', '');
+
+/**
+ * @package   ProductTypes
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @copyright Copyright (c) 2012, I.T. Web Experts
+ */
 class ProductTypeStandard extends ProductTypeBase
 {
 
+	/**
+	 * @var string
+	 */
 	protected $_moduleCode = 'standard';
 
+	/**
+	 * @var array
+	 */
 	protected $purchaseTypes = array();
 
+	/**
+	 * @var string
+	 */
 	protected $cartPurchaseType = '';
 
+	/**
+	 * @var array
+	 */
 	protected $checked = array();
 
+	/**
+	 * @var array
+	 */
 	protected $info = array(
 		'id'          => 0,
 		'name'        => array(),
 		'description' => array()
 	);
 
+	/**
+	 * @var array
+	 */
 	protected $purchaseTypeModules = array();
 
+	/**
+	 * @var array
+	 */
 	protected $cachedInventoryId = array();
 
-	public function __construct() {
+	/**
+	 *
+	 */
+	public function __construct()
+	{
 		/*
 		 * Default title and description for modules that are not yet installed
 		 */
@@ -31,7 +74,13 @@ class ProductTypeStandard extends ProductTypeBase
 		$this->init($this->_moduleCode);
 	}
 
-	public function init($code, $forceEnable = false, $moduleDir = false) {
+	/**
+	 * @param string $code
+	 * @param bool   $forceEnable
+	 * @param bool   $moduleDir
+	 */
+	public function init($code, $forceEnable = false, $moduleDir = false)
+	{
 		$this->import(new Installable);
 
 		$this->setModuleType('productType');
@@ -39,15 +88,28 @@ class ProductTypeStandard extends ProductTypeBase
 		parent::init($code, $forceEnable, $moduleDir);
 	}
 
-	public function setProductId($val) {
+	/**
+	 * @param $val
+	 */
+	public function setProductId($val)
+	{
 		$this->info['id'] = $val;
 	}
 
-	public function getProductId() {
+	/**
+	 * @return mixed
+	 */
+	public function getProductId()
+	{
 		return $this->info['id'];
 	}
 
-	public function getPurchaseTypeCode($PurchaseType) {
+	/**
+	 * @param $PurchaseType
+	 * @return bool|string
+	 */
+	public function getPurchaseTypeCode($PurchaseType)
+	{
 		$return = false;
 		if ($PurchaseType !== false && !empty($PurchaseType)){
 			$return = $PurchaseType;
@@ -58,7 +120,12 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function getProductPrice($PurchaseType = false) {
+	/**
+	 * @param bool $PurchaseType
+	 * @return string
+	 */
+	public function getProductPrice($PurchaseType = false)
+	{
 		$return = '';
 		if (($PurchaseType = $this->getPurchaseTypeCode($PurchaseType)) !== false){
 			$return = $this->getPurchaseType($PurchaseType)->getPrice();
@@ -66,7 +133,12 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function getTaxClassId($PurchaseType = false) {
+	/**
+	 * @param bool $PurchaseType
+	 * @return int
+	 */
+	public function getTaxClassId($PurchaseType = false)
+	{
 		$return = 0;
 		if (($PurchaseType = $this->getPurchaseTypeCode($PurchaseType)) !== false){
 			$return = $this->getPurchaseType($PurchaseType)->getTaxClassId();
@@ -74,7 +146,12 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function getTaxRate($PurchaseType = false) {
+	/**
+	 * @param bool $PurchaseType
+	 * @return int
+	 */
+	public function getTaxRate($PurchaseType = false)
+	{
 		$return = 0;
 		if (($PurchaseType = $this->getPurchaseTypeCode($PurchaseType)) !== false){
 			$return = $this->getPurchaseType($PurchaseType)->getTaxRate();
@@ -82,7 +159,12 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function purchaseTypeEnabled($PurchaseType) {
+	/**
+	 * @param $PurchaseType
+	 * @return mixed
+	 */
+	public function purchaseTypeEnabled($PurchaseType)
+	{
 		if (!isset($this->checked[$PurchaseType])){
 			$ResultSet = Doctrine_Manager::getInstance()
 				->getCurrentConnection()
@@ -94,7 +176,13 @@ class ProductTypeStandard extends ProductTypeBase
 		return $this->checked[$PurchaseType];
 	}
 
-	public function loadPurchaseType($PurchaseType = false, $ignoreStatus = false) {
+	/**
+	 * @param bool $PurchaseType
+	 * @param bool $ignoreStatus
+	 * @return null
+	 */
+	public function loadPurchaseType($PurchaseType = false, $ignoreStatus = false)
+	{
 		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
 		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
 			if ($ignoreStatus === false){
@@ -120,7 +208,8 @@ class ProductTypeStandard extends ProductTypeBase
 	 * @param bool $ignoreStatus
 	 * @return null
 	 */
-	public function &getPurchaseType($PurchaseType = false, $ignoreStatus = false) {
+	public function &getPurchaseType($PurchaseType = false, $ignoreStatus = false)
+	{
 		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
 		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
 			if ($ignoreStatus === false){
@@ -135,15 +224,28 @@ class ProductTypeStandard extends ProductTypeBase
 		return $this->purchaseTypes[$PurchaseType];
 	}
 
-	public function setPurchaseType($val){
+	/**
+	 * @param $val
+	 */
+	public function setPurchaseType($val)
+	{
 		$this->cartPurchaseType = $val;
 	}
 
-	public function setPurchaseTypes($val) {
+	/**
+	 * @param $val
+	 */
+	public function setPurchaseTypes($val)
+	{
 		$this->purchaseTypes = $val;
 	}
 
-	public function getPurchaseTypes($reload = false) {
+	/**
+	 * @param bool $reload
+	 * @return array
+	 */
+	public function getPurchaseTypes($reload = false)
+	{
 		//if (empty($this->purchaseTypes) || $reload === true){
 		$purchaseTypes = array();
 		$ResultSet = Doctrine_Manager::getInstance()
@@ -156,28 +258,26 @@ class ProductTypeStandard extends ProductTypeBase
 		return $this->purchaseTypes;
 	}
 
-	public function allowAddToCart(&$CartProductData) {
+	/**
+	 * @param array $CartProductData
+	 * @return bool
+	 */
+	public function allowAddToCart(array $CartProductData)
+	{
 		global $messageStack;
-		$allowed = true;
 		$PurchaseType = $this->getPurchaseType($CartProductData['purchase_type']);
-		if (
-			$PurchaseType->getConfigData('INVENTORY_ENABLED') == 'True' &&
-			$PurchaseType->getConfigData('INVENTORY_SHOPPING_CART_VERIFY') == 'True'
-		){
-			$allowed = ($PurchaseType->getCurrentStock() >= $CartProductData['quantity']);
-		}
-
-		if ($allowed === true && method_exists($PurchaseType, 'allowAddToCart')){
-			$allowed = $PurchaseType->allowAddToCart();
-		}else{
-			if ($allowed === false){
-				$messageStack->addSession('pageStack', 'The Product Does Not Have Enough Inventory.');
-			}
+		$allowed = $PurchaseType->allowAddToCart($CartProductData);
+		if ($allowed === false){
+			$messageStack->addSession('pageStack', $PurchaseType->getErrors());
 		}
 		return $allowed;
 	}
 
-	public function addToCartPrepare(&$CartProductData) {
+	/**
+	 * @param $CartProductData
+	 */
+	public function addToCartPrepare(&$CartProductData)
+	{
 		if (isset($CartProductData['purchase_type'])){
 			$purType = $CartProductData['purchase_type'];
 			$quantity = $CartProductData['quantity'];
@@ -213,12 +313,22 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function onCartProductLoad(ShoppingCartProduct &$CartProduct) {
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
+	public function onCartProductLoad(ShoppingCartProduct &$CartProduct)
+	{
 		$this->loadPurchaseType($CartProduct->getData('purchase_type'));
 		$this->cartPurchaseType = $CartProduct->getData('purchase_type');
 	}
 
-	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array()) {
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @param array               $settings
+	 * @return string
+	 */
+	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array())
+	{
 		$options = array_merge(array(
 			'showPurchaseTypeName' => true
 		), $settings);
@@ -242,8 +352,15 @@ class ProductTypeStandard extends ProductTypeBase
 		return $html;
 	}
 
-	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true) {
-		$PurchaseTypeCls = $this->getPurchaseType($OrderedProduct->getInfo('purchase_type'));
+	/**
+	 * @param OrderProduct $OrderedProduct
+	 * @param bool         $showExtraInfo
+	 * @return string
+	 */
+	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true)
+	{
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($OrderedProduct);
+		$PurchaseTypeCls = $this->getPurchaseType();
 		if ($showExtraInfo === true){
 			$purchaseTypeHtml = htmlBase::newElement('span')
 				->css(array(
@@ -253,7 +370,8 @@ class ProductTypeStandard extends ProductTypeBase
 				->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
 
 			$html = $purchaseTypeHtml->draw();
-		}else{
+		}
+		else {
 			$html = '';
 		}
 
@@ -264,18 +382,30 @@ class ProductTypeStandard extends ProductTypeBase
 		return $html;
 	}
 
-	public function onInsertOrderedProduct(ShoppingCartProduct &$CartProduct, $orderID, OrdersProducts &$orderedProduct, &$products_ordered) {
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @param                     $orderID
+	 * @param OrdersProducts      $orderedProduct
+	 * @param                     $products_ordered
+	 */
+	public function onInsertOrderedProduct(ShoppingCartProduct &$CartProduct, $orderID, OrdersProducts &$orderedProduct, &$products_ordered)
+	{
 		$PurchaseType = $this->getPurchaseType($CartProduct->getInfo('purchase_type'));
 
 		$orderedProduct->purchase_type = $PurchaseType->getCode();
 		$orderedProduct->save();
 
 		if (method_exists($PurchaseType, 'onInsertOrderedProduct')){
-			$PurchaseType->onInsertOrderedProduct($CartProduct, $orderID, &$orderedProduct, &$products_ordered);
+			$PurchaseType->onInsertOrderedProduct($CartProduct, $orderID, $orderedProduct, &$products_ordered);
 		}
 	}
 
-	public function getOrderedProductBarcodes($pInfo) {
+	/**
+	 * @param $pInfo
+	 * @return array
+	 */
+	public function getOrderedProductBarcodes($pInfo)
+	{
 		$return = array();
 		$PurchaseType = $this->getPurchaseType($pInfo['purchase_type']);
 		if (method_exists($PurchaseType, 'getOrderedProductBarcodes')){
@@ -284,7 +414,12 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function displayOrderedProductBarcodes(OrderProduct $OrderedProduct) {
+	/**
+	 * @param OrderProduct $OrderedProduct
+	 * @return string
+	 */
+	public function displayOrderedProductBarcodes(OrderProduct $OrderedProduct)
+	{
 		$return = '';
 		$PurchaseType = $OrderedProduct->getProductTypeClass()->getPurchaseType();
 		if (method_exists($PurchaseType, 'displayOrderedProductBarcodes')){
@@ -293,7 +428,11 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function canShowProductListing() {
+	/**
+	 * @return bool
+	 */
+	public function canShowProductListing()
+	{
 		$result = true;
 		if (sysConfig::get('PRODUCT_LISTING_HIDE_NO_INVENTORY') == 'True'){
 			$result = false;
@@ -307,24 +446,30 @@ class ProductTypeStandard extends ProductTypeBase
 		return $result;
 	}
 
-	public function showProductListing($col, $options = array()) {
-        $options = array_merge(array(
-            'showBuyButton' => true
-        ), $options);
+	/**
+	 * @param       $col
+	 * @param array $options
+	 * @return bool|string
+	 */
+	public function showProductListing($col, $options = array())
+	{
+		$options = array_merge(array(
+			'showBuyButton' => true
+		), $options);
 		$return = false;
 		switch($col){
 			case 'productsPriceNew':
 				$tableRow = array();
 
-                if ($options['showBuyButton'] === true){
-                    $buyNowButton = htmlBase::newElement('button')
-                        ->setText(sysLanguage::get('TEXT_BUTTON_BUY_NOW'));
-                }
+				if ($options['showBuyButton'] === true){
+					$buyNowButton = htmlBase::newElement('button')
+						->setText(sysLanguage::get('TEXT_BUTTON_BUY_NOW'));
+				}
 
 				foreach($this->getPurchaseTypes() as $k => $pType){
-                    if (isset($buyNowButton)){
-                        $buyNowButton->setHref(itw_app_link(tep_get_all_get_params(array('action', 'products_id')) . 'action=addCartProduct&purchase_type=' . $pType->getCode() . '&products_id=' . $this->getProductId()), true);
-                    }
+					if (isset($buyNowButton)){
+						$buyNowButton->setHref(itw_app_link(tep_get_all_get_params(array('action', 'products_id')) . 'action=addCartProduct&purchase_type=' . $pType->getCode() . '&products_id=' . $this->getProductId()), true);
+					}
 					if ($k == 'new' && $pType->hasInventory()){
 						if (sizeof($tableRow) <= 0){
 							$tableRow[] = '<tr>
@@ -380,11 +525,19 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function processAddToOrder($pInfo) {
+	/**
+	 * @param $pInfo
+	 */
+	public function processAddToOrder($pInfo)
+	{
 		$this->setPurchaseType($pInfo['purchase_type']);
 	}
 
-	public function onUpdateCartFromPost(ShoppingCartProduct &$CartProduct) {
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 */
+	public function onUpdateCartFromPost(ShoppingCartProduct &$CartProduct)
+	{
 		$PurchaseType = $this->getPurchaseType();
 		$desiredQty = $_POST['cart_quantity'][$CartProduct->getId()];
 
@@ -408,7 +561,12 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function getCartQuantityHtml(ShoppingCartProduct &$CartProduct) {
+	/**
+	 * @param ShoppingCartProduct $CartProduct
+	 * @return string
+	 */
+	public function getCartQuantityHtml(ShoppingCartProduct &$CartProduct)
+	{
 		$html = '';
 		$PurchaseType = $this->getPurchaseType();
 
@@ -436,7 +594,11 @@ class ProductTypeStandard extends ProductTypeBase
 		return $html;
 	}
 
-	public function onSaveProduct(Products &$Product) {
+	/**
+	 * @param Products $Product
+	 */
+	public function onSaveProduct(Products &$Product)
+	{
 		if (isset($_POST['purchase_type'])){
 			foreach($Product->ProductsPurchaseTypes as $pTypeObj){
 				$pTypeObj->status = 0;
@@ -465,35 +627,57 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function processProductImport(&$Product, $CurrentRow) {
+	/**
+	 * @param $Product
+	 * @param $CurrentRow
+	 */
+	public function processProductImport(&$Product, $CurrentRow)
+	{
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 			$PurchaseTypeModule->processProductImport($Product, $CurrentRow);
 		}
 	}
 
-	public function addExportQueryConditions(&$QfileLayout) {
+	/**
+	 * @param $QfileLayout
+	 */
+	public function addExportQueryConditions(&$QfileLayout)
+	{
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 			$PurchaseTypeModule->addExportQueryConditions($this->getCode(), $QfileLayout);
 		}
 	}
 
-	public function addExportHeaderColumns(&$headerRow) {
+	/**
+	 * @param $headerRow
+	 */
+	public function addExportHeaderColumns(&$headerRow)
+	{
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 			$PurchaseTypeModule->addExportHeaderColumns($this->getCode(), &$headerRow);
 		}
 	}
 
-	public function addExportRowColumns(&$CurrentRow, $Product) {
+	/**
+	 * @param $CurrentRow
+	 * @param $Product
+	 */
+	public function addExportRowColumns(&$CurrentRow, $Product)
+	{
 		PurchaseTypeModules::loadModules();
 		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 			$PurchaseTypeModule->addExportRowColumns($this->getCode(), $CurrentRow, $Product);
 		}
 	}
 
-	public function addInventoryExportHeaders(&$headerCols) {
+	/**
+	 * @param $headerCols
+	 */
+	public function addInventoryExportHeaders(&$headerCols)
+	{
 		if (!in_array('v_purchase_type', $headerCols)){
 			$headerCols[] = 'v_purchase_type';
 		}
@@ -528,10 +712,20 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function addInventoryExportQueryConditions(&$QProducts) {
+	/**
+	 * @param $QProducts
+	 */
+	public function addInventoryExportQueryConditions(&$QProducts)
+	{
 	}
 
-	public function addInventoryExportData($ProductId, $ProductModel, &$ExportRows) {
+	/**
+	 * @param $ProductId
+	 * @param $ProductModel
+	 * @param $ExportRows
+	 */
+	public function addInventoryExportData($ProductId, $ProductModel, &$ExportRows)
+	{
 		$Qinventory = Doctrine_Query::create()
 			->from('ProductsInventory pi')
 			->leftJoin('pi.ProductsInventoryBarcodes pib')
@@ -550,9 +744,9 @@ class ProductTypeStandard extends ProductTypeBase
 					$RowData = array(
 						'v_products_model' => $ProductModel,
 						'v_purchase_type'  => $iInfo->type,
-						'v_barcode'		=> $bInfo->barcode,
+						'v_barcode'        => $bInfo->barcode,
 						'v_barcode_status' => $bInfo->status,
-						'v_comments'	   => ''
+						'v_comments'       => ''
 					);
 
 					if (!empty($bInfo->ProductsInventoryBarcodesComments)){
@@ -572,13 +766,13 @@ class ProductTypeStandard extends ProductTypeBase
 						continue;
 					}
 					$RowData = array(
-						'v_products_model'	 => $ProductModel,
-						'v_purchase_type'	  => $iInfo->type,
+						'v_products_model'     => $ProductModel,
+						'v_purchase_type'      => $iInfo->type,
 						'v_quantity_available' => $qInfo->available,
-						'v_quantity_broken'	=> $qInfo->broken,
-						'v_quantity_out'	   => $qInfo->qty_out,
+						'v_quantity_broken'    => $qInfo->broken,
+						'v_quantity_out'       => $qInfo->qty_out,
 						'v_quantity_purchased' => $qInfo->purchased,
-						'v_comments'		   => ''
+						'v_comments'           => ''
 					);
 
 					if (!empty($qInfo->ProductsInventoryQuantityComments)){
@@ -595,7 +789,12 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function ImportInventoryParseLine($LineData, &$ParsedArray) {
+	/**
+	 * @param $LineData
+	 * @param $ParsedArray
+	 */
+	public function ImportInventoryParseLine($LineData, &$ParsedArray)
+	{
 		if (!empty($LineData['v_barcode']) && !empty($LineData['v_barcode_status'])){
 			$ParsedData = array(
 				'barcode'  => $LineData['v_barcode'],
@@ -611,8 +810,8 @@ class ProductTypeStandard extends ProductTypeBase
 		else {
 			$ParsedData = array(
 				'available' => $LineData['v_quantity_available'],
-				'broken'	=> $LineData['v_quantity_broken'],
-				'out'	   => $LineData['v_quantity_out'],
+				'broken'    => $LineData['v_quantity_broken'],
+				'out'       => $LineData['v_quantity_out'],
 				'purchased' => $LineData['v_quantity_purchased'],
 				'comments'  => $LineData['v_comments']
 			);
@@ -624,7 +823,15 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	private function getInventoryId($productId, $purchaseType, $trackMethod, $controller = 'normal') {
+	/**
+	 * @param        $productId
+	 * @param        $purchaseType
+	 * @param        $trackMethod
+	 * @param string $controller
+	 * @return string
+	 */
+	private function getInventoryId($productId, $purchaseType, $trackMethod, $controller = 'normal')
+	{
 		if (isset($this->cachedInventoryId[$productId][$purchaseType][$controller][$trackMethod])){
 			$InvId = $this->cachedInventoryId[$productId][$purchaseType][$controller][$trackMethod];
 			if (IMPORT_MODE == 'debug'){
@@ -673,7 +880,13 @@ class ProductTypeStandard extends ProductTypeBase
 		return $InvId;
 	}
 
-	public function getInventoryQuantityRecord($InventoryId, $qInfo) {
+	/**
+	 * @param $InventoryId
+	 * @param $qInfo
+	 * @return ProductsInventoryQuantity
+	 */
+	public function getInventoryQuantityRecord($InventoryId, $qInfo)
+	{
 		$Query = Doctrine_Query::create()
 			->from('ProductsInventoryQuantity')
 			->where('inventory_id = ?', $InventoryId);
@@ -702,7 +915,11 @@ class ProductTypeStandard extends ProductTypeBase
 		return $QuantityRecord;
 	}
 
-	public function ImportInventoryProcessData($ImportData) {
+	/**
+	 * @param $ImportData
+	 */
+	public function ImportInventoryProcessData($ImportData)
+	{
 		if (IMPORT_MODE == 'debug'){
 			echo 'LINE DATA::<pre>';
 			print_r($ImportData);
@@ -791,7 +1008,12 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 	}
 
-	public function TemplateWidgetShow($WidgetSettings){
+	/**
+	 * @param $WidgetSettings
+	 * @return mixed
+	 */
+	public function TemplateWidgetShow($WidgetSettings)
+	{
 		global $appExtension;
 
 		$purchaseBoxes = array();
@@ -829,17 +1051,19 @@ class ProductTypeStandard extends ProductTypeBase
 			if ($extDiscounts !== false && $boxInfo['purchase_type']->hasInventory()){
 				$boxInfo['content'] .= $extDiscounts->showQuantityTable(array(
 					'productTypeClass' => $this,
-					'purchase_type' => $boxInfo['purchase_type'],
-					'product_id' => $productId
+					'purchase_type'    => $boxInfo['purchase_type'],
+					'product_id'       => $productId
 				));
 			}
 
-			$boxInfo['content'] .= htmlBase::newElement('input')->attr('type', 'hidden')->setName('products_id')->val($productId)->draw();
-			$boxInfo['content'] .= htmlBase::newElement('input')->attr('type', 'hidden')->setName('purchase_type')->val($boxInfo['purchase_type']->getCode())->draw();
+			$boxInfo['content'] .= htmlBase::newElement('input')->attr('type', 'hidden')->setName('products_id')
+				->val($productId)->draw();
+			$boxInfo['content'] .= htmlBase::newElement('input')->attr('type', 'hidden')->setName('purchase_type')
+				->val($boxInfo['purchase_type']->getCode())->draw();
 
 			$boxObj = htmlBase::newElement('infobox')
 				->setForm(array(
-				'name' => 'cart_quantity',
+				'name'   => 'cart_quantity',
 				'action' => $boxInfo['form_action']
 			))
 				->css('width', 'auto')->removeCss('margin-left')->removeCss('margin-right')
@@ -862,9 +1086,9 @@ class ProductTypeStandard extends ProductTypeBase
 			$boxObj->addButton($boxInfo['button']);
 
 			$columns[] = array(
-				'align' => 'center',
+				'align'  => 'center',
 				'valign' => 'top',
-				'text' => $boxObj->draw()
+				'text'   => $boxObj->draw()
 			);
 
 			if (sizeof($columns) > 1){
@@ -882,13 +1106,17 @@ class ProductTypeStandard extends ProductTypeBase
 			));
 		}
 
-
 		return $purchaseTable->draw();
 	}
 
-	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null){
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param null         $Qty
+	 * @return bool
+	 */
+	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null)
+	{
 		$return = true;
-
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'hasEnoughInventory')){
 			$return = $PurchaseType->hasEnoughInventory($OrderProduct, $Qty);
@@ -896,21 +1124,37 @@ class ProductTypeStandard extends ProductTypeBase
 		return $return;
 	}
 
-	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct){
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param              $SaleProduct
+	 */
+	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct)
+	{
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onSaveProgress')){
 			$PurchaseType->onSaveProgress($OrderProduct, $SaleProduct);
 		}
 	}
 
-	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false){
+	/**
+	 * @param OrderProduct                    $OrderProduct
+	 * @param AccountsReceivableSalesProducts $SaleProduct
+	 * @param bool                            $AssignInventory
+	 */
+	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	{
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onSaveSale')){
 			$PurchaseType->onSaveSale($OrderProduct, $SaleProduct, $AssignInventory);
 		}
 	}
 
-	public function prepareJsonSave(OrderProduct &$OrderProduct){
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @return array|void
+	 */
+	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	{
 		$toEncode = array();
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'prepareJsonSave')){
@@ -919,23 +1163,18 @@ class ProductTypeStandard extends ProductTypeBase
 		return $toEncode;
 	}
 
-	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product){
-		$this->cartPurchaseType = $OrderProduct->getInfo('purchase_type');
+	/**
+	 * @param OrderProduct $OrderProduct
+	 * @param array        $ProductTypeJson
+	 */
+	public function jsonDecode(OrderProduct &$OrderProduct, array $ProductTypeJson)
+	{
+		$this->cartPurchaseType = $ProductTypeJson['purchase_type'];
 		$this->loadPurchaseType();
 
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'jsonDecode')){
-			$PurchaseType->jsonDecode($OrderProduct);
-		}
-	}
-
-	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson){
-		$this->cartPurchaseType = $OrderProduct->getInfo('purchase_type');
-		$this->loadPurchaseType();
-
-		$PurchaseType = $this->getPurchaseType();
-		if (method_exists($PurchaseType, 'jsonDecode')){
-			$PurchaseType->jsonDecode($OrderProduct, $ProductTypeJson);
+			$PurchaseType->jsonDecode($OrderProduct, $ProductTypeJson['PurchaseTypeJson']);
 		}
 	}
 }

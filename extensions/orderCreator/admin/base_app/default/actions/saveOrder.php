@@ -78,11 +78,14 @@ if (isset($_POST['convertTo'])){
 	AccountsReceivable::convertSale($Editor, $_POST['convertTo']);
 }
 elseif (isset($_POST['save'])) {
-	AccountsReceivable::saveSale($Editor);
+	$SaleId = AccountsReceivable::saveSale($Editor);
 }
 elseif (isset($_POST['saveAs'])) {
 	AccountsReceivable::saveSale($Editor, $_POST['saveAs']);
 }
+
+EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&sale_module=' . $Editor->getSaleModule()->getCode() . '&sale_id=' . $SaleId, 'default', 'new'), 'redirect');
+
 /*
 if($Editor->hasErrors()){
 	$success = false;

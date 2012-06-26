@@ -19,17 +19,15 @@ class OrdersCustomFieldsOptions extends Doctrine_Record {
 			'cascade' => array('delete')
 		));
 		
-		$this->hasMany('OrdersCustomFieldsOptionsToFields as Fields', array(
-			'local'   => 'option_id',
-			'foreign' => 'option_id',
-			'orderBy' => 'display_order',
-			'cascade' => array('delete')
+		$this->hasOne('OrdersCustomFields as Field', array(
+			'local'   => 'field_id',
+			'foreign' => 'field_id'
 		));
 	}
 	
 	public function setTableDefinition(){
 		$this->setTableName('orders_custom_fields_options');
-		
+
 		$this->hasColumn('option_id', 'integer', 4, array(
 			'type' => 'integer',
 			'length' => 4,
@@ -37,7 +35,24 @@ class OrdersCustomFieldsOptions extends Doctrine_Record {
 			'primary' => true,
 			'autoincrement' => true,
 		));
-		
+
+		$this->hasColumn('field_id', 'integer', 4, array(
+			'type' => 'integer',
+			'length' => 4,
+			'unsigned' => 0,
+			'primary' => false,
+			'autoincrement' => false,
+		));
+
+		$this->hasColumn('display_order', 'integer', 4, array(
+			'type' => 'integer',
+			'length' => 4,
+			'unsigned' => 0,
+			'primary' => false,
+			'notnull' => true,
+			'autoincrement' => false,
+		));
+
 		$this->hasColumn('extra_data', 'string', 999);
 	}
 }

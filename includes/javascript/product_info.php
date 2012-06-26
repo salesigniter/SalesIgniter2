@@ -3,7 +3,7 @@
       $rInfo = false;
       if ($ShoppingCart->inCart($_GET['products_id'], 'reservation')){
       	$cartProduct = $ShoppingCart->getProduct($_GET['products_id'], 'reservation');
-          $rInfo = $cartProduct->getInfo('reservationInfo');
+          $rInfo = $cartProduct->getInfo('ReservationInfo');
       }
   }
 ?>

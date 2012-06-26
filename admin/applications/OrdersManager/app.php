@@ -1,7 +1,14 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
 /**
@@ -48,6 +55,4 @@ class Bootstrap extends Application
 	}
 }
 
-$appContent = 'OrdersManager/Pages/Listing.php';
 $AppBoot = new Bootstrap();
-?>

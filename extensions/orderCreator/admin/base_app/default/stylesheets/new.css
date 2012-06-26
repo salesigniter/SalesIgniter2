@@ -4,73 +4,6 @@
 		margin: 0 10px 10px 10px;
 	}
 
-	.ApplicationPageMenu.fixed {
-		top          : 0;
-		position     : fixed;
-		z-index      : 1;
-		margin-right : 51px;
-	}
-
-	.ApplicationPageMenu {
-		line-height: 4em;
-		text-align: center;
-		background: #fafafa;
-		color: #444444;
-		border: 1px solid #ccc;
-		border-top: 0px;
-		position: relative;
-	}
-
-	.ApplicationPageMenu button {
-		width: 100%;
-		margin: 0;
-		line-height: inherit;
-		border: 0;
-		-webkit-border-radius: 0;
-		padding:0;
-	}
-
-	.ApplicationPageMenu .subMenu button {
-		text-align: left;
-		padding-left: 20px;
-	}
-
-	.ApplicationPageMenu button.ui-state-default, .ApplicationPageMenu button.ui-state-hover, .ApplicationPageMenu button.ui-state-active {
-		background: none;
-	}
-
-	.ApplicationPageMenu ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.ApplicationPageMenu .rootItem {
-		vertical-align: middle;
-		display: inline-block;
-		width: 200px;
-		position: relative;
-		border-left: 1px solid #cccccc;
-		border-right: 1px solid #efefef;
-	}
-
-	.ApplicationPageMenu .rootItem span, .ApplicationPageMenu .rootItem a {
-		vertical-align: middle;
-		margin-right: .5em;
-		color: #555;
-	}
-
-	.ApplicationPageMenu .subMenu {
-		display:none;
-		position: absolute;
-		background: #fafafa;
-		width: 201px;
-		text-align: left;
-		border: 1px solid #ccc;
-		border-top: 0;
-		left:-1px;
-	}
-
 	.addressTable {
 		width:100%;
 	}
@@ -213,53 +146,24 @@
 }
 
 @media screen and (min-width: 240px) {
-	.ApplicationPageMenu .rootItem {
-		width: 50px;
-		line-height: 3em;
-		padding-top: 10px;
-	}
 }
 
 @media screen and (min-width: 320px) {
-	.ApplicationPageMenu .rootItem {
-		width: 72px;
-	}
-	.ApplicationPageMenu .rootItem .ui-icon {
-		display:block;
-		margin-left:auto;
-		margin-right:auto;
-		line-height:1em;
-	}
 }
 
 @media screen and (min-width: 480px) {
-	.ApplicationPageMenu .rootItem {
-		width: 110px;
-	}
 	.customerTabPage {
 		width: 300px;
 	}
 }
 
 @media screen and (min-width: 768px) {
-	.ApplicationPageMenu .rootItem {
-		width: 160px;
-		line-height: inherit;
-		padding-top: 0px;
-	}
-	.ApplicationPageMenu .rootItem .ui-icon {
-		display:inline-block;
-		margin-right:.5em;
-	}
 	.customerTabPage {
 		width: 480px;
 	}
 }
 
 @media screen and (min-width: 992px) {
-	.ApplicationPageMenu .rootItem {
-		width: 200px;
-	}
 	table.addresses {
 		margin: 0px 10px;
 	}

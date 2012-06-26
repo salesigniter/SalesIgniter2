@@ -1,0 +1,4 @@
+<definitions>
+	<define key="MODULE_CRONJOB_SYSTEMBACKUP_TEXT_TITLE"><![CDATA[System Backup]]></define>
+	<define key="MODULE_CRONJOB_SYSTEMBACKUP_TEXT_DESCRIPTION"><![CDATA[This cron script will back up your Sales Igniter system. Recommended to run weekly]]></define>
+</definitions>

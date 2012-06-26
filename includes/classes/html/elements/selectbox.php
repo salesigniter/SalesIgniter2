@@ -57,10 +57,10 @@ class htmlElement_selectbox implements htmlElementPlugin
 
 		foreach($options as $index => $optionObj){
 			if ($this->selectElement->hasAttr('multiple') === false){
-				if ($optionObj->val() === $this->selectedOptionValue){
+				if ((string)$optionObj->val() === (string)$this->selectedOptionValue){
 					$optionObj->attr('selected', 'selected');
 				}
-				elseif ($index === $this->selectedOptionIndex) {
+				elseif ($this->selectedOptionIndex !== null && (int)$index === (int)$this->selectedOptionIndex) {
 					$optionObj->attr('selected', 'selected');
 				}
 				else {
@@ -79,12 +79,15 @@ class htmlElement_selectbox implements htmlElementPlugin
 
 		$html = '';
 		if ($this->labelElement !== false){
-			if ($this->selectElement->hasAttr('id') === true){
-				$this->labelElement->attr('for', $this->selectElement->attr('id'));
+			if ($this->hasAttr('id') === true){
+				$this->labelElement->attr('for', $this->attr('id'));
 			}
-			if ($this->labelElementPosition == 'before'){
-				$html .= $this->labelElement->draw();
+			if ($this->labelElementPosition == 'before' || $this->labelElementPosition == 'left' || $this->labelElementPosition == 'top'){
+				if ($this->labelElementPosition == 'top'){
+					$this->labelElement->css('display', 'block');
+				}
 
+				$html .= $this->labelElement->draw();
 				if (is_object($this->labelElementSeparator)){
 					$html .= $this->labelElementSeparator->draw();
 				}
@@ -94,16 +97,54 @@ class htmlElement_selectbox implements htmlElementPlugin
 			}
 		}
 
+		/**
+		 * Commented out until i have some time to test the new field functionality
+		 */
+		/*
+		$listItems = '';
+		$valueText = array();
+		foreach($options as $index => $optionObj){
+			$AddCls = '';
+			if ($optionObj->hasAttr('selected')){
+				$valueText[] = $optionObj->html();
+				$AddCls = ' ui-state-active';
+			}
+			$listItems .= '<li class="ui-selectbox-searchable-option' . $AddCls . '" value="' . $optionObj->attr('value') . '">' . $optionObj->html() . '</li>';
+		}
+		if (empty($valueText)){
+			$valueText = 'Please Select';
+		}else{
+			$valueText = implode(', ', $valueText);
+		}
+		$html .= '<span class="ui-selectbox-searchable ui-corner-all">' .
+			'<div class="ui-selectbox-searchable-value-box ui-corner-all ui-state-default">' .
+				'<div class="ui-icon ui-selectbox-searchable-trigger"></div>' .
+				'<div class="ui-selectbox-searchable-value">' . $valueText . '</div>' .
+				$this->selectElement->hide()->draw() .
+				'<input type="text" class="ui-selectbox-searchable-search-input">' .
+			'</div>' .
+			'<div class="ui-selectbox-searchable-options-box ui-corner-bottom">' .
+				'<ul>' .
+					$listItems .
+				'</ul>' .
+			'</div>' .
+		'</span>';
+		*/
 		$html .= $this->selectElement->draw();
 
 		if ($this->labelElement !== false){
-			if ($this->labelElementPosition == 'after' || $this->labelElementPosition === false){
-				if (is_object($this->labelElementSeparator)){
-					$html .= $this->labelElementSeparator->draw();
+			if ($this->labelElementPosition == 'after' || $this->labelElementPosition == 'right' || $this->labelElementPosition == 'bottom' || $this->labelElementPosition === false){
+				if ($this->labelElementPosition == 'bottom'){
+					$this->labelElement->css('display', 'block');
+				}else{
+					if (is_object($this->labelElementSeparator)){
+						$html .= $this->labelElementSeparator->draw();
+					}
+					else {
+						$html .= $this->labelElementSeparator;
+					}
 				}
-				else {
-					$html .= $this->labelElementSeparator;
-				}
+
 				$html .= $this->labelElement->draw();
 			}
 		}
@@ -112,7 +153,10 @@ class htmlElement_selectbox implements htmlElementPlugin
 
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
 
-	public function val($val) {
+	public function val($val = null) {
+		if ($val === null){
+			return $this->selectedOptionValue;
+		}
 		$this->selectOptionByValue($val);
 		return $this;
 	}

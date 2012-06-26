@@ -1,5 +1,14 @@
 <?php
-	$appContent = $App->getAppContentFile();
-	
-	$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE'), itw_app_link(null, 'recent_additions', 'default'));
-?>
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
+$breadcrumb->add(sysLanguage::get('NAVBAR_TITLE'), itw_app_link(null, 'recent_additions', 'default'));

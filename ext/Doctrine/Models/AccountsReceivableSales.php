@@ -9,6 +9,11 @@ class AccountsReceivableSales extends Doctrine_Record {
 			'cascade' => array('delete')
 		));*/
 
+		$this->hasOne('Customers as Customer', array(
+			'local' => 'customers_id',
+			'foreign' => 'customers_id'
+		));
+
 		$this->hasMany('AccountsReceivableSalesProducts as Products', array(
 			'local' => 'id',
 			'foreign' => 'sale_id',

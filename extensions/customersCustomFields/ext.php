@@ -13,13 +13,15 @@
 class Extension_customersCustomFields extends ExtensionBase
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct('customersCustomFields');
 	}
 
-	public function init() {
+	public function init()
+	{
 		global $App, $appExtension, $Template;
-		if ($this->isEnabled() === false) {
+		if ($this->isEnabled() === false){
 			return;
 		}
 
@@ -33,22 +35,25 @@ class Extension_customersCustomFields extends ExtensionBase
 		}
 	}
 
-	public function getGroups(){
+	public function getGroups()
+	{
 		$Qfields = Doctrine_Query::create()
-			->from('CustomersCustomFieldsGroups')
-			->orderBy('group_name')
-			->execute();
+		->from('CustomersCustomFieldsGroups')
+		->orderBy('group_name')
+		->execute();
 		return $Qfields;
 	}
 
-	public function getFieldHtml(CustomersCustomFields $Field, Order $Order = null){
+	public function getField(CustomersCustomFields $Field)
+	{
 		switch($Field->input_type){
 			case 'select':
 			case 'select_other':
-				$oArr = array();
-
 				$input = htmlBase::newSelectbox()
-					->setRequired($Field->input_required == 1);
+				->setLabel($Field->Description[Session::get('languages_id')]->field_name)
+				->setRequired($Field->input_required == 1)
+				->allowEntry(($Field->input_type == 'select_other'))
+				->isMultiple($Field->is_multiple == 1);
 
 				if ($Field->Options && $Field->Options->count()){
 					foreach($Field->Options as $Option){
@@ -58,98 +63,116 @@ class Extension_customersCustomFields extends ExtensionBase
 						);
 					}
 				}
+				break;
+			case 'radio':
+			case 'checkbox':
+				if ($Field->input_type == 'radio'){
+					$input = htmlBase::newRadioGroup();
+				}
+				else {
+					$input = htmlBase::newCheckboxGroup();
+				}
+				$input
+				->setLabel($Field->Description[Session::get('languages_id')]->field_name)
+				->setChecked($Field->field_default_value)
+				->setRequired(($Field->input_required == 1));
 
-				if ($Field->input_type == 'select_other'){
-					$input->addOption('Other', 'Other (Fill in below)');
+				if ($Field->Options && $Field->Options->count()){
+					foreach($Field->Options as $Option){
+						if ($Field->input_type == 'radio'){
+							$Element = htmlBase::newRadio();
+						}
+						else {
+							$Element = htmlBase::newCheckbox();
+						}
+						$Element
+						->setLabel($Option->Description[Session::get('languages_id')]->option_name)
+						->setLabelSeparator('&nbsp;')
+						->setLabelPosition('right')
+						->setValue($Option->Description[Session::get('languages_id')]->option_name);
 
-					$otherInput = '<div class="main" style="clear:both;margin-top:.3em;">Other: ' . htmlBase::newInput()->setName('orders_custom_field_other[' . $Field->field_id . ']')->draw() . '</div>';
+						$input->addInput($Element);
+					}
 				}
 				break;
+			case 'date':
+				$input = htmlBase::newDatePicker()
+				->setLabel($Field->Description[Session::get('languages_id')]->field_name);
+				break;
 			case 'text':
-				$input = htmlBase::newInput();
+				$input = htmlBase::newInput()
+				->setLabel($Field->Description[Session::get('languages_id')]->field_name)
+				->isMultiple($Field->is_multiple == 1);
 				break;
 			case 'textarea':
-				$input = htmlBase::newElement('textarea')->attr('rows', 3);
+				$input = htmlBase::newElement('textarea')
+				->attr('rows', 3)
+				->setLabel($Field->Description[Session::get('languages_id')]->field_name);
 				break;
 		}
-		$input->addClass('customerCustomField')->setName('customers_custom_field[' . $Field->field_id . ']');
+		$input
+		->setLabelPosition('bottom')
+		->addClass('customerCustomField')
+		->setName('customers_custom_field[' . $Field->field_id . ']');
+
+		return $input;
+	}
+
+	public function getFieldHtml(CustomersCustomFields $Field, Order $Order = null)
+	{
+		$Input = $this->getField($Field);
 
 		if ($Order !== null){
 			$FieldValues = $Order->InfoManager->getInfo('CustomersCustomFieldsValues');
 			//echo '<pre>';print_r($FieldValues);
 			if (isset($FieldValues[$Field->field_id])){
-				$input->val($FieldValues[$Field->field_id]['value']);
+				$Input->val($FieldValues[$Field->field_id]['value']);
 			}
 		}
 
 		return array(
 			'label' => $Field->Description[Session::get('languages_id')]->field_name,
-			'field' => $input->draw() . (isset($otherInput) ? $otherInput : '')
+			'field' => $Input->draw()
 		);
 	}
 
-	public function CustomerInfoAddTableContainer(&$customer) {
-		//Add tabs for custom fields:
-
-		$Query = $this->_getFieldsQuery();
-		$groups = $Query->execute()->toArray(true);
-
-		$return = '';
-		$groups_content = array();
-		foreach($groups as $groupInfo){
-			$fieldsToGroups = $groupInfo['CustomersCustomFieldsToGroups'];
-			foreach($fieldsToGroups as $fieldToGroup){
-				if (!empty($fieldToGroup['CustomersCustomFields']['CustomersCustomFieldsToCustomers'][0]['value'])){
-					$name = $fieldToGroup['CustomersCustomFields']['CustomersCustomFieldsDescription'][Session::get('languages_id')]['field_name'];
-					$return .= '<fieldset>
-					<legend></legend>
-					</fieldset>';
-					if (Session::get('layoutType') == 'smartphone'){
-						$return .= '<li><a href="#" data-href="tab' . $name . '">' . $name . '</a></li>';
-					}
-					else {
-						$return .= '<li><a href="#tab' . $name . '"><span>' . $name . '</span></a></li>';
-					}
-					$groups_content['tab' . $name] = $fieldToGroup['CustomersCustomFields']['CustomersCustomFieldsToProducts'][0]['value'];
-				}
-			}
-		}
-		$product->custom_tabs_content = $groups_content;
-
-		return $return;
-	}
-
-	public function BoxCustomersAddLink(&$contents) {
+	public function BoxCustomersAddLink(&$contents)
+	{
 		$contents['children'][] = array(
-			'link'	   => itw_app_link('appExt=customersCustomFields', 'manage', 'default', 'SSL'),
-			'text'	   => 'Custom Fields'
+			'link'       => itw_app_link('appExt=customersCustomFields', 'manage', 'default', 'SSL'),
+			'text'       => 'Custom Fields'
 		);
 	}
 
-	public function CustomerQueryBeforeExecute(&$productQuery) {
-		$productQuery->addSelect('f2c.field_id')
-			->leftJoin('c.CustomersCustomFieldsToCustomers f2c');
+	public function CustomerQueryBeforeExecute(&$productQuery)
+	{
+		$productQuery
+		->addSelect('f2c.field_id')
+		->leftJoin('c.CustomersCustomFieldsToCustomers f2c');
 	}
 
-	protected function _getFieldsQuery($settings = array()) {
+	protected function _getFieldsQuery($settings = array())
+	{
 		$Query = Doctrine_Query::create()
-			->select('g.group_name, f.*, fd.field_name, f2p.value, f2g.sort_order')
-			->from('ProductsCustomFieldsGroups g')
-			->leftJoin('g.ProductsCustomFieldsGroupsToProducts g2p')
-			->leftJoin('g.ProductsCustomFieldsToGroups f2g')
-			->leftJoin('f2g.ProductsCustomFields f')
-			->leftJoin('f.ProductsCustomFieldsDescription fd')
-			->leftJoin('f.ProductsCustomFieldsToProducts f2p')
-			->where('fd.field_name is not null')
-			->orderBy('f2g.sort_order');
+		->select('g.group_name, f.*, fd.field_name, f2p.value, f2g.sort_order')
+		->from('ProductsCustomFieldsGroups g')
+		->leftJoin('g.ProductsCustomFieldsGroupsToProducts g2p')
+		->leftJoin('g.ProductsCustomFieldsToGroups f2g')
+		->leftJoin('f2g.ProductsCustomFields f')
+		->leftJoin('f.ProductsCustomFieldsDescription fd')
+		->leftJoin('f.ProductsCustomFieldsToProducts f2p')
+		->where('fd.field_name is not null')
+		->orderBy('f2g.sort_order');
 
 		if (!empty($settings['product_id'])){
-			$Query->andWhere('f2p.product_id = ?', (int)$settings['product_id'])
-				->andWhere('g2p.product_id = ?', (int)$settings['product_id']);
+			$Query
+			->andWhere('f2p.product_id = ?', (int)$settings['product_id'])
+			->andWhere('g2p.product_id = ?', (int)$settings['product_id']);
 		}
 		else {
-			$Query->andWhere('f.include_in_search = ?', '1')
-				->addGroupBy('f2p.value');
+			$Query
+			->andWhere('f.include_in_search = ?', '1')
+			->addGroupBy('f2p.value');
 		}
 
 		if (!empty($settings['group_id'])){
@@ -177,6 +200,46 @@ class Extension_customersCustomFields extends ExtensionBase
 		}
 
 		return $Query;
+	}
+
+	/**
+	 * @param array $data
+	 * @return string|void
+	 */
+	public function buildFieldsetBlock(array $data)
+	{
+		$Groups = Doctrine_Query::create()
+		->from('CustomersCustomFieldsGroups')
+		->orderBy('group_name')
+		->execute();
+		if ($Groups){
+			$GroupBlock = htmlBase::newFieldsetFormBlock()
+			->setLegend('Extra Information');
+			$i = 0;
+			foreach($Groups as $Group){
+				$BlockFields = array();
+				$row = 0;
+				$col = 0;
+				foreach($Group->Fields as $fInfo){
+					$Field = $fInfo->Field;
+					$BlockFields[$row][$col] = $this->getField($Field);
+					$BlockFields[$row][$col]->setLabelPosition('bottom');
+					if (isset($data[$Field->field_id])){
+						$BlockFields[$row][$col]->setValue($data[$Field->field_id]);
+					}
+
+					$col++;
+					if ($col > 1){
+						$col = 0;
+						$row++;
+					}
+				}
+				$GroupBlock->addBlock('custom_fields_' . $i, $Group->group_name, $BlockFields);
+				$i++;
+			}
+			return $GroupBlock->draw();
+		}
+		return '';
 	}
 }
 

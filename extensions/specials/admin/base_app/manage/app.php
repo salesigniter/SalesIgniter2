@@ -1,4 +1,16 @@
 <?php
+/**
+ * Sales Igniter E-Commerce System
+ * Version: {ses_version}
+ *
+ * I.T. Web Experts
+ * http://www.itwebexperts.com
+ *
+ * Copyright (c) {ses_copyright} I.T. Web Experts
+ *
+ * This script and its source are not distributable without the written consent of I.T. Web Experts
+ */
+
 /*
 	Products Specials Extension Version 1
 
@@ -10,7 +22,6 @@
 	This script and it's source is not redistributable
 */
 
-	$appContent = $App->getAppContentFile();
 switch($App->getPageName()){
 	case 'new':
 		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

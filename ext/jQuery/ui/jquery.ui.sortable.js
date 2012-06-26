@@ -64,6 +64,10 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 	},
 
+	update: function (){
+		this._trigger("update", null, this._uiHash());
+	},
+
 	destroy: function() {
 		$.Widget.prototype.destroy.call( this );
 		this.element
