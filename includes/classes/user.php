@@ -474,30 +474,12 @@ class RentalStoreUser implements Serializable {
 	}
 
 	public function sendNewCustomerEmail(){
-		$firstName = $this->customerInfo['firstName'];
-		$lastName = $this->customerInfo['lastName'];
-		$emailAddress = $this->customerInfo['emailAddress'];
-		$fullName = $this->customerInfo['firstName'] . ' ' . $this->customerInfo['lastName'];
+		$Customer = Doctrine_Core::getTable('Customers')
+		->find($this->getCustomerId());
 
-		$emailEvent = new emailEvent('create_account');
-
-		$emailEvent->setVars(array(
-			'email_address' => $emailAddress,
-			'password'      => (is_array($this->customerInfo['password']) ? $this->customerInfo['password']['password'] : $this->customerInfo['password']),
-			'firstname'     => $firstName,
-			'lastname'      => $lastName,
-			'full_name'     => $fullName
-		));
-
-		if (isset($this->newCustomerEmailVars)){
-			foreach($this->newCustomerEmailVars as $var => $val){
-				$emailEvent->setVar($var, $val);
-			}
-		}
-
-		$emailEvent->sendEmail(array(
-			'email' => $emailAddress,
-			'name'  => $fullName
+		$Module = EmailModules::getModule('customer');
+		$Module->process('NEW_ACCOUNT_CREATED', array(
+			'CustomerObj' => $Customer
 		));
 	}
 

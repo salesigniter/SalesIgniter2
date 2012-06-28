@@ -6,7 +6,7 @@ class TemplateManagerWidgetInfoPages extends TemplateManagerWidget {
 		$this->init('infoPages', true, __DIR__);
 
 		$this->enabled = (sysConfig::get('EXTENSION_INFO_PAGES_INFOBOX') == 'True');
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_INFOPAGES'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_INFOPAGES_TEXT_TITLE'));
 	}
 	
 	public function getPageList(){

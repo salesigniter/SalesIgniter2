@@ -9,7 +9,7 @@ class TemplateManagerWidgetPayPerRental extends TemplateManagerWidget {
 		if (isset($_GET['app']) && $_GET['app'] == 'checkout'){
 			$this->enabled = false;
 		}
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_PAYPERRENTAL'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_PAYPERRENTAL_TEXT_TITLE'));
 		$this->buildStylesheetMultiple = false;
 		$this->buildJavascriptMultiple = true;
 	}

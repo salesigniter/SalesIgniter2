@@ -1349,6 +1349,17 @@ $(document).ready(function () {
 		}
 	});
 
+	$('.ApplicationPageMenu .rootItem').click(function (e){
+		$('.subMenu:visible').slideUp('fast');
+		if ($(this).find('.subMenu').size() > 0){
+			e.stopPropagation();
+			$(this).find('.subMenu').first().slideDown('fast');
+			$(document).one('click', function (){
+				$('.subMenu:visible').slideUp('fast');
+			});
+		}
+	});
+
 	$(window).scroll(function (e) {
 		if ($('.ApplicationPageMenu').size() == 0){
 			return;

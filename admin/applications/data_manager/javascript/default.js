@@ -19,7 +19,7 @@ $(document).ready(function () {
 		}
 		else {
 			var Data = $(this).find('option:selected').attr('data-supported_formats');
-			var SupportedFormats = $.parseJSON(Data);
+			var SupportedFormats = $.parseJSON(htmlspecialchars_decode(Data));
 			$.each(SupportedFormats, function (k, v) {
 				FormatSelect.append('<option value="' + k + '">' + v + '</option>');
 			});
@@ -32,7 +32,7 @@ $(document).ready(function () {
 		}
 		else {
 			var Data = $(this).find('option:selected').attr('data-supported_actions');
-			var SupportedActions = $.parseJSON(Data);
+			var SupportedActions = $.parseJSON(htmlspecialchars_decode(Data));
 			$.each(SupportedActions, function (k, v) {
 				ActionSelect.append('<option value="' + k + '">' + v + '</option>');
 			});

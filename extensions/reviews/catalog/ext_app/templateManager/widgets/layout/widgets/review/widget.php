@@ -14,7 +14,7 @@ class TemplateManagerWidgetReview extends TemplateManagerWidget {
 		global $App;
 		$this->init('review', true, __DIR__);
 
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_REVIEWS'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_REVIEW_TEXT_TITLE'));
 		if ($App->getEnv() == 'catalog'){
 			$this->setBoxHeadingLink(itw_app_link('appExt=reviews', 'product_review', 'default'));
 		}

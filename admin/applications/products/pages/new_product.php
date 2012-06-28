@@ -6,57 +6,16 @@ $Product = new Product(
 if (!isset($_GET['product_id']) && isset($_GET['productType'])){
 	$Product->setProductType($_GET['productType']);
 }
-?>
-<form name="new_product" action="<?php echo itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'action=saveProduct' . ((int)$Product->getId() > 0	? '&product_id=' . $Product->getId() : ''));?>" method="post" enctype="multipart/form-data">
-	<div class="ApplicationPageMenu"><?php
-	$Menu = htmlBase::newList();
 
-	$AjaxSaveButton = htmlBase::newElement('button')
-		->setType('submit')
-		->usePreset('save')
-		->addClass('ajaxSave')
-		->setText(sysLanguage::get('TEXT_BUTTON_AJAX_SAVE'));
-
-	$AjaxSaveListItem = htmlBase::newElement('li')
-		->addClass('rootItem')
-		->html($AjaxSaveButton->draw());
-	$Menu->addItemObj($AjaxSaveListItem);
-
-	$SaveButton = htmlBase::newElement('button')
-		->setType('submit')
-		->usePreset('save')
-		->setText(sysLanguage::get('TEXT_BUTTON_SAVE'));
-
-	$SaveListItem = htmlBase::newElement('li')
-		->addClass('rootItem')
-		->html($SaveButton->draw());
-	$Menu->addItemObj($SaveListItem);
-
-	$CancelButton = htmlBase::newButton()
-		->usePreset('cancel');
-	if (Session::exists('categories_cancel_link') === true){
-		$CancelButton->setHref(Session::get('categories_cancel_link'));
-	}
-	else {
-		$CancelButton->setHref(itw_app_link((isset($_GET['product_id']) ? 'product_id=' . $_GET['product_id'] : ''), null, 'default'));
-	}
-
-	$CancelListItem = htmlBase::newElement('li')
-		->addClass('rootItem')
-		->html($CancelButton->draw());
-	$Menu->addItemObj($CancelListItem);
-
-	echo $Menu->draw();
-	?></div>
-<?php
-
-$tax_class_array = array(array('id'   => '0',
-							   'text' => sysLanguage::get('TEXT_NONE')
-)
+$tax_class_array = array(
+	array(
+		'id'   => '0',
+		'text' => sysLanguage::get('TEXT_NONE')
+	)
 );
 $QtaxClass = Doctrine_Manager::getInstance()
-	->getCurrentConnection()
-	->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
+->getCurrentConnection()
+->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
 foreach($QtaxClass as $tax_class){
 	$tax_class_array[] = array(
 		'id'   => $tax_class['tax_class_id'],
@@ -102,11 +61,13 @@ if ($Product->getId() > 0){
 }
 
 $is_box_array = array();
-$is_box_array[] = array('id'   => 0,
-						'text' => 'No'
+$is_box_array[] = array(
+	'id'   => 0,
+	'text' => 'No'
 );
-$is_box_array[] = array('id'   => 1,
-						'text' => 'Yes'
+$is_box_array[] = array(
+	'id'   => 1,
+	'text' => 'Yes'
 );
 //------------------------- BOX set end block -----------------------------//
 
@@ -132,7 +93,7 @@ $adminTabs = array(
 EventManager::notify('NewProductAddDefaultTabs', $Product, $ProductType, $adminTabs);
 
 $Tabs = htmlBase::newElement('tabs')
-	->setId('tab_container');
+->setId('tab_container');
 
 /*
  * This handles the replacement of the original default tabs with tabs stored with the product type module
@@ -148,8 +109,9 @@ foreach($adminTabs as $k => $v){
 	$TabContent = ob_get_contents();
 	ob_end_clean();
 
-	$Tabs->addTabHeader(basename($k, '.php'), array('text' => $v))
-		->addTabPage(basename($k, '.php'), array('text' => $TabContent));
+	$Tabs
+	->addTabHeader(basename($k, '.php'), array('text' => $v))
+	->addTabPage(basename($k, '.php'), array('text' => $TabContent));
 }
 
 /*
@@ -164,13 +126,11 @@ if (file_exists($ProductType->getPath() . 'admin/applications/products/pages/new
 }
 
 EventManager::notify('NewProductAddTabs', $Product, $ProductType, $Tabs);
-?>
-	<?php
-	echo $Tabs->draw();
 
-		if (Session::exists('categories_cancel_link') === true){
-			echo tep_draw_hidden_field('categories_save_redirect', Session::get('categories_save_redirect'));
-		}
-		?>
-	<input type="hidden" name="products_type" value="<?php echo $ProductType->getCode();?>">
-</form>
+echo $Tabs->draw();
+
+if (Session::exists('categories_cancel_link') === true){
+	echo tep_draw_hidden_field('categories_save_redirect', Session::get('categories_save_redirect'));
+}
+?>
+<input type="hidden" name="products_type" value="<?php echo $ProductType->getCode();?>">

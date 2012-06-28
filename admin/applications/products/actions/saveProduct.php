@@ -78,14 +78,17 @@ EventManager::notify('ProductsDescriptionsBeforeSave', $ProductsDescription);
    }*/
 //------------------------- BOX set end block -----------------------------//
 
-$Product->ProductsToCategories->delete();
+$Product->ProductsToCategories->clear();
 if (isset($_POST['categories'])){
 	foreach($_POST['categories'] as $categoryId){
-		$Product->ProductsToCategories[]->categories_id = $categoryId;
+		$ProductToCategory = new ProductsToCategories();
+		$ProductToCategory->categories_id = $categoryId;
+
+		$Product->ProductsToCategories->add($ProductToCategory);
 	}
 }
 
-$Product->ProductsAdditionalImages->delete();
+$Product->ProductsAdditionalImages->clear();
 if (isset($_POST['additional_image']) && !empty($_POST['additional_image'])){
 	$saved = array();
 	foreach($_POST['additional_image'] as $fileName){

@@ -11,148 +11,17 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-$SaleModule = $Editor->getSaleModule();
+$PageBlockPath = 'extensions/orderCreator/admin/base_app/default/pageBlocks/';
 ?>
-<style>
-	.ui-datepicker-group {
-		margin : .3em;
-	}
-
-	.ui-datepicker-header {
-		padding    : 0;
-		text-align : center;
-	}
-
-	.ui-datepicker-header span {
-		margin : .5em;
-	}
-
-	.ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next {
-		top : 0px;
-	}
-
-	.ui-datepicker-status {
-		margin      : .5em;
-		text-align  : center;
-		font-weight : bold;
-	}
-
-		/*#datePicker { font-size: 1.25em; }
-		#datePicker .ui-datepicker-calendar td { font-size: 1.25em; }
-		#datePicker .ui-datepicker-start_date { background: #00FF00; }*/
-	.ui-datepicker-shipping-day-hover, .ui-datepicker-shipping-day-hover-info {
-		background : #F7C8D3;
-	}
-
-	#datePicker .ui-state-active {
-		background : #CACEE6;
-	}
-</style>
-<script>
-	$(document).ready(function (){
-		$('.loadRevision').change(function (){
-			js_redirect(js_app_link(js_get_all_get_params() + '&rev=' + $(this).val()));
-		});
-	});
-</script>
-<form name="new_order" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=saveOrder');?>" method="post">
-<script>
-	$(document).ready(function (){
-		$('.ApplicationPageMenu .rootItem').click(function (e){
-			$('.subMenu:visible').slideUp('fast');
-			if ($(this).find('.subMenu').size() > 0){
-				e.stopPropagation();
-				$(this).find('.subMenu').first().slideDown('fast');
-				$(document).one('click', function (){
-					$('.subMenu:visible').slideUp('fast');
-				});
-			}
-		});
-	});
-</script>
-<div class="ApplicationPageMenu ui-corner-bottom"><?php
-	$Menu = htmlBase::newList();
-
-	$SaveButton = htmlBase::newElement('button')
-		->setType('submit')
-		->setName('save')
-		->val($SaleModule->getCode())
-		->usePreset('save')
-		->setText('Save');
-
-	$SaveListItem = htmlBase::newElement('li')
-		->addClass('rootItem')
-		->html($SaveButton->draw());
-	$Menu->addItemObj($SaveListItem);
-
-	if ($SaleModule->canConvert()){
-		$ConvertSubList = htmlBase::newList();
-		$ConvertSubList->addClass('subMenu ui-corner-bottom');
-		foreach($SaleModule->getConvertOptions() as $oInfo){
-			$ConvertButton = htmlBase::newElement('button')
-				->setType('submit')
-				->setName('convertTo')
-				->val($oInfo['code'])
-				->setText('To ' . $oInfo['title']);
-
-			$ConvertItem = htmlBase::newElement('li')
-				->addClass('subItem')
-				->html($ConvertButton->draw());
-			$ConvertSubList->addItemObj($ConvertItem);
-		}
-
-		$ConvertIcon = htmlBase::newElement('icon')
-			->setType('transferthick-e-w');
-		$ConvertListItem = htmlBase::newElement('li')
-			->addClass('rootItem')
-			->html($ConvertIcon->draw() . '<span>Convert</span>' . $ConvertSubList->draw());
-		$Menu->addItemObj($ConvertListItem);
-	}
-
-	if ($SaleModule->canPrint()){
-		$PrintSubList = htmlBase::newList();
-		$PrintSubList->addClass('subMenu ui-corner-bottom');
-		foreach($SaleModule->getPrintOptions() as $oInfo){
-			$PrintButton = htmlBase::newElement('button')
-				->setType('submit')
-				->setName('print')
-				->val($oInfo['code'])
-				->setText($oInfo['title']);
-
-			$PrintItem = htmlBase::newElement('li')
-				->addClass('subItem')
-				->html($PrintButton->draw());
-			$PrintSubList->addItemObj($PrintItem);
-		}
-
-		$PrintIcon = htmlBase::newElement('icon')
-			->setType('print');
-		$PrintListItem = htmlBase::newElement('li')
-			->addClass('rootItem')
-			->attr('id', 'print')
-			->html($PrintIcon->draw() . '<span>Print</span>' . $PrintSubList->draw());
-		$Menu->addItemObj($PrintListItem);
-	}
-
-	$RevisionIcon = htmlBase::newElement('icon')
-		->setType('revision');
-	$RevisionListItem = htmlBase::newElement('li')
-		->addClass('rootItem')
-		->attr('id', 'revision')
-		->html($RevisionIcon->draw() . '<span>Revision</span>');
-	$Menu->addItemObj($RevisionListItem);
-
-	echo $Menu->draw();
-	?></div>
 <div class="ui-widget">
 	<div class="customerSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_CUSTOMER_INFORMATION');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/customerDetails.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/customerDetails.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'customerDetails.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'customerDetails.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/customerDetails.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'customerDetails.php';
 		}
 
 		require($requireFile);
@@ -168,11 +37,11 @@ $SaleModule = $Editor->getSaleModule();
 				echo $content;
 			}
 		}
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/editProducts.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/editProducts.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'editProducts.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'editProducts.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/editProducts.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'editProducts.php';
 		}
 
 		require($requireFile);
@@ -182,11 +51,11 @@ $SaleModule = $Editor->getSaleModule();
 	<div class="totalsSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_ORDER_TOTALS');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/orderTotals.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/orderTotals.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/orderTotals.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'orderTotals.php';
 		}
 
 		require($requireFile);
@@ -199,11 +68,11 @@ $SaleModule = $Editor->getSaleModule();
 	<div class="paymentSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_PAYMENT_HISTORY');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/paymentHistory.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/paymentHistory.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/paymentHistory.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'paymentHistory.php';
 		}
 
 		require($requireFile);
@@ -217,11 +86,11 @@ $SaleModule = $Editor->getSaleModule();
 	<div class="statusSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_STATUS_HISTORY');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/statusHistory.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/statusHistory.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/statusHistory.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'statusHistory.php';
 		}
 
 		require($requireFile);
@@ -232,11 +101,11 @@ $SaleModule = $Editor->getSaleModule();
 	<div class="commentSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_COMMENTS');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/comments.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/comments.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'comments.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'comments.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/comments.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'comments.php';
 		}
 
 		require($requireFile);
@@ -247,11 +116,11 @@ $SaleModule = $Editor->getSaleModule();
 	<div class="trackingSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_TRACKING');?></u></h2>
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/tracking.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/tracking.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'tracking.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'tracking.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/tracking.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'tracking.php';
 		}
 
 		require($requireFile);
@@ -261,18 +130,17 @@ $SaleModule = $Editor->getSaleModule();
 	<br>
 	<div class="statusSection">
 		<?php
-		if (file_exists(sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/pageBlocks/status.php')){
-			$requireFile = sysConfig::get('DIR_FS_CATALOG_TEMPLATES') . sysConfig::get('DIR_WS_TEMPLATES_DEFAULT') . '/extensions/orderCreator/admin/base_app/default/pageBlocks/status.php';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'status.php')){
+			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'status.php';
 		}
 		else {
-			$requireFile = sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/base_app/default/pageBlocks/status.php';
+			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'status.php';
 		}
 
 		require($requireFile);
 		?>
 	</div>
 </div>
-</form>
 
 <script type="text/javascript">
 	$(document).ready(function () {

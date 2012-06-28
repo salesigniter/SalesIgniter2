@@ -5,8 +5,8 @@ $ModuleSelect = htmlBase::newElement('selectbox')
 DataManagementModules::loadModules();
 foreach(DataManagementModules::getModules() as $Module){
 	$ModuleSelect->addOption($Module->getCode(), $Module->getTitle(), false, array(
-		'data-supported_formats' => htmlentities(json_encode($Module->getSupportedFormats())),
-		'data-supported_actions' => htmlentities(json_encode($Module->getSupportedActions()))
+		'data-supported_formats' => htmlspecialchars(json_encode($Module->getSupportedFormats())),
+		'data-supported_actions' => htmlspecialchars(json_encode($Module->getSupportedActions()))
 	));
 }
 $DataFormat = htmlBase::newElement('selectbox')
@@ -37,6 +37,7 @@ $ActionButton = htmlBase::newElement('button')
 
 		<div>Select Which File To Work With ( Import Only )</div>
 		<div><input type="file" name="file_to_use"></div>
+		<!--<div><?php echo htmlBase::newFileManager()->setName('import_file')->setDirectory(sysConfig::getDirFsCatalog() . 'clientData/import/')->draw();?></div>-->
 		<br>
 
 		<div><?php echo $ActionButton->draw();?></div>

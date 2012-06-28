@@ -11,23 +11,54 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
-switch($App->getPageName()){
+switch($AppPage->getName()){
 	case 'default':
 		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_DEFAULT'));
 		break;
 	case 'new_product':
+		$AjaxSaveButton = htmlBase::newElement('button')
+		->setType('submit')
+		->usePreset('save')
+		->addClass('ajaxSave')
+		->setText(sysLanguage::get('TEXT_BUTTON_AJAX_SAVE'));
+
+		$SaveButton = htmlBase::newElement('button')
+		->setType('submit')
+		->usePreset('save');
 		if (isset($_GET['product_id'])){
 			sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_EDIT_PRODUCT'));
+			$SaveButton->setText(sysLanguage::get('TEXT_BUTTON_UPDATE'));
 		}
 		else {
 			sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_NEW_PRODUCT'));
 			$messageStack->add('pageStack', sysLanguage::get('INFO_MESSAGE_NEW_PRODUCT'), 'info');
+			$SaveButton->setText(sysLanguage::get('TEXT_BUTTON_UPDATE'));
 		}
+
+		$CancelButton = htmlBase::newButton()
+		->usePreset('cancel');
+		if (Session::exists('categories_cancel_link') === true){
+			$CancelButton->setHref(Session::get('categories_cancel_link'));
+		}
+		else {
+			$CancelButton->setHref(itw_app_link((isset($_GET['product_id']) ? 'product_id=' . $_GET['product_id'] : ''), null, 'default'));
+		}
+
+		$AppPage->setPageFormParam(array(
+			'name'   => 'new_product',
+			'action' => itw_app_link(tep_get_all_get_params(array('action', 'product_id')) . 'action=saveProduct' . (isset($_GET['product_id']) ? '&product_id=' . $_GET['product_id'] : '')),
+			'method' => 'post'
+		));
+
+		$AppPage->addMenuItem($AjaxSaveButton);
+		$AppPage->addMenuItem($SaveButton);
+		$AppPage->addMenuItem($CancelButton);
 		break;
 	case 'expected':
 		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE_EXPECTED'));
 		break;
 }
+
 if (!$App->getPageName() != 'expected'){
 
 	if ($App->getAppPage() == 'new_product'){

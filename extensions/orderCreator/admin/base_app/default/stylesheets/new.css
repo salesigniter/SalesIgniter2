@@ -143,27 +143,91 @@
 	table.generalInfo  > tbody > tr:nth-last-child(1) td {
 		border-width: 0;
 	}
+
+	/* Is This Even Needed??? */
+	.ui-datepicker-group {
+		margin : .3em;
+	}
+
+	.ui-datepicker-header {
+		padding    : 0;
+		text-align : center;
+	}
+
+	.ui-datepicker-header span {
+		margin : .5em;
+	}
+
+	.ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next {
+		top : 0px;
+	}
+
+	.ui-datepicker-status {
+		margin      : .5em;
+		text-align  : center;
+		font-weight : bold;
+	}
+
+	/*#datePicker { font-size: 1.25em; }
+			#datePicker .ui-datepicker-calendar td { font-size: 1.25em; }
+			#datePicker .ui-datepicker-start_date { background: #00FF00; }*/
+	.ui-datepicker-shipping-day-hover, .ui-datepicker-shipping-day-hover-info {
+		background : #F7C8D3;
+	}
+
+	#datePicker .ui-state-active {
+		background : #CACEE6;
+	}
 }
 
 @media screen and (min-width: 240px) {
+	.ApplicationPageMenu .rootItem {
+		width: 50px;
+		line-height: 3em;
+		padding-top: 10px;
+	}
 }
 
 @media screen and (min-width: 320px) {
+	.ApplicationPageMenu .rootItem {
+		width: 72px;
+	}
+	.ApplicationPageMenu .rootItem .ui-icon {
+		display:block;
+		margin-left:auto;
+		margin-right:auto;
+		line-height:1em;
+	}
 }
 
 @media screen and (min-width: 480px) {
+	.ApplicationPageMenu .rootItem {
+		width: 110px;
+	}
 	.customerTabPage {
 		width: 300px;
 	}
 }
 
 @media screen and (min-width: 768px) {
+	.ApplicationPageMenu .rootItem {
+		width: 160px;
+		line-height: inherit;
+		padding-top: 0px;
+	}
+	.ApplicationPageMenu .rootItem .ui-icon {
+		display:inline-block;
+		margin-right:.5em;
+	}
 	.customerTabPage {
 		width: 480px;
 	}
 }
 
 @media screen and (min-width: 992px) {
+	.ApplicationPageMenu .rootItem {
+		width: 200px;
+	}
 	table.addresses {
 		margin: 0px 10px;
 	}

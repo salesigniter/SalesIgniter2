@@ -63,4 +63,8 @@ $(document).ready(function () {
 		}
 	});
 	$('select[name=country]').trigger('change');
+
+	$('#customerTabs').tabs();
+	$('#rentalTabs').tabs();
+	makeTabsVertical('#customerTabs');
 });

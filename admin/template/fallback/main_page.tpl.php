@@ -12,22 +12,22 @@
  */
 
 $stylesheetLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/stylesheet.php?' .
-	'env=admin' .
-	'&' . Session::getSessionName() . '=' . Session::getSessionId() .
-	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
-	'&import[]=' . implode('&import[]=', $App->getStylesheetFiles()) .
-	'&showErrors' .
-	(isset($_GET['noCache']) ? '&noCache' : '') .
-	(isset($_GET['noMin']) ? '&noMin' : '');
+'env=admin' .
+'&' . Session::getSessionName() . '=' . Session::getSessionId() .
+'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
+'&import[]=' . implode('&import[]=', $App->getStylesheetFiles()) .
+'&showErrors' .
+(isset($_GET['noCache']) ? '&noCache' : '') .
+(isset($_GET['noMin']) ? '&noMin' : '');
 
 $javascriptLink = sysConfig::getDirWsCatalog() . 'extensions/templateManager/catalog/globalFiles/javascript.php?' .
-	'env=admin' .
-	'&' . Session::getSessionName() . '=' . Session::getSessionId() .
-	'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
-	'&import[]=' . implode('&import[]=', $App->getJavascriptFiles()) .
-	'&showErrors' .
-	(isset($_GET['noCache']) ? '&noCache' : '') .
-	(isset($_GET['noMin']) ? '&noMin' : '');
+'env=admin' .
+'&' . Session::getSessionName() . '=' . Session::getSessionId() .
+'&tplDir=' . sysConfig::get('TEMPLATE_DIRECTORY') .
+'&import[]=' . implode('&import[]=', $App->getJavascriptFiles()) .
+'&showErrors' .
+(isset($_GET['noCache']) ? '&noCache' : '') .
+(isset($_GET['noMin']) ? '&noMin' : '');
 
 $CurrencyInfo = $currencies->get(Session::get('currency'));
 
@@ -59,32 +59,32 @@ ob_end_clean();
 			});
 			$('#mainNavMenu > li').each(function () {
 				$(this)
-					.addClass('ui-state-default')
-					.mouseover(
-					function () {
-						$(this).addClass('ui-state-hover')
-					}).mouseout(
-					function () {
-						$(this).removeClass('ui-state-hover');
-					}).click(function (e) {
-						$('#mainNavMenu > li.ui-state-active').removeClass('ui-state-active');
-						$(this).addClass('ui-state-active');
-						if ($(this).data('load_ajax') === true){
-							$.ajax({
-								url      : $(this).find('a').attr('href'),
-								dataType : 'html',
-								success  : function (data) {
-									$('#landingPage').remove();
-									var landingPage = $('#bodyWrapper').clone().attr('id', 'landingPage').html(data).show();
-									$('#bodyWrapper').hide();
-									landingPage.insertAfter($('#bodyWrapper'));
-								}
-							});
-						}
-						else {
-							window.location = $(this).find('a').attr('href');
-						}
-					});
+				.addClass('ui-state-default')
+				.mouseover(
+				function () {
+					$(this).addClass('ui-state-hover')
+				}).mouseout(
+				function () {
+					$(this).removeClass('ui-state-hover');
+				}).click(function (e) {
+					$('#mainNavMenu > li.ui-state-active').removeClass('ui-state-active');
+					$(this).addClass('ui-state-active');
+					if ($(this).data('load_ajax') === true){
+						$.ajax({
+							url      : $(this).find('a').attr('href'),
+							dataType : 'html',
+							success  : function (data) {
+								$('#landingPage').remove();
+								var landingPage = $('#bodyWrapper').clone().attr('id', 'landingPage').html(data).show();
+								$('#bodyWrapper, .pageHeading, .ApplicationPageMenu').hide();
+								landingPage.insertAfter($('#bodyWrapper'));
+							}
+						});
+					}
+					else {
+						window.location = $(this).find('a').attr('href');
+					}
+				});
 			});
 
 			$('#mainNavMenu > li > a').click(function (e) {
@@ -93,18 +93,18 @@ ob_end_clean();
 
 			$(document).on('click', '.removeLanding', function () {
 				$(this).parent().remove();
-				$('#bodyWrapper').show();
+				$('#bodyWrapper, .pageHeading, .ApplicationPageMenu').show();
 			});
 
 			if ($('#appTips').size() > 0){
 				$('#iconBar .ui-icon-help').click(
-					function () {
-						$('#appTips').dialog();
-					}).show();
+				function () {
+					$('#appTips').dialog();
+				}).show();
 			}
 
 			if ($.browser.msie === true && $.browser.version <= 8){
-				$('[style*="IE8_gradient"], [class!=""]').each(function (){
+				$('[style*="IE8_gradient"], [class!=""]').each(function () {
 					var current = $(this).css('background-image');
 					if (/IE8_gradient/.test(current)){
 						current = current.replace('height=100', 'height=' + $(this).outerHeight());
@@ -118,7 +118,8 @@ ob_end_clean();
 </head>
 <body topmargin="0" leftmargin="0" bgcolor="#FFFFFF">
 <?php
-function makeLinkList($item) {
+function makeLinkList($item)
+{
 	$return = '<ul class="mainNavMenuChild">';
 	foreach($item['children'] as $cInfo){
 		$return .= '<li>';
@@ -150,13 +151,15 @@ if (Session::exists('login_id') === true){
 	<div id="languageBox">
 		<?php
 		$langDrop = htmlBase::newElement('selectbox')
-			->setName('language')
-			->selectOptionByValue(Session::get('languages_code'))
-			->attr('onchange', 'this.form.submit()');
+		->setName('language')
+		->selectOptionByValue(Session::get('languages_code'))
+		->attr('onchange', 'this.form.submit()');
 		foreach(sysLanguage::getLanguages() as $lInfo){
 			$langDrop->addOption($lInfo['code'], $lInfo['name']);
 		}
-		echo '<form name="changeLanguage" action="' . itw_app_link(tep_get_all_get_params(array('app', 'appPage', 'action')), $App->getAppName(), $App->getAppPage()) . '" method="get">Language: ' . $langDrop->draw() . '</form>';
+		echo '<form name="changeLanguage" action="' . itw_app_link(tep_get_all_get_params(array(
+			'app', 'appPage', 'action'
+		)), $App->getAppName(), $App->getAppPage()) . '" method="get">Language: ' . $langDrop->draw() . '</form>';
 		?>
 	</div>
 </div>
@@ -198,15 +201,24 @@ if (Session::exists('login_id') === true){
 	<div id="rightColumn" class="ui-corner-all">
 		<div class="pageHeading"><?php echo sysLanguage::get('PAGE_TITLE');?></div>
 		<?php
+		if (isset($AppPage) && $AppPage->hasPageForm()){
+			echo '<form name="' . $AppPage->getPageFormName() . '" action="' . $AppPage->getPageFormAction() . '" method="' . $AppPage->getPageFormMethod() . '">';
+		}
+		if (isset($AppPage) && $AppPage->hasMenu()){
+			echo $AppPage->drawMenu();
+		}
 		if ($messageStack->size('pageStack') > 0){
 			echo $messageStack->output('pageStack');
 		}
 		?>
-		<div id="bodyWrapper"><?php
-			echo $BodyContent;
-			?></div>
-	<div class="ui-helper-clearfix"></div>
-</div>
+		<div id="bodyWrapper"><?php echo $BodyContent; ?></div>
+		<?php
+		if (isset($AppPage) && $AppPage->hasPageForm()){
+			echo '</form>';
+		}
+		?>
+		<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
+	</div>
 </div>
 <footer><?php
 	require(sysConfig::getDirFsAdmin() . 'includes/footer.php');

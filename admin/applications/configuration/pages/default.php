@@ -57,13 +57,6 @@ foreach($tabs as $pInfo){
 	var CONFIGURATION_GROUP_KEY = '<?php echo $_GET['key'];?>';
 </script>
 <div style="margin:.5em;">
-	<div style="margin:.5em;float:right;"><?php
-		echo htmlBase::newElement('button')
-			->addClass('saveButton')
-			->usePreset('save')
-			->setText('Save Changes')
-			->draw();
-		?></div>
 	<h1><?php echo $Configuration->getTitle(); ?></h1>
 
 	<h3><?php echo $Configuration->getDescription(); ?></h3>

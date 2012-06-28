@@ -19,7 +19,7 @@ OrderPaymentModules::loadModules();
 OrderShippingModules::loadModules();
 OrderTotalModules::loadModules();
 
-if ($App->getAppPage() == 'new'){
+if ($AppPage->getName() == 'new'){
 	$runInit = false;
 	if (!isset($_GET['action'])){
 		$Editor = new OrderCreator(
@@ -38,17 +38,18 @@ if ($App->getAppPage() == 'new'){
 	if ($runInit === true){
 		$Editor->init();
 	}
+	$SaleModule = $Editor->getSaleModule();
 }
 
 //echo '<pre>';print_r($Editor);
 $orders_statuses = array();
 $orders_status_array = array();
 $Qstatus = Doctrine_Query::create()
-	->select('s.orders_status_id, sd.orders_status_name')
-	->from('OrdersStatus s')
-	->leftJoin('s.OrdersStatusDescription sd')
-	->where('sd.language_id = ?', (int)Session::get('languages_id'))
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+->select('s.orders_status_id, sd.orders_status_name')
+->from('OrdersStatus s')
+->leftJoin('s.OrdersStatusDescription sd')
+->where('sd.language_id = ?', (int)Session::get('languages_id'))
+->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 foreach($Qstatus as $status){
 	$orders_statuses[] = array(
 		'id'   => $status['orders_status_id'],
@@ -64,3 +65,68 @@ if ($Editor->hasErrors()){
 }
 
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE') . '<span style="color:red;font-size: .8em;display:block;line-height: 1em;margin-bottom: 10px;margin-top: -1.6em;">To add products to order, first enter customer details and click update customer</span>');
+
+if ($AppPage->getName() == 'new'){
+	$AppPage->setPageFormParam(array(
+		'name'   => 'new_order',
+		'action' => itw_app_link(tep_get_all_get_params(array('action')) . 'action=saveOrder'),
+		'method' => 'post'
+	));
+
+	$SaveButton = htmlBase::newElement('button')
+	->setType('submit')
+	->setName('save')
+	->val($SaleModule->getCode())
+	->usePreset('save')
+	->setText('Save');
+
+	$AppPage->addMenuItem($SaveButton);
+
+	if ($SaleModule->canConvert()){
+		$convertButtons = array();
+		foreach($SaleModule->getConvertOptions() as $oInfo){
+			$convertButtons[] = htmlBase::newElement('button')
+			->setType('submit')
+			->setName('convertTo')
+			->val($oInfo['code'])
+			->setText('To ' . $oInfo['title']);
+		}
+
+		$AppPage->addMenuItem(array(
+			'icon'     => 'transferthick-e-w',
+			'text'     => 'Convert',
+			'children' => $convertButtons
+		));
+	}
+
+	if ($SaleModule->canPrint()){
+		$printButtons = array();
+		foreach($SaleModule->getPrintOptions() as $oInfo){
+			$printButtons[] = htmlBase::newElement('button')
+			->setType('submit')
+			->setName('print')
+			->val($oInfo['code'])
+			->setText($oInfo['title']);
+		}
+
+		$AppPage->addMenuItem(array(
+			'icon'     => 'print',
+			'text'     => 'Print',
+			'children' => $printButtons
+		));
+	}
+
+	if ($SaleModule->hasRevisions()){
+		$revisionButtons = array();
+		foreach($SaleModule->getRevisions() as $rInfo){
+			$revisionButtons[] = htmlBase::newElement('button')
+			->setHref(itw_app_link('revision=' . $rInfo['revision'] . '&sale_id=' . $SaleModule->getSaleId(), 'accounts_receivable', 'sales'))
+			->setText($rInfo['title']);
+		}
+		$AppPage->addMenuItem(array(
+			'icon'     => 'revision',
+			'text'     => 'Revisions',
+			'children' => $revisionButtons
+		));
+	}
+}

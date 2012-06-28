@@ -160,15 +160,31 @@ class ExtensionBase
 		global $App;
 		if ($this->hasDoctrine()){
 			$initModels = array();
+
+			if (is_dir(sysConfig::getDirFsCatalog() . 'clientData/extensions/' . $this->extName . '/Doctrine/base/')){
+				$extObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'clientData/extensions/' . $this->extName . '/Doctrine/base/');
+				foreach($extObj as $eInfo){
+					if ($eInfo->isDot() || $eInfo->isDir()){
+						continue;
+					}
+					$initModels[] = $eInfo->getBasename('.php');
+					require($eInfo->getPathname());
+					Doctrine_Core::loadModel($eInfo->getBasename('.php'), $eInfo->getPath() . '/');
+				}
+			}
+
 			$extObj = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/' . $this->extName . '/Doctrine/base/');
 			foreach($extObj as $eInfo){
 				if ($eInfo->isDot() || $eInfo->isDir()){
 					continue;
 				}
-				$initModels[] = $eInfo->getBasename('.php');
-				require($eInfo->getPathname());
-				Doctrine_Core::loadModel($eInfo->getBasename('.php'), $eInfo->getPath() . '/');
+				if (class_exists($eInfo->getBasename('.php')) === false){
+					$initModels[] = $eInfo->getBasename('.php');
+					require($eInfo->getPathname());
+					Doctrine_Core::loadModel($eInfo->getBasename('.php'), $eInfo->getPath() . '/');
+				}
 			}
+
 			Doctrine_Core::initializeModels($initModels);
 		}
 	}

@@ -1,165 +1,134 @@
-<form name="customers" action="<?php echo itw_app_link(tep_get_all_get_params(array('action')) . 'action=save', null, null, 'SSL');?>" method="post">
-	<div class="ApplicationPageMenu"><?php
-		$Menu = htmlBase::newList();
+<script type="text/javascript">
+	var plans = [];
+	function fnPaymentChange(val) {
+		if (val != 'paypalipn'){
+			$('input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"]').each(function () {
+				$(this).removeAttr('disabled');
+				$(this).removeClass('ui-state-disabled');
+			});
+		}
+		else {
+			$('input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"]').each(function () {
+				$(this).attr('disabled', 'true');
+				$(this).addClass('ui-state-disabled');
+			});
 
-		$UpdateButton = htmlBase::newElement('button')
-			->setType('submit')
-			->usePreset('save')
-			->setText((isset($_GET['customer_id']) ? sysLanguage::get('TEXT_BUTTON_UPDATE') : sysLanguage::get('TEXT_BUTTON_INSERT')));
+		}
+	}
+	function fnClicked() {
+		if ($('select[name="activate"]').val() == 'Y'){
+			var moveDays = plans[document.customers.planid.options[document.customers.planid.options.selectedIndex].value];
 
-		$SaveListItem = htmlBase::newElement('li')
-			->addClass('rootItem')
-			->html($UpdateButton->draw());
-		$Menu->addItemObj($SaveListItem);
+			document.customers.planid.disabled = false;
+			$('select[name="payment_method"], input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"], select[name="next_billing_day"], select[name="next_billing_month"], select[name="next_billing_year"]').each(function () {
+				$(this).removeAttr('disabled');
+				$(this).removeClass('ui-state-disabled');
+			});
 
-		$CancelButton = htmlBase::newElement('button')
-			->usePreset('cancel')
-			->setHref(itw_app_link(null, null, 'default', 'SSL'));
-
-		$CancelListItem = htmlBase::newElement('li')
-			->addClass('rootItem')
-			->html($CancelButton->draw());
-		$Menu->addItemObj($CancelListItem);
-
-		echo $Menu->draw();
-		?></div>
-	<script type="text/javascript">
-		var plans = [];
-		function fnPaymentChange(val) {
-			if (val != 'paypalipn'){
-				$('input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"]').each(function () {
-					$(this).removeAttr('disabled');
-					$(this).removeClass('ui-state-disabled');
-				});
+			var daysMonths = new Array(0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+			var actualDay = <?php echo (int)date("d");?>;
+			var actualMonth = <?php echo (int)date("m");?>;
+			var actualYear = <?php echo (int)date("y");?>;
+			var calculatedDay;
+			if (moveDays != undefined){
+				calculatedDay = actualDay + moveDays;
 			}
 			else {
-				$('input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"]').each(function () {
-					$(this).attr('disabled', 'true');
-					$(this).addClass('ui-state-disabled');
-				});
+				calculatedDay = $('select[name="next_billing_day"]').val();//document.customers.next_billing_day.selectedValue;
+				actualMonth = $('select[name="next_billing_month"]').val();
+				actualYear = $('select[name="next_billing_year"]').val();
+			}
 
+			var endingDay = calculatedDay;
+			var endingMonth = actualMonth;
+			var endingYear = actualYear;
+			while(endingDay > daysMonths[endingMonth]){
+				endingDay -= daysMonths[endingMonth];
+				endingMonth++;
+				if (endingMonth > 12){
+					endingMonth = 1;
+					endingYear++;
+				}
 			}
 		}
-		function fnClicked() {
-			if ($('select[name="activate"]').val() == 'Y'){
-				var moveDays = plans[document.customers.planid.options[document.customers.planid.options.selectedIndex].value];
-
-				document.customers.planid.disabled = false;
-				$('select[name="payment_method"], input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"], select[name="next_billing_day"], select[name="next_billing_month"], select[name="next_billing_year"]').each(function () {
-					$(this).removeAttr('disabled');
-					$(this).removeClass('ui-state-disabled');
-				});
-
-				var daysMonths = new Array(0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-				var actualDay = <?php echo (int)date("d");?>;
-				var actualMonth = <?php echo (int)date("m");?>;
-				var actualYear = <?php echo (int)date("y");?>;
-				var calculatedDay;
-				if (moveDays != undefined){
-					calculatedDay = actualDay + moveDays;
-				}
-				else {
-					calculatedDay = $('select[name="next_billing_day"]').val();//document.customers.next_billing_day.selectedValue;
-					actualMonth = $('select[name="next_billing_month"]').val();
-					actualYear = $('select[name="next_billing_year"]').val();
-				}
-
-				var endingDay = calculatedDay;
-				var endingMonth = actualMonth;
-				var endingYear = actualYear;
-				while(endingDay > daysMonths[endingMonth]){
-					endingDay -= daysMonths[endingMonth];
-					endingMonth++;
-					if (endingMonth > 12){
-						endingMonth = 1;
-						endingYear++;
-					}
-				}
-			}
-			else if ($('select[name="activate"]').val() == 'N'){
-				$('select[name="payment_method"], input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"], select[name="next_billing_day"], select[name="next_billing_month"], select[name="next_billing_year"]').each(function () {
-					$(this).attr('disabled', 'true');
-					$(this).addClass('ui-state-disabled');
-				});
-				document.customers.planid.disabled = true;
-			}
-
+		else if ($('select[name="activate"]').val() == 'N'){
+			$('select[name="payment_method"], input[name="cc_number"], input[name="cc_cvv"], select[name="cc_expires_month"], select[name="cc_expires_year"], select[name="next_billing_day"], select[name="next_billing_month"], select[name="next_billing_year"]').each(function () {
+				$(this).attr('disabled', 'true');
+				$(this).addClass('ui-state-disabled');
+			});
+			document.customers.planid.disabled = true;
 		}
-	</script>
-	<script type="text/javascript">
-		$(document).ready(function () {
-			$('#customerTabs').tabs();
-			$('#rentalTabs').tabs();
-			makeTabsVertical('#customerTabs');
-		});
-	</script>
-	<?php
-	$Customers = Doctrine_Core::getTable('Customers');
-	if (isset($_GET['customer_id'])){
-		$Customer = $Customers->find((int)$_GET['customer_id']);
-	}
-	else {
-		$Customer = $Customers->getRecord();
-	}
 
-	$newsletter_array = array(
-		array(
-			'id'   => '1',
-			'text' => sysLanguage::get('ENTRY_NEWSLETTER_YES')
-		),
-		array(
-			'id'   => '0',
-			'text' => sysLanguage::get('ENTRY_NEWSLETTER_NO')
-		)
-	);
+	}
+</script>
+<?php
+$Customers = Doctrine_Core::getTable('Customers');
+if (isset($_GET['customer_id'])){
+	$Customer = $Customers->find((int)$_GET['customer_id']);
+}
+else {
+	$Customer = $Customers->getRecord();
+}
 
+$newsletter_array = array(
+	array(
+		'id'   => '1',
+		'text' => sysLanguage::get('ENTRY_NEWSLETTER_YES')
+	),
+	array(
+		'id'   => '0',
+		'text' => sysLanguage::get('ENTRY_NEWSLETTER_NO')
+	)
+);
+
+ob_start();
+include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/customer_info.php');
+$customerInfoTab = ob_get_contents();
+ob_end_clean();
+
+ob_start();
+include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/membership_info.php');
+$membershipInfoTab = ob_get_contents();
+ob_end_clean();
+
+if (isset($_GET['customer_id'])){
 	ob_start();
-	include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/customer_info.php');
-	$customerInfoTab = ob_get_contents();
+	include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/order_history.php');
+	$orderHistoryTab = ob_get_contents();
 	ob_end_clean();
-
-	ob_start();
-	include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/membership_info.php');
-	$membershipInfoTab = ob_get_contents();
-	ob_end_clean();
-
-	if (isset($_GET['customer_id'])){
-		ob_start();
-		include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/order_history.php');
-		$orderHistoryTab = ob_get_contents();
-		ob_end_clean();
-		/*ob_start();
-		 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/billing_history.php');
-		 $rentalTab1 = ob_get_contents();
-		 ob_end_clean();
-
-			 ob_start();
-			 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/current_rentals.php');
-			 $rentalTab2 = ob_get_contents();
+	/*ob_start();
+			 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/billing_history.php');
+			 $rentalTab1 = ob_get_contents();
 			 ob_end_clean();
 
-			 ob_start();
-			 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/rental_history.php');
-			 $rentalTab3 = ob_get_contents();
-			 ob_end_clean();
+				 ob_start();
+				 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/current_rentals.php');
+				 $rentalTab2 = ob_get_contents();
+				 ob_end_clean();
 
-			 ob_start();
-			 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/rental_issue_history.php');
-			 $rentalTab4 = ob_get_contents();
-			 ob_end_clean();
-		 */
-	}
+				 ob_start();
+				 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/rental_history.php');
+				 $rentalTab3 = ob_get_contents();
+				 ob_end_clean();
 
-	$tabsObj = htmlBase::newElement('tabs')
-		->setId('customerTabs')
-		->addTabHeader('customerTab1', array('text' => 'Customer Info'))
-		->addTabPage('customerTab1', array('text' => $customerInfoTab))
-		->addTabHeader('customerTab2', array('text' => 'Membership Info'))
-		->addTabPage('customerTab2', array('text' => $membershipInfoTab));
+				 ob_start();
+				 include(sysConfig::getDirFsAdmin() . 'applications/customers/pages_tabs/edit/rental_issue_history.php');
+				 $rentalTab4 = ob_get_contents();
+				 ob_end_clean();
+			 */
+}
 
-	if (isset($_GET['customer_id'])){
-		$tabsObj->addTabHeader('orderHistoryTab', array('text' => sysLanguage::get('TAB_ORDER_HISTORY')))
-			->addTabPage('orderHistoryTab', array('text' => $orderHistoryTab))/*->addTabHeader('rentalTab1', array('text' => sysLanguage::get('HEADING_BILLING_HISTORY')))
+$tabsObj = htmlBase::newElement('tabs')
+->setId('customerTabs')
+->addTabHeader('customerTab1', array('text' => 'Customer Info'))
+->addTabPage('customerTab1', array('text' => $customerInfoTab))
+->addTabHeader('customerTab2', array('text' => 'Membership Info'))
+->addTabPage('customerTab2', array('text' => $membershipInfoTab));
+
+if (isset($_GET['customer_id'])){
+	$tabsObj
+	->addTabHeader('orderHistoryTab', array('text' => sysLanguage::get('TAB_ORDER_HISTORY')))
+	->addTabPage('orderHistoryTab', array('text' => $orderHistoryTab))/*->addTabHeader('rentalTab1', array('text' => sysLanguage::get('HEADING_BILLING_HISTORY')))
 	->addTabPage('rentalTab1', array('text' => $rentalTab1))
 	->addTabHeader('rentalTab2', array('text' => sysLanguage::get('HEADING_CURRENT_RENTALS')))
 	->addTabPage('rentalTab2', array('text' => $rentalTab2))
@@ -169,21 +138,22 @@
 	->addTabPage('rentalTab4', array('text' => $rentalTab4))
 	->addTabHeader('rentalTab5', array('text' => sysLanguage::get('HEADING_TITLE_REPORTS')))
 	->addTabPage('rentalTab5', array('text' => $rentalTab5))*/
-		;
-	}
+	;
+}
 
-	if (isset($_GET['customer_id'])){
-		EventManager::notify('AdminCustomerEditBuildTabs', $Customer, &$tabsObj);
-	}
-	else {
-		EventManager::notify('AdminCustomerInsertBuildTabs', $Customer, &$tabsObj);
-	}
+if (isset($_GET['customer_id'])){
+	EventManager::notify('AdminCustomerEditBuildTabs', $Customer, &$tabsObj);
+}
+else {
+	EventManager::notify('AdminCustomerInsertBuildTabs', $Customer, &$tabsObj);
+}
 
-	$tabsWrapper = htmlBase::newElement('div')->css('position', 'relative')->append($tabsObj);
+$tabsWrapper = htmlBase::newElement('div')
+->css('position', 'relative')
+->append($tabsObj);
 
-	echo $tabsWrapper->draw();
-	?>
-</form>
+echo $tabsWrapper->draw();
+?>
 <script type="text/javascript">
 	<?php echo (isset($jsMBM) ? $jsMBM : ''); /* Will be moved later */ ?>
 </script>

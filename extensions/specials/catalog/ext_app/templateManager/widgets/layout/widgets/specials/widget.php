@@ -6,7 +6,7 @@ class TemplateManagerWidgetSpecials extends TemplateManagerWidget {
 		$this->init('specials', true, __DIR__);
 
 		$this->enabled = (sysConfig::get('EXTENSION_SPECIALS_INFOBOX') == 'True');
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_SPECIALS'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SPECIALS_TEXT_TITLE'));
 	}
 	
 	public function show(){

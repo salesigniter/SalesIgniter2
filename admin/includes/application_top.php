@@ -191,6 +191,9 @@ $appExtension->initApplicationPlugins();
 
 $App->loadLanguageDefines();
 
+require(sysConfig::getDirFsCatalog() . 'includes/classes/ApplicationPage.php');
+$AppPage = new ApplicationPage($App->getAppPage());
+
 // email classes
 require(sysConfig::getDirFsAdmin() . 'includes/classes/mime.php');
 require(sysConfig::getDirFsAdmin() . 'includes/classes/email.php');

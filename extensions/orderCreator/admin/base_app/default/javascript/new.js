@@ -593,4 +593,8 @@ $(document).ready(function () {
 		e.preventDefault();
 		window.open(js_app_link('appExt=orderCreator&app=default&appPage=new&action=print&type=' + $(this).val() + '&' + $(this).data('print_vars')));
 	});
+
+	$('.loadRevision').change(function (){
+		js_redirect(js_app_link(js_get_all_get_params() + '&rev=' + $(this).val()));
+	});
 });

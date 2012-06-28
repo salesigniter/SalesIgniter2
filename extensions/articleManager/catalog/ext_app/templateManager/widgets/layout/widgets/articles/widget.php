@@ -14,7 +14,7 @@ class TemplateManagerWidgetArticles extends TemplateManagerWidget {
 		global $App;
 		$this->init('articles', true, __DIR__);
 
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_ARTICLES'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_ARTICLES_TEXT_TITLE'));
 		if ($App->getEnv() == 'catalog'){
 			$this->setBoxHeadingLink(itw_app_link('appExt=articleManager'));
 		}

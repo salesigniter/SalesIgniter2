@@ -1279,14 +1279,22 @@ var LayoutDesigner = {
 	},
 	getElStylesData: function (){
 		var StyleVals = this.options.curElement.data('styles');
-		if (typeof StyleVals == 'undefined'){
+		if (typeof StyleVals == 'string'){
+			StyleVals = $.parseJSON(htmlspecialchars_decode(StyleVals));
+			this.options.curElement.data('styles', StyleVals);
+		}
+		else if (typeof StyleVals == 'undefined'){
 			StyleVals = {};
 		}
 		return StyleVals;
 	},
 	getElInputData: function (){
 		var InputVals = this.options.curElement.data('inputs');
-		if (typeof InputVals == 'undefined'){
+		if (typeof InputVals == 'string'){
+			InputVals = $.parseJSON(htmlspecialchars_decode(InputVals));
+			this.options.curElement.data('inputs', InputVals);
+		}
+		else if (typeof InputVals == 'undefined'){
 			InputVals = {};
 		}
 		return InputVals;

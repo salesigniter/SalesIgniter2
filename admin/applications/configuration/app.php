@@ -15,6 +15,11 @@ $_GET['key'] = (isset($_GET['key']) ? $_GET['key'] : 'coreMyStore');
 
 require(sysConfig::getDirFsCatalog() . 'includes/classes/fileSystemBrowser.php');
 
+$AppPage->addMenuItem(htmlBase::newElement('button')
+->addClass('saveButton')
+->usePreset('save')
+->setText('Save Changes'));
+
 switch($App->getPageName()){
 	case 'default':
 		sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

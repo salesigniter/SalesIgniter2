@@ -470,11 +470,11 @@ class OrderCreator extends Order implements Serializable
 		$CustomerAddress = $this->AddressManager->getAddress('customer');
 
 		$CollectionObj->language_id = Session::get('languages_id');
-		$CollectionObj->customers_number = $this->Order['customers_number'];
+		//$CollectionObj->customers_number = $this->Order['customers_number'];
 		$CollectionObj->customers_firstname = $CustomerAddress->getFirstName();
 		$CollectionObj->customers_lastname = $CustomerAddress->getLastName();
-		$CollectionObj->customers_email_address = $this->getEmailAddress();
-		$CollectionObj->customers_telephone = $this->getTelephone();
+		//$CollectionObj->customers_email_address = $this->getEmailAddress();
+		//$CollectionObj->customers_telephone = $this->getTelephone();
 
 		$password = '';
 		for($i = 0; $i < 10; $i++){
@@ -513,30 +513,10 @@ class OrderCreator extends Order implements Serializable
 
 		$CollectionObj->CustomersInfo->customers_info_number_of_logons = 0;
 
-		$firstName = $CustomerAddress->getFirstName();
-		$lastName = $CustomerAddress->getLastName();
-		$emailAddress = $this->getEmailAddress();
-		$fullName = $firstName . ' ' . $lastName;
-
-		$emailEvent = new emailEvent('create_account');
-
-		$emailEvent->setVars(array(
-			'email_address' => $emailAddress,
-			'password'	  => $this->getPassword(),
-			'firstname'	 => $firstName,
-			'lastname'	  => $lastName,
-			'full_name'	 => $fullName
-		));
-
-		if (isset($this->newCustomerEmailVars)){
-			foreach($this->newCustomerEmailVars as $var => $val){
-				$emailEvent->setVar($var, $val);
-			}
-		}
 		if (sysConfig::get('EXTENSION_ORDER_CREATOR_SEND_WELCOME_EMAIL') == 'True'){
-			$emailEvent->sendEmail(array(
-				'email' => $emailAddress,
-				'name'  => $fullName
+			$Module = EmailModules::getModule('customer');
+			$Module->process('NEW_ACCOUNT_CREATED', array(
+				'CustomerObj' => $CollectionObj
 			));
 		}
 	}

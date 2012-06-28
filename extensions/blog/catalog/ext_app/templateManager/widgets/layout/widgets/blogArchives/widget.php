@@ -6,7 +6,7 @@ class TemplateManagerWidgetBlogArchives extends TemplateManagerWidget {
 		$this->init('blogArchives', true, __DIR__);
 		$this->enabled = true;
 
-		$this->setBoxHeading(sysLanguage::get('INFOBOX_HEADING_BLOG_ARCHIVES'));
+		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_BLOGARCHIVES_TEXT_TITLE'));
 	}
 
 	public function getArch(){

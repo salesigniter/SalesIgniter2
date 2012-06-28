@@ -27,21 +27,24 @@ if ($App->getAppLocation('absolute') != 'virtual'){
 	}
 }
 
-EventManager::notify('ApplicationTemplateBeforeInclude');
+if (isset($includeTemplate) && $includeTemplate === false){
+	require($App->getAppContentFile());
+}else{
+	EventManager::notify('ApplicationTemplateBeforeInclude');
 
-$tplFile = 'main_page';
-if (isset($_GET['dialog']) && $_GET['dialog'] == 'true'){
-	$tplFile = 'popup';
-}
+	$tplFile = 'main_page';
+	if (isset($_GET['dialog']) && $_GET['dialog'] == 'true'){
+		$tplFile = 'popup';
+	}
 
-if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php')){
-	require(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php');
-}
-else {
-	require(sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/' . $tplFile . '.tpl.php');
-}
+	if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php')){
+		require(sysConfig::get('DIR_FS_TEMPLATE') . '/' . $tplFile . '.tpl.php');
+	}
+	else {
+		require(sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFiles/' . $tplFile . '.tpl.php');
+	}
 
-EventManager::notify('ApplicationTemplateAfterInclude');
+	EventManager::notify('ApplicationTemplateAfterInclude');
+}
 
 require(sysConfig::getDirFsCatalog() . 'includes/application_bottom.php');
-?>

@@ -68,13 +68,13 @@ switch ($_GET['action']) {
 			foreach($_POST['dir'] as $dirName){
 				if (!$ftpRes->deleteDir($dirName)){
 					$json['success'] = false;
-					$json['messages'][] = 'Unable To Delete Directory: ' . $_POST['currentDir'] . $dirName;
+					$json['messages'][] = 'Unable To Delete Directory: ' . $_POST['currentDir'] . '/' . $dirName;
 				}
 			}
 			foreach($_POST['item'] as $fileName){
 				if ($ftpRes->deleteFile($fileName)){
 					$json['success'] = false;
-					$json['messages'][] = 'Unable To Delete File: ' . $_POST['currentDir'] . $fileName;
+					$json['messages'][] = 'Unable To Delete File: ' . $_POST['currentDir'] . '/' . $fileName;
 				}
 			}
 		}else{
