@@ -582,51 +582,6 @@ $(document).ready(function () {
 		$(this).addClass('programDisabled');
 	});
 
-	$('input[name=products_image]').filemanager();
-	$('input[name=additional_images]').filemanager({
-		allowMultiple : true
-	});
-
-	$('.fancyBox').live('loadBox',
-		function () {
-			$(this).fancybox({
-				speedIn     : 500,
-				speedOut    : 500,
-				overlayShow : false,
-				type        : 'image'
-			});
-		}).trigger('loadBox');
-
-	$('.ui-icon-zoomin').live('click mouseover mouseout', function (event) {
-		switch(event.type){
-			case 'click':
-				$(this).parent().find('.fancyBox').click();
-				break;
-			case 'mouseover':
-				this.style.cursor = 'pointer';
-				//$(this).addClass('ui-state-hover');
-				break;
-			case 'mouseout':
-				this.style.cursor = 'default';
-				//$(this).removeClass('ui-state-hover');
-				break;
-		}
-	});
-
-	$('.deleteImage').live('click', function (event) {
-		var newVal = [];
-		var imageInput = $('#' + $(this).parent().attr('data-input_id'));
-		var currentVal = imageInput.val();
-		var images = currentVal.split(';');
-		for(var i = 0; i < images.length; i++){
-			if (images[i] != $(this).parent().attr('data-image_file_name')){
-				newVal.push(images[i]);
-			}
-		}
-		imageInput.val(newVal.join(';'));
-		$(this).parent().parent().remove();
-	});
-
 	$('.ui-icon-closethick').live('mouseover mouseout', function (event) {
 		if ($(this).hasClass('ui-state-disabled')){
 			return false;
@@ -674,18 +629,30 @@ $(document).ready(function () {
 			});
 	});
 
+	$('input[name="additional_image[]"]').filemanager({
+		onSelect: function (e, selected){
+			$(this.inputElement).parent().find('img').attr('src', 'imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' + selected);
+		}
+	});
+
 	$('.addAdditionalImage').click(function (){
 		var Value = $(this).parent().find('.fileManagerInput').val();
 		if (Value == ''){
 			alert('No Images To Add');
 		}else{
 			$.each(Value.split(','), function (){
-				var boxHtml = '<div class="ui-widget ui-widget-content additionalImageBox" style="width:300px;display:inline-block;margin:10px;text-align:center;padding:5px;position: relative;vertical-align: top;height: 190px;">' +
-					'<span class="ui-icon ui-icon-closethick removeAdditionalImage" style="position: absolute;top: -12px;right: -12px;"></span>' +
+				var $newBox = $('<div class="ui-widget ui-widget-content additionalImageBox" style="width:300px;display:inline-block;margin:10px;text-align:center;padding:5px;position: relative;vertical-align: top;height: 190px;"></div>')
+					.html('<span class="ui-icon ui-icon-closethick removeAdditionalImage" style="position: absolute;top: -12px;right: -12px;"></span>' +
 					'<div style="height:160px;"><img src="imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' + this + '"></div>' +
 					'<input class="fileManager" data-files_source="' + jsConfig.get('DIR_FS_CATALOG') + 'templates/" data-is_multiple="false" name="additional_image[]" value="' + this + '" style="width:95%;box-sizing:border-box;margin:0 5px;">' +
-					'</div>';
-				$('.additionalImagesList').prepend(boxHtml);
+					'</div>');
+				$('.additionalImagesList').prepend($newBox);
+
+				$newBox.find('.fileManager').filemanager({
+					onSelect: function (e, selected){
+						$(this.inputElement).parent().find('img').attr('src', 'imagick_thumb.php?width=150&height=150&path=rel&imgSrc=' + selected);
+					}
+				});
 			});
 			$(this).parent().find('.fileManagerInput').val('');
 		}
