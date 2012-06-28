@@ -393,20 +393,18 @@ function setupContainer($container, isWrapper) {
 		}
 	}
 
-	if (!$container.data('styles')){
+	if ($container.attr('data-styles')){
+		$container.data('styles', $.parseJSON(htmlspecialchars_decode($container.attr('data-styles'))));
+		$container.removeAttr('data-styles');
+	}else if (!$container.data('styles')){
 		$container.data('styles', { });
 	}
 
-	if ($container.attr('data-styles')){
-		$container.attr('data-styles', '');
-	}
-
-	if (!$container.data('inputs')){
-		$container.data('inputs', { });
-	}
-
 	if ($container.attr('data-inputs')){
-		$container.attr('data-inputs', '');
+		$container.data('inputs', $.parseJSON(htmlspecialchars_decode($container.attr('data-inputs'))));
+		$container.removeAttr('data-inputs');
+	}else if (!$container.data('inputs')){
+		$container.data('inputs', { });
 	}
 
 	if (!$container.hasClass(selectedClass)){
@@ -469,11 +467,17 @@ function setupColumn($column) {
 		});
 	}
 
-	if (!$column.data('styles')){
+	if ($column.attr('data-styles')){
+		$column.data('styles', $.parseJSON(htmlspecialchars_decode($column.attr('data-styles'))));
+		$column.removeAttr('data-styles');
+	}else if (!$column.data('styles')){
 		$column.data('styles', { });
 	}
 
-	if (!$column.data('inputs')){
+	if ($column.attr('data-inputs')){
+		$column.data('inputs', $.parseJSON(htmlspecialchars_decode($column.attr('data-inputs'))));
+		$column.removeAttr('data-inputs');
+	}else if (!$column.data('inputs')){
 		$column.data('inputs', { });
 	}
 
@@ -489,17 +493,26 @@ function setupColumn($column) {
 	});
 
 	$column.find('.widget').each(function (){
-		if (!$(this).data('styles')){
+		if ($(this).attr('data-widget_settings')){
+			$(this).data('widget_settings', $.parseJSON(htmlspecialchars_decode($(this).attr('data-widget_settings'))));
+			$(this).removeAttr('data-widget_settings');
+		}else if (!$(this).data('widget_settings')){
+			$(this).data('widget_settings', { });
+		}
+
+		if ($(this).attr('data-styles')){
+			$(this).data('styles', $.parseJSON(htmlspecialchars_decode($(this).attr('data-styles'))));
+			$(this).removeAttr('data-styles');
+		}else if (!$(this).data('styles')){
 			$(this).data('styles', { });
 		}
 
-		if (!$(this).data('inputs')){
+		if ($(this).attr('data-inputs')){
+			$(this).data('inputs', $.parseJSON(htmlspecialchars_decode($(this).attr('data-inputs'))));
+			$(this).removeAttr('data-inputs');
+		}else if (!$(this).data('inputs')){
 			$(this).data('inputs', { });
 		}
-		//$(this).removeAttr('data-widget_id');
-		//$(this).removeAttr('data-widget_code');
-		//$(this).removeAttr('data-widget_settings');
-		//$(this).removeAttr('data-sort_order');
 	});
 
 	//$column.disableSelection();
