@@ -485,13 +485,6 @@ function setupColumn($column) {
 		$column.fadeTo(0, unselectedOpacity);
 	}
 
-	$column.each(function (){
-		//$(this).removeAttr('data-column_id');
-		//$(this).removeAttr('data-styles');
-		//$(this).removeAttr('data-inputs');
-		//$(this).removeAttr('data-sort_order');
-	});
-
 	$column.find('.widget').each(function (){
 		if ($(this).attr('data-widget_settings')){
 			$(this).data('widget_settings', $.parseJSON(htmlspecialchars_decode($(this).attr('data-widget_settings'))));
@@ -588,6 +581,7 @@ function updateBreadcrumb() {
 	var isLinkElement = ($('#construct').find('.' + selectedClass).first().data('link_id') ? true : false);
 
 	var $bodyIcons = $('<span></span>').addClass('iconBlock');
+	$bodyIcons.append('<span class="ui-icon ui-icon-comment showContainerData" tooltip="Show Element Data"></span>');
 	$bodyIcons.append('<span class="ui-icon ui-icon-pencil editElement" tooltip="Edit Element"></span>');
 	var bodyBlock = $('<span><b>Body</b></span>').addClass('elementBlock').append($bodyIcons);
 
@@ -750,6 +744,22 @@ function unloadMessage() {
 }
 
 $(document).ready(function() {
+	$('#construct').each(function (){
+		if ($(this).attr('data-styles')){
+			$(this).data('styles', $.parseJSON(htmlspecialchars_decode($(this).attr('data-styles'))));
+			$(this).removeAttr('data-styles');
+		}else if (!$(this).data('styles')){
+			$(this).data('styles', { });
+		}
+
+		if ($(this).attr('data-inputs')){
+			$(this).data('inputs', $.parseJSON(htmlspecialchars_decode($(this).attr('data-inputs'))));
+			$(this).removeAttr('data-inputs');
+		}else if (!$(this).data('inputs')){
+			$(this).data('inputs', { });
+		}
+	});
+
 	$('#construct-addContainer').click(containerAdd);
 	$('#construct-addColumn').click(columnAdd);
 	$('#construct-addSubColumn').click(subColumnAdd);
@@ -778,11 +788,6 @@ $(document).ready(function() {
 		runLayoutAction('save');
 	});
 	$('#noSaveLayout').click(function () { hideSaveLayout(); });
-
-	/* column and container properties */
-	/* end column and container*/
-
-	/*end here*/
 
 	/**
 	 * Used to reset variables that are required due to event bubbling

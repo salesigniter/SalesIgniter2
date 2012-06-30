@@ -2,6 +2,14 @@
 class SesDateTime extends DateTime
 {
 
+	const TIME_MINUTE = 60;
+
+	const TIME_HOUR = 3600;
+
+	const TIME_DAY = 86400;
+
+	const TIME_WEEK = 604800;
+
 	public function format($format){
 		if ($this->getTimestamp() <= 0){
 			$return = 'Not Set';

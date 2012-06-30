@@ -30,7 +30,9 @@ class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget
 		$catList = '<ul>';
 		foreach($Qcategories as $Category){
 			$catList .= '<li>';
-			$catList .= $Category->CategoriesDescription[Session::get('languages_id')]->categories_name;
+			$catList .= '<a href="' . itw_app_link('cPath=' . $Category->categories_id, 'index', 'default') . '">' .
+				$Category->CategoriesDescription[Session::get('languages_id')]->categories_name .
+			'</a>';
 			if ($Category->ProductsToCategories->count() > 0 || $Category->Children->count() > 0){
 				if (
 					$Category->ProductsToCategories->count() <= $WidgetProperties->max_products ||

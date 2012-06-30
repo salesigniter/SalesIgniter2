@@ -1,4 +1,11 @@
 <definitions>
 	<define key="TEMPLATE_MANAGER_WIDGET_CATEGORYPRODUCTLISTING_TEXT_TITLE"><![CDATA[Category Product Listing]]></define>
 	<define key="TEMPLATE_MANAGER_WIDGET_CATEGORYPRODUCTLISTING_TEXT_DESCRIPTION"><![CDATA[Category Product Listing]]></define>
+
+	<define key="TEXT_CATEGORYPRODUCTLISTING_SELECT_CATEGORY"><![CDATA[Category: ]]></define>
+	<define key="TEXT_CATEGORYPRODUCTLISTING_INFO"><![CDATA[ - Category to use and show subcategories/products from]]></define>
+	<define key="TEXT_CATEGORYPRODUCTLISTING_MAX_PRODUCTS"><![CDATA[Max Products: ]]></define>
+	<define key="TEXT_CATEGORYPRODUCTLISTING_MAX_PRODUCTS_INFO"><![CDATA[ - Max products allowed before reverting back to showing just sub categories]]></define>
+	<define key="TEXT_CATEGORYPRODUCTLISTING_WHEN_MAX"><![CDATA[If Maxed: ]]></define>
+	<define key="TEXT_CATEGORYPRODUCTLISTING_WHEN_MAX_INFO"><![CDATA[When the category has over the max products, what should it do?]]></define>
 </definitions>

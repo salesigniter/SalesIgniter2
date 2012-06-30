@@ -62,7 +62,7 @@ EventManager::notify(
 );
 
 $tabPanel = htmlBase::newElement('tabs')
-	->addClass('makeTabPanel')
+	->addClass('makeTabPanel makeTabsVertical')
 	->setId('module_tabs');
 foreach($tabs as $pInfo){
 	$tabPanel->addTabHeader($pInfo['panelId'], array('text' => $pInfo['panelHeader']))

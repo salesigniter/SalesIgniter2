@@ -186,6 +186,10 @@ class SystemModulesLoader
 				require($dir . 'module.php');
 			}
 
+			if (is_dir($dir . 'Doctrine')){
+				Doctrine_Core::loadModels($dir . 'Doctrine', Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
+			}
+
 			$register = false;
 			if (self::isLoaded($moduleCode) === true){
 				if ($reloadModule === true || (isset(static::$alwaysLoadFresh) && static::$alwaysLoadFresh === true)){
