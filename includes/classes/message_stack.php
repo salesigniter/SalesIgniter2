@@ -175,11 +175,11 @@ class messageStack implements SplObserver {
 			}
 		}
 		if (!$duplicate){
-			Session::append('messageToStack', json_encode(array(
+			Session::append('messageToStack', array(
 				'group' => $group,
 				'text'  => $message,
 				'type'  => $type
-			)));
+			));
 		}
 	}
 
@@ -193,9 +193,8 @@ class messageStack implements SplObserver {
 		if (Session::exists('messageToStack') === true){
 			$msgArr = &Session::getReference('messageToStack');
 			foreach($msgArr as $index => $msg){
-				$msg = json_decode($msg);
-				if ($msg->group == $group){
-					$this->add($msg->group, $msg->text, $msg->type);
+				if ($msg['group'] == $group){
+					$this->add($msg['group'], $msg['text'], $msg['type']);
 					unset($msgArr[$index]);
 				}
 			}
@@ -283,8 +282,7 @@ class messageStack implements SplObserver {
 		if (Session::exists('messageToStack') === true){
 			$msgArr = Session::get('messageToStack');
 			foreach($msgArr as $index => $msg){
-				$msg = json_decode($msg);
-				if ($msg->group == $group){
+				if ($msg['group'] == $group){
 					$count++;
 				}
 			}

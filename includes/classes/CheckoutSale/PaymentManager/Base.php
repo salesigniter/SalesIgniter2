@@ -10,20 +10,6 @@
 class CheckoutSalePaymentManager extends OrderPaymentManager
 {
 
-	/**
-	 * @var PaymentModuleBase
-	 */
-	protected $Module = null;
-
-	public function setPaymentModule($module){
-		$this->setInfo('payment_module', $module);
-		$this->Module = OrderPaymentModules::getModule($module);
-	}
-
-	public function getPaymentModule(){
-		return $this->Module;
-	}
-
 	public function validate(){
 		$validateSuccess = true;
 		$validateSuccess = $this->Module->validate($this);

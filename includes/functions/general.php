@@ -34,8 +34,7 @@ function tep_redirect($url) {
 	}
 
 	header('Location: ' . $url);
-
-	tep_exit();
+	itwExit();
 }
 
 /*

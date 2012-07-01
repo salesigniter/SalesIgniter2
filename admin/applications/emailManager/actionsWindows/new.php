@@ -106,13 +106,13 @@ foreach($ModuleVariables as $vInfo){
 			$key = $vInfo['varName'];
 		}
 		$condition = '&lt;!-- if ($' . $key . ')<br />';
-		$condition .= '&nbsp;&nbsp;&nbsp;$' . $vInfo['varName'] . '<br />';
+		$condition .= '&nbsp;&nbsp;&nbsp;{$' . $vInfo['varName'] . '}<br />';
 		$condition .= '--&gt;';
 
 		$conditionVars[] = $condition;
 	}
 	else {
-		$standardVars[] = '$' . $vInfo['varName'];
+		$standardVars[] = '{$' . $vInfo['varName'] . '}';
 	}
 }
 
@@ -120,7 +120,7 @@ $infoBox->addContentRow('<table cellpadding="0" cellspacing="0" border="0" width
 	<tr>
 		<td valign="top" width="33%">
 			<div class="ui-widget-header" style="padding:.3em;">' . sysLanguage::get('HEADING_GLOBAL_VARS') . '</div>
-			<div class="main globalVars" style="margin:.5em;">$store_name<br>$store_owner<br>$store_owner_email<br>$today_short<br>$today_long<br>$store_url<br></div>
+			<div class="main globalVars" style="margin:.5em;">{$store_name}<br>{$store_owner}<br>{$store_owner_email}<br>{$today_short}<br>{$today_long}<br>{$store_url}<br></div>
 		</td>
 		<td valign="top" width="33%" style="padding: 0em 1em;">
 			<div class="ui-widget-header" style="padding:.3em;">

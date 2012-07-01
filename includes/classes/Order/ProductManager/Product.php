@@ -68,7 +68,23 @@ class OrderProduct
 
 	public function loadProduct($productId){
 		$this->ProductClass = new Product((int)$productId);
-		$this->ProductTypeClass = $this->ProductClass->getProductTypeClass();
+
+		$ProductType = $this->ProductClass->getProductType();
+		ProductTypeModules::$classPrefix = 'OrderProductType';
+		$isLoaded = ProductTypeModules::loadModule(
+			$ProductType,
+			sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/ProductTypeModules/' . $ProductType . '/'
+		);
+		if ($isLoaded === true){
+			$this->ProductTypeClass = ProductTypeModules::getModule($ProductType);
+			if ($this->ProductTypeClass === false){
+				echo '<pre>';
+				debug_print_backtrace();
+				echo '</pre>';
+				die('Error loading product type: ' . $ProductType);
+			}
+			$this->ProductTypeClass->setProductId($this->ProductClass->getId());
+		}
 	}
 
 	/**
@@ -168,15 +184,16 @@ class OrderProduct
 	}
 
 	/**
+	 * @param string $separator
 	 * @return string
 	 */
-	public function displayBarcodes()
+	public function displayBarcodes($separator = '<br>')
 	{
 		$return = array();
 		foreach($this->inventory as $BarcodeInfo){
 			$return[] = $BarcodeInfo['barcode'];
 		}
-		$return = implode('<br>', $return);
+		$return = implode($separator, $return);
 
 		if (method_exists($this->ProductTypeClass, 'displayOrderedProductBarcodes')){
 			$return .= $this->ProductTypeClass->displayOrderedProductBarcodes($this);
@@ -434,6 +451,12 @@ class OrderProduct
 		$this->loadProduct($this->pInfo['products_id']);
 		if (method_exists($this->ProductTypeClass, 'jsonDecode')){
 			$this->ProductTypeClass->jsonDecode($this, $ProductInfo['ProductTypeJson']);
+		}
+	}
+
+	public function onGetEmailList(&$orderedProducts){
+		if (method_exists($this->ProductTypeClass, 'onGetEmailList')){
+			$this->ProductTypeClass->onGetEmailList(&$orderedProducts);
 		}
 	}
 }

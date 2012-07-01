@@ -43,6 +43,11 @@ class OrderPaymentManager
 	protected $PendingPaymentsTotal = 0;
 
 	/**
+	 * @var PaymentModuleBase
+	 */
+	protected $Module = null;
+
+	/**
 	 * @param array|null $PaymentHistory
 	 */
 	public function __construct(array $PaymentHistory = null)
@@ -63,6 +68,15 @@ class OrderPaymentManager
 				}
 			}
 		}
+	}
+
+	public function setPaymentModule($module){
+		$this->setInfo('payment_module', $module);
+		$this->Module = OrderPaymentModules::getModule($module);
+	}
+
+	public function getPaymentModule(){
+		return $this->Module;
 	}
 
 	/**

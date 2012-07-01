@@ -69,7 +69,7 @@ class Order
 	{
 		$this->InfoManager = new OrderInfoManager();
 		$this->AddressManager = new OrderAddressManager();
-		$this->ProductManager = new OrderProductManager($saleId);
+		$this->ProductManager = new OrderProductManager();
 		$this->TotalManager = new OrderTotalManager();
 		$this->PaymentManager = new OrderPaymentManager();
 
@@ -420,6 +420,27 @@ class Order
 	public function getRoomNumber()
 	{
 		return (string)$this->InfoManager->getInfo('customers_room_number');
+	}
+
+	public function sendNewSaleSuccessEmail(){
+		$Module = EmailModules::getModule('order');
+		$Module->process('ORDER_PLACED_EMAIL', array(
+			'SaleObj' => $this
+		));
+	}
+
+	public function sendNewSaleFailEmail(){
+		/*$Module = EmailModules::getModule('order');
+		$Module->process('ORDER_FAILED_EMAIL', array(
+			'SaleObj' => $this
+		));*/
+	}
+
+	public function sendSaleUpdateEmail(){
+		$Module = EmailModules::getModule('order');
+		$Module->process('ORDER_STATUS_EMAIL', array(
+			'SaleObj' => $this
+		));
 	}
 }
 

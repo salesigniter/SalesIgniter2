@@ -234,7 +234,7 @@ class ReservationUtilities {
 				$disabledBy = '"'. $ProductsName . '"';
 				$bookingsF = array();
 			}
-			for($i=0;$i<count($bookings);$i++){
+			for($i=0;$i<count($bookingsF);$i++){
 				$popArr[] =  '"' . $ProductsName .'"';
 			}
 			$timeBookingsF = $options['purchaseTypeClasses'][$nr]->getBookedTimeDaysArray($StartDate, $options['quantity'], $options['minTime'], $reservArr, $barcodesBooked);
@@ -274,10 +274,10 @@ class ReservationUtilities {
 			}
 			$semDates = array_values($semDates);
 			//end period
-			$startTime = strtotime($iBook);
+			$StartDate = SesDateTime::createFromFormat(sysLanguage::getDateFormat('short'), $iBook);
 			for ($i = 0; $i <= $maxShippingDays; $i++) {
-				$dateFormattedS = date('Y-n-j', strtotime('-' . $i . ' days', $startTime));
-				$valDate = '"' . $dateFormattedS . '"';
+				$StartDateModified = $StartDate->modify('-' . $i . ' Day');
+				$valDate = '"' . $StartDateModified->format(sysLanguage::getDateFormat('short')) . '"';
 				$valPos = array_search($valDate, $shippingDaysPadding);
 				if ($valPos === false) {
 					$shippingDaysPadding[] = $valDate;
@@ -285,7 +285,7 @@ class ReservationUtilities {
 					//period
 					$op = 0;
 					foreach ($semDates as $sDate) {
-						if (strtotime($dateFormattedS) >= $sDate['start_date']->getTimestamp() && strtotime($dateFormattedS) <= $sDate['end_date']->getTimestamp()) {
+						if ($StartDateModified >= $sDate['start_date'] && $StartDateModified <= $sDate['end_date']) {
 							unset($semDates[$op]);
 						}
 						$op++;
@@ -299,8 +299,8 @@ class ReservationUtilities {
 				}
 			}
 			for ($i = 0; $i <= $maxShippingDays; $i++) {
-				$dateFormattedS = date('Y-n-j', strtotime('+' . $i . ' days', $startTime));
-				$valDate = '"' . $dateFormattedS . '"';
+				$StartDateModified = $StartDate->modify('+' . $i . ' Day');
+				$valDate = '"' . $StartDateModified->format(sysLanguage::getDateFormat('short')) . '"';
 				$valPos = array_search($valDate, $shippingDaysPadding);
 				if ($valPos === false) {
 					$shippingDaysPadding[] = $valDate;
@@ -308,7 +308,7 @@ class ReservationUtilities {
 					//period
 					$op = 0;
 					foreach ($semDates as $sDate) {
-						if (strtotime($dateFormattedS) >= $sDate['start_date']->getTimestamp() && strtotime($dateFormattedS) <= $sDate['end_date']->getTimestamp()) {
+						if ($StartDateModified >= $sDate['start_date'] && $StartDateModified <= $sDate['end_date']) {
 							unset($semDates[$op]);
 						}
 						$op++;
@@ -324,7 +324,7 @@ class ReservationUtilities {
 		}
 
 		$disabledDays = sysConfig::explode('EXTENSION_PAY_PER_RENTALS_DISABLED_DAYS', ',');
-		$startTimePadding = strtotime(date('Y-m-d'));
+		$startTimePadding = time();
 
 		$daysPadding =  (int)sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_PADDING');
 		foreach($pID_string as $pElem){
@@ -341,11 +341,11 @@ class ReservationUtilities {
 				}
 			} */
 		}
-		$endTimePadding = strtotime('+' . $daysPadding . ' days', $startTimePadding);
+		$endTimePadding = $startTimePadding + ($daysPadding * SesDateTime::TIME_DAY);
 		while ($startTimePadding < $endTimePadding) {
-			$dateFormatted = date('Y-n-j', $startTimePadding);
+			$dateFormatted = date(sysLanguage::getDateFormat('short'), $startTimePadding);
 			$paddingDays[] = '"' . $dateFormatted . '"';
-			$startTimePadding += 60 * 60 * 24;
+			$startTimePadding += SesDateTime::TIME_DAY;
 		}
 
 		$QBlockedDates = Doctrine_Query::create()
@@ -379,12 +379,12 @@ class ReservationUtilities {
 				$startTimePadding = $startTimePaddingArr[$j];
 				$endTimePadding = $endTimePaddingArr[$j];
 				while ($startTimePadding <= $endTimePadding) {
-					$dateFormatted = date('Y-n-j', $startTimePadding);
+					$dateFormatted = date(sysLanguage::getDateFormat('short'), $startTimePadding);
 					$paddingDays[] = '"' . $dateFormatted . '"';
 					//period
 					$op = 0;
 					foreach ($semDates as $sDate) {
-						if (strtotime($dateFormatted) >= strtotime($sDate['start_date']) && strtotime($dateFormatted) <= strtotime($sDate['end_date'])) {
+						if ($startTimePadding >= $sDate['start_date']->getTimestamp() && $startTimePadding <= $sDate['end_date']->getTimestamp()) {
 							unset($semDates[$op]);
 						}
 						$op++;
@@ -412,39 +412,39 @@ class ReservationUtilities {
 		ob_start();
 		?>
 	<script>
-	var bookedDates = [<?php echo implode(',', $booked);?>];
-	var popArr = [<?php echo implode(',', $popArr);?>];
-	var shippingDaysPadding = [<?php echo implode(',', $shippingDaysPadding);?>];
-	var shippingDaysArray = [<?php echo implode(',', $shippingDaysArray);?>];
-	var disabledDatesPadding = [<?php echo implode(',', $paddingDays);?>];
-	var dayShortNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	var disabledDays = ["<?php echo implode('","', $disabledDays);?>"];
-	var disabledDates = [];
-	var minRentalPeriod1 = <?php echo $minRentalPeriod;?>;
-	var maxRentalPeriod = <?php echo $maxRentalPeriod;?>;
-
-	var minRentalPeriodMessage1 = '<?php echo $minRentalMessage;?>';
-	var maxRentalPeriodMessage = '<?php echo $maxRentalMessage; ?>';
-	var allowSelectionBefore = true;
-	var allowSelectionAfter = true;
-	var allowSelection = true;
-	var allowSelectionMin = true;
-	var allowSelectionMax = true;
-
-	var startArray = [<?php echo implode(',', $timeBooked);?>];
-	var bookedTimesArr = [<?php echo implode(',', $timeBookedDate);?>];
-    var isCatalog = <?php echo ($App->getEnv() == 'catalog')?'true':'false';?>;
-	var selected = '';
-	var selectedDate;
-	var days_before = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['before'] : 0);?>;
-	var days_after = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['after'] : 0);?>;
-	var isStart = false;
-	//var autoChanged = false;
-	var isHour = false;
-	var isDisabled = <?php echo (($isDisabled === true)?'true':'false');?>;
-	var disabledBy = <?php echo $disabledBy;?>;
-
 	$(document).ready(function () {
+		var bookedDates = [<?php echo implode(',', $booked);?>];
+		var popArr = [<?php echo implode(',', $popArr);?>];
+		var shippingDaysPadding = [<?php echo implode(',', $shippingDaysPadding);?>];
+		var shippingDaysArray = [<?php echo implode(',', $shippingDaysArray);?>];
+		var disabledDatesPadding = [<?php echo implode(',', $paddingDays);?>];
+		var dayShortNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+		var disabledDays = ["<?php echo implode('","', $disabledDays);?>"];
+		var disabledDates = [];
+		var minRentalPeriod1 = <?php echo $minRentalPeriod;?>;
+		var maxRentalPeriod = <?php echo $maxRentalPeriod;?>;
+
+		var minRentalPeriodMessage1 = '<?php echo $minRentalMessage;?>';
+		var maxRentalPeriodMessage = '<?php echo $maxRentalMessage; ?>';
+		var allowSelectionBefore = true;
+		var allowSelectionAfter = true;
+		var allowSelection = true;
+		var allowSelectionMin = true;
+		var allowSelectionMax = true;
+
+		var startArray = [<?php echo implode(',', $timeBooked);?>];
+		var bookedTimesArr = [<?php echo implode(',', $timeBookedDate);?>];
+		var isCatalog = <?php echo ($App->getEnv() == 'catalog')?'true':'false';?>;
+		var selected = '';
+		var selectedDate;
+		var days_before = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['before'] : 0);?>;
+		var days_after = <?php echo (int)($options['shippingDays'] != null ? $options['shippingDays']['after'] : 0);?>;
+		var isStart = false;
+		//var autoChanged = false;
+		var isHour = false;
+		var isDisabled = <?php echo (($isDisabled === true)?'true':'false');?>;
+		var disabledBy = <?php echo $disabledBy;?>;
+
 		var $selfID = $('#reserv<?php echo $pID_string[0]; ?>');
 		$selfID.parent().find('.inCart').hide();
 
@@ -597,10 +597,16 @@ class ReservationUtilities {
 					$('.ui-datepicker-shipping-day-hover').removeClass('ui-datepicker-shipping-day-hover');
 				}
 			},
-			allowDateSelection: function (target, el){
-				var inst = $.data(target, this.dataName),
-					$curTd = $(el).parentsUntil('tr').last(),
-					date = $.datepick.retrieveDate(target, el),
+			allowDateSelection: function (picker, inst, el){
+				var ClassNames = el.className.split(' ');
+				var DPClass = '';
+				$.each(ClassNames, function (){
+					if (/dp/.test(this)){
+						DPClass = this;
+					}
+				});
+				var $curTd = $(el).parentsUntil('tr').last(),
+					ThisDate = this._normaliseDate(new Date(parseInt(DPClass.substr(2), 10))),
 					shippingLabel,
 					myclass = $curTd.attr('class'),
 					sDay = 0,
@@ -640,20 +646,21 @@ class ReservationUtilities {
 				}
 
 				if (inst.pickingRange){
+					var FirstDate = inst.selectedDates[0];
 					allowSelection = true;
 					for(var k = 0; k < bookedDates.length; k++){
 						bDateArr = bookedDates[k].split('-');
 						bDate = new Date(parseInt(bDateArr[0]), parseInt(bDateArr[1]) - 1, parseInt(bDateArr[2]));
-						if (selectedDate.getTime() <= bDate.getTime() && date.getTime() >= bDate.getTime()){
+						if (FirstDate.getTime() <= bDate.getTime() && ThisDate.getTime() >= bDate.getTime()){
 							allowSelection = false;
 						}
 					}
 					allowSelectionMin = true;
-					if ((date.getTime() - selectedDate.getTime() + 24 * 60 * 60 * 1000) < ((minRentalPeriod))){
+					if ((ThisDate.getTime() - FirstDate.getTime() + 24 * 60 * 60 * 1000) < ((minRentalPeriod))){
 						allowSelectionMin = false;
 					}
 					allowSelectionMax = true;
-					if (((date.getTime() - selectedDate.getTime() + 24 * 60 * 60 * 1000) > (maxRentalPeriod)) && maxRentalPeriod != -1){
+					if (((ThisDate.getTime() - FirstDate.getTime() + 24 * 60 * 60 * 1000) > (maxRentalPeriod)) && maxRentalPeriod != -1){
 						allowSelectionMax = false;
 					}
 				}
@@ -696,7 +703,7 @@ class ReservationUtilities {
 				var target = this;
 				var renderer = inst.get('renderer');
 				picker.find(renderer.daySelector + ' a').unbind('click').click(function () {
-					if ($.datepick.allowDateSelection(target, this) === false){
+					if ($.datepick.allowDateSelection(picker, inst, this) === false){
 						return false;
 					}
 
@@ -781,8 +788,8 @@ class ReservationUtilities {
 						$selfID.find('.days_before').val(days_before);
 						$selfID.find('.days_after').val(days_after);
 						var $this = $selfID.find('.datePicker');
-						var $sDate = $.datepick.parseDate('<?php echo getJsDateFormat();?>', $selfID.find('.start_date').val());
-						var $eDate = $.datepick.parseDate('<?php echo getJsDateFormat();?>', $selfID.find('.end_date').val());
+						var $sDate = $.datepick.parseDate(jsLanguage.getDateFormat('short'), $selfID.find('.start_date').val());
+						var $eDate = $.datepick.parseDate(jsLanguage.getDateFormat('short'), $selfID.find('.end_date').val());
 						//alert($sDate + '   '+$eDate +' '+$('#start_date').val()+'  '+$('#end_date').val());
 						if ($sDate.getTime() != $eDate.getTime()){
 							showAjaxLoader($this, 'xlarge');
@@ -863,7 +870,7 @@ class ReservationUtilities {
 			showStatus: <?php echo ($options['showDateSelectStatus'] === true ? 'true' : 'false'); ?>,
 			onDate: function (dateObj) {
 				dateObj.setHours(0, 0, 0, 0);
-				var dateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dateObj);
+				var dateFormatted = $.datepick.formatDate(jsLanguage.getDateFormat('short'), dateObj);
 				if ($.inArray(dayShortNames[dateObj.getDay()], disabledDays) > -1) {
 					return {
 						selectable: false,
@@ -930,8 +937,8 @@ class ReservationUtilities {
 			),
 			onSelect: function (dates) {
 				var forceStartDate = <?php echo (sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True' ? 'true' : 'false');?>;
-				var startDateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dates[0]);
-				var endDateFormatted = $.datepick.formatDate('<?php echo getJsDateFormat();?>', dates[1]);
+				var startDateFormatted = $.datepick.formatDate(jsLanguage.getDateFormat('short'), dates[0]);
+				var endDateFormatted = $.datepick.formatDate(jsLanguage.getDateFormat('short'), dates[1]);
 				$selfID.find('.days_before').val(days_before);
 				$selfID.find('.days_after').val(days_after);
 
@@ -1481,7 +1488,7 @@ class ReservationUtilities {
 				<div colspan="2">
 					<table cellpadding="0" cellspacing="3" border="0" width="100%">
 						<tr>
-							<td style="width:10px;height:10px;" class="ui-datepicker-reserved ui-datepicker-shipping-day-hover-info">&nbsp;</td>
+							<td style="width:10px;height:10px;" class="ui-datepicker-reserved">&nbsp;</td>
 							<td style="font-size:.8em"> - Unavailable Days.</td>
 						</tr>
 						<tr>
@@ -1652,39 +1659,49 @@ class ReservationUtilities {
 	public static function getMyReservations($productId, DateTime $StartDate, $allowOverbooking = false, $usableBarcodes = array())
 	{
 		$reservArr = array();
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_OVERBOOKING') == 'False' && $allowOverbooking === false){
+		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_ALLOW_OVERBOOKING') == 'False' || $allowOverbooking === false){
 			$Qcheck = Doctrine_Query::create()
 				->from('PayPerRentalReservations')
 				->where('products_id = ?', $productId)
-				->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $StartDate->format(sysLanguage::getDateFormat('short')))
+				//->andWhere('DATE_ADD(end_date, INTERVAL shipping_days_after DAY) >= ?', $StartDate->format(DATE_TIMESTAMP))
+				//->andWhere('end_date >= ?', $StartDate->format(DATE_TIMESTAMP))
 				->andWhereIn('rental_state', array('reserved', 'out'));
 
 			EventManager::notify('OrdersProductsReservationListingBeforeExecuteUtilities', $Qcheck);
 
 			$Result = $Qcheck->execute();
+			$CheckUsable = (empty($usableBarcodes) === false);
 			foreach($Result as $Reservation){
 				$reservationArr = array();
 
-				$barcodeId = $Reservation->SaleProduct->SaleInventory->Barcode->Inventory->barcode_id;
-				if (!empty($usableBarcodes)){
-					if (!in_array($barcodeId, $usableBarcodes)){
-						continue;
+				$SaleInventory = $Reservation->SaleProduct->SaleInventory;
+				$Barcodes = array();
+				foreach($SaleInventory as $Inventory){
+					if ($Inventory->barcode_id > 0){
+						if ($CheckUsable === true && in_array($Inventory->barcode_id, $usableBarcodes) === false){
+							continue;
+						}else{
+							$Barcodes[] = $Inventory->barcode_id;
+						}
 					}
+				}
+				if (empty($Barcodes) === true){
+					continue;
 				}
 
 				$StartDateModified = $Reservation->start_date->modify('-' . (int)$Reservation['shipping_days_before'] . ' Days');
 				$EndDateModified = $Reservation->end_date->modify('+' . (int)$Reservation['shipping_days_after'] . ' Days');
 
-				/*$reservationArr['start'] = $StartDateModified;
+				$reservationArr['start'] = $StartDateModified;
 				$reservationArr['end'] = $EndDateModified;
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'){
+				/*if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'False'){
 					$nextStartDate = $StartDateModified->modify('+1 Days');
 					$prevEndDate = $EndDateModified->modify('-1 Days');
 					if ($nextStartDate <= $prevEndDate){
 						$reservationArr['start'] = $nextStartDate;
 						$reservationArr['end'] = $prevEndDate;
 					}
-				}*/
+				}
 
 				if ($StartTimeFormatted == '0:00' || (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_FULL_DAYS') == 'True')){
 					$reservationArr['start'] = $StartDateModified;
@@ -1718,9 +1735,9 @@ class ReservationUtilities {
 					if ($nextStartDate <= $prevEndDate){
 						$reservationArr['end'] = $prevEndDate->format('Y-n-j');
 					}
-				}
+				}*/
 
-				$reservationArr['barcode'] = $barcodeId; //if barcode_id is null or 0 this means is quantity and check will be made with the total qty at some point.
+				$reservationArr['barcode'] = $Barcodes; //if barcode_id is null or 0 this means is quantity and check will be made with the total qty at some point.
 				$reservationArr['qty'] = 1;
 
 				$reservArr[] = $reservationArr;
@@ -1785,7 +1802,7 @@ class ReservationUtilities {
 				AND TRUE');
 
 			if ($settings['item_type'] == 'barcode'){
-				$Qcheck->andWhere('(rental_state = "reserved" or rental_state = "out")');
+				$Qcheck->andWhere('(rental_state = ? OR rental_state = ?)', array('reserved', 'out'));
 			}else{
 				$Qcheck->andWhere('rental_state = ?', 'out');
 			}
@@ -1796,6 +1813,8 @@ class ReservationUtilities {
 			$returnVal = ($Result ? sizeof($Result) : 0);
 
 			EventManager::notify('ReservationCheckQueryAfterExecute', $Result, $settings, &$returnVal);
+		}else{
+			//echo '<pre>';print_r($settings);
 		}
 		return $returnVal;
 	}
@@ -1807,7 +1826,7 @@ class ReservationUtilities {
 		$reservationId = $Reservation->id;
 
 		$Reservation->rental_state = 'returned';
-		$Reservation->date_returned = date('Y-m-d h:i:s');
+		$Reservation->date_returned = date(DATE_TIMESTAMP);
 		//$Reservation->broken = $broken;
 
 		$isBarcode = ($Reservation->SaleProduct->SaleInventory[0]->barcode_id > 0);
@@ -1880,7 +1899,7 @@ class ReservationUtilities {
 				$PurchaseType->loadProduct($pInfo['products_id']);
 				$rInfo = '';
 				$semName = '';
-				$curDateNow = date('Y-m-d H:i:s');
+				$curDateNow = date(DATE_TIMESTAMP);
 				//get the minimum amount of minutes for the product
 				$pprTypes = array();
 				foreach(PurchaseType_reservation_utilities::getRentalTypes() as $iType){

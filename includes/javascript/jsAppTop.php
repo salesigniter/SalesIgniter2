@@ -22,6 +22,11 @@ jsCurrencies.setThousandsPoint('<?php echo $CurrencyInfo['thousands_point'];?>')
 jsCurrencies.setDecimalPlaces(<?php echo $CurrencyInfo['decimal_places'];?>);
 jsCurrencies.setValue(<?php echo $CurrencyInfo['value'];?>);
 
+jsLanguage.setDateFormat({
+	short: '<?php echo sysLanguage::getJsDateFormat('short');?>',
+	long: '<?php echo sysLanguage::getJsDateFormat('long');?>'
+});
+
 <?php
 if (sysLanguage::hasJavascriptDefines() === true){
 	foreach(sysLanguage::getJavascriptDefines() as $k => $v){

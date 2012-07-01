@@ -44,6 +44,7 @@ class TemplateManagerLayoutTypeModuleTemplate extends TemplateManagerLayoutTypeM
 
 		$BoxesContainer = htmlBase::newElement('div');
 
+		$pageCheckbox = htmlBase::newElement('checkbox')->addClass('pageBox');
 		$rentalMemberCheckbox = htmlBase::newElement('checkbox')->setLabel('R')->setValue('R');
 		$nonRentalMemberCheckbox = htmlBase::newElement('checkbox')->setLabel('N')->setValue('N');
 
@@ -77,6 +78,13 @@ class TemplateManagerLayoutTypeModuleTemplate extends TemplateManagerLayoutTypeM
 
 						$pageName1 = $QProducts[0]['ProductsDescription'][0]['products_name'];
 					}
+					$pageCheckbox
+						->setLabel($pageName1)
+						->setLabelPosition('right')
+						->setName('applications[' . $appName . '][]')
+						->setValue($pageName)
+						->setChecked(isset($selApps[$appName][$pageName]) ? $selApps[$appName][$pageName] : false);
+
 					$rentalMemberCheckbox
 						->setName('pagetype[' . $appName . '][' . $pageName . ']')
 						->setChecked((isset($pageTypes[$appName][$pageName]) && $pageTypes[$appName][$pageName] == 'R') ? true : false);
@@ -85,7 +93,8 @@ class TemplateManagerLayoutTypeModuleTemplate extends TemplateManagerLayoutTypeM
 						->setName('pagetype[' . $appName . '][' . $pageName . ']')
 						->setChecked((isset($pageTypes[$appName][$pageName]) && $pageTypes[$appName][$pageName] == 'N') ? true : false);
 
-					$checkboxes .= '<div style="margin: 0 0 0 1em;"><input class="pageBox" type="checkbox" name="applications[' . $appName . '][]" value="' . $pageName . '"' . ($pageChecked === true ? ' checked="checked"' : '') . '> ' . $pageName1;
+					$checkboxes .= '<div style="margin: 0 0 0 1em;">';
+					$checkboxes .= $pageCheckbox->draw();
 					$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$nonRentalMemberCheckbox->draw();
 					$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw();
 					if(isset($associativeUrl)){
@@ -118,6 +127,13 @@ class TemplateManagerLayoutTypeModuleTemplate extends TemplateManagerLayoutTypeM
 				foreach($eInfo as $appName => $aInfo){
 					$checkboxes .= '<div><div class="ui-state-hover" style="margin: .5em .5em 0 .5em"><input type="checkbox" class="appBox checkAllPages"> ' . $appName . '</div>';
 					foreach($aInfo as $pageName => $pageChecked){
+						$pageCheckbox
+							->setLabel($pageName)
+							->setLabelPosition('right')
+							->setName('applications[ext][' . $ExtName . '][' . $appName . '][]')
+							->setValue($pageName)
+							->setChecked(isset($selApps['ext'][$ExtName][$appName][$pageName]) ? $selApps['ext'][$ExtName][$appName][$pageName] : false);
+
 						$rentalMemberCheckbox
 							->setName('pagetype[ext][' . $ExtName . '][' . $appName . '][' . $pageName . ']')
 							->setChecked((isset($pageTypes['ext'][$ExtName][$appName][$pageName]) && $pageTypes['ext'][$ExtName][$appName][$pageName] == 'R') ? true : false);
@@ -126,7 +142,8 @@ class TemplateManagerLayoutTypeModuleTemplate extends TemplateManagerLayoutTypeM
 							->setName('pagetype[ext][' . $ExtName . '][' . $appName . '][' . $pageName . ']')
 							->setChecked((isset($pageTypes['ext'][$ExtName][$appName][$pageName]) && $pageTypes['ext'][$ExtName][$appName][$pageName] == 'N') ? true : false);
 
-						$checkboxes .= '<div style="margin: 0 0 0 1em;"><input type="checkbox" class="pageBox" name="applications[ext][' . $ExtName . '][' . $appName . '][]" value="' . $pageName . '"' . ($pageChecked === true ? ' checked="checked"' : '') . '> ' . $pageName;
+						$checkboxes .= '<div style="margin: 0 0 0 1em;">';
+						$checkboxes .= $pageCheckbox->draw();
 						$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$nonRentalMemberCheckbox->draw();
 						$checkboxes .= '&nbsp;&nbsp;&nbsp;'.$rentalMemberCheckbox->draw();
 

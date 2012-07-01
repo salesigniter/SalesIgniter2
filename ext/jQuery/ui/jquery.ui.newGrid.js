@@ -216,6 +216,10 @@
 					});
 					js_redirect(js_app_link(js_get_all_get_params(ignoreParams)));
 				});
+
+				$(this).find('.makeDatepicker').datepicker({
+					dateFormat: jsLanguage.getDateFormat('short')
+				});
 			});
 
 			$(this.GridElement).find('th.ui-grid-sortable-header').each(function () {

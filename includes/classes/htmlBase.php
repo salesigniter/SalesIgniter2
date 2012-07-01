@@ -114,10 +114,11 @@ class htmlBase {
 
 	/**
 	 * @static
+	 * @param string $type
 	 * @return htmlElement_list
 	 */
-	public static function newList(){
-		return self::newElement('list');
+	public static function newList($type = 'ul'){
+		return self::newElement('list')->setType($type == 'ul' ? 'unordered' : 'ordered');
 	}
 
 	/**

@@ -27,6 +27,13 @@ class AccountsReceivableSales extends Doctrine_Record {
 			'orderBy' => 'display_order',
 			'cascade' => array('delete')
 		));
+
+		$this->hasMany('AccountsReceivableSalesTransactions as Transactions', array(
+			'local' => 'id',
+			'foreign' => 'sale_id',
+			'orderBy' => 'date_added',
+			'cascade' => array('delete')
+		));
 	}
 
 	public function setTableDefinition(){

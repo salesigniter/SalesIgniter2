@@ -210,6 +210,7 @@ $ExceptionManager->initSessionMessages();
 
 require(sysConfig::getDirFsCatalog() . 'includes/classes/AccountsReceivable.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/accountsReceivableModules/modules.php');
+require(sysConfig::getDirFsCatalog() . 'includes/modules/emailModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderShippingModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderPaymentModules/modules.php');
 require(sysConfig::getDirFsCatalog() . 'includes/modules/orderTotalModules/modules.php');

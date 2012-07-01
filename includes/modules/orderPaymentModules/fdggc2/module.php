@@ -17,7 +17,8 @@ class OrderPaymentFdggc2 extends CreditCardModule
 
 	private $secret;
 
-	public function __construct() {
+	public function __construct()
+	{
 		/*
 		 * Default title and description for modules that are not yet installed
 		 */
@@ -47,31 +48,37 @@ class OrderPaymentFdggc2 extends CreditCardModule
 		}
 	}
 
-	public function beforeProcessPayment(Order $Order) {
-		$this->params['oid'] = $Order->getSaleId();
-		$this->params[Session::getSessionName()] = Session::getSessionId();
+	public function beforeProcessPayment(Order $CheckoutSale)
+	{
+		$SaleModule = $CheckoutSale->getSaleModule();
+		$SaleId = $SaleModule->saveSale($CheckoutSale);
 
-		$this->params['subtotal'] = $Order->TotalManager->getTotalValue('subtotal');
-		$this->params['chargetotal'] = $Order->TotalManager->getTotalValue('total');
+		$this->params['oid'] = $SaleId;
+		$this->params[Session::getSessionName()] = Session::getSessionId();
+		$this->params['sale_module'] = $SaleModule->getCode();
+
+		$this->params['subtotal'] = $CheckoutSale->TotalManager->getTotalValue('subtotal');
+		$this->params['chargetotal'] = $CheckoutSale->TotalManager->getTotalValue('total');
 
 		$TypeConvert = array(
 			'Mastercard' => 'M',
-			'Visa' => 'V',
-			'Amex' => 'A',
-			'Diners' => 'C',
-			'JCB' => 'J',
-			'Discover' => 'D'
+			'Visa'       => 'V',
+			'Amex'       => 'A',
+			'Diners'     => 'C',
+			'JCB'        => 'J',
+			'Discover'   => 'D'
 		);
 
-		$this->params['paymentMethod'] = $TypeConvert[$Order->PaymentManager->getInfo('cardType')];
-		$this->params['cardnumber'] = $Order->PaymentManager->getInfo('cardNumber');
-		$this->params['expmonth'] = $Order->PaymentManager->getInfo('cardExpMonth');
-		$this->params['expyear'] = $Order->PaymentManager->getInfo('cardExpYear');
-		$this->params['cvm'] = $Order->PaymentManager->getInfo('cardCvvNumber');
-		$this->params['cvmnotpres'] = ($Order->PaymentManager->getInfo('cardCvvNumber') == '');
+		$this->params['paymentMethod'] = $TypeConvert[$CheckoutSale->PaymentManager->getInfo('cardType')];
+		$this->params['cardnumber'] = $CheckoutSale->PaymentManager->getInfo('cardNumber');
+		$this->params['expmonth'] = $CheckoutSale->PaymentManager->getInfo('cardExpMonth');
+		$this->params['expyear'] = $CheckoutSale->PaymentManager->getInfo('cardExpYear');
+		$this->params['cvm'] = $CheckoutSale->PaymentManager->getInfo('cardCvvNumber');
+		$this->params['cvmnotpres'] = ($CheckoutSale->PaymentManager->getInfo('cardCvvNumber') == '');
 
 		if ($this->params['mode'] == 'payplus'){
-			$BillingAddress = $Order->AddressManager->getAddress('billing');
+			$BillingAddress = $CheckoutSale->AddressManager->getAddress('billing');
+
 			$this->params['bcompany'] = $BillingAddress->getCompany();
 			$this->params['bname'] = $BillingAddress->getName();
 			$this->params['baddr1'] = $BillingAddress->getStreetAddress();
@@ -81,14 +88,15 @@ class OrderPaymentFdggc2 extends CreditCardModule
 			//$this->params['bstate2'] = $BillingAddress->getSuburb();
 			$this->params['bcountry'] = $BillingAddress->getCountryCode();
 			$this->params['bzip'] = $BillingAddress->getPostcode();
-			$this->params['phone'] = $Order->InfoManager->getInfo('customers_telephone_number');
-			$this->params['fax'] = $Order->InfoManager->getInfo('customers_fax_number');
-			$this->params['email'] = $Order->InfoManager->getInfo('customers_email_address');
+			$this->params['phone'] = $CheckoutSale->InfoManager->getInfo('customers_telephone_number');
+			$this->params['fax'] = $CheckoutSale->InfoManager->getInfo('customers_fax_number');
+			$this->params['email'] = $CheckoutSale->InfoManager->getInfo('customers_email_address');
 		}
 		$this->params['payment_module'] = $this->getCode();
 	}
 
-	public function getHiddenFields() {
+	public function getHiddenFields()
+	{
 		$DateTime = new DateTime('now');
 		$DateTime = $DateTime->modify('+3 Seconds');
 		$this->params['txndatetime'] = $DateTime->format('Y:m:d-H:i:s');
@@ -98,7 +106,7 @@ class OrderPaymentFdggc2 extends CreditCardModule
 
 		$this->params['hash'] = $this->params['storename'] . $this->params['txndatetime'] . $this->params['chargetotal'] . $this->secret;
 		$hex_str = '';
-		for ($i = 0; $i < strlen($this->params['hash']); $i++){
+		for($i = 0; $i < strlen($this->params['hash']); $i++){
 			$hex_str .= dechex(ord($this->params['hash'][$i]));
 		}
 		$this->params['hash'] = hash('sha256', $hex_str);
@@ -114,26 +122,52 @@ class OrderPaymentFdggc2 extends CreditCardModule
 		return $hiddenFields;
 	}
 
-	public function ownsProcessPage(){
+	public function ownsProcessPage()
+	{
 		if (isset($_GET['payment_module']) && $_GET['payment_module'] == $this->getCode()){
 			return true;
-		}elseif (isset($_POST['payment_module']) && $_POST['payment_module'] == $this->getCode()){
+		}
+		elseif (isset($_POST['payment_module']) && $_POST['payment_module'] == $this->getCode()) {
 			return true;
 		}
 		return false;
 	}
 
-	public function afterProcessPayment($success){
+	public function afterProcessPayment($success)
+	{
 		global $messageStack;
+
+		$CardDetails = array(
+			'cardOwner'    => $_POST['bname'],
+			'cardNumber'   => $_POST['cardnumber'],
+			'cardExpMonth' => $_POST['expmonth'],
+			'cardExpYear'  => $_POST['expyear'],
+			'approvalCode' => $_POST['approval_code']
+		);
+
 		$ResponseStatus = strtolower(trim($_POST['status']));
 		switch($ResponseStatus){
 			case 'approved':
+				$this->onSuccess(array(
+					'status'      => $ResponseStatus,
+					'saleModule'  => $_POST['sale_module'],
+					'saleId'      => $_POST['oid'],
+					'message'     => '',
+					'amount'      => $_POST['chargetotal'],
+					'cardDetails' => $CardDetails
+				));
 				break;
 			case 'declined':
 			case 'duplicate':
 			case 'fraud':
-				$messageStack->addSession('pageStack', $_POST['fail_reason'], 'error');
-				tep_redirect(itw_app_link('paymentError=1', 'checkout', 'default'));
+				$this->onFail(array(
+					'status'      => $ResponseStatus,
+					'saleId'      => $_POST['oid'],
+					'saleModule'  => $_POST['sale_module'],
+					'message'     => $_POST['fail_reason'],
+					'amount'      => $_POST['chargetotal'],
+					'cardDetails' => $CardDetails
+				));
 				break;
 			default:
 				$messageStack->addSession('pageStack', 'An unknown response was recieved from the payment gateway<br>The administrator has been notified, please try again later.', 'error');
@@ -143,116 +177,50 @@ class OrderPaymentFdggc2 extends CreditCardModule
 		}
 	}
 
-	public function sendPaymentRequest($requestData) {
-		$CurlRequest = new CurlRequest($this->gatewayUrl);
-		$CurlRequest->setData($this->params);
-		$CurlResponse = $CurlRequest->execute();
-
-		return $this->onResponse($CurlResponse);
-	}
-
-	private function onResponse($CurlResponse, $isCron = false) {
-		global $order;
-		$response = $CurlResponse->getResponse();
-		echo 'RESPONSE::' . $response;
-		$response = explode(',', $response);
-
-		$code = /*$response[0]*/1;
-		$subCode = /*$response[1]*/2;
-		$reasonCode = /*$response[2]*/2;
-		$reasonText = /*$response[3]*/2;
-
-		$this->transactionId = /*$response[6]*/4324123432;
-		$success = true;
-		$errMsg = $reasonText;
-		if ($code != 1){
-			$success = false;
-			switch($code){
-				case '':
-					$errMsg = 'The server cannot connect to ' . $this->getTitle() . '.  Please check your cURL and server settings.';
-					break;
-				case '2':
-					$errMsg = 'Your credit card was declined ( ' . $code . '-' . $reasonCode . ' ):' . $reasonText;
-					break;
-				case '3':
-					$errMsg = 'There was an error processing your credit card ( ' . $code . '-' . $reasonCode . ' ):' . $reasonText;
-					break;
-				default:
-					$errMsg = 'There was an unspecified error processing your credit card ( ' . $code . '-' . $reasonCode . ' ):' . $reasonText;
-					break;
-			}
-		}
-
-		if ($isCron === true){
-			$this->cronMsg = $errMsg;
-		}
-
-		if ($success === true || (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0)){
-			if (isset($order) && sysConfig::get('EXTENSION_PAY_PER_RENTALS_PROCESS_SEND') == 'True' && $order->info['total'] == 0){
-				$errMsg = 'Payment on hold';
-			}
-			$this->onSuccess(array(
-				'curlResponse' => $CurlResponse,
-				'message'      => $errMsg
-			));
-		}
-		else {
-			$this->onFail(array(
-				'curlResponse' => $CurlResponse,
-				'message'      => $errMsg
-			));
-		}
-		return $success;
-	}
-
-	private function onSuccess($info) {
-		$RequestData = $info['curlResponse']->getDataRaw();
-		$saleId = $RequestData['x_invoice_num'];
-
-		$cardDetails = array(
-			'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
-			'cardNumber'   => $RequestData['x_card_num'],
-			'cardExpMonth' => substr($RequestData['x_exp_date'], 0, 2),
-			'cardExpYear'  => substr($RequestData['x_exp_date'], 2),
-			'transId'      => (isset($this->transactionId) ? $this->transactionId : '')
-		);
+	private function onSuccess($info)
+	{
+		$Sale = AccountsReceivable::getSale($info['saleModule'], $info['saleId']);
+		$Sale->sendNewSaleSuccessEmail();
 
 		$this->logPayment(array(
-			'saleId'     => $saleId,
-			'amount'      => $RequestData['x_amount'],
+			'saleId'      => $info['saleId'],
+			'amount'      => $_POST['chargetotal'],
 			'message'     => $info['message'],
 			'success'     => 1,
 			'can_reuse'   => (isset($_POST['canReuse']) ? 1 : 0),
-			'cardDetails' => $cardDetails
+			'cardDetails' => $info['cardDetails']
 		));
+
+		tep_redirect(itw_app_link(null, 'checkout', 'success'));
 	}
 
-	private function onFail($info) {
+	private function onFail($info)
+	{
 		global $messageStack;
-		$RequestData = $info['curlResponse']->getDataRaw();
-		$saleId = $RequestData['x_invoice_num'];
-		$this->setErrorMessage($this->getTitle() . ' : ' . $info['message']);
+
+		$Sale = AccountsReceivable::getSale($info['saleModule'], $info['saleId']);
+		$Sale->sendNewSaleFailEmail();
+
 		if ($this->removeOrderOnFail === true){
-			$Order = Doctrine_Core::getTable('Orders')->find($saleId);
-			if ($Order){
-				$Order->delete();
+			$Sale = Doctrine_Core::getTable('AccountsReceivableSales')
+				->findBySaleId($info['saleId']);
+			if ($Sale){
+				$Sale->delete();
 			}
 
 			$messageStack->addSession('pageStack', $info['message'], 'error');
 		}
 		else {
 			$this->logPayment(array(
-				'saleId'     => $saleId,
-				'amount'      => $RequestData['x_amount'],
+				'saleId'      => $info['saleId'],
+				'amount'      => $info['amount'],
 				'message'     => $info['message'],
 				'success'     => 0,
-				'cardDetails' => array(
-					'cardOwner'    => $RequestData['x_first_name'] . ' ' . $RequestData['x_last_name'],
-					'cardNumber'   => $RequestData['x_card_num'],
-					'cardExpMonth' => $RequestData['x_exp_date'],
-					'cardExpYear'  => $RequestData['x_exp_date']
-				)
+				'cardDetails' => $info['cardDetails']
 			));
 		}
+
+		$messageStack->addSession('pageStack', $_POST['fail_reason'], 'error');
+		tep_redirect(itw_app_link('paymentError=1', 'checkout', 'default'));
 	}
 }

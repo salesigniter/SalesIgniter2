@@ -455,6 +455,7 @@ class AccountsReceivableModule extends ModuleBase
 				$Order->InfoManager->setInfo('last_modified', $Sale->date_modified);
 				$Order->InfoManager->setInfo('sale_id', $this->id);
 				$Order->InfoManager->setInfo('revision', $Sale->sale_revision);
+				$Order->PaymentManager->setPaymentModule('fdggc2');
 
 				$Sale->Totals;
 				foreach($Sale->Totals as $Total){

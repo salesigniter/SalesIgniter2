@@ -170,6 +170,14 @@ class OrderTotalManager
 			//echo '</div>';
 		}
 	}
+
+	public function getEmailList(){
+		$orderTotals = '';
+		foreach($this->getAll() as $OrderTotal){
+			$orderTotals .= strip_tags($OrderTotal->getModule()->getTitle()) . ' ' . strip_tags($OrderTotal->getModule()->getText()) . "\n";
+		}
+		return $orderTotals;
+	}
 }
 
 require(dirname(__FILE__) . '/Total.php');

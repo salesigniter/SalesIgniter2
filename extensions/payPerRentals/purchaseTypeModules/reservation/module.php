@@ -923,9 +923,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			if ($this->overBookingAllowed() === true){
 				$allowed = true;
 			}
-			elseif ($this->getConfigData('INVENTORY_SHOPPING_CART_VERIFY') == 'True'){
-				$allowed = ($this->getCurrentStock() >= $CartProductData['quantity']);
-			}
+			//elseif ($this->getConfigData('INVENTORY_SHOPPING_CART_VERIFY') == 'True'){
+			//	$allowed = ($this->getCurrentStock() >= $CartProductData['quantity']);
+			//}
 		}
 
 		if ($allowed === true){
@@ -959,6 +959,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 					}
 				}
 			}
+		}else{
+			$this->addError('The Product Does Not Have Enough Inventory To Fill The Request.');
 		}
 
 		return $allowed;
@@ -1187,7 +1189,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$startDate = $ReservationInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day');
 			$endDate = $ReservationInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
 
-			$invItems = $this->getInventoryItems();
+			$invItems = $this->getInventoryItems(true);
 			if (is_array($invItems)){
 				foreach($invItems as $barcodeInfo){
 					if (count($usableBarcodes) == 0 || in_array($barcodeInfo['id'], $usableBarcodes)){
@@ -2686,7 +2688,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function getProductsBarcodes()
 	{
-		return $this->getInventoryItems();
+		return $this->getInventoryItems(true);
 	}
 
 	public function getBookedDaysArray(DateTime $StartDate, $qty, &$reservationsArr, &$bookedDates, $usableBarcodes = array())
@@ -2698,16 +2700,21 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$usableBarcodes
 		);
 
+		if (empty($reservationsArr) === true){
+			return array();
+		}
+
 		$bookedDates = array();
 		foreach($reservationsArr as $rInfo){
 			if (isset($rInfo['start']) && isset($rInfo['end'])){
 				$startTime = $rInfo['start']->getTimestamp();
 				$endTime = $rInfo['end']->getTimestamp();
 				while($startTime <= $endTime){
-					$dateFormated = date('Y-n-j', $startTime);
+					$dateFormated = date(sysLanguage::getDateFormat('short'), $startTime);
 					if ($this->getTrackMethod() == 'barcode'){
-						$bookedDates[$dateFormated]['barcode'][] = $rInfo['barcode'];
-						//check if all the barcodes are already or make a new function to make checks by qty... (this function can return also the free barcode?)
+						foreach($rInfo['barcode'] as $barcodeId){
+							$bookedDates[$dateFormated]['barcode'][] = $barcodeId;
+						}
 					}
 					else {
 						if (isset($bookedDates[$dateFormated]['qty'])){
@@ -2716,7 +2723,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 						else {
 							$bookedDates[$dateFormated]['qty'] = 1;
 						}
-						//check if there is still qty available.
 					}
 
 					$startTime += 60 * 60 * 24;
@@ -2739,15 +2745,16 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			return false;
 		}
 		else {
+			$TotalBarcodes = sizeof($prodBarcodes);
 			foreach($bookedDates as $dateFormated => $iBook){
 				if ($this->getTrackMethod() == 'barcode'){
-					$myqty = 0;
-					foreach($iBook['barcode'] as $barcode){
-						if (in_array($barcode, $prodBarcodes)){
-							$myqty++;
-						}
-					}
-					if (count($prodBarcodes) - $myqty < $qty){
+					//$myqty = 0;
+					//foreach($iBook['barcode'] as $barcode){
+						//if (in_array($barcode, $prodBarcodes)){
+							//$myqty++;
+						//}
+					//}
+					if (($TotalBarcodes - sizeof($iBook['barcode'])) < $qty){
 						$bookingsArr[] = $dateFormated;
 					}
 				}
@@ -3156,7 +3163,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$tableRow = array();
 			if ($appExtension->isEnabled('payPerRentals') === true){
 
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') == 'Using calendar after browsing products and clicking Reserve' && $this->hasInventory()){
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') == 'Using calendar after browsing products and clicking Reserve'){
 					$payPerRentalButton = htmlBase::newElement('button')
 						->setText(sysLanguage::get('TEXT_BUTTON_PAY_PER_RENTAL'))
 						->setHref(

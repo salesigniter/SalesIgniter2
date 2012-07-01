@@ -228,28 +228,15 @@ class PaymentModuleBase extends ModuleBase
 	public function logPayment($info) {
 		global $order;
 
-		$newStatus = new OrdersPaymentsHistory();
-		$newStatus->payment_module = $this->getCode();
-		$newStatus->payment_method = $this->getTitle();
-		$newStatus->payment_amount = $info['amount'];
-		$newStatus->success = (int)$info['success'];
-		$newStatus->can_reuse = (int)(isset($info['can_reuse']) ? $info['can_reuse'] : 0);
-		$newStatus->is_refund = (int)(isset($info['is_refund']) ? $info['is_refund'] : 0);
-
-		if (isset($info['message'])){
-			$newStatus->gateway_message = $info['message'];
-		}
-
-		if (isset($info['cardDetails'])){
-			$newStatus->card_details = cc_encrypt(serialize($info['cardDetails']));
-		}
+		$newTransaction = new AccountsReceivableSalesTransactions();
+		$newTransaction->transaction_data = json_encode($info);
 
 		if ($this->logUseCollection === true){
-			$this->Collection->OrdersPaymentsHistory->add($newStatus);
+			$this->Collection->Transactions->add($newTransaction);
 		}
 		else {
-			$newStatus->orders_id = (isset($info['orderID']) ? $info['orderID'] : $order->newOrder['orderID']);
-			$newStatus->save();
+			$newTransaction->sale_id = $info['saleId'];
+			$newTransaction->save();
 		}
 	}
 

@@ -30,12 +30,12 @@ class EmailModuleBase extends ModuleBase
 		$this->setModuleType('email');
 		parent::init($code, $forceEnable, $moduleDir);
 
-		$this->_emailVars['today_short'] = date(sysLanguage::getDateFormat('short'));
-		$this->_emailVars['today_long'] = date(sysLanguage::getDateFormat('long'));
-		$this->_emailVars['store_name'] = sysConfig::get('STORE_NAME');
-		$this->_emailVars['store_owner'] = sysConfig::get('STORE_OWNER');
-		$this->_emailVars['store_owner_email'] = sysConfig::get('STORE_OWNER_EMAIL_ADDRESS');
-		$this->_emailVars['store_url'] = sysConfig::get('HTTP_SERVER') . sysConfig::get('DIR_WS_CATALOG');
+		$this->setGlobalVar('today_short', date(sysLanguage::getDateFormat('short')));
+		$this->setGlobalVar('today_long', date(sysLanguage::getDateFormat('long')));
+		$this->setGlobalVar('store_name', sysConfig::get('STORE_NAME'));
+		$this->setGlobalVar('store_owner', sysConfig::get('STORE_OWNER'));
+		$this->setGlobalVar('store_owner_email', sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'));
+		$this->setGlobalVar('store_url', sysConfig::get('HTTP_SERVER') . sysConfig::get('DIR_WS_CATALOG'));
 	}
 
 	public function clearVars($clearGlobal = false)
@@ -196,8 +196,8 @@ class EmailModuleBase extends ModuleBase
 			}
 		}*/
 
-		$sendFrom = $this->_emailVars['store_owner'];
-		$sendFromEmail = $this->_emailVars['store_owner_email'];
+		$sendFrom = $this->getGlobalVar('store_owner');
+		$sendFromEmail = $this->getGlobalVar('store_owner_email');
 
 		if (isset($sendTo['from_email'])){
 			$sendFromEmail = $sendTo['from_email'];
