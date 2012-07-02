@@ -17,21 +17,13 @@ $contents = array(
 	'children' => array()
 );
 
-$emailTools = array();
 $cartTools = array();
 $databaseTools = array();
 
 if (sysPermissions::adminAccessAllowed('mail', 'default') === true){
-	$emailTools[] = array(
+	$cartTools[] = array(
 		'link' => itw_app_link(null, 'mail', 'default', 'SSL'),
 		'text' => sysLanguage::get('BOX_TOOLS_MAIL')
-	);
-}
-
-if (sysPermissions::adminAccessAllowed('newsletters', 'default') === true){
-	$emailTools[] = array(
-		'link' => itw_app_link(null, 'newsletters', 'default', 'SSL'),
-		'text' => sysLanguage::get('BOX_TOOLS_NEWSLETTER_MANAGER')
 	);
 }
 
@@ -88,11 +80,6 @@ if (sysPermissions::adminAccessAllowed('cleardb', 'default') === true){
 		'text' => 'Clear Database'
 	);
 }
-$contents['children'][] = array(
-	'link'     => false,
-	'text'     => 'Email Tools',
-	'children' => $emailTools
-);
 $contents['children'][] = array(
 	'link'     => false,
 	'text'     => 'Cart Tools',

@@ -118,23 +118,6 @@ ob_end_clean();
 </head>
 <body topmargin="0" leftmargin="0" bgcolor="#FFFFFF">
 <?php
-function makeLinkList($item)
-{
-	$return = '<ul class="mainNavMenuChild">';
-	foreach($item['children'] as $cInfo){
-		$return .= '<li>';
-		if (!empty($cInfo['children'])){
-			$return .= $cInfo['text'];
-			$return .= makeLinkList($cInfo);
-		}
-		else {
-			$return .= '<a href="' . $cInfo['link'] . '">' . $cInfo['text'] . '</a>';
-		}
-		$return .= '</li>';
-	}
-	$return .= '</ul>';
-	return $return;
-}
 if (Session::exists('login_id') === true){
 	?>
 <div id="logoBar">
@@ -179,7 +162,7 @@ if (Session::exists('login_id') === true){
 				<span class="ui-icon ui-icon-calendar"></span><a href="<?php echo itw_app_link('action=landing&box=catalog', 'index', 'default');?>">Catalog</a>
 			</li>
 			<li data-load_ajax="true">
-				<span class="ui-icon ui-icon-document"></span><a href="<?php echo itw_app_link('action=landing&box=cms', 'index', 'default');?>">Content Management</a>
+				<span class="ui-icon ui-icon-document"></span><a href="<?php echo itw_app_link('action=landing&box=website', 'index', 'default');?>">Content Management</a>
 			</li>
 			<li data-load_ajax="true">
 				<span class="ui-icon ui-icon-disk"></span><a href="<?php echo itw_app_link('action=landing&box=modules', 'index', 'default');?>">Modules</a>

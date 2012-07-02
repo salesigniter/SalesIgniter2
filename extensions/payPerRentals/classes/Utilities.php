@@ -850,7 +850,7 @@ class ReservationUtilities {
 		$selfID.find('.datePicker').datepick({
 			renderer: $.datepick.themeRollerRenderer,
 			minDate: '+1',
-			dateFormat: '<?php echo getJsDateFormat();?>',
+			dateFormat: jsLanguage.getDateFormat('short'),
 			rangeSelect: <?php echo ((sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True') ? 'false' : 'true');?>,
 			//rangeSeparator: ',',
 			//multiSelect: 2,
@@ -947,6 +947,7 @@ class ReservationUtilities {
 					if (forceStartDate === false){
 						$selfID.find('.start_date').val(startDateFormatted).trigger('change');
 					}
+					$selfID.find('.end_date').val('');
 				}else{
 					isFirstClick = true;
 					$selfID.find('.end_date').val(endDateFormatted).trigger('change');
@@ -956,7 +957,7 @@ class ReservationUtilities {
 		});
 			<?php
 		if ($options['selectedDate'] != null){
-			echo '$selfID.find(\'.datePicker\').datepick(\'setDate\', [\'' . (is_array($options['selectedDate']) ? implode('\',\'', $options['selectedDate']): $options['selectedDate']) . '\']);' . "\n";
+			echo '$selfID.find(\'.datePicker\').datepick(\'setDate\', [\'' . (is_array($options['selectedDate']) ? implode('\',\'', $options['selectedDate']): $options['selectedDate']) . '\']);isFirstClick = true;' . "\n";
 		}
    	if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_FORCE_START_DATE') == 'True') {
 			?>
@@ -983,6 +984,8 @@ class ReservationUtilities {
 			<?php
 
 		}
+
+		if ($o['showQuantityBox'] === true){
 		?>
 
 		$selfID.find('.rental_qty').blur(function () {
@@ -1004,6 +1007,9 @@ class ReservationUtilities {
 				}
 			});
 		});
+			<?php
+		}
+?>
 		/*this part down will need some testing*/
 		$selfID.find('.selected_period').change(function() {
 
@@ -1051,6 +1057,8 @@ class ReservationUtilities {
 				$selfID.parent().find('.inCart').hide();
 			}
 		});
+
+		<?php if ($o['allowHourly'] === true){ ?>
 		var isTimeStart = false;
 		var selectedStartTimeTd = null;
 		var selectedEndTimeTd = null;
@@ -1300,7 +1308,8 @@ class ReservationUtilities {
 		}
 
 		$selfID.find('.calendarTime').hide();
-		<?php
+			<?php
+	}
    		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_UPS_RESERVATION') == 'True' && sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHECK_GOOGLE_ZONES_BEFORE') == 'False') {
 			?>
 			var $calLoader2 = $selfID.find('.datePicker');

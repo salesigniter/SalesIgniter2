@@ -23,6 +23,23 @@ class Extension_templateManager extends ExtensionBase
 		if ($this->isEnabled() === false) {
 			return;
 		}
+
+		EventManager::attachEvents(array(
+			'BoxWebsiteAddLink'
+		), null, $this);
+	}
+
+	public function BoxWebsiteAddLink(&$contents){
+		$contents['children'][] = array(
+			'link' => false,
+			'text' => 'Template Manager',
+			'children' => array(
+				array(
+					'link' => itw_app_link('appExt=templateManager', 'layout_manager', 'default'),
+					'text' => 'Manage Layouts',
+				)
+			)
+		);
 	}
 
 	public function onLoad() {

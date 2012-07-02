@@ -21,7 +21,7 @@ class Extension_infoPages extends ExtensionBase {
 		if ($this->isEnabled() === false) return;
 
 		if ($appExtension->isAdmin()){
-			EventManager::attachEvent('BoxCmsAddLink', null, $this);
+			EventManager::attachEvent('BoxWebsiteAddLink', null, $this);
 		}
 	}
 
@@ -37,13 +37,17 @@ class Extension_infoPages extends ExtensionBase {
 		}
 	}
 
-	public function BoxCmsAddLink(&$contents){
-		if (sysPermissions::adminAccessAllowed('manage', 'default','infoPages') === true){
-			$contents['children'][] = array(
-				'link' => itw_app_link('appExt=infoPages','manage','default','SSL'),
-				'text' => 'Manage Pages'
-			);
-		}
+	public function BoxWebsiteAddLink(&$contents){
+		$contents['children'][] = array(
+			'link' => false,
+			'text' => 'Content Manager',
+			'children' => array(
+				array(
+					'link' => itw_app_link('appExt=infoPages', 'manage', 'default'),
+					'text' => 'Manage Content',
+				)
+			)
+		);
 	}
 
 	public function getInfoPage($pageId = null, $languageId = null, $shownInInfobox = false, $mustBeEnabled = true){

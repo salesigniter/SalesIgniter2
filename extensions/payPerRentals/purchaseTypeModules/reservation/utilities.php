@@ -121,11 +121,11 @@ class PurchaseType_reservation_utilities
 	 */
 	public static function getLowestPrice($Prices, DateTime $StartDate, DateTime $EndDate)
 	{
-		$NumberOfMinutes = $EndDate->diff($StartDate)->i;
+		$NumberOfMinutes = (($EndDate->diff($StartDate)->days * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 
 		$BestPrice = $Prices[0];
 		foreach($Prices as $PriceInfo){
-			//echo $PriceInfo['price'] . ' / ' . ($PriceInfo['Type']['minutes'] * $PriceInfo['number_of']) . "\n";
+			//echo $PriceInfo['price'] . ' / ' . ($PriceInfo['Type']['minutes'] * $PriceInfo['number_of']) . "<br>\n";
 			$PricePerMinute = ($PriceInfo['price'] / ($PriceInfo['Type']['minutes'] * $PriceInfo['number_of']));
 			$TotalPrice = $PricePerMinute * $NumberOfMinutes;
 			if ($TotalPrice < $BestPrice['price']){
@@ -137,7 +137,7 @@ class PurchaseType_reservation_utilities
 
 	public static function getPricingPeriodInfo($PayPerRentalId, DateTime $StartDate, DateTime $EndDate)
 	{
-		$NumberOfMinutes = $EndDate->diff($StartDate)->i;
+		$NumberOfMinutes = (($EndDate->diff($StartDate)->days * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 
 		$return = array();
 		foreach(self::getRentalPricing($PayPerRentalId) as $PricingInfo){
@@ -169,7 +169,7 @@ class PurchaseType_reservation_utilities
 
 		$discount = false;
 		if (isset($Discounts[$checkStoreId])){
-			$NumberOfMinutes = $ReservationInfo['end_date']->diff($ReservationInfo['start_date'])->i;
+			$NumberOfMinutes = (($ReservationInfo['end_date']->diff($ReservationInfo['start_date'])->days * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 			foreach($Discounts[$checkStoreId] as $dInfo){
 				if ($dInfo['ppr_type'] == $PricingInfo['pay_per_rental_types_id']){
 					$checkFrom = $dInfo['discount_from'] * $PricingInfo['Type']['minutes'];

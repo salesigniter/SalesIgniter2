@@ -2956,7 +2956,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		$return['price'] = round($Price, 2);
 		$return['totalPrice'] = round($Price, 2);
 		if (sysconfig::get('EXTENSION_PAY_PER_RENTALS_SHORT_PRICE') == 'False'){
-			$NumberOfMinutes = $dateArray['end_date']->diff($dateArray['start_date'])->i;
+			$NumberOfMinutes = (($dateArray['end_date']->diff($dateArray['start_date'])->days * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 			$return['message'] = sysLanguage::get('PPR_PRICE_BASED_ON') .
 				($NumberOfMinutes / $Lowest['Type']['minutes']) .
 				'X' .
