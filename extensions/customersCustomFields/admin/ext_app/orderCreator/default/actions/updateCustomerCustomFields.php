@@ -10,7 +10,7 @@ foreach($_POST['customers_custom_field'] as $id => $val){
 
 	$CustomFieldsInfo[$Field->field_id] = array(
 		'key'   => $Field->field_key,
-		'type'  => $Field->input_type,
+		'type'  => $Field->field_data->type,
 		'value' => $val
 	);
 }

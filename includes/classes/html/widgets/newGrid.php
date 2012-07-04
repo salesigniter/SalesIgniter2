@@ -127,6 +127,11 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	protected $allowMultiple = false;
 
 	/**
+	 * @var string
+	 */
+	protected $_insertAfterGrid = '';
+
+	/**
 	 * @var Doctrine_Query
 	 */
 	protected $dataQuery;
@@ -168,8 +173,8 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	}
 
 	/**
-	 * @param $val
-	 * @return htmlWidget_newGrid
+	 * @param string $val
+	 * @return htmlWidget_newGrid|void
 	 */
 	public function setId($val) {
 		$this->mainElement->attr('id', $val);
@@ -177,8 +182,8 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	}
 
 	/**
-	 * @param $val
-	 * @return htmlWidget_newGrid
+	 * @param string $val
+	 * @return htmlWidget_newGrid|void
 	 */
 	public function setName($val) {
 		$this->mainElement->attr('name', $val);
@@ -267,6 +272,19 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 			))->html($this->pagerBar);
 
 			$this->mainElement->append($pageElement);
+		}
+
+		if (!empty($this->_insertAfterGrid)){
+			$extraContent = htmlBase::newElement('div')
+				->addClass('ui-widget ui-widget-content ui-corner-all')
+				->css(array(
+				'padding'       => '.5em',
+				'margin-bottom' => '.5em',
+				'text-align'    => 'left',
+				'font-weight'   => 'normal'
+			))
+				->html($this->_addAfterGrid);
+			$this->mainElement->append($extraContent);
 		}
 		return $this->mainElement->draw();
 	}
@@ -822,6 +840,10 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 			return $return;
 		}
 		return $Qproducts;
+	}
+
+	public function insertAfterGrid($html){
+		$this->_insertAfterGrid = $html;
 	}
 }
 

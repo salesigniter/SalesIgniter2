@@ -15,4 +15,13 @@ require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/Base.php');
 
 AccountsReceivableModules::loadModules();
 
+switch($AppPage->getName()){
+	case 'details':
+		$backButton = htmlBase::newElement('button')
+			->usePreset('back')
+			->setHref(itw_app_link(tep_get_all_get_params(array('action')), null, 'sales'));
+
+		$AppPage->addMenuItem($backButton);
+		break;
+}
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

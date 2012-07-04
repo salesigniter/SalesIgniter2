@@ -12,7 +12,7 @@ foreach($_POST['orders_custom_field'] as $id => $val){
 		'identifier' => $Field->field_identifier,
 		'type'       => $Field->input_type,
 		'value'      => $val,
-		'sort_order' => $Field->sort_order
+		'display_order' => $Field->display_order
 	);
 }
 $Editor->InfoManager->setInfo('OrdersCustomFieldsValues', $CustomFieldsInfo);

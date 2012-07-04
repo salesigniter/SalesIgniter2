@@ -9,5 +9,6 @@
 	<can_cancel_key>CAN_CANCEL</can_cancel_key>
 	<can_print_key>CAN_PRINT</can_print_key>
 	<can_export_key>CAN_EXPORT</can_export_key>
+	<can_duplicate_key>CAN_DUPLICATE</can_duplicate_key>
 	<accepts_payments_key>ACCEPT_PAYMENTS</accepts_payments_key>
 </info>

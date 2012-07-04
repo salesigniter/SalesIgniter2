@@ -2,9 +2,11 @@
 /**
  * Order total class for the checkout sale order total manager
  *
- * @package CheckoutSale
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\CheckoutSale\TotalManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleTotal extends OrderTotal
@@ -27,7 +29,8 @@ class CheckoutSaleTotal extends OrderTotal
 	 * @param $ModuleCode
 	 * @return ModuleBase|OrderTotalModuleBase
 	 */
-	private function getOrderTotalModule($ModuleCode){
+	private function getOrderTotalModule($ModuleCode)
+	{
 		$Module = OrderTotalModules::getModule($ModuleCode);
 		return $Module;
 	}

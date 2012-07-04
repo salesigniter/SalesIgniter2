@@ -1,4 +1,18 @@
 <?php
+if (class_exists('ProductTypeStandard') === false){
+	require(sysConfig::getDirFsCatalog() . 'includes/modules/productTypeModules/standard/module.php');
+}
+
+/**
+ * Standard product type for the order class
+ *
+ * @package   Order\ProductManager\Product\ProductTypeModules
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
+ */
+
 class OrderProductTypeStandard extends ProductTypeStandard
 {
 
@@ -6,6 +20,43 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	 * @var PurchaseTypeBase
 	 */
 	protected $PurchaseTypeClass;
+
+	/**
+	 * @var array
+	 */
+	protected $pInfo = array();
+
+	/**
+	 * @param $k
+	 * @return mixed
+	 */
+	public function getInfo($k = null)
+	{
+		return ($k === null ? $this->pInfo : $this->pInfo[$k]);
+	}
+
+	/**
+	 * @param      $k
+	 * @param null $v
+	 */
+	public function setInfo($k, $v = null)
+	{
+		if ($v === null){
+			$this->pInfo = $k;
+		}
+		else {
+			$this->pInfo[$k] = $v;
+		}
+	}
+
+	/**
+	 * @param $k
+	 * @return bool
+	 */
+	public function hasInfo($k)
+	{
+		return isset($this->pInfo[$k]);
+	}
 
 	/**
 	 * @param bool $PurchaseType
@@ -51,38 +102,95 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @return array|void
+	 * @param bool $showExtraInfo
+	 * @return string
 	 */
-	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	public function showProductInfo($showExtraInfo = true)
 	{
-		$toEncode = array(
-			'purchase_type' => $this->PurchaseTypeClass->getCode()
-		);
-		if (method_exists($this->PurchaseTypeClass, 'prepareJsonSave')){
-			$toEncode['PurchaseTypeJson'] = $this->PurchaseTypeClass->prepareJsonSave($this);
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($this);
+		$PurchaseTypeCls = $this->getPurchaseTypeClass();
+		if ($showExtraInfo === true){
+			$purchaseTypeHtml = htmlBase::newElement('span')
+				->css(
+				array(
+					'font-size'  => '.8em',
+					'font-style' => 'italic'
+				))
+				->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
+
+			$html = $purchaseTypeHtml->draw();
+		}
+		else {
+			$html = '';
+		}
+
+		if (method_exists($PurchaseTypeCls, 'showProductInfo')){
+			$html .= $PurchaseTypeCls->showProductInfo($showExtraInfo);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function prepareJsonSave()
+	{
+		$toEncode = $this->getInfo();
+
+		$PurchaseType = $this->getPurchaseTypeClass();
+		if (method_exists($PurchaseType, 'prepareJsonSave')){
+			$toEncode['PurchaseTypeJson'] = $PurchaseType->prepareJsonSave();
 		}
 		return $toEncode;
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @param array        $ProductTypeJson
+	 * @param array $ProductTypeJson
 	 */
-	public function jsonDecode(OrderProduct &$OrderProduct, array $ProductTypeJson)
+	public function jsonDecode(array $ProductTypeJson)
 	{
-		$this->loadPurchaseType($ProductTypeJson['purchase_type']);
+		$this->setInfo($ProductTypeJson);
+//echo __FILE__ . '::' . __LINE__ . '<Br><pre>';print_r($ProductTypeJson);
+		$this->loadPurchaseType();
 
-		if (method_exists($this->PurchaseTypeClass, 'jsonDecode')){
-			$this->PurchaseTypeClass->jsonDecode($OrderProduct, $ProductTypeJson['PurchaseTypeJson']);
+		if (isset($ProductTypeJson['PurchaseTypeJson'])){
+			$PurchaseType = $this->getPurchaseTypeClass();
+			if (method_exists($PurchaseType, 'jsonDecode')){
+				$PurchaseType->jsonDecode($ProductTypeJson['PurchaseTypeJson']);
+			}
 		}
 	}
 
-	public function onGetEmailList(&$orderedProductsString){
-		$orderedProductsString .= ' - Purchase Type: ' . $this->PurchaseTypeClass->getTitle() . "\n";
+	/**
+	 * Cannot typehint due to the possibility of packages extension being installed
+	 * and its' products are from another table with the same columns
+	 *
+	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
+	 * @param array                                                                   $ProductTypeJson
+	 */
+	public function jsonDecodeProduct($Product, array $ProductTypeJson)
+	{
+		$this->setInfo($ProductTypeJson);
+//echo __FILE__ . '::' . __LINE__ . '<Br><pre>';print_r($ProductTypeJson);
+		$this->loadPurchaseType();
 
-		if (method_exists($this->PurchaseTypeClass, 'onGetEmailList')){
-			$this->PurchaseTypeClass->onGetEmailList(&$orderedProductsString);
+		if (isset($ProductTypeJson['PurchaseTypeJson'])){
+			$PurchaseType = $this->getPurchaseTypeClass();
+			if (method_exists($PurchaseType, 'jsonDecodeProduct')){
+				$PurchaseType->jsonDecodeProduct($Product, $ProductTypeJson['PurchaseTypeJson']);
+			}
+		}
+	}
+
+	public function onGetEmailList(&$orderedProductsString)
+	{
+		$PurchaseType = $this->getPurchaseTypeClass();
+
+		$orderedProductsString .= ' - Purchase Type: ' . $PurchaseType->getTitle() . "\n";
+
+		if (method_exists($PurchaseType, 'onGetEmailList')){
+			$PurchaseType->onGetEmailList(&$orderedProductsString);
 		}
 	}
 }

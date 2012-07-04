@@ -94,14 +94,13 @@ class CheckoutSaleProductTypeStandard extends ProductTypeStandard
 	}
 
 	/**
-	 * @param OrderProduct                    $OrderProduct
 	 * @param AccountsReceivableSalesProducts $SaleProduct
 	 * @param bool                            $AssignInventory
 	 */
-	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 		if (method_exists($this->PurchaseTypeClass, 'onSaveSale')){
-			$this->PurchaseTypeClass->onSaveSale($OrderProduct, $SaleProduct, $AssignInventory);
+			$this->PurchaseTypeClass->onSaveSale($SaleProduct, $AssignInventory);
 		}
 	}
 

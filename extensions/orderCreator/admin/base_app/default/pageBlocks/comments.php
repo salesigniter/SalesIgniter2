@@ -8,4 +8,4 @@ foreach($orders_statuses as $sInfo){
 
 
 echo '<div class="main"><b>' . sysLanguage::get('TABLE_HEADING_COMMENTS') . '</b></div>' .
-	tep_draw_textarea_field('comments', 'soft', '60', '5');
+	htmlBase::newTextarea()->setName('comments')->html($Editor->InfoManager->getInfo('admin_comments'))->draw();

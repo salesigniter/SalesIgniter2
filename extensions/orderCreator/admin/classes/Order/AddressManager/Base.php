@@ -2,12 +2,12 @@
 /**
  * Address manager class for the order creator
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\AddressManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
-
-require(dirname(__FILE__) . '/Address.php');
 
 class OrderCreatorAddressManager extends OrderAddressManager
 {
@@ -15,7 +15,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 * @param array|null $addressArray
 	 */
-	public function __construct(array $addressArray = null) {
+	public function __construct(array $addressArray = null)
+	{
 		$this->addressHeadings['customer'] = sysLanguage::get('TEXT_ADDRESS_CUSTOMER');
 
 		if (sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_BILLING_ADDRESS') == 'True'){
@@ -48,14 +49,16 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 * @param OrderCreatorAddress $addressObj
 	 */
-	public function addAddressObj(OrderCreatorAddress $addressObj) {
+	public function addAddressObj(OrderCreatorAddress $addressObj)
+	{
 		$this->addresses[$addressObj->getAddressType()] = $addressObj;
 	}
 
 	/**
 	 *
 	 */
-	public function updateFromPost() {
+	public function updateFromPost()
+	{
 		if (!isset($_POST['address']['billing'])){
 			$_POST['address']['billing'] = $_POST['address']['customer'];
 		}
@@ -92,7 +95,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 * @param Doctrine_Collection $CollectionObj
 	 */
-	public function addAllToCollection(Doctrine_Collection &$CollectionObj) {
+	public function addAllToCollection(Doctrine_Collection &$CollectionObj)
+	{
 		$CollectionObj->clear();
 		foreach($this->addresses as $type => $addressObj){
 			$Address = new OrdersAddresses();
@@ -127,7 +131,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 *
 	 */
-	public function saveAll() {
+	public function saveAll()
+	{
 		$OrdersAddresses = Doctrine_Core::getTable('OrdersAddresses');
 		foreach($this->addresses as $type => $addressObj){
 			if (is_null($this->orderId) === true){
@@ -171,7 +176,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 * @return string
 	 */
-	public function editAll() {
+	public function editAll()
+	{
 		global $Editor;
 		$addressesTable = htmlBase::newElement('table')
 			->setCellPadding(2)
@@ -232,7 +238,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	 * @param $type
 	 * @return string
 	 */
-	public function editAddress($type) {
+	public function editAddress($type)
+	{
 		$htmlTable = htmlBase::newElement('table')
 			->setCellPadding(2)
 			->setCellSpacing(0);
@@ -274,22 +281,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 			->setPlaceholder(sysLanguage::get('ENTRY_CITY'))
 			->setName('address[' . $aType . '][entry_city]');
 
-		$cifInput = htmlBase::newInput()
-			->setPlaceholder(sysLanguage::get('ENTRY_CIF'))
-			->setName('address[' . $aType . '][entry_cif]');
-
-		$vatInput = htmlBase::newInput()
-			->setPlaceholder(sysLanguage::get('ENTRY_VAT'))
-			->setName('address[' . $aType . '][entry_vat]');
-
-		$cityBirthInput = htmlBase::newInput()
-			->setPlaceholder(sysLanguage::get('ENTRY_CITY_BIRTH'))
-			->setName('address[' . $aType . '][entry_city_birth]');
-
-		$dobInput = htmlBase::newInput()
-			->setPlaceholder(sysLanguage::get('ENTRY_DOB'))
-			->setName('address[' . $aType . '][entry_dob]');
-
 		$postcodeInput = htmlBase::newInput()
 			->setPlaceholder(sysLanguage::get('ENTRY_POST_CODE'))
 			->setName('address[' . $aType . '][entry_postcode]');
@@ -321,7 +312,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 			if ($Qcountry){
 				$addressCountryId = $Qcountry[0]['countries_id'];
 
-				$stateInput = htmlBase::newElement('selectbox')->setName('address[' . $aType . '][entry_state]')
+				$stateInput = htmlBase::newElement('selectbox')
+					->setName('address[' . $aType . '][entry_state]')
 					->css(array('width' => '150px'));
 
 				$Qzones = Doctrine_Query::create()
@@ -347,14 +339,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 			$addressInput->val($Address->getStreetAddress());
 			$suburbInput->val($Address->getSuburb());
 			$cityInput->val($Address->getCity());
-			if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
-				$cifInput->val($Address->getCIF());
-			}
-			if (sysConfig::get('ACCOUNT_VAT_NUMBER') == 'true'){
-				$vatInput->val($Address->getVAT());
-			}
-			$dobInput->val($Address->getDateOfBirth());
-			$cityBirthInput->val($Address->getCityBirth());
 			$postcodeInput->val($Address->getPostcode());
 
 			if ($stateInput->isType('select')){
@@ -385,38 +369,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 				array('colspan' => 3, 'text' => $nameInput)
 			)
 		));
-
-		if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
-			$htmlTable->addBodyRow(array(
-				'columns' => array(
-					array('colspan' => 3, 'text' => $cifInput)
-				)
-			));
-		}
-
-		if (sysConfig::get('ACCOUNT_VAT_NUMBER') == 'true'){
-			$htmlTable->addBodyRow(array(
-				'columns' => array(
-					array('colspan' => 3, 'text' => $vatInput)
-				)
-			));
-		}
-
-		if (sysConfig::get('ACCOUNT_DOB') == 'true'){
-			$htmlTable->addBodyRow(array(
-				'columns' => array(
-					array('colspan' => 3, 'text' => $dobInput)
-				)
-			));
-		}
-
-		if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
-			$htmlTable->addBodyRow(array(
-				'columns' => array(
-					array('colspan' => 3, 'text' => $cityBirthInput)
-				)
-			));
-		}
 
 		$htmlTable->addBodyRow(array(
 			'columns' => array(
@@ -452,10 +404,11 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	/**
 	 * @return string
 	 */
-	public function getCopyToButtons() {
+	public function getCopyToButtons()
+	{
 		$buttons = '';
 		foreach($this->addressHeadings as $addressType => $addressHeading){
-			if ($addressType == 'customer') {
+			if ($addressType == 'customer'){
 				continue;
 			}
 
@@ -470,7 +423,8 @@ class OrderCreatorAddressManager extends OrderAddressManager
 		return sysLanguage::get('TEXT_COPY_TO') . $buttons;
 	}
 
-	public function jsonDecode($data){
+	public function jsonDecode($data)
+	{
 		$Decoded = json_decode($data, true);
 		foreach($Decoded['addresses'] as $Type => $aInfo){
 			$this->addresses[$Type] = new OrderCreatorAddress(array_merge($aInfo['addressInfo'], array(
@@ -480,4 +434,4 @@ class OrderCreatorAddressManager extends OrderAddressManager
 	}
 }
 
-?>
+require(__DIR__ . '/Address.php');

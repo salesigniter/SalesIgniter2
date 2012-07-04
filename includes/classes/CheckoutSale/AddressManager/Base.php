@@ -2,12 +2,12 @@
 /**
  * Address manager class for the checkout sale
  *
- * @package   CheckoutSale
+ * @package   Order\CheckoutSale\AddressManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
-
-require(dirname(__FILE__) . '/Address.php');
 
 class CheckoutSaleAddressManager extends OrderAddressManager
 {
@@ -89,4 +89,4 @@ class CheckoutSaleAddressManager extends OrderAddressManager
 	}
 }
 
-?>
+require(__DIR__ . '/Address.php');

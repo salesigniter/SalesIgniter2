@@ -102,6 +102,18 @@
 						</values>
 					</set_function>
 				</CAN_EXPORT>
+				<CAN_DUPLICATE editable="false">
+					<title><![CDATA[Can Be Duplicated]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Can sales from this module be duplicated?]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</CAN_DUPLICATE>
 			</configurations>
 		</salesingiter>
 	</tabs>

@@ -116,6 +116,15 @@ class AccountsReceivable
 
 	/**
 	 * @static
+	 * @param Order $Order
+	 */
+	public static function duplicateSale(Order $Order){
+		$Module = $Order->getSaleModule();
+		$Module->duplicateSale($Order);
+	}
+
+	/**
+	 * @static
 	 * @param Order  $Order
 	 * @param string $saleType
 	 * @return int

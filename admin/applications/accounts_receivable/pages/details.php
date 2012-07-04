@@ -2,42 +2,33 @@
 $saleType = (isset($_GET['sale_type']) ? $_GET['sale_type'] : null);
 if ($saleType === null){
 	$QSaleType = Doctrine_Query::create()
-	->select('sale_module')
-	->from('AccountsReceivableSales')
-	->where('sale_id = ?', $_GET['sale_id'])
-	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		->select('sale_module')
+		->from('AccountsReceivableSales')
+		->where('sale_id = ?', $_GET['sale_id'])
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
 	$saleType = $QSaleType[0]['sale_module'];
 }
 $Sale = AccountsReceivable::getSale($saleType, $_GET['sale_id']);
-?>
-<div class="ApplicationPageMenu"><?php
-	$Menu = htmlBase::newList();
+$SaleModule = $Sale->getSaleModule();
 
-	$backButton = htmlBase::newElement('button')
-	->usePreset('back')
-	->setHref(itw_app_link(tep_get_all_get_params(array('action')), null, 'sales'));
-
-	$BackListItem = htmlBase::newElement('li')
-	->addClass('rootItem')
-	->html($backButton->draw());
-	$Menu->addItemObj($BackListItem);
-
-	echo $Menu->draw();
-	?></div>
-<br />
-<?php
-$tabsObj = htmlBase::newElement('tabs')->setId('tabs')
+$tabsObj = htmlBase::newElement('tabs')
+	->setId('tabs')
 	->addTabHeader('tab_customer_info', array('text' => 'Customer Info'))
-	->addTabHeader('tab_products', array('text' => 'Products'))
-	->addTabHeader('tab_payment_info', array('text' => 'Payment Info'))
-	->addTabHeader('tab_history', array('text' => 'History'))
-	->addTabHeader('tab_comments', array('text' => 'Comments/Tracking'));
+	->addTabHeader('tab_products', array('text' => 'Products'));
 
+if ($SaleModule->acceptsPayments() === true){
+	$tabsObj->addTabHeader('tab_payment_info', array('text' => 'Payment Info'));
+}
+
+$tabsObj->addTabHeader('tab_history', array('text' => 'History'))
+	->addTabHeader('tab_comments', array('text' => 'Comments/Tracking'));
 /* Tab: tab_customer_info --BEGIN-- */
 $addressesTable = $Sale->listAddresses();
 
-$infoTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
+$infoTable = htmlBase::newElement('table')
+	->setCellPadding(3)
+	->setCellSpacing(0);
 $infoTable->addBodyRow(array(
 	'columns' => array(
 		array(
@@ -109,101 +100,89 @@ foreach($contents as $content){
 /* Tab: tab_customer_info --END-- */
 
 /* Tab: tab_products --BEGIN-- */
-$productsTable = $Sale->listProducts();
-$orderTotalTable = $Sale->listTotals();
+$productsGrid = htmlBase::newGrid();
 
-$productsTable->addBodyRow(array(
+$productsGrid->addHeaderRow(array(
 	'columns' => array(
-		array(
-			'colspan' => 9,
-			'align'   => 'right',
-			'text'    => $orderTotalTable
-		)
+		array('text' => sysLanguage::get('TABLE_HEADING_PRODUCTS_QTY')),
+		array('text' => sysLanguage::get('TABLE_HEADING_PRODUCTS_NAME')),
+		array('text' => sysLanguage::get('TABLE_HEADING_PRODUCTS_BARCODE')),
+		array('text' => sysLanguage::get('TABLE_HEADING_PRODUCTS_MODEL')),
+		array('text' => sysLanguage::get('TABLE_HEADING_TAX')),
+		array('text' => sysLanguage::get('TABLE_HEADING_PRICE_EXCLUDING_TAX')),
+		array('text' => sysLanguage::get('TABLE_HEADING_PRICE_INCLUDING_TAX')),
+		array('text' => sysLanguage::get('TABLE_HEADING_TOTAL_EXCLUDING_TAX')),
+		array('text' => sysLanguage::get('TABLE_HEADING_TOTAL_INCLUDING_TAX'))
 	)
 ));
 
-$tabsObj->addTabPage('tab_products', array('text' => $productsTable));
+foreach($Sale->ProductManager->getContents() as $orderedProduct){
+	$finalPrice = $orderedProduct->getPrice();
+	$finalPriceWithTax = $orderedProduct->getPrice(true);
+	$taxRate = $orderedProduct->getTaxRate();
+	$productQty = $orderedProduct->getQuantity();
+
+	$productsGrid->addBodyRow(array(
+		'columns' => array(
+			array(
+				'align' => 'right',
+				'text'  => $orderedProduct->getQuantity() . '&nbsp;x'
+			),
+			array('text' => $orderedProduct->getNameHtml(true)),
+			array('text' => $orderedProduct->displayBarcodes()),
+			array('text' => $orderedProduct->getModel()),
+			array('align' => 'right', 'text'  => $taxRate . '%'),
+			array(
+				'align' => 'right',
+				'text'  => '<b>' . $currencies->format($finalPrice, true, $Sale->getCurrency(), $Sale->getCurrencyValue()) . '</b>'
+			),
+			array(
+				'align' => 'right',
+				'text'  => '<b>' . $currencies->format($finalPriceWithTax, true, $Sale->getCurrency(), $Sale->getCurrencyValue()) . '</b>'
+			),
+			array(
+				'align' => 'right',
+				'text'  => '<b>' . $currencies->format($finalPrice * $productQty, true, $Sale->getCurrency(), $Sale->getCurrencyValue()) . '</b>'
+			),
+			array(
+				'align' => 'right',
+				'text'  => '<b>' . $currencies->format($finalPriceWithTax * $productQty, true, $Sale->getCurrency(), $Sale->getCurrencyValue()) . '</b>'
+			)
+		)
+	));
+}
+
+$orderTotalTable = $Sale->listTotals();
+
+$productsGrid->insertAfterGrid($orderTotalTable->draw());
+
+$tabsObj->addTabPage('tab_products', array('text' => $productsGrid));
 /* Tab: tab_products --END-- */
 
 /* Tab: tab_payment_info --BEGIN-- */
-$paymentHistoryTable = $Sale->listPaymentHistory();
+if ($SaleModule->acceptsPayments() === true){
+	$paymentHistoryTable = $Sale->listPaymentHistory();
 
-$tabsObj->addTabPage('tab_payment_info', array('text' => $paymentHistoryTable));
+	$tabsObj->addTabPage('tab_payment_info', array('text' => $paymentHistoryTable));
+}
 /* Tab: tab_payment_info --END-- */
 
 /* Tab: tab_history --BEGIN-- */
-$historyTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0)->css('width', '100%');
+$historyTable = htmlBase::newGrid();
 
 $historyTable->addHeaderRow(array(
 	'columns' => array(
-		array(
-			'addCls' => 'main ui-widget-header',
-			'align'  => 'center',
-			'text'   => sysLanguage::get('TABLE_HEADING_DATE_ADDED')
-		),
-		array(
-			'addCls' => 'main ui-widget-header',
-			'css'    => array('border-left' => 'none'),
-			'align'  => 'center',
-			'text'   => sysLanguage::get('TABLE_HEADING_CUSTOMER_NOTIFIED')
-		),
-		array(
-			'addCls' => 'main ui-widget-header',
-			'css'    => array('border-left' => 'none'),
-			'align'  => 'center',
-			'text'   => sysLanguage::get('TABLE_HEADING_STATUS')
-		),
-		array(
-			'addCls' => 'main ui-widget-header',
-			'css'    => array('border-left' => 'none'),
-			'align'  => 'center',
-			'text'   => sysLanguage::get('TABLE_HEADING_COMMENTS')
-		)
+		array('text' => 'Revision Number'),
+		array('text' => sysLanguage::get('TABLE_HEADING_DATE_ADDED'))
 	)
 ));
 
-if ($Sale->hasStatusHistory()){
-	foreach($Sale->getStatusHistory() as $history){
-		if ($history['customer_notified'] == '1'){
-			$icon = '<img src="images/icons/tick.gif"/>';
-		}
-		else {
-			$icon = '<img src="images/icons/cross.gif"/>';
-		}
-
+if ($SaleModule->hasRevisions()){
+	foreach($SaleModule->getRevisions() as $Revision){
 		$historyTable->addBodyRow(array(
 			'columns' => array(
-				array(
-					'addCls' => 'ui-widget-content',
-					'css'    => array('border-top' => 'none'),
-					'align'  => 'center',
-					'text'   => $history['date_added']->format(sysLanguage::getDateFormat('short'))
-				),
-				array(
-					'addCls' => 'ui-widget-content',
-					'css'    => array(
-						'border-top'  => 'none',
-						'border-left' => 'none'
-					),
-					'align'  => 'center',
-					'text'   => $icon
-				),
-				array(
-					'addCls' => 'ui-widget-content',
-					'css'    => array(
-						'border-top'  => 'none',
-						'border-left' => 'none'
-					),
-					'text'   => $history['OrdersStatus']['OrdersStatusDescription'][Session::get('languages_id')]['orders_status_name']
-				),
-				array(
-					'addCls' => 'ui-widget-content',
-					'css'    => array(
-						'border-top'  => 'none',
-						'border-left' => 'none'
-					),
-					'text'   => nl2br(stripslashes($history['comments']))
-				),
+				array('text' => $Revision['id']),
+				array('text' => $Revision['date_added']->format(sysLanguage::getDateFormat('short')))
 			)
 		));
 	}
@@ -213,13 +192,13 @@ else {
 		'columns' => array(
 			array(
 				'align'   => 'center',
-				'colspan' => 5,
-				'text'    => sysLanguage::get('TEXT_NO_ORDER_HISTORY')
+				'colspan' => 2,
+				'text'    => 'No Revision History'
 			)
 		)
 	));
 }
-$tabsObj->addTabPage('tab_history', array('text' => $historyTable));
+$tabsObj->addTabPage('tab_history', array('text' => '<h1 style="font-size:1.5em;">Current Revision: ' . $SaleModule->getCurrentRevision() . '</h1><br>' . $historyTable->draw()));
 /* Tab: tab_history --END-- */
 
 /* Tab: tab_comments --BEGIN-- */
@@ -246,7 +225,9 @@ $tracking = array(
 	)
 );
 
-$trackingTable = htmlBase::newElement('table')->setCellPadding(3)->setCellSpacing(0);
+$trackingTable = htmlBase::newElement('table')
+	->setCellPadding(3)
+	->setCellSpacing(0);
 $orderInfo = $Sale->getOrderInfo();
 
 foreach($tracking as $tracker){
@@ -259,7 +240,8 @@ foreach($tracking as $tracker){
 			'text' => tep_draw_input_field($fieldName, $trackNum, 'size="40" maxlength="40"')
 		);
 		$bodyCols[] = array(
-			'text' => htmlBase::newElement('button')->setHref($tracker['link'] . $trackNum, false, '_blank')
+			'text' => htmlBase::newElement('button')
+				->setHref($tracker['link'] . $trackNum, false, '_blank')
 				->setText('Track')
 		);
 	}
@@ -286,7 +268,10 @@ $tabContent .= $trackingTable->draw() .
 	'<td class="main"><b>' . sysLanguage::get('ENTRY_NOTIFY_COMMENTS') . '</b> ' . tep_draw_checkbox_field('notify_comments', '', true) . '</td>' .
 	'</tr>' .
 	'</table></td>' .
-	'<td valign="top">' . htmlBase::newElement('button')->usePreset('save')->setText('Update')->setType('submit')
+	'<td valign="top">' . htmlBase::newElement('button')
+	->usePreset('save')
+	->setText('Update')
+	->setType('submit')
 	->draw() . '</td>' .
 	'</tr>' .
 	'</table>' .

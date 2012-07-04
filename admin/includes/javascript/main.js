@@ -1394,14 +1394,12 @@ $(document).ready(function () {
 		}
 		else if ($(this).hasClass('removeInput')) {
 			var Col = Row.find('td').first();
-			Col.addClass('ui-state-disabled');
-			Col.find('input').attr('disabled', 'disabled');
+			Col.find('input').addClass('ui-state-disabled').attr('disabled', 'disabled');
 			$(this).hide();
 			Row.find('.undoRemove').show();
 		}else {
 			var Col = Row.find('td').first();
-			Col.removeClass('ui-state-disabled');
-			Col.find('input').removeAttr('disabled');
+			Col.find('input').removeClass('ui-state-disabled').removeAttr('disabled');
 			$(this).hide();
 			Row.find('.removeInput').show();
 		}

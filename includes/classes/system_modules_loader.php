@@ -182,7 +182,7 @@ class SystemModulesLoader
 		$isLoaded = false;
 		if ($dir !== false){
 			$className = static::$classPrefix . ucfirst($moduleCode);
-			if (!class_exists($className)){
+			if (class_exists($className) === false){
 				require($dir . 'module.php');
 			}
 
@@ -198,6 +198,11 @@ class SystemModulesLoader
 				}
 			}
 			else {
+				if (class_exists($className) === false){
+					echo '<pre>';
+					debug_print_backtrace();
+					die('Class Not Included! :: ' . $dir . ' :: ' . $className);
+				}
 				$classObj = new $className;
 				$register = true;
 			}

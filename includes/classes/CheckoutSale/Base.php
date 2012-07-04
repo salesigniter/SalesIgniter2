@@ -1,11 +1,16 @@
 <?php
+/**
+ * Main Checkout Sale Class
+ *
+ * @package   Order\CheckoutSale
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
+ */
+
 class CheckoutSale extends Order implements Serializable
 {
-
-	/**
-	 * @var array
-	 */
-	private $data = array();
 
 	/**
 	 * @var CheckoutSaleAddressManager
@@ -33,14 +38,10 @@ class CheckoutSale extends Order implements Serializable
 	private $errorMessages = array();
 
 	/**
-	 * @var AccountsReceivableModule
+	 * @param      $saleType
+	 * @param int  $saleId
+	 * @param null $revision
 	 */
-	protected $SaleModule = null;
-
-	protected $SaleModuleId = null;
-
-	protected $SaleModuleRev = null;
-
 	public function __construct($saleType, $saleId = 0, $revision = null)
 	{
 		$this->InfoManager = new CheckoutSaleInfoManager();
@@ -132,21 +133,6 @@ class CheckoutSale extends Order implements Serializable
 		}
 	}
 
-	public function hasSaleId()
-	{
-		return $this->getSaleId() > 0;
-	}
-
-	public function hasSaleModule()
-	{
-		return !($this->SaleModule === null);
-	}
-
-	public function getSaleModule()
-	{
-		return $this->SaleModule;
-	}
-
 	/**
 	 * @return string
 	 */
@@ -162,8 +148,7 @@ class CheckoutSale extends Order implements Serializable
 			'AddressManager' => $this->AddressManager->prepareJsonSave(),
 			'TotalManager'   => $this->TotalManager->prepareJsonSave(),
 			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
-			'errorMessages'  => $this->errorMessages,
-			'data'           => $this->data
+			'errorMessages'  => $this->errorMessages
 		);
 
 		if (is_object($this->SaleModule)){
@@ -182,7 +167,10 @@ class CheckoutSale extends Order implements Serializable
 	{
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
-			if (in_array($key, array('InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'))){
+			if (in_array($key, array(
+				'InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'
+			))
+			){
 				$this->$key = json_encode($dInfo);
 			}
 			else {
@@ -190,33 +178,6 @@ class CheckoutSale extends Order implements Serializable
 			}
 		}
 		return $data;
-	}
-
-	/**
-	 * @param string|int $k
-	 * @param mixed      $v
-	 */
-	public function setData($k, $v)
-	{
-		$this->data[$k] = $v;
-	}
-
-	/**
-	 * @param string|int $k
-	 * @return mixed
-	 */
-	public function getData($k)
-	{
-		return $this->data[$k];
-	}
-
-	/**
-	 * @param string|int $k
-	 * @return bool
-	 */
-	public function hasData($k)
-	{
-		return (isset($this->data[$k]));
 	}
 
 	/**
@@ -290,15 +251,21 @@ class CheckoutSale extends Order implements Serializable
 			$userAccount->setLanguageId(Session::get('languages_id'));
 			$customerId = $userAccount->createNewAccount();
 
-			$defaultId = $addressBook->insertAddress($this->AddressManager->getAddress('billing')->toArray());
+			$defaultId = $addressBook->insertAddress($this->AddressManager
+				->getAddress('billing')
+				->toArray());
 			$isShipping = true;
 			if (isset($_POST['shipping_diff'])){
-				$shippingId = $addressBook->insertAddress($this->AddressManager->getAddress('delivery')->toArray());
+				$shippingId = $addressBook->insertAddress($this->AddressManager
+					->getAddress('delivery')
+					->toArray());
 				$isShipping = false;
 			}
 
 			if (isset($_POST['pickup_diff'])){
-				$addressBook->insertAddress($this->AddressManager->getAddress('pickup')->toArray(), $isShipping);
+				$addressBook->insertAddress($this->AddressManager
+					->getAddress('pickup')
+					->toArray(), $isShipping);
 			}
 
 			$addressBook->setDefaultAddress($defaultId, true);

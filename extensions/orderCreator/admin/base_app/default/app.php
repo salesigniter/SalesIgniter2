@@ -73,14 +73,45 @@ if ($AppPage->getName() == 'new'){
 		'method' => 'post'
 	));
 
-	$SaveButton = htmlBase::newElement('button')
-	->setType('submit')
-	->setName('save')
-	->val($SaleModule->getCode())
-	->usePreset('save')
-	->setText('Save');
+	if (isset($_GET['sale_id'])){
+		$actionButtons = array();
 
-	$AppPage->addMenuItem($SaveButton);
+		$actionButtons[] = htmlBase::newElement('button')
+			->setType('submit')
+			->setName('save')
+			->val($SaleModule->getCode())
+			->usePreset('save');
+
+		/*$actionButtons[] = htmlBase::newElement('button')
+			->setType('submit')
+			->setName('delete')
+			->val($SaleModule->getCode())
+			->usePreset('delete');*/
+
+		if ($SaleModule->canDuplicate()){
+			$actionButtons[] = htmlBase::newElement('button')
+				->setType('submit')
+				->setName('duplicate')
+				->val($SaleModule->getCode())
+				->usePreset('copy')
+				->setText('Duplicate');
+		}
+
+		$AppPage->addMenuItem(array(
+			'icon'     => 'check',
+			'text'     => 'Actions',
+			'children' => $actionButtons
+		));
+	}else{
+		$SaveButton = htmlBase::newElement('button')
+			->setType('submit')
+			->setName('save')
+			->val($SaleModule->getCode())
+			->usePreset('save')
+			->setText('Save');
+
+		$AppPage->addMenuItem($SaveButton);
+	}
 
 	if ($SaleModule->canConvert()){
 		$convertButtons = array();
@@ -120,8 +151,9 @@ if ($AppPage->getName() == 'new'){
 		$revisionButtons = array();
 		foreach($SaleModule->getRevisions() as $rInfo){
 			$revisionButtons[] = htmlBase::newElement('button')
-			->setHref(itw_app_link('revision=' . $rInfo['revision'] . '&sale_id=' . $SaleModule->getSaleId(), 'accounts_receivable', 'sales'))
-			->setText($rInfo['title']);
+			->css('font-size', '11px')
+			->setHref(itw_app_link('revision=' . $rInfo['id'] . '&sale_id=' . $SaleModule->getSaleId(), 'accounts_receivable', 'sales'))
+			->setText($rInfo['text']);
 		}
 		$AppPage->addMenuItem(array(
 			'icon'     => 'revision',

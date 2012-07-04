@@ -1,16 +1,29 @@
 <?php
-if (class_exists('PurchaseType_reservation') === false){
-	require(sysConfig::getDirFsCatalog() . 'extensions/payPerRentals/purchaseTypeModules/reservation/module.php');
+if (class_exists('OrderPurchaseTypeReservation') === false){
+	require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/PurchaseTypeModules/reservation/module.php');
 }
 
-class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
+/**
+ * Reservation purchase type for the order creator class
+ *
+ * @package   Order\OrderCreator\ProductManager\Product\PurchaseTypeModules
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
+ */
 
-	public function OrderCreatorAllowAddToContents(OrderCreatorProduct $OrderProduct){
+class OrderCreatorPurchaseTypeReservation extends OrderPurchaseTypeReservation
+{
+
+	public function allowAddToContents(OrderCreatorProduct $OrderProduct)
+	{
 		global $messageStack;
 		$allow = false;
 		if (isset($_POST['reservation_begin']) && isset($_POST['reservation_end'])){
 			$allow = true;
-		}else{
+		}
+		else {
 			if (!isset($_POST['reservation_begin'])){
 				$messageStack->add('OrderCreator', 'No Start Date Entered', 'error');
 			}
@@ -23,213 +36,99 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 		 * @TODO Add in reservation availability check
 		 */
 
+		if ($allow === true){
+			$ReservationInfo = array(
+				'start_date'      => $_POST['reservation_begin'],
+				'start_time'      => $_POST['reservation_begin_time'],
+				'end_date'        => $_POST['reservation_end'],
+				'end_time'        => $_POST['reservation_end_time'],
+				'weight'          => $OrderProduct->getWeight(),
+				'shipping'        => false,
+				'is_insured'      => (isset($_POST['hasInsurance']) === true),
+				'insurance_cost'  => $this->getInsuranceCost(),
+				'insurance_value' => $this->getInsuranceValue(),
+				'deposit_amount'  => $this->getDepositAmount(),
+				'days_before'     => (isset($_POST['days_before']) ? $_POST['days_before'] : 0),
+				'days_after'      => (isset($_POST['days_after']) ? $_POST['days_after'] : 0),
+			);
+
+			$ReservationInfo['start_date'] = $ReservationInfo['start_date']->modify('-' . $ReservationInfo['days_before'] . ' Day');
+			$ReservationInfo['end_date'] = $ReservationInfo['end_date']->modify('+' . $ReservationInfo['days_after'] . ' Day');
+
+			if (isset($_POST['shipping_method'])){
+				$Module = OrderShippingModules::getModule($_POST['shipping_method']);
+				if (is_object($Module)){
+					$quote = $Module->quote($shippingMethod, $OrderProduct->getWeight());
+
+					$ReservationInfo['shipping'] = array(
+						'title'  => (isset($quote['methods'][0]['title']) ? $quote['methods'][0]['title'] : ''),
+						'cost'   => (isset($quote['methods'][0]['cost']) ? $quote['methods'][0]['cost'] : ''),
+						'id'     => (isset($quote['methods'][0]['id']) ? $quote['methods'][0]['id'] : ''),
+						'module' => $Module->getCode()
+					);
+				}
+			}
+
+			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
+				$ReservationInfo['event_date'] = $_POST['event_date'];
+				$ReservationInfo['event_name'] = $_POST['event_name'];
+				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
+					if (isset($_POST['event_gate'])){
+						$ReservationInfo['event_gate'] = $_POST['event_gate'];
+					}
+				}
+			}
+			if (isset($_POST['semester_name'])){
+				$ReservationInfo['semester_name'] = $_POST['semester_name'];
+			}
+			else {
+				$ReservationInfo['semester_name'] = '';
+			}
+
+			if (isset($_POST['id']['reservation']) && !empty($_POST['id']['reservation'])){
+				$attrValue = attributesUtil::getAttributeString($_POST['id']['reservation']);
+				if (!empty($attrValue)){
+					$ReservationInfo['aID_string'] = $attrValue;
+				}
+			}
+
+			$this->setInfo($ReservationInfo);
+		}
+
 		return $allow;
 	}
 
-	public function OrderCreatorOnAddToContents(OrderCreatorProduct $OrderProduct){
-		$ProductInfo = $OrderProduct->getInfo();
-
-		$ProductInfo['ReservationInfo'] = array(
-			'start_date' => $_POST['reservation_begin'],
-			'start_date_time' => $_POST['reservation_begin_time'],
-			'end_date' => $_POST['reservation_end'],
-			'end_date_time' => $_POST['reservation_end_time'],
-			'quantity' => $OrderProduct->getQuantity(),
-			'weight' => $OrderProduct->getWeight(),
-			'days_before' => (isset($_POST['days_before']) ? $_POST['days_before'] : 0),
-			'days_after' => (isset($_POST['days_after']) ? $_POST['days_after'] : 0),
-			'shipping' => false
-		);
-
-		$ProductInfo['ReservationInfo']['start_date'] = $ProductInfo['ReservationInfo']['start_date']->modify('-' . $ProductInfo['ReservationInfo']['days_before'] . ' Day');
-		$ProductInfo['ReservationInfo']['end_date'] = $ProductInfo['ReservationInfo']['end_date']->modify('+' . $ProductInfo['ReservationInfo']['days_after'] . ' Day');
-
-		if (isset($_POST['shipping_method'])){
-			$Module = OrderShippingModules::getModule($_POST['shipping_method']);
-			if (is_object($Module)){
-				$quote = $Module->quote($shippingMethod, $ProductInfo['ReservationInfo']['weight']);
-
-				$ProductInfo['ReservationInfo']['shipping'] = array(
-					'title' => (isset($quote['methods'][0]['title']) ? $quote['methods'][0]['title'] : ''),
-					'cost' => (isset($quote['methods'][0]['cost']) ? $quote['methods'][0]['cost'] : ''),
-					'id' => (isset($quote['methods'][0]['id']) ? $quote['methods'][0]['id'] : ''),
-					'module' => $Module->getCode()
-				);
-			}
-		}
-
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-			$ProductInfo['ReservationInfo']['event_date'] = $_POST['event_date'];
-			$ProductInfo['ReservationInfo']['event_name'] = $_POST['event_name'];
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				if (isset($_POST['event_gate'])){
-					$ProductInfo['ReservationInfo']['event_gate'] = $_POST['event_gate'];
-				}
-			}
-		}
-		if (isset($_POST['semester_name'])){
-			$ProductInfo['ReservationInfo']['semester_name'] = $_POST['semester_name'];
-		}
-		else {
-			$ProductInfo['ReservationInfo']['semester_name'] = '';
-		}
+	public function onAddToContents(OrderCreatorProduct $OrderProduct)
+	{
+		$ReservationInfo = $this->getInfo();
 
 		$newPrice = 0;
-
-		$pricing = $this->figureProductPricing($ProductInfo['ReservationInfo']);
+		$pricing = $this->figureProductPricing($ReservationInfo);
 		if (!empty($pricing)){
-			$newPrice =+ $pricing['price'];
-			$ProductInfo['ReservationInfo']['deposit_amount'] = $this->getDepositAmount();
+			$newPrice += $pricing['price'];
 		}
 
-		if (isset($_POST['hasInsurance']) && $_POST['hasInsurance'] == '1'){
-			$payPerRentals = Doctrine_Query::create()
-				->select('insurance')
-				->from('ProductsPayPerRental')
-				->where('products_id = ?', $ProductInfo['products_id'])
-				->fetchOne();
-
-			$ProductInfo['ReservationInfo']['insurance'] = $payPerRentals->insurance;
-			$newPrice =+ $payPerRentals->insurance;
+		if ($ReservationInfo['is_insured'] === true){
+			$newPrice += $ReservationInfo['insurance_cost'];
 		}
 
-		if (isset($_POST['id']['reservation']) && !empty($_POST['id']['reservation'])){
-			$attrValue = attributesUtil::getAttributeString($_POST['id']['reservation']);
-			if (!empty($attrValue)){
-				$ProductInfo['aID_string'] = $attrValue;
-			}
-		}
-
-		$OrderProduct->updateInfo($ProductInfo);
 		$OrderProduct->setPrice($newPrice);
-
-		if ($this->getAvailableBarcode($OrderProduct, array()) == -1){
+		if ($this->hasEnoughInventory($ReservationInfo, $OrderProduct->getQuantity()) === false){
 			$OrderProduct->needsConfirmation(true);
+			$OrderProduct->setConfirmationMessage('This Product Does Not have Enough Inventory For The Selected Dates.');
 		}
 	}
 
-	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct){
+	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct)
+	{
 	}
 
-	public function OrderCreatorProductManagerUpdateFromPost(OrderCreatorProduct &$OrderedProduct){
-
+	public function OrderCreatorProductManagerUpdateFromPost(OrderCreatorProduct &$OrderedProduct)
+	{
 	}
 
-	public function addToOrdersProductCollection(OrderCreatorProduct $OrderProduct, OrdersProducts &$OrderedProduct) {
-		global $Editor;
-		$allInfo = $OrderProduct->getInfo();
-		if (!isset($allInfo['ReservationInfo'])){
-			$ResInfo = $allInfo['ReservationInfo'];
-			$Quantity = $allInfo['products_quantity'];
-			$ShippingInfo = array(
-				'id'                    => $ResInfo['shipping_method'],
-				'shipping_method_title' => $ResInfo['shipping_method_title'],
-				'shipping_method'       => $ResInfo['shipping_method'],
-				'shipping_days_before'  => $ResInfo['shipping_days_before'],
-				'shipping_days_after'   => $ResInfo['shipping_days_after'],
-				'shipping_cost'         => $ResInfo['shipping_cost']
-			);
-		}else{
-			$ResInfo = $allInfo['ReservationInfo'];
-			$ShippingInfo = $ResInfo['shipping'];
-			$Quantity = $OrderProduct->getQuantity();
-		}
-
-		$Insurance = (isset($ResInfo['insurance']) ? $ResInfo['insurance'] : 0);
-		$InventoryCls =& $this->getInventoryClass();
-		$TrackMethod = $InventoryCls->getTrackMethod();
-		if (isset($allInfo['aID_string']) && !empty($allInfo['aID_string'])){
-			$InventoryCls->trackMethod->aID_string = $allInfo['aID_string'];
-		}
-		$EventName = '';
-		$EventDate = '0000-00-00 00:00:00';
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-			$EventName = $ResInfo['event_name'];
-			$EventDate = $ResInfo['event_date'];
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$EventGate = $ResInfo['event_gate'];
-			}
-		}
-
-		$Reservations =& $OrderedProduct->OrdersProductsReservation;
-		$Reservations->delete();
-
-		$excludedBarcode = array();
-		$excludedQuantity = array();
-		for($count = 1; $count <= $Quantity; $count++){
-			$Reservation = new OrdersProductsReservation();
-			$Reservation->start_date = $ResInfo['start_date'];
-			$Reservation->end_date = $ResInfo['end_date'];
-			$Reservation->insurance = $Insurance;
-			$Reservation->event_name = $EventName;
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$Reservation->event_gate = $EventGate;
-			}
-			$Reservation->event_date = $EventDate;
-			$Reservation->track_method = $TrackMethod;
-			$Reservation->rental_state = 'reserved';
-			if (isset($_POST['estimateOrder'])){
-				$Reservation->is_estimate = 1;
-			}
-			else {
-				$Reservation->is_estimate = 0;
-			}
-			if (isset($ShippingInfo['id']) && !empty($ShippingInfo['id'])){
-				$Reservation->shipping_method_title = $ShippingInfo['title'];
-				$Reservation->shipping_method = $ShippingInfo['id'];
-				$Reservation->shipping_days_before = $ShippingInfo['days_before'];
-				$Reservation->shipping_days_after = $ShippingInfo['days_after'];
-				$Reservation->shipping_cost = $ShippingInfo['cost'];
-			}
-			if (!isset($_POST['estimateOrder'])){
-				$hBarcode = '';
-				if ($OrderProduct->hasBarcodes()){
-					$hBarcode = $OrderProduct->getBarcodes();
-					$hBarcode = $hBarcode[0]['barcode_id'];
-					$QBarcodeExists = Doctrine_Query::create()
-						->from('ProductsInventoryBarcodes')
-						->where('barcode_id = ?', $hBarcode)
-						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-					$hBarcode = (isset($QBarcodeExists[0]['barcode_id']) ? $QBarcodeExists[0]['barcode_id'] : '');
-				}
-				if (!empty($hBarcode)){
-					$Reservation->barcode_id = $hBarcode;
-					$excludedBarcode[] = $Reservation->barcode_id;
-					$Reservation->ProductsInventoryBarcodes->status = 'R';
-				}
-				else {
-					if ($TrackMethod == 'barcode'){
-						$barId = $this->getAvailableBarcode($OrderProduct, $InventoryCls->getInventoryItems(), $excludedBarcode, $allInfo['usableBarcodes']);
-						if($barId != -1){
-							$Reservation->barcode_id = $barId;
-						}
-						else {
-							$Editor->addErrorMessage('Reservation already taken for the date. Please reselect');
-						}
-						$excludedBarcode[] = $Reservation->barcode_id;
-						$Reservation->ProductsInventoryBarcodes->status = 'R';
-					}
-					elseif ($TrackMethod == 'quantity') {
-						$qtyId = $this->getAvailableQuantity($OrderProduct, $InventoryCls->getInventoryItems(), $excludedQuantity);
-						if($qtyId != -1){
-							$Reservation->quantity_id = $qtyId;
-						}
-						else {
-							$Editor->addErrorMessage('Reservation already taken for the date. Please reselect');
-						}
-						$excludedQuantity[] = $Reservation->quantity_id;
-						$Reservation->ProductsInventoryQuantity->available -= 1;
-						$Reservation->ProductsInventoryQuantity->reserved += 1;
-					}
-				}
-			}
-			EventManager::notify('ReservationOnInsertOrderedProduct', &$Reservation, &$OrderProduct);
-
-			$Reservations->add($Reservation);
-		}
-	}
-
-	public function OrderCreatorAfterProductName(OrderCreatorProduct $OrderedProduct, $allowEdit = true) {
+	public function OrderCreatorAfterProductName(OrderCreatorProduct $OrderedProduct, $allowEdit = true)
+	{
 		global $currencies;
 		$return = '';
 		$resInfo = null;
@@ -237,7 +136,7 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 			$resData = $OrderedProduct->getInfo('OrdersProductsReservation');
 			$resInfo = $this->formatOrdersReservationArray($resData);
 		}
-		elseif ($OrderedProduct->hasInfo('ReservationInfo')){
+		elseif ($OrderedProduct->hasInfo('ReservationInfo')) {
 			$resInfo = $OrderedProduct->getInfo('ReservationInfo');
 		}
 		$id = $OrderedProduct->getId();
@@ -252,19 +151,20 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 			if (is_null($resInfo) === false){
 				$start = $resInfo['start_date'];
 				$end = $resInfo['end_date'];
-			}else{
+			}
+			else {
 				$start = new SesDateTime();
 				$end = new SesDateTime();
 			}
 			$return .= '<br /><small><i>' .
-				'- Start Date: <span class="res_start_date">'.$start->format(sysLanguage::getDateTimeFormat()).'</span><br/>' .
-				'- End Date: <span class="res_end_date">'.$end->format(sysLanguage::getDateTimeFormat()).'</span>'.
+				'- Start Date: <span class="res_start_date">' . $start->format(sysLanguage::getDateTimeFormat()) . '</span><br/>' .
+				'- End Date: <span class="res_end_date">' . $end->format(sysLanguage::getDateTimeFormat()) . '</span>' .
 				($allowEdit === true ? $changeButton->draw() .
 					'<input type="hidden" class="ui-widget-content resDateHidden" name="product[' . $id . '][reservation][dates]" value="' . $start->format(sysLanguage::getDateTimeFormat()) . ',' . $end->format(sysLanguage::getDateTimeFormat()) . '">'
 					: '') .
 				'</i></small><div class="selectDialog"></div>';
-
-		}else{
+		}
+		else {
 			$eventb = htmlBase::newElement('selectbox')
 				->setName('product[' . $id . '][reservation][events]')
 				->addClass('eventf');
@@ -340,7 +240,7 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 							false,
 							array(
 								'days_before' => $method['days_before'],
-								'days_after' => $method['days_after']
+								'days_after'  => $method['days_after']
 							)
 						);
 					}
@@ -371,13 +271,5 @@ class OrderCreatorPurchaseTypeReservation extends PurchaseType_reservation {
 
 		EventManager::notify('ParseReservationInfoEdit', $return, $resInfo);
 		return $return;
-	}
-
-	public function hasEnoughInventory(OrderProduct &$Product, $Qty = null){
-		if (parent::hasEnoughInventory($Product, $Qty) === false){
-			$Product->setConfirmationMessage('This Product Does Not have Enough Inventory For The Selected Dates.');
-			return false;
-		}
-		return true;
 	}
 }

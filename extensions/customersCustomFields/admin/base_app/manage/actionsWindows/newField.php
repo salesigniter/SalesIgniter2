@@ -33,7 +33,7 @@ $fieldKey = htmlBase::newElement('input')
 
 $fieldDefaultValue = htmlBase::newElement('input')
 ->setName('field_default_value')
-->val($Field->field_default_value);
+->val($Field->field_data->default_value);
 
 $fieldNames = htmlBase::newElement('table')
 ->setCellPadding('3')
@@ -62,13 +62,13 @@ $requiredCheckbox = htmlBase::newElement('checkbox')
 ->setLabel(sysLanguage::get('ENTRY_INPUT_REQUIRED'))
 ->setLabelPosition('right')
 ->setName('input_required')
-->setChecked(($Field->input_required == 1));
+->setChecked(($Field->field_data->required == 1));
 
 $isMultipleCheckbox = htmlBase::newElement('checkbox')
 ->setLabel(sysLanguage::get('ENTRY_INPUT_MULTIPLE'))
 ->setLabelPosition('right')
 ->setName('is_multiple')
-->setChecked(($Field->is_multiple == 1));
+->setChecked(($Field->field_data->multiple == 1));
 
 $sizeOfOptions = $Field->Options->count();
 
@@ -129,7 +129,7 @@ $optionsWrapper->append($InputOptions);
 $inputTypeMenu = htmlBase::newElement('selectbox')
 ->setName('input_type')
 ->change('showOptionEntry(this)')
-->selectOptionByValue($Field->input_type);
+->selectOptionByValue($Field->field_data->type);
 
 $inputTypeMenu
 ->addOption('text', 'Text')
@@ -140,8 +140,34 @@ $inputTypeMenu
 ->addOption('select', 'Select Box')
 ->addOption('upload', 'Image Upload');
 
-if ($Field->input_type != 'select' && $Field->input_type != 'radio' && $Field->input_type != 'checkbox'){
+if ($Field->field_data->type != 'select' && $Field->field_data->type != 'radio' && $Field->field_data->type != 'checkbox'){
 	$optionsWrapper->css('display', 'none');
+}
+
+$showOnData = array(
+	array(
+		'label'   => sysLanguage::get('ENTRY_SHOW_ON_CUSTOMER_ACCOUNT'),
+		'value'   => 'customer_account',
+		'checked' => ($Field->field_data->show_on->customer_account == '1')
+	),
+	array(
+		'label'   => sysLanguage::get('ENTRY_SHOW_ON_CUSTOMER_LISTING'),
+		'value'   => 'customer_listing',
+		'checked' => ($Field->field_data->show_on->customer_listing == '1')
+	),
+	array(
+		'label'   => sysLanguage::get('ENTRY_SHOW_ON_ADDRESS_LABELS'),
+		'value'   => 'address_labels',
+		'checked' => ($Field->field_data->show_on->address_labels == '1')
+	)
+);
+
+if ($appExtension->isInstalled('orderCreator') && $appExtension->isEnabled('orderCreator')){
+	$showOnData[] = array(
+		'label'   => sysLanguage::get('ENTRY_SHOW_ON_ORDER_CREATOR'),
+		'value'   => 'order_creator',
+		'checked' => ($Field->field_data->show_on->order_creator == '1')
+	);
 }
 
 $showOnGroup = htmlBase::newElement('checkbox')
@@ -149,18 +175,7 @@ $showOnGroup = htmlBase::newElement('checkbox')
 	'name'          => 'show_on[]',
 	'labelPosition' => 'after',
 	'separator'     => '<br>',
-	'data'          => array(
-		array(
-			'label'   => sysLanguage::get('ENTRY_SHOW_ON_SITE'),
-			'value'   => 'site',
-			'checked' => ($Field->show_on_site == '1')
-		),
-		array(
-			'label'   => sysLanguage::get('ENTRY_SHOW_ON_PRODUCT_LISTING'),
-			'value'   => 'listing',
-			'checked' => ($Field->show_on_listing == '1')
-		)
-	)
+	'data'          => $showOnData
 ));
 
 $finalTable = htmlBase::newElement('table')

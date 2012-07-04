@@ -1,26 +1,20 @@
 <?php
+if (class_exists('OrderProductTypePackage') === false){
+	require(sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/ProductTypeModules/package/module.php');
+}
+
 /**
- * Standard product type class for the order creator product manager class
+ * Package product type class for the order creator product manager class
  *
- * @package   OrderCreator
+ * @package   Order\OrderCreator\ProductManager\Product\ProductTypeModules
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
-class OrderCreatorProductTypePackage extends ProductTypePackage
+class OrderCreatorProductTypePackage extends OrderProductTypePackage
 {
-
-	/**
-	 * @param array $pInfo
-	 */
-	public function OrderCreatorProductOnInit(array $pInfo)
-	{
-		if (isset($pInfo['PackagedProducts'])){
-			foreach($pInfo['PackagedProducts'] as $PackageProduct){
-				$PackageProduct->init();
-			}
-		}
-	}
 
 	/**
 	 * @param OrderCreatorProduct $OrderedProduct
@@ -72,7 +66,7 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 			$hasReservation = false;
 			$reservationIds = array();
 			foreach($OrderedProduct->getInfo('PackagedProducts') as $PackageOrderProduct){
-				if ($PackageOrderProduct->hasInfo('purchase_type') && $PackageOrderProduct->getInfo('purchase_type') == 'reservation'){
+				if ($PackageOrderProduct->hasInfo('PurchaseType') && $PackageOrderProduct->getInfo('PurchaseType') == 'reservation'){
 					$hasReservation = true;
 					$reservationIds[] = $PackageOrderProduct->getProductsId();
 				}
@@ -94,8 +88,10 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 
 			if ($hasReservation === true){
 				$return = '&nbsp;' . htmlBase::newElement('button')
-					->attr('data-product_ids', implode(',', $reservationIds))->addClass('reservationDates')
-					->setText('Select Reservation Dates')->draw() . $return;
+					->attr('data-product_ids', implode(',', $reservationIds))
+					->addClass('reservationDates')
+					->setText('Select Reservation Dates')
+					->draw() . $return;
 			}
 		}
 		return $return;
@@ -112,48 +108,114 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 	 * @param OrderCreatorProduct $OrderProduct
 	 * @return bool
 	 */
-	public function OrderCreatorAllowAddToContents(OrderCreatorProduct $OrderProduct)
+	public function allowAddToContents(OrderCreatorProduct $OrderProduct)
 	{
 		$return = true;
+		if (isset($_POST['reservation_begin'])){
+			$this->setInfo('ReservationInfo', array(
+				'start_date'      => $_POST['reservation_begin'],
+				'start_time'      => $_POST['reservation_begin_time'],
+				'end_date'        => $_POST['reservation_end'],
+				'end_time'        => $_POST['reservation_end_time'],
+				'weight'          => 0,
+				'shipping'        => false,
+				'insurance_cost'  => 0,
+				'insurance_value' => 0,
+				'deposit_amount'  => 0,
+				'days_before'     => (isset($_POST['days_before']) ? $_POST['days_before'] : 0),
+				'days_after'      => (isset($_POST['days_after']) ? $_POST['days_after'] : 0),
+			));
+		}
+
+		foreach($this->getProductsRaw() as $PackageInfo){
+			$ProductId = $PackageInfo['product_id'];
+			$PackageData = $PackageInfo['packageData'];
+			if (isset($PackageData->purchase_type)){
+				$_GET['purchase_type'] = $PackageData->purchase_type;
+			}
+
+			$PackageOrderProduct = new OrderCreatorProduct();
+			$PackageOrderProduct->regenerateId();
+			$PackageOrderProduct->setProductId($ProductId);
+			$PackageOrderProduct->setQuantity($PackageData->quantity);
+			$PackageOrderProduct->setInfo('PackageData', $PackageData);
+
+			$ProductType = $PackageOrderProduct->getProductTypeClass();
+			if (method_exists($ProductType, 'OrderCreatorAllowAddToContents')){
+				$return = $ProductType->OrderCreatorAllowAddToContents($PackageOrderProduct);
+			}
+
+			if ($return === false){
+				break;
+			}
+			else {
+				$this->addPackagedProduct($PackageOrderProduct);
+			}
+		}
+
 		return $return;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getProductsRaw()
+	{
+		$Query = Doctrine_Query::create()
+			->from('ProductsPackagedProducts')
+			->where('package_id = ?', $this->getProductId())
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		$products = array();
+		foreach($Query as $pInfo){
+			$PackageData = json_decode($pInfo['package_data']);
+
+			$packageInfo = array(
+				'product_id'   => $pInfo['product_id'],
+				'packageData'  => $PackageData,
+			);
+
+			$products[] = $packageInfo;
+		}
+		return $products;
 	}
 
 	/**
 	 * @param OrderCreatorProduct $OrderProduct
 	 */
-	public function OrderCreatorOnAddToContents(OrderCreatorProduct &$OrderProduct)
+	public function onAddToContents(OrderCreatorProduct &$OrderProduct)
 	{
 		global $Editor, $appExtension;
 
 		$PackageProducts = array();
 		$MainPrice = 0;
 		$ConfirmProducts = array();
-		foreach($this->getProductsRaw() as $PackageInfo){
-			$Product = $PackageInfo['productClass'];
-			$PackageData = $PackageInfo['packageData'];
+		$ReservationInfo = $this->getInfo('ReservationInfo');
 
-			$PackageOrderProduct = new OrderCreatorProduct();
-			$PackageOrderProduct->regenerateId();
-			$PackageOrderProduct->setProductId($Product->getId());
-			$PackageOrderProduct->setQuantity($PackageData->quantity);
-			if (isset($PackageData->purchase_type)){
-				$PackageOrderProduct->updateInfo(array(
-					'purchase_type' => $PackageData->purchase_type,
-					'PackageData'   => $PackageData
-				));
+		/**
+		 * Reset Just In Case
+		 */
+		$ReservationInfo['weight'] = 0;
+		$ReservationInfo['insurance_value'] = 0;
+		$ReservationInfo['insurance_cost'] = 0;
+		$ReservationInfo['deposit_amount'] = 0;
+
+		foreach($this->getPackagedProducts() as $PackageProduct){
+			$ProductType = $PackageProduct->getProductTypeClass();
+			if (method_exists($ProductType, 'OrderCreatorOnAddToContents')){
+				$ProductType->OrderCreatorOnAddToContents($PackageProduct);
 			}
 
-			$ProductType = $PackageOrderProduct->getProductTypeClass();
-			if (method_exists($ProductType, 'OrderCreatorOnAddToContents')){
-				$ProductType->OrderCreatorOnAddToContents($PackageOrderProduct);
+			$PurchaseType = $ProductType->getPurchaseTypeClass();
+			if ($PurchaseType->getCode() == 'reservation'){
+				$ReservationInfo['weight'] += $PackageProduct->getWeight();
+				$ReservationInfo['insurance_value'] += $PurchaseType->getInsuranceValue();
+				$ReservationInfo['insurance_cost'] += $PurchaseType->getInsuranceCost();
+				$ReservationInfo['deposit_amount'] += $PurchaseType->getDepositAmount();
 			}
 
 			if (isset($PackageData->price)){
-				if ($PackageData->purchase_type == 'reservation'){
-					$PurchaseType = $ProductType->getPurchaseType('reservation');
+				if ($PurchaseType->getCode() == 'reservation'){
 					$pprId = $PurchaseType->getPayPerRentalId();
-
-					$ReservationInfo = $PackageOrderProduct->getInfo('ReservationInfo');
 
 					$PricingInfo = PurchaseType_reservation_utilities::getPricingPeriodInfo(
 						$pprId,
@@ -204,28 +266,18 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 						$ReservationInfo['end_date']
 					);
 					$Price = $Lowest['price'];
-
-					$NumberOfMinutes = $ReservationInfo['end_date']->diff($ReservationInfo['start_date'])->i;
-					$PriceBasedOnMsg = ($NumberOfMinutes / $Lowest['Type']['minutes']) .
-						'X' .
-						$Lowest['number_of'] . ' ' . $Lowest['Type']['pay_per_rental_types_name'] .
-						'@' .
-						$Lowest['price'] .
-						'/' .
-						$Lowest['Type']['pay_per_rental_types_name'];
 				}
 				else {
 					$Price = $PackageData->price;
 				}
-				$PackageOrderProduct->setPrice($Price);
+				$PackageProduct->setPrice($Price);
 			}
 
-			$MainPrice += $PackageOrderProduct->getPrice();
-			$PackageProducts[] = $PackageOrderProduct;
+			$MainPrice += $PackageProduct->getPrice();
 
-			if ($PackageOrderProduct->needsConfirmation() === true){
+			if ($PackageProduct->needsConfirmation() === true){
 				$OrderProduct->needsConfirmation(true);
-				$ConfirmProducts[] = $PackageOrderProduct->getName();
+				$ConfirmProducts[] = $PackageProduct->getName();
 			}
 		}
 
@@ -234,10 +286,7 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 		}
 
 		$OrderProduct->setPrice($MainPrice);
-		$OrderProduct->updateInfo(array(
-			'PackagedProducts' => $PackageProducts
-		));
-
+		$this->setInfo('ReservationInfo', $ReservationInfo);
 		//$this->loadReservationPricing($OrderProduct->getInfo('PackagedProducts'));
 	}
 
@@ -248,44 +297,15 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 	public function OrderCreatorAllowProductUpdate(OrderCreatorProduct $OrderProduct)
 	{
 		$return = true;
-		foreach($OrderProduct->getInfo('PackagedProducts') as $PackageOrderProduct){
+		foreach($OrderProduct
+					->getProductTypeClass()
+					->getPackagedProducts() as $PackageOrderProduct){
 			$ProductType = $PackageOrderProduct->getProductTypeClass();
 			if (method_exists($ProductType, 'OrderCreatorAllowProductUpdate')){
 				$return = $ProductType->OrderCreatorAllowProductUpdate($PackageOrderProduct);
 			}
 		}
 		return $return;
-	}
-
-	/**
-	 * @param OrderCreatorProduct $OrderProduct
-	 * @param OrdersProducts      $OrderedProduct
-	 */
-	public function addToOrdersProductCollection(OrderCreatorProduct $OrderProduct, OrdersProducts &$OrderedProduct)
-	{
-		foreach($OrderProduct->getInfo('PackagedProducts') as $PackageOrderProduct){
-			$ProductType = $PackageOrderProduct->getProductTypeClass();
-
-			$PackageOrderedProduct = new OrdersProducts();
-			//$PackageOrderedProduct->orders_id = $orderID;
-			$PackageOrderedProduct->products_id = (int)$PackageOrderProduct->getProductsId();
-			$PackageOrderedProduct->products_model = $PackageOrderProduct->getModel();
-			$PackageOrderedProduct->products_name = $PackageOrderProduct->getName();
-			$PackageOrderedProduct->products_price = $PackageOrderProduct->getPrice();
-			$PackageOrderedProduct->final_price = $PackageOrderProduct->getFinalPrice();
-			$PackageOrderedProduct->products_tax = $PackageOrderProduct->getTaxRate();
-			$PackageOrderedProduct->products_quantity = $PackageOrderProduct->getQuantity();
-
-			if (method_exists($ProductType, 'addToOrdersProductCollection')){
-				$ProductType->addToOrdersProductCollection($PackageOrderProduct, $PackageOrderedProduct);
-			}
-
-			EventManager::notify('InsertOrderedProductBeforeSave', $PackageOrderedProduct, $PackageOrderProduct);
-
-			$OrderedProduct->Packaged->add($PackageOrderedProduct);
-
-			EventManager::notify('InsertOrderedProductAfterSave', $PackageOrderedProduct, $PackageOrderProduct);
-		}
 	}
 
 	/**
@@ -316,43 +336,51 @@ class OrderCreatorProductTypePackage extends ProductTypePackage
 		}
 	}
 
-	public function jsonDecodeProduct(OrderProduct &$OrderProduct, $Product)
+	/**
+	 * Cannot typehint due to the possibility of packages extension being installed
+	 * and its' products are from another table with the same columns
+	 *
+	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $SaleProduct
+	 */
+	public function onSaveProgress(&$SaleProduct)
 	{
-		if ($Product->Packaged && $Product->Packaged->count() > 0){
-			$Info = $OrderProduct->getInfo();
-			foreach($Product->Packaged as $PackagedProduct){
-				$PackageProduct = new OrderCreatorProduct();
-				$PackageProduct->jsonDecodeProduct($PackagedProduct);
-				$Info['PackagedProducts'][$k] = $PackageProduct;
-			}
-			$OrderProduct->setInfo($Info);
+		foreach($this->getPackagedProducts() as $PackagedProduct){
+			$PackageProduct = $SaleProduct->Packaged
+				->getTable()
+				->getRecord();
+
+			$PackagedProduct->onSaveProgress($PackageProduct);
+
+			$SaleProduct->Packaged->add($PackageProduct);
 		}
 	}
 
-	public function jsonDecode(OrderProduct &$OrderProduct, $ProductTypeJson)
+	/**
+	 * @param array $ProductTypeJson
+	 */
+	public function jsonDecode(array $ProductTypeJson)
 	{
-		$Info = $OrderProduct->getInfo();
+		$this->setInfo($ProductTypeJson);
+
 		/*
-		 * @TODO: Figure out a way to hand this off to the reservation purchase type?!?!
+		 * @TODO: Figure out how to put this into the payPerRentals extension
 		 */
-		if (isset($ProductTypeJson['ReservationInfo'])){
-			$StartDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['ReservationInfo']['start_date']['date']);
-			$StartDate->setTimezone(new DateTimeZone($ProductTypeJson['ReservationInfo']['start_date']['timezone']));
+		if ($this->hasInfo('ReservationInfo') === true){
+			$ReservationInfo = $this->getInfo('ReservationInfo');
 
-			$EndDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ProductTypeJson['ReservationInfo']['end_date']['date']);
-			$EndDate->setTimezone(new DateTimeZone($ProductTypeJson['ReservationInfo']['end_date']['timezone']));
+			$ReservationInfo['start_date'] = SesDateTime::createFromArray($ReservationInfo['start_date']);
+			$ReservationInfo['end_date'] = SesDateTime::createFromArray($ReservationInfo['end_date']);
 
-			$Info['ReservationInfo']['start_date'] = $StartDate;
-			$Info['ReservationInfo']['end_date'] = $EndDate;
+			$this->setInfo('ReservationInfo', $ReservationInfo);
 		}
 
 		if (isset($ProductTypeJson['PackagedProducts'])){
 			foreach($ProductTypeJson['PackagedProducts'] as $k => $PackagedJson){
 				$PackageProduct = new OrderCreatorProduct();
 				$PackageProduct->jsonDecode($PackagedJson);
-				$Info['PackagedProducts'][$k] = $PackageProduct;
+
+				$this->addPackagedProduct($PackageProduct);
 			}
 		}
-		$OrderProduct->setInfo($Info);
 	}
 }

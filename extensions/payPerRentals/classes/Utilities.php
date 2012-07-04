@@ -1758,7 +1758,7 @@ class ReservationUtilities {
 
 	public static function CheckBooking($settings){
 		$returnVal = 0;
-		if(isset($settings['start_date']) && isset($settings['end_date'])){
+		if (isset($settings['start_date']) && isset($settings['end_date'])){
 			$Qcheck = Doctrine_Query::create()
 				->select('r.id, p.id');
 
@@ -1780,6 +1780,7 @@ class ReservationUtilities {
 			/*if (!is_object($settings['start_date'])){
 				debug_print_backtrace();
 			}*/
+
 			$Qcheck->andWhere('
 					(
 						(
@@ -1810,11 +1811,11 @@ class ReservationUtilities {
 					AND TRUE)
 				AND TRUE');
 
+			$statusCheck = array('out');
 			if ($settings['item_type'] == 'barcode'){
-				$Qcheck->andWhere('(rental_state = ? OR rental_state = ?)', array('reserved', 'out'));
-			}else{
-				$Qcheck->andWhere('rental_state = ?', 'out');
+				$statusCheck[] = 'reserved';
 			}
+			$Qcheck->andWhereIn('rental_state', $statusCheck);
 			//echo 'ddd'. $Qcheck->getSqlQuery();
 			EventManager::notify('ReservationCheckQueryBeforeExecute', &$Qcheck, $settings);
 

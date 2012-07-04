@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Info manager for the order class
  *
- * @package   Order
+ * @package   Order\InfoManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderInfoManager
@@ -28,15 +18,27 @@ class OrderInfoManager
 	protected $info = array();
 
 	/**
-	 * @param array|null $infoArray
+	 *
 	 */
-	public function __construct(array $infoArray = null)
+	public function __construct()
 	{
-		if (!empty($infoArray)){
-			foreach($infoArray as $k => $v){
-				$this->info[$k] = new OrderInfo($k, $v);
-			}
-		}
+	}
+
+	/**
+	 * @return OrderInfo
+	 */
+	public function getInfoObjectClass()
+	{
+		return new OrderInfo();
+	}
+
+	/**
+	 * @param $k
+	 * @return bool
+	 */
+	public function hasInfo($k)
+	{
+		return isset($this->info[$k]);
 	}
 
 	/**
@@ -57,7 +59,11 @@ class OrderInfoManager
 	 */
 	public function setInfo($k, $v)
 	{
-		$this->info[$k] = new OrderInfo($k, $v);
+		$InfoClass = $this->getInfoObjectClass();
+		$InfoClass->setKey($k);
+		$InfoClass->setValue($v);
+
+		$this->info[$k] = $InfoClass;
 	}
 
 	/**
@@ -78,11 +84,14 @@ class OrderInfoManager
 	public function jsonDecode($data)
 	{
 		$infoArray = json_decode($data, true);
-		foreach($infoArray as $k => $info){
-			$this->info[$k] = new OrderInfo(
-				$info['key'],
-				$info['value']
-			);
+		if ($infoArray){
+			foreach($infoArray as $k => $info){
+				$InfoClass = $this->getInfoObjectClass();
+				$InfoClass->setKey($info['key']);
+				$InfoClass->setValue($info['value']);
+
+				$this->info[$k] = $InfoClass;
+			}
 		}
 	}
 }

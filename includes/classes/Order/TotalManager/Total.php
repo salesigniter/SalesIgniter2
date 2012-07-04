@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Total for the total manager class
  *
- * @package   Order
+ * @package   Order\TotalManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderTotal
@@ -83,13 +73,14 @@ class OrderTotal
 	/**
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function onSaveProgress(AccountsReceivableSalesTotals &$Total){
+	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
+	{
 		$Module = $this->getModule();
 
 		$Total->module_code = $Module->getCode();
 		$Total->total_value = $Module->getValue();
 		$Total->display_order = $Module->getDisplayOrder();
-		$Total->total_json = json_encode($this->prepareJsonSave());
+		$Total->total_json = $this->prepareJsonSave();
 
 		if (method_exists($Module, 'onSaveProgress')){
 			$Module->onSaveProgress($Total);
@@ -99,13 +90,14 @@ class OrderTotal
 	/**
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function onSaveSale(AccountsReceivableSalesTotals &$Total){
+	public function onSaveSale(AccountsReceivableSalesTotals &$Total)
+	{
 		$Module = $this->getModule();
 
 		$Total->module_code = $Module->getCode();
 		$Total->total_value = $Module->getValue();
 		$Total->display_order = $Module->getDisplayOrder();
-		$Total->total_json = json_encode($this->prepareJsonSave());
+		$Total->total_json = $this->prepareJsonSave();
 
 		if (method_exists($Module, 'onSaveSale')){
 			$Module->onSaveSale($Total);
@@ -115,7 +107,8 @@ class OrderTotal
 	/**
 	 * @param OrderProductManager $ProductManager
 	 */
-	public function onProductAdded(OrderProductManager &$ProductManager){
+	public function onProductAdded(OrderProductManager &$ProductManager)
+	{
 		//echo __FILE__ . '::' . __LINE__  . '<br>';
 		//echo '<div style="margin-left:15px">';
 		$Module = $this->getModule();
@@ -128,7 +121,8 @@ class OrderTotal
 	/**
 	 * @param OrderProductManager $ProductManager
 	 */
-	public function onProductUpdated(OrderProductManager &$ProductManager){
+	public function onProductUpdated(OrderProductManager &$ProductManager)
+	{
 		$Module = $this->getModule();
 		//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getTitle() . '<br>';
 		//echo '<div style="margin-left:15px">';

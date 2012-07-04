@@ -2,14 +2,14 @@
 /**
  * Info class for the checkout sale class
  *
- * @package CheckoutSale
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\CheckoutSale\InfoManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleInfo extends OrderInfo
 {
 
 }
-
-?>

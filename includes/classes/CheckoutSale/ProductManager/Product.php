@@ -2,9 +2,11 @@
 /**
  * Product class for the checkout sale product manager class
  *
- * @package   CheckoutSale
+ * @package   Order\CheckoutSale\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleProduct extends OrderProduct
@@ -118,9 +120,15 @@ class CheckoutSaleProduct extends OrderProduct
 		$this->loadProduct($pID);
 
 		$this->pInfo['products_id'] = $pID;
-		$this->pInfo['products_name'] = $this->getProductClass()->getName();
-		$this->pInfo['products_weight'] = $this->getProductClass()->getWeight();
-		$this->pInfo['products_model'] = $this->getProductClass()->getModel();
+		$this->pInfo['products_name'] = $this
+			->getProductClass()
+			->getName();
+		$this->pInfo['products_weight'] = $this
+			->getProductClass()
+			->getWeight();
+		$this->pInfo['products_model'] = $this
+			->getProductClass()
+			->getModel();
 
 		$taxAddress = null;
 		if (is_object($CheckoutSale->AddressManager)){

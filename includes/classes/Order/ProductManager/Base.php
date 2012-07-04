@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Product manager for the order class
  *
- * @package   Order
+ * @package   Order\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderProductManager
@@ -35,6 +25,17 @@ class OrderProductManager
 	}
 
 	/**
+	 * This function is overridden in all other product managers that need to use
+	 * their own custom product class
+	 *
+	 * @return OrderProduct
+	 */
+	public function getContentProductClass()
+	{
+		return new OrderProduct();
+	}
+
+	/**
 	 * @return OrderProduct[]
 	 */
 	public function getContents()
@@ -43,18 +44,8 @@ class OrderProductManager
 	}
 
 	/**
-	 * @param OrderProduct $orderProduct
-	 * @return bool
-	 */
-	public function add(OrderProduct &$orderProduct)
-	{
-		$this->Contents[$orderProduct->getId()] = $orderProduct;
-		return true;
-	}
-
-	/**
-	 * @param int $id
-	 * @return OrderProduct|bool
+	 * @param $id
+	 * @return bool|OrderProduct
 	 */
 	public function &get($id)
 	{
@@ -104,31 +95,38 @@ class OrderProductManager
 	}
 
 	/**
-	 * @return array
+	 * @param AccountsReceivableSalesProducts $SaleProducts
+	 * @param bool                            $assignInventory
 	 */
-	public function prepareJsonSave()
+	public function onSaveSale(AccountsReceivableSalesProducts &$SaleProducts, $assignInventory = false)
 	{
-		$ProductsJsonArray = array();
-		foreach($this->getContents() as $Id => $OrderProduct){
-			$ProductsJsonArray[$Id] = $OrderProduct->prepareJsonSave();
+		foreach($this->getContents() as $OrderProduct){
+			$SaleProduct = $SaleProducts
+				->getTable()
+				->getRecord();
+
+			$OrderProduct->onSaveSale($SaleProduct, $assignInventory);
+
+			$SaleProducts->add($SaleProduct);
 		}
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
-		return $ProductsJsonArray;
 	}
 
 	/**
 	 * Used when loading the sale from the database
 	 *
-	 * @param AccountsReceivableSalesProducts $Product
+	 * @param $Products
 	 */
-	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product)
+	public function jsonDecodeProduct($Products)
 	{
-		$OrderProduct = new OrderProduct();
-		$OrderProduct->jsonDecodeProduct($Product);
-		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
+		foreach($Products as $Product){
+			$ContentProduct = $this->getContentProductClass();
+			$ContentProduct->jsonDecodeProduct($Product);
+
+			$this->Contents[$ContentProduct->getId()] = $ContentProduct;
+		}
 	}
 }
 
-require(dirname(__FILE__) . '/Product.php');
-require(dirname(__FILE__) . '/RentalMembershipProduct.php');
-require(dirname(__FILE__) . '/OrderGiftCertificateProduct.php');
+require(__DIR__ . '/Product.php');
+require(__DIR__ . '/RentalMembershipProduct.php');
+require(__DIR__ . '/OrderGiftCertificateProduct.php');

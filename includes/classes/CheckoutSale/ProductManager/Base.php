@@ -2,9 +2,11 @@
 /**
  * Product manager class for the checkout sale class
  *
- * @package   CheckoutSale
+ * @package   Order\CheckoutSale\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleProductManager extends OrderProductManager
@@ -15,8 +17,16 @@ class CheckoutSaleProductManager extends OrderProductManager
 	 */
 	public $Contents = array();
 
-	public function addErrorMessage(){
+	/**
+	 * @return CheckoutSaleProduct|OrderProduct
+	 */
+	public function getContentProductClass()
+	{
+		return new CheckoutSaleProduct();
+	}
 
+	public function addErrorMessage()
+	{
 	}
 
 	/**
@@ -28,7 +38,7 @@ class CheckoutSaleProductManager extends OrderProductManager
 	}
 
 	/**
-	 * @param int $id
+	 * @param $id
 	 * @return bool|CheckoutSaleProduct|OrderProduct
 	 */
 	public function &get($id)
@@ -58,8 +68,8 @@ class CheckoutSaleProductManager extends OrderProductManager
 				$CheckoutSaleProduct->regenerateId();
 			}
 
-			//echo __FILE__ . '::' . __LINE__ . '<br>';
 			$CheckoutSaleProduct->onAddToContents();
+
 			$this->Contents[$CheckoutSaleProduct->getId()] = $CheckoutSaleProduct;
 			$this->cleanUp();
 			$Success = true;
@@ -67,7 +77,8 @@ class CheckoutSaleProductManager extends OrderProductManager
 		return $Success;
 	}
 
-	public function importShoppingCartProduct(ShoppingCartProduct $CartProduct, CheckoutSale &$CheckoutSale){
+	public function importShoppingCartProduct(ShoppingCartProduct $CartProduct, CheckoutSale &$CheckoutSale)
+	{
 		if ($this->cartProductExists($CartProduct->getId())){
 			$OrderProduct = $this->getByCartProductHash($CartProduct->getId());
 			//echo __FILE__ . '::' . __LINE__ . '<br>';
@@ -110,7 +121,8 @@ class CheckoutSaleProductManager extends OrderProductManager
 			if ($CartProduct->getQuantity() < 1){
 				//echo __FILE__ . '::' . __LINE__ . '<br>';
 				$this->removeFromContents($CartProduct->getId());
-			}elseif ($CartProduct->getCartProductHashId() == ''){
+			}
+			elseif ($CartProduct->getCartProductHashId() == '') {
 				//echo __FILE__ . '::' . __LINE__ . '<br>';
 				$this->removeFromContents($CartProduct->getId());
 			}
@@ -156,18 +168,6 @@ class CheckoutSaleProductManager extends OrderProductManager
 			}
 		}
 		return $Product;
-	}
-
-	/**
-	 * Used when loading the sale from the database
-	 *
-	 * @param AccountsReceivableSalesProducts $Product
-	 */
-	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product)
-	{
-		$OrderProduct = new CheckoutSaleProduct();
-		$OrderProduct->jsonDecodeProduct($Product);
-		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 	}
 
 	/**

@@ -2,9 +2,11 @@
 /**
  * Product manager class for the order creator
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\ProductManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorProductManager extends OrderProductManager
@@ -16,31 +18,36 @@ class OrderCreatorProductManager extends OrderProductManager
 	public $Contents = array();
 
 	/**
-	 * @param array|null $orderedProducts
+	 * @return OrderCreatorProduct|OrderProduct
 	 */
-	public function __construct(array $orderedProducts = null) {
-		if (is_null($orderedProducts) === false){
-			foreach($orderedProducts as $i => $pInfo){
-				$orderedProduct = new OrderCreatorProduct($pInfo);
-				$this->Contents[$orderedProduct->getId()] = $orderedProduct;
-			}
-			$this->cleanUp();
-		}
+	public function getContentProductClass()
+	{
+		return new OrderCreatorProduct();
 	}
 
 	/**
-	 * @param int $id
-	 * @return bool|OrderProduct
+	 * @param $id
+	 * @return bool|OrderCreatorProduct|OrderProduct
 	 */
-	public function get($id) {
-		$OrderedProduct = parent::get((int) $id);
+	public function get($id)
+	{
+		$OrderedProduct = parent::get((int)$id);
 		return $OrderedProduct;
+	}
+
+	/**
+	 * @return array|OrderCreatorProduct[]|OrderProduct[]
+	 */
+	public function &getContents()
+	{
+		return $this->Contents;
 	}
 
 	/**
 	 *
 	 */
-	public function init(){
+	public function init()
+	{
 		foreach($this->getContents() as $OrderedProduct){
 			$OrderedProduct->init();
 		}
@@ -49,7 +56,8 @@ class OrderCreatorProductManager extends OrderProductManager
 	/**
 	 *
 	 */
-	public function updateFromPost() {
+	public function updateFromPost()
+	{
 		foreach($_POST['product'] as $id => $pInfo){
 			if (!isset($pInfo['qty'])){
 				continue;
@@ -58,7 +66,8 @@ class OrderCreatorProductManager extends OrderProductManager
 			$Product = $this->get($id);
 			if ($Product === false || is_null($Product)){
 				echo 'Error: A Product Was Posted That Was Not In The Product Manager. ( ID:' . $id . ' )';
-				echo '<pre>';print_r(array_keys($this->Contents));
+				echo '<pre>';
+				print_r(array_keys($this->Contents));
 				itwExit();
 			}
 
@@ -99,54 +108,37 @@ class OrderCreatorProductManager extends OrderProductManager
 	}
 
 	/**
-	 * @param Doctrine_Collection $CollectionObj
+	 * @param OrderCreatorProduct $OrderProduct
+	 * @return bool
 	 */
-	public function addAllToCollection(Doctrine_Collection $CollectionObj) {
-		$CollectionObj->clear();
-		foreach($this->Contents as $id => $Product){
-			$OrderedProduct = new OrdersProducts();
-
-			$OrderedProduct->products_id = $Product->getProductsId();
-			$OrderedProduct->products_quantity = $Product->getQuantity();
-			$OrderedProduct->products_name = $Product->getName();
-			$OrderedProduct->products_model = $Product->getModel();
-			$OrderedProduct->products_price = $Product->getFinalPrice(false, false);
-			$OrderedProduct->final_price = $Product->getFinalPrice(false, false);
-			$OrderedProduct->products_tax = $Product->getTaxRate();
-
-			$Product->onAddToCollection($OrderedProduct);
-
-			$CollectionObj->add($OrderedProduct);
-		}
-	}
-
-	/**
-	 * @param OrderProduct $OrderProduct
-	 * @return bool|void
-	 */
-	public function add(OrderProduct &$OrderProduct) {
+	public function add(OrderCreatorProduct &$OrderProduct)
+	{
 		$addAllowed = true;
-		if (method_exists($OrderProduct, 'OrderCreatorAllowAddToContents')){
-			$addAllowed = $OrderProduct->OrderCreatorAllowAddToContents();
+		if (method_exists($OrderProduct, 'allowAddToContents')){
+			$addAllowed = $OrderProduct->allowAddToContents();
 		}
 
+		$Success = false;
 		if ($addAllowed === true){
 			$OrderProduct->regenerateId();
 			while(array_key_exists($OrderProduct->getId(), $this->Contents)){
 				$OrderProduct->regenerateId();
 			}
 
-			$OrderProduct->OrderCreatorOnAddToContents();
+			$OrderProduct->onAddToContents();
+
 			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 			$this->cleanUp();
+			$Success = true;
 		}
-		return $addAllowed;
+		return $Success;
 	}
 
 	/**
 	 *
 	 */
-	private function cleanUp() {
+	private function cleanUp()
+	{
 		foreach($this->getContents() as $cartProduct){
 			if ($cartProduct->getQuantity() < 1){
 				$this->removeFromContents($cartProduct->getId());
@@ -157,28 +149,32 @@ class OrderCreatorProductManager extends OrderProductManager
 	/**
 	 * @param string $id
 	 */
-	public function remove($id) {
+	public function remove($id)
+	{
 		$this->removeFromContents($id);
 	}
 
 	/**
 	 * @param string $id
 	 */
-	private function removeFromContents($id) {
+	private function removeFromContents($id)
+	{
 		if (array_key_exists($id, $this->Contents)){
 			unset($this->Contents[$id]);
 		}
 	}
 
 	/**
-	 * Used when loading the sale from the database
-	 *
-	 * @param AccountsReceivableSalesProducts $Product
+	 * @return array
 	 */
-	public function jsonDecodeProduct(AccountsReceivableSalesProducts $Product){
-		$OrderProduct = new OrderCreatorProduct();
-		$OrderProduct->jsonDecodeProduct($Product);
-		$this->Contents[$OrderProduct->getId()] = $OrderProduct;
+	public function prepareJsonSave()
+	{
+		$ProductsJsonArray = array();
+		foreach($this->getContents() as $Id => $OrderProduct){
+			$ProductsJsonArray[$Id] = $OrderProduct->prepareJsonSave();
+		}
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
+		return $ProductsJsonArray;
 	}
 
 	/**
@@ -186,7 +182,8 @@ class OrderCreatorProductManager extends OrderProductManager
 	 *
 	 * @param string $data
 	 */
-	public function jsonDecode($data){
+	public function jsonDecode($data)
+	{
 		$Contents = json_decode($data, true);
 		foreach($Contents as $Id => $pInfo){
 			$OrderProduct = new OrderCreatorProduct();
@@ -195,6 +192,20 @@ class OrderCreatorProductManager extends OrderProductManager
 			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 		}
 	}
+
+	public function onSaveProgress(&$SaleProducts)
+	{
+		$SaleProducts->clear();
+		foreach($this->getContents() as $OrderProduct){
+			$SaleProduct = $SaleProducts
+				->getTable()
+				->getRecord();
+
+			$OrderProduct->onSaveProgress($SaleProduct);
+
+			$SaleProducts->add($SaleProduct);
+		}
+	}
 }
 
-require(dirname(__FILE__) . '/Product.php');
+require(__DIR__ . '/Product.php');

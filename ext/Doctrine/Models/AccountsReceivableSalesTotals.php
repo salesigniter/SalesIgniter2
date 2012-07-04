@@ -2,7 +2,10 @@
 
 class AccountsReceivableSalesTotals extends Doctrine_Record {
 
-	public function setUp(){
+	public function preSave($event){
+		if (is_array($this->total_json)){
+			$this->total_json = json_encode($this->total_json);
+		}
 	}
 
 	public function setTableDefinition(){

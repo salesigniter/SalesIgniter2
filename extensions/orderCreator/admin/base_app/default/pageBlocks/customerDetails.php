@@ -119,7 +119,7 @@ if (!isset($_GET['sale_id'])){
 }
 
 $AddressList->addItemObj($CustomerInfoListItem);
-/*$CustomerCustomFields = $appExtension->getExtension('customersCustomFields');
+$CustomerCustomFields = $appExtension->getExtension('customersCustomFields');
 $Groups = $CustomerCustomFields->getGroups();
 if ($Groups){
 	$CustomerInfoTable->addBodyRow(array(
@@ -131,16 +131,18 @@ if ($Groups){
 	$Columns = array();
 	foreach($Groups as $Group){
 		foreach($Group->Fields as $Field){
-			$fInfo = $CustomerCustomFields->getFieldHtml($Field->Field, $Editor);
-			$Columns[] = array(
-				'text' => '<label>' . $fInfo['label'] . '</label>' .
-					$fInfo['field']
-			);
-			if (sizeof($Columns) == 2){
-				$CustomerInfoTable->addBodyRow(array(
-					'columns' => $Columns
-				));
-				$Columns = array();
+			if ($Field->Field->field_data->show_on->order_creator == 1){
+				$fInfo = $CustomerCustomFields->getFieldHtml($Field->Field, $Editor);
+				$Columns[] = array(
+					'valign' => 'top',
+					'text' => $fInfo['field']
+				);
+				if (sizeof($Columns) == 2){
+					$CustomerInfoTable->addBodyRow(array(
+						'columns' => $Columns
+					));
+					$Columns = array();
+				}
 			}
 		}
 	}
@@ -149,7 +151,7 @@ if ($Groups){
 			'columns' => $Columns
 		));
 	}
-}*/
+}
 $AddressTables .= '<div class="customerTabPage customerInfo">' .
 	'<div>' .
 		'<input style="width:80%;" type="text" placeholder="' . sysLanguage::get('ENTRY_SEARCH_CUSTOMER') . '" name="customer_search" class="customSearchInput">' .

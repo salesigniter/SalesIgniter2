@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Address manager for the order class
  *
- * @package   Order
+ * @package   Order\AddressManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderAddressManager
@@ -205,4 +195,4 @@ class OrderAddressManager
 	}
 }
 
-require(dirname(__FILE__) . '/Address.php');
+require(__DIR__ . '/Address.php');

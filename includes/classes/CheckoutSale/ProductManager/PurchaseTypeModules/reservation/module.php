@@ -36,7 +36,7 @@ class CheckoutSalePurchaseTypeReservation extends PurchaseType_reservation
 		$this->ReservationInfo = $CartProduct->getInfo('ReservationInfo');
 	}
 
-	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
 

@@ -2,9 +2,11 @@
 /**
  * Order total manager class for the checkout sale class
  *
- * @package CheckoutSale
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\CheckoutSale\TotalManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleTotalManager extends OrderTotalManager
@@ -13,7 +15,8 @@ class CheckoutSaleTotalManager extends OrderTotalManager
 	/**
 	 * @param string $ModuleCode
 	 */
-	public function remove($ModuleCode) {
+	public function remove($ModuleCode)
+	{
 		if (isset($this->totals[$ModuleCode]) === true){
 			unset($this->totals[$ModuleCode]);
 		}
@@ -21,9 +24,10 @@ class CheckoutSaleTotalManager extends OrderTotalManager
 
 	/**
 	 * @param string $key
-	 * @param float $amount
+	 * @param float  $amount
 	 */
-	public function addToTotal($key, $amount) {
+	public function addToTotal($key, $amount)
+	{
 		foreach($this->totals as $OrderTotal){
 			if ($OrderTotal->getModule() == $key){
 				$OrderTotal->setValue($OrderTotal->getValue() + $amount);
@@ -36,7 +40,8 @@ class CheckoutSaleTotalManager extends OrderTotalManager
 	 *
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total){
+	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total)
+	{
 		$TotalDecoded = json_decode($Total->total_json, true);
 		$OrderTotal = new CheckoutSaleTotal($TotalDecoded['data']['module_code']);
 		$OrderTotal->jsonDecode($TotalDecoded);
@@ -49,7 +54,8 @@ class CheckoutSaleTotalManager extends OrderTotalManager
 	 *
 	 * @param string $data
 	 */
-	public function jsonDecode($data){
+	public function jsonDecode($data)
+	{
 		$this->totals = array();
 		//echo __FILE__ . '::' . __LINE__ . '::' . $data . '<br>';
 		$Totals = json_decode($data, true);

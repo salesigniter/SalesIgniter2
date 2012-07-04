@@ -4,13 +4,16 @@
  *
  * @package   CheckoutSale
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSalePaymentManager extends OrderPaymentManager
 {
 
-	public function validate(){
+	public function validate()
+	{
 		$validateSuccess = true;
 		$validateSuccess = $this->Module->validate($this);
 		return $validateSuccess;

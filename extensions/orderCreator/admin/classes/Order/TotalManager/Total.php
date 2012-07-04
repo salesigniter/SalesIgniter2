@@ -2,9 +2,11 @@
 /**
  * Order total class for the order creator order total manager
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\TotalManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorTotal extends OrderTotal
@@ -27,14 +29,16 @@ class OrderCreatorTotal extends OrderTotal
 	 * @param $ModuleCode
 	 * @return ModuleBase|OrderTotalModuleBase
 	 */
-	private function getOrderTotalModule($ModuleCode){
+	private function getOrderTotalModule($ModuleCode)
+	{
 		if (file_exists(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/OrderTotalModules/' . $ModuleCode . '/module.php')){
 			$className = 'OrderCreatorOrderTotal' . ucfirst($ModuleCode);
 			if (!class_exists($className)){
 				require(sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/OrderTotalModules/' . $ModuleCode . '/module.php');
 			}
 			$Module = new $className();
-		}else{
+		}
+		else {
 			$Module = OrderTotalModules::getModule($ModuleCode);
 		}
 		return $Module;
@@ -43,7 +47,8 @@ class OrderCreatorTotal extends OrderTotal
 	/**
 	 * @return bool
 	 */
-	public function isEditable() {
+	public function isEditable()
+	{
 		if (method_exists($this->Module, 'isEditable')){
 			return $this->Module->isEditable();
 		}
@@ -53,14 +58,16 @@ class OrderCreatorTotal extends OrderTotal
 	/**
 	 * @return bool
 	 */
-	public function hasTotalId(){
+	public function hasTotalId()
+	{
 		return (isset($this->data['total_id']));
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getTotalId(){
+	public function getTotalId()
+	{
 		return (int)$this->data['total_id'];
 	}
 

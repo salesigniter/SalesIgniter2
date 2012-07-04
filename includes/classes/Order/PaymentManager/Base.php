@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Payment manager for the order class
  *
  * @package   Order
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderPaymentManager
@@ -70,12 +60,14 @@ class OrderPaymentManager
 		}
 	}
 
-	public function setPaymentModule($module){
+	public function setPaymentModule($module)
+	{
 		$this->setInfo('payment_module', $module);
 		$this->Module = OrderPaymentModules::getModule($module);
 	}
 
-	public function getPaymentModule(){
+	public function getPaymentModule()
+	{
 		return $this->Module;
 	}
 
@@ -107,7 +99,8 @@ class OrderPaymentManager
 	 * @param $k
 	 * @param $v
 	 */
-	public function setInfo($k, $v){
+	public function setInfo($k, $v)
+	{
 		$this->_info[$k] = $v;
 	}
 
@@ -115,7 +108,8 @@ class OrderPaymentManager
 	 * @param null $k
 	 * @return mixed
 	 */
-	public function getInfo($k = null){
+	public function getInfo($k = null)
+	{
 		if ($k !== null){
 			return (isset($this->_info[$k]) ? $this->_info[$k] : '');
 		}

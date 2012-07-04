@@ -78,29 +78,47 @@ class htmlElement_input extends htmlElement
 
 		if ($this->_isMultiple === true){
 			$this->setName($this->attr('name') . '[]');
+			$this->css(array(
+				'padding'       => '0 32px 0 0',
+				'width'         => '100%',
+				'line-height'   => '31px',
+				'text-indent'   => '5px'
+			));
 
 			$MultipleTable = htmlBase::newTable()
-			->setCellPadding(3)
-			->setCellSpacing(0)
-			->addClass('multipleTextInput')
-			->css('width', '100%');
+				->setCellPadding(3)
+				->setCellSpacing(0)
+				->addClass('multipleTextInput')
+				->css('width', '100%');
+
+			$iconCss = array(
+				'position' => 'absolute',
+				'top'      => '5px',
+				'right'    => '2px',
+				'height'   => '31px',
+				'width'    => '31px',
+				'cursor'   => 'default'
+			);
 
 			$AddIcon = htmlBase::newIcon()
-			->addClass('addInput')
-			->setType('plusthick')
-			->setTooltip('Add More');
+				->addClass('ui-widget-content ui-corner-right addInput')
+				->setType('plusthick')
+				->setTooltip('Add More')
+				->css(array_merge($iconCss, array('background-position' => '-82px -111px')));
 
 			$RemoveIcon = htmlBase::newIcon()
-			->addClass('removeInput')
-			->setType('closethick')
-			->setTooltip('Remove')
-			->hide();
+				->addClass('ui-widget-content ui-corner-right removeInput')
+				->setType('closethick')
+				->setTooltip('Remove')
+				->hide()
+				->css(array_merge($iconCss, array('background-position' => '-166px -110px')));
 
 			$UndoIcon = htmlBase::newIcon()
-			->addClass('undoRemove')
-			->setType('undo')
-			->setTooltip('Undo Remove')
-			->hide();
+				->addClass('ui-widget-content ui-corner-right undoRemove')
+				->setType('undo')
+				->setTooltip('Undo Remove')
+				->hide()
+				->css(array_merge($iconCss, array('background-position' => '-83px -139px')));
 
 			if ($this->val() != ''){
 				$valStr = $this->val();
@@ -114,10 +132,12 @@ class htmlElement_input extends htmlElement
 
 						$MultipleTable->addBodyRow(array(
 							'columns' => array(
-								array('text' => parent::draw()),
 								array(
-									'css'  => array('width' => '10px'),
-									'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+									'css'  => array('position' => 'relative'),
+									'text' => parent::draw() .
+										$AddIcon->draw() .
+										$RemoveIcon->draw() .
+										$UndoIcon->draw()
 								)
 							)
 						));
@@ -126,10 +146,12 @@ class htmlElement_input extends htmlElement
 				else {
 					$MultipleTable->addBodyRow(array(
 						'columns' => array(
-							array('text' => parent::draw()),
 							array(
-								'css'  => array('width' => '10px'),
-								'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+								'css'  => array('position' => 'relative'),
+								'text' => parent::draw() .
+									$AddIcon->draw() .
+									$RemoveIcon->draw() .
+									$UndoIcon->draw()
 							)
 						)
 					));
@@ -138,10 +160,12 @@ class htmlElement_input extends htmlElement
 			else {
 				$MultipleTable->addBodyRow(array(
 					'columns' => array(
-						array('text' => parent::draw()),
 						array(
-							'css'  => array('width' => '10px'),
-							'text' => $AddIcon->draw() . $RemoveIcon->draw() . $UndoIcon->draw()
+							'css'  => array('position' => 'relative'),
+							'text' => parent::draw() .
+								$AddIcon->draw() .
+								$RemoveIcon->draw() .
+								$UndoIcon->draw()
 						)
 					)
 				));
@@ -177,6 +201,9 @@ class htmlElement_input extends htmlElement
 
 	public function setValue($val)
 	{
+		if (is_array($val)){
+			$val = implode(';', $val);
+		}
 		$this->attr('value', stripslashes($val));
 		return $this;
 	}

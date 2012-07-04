@@ -265,18 +265,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		return $returningArray;
 	}
 
-	public function showOrderedProductInfo(OrderProduct &$OrderedProduct, $showExtraInfo = true)
-	{
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($OrderedProduct);
-		if ($showExtraInfo){
-			$resData = $OrderedProduct->getInfo('ReservationInfo');
-			if ($resData && $resData['start_date']->getTimestamp() > 0){
-				return PurchaseType_reservation_utilities::parse_reservation_info($resData);
-			}
-		}
-		return '';
-	}
-
 	public function showShoppingCartProductInfo(ShoppingCartProduct $CartProduct, $settings = array())
 	{
 		$options = array_merge(array(
@@ -1156,31 +1144,46 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 			$ReservationInfo = $cartProduct;
 		}
-		elseif ($cartProduct instanceof OrderProduct){
+		elseif ($cartProduct instanceof OrderProduct) {
 			$hasBarcode = $cartProduct->hasInfo('barcode_id');
 			if ($hasBarcode === true){
 				$barcodeID = $cartProduct->getInfo('barcode_id');
 			}
 
-			$ReservationInfo = $cartProduct->getInfo('ReservationInfo');
+			$ReservationInfo = $cartProduct
+				->getProductTypeClass()
+				->getPurchaseTypeClass()
+				->getInfo();
 		}
 
 		if ($barcodeID == -1){
+			/**
+			 * @TODO: This really needs to be standardized
+			 */
 			if (isset($ReservationInfo['shipping_days_before'])){
 				$shippingDaysBefore = (int)$ReservationInfo['shipping_days_before'];
 			}
-			elseif (isset($ReservationInfo['shipping']['days_before'])){
+			elseif (isset($ReservationInfo['shipping']['days_before'])) {
 				$shippingDaysBefore = (int)$ReservationInfo['shipping']['days_before'];
+			}
+			elseif (isset($ReservationInfo['days_before'])) {
+				$shippingDaysBefore = (int)$ReservationInfo['days_before'];
 			}
 			else {
 				$shippingDaysBefore = 0;
 			}
 
+			/**
+			 * @TODO: This really needs to be standardized
+			 */
 			if (isset($ReservationInfo['shipping_days_after'])){
 				$shippingDaysAfter = (int)$ReservationInfo['shipping_days_after'];
 			}
-			elseif (isset($ReservationInfo['shipping']['days_after'])){
+			elseif (isset($ReservationInfo['shipping']['days_after'])) {
 				$shippingDaysAfter = (int)$ReservationInfo['shipping']['days_after'];
+			}
+			elseif (isset($ReservationInfo['days_after'])) {
+				$shippingDaysAfter = (int)$ReservationInfo['days_after'];
 			}
 			else {
 				$shippingDaysAfter = 0;
@@ -1198,11 +1201,10 @@ class PurchaseType_reservation extends PurchaseTypeBase
 						}
 
 						$bookingInfo = array(
-							'item_type'               => 'barcode',
-							'item_id'                 => $barcodeInfo['id'],
-							'start_date'              => $startDate,
-							'end_date'                => $endDate,
-							'cartProduct'             => $cartProduct
+							'item_type'  => 'barcode',
+							'item_id'    => $barcodeInfo['id'],
+							'start_date' => $startDate,
+							'end_date'   => $endDate
 						);
 						if (Session::exists('isppr_inventory_pickup')){
 							$pickupCheck = Session::get('isppr_inventory_pickup');
@@ -3628,21 +3630,22 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	/*
 	 * @TODO: Figure out something better
 	 */
-	public function getPrice($priceName = '1 Day')
+	public function getPrice($priceTime)
 	{
 		global $currencies;
 
 		$pprId = $this->getPayPerRentalId();
 		foreach(PurchaseType_reservation_utilities::getRentalPricing($pprId) as $priceInfo){
 			$price = $priceInfo['price'];
-			$partName = $priceInfo['Description'][0]['price_per_rental_per_products_name'];
+			//$partName = $priceInfo['Description'][0]['price_per_rental_per_products_name'];
+			$partName = $priceInfo['Type']['minutes'];
 			if (!isset($prices[$partName])){
 				$prices[$partName] = 0;
 			}
 			$prices[$partName] += $price;
 		}
 
-		return $prices[$priceName];
+		return (isset($prices[$priceTime]) ? $prices[$priceTime] : 0);
 	}
 
 	public function getExportTableColumns()
@@ -3930,15 +3933,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		));
 	}
 
-	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null){
-		if ($Qty === null){
-			$Qty = $OrderProduct->getQuantity();
-		}
+	public function hasEnoughInventory($ReservationInfo, $Qty){
 		$return = true;
 		$excludedBarcodes = array();
-		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		for($count = 0; $count < $Qty; $count++){
-			$AvailableBarcode = $this->getAvailableBarcode($OrderProduct, $excludedBarcodes);
+			$AvailableBarcode = $this->getAvailableBarcode($ReservationInfo, $excludedBarcodes);
 			if ($AvailableBarcode > -1){
 				$excludedBarcodes[] = $AvailableBarcode;
 			}else{
@@ -3992,7 +3991,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		}
 	}
 
-	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
 		echo __FILE__ . '::' . __LINE__ . '<br>';
@@ -4079,26 +4078,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		$products_ordered .= "\n";
 		EventManager::notify('ReservationAppendOrderedProductsString', &$products_ordered, &$cartProduct);
 		*/
-	}
-
-	/**
-	 * @param OrderProduct $OrderProduct
-	 * @param array        $PurchaseTypeJson
-	 */
-	public function jsonDecode(OrderProduct &$OrderProduct, array $PurchaseTypeJson)
-	{
-		$ResInfo = $PurchaseTypeJson['ReservationInfo'];
-
-		$StartDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ResInfo['start_date']['date']);
-		$StartDate->setTimezone(new DateTimeZone($ResInfo['start_date']['timezone']));
-
-		$EndDate = SesDateTime::createFromFormat(DATE_TIMESTAMP, $ResInfo['end_date']['date']);
-		$EndDate->setTimezone(new DateTimeZone($ResInfo['end_date']['timezone']));
-
-		$ResInfo['start_date'] = $StartDate;
-		$ResInfo['end_date'] = $EndDate;
-
-		$OrderProduct->setInfo('ReservationInfo', $ResInfo);
 	}
 }
 

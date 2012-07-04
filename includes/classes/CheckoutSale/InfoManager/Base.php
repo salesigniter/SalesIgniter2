@@ -2,16 +2,13 @@
 /**
  * Info manager for the checkout sale
  *
- * @package   CheckoutSale
+ * @package   Order\CheckoutSale\InfoManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
-require(dirname(__FILE__) . '/Info.php');
-
-/**
- * @package CheckoutSale
- */
 class CheckoutSaleInfoManager extends OrderInfoManager
 {
 
@@ -21,20 +18,11 @@ class CheckoutSaleInfoManager extends OrderInfoManager
 	protected $_hasError = false;
 
 	/**
-	 * @param array|null $infoArray
+	 * @return CheckoutSaleInfo|OrderInfo
 	 */
-	public function __construct(array $infoArray = null)
+	public function getInfoObjectClass()
 	{
-		if (!empty($infoArray)){
-			foreach($infoArray as $k => $v){
-				$this->info[$k] = new CheckoutSaleInfo($k, $v);
-			}
-		}
-	}
-
-	public function setInfo($k, $v)
-	{
-		$this->info[$k] = new CheckoutSaleInfo($k, $v);
+		return new CheckoutSaleInfo();
 	}
 
 	public function hasError($val = null)
@@ -58,7 +46,7 @@ class CheckoutSaleInfoManager extends OrderInfoManager
 				if ($ErrorType == 'notblank'){
 					$messageStack->addSession('pageStack', 'You must enter an email address', 'error');
 				}
-				elseif ($ErrorType == 'unique'){
+				elseif ($ErrorType == 'unique') {
 					if ($userAccount->isLoggedIn() === true){
 						$this->hasError(false);
 					}
@@ -77,17 +65,6 @@ class CheckoutSaleInfoManager extends OrderInfoManager
 		}
 		return ($this->hasError() === false);
 	}
-
-	public function jsonDecode($data)
-	{
-		$infoArray = json_decode($data, true);
-		if ($infoArray){
-			foreach($infoArray as $k => $info){
-				$this->info[$k] = new CheckoutSaleInfo(
-					$info['key'],
-					$info['value']
-				);
-			}
-		}
-	}
 }
+
+require(__DIR__ . '/Info.php');

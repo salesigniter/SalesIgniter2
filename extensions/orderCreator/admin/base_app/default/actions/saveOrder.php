@@ -21,7 +21,7 @@ if (isset($_GET['sale_id']) === false){
 					$Editor->setEmailAddress($_POST['email']);
 				}
 				else {
-					$Editor->setEmailAddress('roomnumber' . '_' . $Editor->getData('store_id') . '_' . $_POST['room_number']);
+					$Editor->setEmailAddress('roomnumber' . '_' . $Editor->InfoManager->getInfo('store_id') . '_' . $_POST['room_number']);
 				}
 
 				if (isset($_POST['telephone']) && !empty($_POST['telephone'])){
@@ -44,11 +44,11 @@ if (isset($_GET['sale_id']) === false){
 if (sysConfig::get('EXTENSION_ORDER_CREATOR_NEEDS_LICENSE_PASSPORT') == 'True' && $_POST['isType'] == 'walkin'){
 	$hasData = false;
 	if (isset($_POST['drivers_license']) && !empty($_POST['drivers_license'])){
-		$Editor->setData('customers_drivers_license', $_POST['drivers_license']);
+		$Editor->InfoManager->setInfo('customers_drivers_license', $_POST['drivers_license']);
 		$hasData = true;
 	}
 	if (isset($_POST['passport']) && !empty($_POST['passport'])){
-		$Editor->setData('customers_passport', $_POST['passport']);
+		$Editor->InfoManager->setInfo('customers_passport', $_POST['passport']);
 		$hasData = true;
 	}
 	if ($hasData === false){
@@ -56,26 +56,21 @@ if (sysConfig::get('EXTENSION_ORDER_CREATOR_NEEDS_LICENSE_PASSPORT') == 'True' &
 	}
 }
 
-$Editor->setData('usps_track_num', $_POST['usps_track_num']);
-$Editor->setData('usps_track_num2', $_POST['usps_track_num2']);
-$Editor->setData('ups_track_num', $_POST['ups_track_num']);
-$Editor->setData('ups_track_num2', $_POST['ups_track_num2']);
-$Editor->setData('fedex_track_num', $_POST['fedex_track_num']);
-$Editor->setData('fedex_track_num2', $_POST['fedex_track_num2']);
-$Editor->setData('dhl_track_num', $_POST['dhl_track_num']);
-$Editor->setData('dhl_track_num2', $_POST['dhl_track_num2']);
-$Editor->setData('ip_address', $_SERVER['REMOTE_ADDR']);
-$Editor->setData('admin_id', Session::get('login_id'));
-
-//$Editor->AddressManager->updateFromPost();
-//$Editor->ProductManager->updateFromPost();
-//$Editor->TotalManager->updateFromPost();
-
-//EventManager::notify('OrderSaveBeforeSave', $NewOrder);
-//echo '<pre>';print_r($_POST);itwExit();
+$Editor->InfoManager->setInfo('tracking', array(
+	'ups'   => $_POST['ups_tracking_number'],
+	'usps'  => $_POST['usps_tracking_number'],
+	'fedex' => $_POST['fedex_tracking_number'],
+	'dhl'   => $_POST['dhl_tracking_number']
+));
+$Editor->InfoManager->setInfo('ip_address', $_SERVER['REMOTE_ADDR']);
+$Editor->InfoManager->setInfo('admin_id', Session::get('login_id'));
+$Editor->InfoManager->setInfo('admin_comments', $_POST['comments']);
 
 if (isset($_POST['convertTo'])){
 	AccountsReceivable::convertSale($Editor, $_POST['convertTo']);
+}
+elseif (isset($_POST['duplicate'])){
+	AccountsReceivable::duplicateSale($Editor);
 }
 elseif (isset($_POST['save'])) {
 	$SaleId = AccountsReceivable::saveSale($Editor);
@@ -84,7 +79,9 @@ elseif (isset($_POST['saveAs'])) {
 	AccountsReceivable::saveSale($Editor, $_POST['saveAs']);
 }
 
-EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&sale_module=' . $Editor->getSaleModule()->getCode() . '&sale_id=' . $SaleId, 'default', 'new'), 'redirect');
+EventManager::attachActionResponse(itw_app_link('appExt=orderCreator&sale_module=' . $Editor
+	->getSaleModule()
+	->getCode() . '&sale_id=' . $SaleId, 'default', 'new'), 'redirect');
 
 /*
 if($Editor->hasErrors()){

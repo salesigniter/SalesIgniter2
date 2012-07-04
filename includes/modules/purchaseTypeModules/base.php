@@ -572,10 +572,6 @@ class PurchaseTypeBase extends ModuleBase
 	{
 	}
 
-	public function OrderCreatorOnAddToContents(OrderCreatorProduct $orderProduct)
-	{
-	}
-
 	public function showProductListing($col, $options = array())
 	{
 	}

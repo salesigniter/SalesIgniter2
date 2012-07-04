@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Main order class
  *
  * @package   Order
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class Order
@@ -26,6 +16,11 @@ class Order
 	 * @var int
 	 */
 	public $saleId = 0;
+
+	/**
+	 * @var int
+	 */
+	public $statusId = 0;
 
 	/**
 	 * @var string
@@ -63,6 +58,16 @@ class Order
 	protected $SaleModule = null;
 
 	/**
+	 * @var null
+	 */
+	protected $SaleModuleId = null;
+
+	/**
+	 * @var null
+	 */
+	protected $SaleModuleRev = null;
+
+	/**
 	 *
 	 */
 	public function __construct($saleType, $saleId = 0, $revision = null)
@@ -97,20 +102,19 @@ class Order
 	}
 
 	/**
-	 * @param int $ProductId
-	 * @param int $Quantity
+	 * @return bool
 	 */
-	public function addProduct($ProductId, $Quantity = 1){
-		$OrderProduct = new OrderProduct();
-		$OrderProduct->setProductId($ProductId);
-		$OrderProduct->setQuantity($Quantity);
+	public function hasSaleId()
+	{
+		return $this->getSaleId() > 0;
+	}
 
-		$Success = $this->ProductManager->add($OrderProduct);
-		if ($Success === false){
-			$this->addErrorMessage('Unable to add product to order!');
-		}else{
-			$this->TotalManager->onProductAdded($this->ProductManager);
-		}
+	/**
+	 * @return bool
+	 */
+	public function hasSaleModule()
+	{
+		return !($this->SaleModule === null);
 	}
 
 	/**
@@ -146,16 +150,33 @@ class Order
 	}
 
 	/**
-	 * @return mixed
+	 * @param null $id
+	 * @return string
 	 */
-	public function getStatusName()
+	public function getStatusName($id = null)
 	{
 		$Status = Doctrine_Query::create()
 			->from('OrdersStatusDescription')
-			->where('orders_status_id = ?', $this->InfoManager->getInfo('status'))
+			->where('orders_status_id = ?', ($id === null ? $this->statusId : $id))
 			->andWhere('language_id = ?', Session::get('languages_id'))
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		return (isset($Status[0]) ? $Status[0]['orders_status_name'] : 'Unknown');
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getStatusId()
+	{
+		return $this->statusId;
+	}
+
+	/**
+	 * @param $val
+	 */
+	public function setStatusId($val)
+	{
+		$this->statusId = $val;
 	}
 
 	/**
@@ -422,21 +443,24 @@ class Order
 		return (string)$this->InfoManager->getInfo('customers_room_number');
 	}
 
-	public function sendNewSaleSuccessEmail(){
+	public function sendNewSaleSuccessEmail()
+	{
 		$Module = EmailModules::getModule('order');
 		$Module->process('ORDER_PLACED_EMAIL', array(
 			'SaleObj' => $this
 		));
 	}
 
-	public function sendNewSaleFailEmail(){
+	public function sendNewSaleFailEmail()
+	{
 		/*$Module = EmailModules::getModule('order');
 		$Module->process('ORDER_FAILED_EMAIL', array(
 			'SaleObj' => $this
 		));*/
 	}
 
-	public function sendSaleUpdateEmail(){
+	public function sendSaleUpdateEmail()
+	{
 		$Module = EmailModules::getModule('order');
 		$Module->process('ORDER_STATUS_EMAIL', array(
 			'SaleObj' => $this
@@ -444,8 +468,8 @@ class Order
 	}
 }
 
-require(dirname(__FILE__) . '/InfoManager/Base.php');
-require(dirname(__FILE__) . '/AddressManager/Base.php');
-require(dirname(__FILE__) . '/ProductManager/Base.php');
-require(dirname(__FILE__) . '/TotalManager/Base.php');
-require(dirname(__FILE__) . '/PaymentManager/Base.php');
+require(__DIR__ . '/InfoManager/Base.php');
+require(__DIR__ . '/AddressManager/Base.php');
+require(__DIR__ . '/ProductManager/Base.php');
+require(__DIR__ . '/TotalManager/Base.php');
+require(__DIR__ . '/PaymentManager/Base.php');

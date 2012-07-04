@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Totals manager for the order class
  *
- * @package   Order
+ * @package   Order\TotalManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderTotalManager
@@ -32,7 +22,6 @@ class OrderTotalManager
 	 */
 	public function __construct()
 	{
-
 	}
 
 	/**
@@ -53,7 +42,9 @@ class OrderTotalManager
 	 */
 	public function add(OrderTotal $orderTotal)
 	{
-		$this->totals[$orderTotal->getModule()->getCode()] = $orderTotal;
+		$this->totals[$orderTotal
+			->getModule()
+			->getCode()] = $orderTotal;
 	}
 
 	/**
@@ -64,7 +55,9 @@ class OrderTotalManager
 	{
 		$OrderTotal = $this->get($type);
 		if ($OrderTotal !== false){
-			return (float)$OrderTotal->getModule()->getValue();
+			return (float)$OrderTotal
+				->getModule()
+				->getValue();
 		}
 		return null;
 	}
@@ -90,7 +83,11 @@ class OrderTotalManager
 		$TotalsSorted = $this->totals;
 		usort($TotalsSorted, function ($a, $b)
 		{
-			return ($a->getModule()->getDisplayOrder() < $b->getModule()->getDisplayOrder() ? -1 : 1);
+			return ($a
+				->getModule()
+				->getDisplayOrder() < $b
+				->getModule()
+				->getDisplayOrder() ? -1 : 1);
 		});
 		return $TotalsSorted;
 	}
@@ -109,11 +106,15 @@ class OrderTotalManager
 				'columns' => array(
 					array(
 						'align' => 'right',
-						'text'  => $OrderTotal->getModule()->getTitle()
+						'text'  => $OrderTotal
+							->getModule()
+							->getTitle()
 					),
 					array(
 						'align' => 'right',
-						'text'  => $OrderTotal->getModule()->getText()
+						'text'  => $OrderTotal
+							->getModule()
+							->getText()
 					)
 				)
 			));
@@ -139,7 +140,8 @@ class OrderTotalManager
 	 *
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total){
+	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total)
+	{
 		$TotalDecoded = json_decode($Total->total_json, true);
 		$OrderTotal = new OrderTotal($TotalDecoded['data']['module_code']);
 		$OrderTotal->jsonDecode($TotalDecoded);
@@ -150,7 +152,8 @@ class OrderTotalManager
 	/**
 	 * @param OrderProductManager $ProductManager
 	 */
-	public function onProductAdded(OrderProductManager $ProductManager){
+	public function onProductAdded(OrderProductManager $ProductManager)
+	{
 		foreach($this->getAll() as $Module){
 			//echo __FILE__ . '::' . __LINE__ . '<br>';
 			//echo '<div style="margin-left:15px;">';
@@ -162,7 +165,8 @@ class OrderTotalManager
 	/**
 	 * @param OrderProductManager $ProductManager
 	 */
-	public function onProductUpdated(OrderProductManager $ProductManager){
+	public function onProductUpdated(OrderProductManager $ProductManager)
+	{
 		foreach($this->getAll() as $Module){
 			//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getModule()->getTitle() . '<br>';
 			//echo '<div style="margin-left:15px;">';
@@ -171,10 +175,15 @@ class OrderTotalManager
 		}
 	}
 
-	public function getEmailList(){
+	public function getEmailList()
+	{
 		$orderTotals = '';
 		foreach($this->getAll() as $OrderTotal){
-			$orderTotals .= strip_tags($OrderTotal->getModule()->getTitle()) . ' ' . strip_tags($OrderTotal->getModule()->getText()) . "\n";
+			$orderTotals .= strip_tags($OrderTotal
+				->getModule()
+				->getTitle()) . ' ' . strip_tags($OrderTotal
+				->getModule()
+				->getText()) . "\n";
 		}
 		return $orderTotals;
 	}

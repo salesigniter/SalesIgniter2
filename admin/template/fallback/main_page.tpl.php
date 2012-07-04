@@ -38,6 +38,7 @@ if ($requireFile !== false){
 }
 $BodyContent = ob_get_contents();
 ob_end_clean();
+
 ?>
 <!DOCTYPE html>
 <html <?php echo sysLanguage::getHtmlParams(); ?>>

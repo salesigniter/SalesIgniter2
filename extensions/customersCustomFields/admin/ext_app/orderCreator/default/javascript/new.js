@@ -1,5 +1,5 @@
 $(document).ready(function (){
-	$('.customerCustomField').blur(function (){
+	$(document).on('blur', '.customerCustomField', function (){
 		$.ajax({
 			cache: false,
 			url: js_app_link('appExt=orderCreator&app=default&appPage=new&action=updateCustomerCustomFields'),

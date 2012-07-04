@@ -2,18 +2,15 @@
 /**
  * Main order creator order class
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     1.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreator extends Order implements Serializable
 {
-
-	/**
-	 * @var array
-	 */
-	protected $data = array();
 
 	/**
 	 * @var OrderCreatorInfoManager
@@ -49,10 +46,13 @@ class OrderCreator extends Order implements Serializable
 	 * @var AccountsReceivableModule
 	 */
 	protected $SaleModule = null;
+
 	protected $SaleModuleId = null;
+
 	protected $SaleModuleRev = null;
 
-	public function __construct($saleType, $saleId = 0, $revision = null) {
+	public function __construct($saleType, $saleId = 0, $revision = null)
+	{
 		$this->InfoManager = new OrderCreatorInfoManager();
 		$this->AddressManager = new OrderCreatorAddressManager();
 		$this->ProductManager = new OrderCreatorProductManager();
@@ -74,7 +74,7 @@ class OrderCreator extends Order implements Serializable
 			if ($SubTotalModule === false){
 				$SubTotal = new OrderCreatorTotal('subtotal', array(
 					'sort_order' => 1,
-					'value' => 0
+					'value'      => 0
 				));
 
 				$this->TotalManager->add($SubTotal);
@@ -84,7 +84,7 @@ class OrderCreator extends Order implements Serializable
 			if ($TaxModule === false){
 				$Tax = new OrderCreatorTotal('tax', array(
 					'sort_order' => 2,
-					'value' => 0
+					'value'      => 0
 				));
 
 				$this->TotalManager->add($Tax);
@@ -94,7 +94,7 @@ class OrderCreator extends Order implements Serializable
 			if ($TotalModule === false){
 				$Total = new OrderCreatorTotal('total', array(
 					'sort_order' => 3,
-					'value' => 0
+					'value'      => 0
 				));
 
 				$this->TotalManager->add($Total);
@@ -109,7 +109,8 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 *
 	 */
-	public function init() {
+	public function init()
+	{
 		$InfoManagerJson = $this->InfoManager;
 		$this->InfoManager = new OrderCreatorInfoManager();
 		$this->InfoManager->jsonDecode($InfoManagerJson);
@@ -141,22 +142,11 @@ class OrderCreator extends Order implements Serializable
 		}
 	}
 
-	public function hasSaleId(){
-		return $this->getSaleId() > 0;
-	}
-
-	public function hasSaleModule(){
-		return !($this->SaleModule === null);
-	}
-
-	public function getSaleModule(){
-		return $this->SaleModule;
-	}
-
 	/**
 	 * @return string
 	 */
-	public function serialize() {
+	public function serialize()
+	{
 		$data = array(
 			'saleId'         => $this->getSaleId(),
 			'customerId'     => $this->getCustomerId(),
@@ -182,12 +172,17 @@ class OrderCreator extends Order implements Serializable
 	 * @param string $data
 	 * @return mixed|string
 	 */
-	public function unserialize($data) {
+	public function unserialize($data)
+	{
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
-			if (in_array($key, array('InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'))){
+			if (in_array($key, array(
+				'InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'
+			))
+			){
 				$this->$key = json_encode($dInfo);
-			}else{
+			}
+			else {
 				$this->$key = $dInfo;
 			}
 		}
@@ -195,40 +190,18 @@ class OrderCreator extends Order implements Serializable
 	}
 
 	/**
-	 * @param string|int $k
-	 * @param mixed $v
-	 */
-	public function setData($k, $v) {
-		$this->data[$k] = $v;
-	}
-
-	/**
-	 * @param string|int $k
-	 * @return mixed
-	 */
-	public function getData($k) {
-		return $this->data[$k];
-	}
-
-	/**
-	 * @param string|int $k
-	 * @return bool
-	 */
-	public function hasData($k) {
-		return (isset($this->data[$k]));
-	}
-
-	/**
 	 * @param string $val
 	 */
-	public function addErrorMessage($val) {
+	public function addErrorMessage($val)
+	{
 		$this->errorMessages[] = $val;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasErrors() {
+	public function hasErrors()
+	{
 		global $messageStack;
 		return ($messageStack->size('OrderCreator') > 0);
 	}
@@ -236,7 +209,8 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @return array
 	 */
-	public function getErrors() {
+	public function getErrors()
+	{
 		global $messageStack;
 		return $messageStack->output('OrderCreator', true);
 	}
@@ -246,7 +220,8 @@ class OrderCreator extends Order implements Serializable
 	 * @param int $Quantity
 	 * @return OrderCreatorProduct|void
 	 */
-	public function addProduct($ProductId, $Quantity = 1){
+	public function addProduct($ProductId, $Quantity = 1)
+	{
 		$OrderProduct = new OrderCreatorProduct();
 		$OrderProduct->setProductId($ProductId);
 		$OrderProduct->setQuantity($Quantity);
@@ -254,7 +229,8 @@ class OrderCreator extends Order implements Serializable
 		$Success = $this->ProductManager->add($OrderProduct);
 		if ($Success === false){
 			$this->addErrorMessage('Unable to add product to order!');
-		}else{
+		}
+		else {
 			$this->TotalManager->onProductAdded($this->ProductManager);
 		}
 		return $OrderProduct;
@@ -263,21 +239,24 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @return bool
 	 */
-	public function hasDebt() {
+	public function hasDebt()
+	{
 		return ($this->TotalManager->getTotalValue('total') > $this->PaymentManager->getPaymentsTotal());
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasCredit() {
+	public function hasCredit()
+	{
 		return ($this->TotalManager->getTotalValue('total') < $this->PaymentManager->getPaymentsTotal());
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasPendingPayments() {
+	public function hasPendingPayments()
+	{
 		return ($this->PaymentManager->getPendingPaymentsTotal() > 0);
 	}
 
@@ -285,7 +264,8 @@ class OrderCreator extends Order implements Serializable
 	 * @param $type
 	 * @return string
 	 */
-	public function getBalance($type) {
+	public function getBalance($type)
+	{
 		global $currencies;
 		switch($type){
 			case 'debt':
@@ -304,7 +284,8 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @return string
 	 */
-	public function editAddresses() {
+	public function editAddresses()
+	{
 		return $this->AddressManager->editAll();
 	}
 
@@ -312,42 +293,48 @@ class OrderCreator extends Order implements Serializable
 	 * @param $type
 	 * @return string
 	 */
-	public function editAddress($type) {
+	public function editAddress($type)
+	{
 		return $this->AddressManager->editAddress($type);
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setShippingModule($val) {
-		$this->Order['shipping_module'] = (string) $val;
+	public function setShippingModule($val)
+	{
+		$this->Order['shipping_module'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setPaymentModule($val) {
-		$this->Order['payment_module'] = (string) $val;
+	public function setPaymentModule($val)
+	{
+		$this->Order['payment_module'] = (string)$val;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getShippingModule() {
-		return (string) $this->Order['shipping_module'];
+	public function getShippingModule()
+	{
+		return (string)$this->Order['shipping_module'];
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPaymentModule() {
-		return (string) $this->Order['payment_module'];
+	public function getPaymentModule()
+	{
+		return (string)$this->Order['payment_module'];
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPassword() {
+	public function getPassword()
+	{
 		if (isset($_POST['account_password']) && !empty($_POST['account_password'])){
 			return $_POST['account_password'];
 		}
@@ -359,90 +346,100 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @param int $val
 	 */
-	public function setCustomerId($val) {
-		$this->customerId = (int) $val;
+	public function setCustomerId($val)
+	{
+		$this->customerId = (int)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setTelephone($val) {
-		$this->Order['customers_telephone'] = (string) $val;
+	public function setTelephone($val)
+	{
+		$this->Order['customers_telephone'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setEmailAddress($val) {
-		$this->Order['customers_email_address'] = (string) $val;
+	public function setEmailAddress($val)
+	{
+		$this->Order['customers_email_address'] = (string)$val;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function editTelephone() {
+	public function editTelephone()
+	{
 		$input = htmlBase::newElement('input')
 			->setName('telephone')
 			->val($this->getTelephone());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function editEmailAddress() {
+	public function editEmailAddress()
+	{
 		$input = htmlBase::newElement('input')
 			->setName('email')
 			->val($this->getEmailAddress());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function editDriversLicense() {
+	public function editDriversLicense()
+	{
 		$input = htmlBase::newElement('input')
 			->setName('drivers_license')
 			->val($this->getDriversLicense());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function editPassPort() {
+	public function editPassPort()
+	{
 		$input = htmlBase::newElement('input')
 			->setName('passport')
 			->val($this->getPassPort());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function editRoomNumber() {
+	public function editRoomNumber()
+	{
 		$input = htmlBase::newElement('input')
 			->setName('room_number')
 			->val($this->getRoomNumber());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setMemberNumber($val) {
-		$this->Order['customers_number'] = (string) $val;
+	public function setMemberNumber($val)
+	{
+		$this->Order['customers_number'] = (string)$val;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getMemberNumber() {
+	public function getMemberNumber()
+	{
 		$Qcustomer = Doctrine_Query::create()
 			->select('customers_number')
 			->from('Customers')
@@ -454,19 +451,21 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @return string
 	 */
-	public function editMemberNumber() {
+	public function editMemberNumber()
+	{
 		$input = htmlBase::newElement('input')
 			->attr('max_length', 12)
 			->setName('member_number')
 			->val($this->getMemberNumber());
 
-		return (string) $input->draw();
+		return (string)$input->draw();
 	}
 
 	/**
 	 * @param Customers $CollectionObj
 	 */
-	public function createCustomerAccount(Customers $CollectionObj) {
+	public function createCustomerAccount(Customers $CollectionObj)
+	{
 		$CustomerAddress = $this->AddressManager->getAddress('customer');
 
 		$CollectionObj->language_id = Session::get('languages_id');
@@ -524,7 +523,8 @@ class OrderCreator extends Order implements Serializable
 	/**
 	 * @param Orders $CollectionObj
 	 */
-	public function sendNewOrderEmail(Orders $CollectionObj) {
+	public function sendNewOrderEmail(Orders $CollectionObj)
+	{
 		global $appExtension, $currencies;
 		$DeliveryAddress = $this->AddressManager->getAddress('delivery');
 		$BillingAddress = $this->AddressManager->getAddress('billing');
@@ -602,7 +602,8 @@ class OrderCreator extends Order implements Serializable
 	 * @param Orders $CollectionObj
 	 * @param string $emailAddress
 	 */
-	public function sendNewEstimateEmail(Orders $CollectionObj, $emailAddress = '') {
+	public function sendNewEstimateEmail(Orders $CollectionObj, $emailAddress = '')
+	{
 		global $appExtension, $currencies;
 		$DeliveryAddress = $this->AddressManager->getAddress('delivery');
 		$BillingAddress = $this->AddressManager->getAddress('billing');
@@ -672,8 +673,8 @@ class OrderCreator extends Order implements Serializable
 	}
 }
 
-require(dirname(__FILE__) . '/InfoManager/Base.php');
-require(dirname(__FILE__) . '/AddressManager/Base.php');
-require(dirname(__FILE__) . '/ProductManager/Base.php');
-require(dirname(__FILE__) . '/TotalManager/Base.php');
-require(dirname(__FILE__) . '/PaymentManager/Base.php');
+require(__DIR__ . '/InfoManager/Base.php');
+require(__DIR__ . '/AddressManager/Base.php');
+require(__DIR__ . '/ProductManager/Base.php');
+require(__DIR__ . '/TotalManager/Base.php');
+require(__DIR__ . '/PaymentManager/Base.php');

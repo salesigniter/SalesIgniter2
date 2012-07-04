@@ -2,42 +2,23 @@
 /**
  * Info manager for the order class
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\InfoManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
-require(dirname(__FILE__) . '/Info.php');
-
-/**
- * @package OrderCreator
- */
 class OrderCreatorInfoManager extends OrderInfoManager
 {
+
 	/**
-	 * @param array|null $infoArray
+	 * @return OrderCreatorInfo|OrderInfo
 	 */
-	public function __construct(array $infoArray = null) {
-		if (!empty($infoArray)){
-			foreach($infoArray as $k => $v){
-				$this->info[$k] = new OrderCreatorInfo($k, $v);
-			}
-		}
-	}
-
-	public function setInfo($k, $v){
-		$this->info[$k] = new OrderCreatorInfo($k, $v);
-	}
-
-	public function jsonDecode($data){
-		$infoArray = json_decode($data, true);
-		if ($infoArray){
-			foreach($infoArray as $k => $info){
-				$this->info[$k] = new OrderCreatorInfo(
-					$info['key'],
-					$info['value']
-				);
-			}
-		}
+	public function getInfoObjectClass()
+	{
+		return new OrderCreatorInfo();
 	}
 }
+
+require(__DIR__ . '/Info.php');

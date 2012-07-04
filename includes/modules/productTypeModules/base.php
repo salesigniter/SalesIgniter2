@@ -18,28 +18,29 @@ class ProductTypeBase extends ModuleBase
 {
 
 	/**
-	 * @param OrderProduct                    $OrderProduct
 	 * @param AccountsReceivableSalesProducts $SaleProduct
 	 * @param bool                            $AssignInventory
 	 */
-	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
 	 * @return array
 	 */
-	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	public function prepareJsonSave()
 	{
 		return array();
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @param array        $ProductTypeJson
+	 * Cannot typehint due to the possibility of packages extension being installed
+	 * and its' products are from another table with the same columns
+	 *
+	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
+	 * @param array                                                                   $ProductJson
 	 */
-	public function jsonDecode(OrderProduct &$OrderProduct, array $ProductTypeJson)
+	public function jsonDecodeProduct($Product, array $ProductJson)
 	{
 	}
 }

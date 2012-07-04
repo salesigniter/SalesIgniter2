@@ -19,7 +19,7 @@
 				'columns' => array(
 					array('text' => sysLanguage::get('TABLE_HEADING_FIELD_NAME')),
 					array('text' => sysLanguage::get('TABLE_HEADING_FIELD_TYPE')),
-					array('text' => sysLanguage::get('TABLE_HEADING_SHOWN_ON_SITE'))
+					array('text' => sysLanguage::get('TABLE_HEADING_SHOWN_ON_CUSTOMER_ACCOUNT'))
 				)
 			));
 
@@ -32,8 +32,7 @@
 				foreach($Qfields->toArray(true) as $fInfo){
 					$fieldId = $fInfo['field_id'];
 					$fieldName = $fInfo['Description'][Session::get('languages_id')]['field_name'];
-					$inputType = $fInfo['input_type'];
-					$showOnSite = $fInfo['show_on_site'];
+					$fieldData = $fInfo['field_data'];
 
 					$FieldsGrid->addBodyRow(array(
 						'rowAttr' => array(
@@ -41,8 +40,8 @@
 						),
 						'columns' => array(
 							array('text' => $fieldName),
-							array('text' => $inputType),
-							array('text' => ($showOnSite == '1' ? 'Yes' : 'No'))
+							array('text' => $fieldData->type),
+							array('text' => ($fieldData->show_on->customer_account == '1' ? 'Yes' : 'No'))
 						)
 					));
 				}

@@ -476,7 +476,7 @@
 		border-color: #e8e8e8;
 	}
 
-	.fieldsetForm label {
+	label {
 		font-style: italic;
 		font-size:.8em;
 		color: #999999;

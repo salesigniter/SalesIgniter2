@@ -24,9 +24,9 @@ foreach($_POST['reservation_products_id'] as $pElem){
 	$total_weight = $Qty * $Product->getWeight();
 	OrderShippingModules::calculateWeight();
 	$rInfo = '';
-	if ($Editor->hasData('store_id')){
+	if ($Editor->InfoManager->hasInfo('store_id')){
 		$rInfo = array(
-			'store_id' => $Editor->getData('store_id')
+			'store_id' => $Editor->InfoManager->getInfo('store_id')
 		);
 	}
 	$pricing = $purchaseTypeClass->getReservationPrice(

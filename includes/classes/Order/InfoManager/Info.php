@@ -1,22 +1,12 @@
 <?php
 /**
- * Sales Igniter E-Commerce System
- * Version: {ses_version}
- *
- * I.T. Web Experts
- * http://www.itwebexperts.com
- *
- * Copyright (c) {ses_copyright} I.T. Web Experts
- *
- * This script and its source are not distributable without the written consent of I.T. Web Experts
- */
-
-/**
  * Info class for the order class
  *
- * @package   Order
+ * @package   Order\InfoManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderInfo
@@ -49,7 +39,7 @@ class OrderInfo
 	}
 
 	/**
-	 * @return array|null
+	 * @return string
 	 */
 	public function getKey()
 	{
@@ -57,11 +47,27 @@ class OrderInfo
 	}
 
 	/**
-	 * @return string
+	 * @param $val
+	 */
+	public function setKey($val)
+	{
+		$this->key = $val;
+	}
+
+	/**
+	 * @return DateTime|SesDateTime|string
 	 */
 	public function getValue()
 	{
 		return $this->val;
+	}
+
+	/**
+	 * @param $val
+	 */
+	public function setValue($val)
+	{
+		$this->val = $val;
 	}
 
 	/**

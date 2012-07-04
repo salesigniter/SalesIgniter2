@@ -117,6 +117,9 @@ class ProductTypeStandard extends ProductTypeBase
 		elseif (!empty($this->cartPurchaseType)) {
 			$return = $this->cartPurchaseType;
 		}
+		elseif (!empty($this->pInfo['PurchaseType'])) {
+			$return = $this->pInfo['PurchaseType'];
+		}
 		return $return;
 	}
 
@@ -347,36 +350,6 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 		if (method_exists($PurchaseTypeCls, 'showShoppingCartProductInfo')){
 			$html .= $PurchaseTypeCls->showShoppingCartProductInfo($CartProduct, $settings);
-		}
-
-		return $html;
-	}
-
-	/**
-	 * @param OrderProduct $OrderedProduct
-	 * @param bool         $showExtraInfo
-	 * @return string
-	 */
-	public function showOrderedProductInfo(OrderProduct $OrderedProduct, $showExtraInfo = true)
-	{
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($OrderedProduct);
-		$PurchaseTypeCls = $this->getPurchaseType();
-		if ($showExtraInfo === true){
-			$purchaseTypeHtml = htmlBase::newElement('span')
-				->css(array(
-				'font-size'  => '.8em',
-				'font-style' => 'italic'
-			))
-				->html(' - Purchase Type: ' . $PurchaseTypeCls->getTitle());
-
-			$html = $purchaseTypeHtml->draw();
-		}
-		else {
-			$html = '';
-		}
-
-		if (method_exists($PurchaseTypeCls, 'showOrderedProductInfo')){
-			$html .= $PurchaseTypeCls->showOrderedProductInfo($OrderedProduct, $showExtraInfo);
 		}
 
 		return $html;
@@ -1125,40 +1098,26 @@ class ProductTypeStandard extends ProductTypeBase
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @param              $SaleProduct
-	 */
-	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct)
-	{
-		$PurchaseType = $this->getPurchaseType();
-		if (method_exists($PurchaseType, 'onSaveProgress')){
-			$PurchaseType->onSaveProgress($OrderProduct, $SaleProduct);
-		}
-	}
-
-	/**
-	 * @param OrderProduct                    $OrderProduct
 	 * @param AccountsReceivableSalesProducts $SaleProduct
 	 * @param bool                            $AssignInventory
 	 */
-	public function onSaveSale(OrderProduct $OrderProduct, AccountsReceivableSalesProducts &$SaleProduct, $AssignInventory = false)
+	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onSaveSale')){
-			$PurchaseType->onSaveSale($OrderProduct, $SaleProduct, $AssignInventory);
+			$PurchaseType->onSaveSale($SaleProduct, $AssignInventory);
 		}
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @return array|void
+	 * @return array
 	 */
-	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	public function prepareJsonSave()
 	{
 		$toEncode = array();
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'prepareJsonSave')){
-			$toEncode = $PurchaseType->prepareJsonSave($OrderProduct);
+			$toEncode = $PurchaseType->prepareJsonSave();
 		}
 		return $toEncode;
 	}

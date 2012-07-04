@@ -36,6 +36,16 @@ class AccountsReceivableSales extends Doctrine_Record {
 		));
 	}
 
+	public function preSave($event){
+		if (is_array($this->info_json)){
+			$this->info_json = json_encode($this->info_json);
+		}
+		
+		if (is_array($this->address_json)){
+			$this->address_json = json_encode($this->address_json);
+		}
+	}
+
 	public function setTableDefinition(){
 		$this->setTableName('accounts_receivable_sales');
 
@@ -60,6 +70,5 @@ class AccountsReceivableSales extends Doctrine_Record {
 
 		$this->hasColumn('info_json', 'string', 999);
 		$this->hasColumn('address_json', 'string', 999);
-		$this->hasColumn('totals_json', 'string', 999);
 	}
 }

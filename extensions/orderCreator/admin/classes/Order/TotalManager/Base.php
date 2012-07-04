@@ -2,9 +2,11 @@
 /**
  * Order total manager class for the order creator
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\TotalManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorTotalManager extends OrderTotalManager
@@ -13,7 +15,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	/**
 	 * @param string $ModuleCode
 	 */
-	public function remove($ModuleCode) {
+	public function remove($ModuleCode)
+	{
 		if (isset($this->totals[$ModuleCode]) === true){
 			unset($this->totals[$ModuleCode]);
 		}
@@ -22,7 +25,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	/**
 	 *
 	 */
-	public function updateFromPost() {
+	public function updateFromPost()
+	{
 		global $currencies, $Editor;
 		foreach($_POST['order_total'] as $id => $tInfo){
 			$OrderTotal = $this->get($tInfo['type']);
@@ -38,7 +42,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 			if (substr($value, -3, 1) == ',' || substr($value, -5, 1) == ','){
 				$value = str_replace(',', '.', $value);
 				$value[strpos($value, '.')] = '';
-			}else{
+			}
+			else {
 				$value = str_replace(',', '', $value);
 			}
 
@@ -69,7 +74,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	/**
 	 * @param Doctrine_Collection $CollectionObj
 	 */
-	public function addAllToCollection(Doctrine_Collection &$CollectionObj) {
+	public function addAllToCollection(Doctrine_Collection &$CollectionObj)
+	{
 		$CollectionObj->clear();
 		$this->rewind();
 		while($this->valid()){
@@ -91,9 +97,10 @@ class OrderCreatorTotalManager extends OrderTotalManager
 
 	/**
 	 * @param string $key
-	 * @param float $amount
+	 * @param float  $amount
 	 */
-	public function addToTotal($key, $amount) {
+	public function addToTotal($key, $amount)
+	{
 		foreach($this->totals as $OrderTotal){
 			if ($OrderTotal->getModule() == $key){
 				$OrderTotal->setValue($OrderTotal->getValue() + $amount);
@@ -106,7 +113,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	 *
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total){
+	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total)
+	{
 		$TotalDecoded = json_decode($Total->total_json, true);
 		$OrderTotal = new OrderCreatorTotal($TotalDecoded['data']['module_code']);
 		$OrderTotal->jsonDecode($TotalDecoded);
@@ -119,7 +127,8 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	 *
 	 * @param string $data
 	 */
-	public function jsonDecode($data){
+	public function jsonDecode($data)
+	{
 		$this->totals = array();
 		$Totals = json_decode($data, true);
 		foreach($Totals as $tInfo){

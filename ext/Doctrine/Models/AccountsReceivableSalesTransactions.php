@@ -2,6 +2,12 @@
 
 class AccountsReceivableSalesTransactions extends Doctrine_Record {
 
+	public function preSave($event){
+		if (is_array($this->transaction_data)){
+			$this->transaction_data = json_encode($this->transaction_data);
+		}
+	}
+
 	public function setTableDefinition(){
 		$this->setTableName('accounts_receivable_sales_transactions');
 

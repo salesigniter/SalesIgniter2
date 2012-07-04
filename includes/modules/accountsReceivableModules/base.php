@@ -47,6 +47,11 @@ class AccountsReceivableModule extends ModuleBase
 	/**
 	 * @var bool
 	 */
+	protected $_canBeDuplicated = false;
+
+	/**
+	 * @var bool
+	 */
 	protected $_acceptsPayments = false;
 
 	/**
@@ -71,6 +76,7 @@ class AccountsReceivableModule extends ModuleBase
 		$this->canCancel(($this->getConfigData($this->getModuleInfo('can_cancel_key')) == 'True'));
 		$this->canPrint(($this->getConfigData($this->getModuleInfo('can_print_key')) == 'True'));
 		$this->canExport(($this->getConfigData($this->getModuleInfo('can_export_key')) == 'True'));
+		$this->canDuplicate(($this->getConfigData($this->getModuleInfo('can_duplicate_key')) == 'True'));
 		$this->acceptsPayments(($this->getConfigData($this->getModuleInfo('accepts_payments_key')) == 'True'));
 	}
 
@@ -147,6 +153,18 @@ class AccountsReceivableModule extends ModuleBase
 	}
 
 	/**
+	 * @param null $val
+	 * @return bool
+	 */
+	public function canDuplicate($val = null)
+	{
+		if ($val !== null){
+			$this->_canBeDuplicated = $val;
+		}
+		return $this->_canBeDuplicated;
+	}
+
+	/**
 	 * @return null
 	 */
 	public function getSaleId(){
@@ -219,8 +237,11 @@ class AccountsReceivableModule extends ModuleBase
 			}
 
 			if (file_exists($dInfo->getPathname() . '/convert/' . $this->getCode() . '.php')){
-				$return = true;
-				break;
+				$Module = AccountsReceivableModules::getModule($dInfo->getBasename());
+				if ($Module && $Module->isEnabled()){
+					$return = true;
+					break;
+				}
 			}
 		}
 		return $return;
@@ -271,11 +292,13 @@ class AccountsReceivableModule extends ModuleBase
 				}
 
 				if (file_exists($dInfo->getPathname() . '/convert/' . $this->getCode() . '.php')){
-					/*$Module = AccountsReceivableModules::getModule($dInfo->getBasename());
-					$this->convertTo[] = array(
-						'code'  => $Module->getCode(),
-						'title' => $Module->getTitle()
-					);*/
+					$Module = AccountsReceivableModules::getModule($dInfo->getBasename());
+					if ($Module && $Module->isEnabled()){
+						$this->convertTo[] = array(
+							'code'  => $Module->getCode(),
+							'title' => $Module->getTitle()
+						);
+					}
 				}
 			}
 		}
@@ -447,6 +470,7 @@ class AccountsReceivableModule extends ModuleBase
 			$Order->setSaleId($this->id);
 
 			if ($loadManagers === true){
+				$Order->statusId = $Sale->sale_status_id;
 				$Order->InfoManager->jsonDecode($Sale->info_json);
 				$Order->AddressManager->jsonDecode($Sale->address_json);
 				$Order->InfoManager->setInfo('customers_firstname', $Sale->customers_firstname);
@@ -462,9 +486,7 @@ class AccountsReceivableModule extends ModuleBase
 					$Order->TotalManager->jsonDecodeTotal($Total);
 				}
 
-				foreach($Sale->Products as $Product){
-					$Order->ProductManager->jsonDecodeProduct($Product);
-				}
+				$Order->ProductManager->jsonDecodeProduct($Sale->Products);
 			}
 		}
 	}
@@ -482,7 +504,26 @@ class AccountsReceivableModule extends ModuleBase
 	 */
 	public function hasRevisions()
 	{
-		return $this->revision > 0;
+		return $this->revision > 1;
+	}
+
+	public function getRevisions(){
+		$return = array();
+		$Revisions = Doctrine_Query::create()
+			->select('sale_revision, date_added')
+			->from('AccountsReceivableSales')
+			->where('sale_id = ?', $this->id)
+			->andWhere('sale_revision <> ?', $this->revision)
+			->orderBy('sale_revision asc')
+			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+		foreach($Revisions as $rInfo){
+			$return[] = array(
+				'id' => $rInfo['sale_revision'],
+				'date_added' => $rInfo['date_added'],
+				'text' => '#' . $rInfo['sale_revision'] . ' - ' . $rInfo['date_added']->format('M j, Y g:ia')
+			);
+		}
+		return $return;
 	}
 
 	/**
@@ -523,6 +564,53 @@ class AccountsReceivableModule extends ModuleBase
 	}
 
 	/**
+	 * @param Order $Order
+	 * @return int
+	 */
+	public function duplicateSale(Order $Order)
+	{
+		if ($this->id === null){
+			$this->id = AccountsReceivable::getNextId($this->getCode());
+		}
+
+		$this->revision = 1;
+
+		$Sale = new AccountsReceivableSales();
+		$Sale->sale_id = $this->id;
+		$Sale->sale_module = $this->getCode();
+		$Sale->date_added = date(DATE_TIMESTAMP);
+		$Sale->customers_id = $SaleClass->InfoManager->getInfo('customers_id');
+		$Sale->customers_firstname = $SaleClass->AddressManager->getAddress('customer')->getFirstName();
+		$Sale->customers_lastname = $SaleClass->AddressManager->getAddress('customer')->getLastName();
+		$Sale->customers_email_address = $SaleClass->InfoManager->getInfo('customers_email_address');
+		$Sale->sale_total = $SaleClass->TotalManager->getTotalValue('total');
+		$Sale->sale_status_id = 1;
+		$Sale->sale_revision = 1;
+		$Sale->sale_most_current = 1;
+		$Sale->info_json = json_encode($SaleClass->InfoManager->prepareJsonSave());
+		$Sale->address_json = json_encode($SaleClass->AddressManager->prepareJsonSave());
+
+		$SaleTotals = $Sale->Totals;
+		foreach($SaleClass->TotalManager->getAll() as $Total){
+			$SaleTotal = $SaleTotals->getTable()->getRecord();
+
+			$Total->onSaveSale($SaleTotal);
+
+			$SaleTotals->add($SaleTotal);
+		}
+
+		$SaleClass->ProductManager->onSaveSale($Sale->Products, false);
+
+		//echo '<pre>';print_r($Sale->toArray(true));itwExit();
+
+		$Sale->save();
+
+		$SaleClass->setSaleId($Sale->sale_id);
+
+		return (int)$Sale->sale_id;
+	}
+
+	/**
 	 * @param Order $SaleClass
 	 */
 	public function saveProgress(Order $SaleClass)
@@ -551,8 +639,8 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->customers_email_address = $SaleClass->InfoManager->getInfo('customers_email_address');
 		$Sale->sale_total = $SaleClass->TotalManager->getTotalValue('total');
 		$Sale->date_added = date(DATE_TIMESTAMP);
-		$Sale->info_json = json_encode($SaleClass->InfoManager->prepareJsonSave());
-		$Sale->address_json = json_encode($SaleClass->AddressManager->prepareJsonSave());
+		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
 
 		$SaleTotals = $Sale->Totals;
 		$SaleTotals->clear();
@@ -564,15 +652,7 @@ class AccountsReceivableModule extends ModuleBase
 			$SaleTotals->add($SaleTotal);
 		}
 
-		$SaleProducts = $Sale->Products;
-		$SaleProducts->clear();
-		foreach($SaleClass->ProductManager->getContents() as $OrderProduct){
-			$SaleProduct = $SaleProducts->getTable()->getRecord();
-
-			$OrderProduct->onSaveProgress($SaleProduct);
-
-			$SaleProducts->add($SaleProduct);
-		}
+		$SaleClass->ProductManager->onSaveProgress($Sale->Products);
 
 		//echo '<pre>';print_r($Sale->toArray(true));itwExit();
 
@@ -612,8 +692,8 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->sale_status_id = 1;
 		$Sale->sale_revision = $this->revision;
 		$Sale->sale_most_current = 1;
-		$Sale->info_json = json_encode($SaleClass->InfoManager->prepareJsonSave());
-		$Sale->address_json = json_encode($SaleClass->AddressManager->prepareJsonSave());
+		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
 
 		$SaleTotals = $Sale->Totals;
 		foreach($SaleClass->TotalManager->getAll() as $Total){
@@ -624,14 +704,7 @@ class AccountsReceivableModule extends ModuleBase
 			$SaleTotals->add($SaleTotal);
 		}
 
-		$SaleProducts = $Sale->Products;
-		foreach($SaleClass->ProductManager->getContents() as $OrderProduct){
-			$SaleProduct = $SaleProducts->getTable()->getRecord();
-
-			$OrderProduct->onSaveSale($SaleProduct, $this->assignInventory());
-
-			$SaleProducts->add($SaleProduct);
-		}
+		$SaleClass->ProductManager->onSaveSale($Sale->Products, $this->assignInventory());
 
 		//echo '<pre>';print_r($Sale->toArray(true));itwExit();
 

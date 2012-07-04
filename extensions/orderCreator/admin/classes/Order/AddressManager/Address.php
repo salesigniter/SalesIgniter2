@@ -2,9 +2,11 @@
 /**
  * Address class for the order creator address manager
  *
- * @package OrderCreator
- * @author Stephen Walker <stephen@itwebexperts.com>
- * @copyright Copyright (c) 2011, I.T. Web Experts
+ * @package   Order\OrderCreator\AddressManager
+ * @author    Stephen Walker <stephen@itwebexperts.com>
+ * @since     2.0
+ * @copyright 2012 I.T. Web Experts
+ * @license   http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorAddress extends OrderAddress
@@ -13,78 +15,89 @@ class OrderCreatorAddress extends OrderAddress
 	/**
 	 * @param string $val
 	 */
-	public function setName($val) {
-		$this->addressInfo['entry_name'] = (string) $val;
+	public function setName($val)
+	{
+		$this->addressInfo['entry_name'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setCompany($val) {
-		$this->addressInfo['entry_company'] = (string) $val;
+	public function setCompany($val)
+	{
+		$this->addressInfo['entry_company'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setCityBirth($val) {
-		$this->addressInfo['entry_city_birth'] = (string) $val;
+	public function setCityBirth($val)
+	{
+		$this->addressInfo['entry_city_birth'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setVATNumber($val) {
-		$this->addressInfo['entry_vat'] = (string) $val;
+	public function setVATNumber($val)
+	{
+		$this->addressInfo['entry_vat'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setFiscalCode($val) {
-		$this->addressInfo['entry_cif'] = (string) $val;
+	public function setFiscalCode($val)
+	{
+		$this->addressInfo['entry_cif'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setDOB($val) {
-		$this->addressInfo['entry_dob'] = (string) $val;
+	public function setDOB($val)
+	{
+		$this->addressInfo['entry_dob'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setStreetAddress($val) {
-		$this->addressInfo['entry_street_address'] = (string) $val;
+	public function setStreetAddress($val)
+	{
+		$this->addressInfo['entry_street_address'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setSuburb($val) {
-		$this->addressInfo['entry_suburb'] = (string) $val;
+	public function setSuburb($val)
+	{
+		$this->addressInfo['entry_suburb'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setCity($val) {
-		$this->addressInfo['entry_city'] = (string) $val;
+	public function setCity($val)
+	{
+		$this->addressInfo['entry_city'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setPostcode($val) {
-		$this->addressInfo['entry_postcode'] = (string) $val;
+	public function setPostcode($val)
+	{
+		$this->addressInfo['entry_postcode'] = (string)$val;
 	}
 
 	/**
 	 * @param string $val
 	 */
-	public function setState($val) {
-		$this->addressInfo['entry_state'] = (string) $val;
+	public function setState($val)
+	{
+		$this->addressInfo['entry_state'] = (string)$val;
 
 		$Qcheck = Doctrine_Query::create()
 			->from('Zones')
@@ -98,8 +111,9 @@ class OrderCreatorAddress extends OrderAddress
 	/**
 	 * @param string $val
 	 */
-	public function setCountry($val) {
-		$this->addressInfo['entry_country'] = (string) $val;
+	public function setCountry($val)
+	{
+		$this->addressInfo['entry_country'] = (string)$val;
 
 		$Qcheck = Doctrine_Query::create()
 			->from('Countries c')

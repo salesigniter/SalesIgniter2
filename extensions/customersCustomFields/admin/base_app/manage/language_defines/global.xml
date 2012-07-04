@@ -3,7 +3,7 @@
 
 	<define key="TABLE_HEADING_FIELD_NAME"><![CDATA[Field Name]]></define>
 	<define key="TABLE_HEADING_FIELD_TYPE"><![CDATA[Field Type]]></define>
-	<define key="TABLE_HEADING_SHOWN_ON_SITE"><![CDATA[Shown On Site]]></define>
+	<define key="TABLE_HEADING_SHOWN_ON_CUSTOMER_ACCOUNT"><![CDATA[Shown On Customer Account]]></define>
 
 	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Delete]]></define>
 	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this record?]]></define>
@@ -15,6 +15,10 @@
 	<define key="TEXT_ACTION_WINDOW_HEADING_EDIT_GROUP"><![CDATA[Edit Group]]></define>
 
 	<define key="ENTRY_FIELD_KEY"><![CDATA[Field Key ( Used For Export And Search )]]></define>
+	<define key="ENTRY_SHOW_ON_CUSTOMER_ACCOUNT"><![CDATA[Show On Customers Account]]></define>
+	<define key="ENTRY_SHOW_ON_CUSTOMER_LISTING"><![CDATA[Show On Admin Customers Listing]]></define>
+	<define key="ENTRY_SHOW_ON_ADDRESS_LABELS"><![CDATA[Show On Address Labels]]></define>
+	<define key="ENTRY_SHOW_ON_ORDER_CREATOR"><![CDATA[Show On Order Creator]]></define>
 
 	<define key="TABLE_HEADING_OPTION_TEXT"><![CDATA[Option Text]]></define>
 	<define key="TABLE_HEADING_SORT_ORDER"><![CDATA[Sort Order]]></define>
@@ -22,8 +26,6 @@
 	<define key="ENTRY_GROUP_NAME"><![CDATA[Group Name: ]]></define>
 	<define key="ENTRY_FIELD_NAME"><![CDATA[Field Name: ]]></define>
 
-	<define key="ENTRY_SHOW_ON_SITE"><![CDATA[Customer Info]]></define>
-	<define key="ENTRY_SHOW_ON_PRODUCT_LISTING"><![CDATA[Customer Listing]]></define>
 	<define key="ENTRY_SEARCH_KEY"><![CDATA[Search Key (if search field):]]></define>
 
 	<define key="ENTRY_INPUT_TYPE"><![CDATA[Input Type:]]></define>
