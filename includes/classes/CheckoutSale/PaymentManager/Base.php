@@ -2,11 +2,11 @@
 /**
  * Payment manager class for the checkout sale class
  *
- * @package   CheckoutSale
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     2.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    CheckoutSale\PaymentManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      2.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSalePaymentManager extends OrderPaymentManager

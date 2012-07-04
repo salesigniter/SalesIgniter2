@@ -2,7 +2,7 @@
 /**
  * Product class for the checkout sale product manager class
  *
- * @package   Order\CheckoutSale\ProductManager
+ * @package   CheckoutSale\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

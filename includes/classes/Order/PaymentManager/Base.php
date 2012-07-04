@@ -2,11 +2,11 @@
 /**
  * Payment manager for the order class
  *
- * @package   Order
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     1.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    Order\PaymentManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      1.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderPaymentManager

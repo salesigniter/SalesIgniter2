@@ -2,7 +2,7 @@
 /**
  * Product class for the order creator product manager class
  *
- * @package   Order\OrderCreator\ProductManager
+ * @package   OrderCreator\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

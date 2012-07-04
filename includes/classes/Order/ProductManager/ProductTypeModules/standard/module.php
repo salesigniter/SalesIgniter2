@@ -6,7 +6,7 @@ if (class_exists('ProductTypeStandard') === false){
 /**
  * Standard product type for the order class
  *
- * @package   Order\ProductManager\Product\ProductTypeModules
+ * @package   Order\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

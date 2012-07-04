@@ -2,7 +2,7 @@
 /**
  * Order total manager class for the order creator
  *
- * @package   Order\OrderCreator\TotalManager
+ * @package   OrderCreator\TotalManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

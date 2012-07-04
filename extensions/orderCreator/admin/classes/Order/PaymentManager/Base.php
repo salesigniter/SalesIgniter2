@@ -2,11 +2,11 @@
 /**
  * Payment manager class for the order creator
  *
- * @package   OrderCreator
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     2.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    OrderCreator\PaymentManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      2.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorPaymentManager extends OrderPaymentManager

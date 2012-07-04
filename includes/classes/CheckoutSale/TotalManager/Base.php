@@ -2,7 +2,7 @@
 /**
  * Order total manager class for the checkout sale class
  *
- * @package   Order\CheckoutSale\TotalManager
+ * @package   CheckoutSale\TotalManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

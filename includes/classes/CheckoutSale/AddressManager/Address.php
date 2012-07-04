@@ -2,11 +2,11 @@
 /**
  * Address class for the checkout sale address manager
  *
- * @package   Order\CheckoutSale\AddressManager
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     2.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    CheckoutSale\AddressManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      2.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSaleAddress extends OrderAddress

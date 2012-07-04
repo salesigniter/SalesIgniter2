@@ -2,11 +2,11 @@
 /**
  * Main Checkout Sale Class
  *
- * @package   Order\CheckoutSale
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     1.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    CheckoutSale
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      1.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class CheckoutSale extends Order implements Serializable

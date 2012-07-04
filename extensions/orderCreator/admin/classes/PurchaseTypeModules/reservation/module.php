@@ -6,7 +6,7 @@ if (class_exists('OrderPurchaseTypeReservation') === false){
 /**
  * Reservation purchase type for the order creator class
  *
- * @package   Order\OrderCreator\ProductManager\Product\PurchaseTypeModules
+ * @package   Order\ProductManager
  * @author    Stephen Walker <stephen@itwebexperts.com>
  * @since     2.0
  * @copyright 2012 I.T. Web Experts

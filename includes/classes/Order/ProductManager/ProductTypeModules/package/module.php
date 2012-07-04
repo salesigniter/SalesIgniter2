@@ -6,11 +6,11 @@ if (class_exists('ProductTypePackage') === false){
 /**
  * Package product type for the order class
  *
- * @package   Order\ProductManager\Product\ProductTypeModules
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     2.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    Order\ProductManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      2.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderProductTypePackage extends ProductTypePackage

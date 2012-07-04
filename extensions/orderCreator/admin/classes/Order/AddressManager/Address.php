@@ -2,11 +2,11 @@
 /**
  * Address class for the order creator address manager
  *
- * @package   Order\OrderCreator\AddressManager
- * @author    Stephen Walker <stephen@itwebexperts.com>
- * @since     2.0
- * @copyright 2012 I.T. Web Experts
- * @license   http://itwebexperts.com/license/ses-license.php
+ * @package    OrderCreator\AddressManager
+ * @author     Stephen Walker <stephen@itwebexperts.com>
+ * @since      2.0
+ * @copyright  2012 I.T. Web Experts
+ * @license    http://itwebexperts.com/license/ses-license.php
  */
 
 class OrderCreatorAddress extends OrderAddress
