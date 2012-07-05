@@ -43,7 +43,7 @@ $(document).ready(function () {
 		return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
 	};
 
-	$(document).delegate('select[name=payment_method]', 'change', function () {
+	$(document).on('change', 'select[name=payment_method]', function () {
 		var $self = $(this);
 		showAjaxLoader($self, 'small');
 
@@ -63,7 +63,7 @@ $(document).ready(function () {
 		});
 	});
 
-	$(document).delegate('.addPaymentQueueButton', 'click', function () {
+	$(document).on('click', '.addPaymentQueueButton', function () {
 		var k = $('.processQueue tbody tr').size();
 
 		var Row = '<tr>';
@@ -102,33 +102,6 @@ $(document).ready(function () {
 		$Row.find('.ui-icon-closethick').click(function (){
 			$(this).parent().parent().remove();
 		});
-	});
-
-	$('.resReports').click(function () {
-		var newwindow = window.open(js_app_link('appExt=payPerRentals&app=reservations_reports&appPage=default'), 'name', 'height=700,width=960');
-		if (window.focus){
-			newwindow.focus()
-		}
-		return false;
-	});
-
-	$('#emailEstimate').click(function () {
-		$.ajax({
-			url : js_app_link('rType=ajax&appExt=orderCreator&app=default&appPage=new&action=sendEstimateEmail'),
-			cache : false,
-			dataType : 'json',
-			data : 'email=' + $('#emailInput').val() + '&oID=' + getVars['oID'],
-			type : 'post',
-			success : function (data) {
-				if (data.success == true){
-					alert('Estimate Sent!');
-				}
-				else {
-					alert('Email not sent. Please Check email address');
-				}
-			}
-		});
-		return false;
 	});
 
 	$('input[name=customer_search]').autocomplete({
@@ -597,4 +570,21 @@ $(document).ready(function () {
 	$('.loadRevision').change(function (){
 		js_redirect(js_app_link(js_get_all_get_params() + '&rev=' + $(this).val()));
 	});
+
+	$('.orderTotalTable').on('change blur', 'input, select', function (){
+		var $Body = $(this).parentsUntil('table').last();
+		var postData = [];
+		$Body.find('tr').each(function (){
+			var Code = $(this).data('code');
+			$(this).find('td').each(function (){
+				postData.push('total[' + Code + '][' + $(this).data('which') + ']');
+			});
+		});
+
+		var $Col = $(this).parentsUntil('tr').last();
+		var Which = $Col.data('which');
+		var Code
+	});
+
+	$('.tabbed').tabs();
 });

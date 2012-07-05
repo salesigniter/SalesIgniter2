@@ -13,40 +13,41 @@ class CheckoutSaleTotal extends OrderTotal
 {
 
 	/**
-	 * @param string     $ModuleCode
-	 * @param array|null $mInfo
+	 * @param array $TotalInfo
 	 */
-	public function __construct($ModuleCode = '', array $mInfo = null)
+	public function init(array $TotalInfo)
 	{
-		if (!empty($ModuleCode)){
-			$this->Module = $this->getOrderTotalModule($ModuleCode);
-			$this->Module->setData($mInfo);
-			$this->data['module_code'] = $ModuleCode;
+		$this->data = array_merge($this->data, $TotalInfo['data']);
+
+		$this->Module = $this->getTotalModule($this->data['module_code']);
+		if (isset($TotalInfo['module_json'])){
+			$this->Module->load($TotalInfo['module_json']);
 		}
 	}
 
 	/**
 	 * @param $ModuleCode
-	 * @return ModuleBase|OrderTotalModuleBase
+	 * @return OrderTotalModuleBase
 	 */
-	private function getOrderTotalModule($ModuleCode)
+	public function getTotalModule($ModuleCode)
 	{
-		$Module = OrderTotalModules::getModule($ModuleCode);
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/includes/classes/CheckoutSale/TotalManager/TotalModules/' . $ModuleCode . '/module.php')){
+			$className = 'CheckoutSaleTotal' . ucfirst($ModuleCode);
+			if (!class_exists($className)){
+				require(sysConfig::getDirFsCatalog() . 'clientData/includes/classes/CheckoutSale/TotalManager/TotalModules/' . $ModuleCode . '/module.php');
+			}
+			$Module = new $className();
+		}
+		elseif (file_exists(__DIR__ . '/TotalModules/' . $ModuleCode . '/module.php')){
+			$className = 'CheckoutSaleTotal' . ucfirst($ModuleCode);
+			if (!class_exists($className)){
+				require(__DIR__ . '/TotalModules/' . $ModuleCode . '/module.php');
+			}
+			$Module = new $className();
+		}
+		else {
+			$Module = parent::getTotalModule($ModuleCode);
+		}
 		return $Module;
 	}
-
-	/**
-	 * @param array $TotalInfo
-	 */
-	public function jsonDecode(array $TotalInfo)
-	{
-		$this->data = array_merge($this->data, $TotalInfo['data']);
-
-		$this->Module = $this->getOrderTotalModule($this->data['module_code']);
-		if (isset($TotalInfo['module_json'])){
-			$this->Module->jsonDecode($TotalInfo['module_json']);
-		}
-	}
 }
-
-?>

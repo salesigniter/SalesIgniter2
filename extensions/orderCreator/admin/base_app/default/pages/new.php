@@ -28,6 +28,7 @@ $PageBlockPath = 'extensions/orderCreator/admin/base_app/default/pageBlocks/';
 		?>
 	</div>
 	<br>
+
 	<div class="productSection">
 		<h2><u><?php echo sysLanguage::get('HEADING_PRODUCTS');?></u></h2>
 		<?php
@@ -48,97 +49,124 @@ $PageBlockPath = 'extensions/orderCreator/admin/base_app/default/pageBlocks/';
 		?>
 	</div>
 	<br>
-	<div class="totalsSection">
-		<h2><u><?php echo sysLanguage::get('HEADING_ORDER_TOTALS');?></u></h2>
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'orderTotals.php';
-		}
 
-		require($requireFile);
-		?>
+	<div>
+		<div class="statusComments column" style="vertical-align:top;width: 64%;">
+			<?php
+			$statusDrop = htmlBase::newElement('selectbox')
+				->setName('status')
+				->selectOptionByValue($Editor->getCurrentStatus(true));
+			foreach($orders_statuses as $sInfo){
+				$statusDrop->addOption($sInfo['id'], $sInfo['text']);
+			}
+
+			$Fieldset = htmlBase::newFieldsetFormBlock();
+			$Fieldset->setLegend('Status And Comments');
+			$Fieldset->addBlock('status', sysLanguage::get('ENTRY_STATUS'), array(
+				array($statusDrop)
+			));
+			$Fieldset->addBlock('comments', sysLanguage::get('TABLE_HEADING_COMMENTS'), array(
+				array(htmlBase::newTextarea()->setName('comments')->html($Editor->InfoManager->getInfo('admin_comments')))
+			));
+			$Fieldset->addBlock('notify', sysLanguage::get('ENTRY_NOTIFY_CUSTOMER'), array(
+				array(htmlBase::newCheckbox()->setName('notify'))
+			));
+
+			$tracking = array(
+				array(
+					'id'      => 'usps',
+					'heading' => sysLanguage::get('TABLE_HEADING_USPS_TRACKING'),
+					'link'    => 'http://trkcnfrm1.smi.usps.com/PTSInternetWeb/InterLabelInquiry.do?origTrackNum='
+				),
+				array(
+					'id'      => 'ups',
+					'heading' => sysLanguage::get('TABLE_HEADING_UPS_TRACKING'),
+					'link'    => 'http://wwwapps.ups.com/etracking/tracking.cgi?InquiryNumber2=&InquiryNumber3=&InquiryNumber4=&InquiryNumber5=&TypeOfInquiryNumber=T&UPS_HTML_Version=3.0&IATA=us&Lang=en&submit=Track+Package&InquiryNumber1='
+				),
+				array(
+					'id'      => 'fedex',
+					'heading' => sysLanguage::get('TABLE_HEADING_FEDEX_TRACKING'),
+					'link'    => 'http://www.fedex.com/Tracking?action=track&language=english&cntry_code=us&tracknumbers='
+				),
+				array(
+					'id'      => 'dhl',
+					'heading' => sysLanguage::get('TABLE_HEADING_DHL_TRACKING'),
+					'link'    => 'http://track.dhl-usa.com/atrknav.asp?action=track&language=english&cntry_code=us&ShipmentNumber='
+				)
+			);
+
+			$blockRows = array();
+			$cols = array();
+			$TrackingNumbers = $Editor->InfoManager->getInfo('tracking');
+			foreach($tracking as $tracker){
+				$inputField = htmlBase::newInput()
+					->isMultiple(true)
+					->setValue(isset($TrackingNumbers[$tracker['id']]) ? $TrackingNumbers[$tracker['id']] : '')
+					->setName($tracker['id'] . '_tracking_number')
+					->setLabel($tracker['heading'])
+					->setLabelPosition('top')
+					->attr(
+					array(
+						'size'      => 40,
+						'maxlength' => 40
+					));
+
+				$cols[] = $inputField;
+				if (sizeof($cols) > 1){
+					$blockRows[] = $cols;
+					$cols = array();
+				}
+			}
+
+			$Fieldset->addBlock('tracking', 'Shipment Tracking', $blockRows);
+
+			echo $Fieldset->draw();
+			?>
+		</div>
+		<div class="totalsSection column" style="vertical-align:top;margin-top: 1em;width: 34%;margin-left: 1%;">
+			<?php
+			if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php')){
+				$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'orderTotals.php';
+			}
+			else {
+				$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'orderTotals.php';
+			}
+
+			require($requireFile);
+			?>
+		</div>
 	</div>
-	<?php
-	if ($SaleModule->acceptsPayments() === true){
-	?>
-	<br>
-	<div class="paymentSection">
-		<h2><u><?php echo sysLanguage::get('HEADING_PAYMENT_HISTORY');?></u></h2>
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'paymentHistory.php';
-		}
+	<div class="tabbed">
+		<ul>
+			<?php if ($SaleModule->acceptsPayments() === true){ ?>
+			<li><a href="#paymentHistory"><?php echo sysLanguage::get('HEADING_PAYMENT_HISTORY');?></a></li>
+			<?php } ?>
+			<li><a href="#saleHistory"><?php echo sysLanguage::get('HEADING_STATUS_HISTORY');?></a></li>
+		</ul>
 
-		require($requireFile);
-		?>
-	</div>
-	<?php
-	}
-	?>
-	<?php if (sysConfig::get('EXTENSION_ORDER_CREATOR_HIDE_ORDER_STATUS') == 'False'){ ?>
-	<br>
-	<div class="statusSection">
-		<h2><u><?php echo sysLanguage::get('HEADING_STATUS_HISTORY');?></u></h2>
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'statusHistory.php';
-		}
+		<?php if ($SaleModule->acceptsPayments() === true){ ?>
+		<div id="paymentHistory"><?php
+			if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php')){
+				$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'paymentHistory.php';
+			}
+			else {
+				$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'paymentHistory.php';
+			}
 
-		require($requireFile);
-		?>
-	</div>
-	<?php } ?>
-	<br /><br />
-	<div class="commentSection">
-		<h2><u><?php echo sysLanguage::get('HEADING_COMMENTS');?></u></h2>
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'comments.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'comments.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'comments.php';
-		}
+			require($requireFile);
+			?></div>
+		<?php } ?>
 
-		require($requireFile);
-		?>
-	</div>
-	<?php if (sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_TRACKING_DATA') == 'True'){ ?>
-	<br>
-	<div class="trackingSection">
-		<h2><u><?php echo sysLanguage::get('HEADING_TRACKING');?></u></h2>
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'tracking.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'tracking.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'tracking.php';
-		}
+		<div id="saleHistory"><?php
+			if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php')){
+				$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'statusHistory.php';
+			}
+			else {
+				$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'statusHistory.php';
+			}
 
-		require($requireFile);
-		?>
-	</div>
-	<?php } ?>
-	<br>
-	<div class="statusSection">
-		<?php
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'status.php')){
-			$requireFile = sysConfig::getDirFsCatalog() . 'clientData/' . $PageBlockPath . 'status.php';
-		}
-		else {
-			$requireFile = sysConfig::getDirFsCatalog() . $PageBlockPath . 'status.php';
-		}
-
-		require($requireFile);
-		?>
+			require($requireFile);
+			?></div>
 	</div>
 </div>
 

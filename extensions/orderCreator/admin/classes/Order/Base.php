@@ -70,33 +70,30 @@ class OrderCreator extends Order implements Serializable
 			$this->InfoManager->setInfo('currency', Session::get('currency'));
 			$this->InfoManager->setInfo('currency_value', Session::get('currency_value'));
 
-			$SubTotalModule = $this->TotalManager->getTotal('subtotal');
-			if ($SubTotalModule === false){
-				$SubTotal = new OrderCreatorTotal('subtotal', array(
+			if ($this->TotalManager->has('subtotal') === false){
+				$SubTotal = $this->TotalManager->getTotalClass();
+				$SubTotal->setModule('subtotal', array(
 					'sort_order' => 1,
 					'value'      => 0
 				));
-
 				$this->TotalManager->add($SubTotal);
 			}
 
-			$TaxModule = $this->TotalManager->getTotal('tax');
-			if ($TaxModule === false){
-				$Tax = new OrderCreatorTotal('tax', array(
+			if ($this->TotalManager->has('tax') === false){
+				$Tax = $this->TotalManager->getTotalClass();
+				$Tax->setModule('tax', array(
 					'sort_order' => 2,
 					'value'      => 0
 				));
-
 				$this->TotalManager->add($Tax);
 			}
 
-			$TotalModule = $this->TotalManager->getTotal('total');
-			if ($TotalModule === false){
-				$Total = new OrderCreatorTotal('total', array(
+			if ($this->TotalManager->has('total') === false){
+				$Total = $this->TotalManager->getTotalClass();
+				$Total->setModule('total', array(
 					'sort_order' => 3,
 					'value'      => 0
 				));
-
 				$this->TotalManager->add($Total);
 			}
 		}
@@ -125,7 +122,7 @@ class OrderCreator extends Order implements Serializable
 
 		$TotalManagerJson = $this->TotalManager;
 		$this->TotalManager = new OrderCreatorTotalManager();
-		$this->TotalManager->jsonDecode($TotalManagerJson);
+		$this->TotalManager->init($TotalManagerJson);
 
 		$PaymentManagerJson = $this->PaymentManager;
 		$this->PaymentManager = new OrderCreatorPaymentManager();
@@ -154,7 +151,7 @@ class OrderCreator extends Order implements Serializable
 			'InfoManager'    => $this->InfoManager->prepareJsonSave(),
 			'ProductManager' => $this->ProductManager->prepareJsonSave(),
 			'AddressManager' => $this->AddressManager->prepareJsonSave(),
-			'TotalManager'   => $this->TotalManager->prepareJsonSave(),
+			'TotalManager'   => $this->TotalManager->prepareSave(),
 			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
 			'errorMessages'  => $this->errorMessages,
 			'data'           => $this->data

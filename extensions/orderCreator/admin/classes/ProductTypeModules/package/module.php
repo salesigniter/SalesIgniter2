@@ -141,8 +141,8 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 			$PackageOrderProduct->setInfo('PackageData', $PackageData);
 
 			$ProductType = $PackageOrderProduct->getProductTypeClass();
-			if (method_exists($ProductType, 'OrderCreatorAllowAddToContents')){
-				$return = $ProductType->OrderCreatorAllowAddToContents($PackageOrderProduct);
+			if (method_exists($ProductType, 'allowAddToContents')){
+				$return = $ProductType->allowAddToContents($PackageOrderProduct);
 			}
 
 			if ($return === false){
@@ -201,8 +201,8 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 
 		foreach($this->getPackagedProducts() as $PackageProduct){
 			$ProductType = $PackageProduct->getProductTypeClass();
-			if (method_exists($ProductType, 'OrderCreatorOnAddToContents')){
-				$ProductType->OrderCreatorOnAddToContents($PackageProduct);
+			if (method_exists($ProductType, 'onAddToContents')){
+				$ProductType->onAddToContents($PackageProduct);
 			}
 
 			$PurchaseType = $ProductType->getPurchaseTypeClass();

@@ -13,12 +13,46 @@ class OrderCreatorTotalManager extends OrderTotalManager
 {
 
 	/**
-	 * @param string $ModuleCode
+	 * This function is overridden in all other total managers that need to use
+	 * their own custom total class
+	 *
+	 * @return OrderCreatorTotal|OrderTotal
 	 */
-	public function remove($ModuleCode)
+	public function getTotalClass()
 	{
-		if (isset($this->totals[$ModuleCode]) === true){
-			unset($this->totals[$ModuleCode]);
+		return new OrderCreatorTotal();
+	}
+
+	/**
+	 * Used from init method in OrderCreator class
+	 *
+	 * @param array $Totals
+	 */
+	public function init(array $Totals)
+	{
+		$this->totals = array();
+		foreach($Totals as $tInfo){
+			$OrderTotal = $this->getTotalClass();
+			$OrderTotal->init($tInfo);
+
+			$this->add($OrderTotal);
+		}
+	}
+
+	/**
+	 * @param AccountsReceivableSalesTotals $SaleTotals
+	 */
+	public function onSaveProgress(AccountsReceivableSalesTotals &$SaleTotals)
+	{
+		$SaleTotals->clear();
+		foreach($this->getAll() as $Total){
+			$SaleTotal = $SaleTotals
+				->getTable()
+				->getRecord();
+
+			$Total->onSaveProgress($SaleTotal);
+
+			$SaleTotals->add($SaleTotal);
 		}
 	}
 
@@ -72,30 +106,6 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	}
 
 	/**
-	 * @param Doctrine_Collection $CollectionObj
-	 */
-	public function addAllToCollection(Doctrine_Collection &$CollectionObj)
-	{
-		$CollectionObj->clear();
-		$this->rewind();
-		while($this->valid()){
-			$orderTotal = $this->current();
-
-			$OrdersTotal = new OrdersTotal();
-			$OrdersTotal->title = $orderTotal->getTitle();
-			$OrdersTotal->text = $orderTotal->getText();
-			$OrdersTotal->value = $orderTotal->getValue();
-			$OrdersTotal->module_type = $orderTotal->getModuleType();
-			$OrdersTotal->module = $orderTotal->getModule();
-			$OrdersTotal->method = $orderTotal->getMethod();
-			$OrdersTotal->sort_order = $orderTotal->getSortOrder();
-
-			$CollectionObj->add($OrdersTotal);
-			$this->next();
-		}
-	}
-
-	/**
 	 * @param string $key
 	 * @param float  $amount
 	 */
@@ -107,37 +117,6 @@ class OrderCreatorTotalManager extends OrderTotalManager
 			}
 		}
 	}
-
-	/**
-	 * Used when loading the sale from the database
-	 *
-	 * @param AccountsReceivableSalesTotals $Total
-	 */
-	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total)
-	{
-		$TotalDecoded = json_decode($Total->total_json, true);
-		$OrderTotal = new OrderCreatorTotal($TotalDecoded['data']['module_code']);
-		$OrderTotal->jsonDecode($TotalDecoded);
-
-		$this->add($OrderTotal);
-	}
-
-	/**
-	 * Used from init method in OrderCreator class
-	 *
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$this->totals = array();
-		$Totals = json_decode($data, true);
-		foreach($Totals as $tInfo){
-			$OrderTotal = new OrderCreatorTotal();
-			$OrderTotal->jsonDecode($tInfo);
-
-			$this->add($OrderTotal);
-		}
-	}
 }
 
-require(dirname(__FILE__) . '/Total.php');
+require(__DIR__ . '/Total.php');

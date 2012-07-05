@@ -481,11 +481,7 @@ class AccountsReceivableModule extends ModuleBase
 				$Order->InfoManager->setInfo('revision', $Sale->sale_revision);
 				$Order->PaymentManager->setPaymentModule('fdggc2');
 
-				$Sale->Totals;
-				foreach($Sale->Totals as $Total){
-					$Order->TotalManager->jsonDecodeTotal($Total);
-				}
-
+				$Order->TotalManager->load($Sale->Totals);
 				$Order->ProductManager->jsonDecodeProduct($Sale->Products);
 			}
 		}
@@ -587,18 +583,10 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->sale_status_id = 1;
 		$Sale->sale_revision = 1;
 		$Sale->sale_most_current = 1;
-		$Sale->info_json = json_encode($SaleClass->InfoManager->prepareJsonSave());
-		$Sale->address_json = json_encode($SaleClass->AddressManager->prepareJsonSave());
+		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
 
-		$SaleTotals = $Sale->Totals;
-		foreach($SaleClass->TotalManager->getAll() as $Total){
-			$SaleTotal = $SaleTotals->getTable()->getRecord();
-
-			$Total->onSaveSale($SaleTotal);
-
-			$SaleTotals->add($SaleTotal);
-		}
-
+		$SaleClass->TotalManager->onSaveSale($Sale->Totals);
 		$SaleClass->ProductManager->onSaveSale($Sale->Products, false);
 
 		//echo '<pre>';print_r($Sale->toArray(true));itwExit();
@@ -642,16 +630,7 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
 		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
 
-		$SaleTotals = $Sale->Totals;
-		$SaleTotals->clear();
-		foreach($SaleClass->TotalManager->getAll() as $Total){
-			$SaleTotal = $SaleTotals->getTable()->getRecord();
-
-			$Total->onSaveProgress($SaleTotal);
-
-			$SaleTotals->add($SaleTotal);
-		}
-
+		$SaleClass->TotalManager->onSaveProgress($Sale->Totals);
 		$SaleClass->ProductManager->onSaveProgress($Sale->Products);
 
 		//echo '<pre>';print_r($Sale->toArray(true));itwExit();
@@ -695,15 +674,7 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
 		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
 
-		$SaleTotals = $Sale->Totals;
-		foreach($SaleClass->TotalManager->getAll() as $Total){
-			$SaleTotal = $SaleTotals->getTable()->getRecord();
-
-			$Total->onSaveSale($SaleTotal);
-
-			$SaleTotals->add($SaleTotal);
-		}
-
+		$SaleClass->TotalManager->onSaveSale($Sale->Totals);
 		$SaleClass->ProductManager->onSaveSale($Sale->Products, $this->assignInventory());
 
 		//echo '<pre>';print_r($Sale->toArray(true));itwExit();

@@ -25,16 +25,53 @@ class OrderTotalManager
 	}
 
 	/**
-	 * @param $ModuleCode
-	 * @return bool|OrderTotal
+	 * This function is overridden in all other total managers that need to use
+	 * their own custom total class
+	 *
+	 * @return OrderTotal
 	 */
-	public function &getTotal($ModuleCode)
+	public function getTotalClass()
 	{
-		$return = false;
-		if (isset($this->totals[$ModuleCode])){
-			$return =& $this->totals[$ModuleCode];
+		return new OrderTotal();
+	}
+
+	/**
+	 * load()
+	 *
+	 * Takes a JSON encoded string from the database and sends it to the
+	 * order total class to be loaded.
+	 *
+	 * @internal The total_json value is already decoded to an associative array in the model
+	 * @param AccountsReceivableSalesTotals $Totals
+	 */
+	public function load(AccountsReceivableSalesTotals $Totals)
+	{
+		foreach($Totals as $Total){
+			$OrderTotal = $this->getTotalClass();
+			$OrderTotal->load($Total->total_json);
+
+			$this->add($OrderTotal);
 		}
-		return $return;
+	}
+
+	/**
+	 * onSaveSale()
+	 *
+	 * Goes through all totals and adds them to the database
+	 *
+	 * @param AccountsReceivableSalesTotals $SaleTotals
+	 */
+	public function onSaveSale(AccountsReceivableSalesTotals &$SaleTotals)
+	{
+		foreach($this->getAll() as $Total){
+			$SaleTotal = $SaleTotals
+				->getTable()
+				->getRecord();
+
+			$Total->onSaveSale($SaleTotal);
+
+			$SaleTotals->add($SaleTotal);
+		}
 	}
 
 	/**
@@ -45,6 +82,16 @@ class OrderTotalManager
 		$this->totals[$orderTotal
 			->getModule()
 			->getCode()] = $orderTotal;
+	}
+
+	/**
+	 * @param string $ModuleCode
+	 */
+	public function remove($ModuleCode)
+	{
+		if (isset($this->totals[$ModuleCode]) === true){
+			unset($this->totals[$ModuleCode]);
+		}
 	}
 
 	/**
@@ -63,24 +110,34 @@ class OrderTotalManager
 	}
 
 	/**
-	 * @param string $moduleType
-	 * @return bool|OrderTotal
+	 * @param $code
+	 * @return bool
 	 */
-	public function get($moduleType)
+	public function has($code)
 	{
-		$orderTotal = false;
-		if (isset($this->totals[$moduleType])){
-			$orderTotal = $this->totals[$moduleType];
-		}
-		return $orderTotal;
+		return (isset($this->totals[$code]) === true);
 	}
 
 	/**
-	 * @return array|OrderTotal[]
+	 * @param string $moduleType
+	 * @return bool|OrderTotal
+	 */
+	public function &get($moduleType)
+	{
+		if (!isset($this->totals[$moduleType])){
+			$this->totals[$moduleType] = $this->getTotalClass();
+			$this->totals[$moduleType]->setModule($moduleType);
+		}
+		return $this->totals[$moduleType];
+	}
+
+	/**
+	 * @return OrderTotal[]
 	 */
 	public function getAll()
 	{
 		$TotalsSorted = $this->totals;
+		//echo '<pre>';print_r($TotalsSorted);
 		usort($TotalsSorted, function ($a, $b)
 		{
 			return ($a
@@ -124,32 +181,6 @@ class OrderTotalManager
 	}
 
 	/**
-	 * @return array
-	 */
-	public function prepareJsonSave()
-	{
-		$TotalJsonArray = array();
-		foreach($this->totals as $OrderTotal){
-			$TotalJsonArray[] = $OrderTotal->prepareJsonSave();
-		}
-		return $TotalJsonArray;
-	}
-
-	/**
-	 * Used when loading the sale from the database
-	 *
-	 * @param AccountsReceivableSalesTotals $Total
-	 */
-	public function jsonDecodeTotal(AccountsReceivableSalesTotals $Total)
-	{
-		$TotalDecoded = json_decode($Total->total_json, true);
-		$OrderTotal = new OrderTotal($TotalDecoded['data']['module_code']);
-		$OrderTotal->jsonDecode($TotalDecoded);
-
-		$this->add($OrderTotal);
-	}
-
-	/**
 	 * @param OrderProductManager $ProductManager
 	 */
 	public function onProductAdded(OrderProductManager $ProductManager)
@@ -175,6 +206,13 @@ class OrderTotalManager
 		}
 	}
 
+	/**
+	 * getEmailList()
+	 *
+	 * Returns a string broken up into multiple lines of the totals in the sale
+	 *
+	 * @return string
+	 */
 	public function getEmailList()
 	{
 		$orderTotals = '';
@@ -189,4 +227,4 @@ class OrderTotalManager
 	}
 }
 
-require(dirname(__FILE__) . '/Total.php');
+require(__DIR__ . '/Total.php');

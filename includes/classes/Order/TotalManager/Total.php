@@ -15,22 +15,97 @@ class OrderTotal
 	/**
 	 * @var OrderTotalModuleBase
 	 */
-	protected $Module;
+	public $Module;
 
 	/**
 	 * @var array
 	 */
-	protected $data = array();
+	public $data = array();
 
 	/**
-	 * @param            $ModuleCode
+	 *
+	 */
+	public function __construct()
+	{
+	}
+
+	/**
+	 * @param array $Decoded
+	 */
+	public function load(array $Decoded)
+	{
+		if ($Decoded){
+			$this->data = $Decoded['data'];
+			$this->setModule($this->data['module_code'], $this->data);
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function prepareSave()
+	{
+		$toEncode = array(
+			'data' => $this->data
+		);
+		if (method_exists($this->Module, 'prepareSave')){
+			$toEncode['module_json'] = $this->Module->prepareSave();
+		}
+		return $toEncode;
+	}
+
+	/**
+	 * @param AccountsReceivableSalesTotals $Total
+	 */
+	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
+	{
+		$Module = $this->getModule();
+
+		$Total->module_code = $Module->getCode();
+		$Total->total_value = $Module->getValue();
+		$Total->display_order = $Module->getDisplayOrder();
+		$Total->total_json = $this->prepareSave();
+
+		if (method_exists($Module, 'onSaveProgress')){
+			$Module->onSaveProgress($Total);
+		}
+	}
+
+	/**
+	 * @param AccountsReceivableSalesTotals $Total
+	 */
+	public function onSaveSale(AccountsReceivableSalesTotals &$Total)
+	{
+		$Module = $this->getModule();
+
+		$Total->module_code = $Module->getCode();
+		$Total->total_value = $Module->getValue();
+		$Total->display_order = $Module->getDisplayOrder();
+		$Total->total_json = $this->prepareSave();
+
+		if (method_exists($Module, 'onSaveSale')){
+			$Module->onSaveSale($Total);
+		}
+	}
+
+	/**
+	 * @param $ModuleCode
+	 * @return OrderTotalModuleBase
+	 */
+	public function getTotalModule($ModuleCode)
+	{
+		$Module = OrderTotalModules::getModule($ModuleCode);
+		return $Module;
+	}
+
+	/**
+	 * @param string     $ModuleCode
 	 * @param array|null $mInfo
 	 */
-	public function __construct($ModuleCode, array $mInfo = null)
-	{
-		$this->Module = OrderTotalModules::getModule($ModuleCode);
-		$this->Module->updateData($mInfo);
+	public function setModule($ModuleCode, array $mInfo = null){
 		$this->data['module_code'] = $ModuleCode;
+		$this->Module = $this->getTotalModule($ModuleCode);
+		$this->Module->setData($mInfo);
 	}
 
 	/**
@@ -71,40 +146,6 @@ class OrderTotal
 	}
 
 	/**
-	 * @param AccountsReceivableSalesTotals $Total
-	 */
-	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
-	{
-		$Module = $this->getModule();
-
-		$Total->module_code = $Module->getCode();
-		$Total->total_value = $Module->getValue();
-		$Total->display_order = $Module->getDisplayOrder();
-		$Total->total_json = $this->prepareJsonSave();
-
-		if (method_exists($Module, 'onSaveProgress')){
-			$Module->onSaveProgress($Total);
-		}
-	}
-
-	/**
-	 * @param AccountsReceivableSalesTotals $Total
-	 */
-	public function onSaveSale(AccountsReceivableSalesTotals &$Total)
-	{
-		$Module = $this->getModule();
-
-		$Total->module_code = $Module->getCode();
-		$Total->total_value = $Module->getValue();
-		$Total->display_order = $Module->getDisplayOrder();
-		$Total->total_json = $this->prepareJsonSave();
-
-		if (method_exists($Module, 'onSaveSale')){
-			$Module->onSaveSale($Total);
-		}
-	}
-
-	/**
 	 * @param OrderProductManager $ProductManager
 	 */
 	public function onProductAdded(OrderProductManager &$ProductManager)
@@ -131,35 +172,4 @@ class OrderTotal
 		}
 		//echo '</div>';
 	}
-
-	/**
-	 * @return array
-	 */
-	public function prepareJsonSave()
-	{
-		$toEncode = array(
-			'data' => $this->data
-		);
-		if (method_exists($this->Module, 'prepareJsonSave')){
-			$toEncode['module_json'] = $this->Module->prepareJsonSave();
-		}
-		return $toEncode;
-	}
-
-	/**
-	 * @param array $Decoded
-	 */
-	public function jsonDecode(array $Decoded)
-	{
-		if ($Decoded){
-			$this->data = $Decoded['data'];
-
-			$this->Module = OrderTotalModules::getModule($this->data['module_code']);
-			if (isset($Decoded['module_json'])){
-				$this->Module->jsonDecode($Decoded['module_json']);
-			}
-		}
-	}
 }
-
-?>
