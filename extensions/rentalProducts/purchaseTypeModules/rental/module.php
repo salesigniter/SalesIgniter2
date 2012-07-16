@@ -21,11 +21,7 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		$this->setTitle('Rental');
 		$this->setDescription('Rentals Which Mimic A Retail Rental Store');
 
-		$this->init(
-			'rental',
-			$forceEnable,
-			sysConfig::getDirFsCatalog() . 'extensions/rentalProducts/purchaseTypeModules/rental/'
-		);
+		$this->init('rental', $forceEnable, __DIR__);
 	}
 
 	public function getRentalSettings(){
@@ -297,8 +293,8 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		return $return;
 	}
 
-	public function onSaveProduct(ProductsPurchaseTypes $PurchaseType){
-
+	public function onSaveProduct(ProductsPurchaseTypes $ProductsPurchaseType){
+		$ProductsPurchaseType->RentalSettings->rental_period = sysConfig::get('EXTENSION_RENTAL_PRODUCTS_RENTAL_PERIOD');
 	}
 }
 

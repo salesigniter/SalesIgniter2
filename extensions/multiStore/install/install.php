@@ -25,7 +25,7 @@ class multiStoreInstall extends extensionInstaller {
 			'stores_name'       => 'Default Store',
 			'stores_domain'     => $_SERVER['HTTP_HOST'],
 			'stores_ssl_domain' => $_SERVER['HTTP_HOST'],
-			'stores_email'      => STORE_OWNER_EMAIL_ADDRESS,
+			'stores_email'      => sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'),
 			'stores_template'   => 'newred'
 		);
 

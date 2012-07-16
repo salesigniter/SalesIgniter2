@@ -35,8 +35,6 @@ class PurchaseTypeTabRental_tab_pricing
 	{
 		global $tax_class_array, $appExtension;
 		if ($PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
-			$PurchaseType->loadData($Product->getId());
-
 			$pricingTypeName = $PurchaseType->getCode();
 			$pricingTypeText = $PurchaseType->getTitle();
 			$productsPrice = $PurchaseType->getData('price');
@@ -55,10 +53,6 @@ class PurchaseTypeTabRental_tab_pricing
 				->setCellPadding(2)
 				->setCellSpacing(0)
 				->addClass('pricingTable');
-
-			if (isset($useGlobal) && $useGlobal === true){
-				$inputTable->hide();
-			}
 
 			$inputTable->addBodyRow(array(
 				'columns' => array(

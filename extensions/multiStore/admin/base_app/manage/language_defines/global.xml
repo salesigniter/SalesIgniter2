@@ -1,28 +1,36 @@
 <definitions>
 	<define key="HEADING_TITLE"><![CDATA[Stores]]></define>
+
 	<define key="TABLE_HEADING_STORES_ID"><![CDATA[Stores Id]]></define>
 	<define key="TABLE_HEADING_STORES"><![CDATA[Stores]]></define>
 	<define key="TABLE_HEADING_STORES_DOMAIN"><![CDATA[Stores Domain]]></define>
-	<define key="TABLE_HEADING_ACTION"><![CDATA[Action]]></define>
-	<define key="TEXT_STORES_NAME"><![CDATA[<b>Stores Name:</b>]]></define>
-	<define key="TEXT_STORES_EMAIL"><![CDATA[<b>Stores Email:</b>]]></define>
-	<define key="TEXT_STORES_DOMAIN"><![CDATA[<b>Stores Domain:</b>]]></define>
-	<define key="TEXT_STORES_SSL_DOMAIN"><![CDATA[<b>Stores SSL Domain:</b>]]></define>
-	<define key="TEXT_STORES_TEMPLATE"><![CDATA[<b>Stores Template:</b>]]></define>
-	<define key="TEXT_STORES_STREET_ADDRESS"><![CDATA[<b>Google Maps Address:</b>]]></define>
-	<define key="TEXT_STORES_POSTCODE"><![CDATA[<b>Postcode:</b>]]></define>
-	<define key="BOX_HEADING_NEW_STORE"><![CDATA[Create A New Store]]></define>
-	<define key="TEXT_BUTTON_NEW_STORE"><![CDATA[New Store]]></define>
+
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Store Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this store?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete these stores?]]></define>
+
+	<define key="TEXT_INFO_HEADING_NEW"><![CDATA[New Store]]></define>
+	<define key="TEXT_INFO_HEADING_EDIT"><![CDATA[Edit Store]]></define>
+
+	<define key="TEXT_STORES_NAME"><![CDATA[Name]]></define>
+	<define key="TEXT_STORES_OWNER"><![CDATA[Owner]]></define>
+	<define key="TEXT_STORES_EMAIL"><![CDATA[Email]]></define>
+	<define key="TEXT_STORES_DOMAIN"><![CDATA[Domain]]></define>
+	<define key="TEXT_STORES_SSL_DOMAIN"><![CDATA[SSL Domain]]></define>
+	<define key="TEXT_STORES_TEMPLATE"><![CDATA[Template]]></define>
+	<define key="TEXT_STORES_STREET_ADDRESS"><![CDATA[Street Address]]></define>
+	<define key="TEXT_STORES_POSTCODE"><![CDATA[Postcode]]></define>
+	<define key="TEXT_STORES_COUNTRY"><![CDATA[Country]]></define>
+	<define key="TEXT_STORES_ZONE"><![CDATA[State/Zone]]></define>
+	<define key="TEXT_STORES_DESCRIPTION"><![CDATA[Description]]></define>
+	<define key="TEXT_STORES_TELEPHONE"><![CDATA[Telephone]]></define>
+	<define key="TEXT_STORES_GROUP"><![CDATA[Group]]></define>
+	<define key="TEXT_STORES_HOME_REDIRECT_STORE_INFO"><![CDATA[Redirect Store homepage to store info page]]></define>
+
+	<define key="TEXT_STORES_DEFAULT_LANGUAGE"><![CDATA[Default Language]]></define>
+	<define key="TEXT_STORES_DEFAULT_CURRENCY"><![CDATA[Default Currency]]></define>
+	<define key="TEXT_STORES_IS_DEFAULT"><![CDATA[Is Default Store]]></define>
+	<define key="TEXT_STORES_COUNTRIES"><![CDATA[Countries for the store]]></define>
+
 	<define key="TEXT_FEES_PERCENT"><![CDATA[% or fixed amount per month]]></define>
-	<define key="TEXT_STORES_OWNER"><![CDATA[<b>Store Owner:</b>]]></define>
-	<define key="TEXT_STORES_IS_DEFAULT"><![CDATA[<b>Is Default Store:</b>]]></define>
-	<define key="TEXT_STORES_COUNTRIES"><![CDATA[<b>Countries for the store:</b>]]></define>
-
-	<define key="TEXT_STORES_DEFAULT_CURRENCY"><![CDATA[<b>Default Currency</b>]]></define>
-	<define key="TEXT_INFO_DELETE_INTRO"><![CDATA[Are you sure you want to delete this store?]]></define>
-	<define key="TEXT_STORES_DESCRIPTION"><![CDATA[<b>Store Description:</b>]]></define>
-	<define key="TEXT_STORES_TELEPHONE"><![CDATA[<b>Store Telephone:</b>]]></define>
-	<define key="TEXT_STORES_GROUP"><![CDATA[<b>Store Group:</b>]]></define>
-	<define key="TEXT_STORES_HOME_REDIRECT_STORE_INFO"><![CDATA[<b>Redirect Store homepage to store info page:</b>]]></define>
-
 </definitions>

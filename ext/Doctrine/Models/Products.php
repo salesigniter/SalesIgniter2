@@ -48,6 +48,12 @@ class Products extends Doctrine_Record {
 			'local' => 'products_tax_class_id',
 			'foreign' => 'tax_class_id'
 		));
+
+		$this->hasMany('ProductsInventory as Inventory', array(
+			'local' => 'products_id',
+			'foreign' => 'products_id',
+			'cascade' => array('delete')
+		));
 	}
 	
 	public function preInsert($event){
@@ -62,7 +68,7 @@ class Products extends Doctrine_Record {
 			$this->products_last_modified = date(DATE_TIMESTAMP);
 		}
 	}
-	
+
 	public function setTableDefinition(){
 		$this->setTableName('products');
 

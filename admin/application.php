@@ -28,11 +28,44 @@ require($App->getAppFile());
 if (!empty($action)){
 	EventManager::notify('ApplicationActionsBeforeExecute', $action);
 
-	if ($action == 'getActionWindow'){
+	if ($action == 'getCountryZones'){
+		if (isset($_GET['country_id']) && !empty($_GET['country_id'])){
+			$ZonesArr = array();
+			$Zones = Doctrine_Core::getTable('Zones')
+				->findByZoneCountryId((int) $_GET['country_id']);
+			if ($Zones->count() > 0){
+				foreach($Zones as $Zone){
+					$ZonesArr[] = array(
+						'id' => $Zone->zone_id,
+						'text' => $Zone->zone_name
+					);
+				}
+			}
+
+			EventManager::attachActionResponse(array(
+				'success' => true,
+				'zones' => $ZonesArr
+			), 'json');
+		}
+	}
+	elseif ($action == 'getActionWindow'){
 		if (isset($_GET['appExt'])){
-			require(sysConfig::getDirFsCatalog() . 'extensions/' . $_GET['appExt'] . '/admin/base_app/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+			$checkDirs = array(
+				sysConfig::getDirFsCatalog() . 'clientData/extensions/' . $_GET['appExt'] . '/admin/base_app/' . $App->getAppName() . '/actionsWindows/',
+				sysConfig::getDirFsCatalog() . 'extensions/' . $_GET['appExt'] . '/admin/base_app/' . $App->getAppName() . '/actionsWindows/'
+			);
 		}else{
-			require(sysConfig::getDirFsAdmin() . 'applications/' . $App->getAppName() . '/actionsWindows/' . $actionWindow . '.php');
+			$checkDirs = array(
+				sysConfig::getDirFsCatalog() . 'clientData/applications/' . $App->getAppName() . '/actionsWindows/',
+				sysConfig::getDirFsAdmin() . 'applications/' . $App->getAppName() . '/actionsWindows/'
+			);
+		}
+
+		foreach($checkDirs as $dir){
+			if (file_exists($dir . $actionWindow . '.php')){
+				require($dir . $actionWindow . '.php');
+				break;
+			}
 		}
 	}else{
 		$actionFiles = $App->getActionFiles($action);

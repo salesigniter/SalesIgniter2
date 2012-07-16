@@ -75,20 +75,6 @@ class ProductTypeStandard extends ProductTypeBase
 	}
 
 	/**
-	 * @param string $code
-	 * @param bool   $forceEnable
-	 * @param bool   $moduleDir
-	 */
-	public function init($code, $forceEnable = false, $moduleDir = false)
-	{
-		$this->import(new Installable);
-
-		$this->setModuleType('productType');
-
-		parent::init($code, $forceEnable, $moduleDir);
-	}
-
-	/**
 	 * @param $val
 	 */
 	public function setProductId($val)
@@ -194,7 +180,7 @@ class ProductTypeStandard extends ProductTypeBase
 		}
 
 		if (!isset($this->purchaseTypes[$PurchaseType])){
-			$this->purchaseTypes[$PurchaseType] = PurchaseTypeModules::getModule($PurchaseType);
+			$this->purchaseTypes[$PurchaseType] = PurchaseTypeModules::getModule($PurchaseType, $ignoreStatus);
 			if ($this->purchaseTypes[$PurchaseType] === false){
 				echo '<pre>';
 				debug_print_backtrace();
@@ -202,7 +188,7 @@ class ProductTypeStandard extends ProductTypeBase
 				die('Error loading purchase type: ' . $PurchaseType);
 			}
 			$this->purchaseTypes[$PurchaseType]->loadData($this->getProductId());
-			$this->purchaseTypes[$PurchaseType]->loadInventoryData($this->getProductId());
+			$this->purchaseTypes[$PurchaseType]->loadInventoryData();
 		}
 	}
 
@@ -579,27 +565,47 @@ class ProductTypeStandard extends ProductTypeBase
 
 			foreach($_POST['purchase_type'] as $pType){
 				$PurchaseType = $this->getPurchaseType($pType, true);
+				$AvailableStatusId = $PurchaseType->getConfigData('INVENTORY_STATUS_AVAILABLE');
 
-				$Product->ProductsPurchaseTypes[$pType]->status = 1;
-				$Product->ProductsPurchaseTypes[$pType]->type_name = $PurchaseType->getCode();
+				$PurchaseTypeRecord = $Product->ProductsPurchaseTypes[$pType];
+
+				$PurchaseTypeRecord->status = 1;
+				$PurchaseTypeRecord->type_name = $pType;
 
 				if ($PurchaseType->configExists('INVENTORY_ENABLED') && $PurchaseType->getConfigData('INVENTORY_ENABLED') == 'True'){
-					$Product->ProductsPurchaseTypes[$pType]->inventory_controller = 'normal';
-					$Product->ProductsPurchaseTypes[$pType]->inventory_track_method = $_POST['track_method']['normal'][$pType];
+					$PurchaseTypeRecord->use_serials = (isset($_POST['use_serials'][$pType]) ? '1' : '0');
+
+					$AvailableInventoryItem = $PurchaseTypeRecord->InventoryItems[$AvailableStatusId]->InventoryItem;
+					$AvailableInventoryItem->item_status = $AvailableStatusId;
+					$AvailableInventoryItem->item_total = $_POST['inventory'][$pType][$AvailableStatusId];
+
+					if (isset($_POST['inventory_serial'][$pType])){
+						$Serials = $AvailableInventoryItem->Serials;
+						foreach($Serials as $Serial){
+							if (in_array($Serial->serial_number, $_POST['inventory_serial'][$pType]['number']) === false){
+								$Serial->delete();
+							}
+						}
+						foreach($_POST['inventory_serial'][$pType]['number'] as $k => $serialNumber){
+							if (isset($Serials[$serialNumber]) === false){
+								$Serials[$serialNumber]->serial_number = $serialNumber;
+							}
+						}
+					}
 				}
 
 				if ($PurchaseType->configExists('PRICING_ENABLED') && $PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
 					if (isset($_POST['pricing'][$pType])){
-						$Product->ProductsPurchaseTypes[$pType]->price = $_POST['pricing'][$pType]['price'];
-						$Product->ProductsPurchaseTypes[$pType]->tax_class_id = $_POST['pricing'][$pType]['tax_class_id'];
+						$PurchaseTypeRecord->price = $_POST['pricing'][$pType]['price'];
+						$PurchaseTypeRecord->tax_class_id = $_POST['pricing'][$pType]['tax_class_id'];
 					}
 				}
 
 				if (method_exists($PurchaseType, 'onSaveProduct')){
-					$PurchaseType->onSaveProduct($Product->ProductsPurchaseTypes[$pType]);
+					$PurchaseType->onSaveProduct($PurchaseTypeRecord);
 				}
 
-				EventManager::notify('AdminProductPurchaseTypeOnSave', $PurchaseType, $Product->ProductsPurchaseTypes[$pType]);
+				EventManager::notify('AdminProductPurchaseTypeOnSave', $PurchaseType, $PurchaseTypeRecord);
 			}
 		}
 	}

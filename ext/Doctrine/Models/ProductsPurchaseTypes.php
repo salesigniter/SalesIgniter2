@@ -12,88 +12,50 @@
 class ProductsPurchaseTypes extends Doctrine_Record
 {
 
-	public function setUp() {
+	public function setUp()
+	{
 		parent::setUp();
 
 		$this->setAttribute(Doctrine::ATTR_COLL_KEY, 'type_name');
 		$this->hasOne('Products', array(
-				'local' => 'products_id',
-				'foreign' => 'products_id'
-			));
+			'local'   => 'products_id',
+			'foreign' => 'products_id'
+		));
+
+		$this->hasMany('ProductsInventoryItemsToProductsPurchaseTypes as InventoryItems', array(
+			'local'   => 'purchase_type_id',
+			'foreign' => 'purchase_type_id',
+			'cascade' => array('delete')
+		));
 	}
 
-	public function setTableDefinition() {
+	public function setTableDefinition()
+	{
 		$this->setTableName('products_purchase_types');
 
 		$this->hasColumn('purchase_type_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'fixed' => false,
-				'primary' => true,
-				'notnull' => true,
-				'autoincrement' => true
-			));
-		$this->hasColumn('products_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'autoincrement' => false
-			));
+			'type'          => 'integer',
+			'length'        => 4,
+			'fixed'         => false,
+			'primary'       => true,
+			'notnull'       => true,
+			'autoincrement' => true
+		));
+
+		$this->hasColumn('products_id', 'integer', 4);
 		$this->hasColumn('status', 'integer', 1, array(
-				'type' => 'integer',
-				'length' => 1,
-				'fixed' => false,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-		$this->hasColumn('type_name', 'string', 32, array(
-				'type' => 'string',
-				'length' => 32,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'new',
-				'notnull' => true,
-				'autoincrement' => false
-			));
+			'default' => '0'
+		));
+		$this->hasColumn('type_name', 'string', 32);
 		$this->hasColumn('price', 'decimal', 15, array(
-				'type' => 'decimal',
-				'length' => 15,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0.0000',
-				'notnull' => false,
-				'autoincrement' => false,
-				'scale' => 4
-			));
+			'default' => '0.0000',
+			'scale'   => 4
+		));
 		$this->hasColumn('tax_class_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => null,
-				'notnull' => false,
-				'autoincrement' => false
-			));
-		$this->hasColumn('inventory_controller', 'string', 32, array(
-				'type' => 'string',
-				'length' => 32,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'normal',
-				'notnull' => false,
-				'autoincrement' => false
-			));
-		$this->hasColumn('inventory_track_method', 'string', 32, array(
-				'type' => 'string',
-				'length' => 32,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'barcode',
-				'notnull' => false,
-				'autoincrement' => false
-			));
+			'default' => '0'
+		));
+		$this->hasColumn('use_serials', 'integer', 1, array(
+			'default' => '0'
+		));
 	}
 }

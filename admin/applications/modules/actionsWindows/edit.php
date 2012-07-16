@@ -1,13 +1,4 @@
 <?php
-$infoBox = htmlBase::newElement('infobox');
-$infoBox->setHeader('<b>' . sysLanguage::get('TEXT_INFO_HEADING_EDIT') . '</b>');
-$infoBox->setButtonBarLocation('top');
-
-$saveButton = htmlBase::newElement('button')->addClass('saveButton')->usePreset('save');
-$cancelButton = htmlBase::newElement('button')->addClass('cancelButton')->usePreset('cancel');
-
-$infoBox->addButton($saveButton)->addButton($cancelButton);
-
 $Config = new ModuleConfigReader(
 	$_GET['module'],
 	$_GET['moduleType'],
@@ -82,7 +73,18 @@ EventManager::notify(
 	$Config
 );
 
-$infoBox->addContentRow($tabPanel->draw());
+$SaveButton = htmlBase::newElement('button')
+	->addClass('saveButton')
+	->usePreset('save');
 
-EventManager::attachActionResponse($infoBox->draw(), 'html');
+$CancelButton = htmlBase::newElement('button')
+	->addClass('cancelButton')
+	->usePreset('cancel');
+
+$Infobox = htmlBase::newActionWindow()
+	->addButton($SaveButton)
+	->addButton($CancelButton)
+	->setContent($tabPanel);
+
+EventManager::attachActionResponse($Infobox->draw(), 'html');
 ?>

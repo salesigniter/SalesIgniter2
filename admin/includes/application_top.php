@@ -16,6 +16,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 /**
  * Core classes that do not depend on and sales igniter classes
  */
+require((isset($basePath) ? $basePath : '') . '../includes/classes/SesJson.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesDateTime.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesBrowserDetect.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesRequestInfo.php');
@@ -76,6 +77,7 @@ spl_autoload_register(array('Doctrine_Core', 'modelsAutoload'));
 $manager = Doctrine_Manager::getInstance();
 //$manager->setAttribute(Doctrine_Core::ATTR_AUTOLOAD_TABLE_CLASSES, true);
 $manager->setAttribute(Doctrine_Core::ATTR_MODEL_LOADING, Doctrine_Core::MODEL_LOADING_CONSERVATIVE);
+$manager->setAttribute(Doctrine_Core::ATTR_USE_DQL_CALLBACKS, true);
 Doctrine_Core::setModelsDirectory(sysConfig::getDirFsCatalog() . 'ext/Doctrine/Models');
 //Doctrine_Core::loadModels(sysConfig::getDirFsCatalog() . 'ext/Doctrine/Models');
 
@@ -176,6 +178,10 @@ $appExtension->postSessionInit();
 // set the language
 require(sysConfig::getDirFsCatalog() . 'includes/classes/system_language.php');
 sysLanguage::init();
+
+// set the language
+require(sysConfig::getDirFsCatalog() . 'includes/classes/system_currencies.php');
+sysCurrency::init();
 
 $appExtension->loadExtensions();
 

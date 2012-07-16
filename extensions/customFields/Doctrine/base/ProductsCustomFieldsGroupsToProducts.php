@@ -13,14 +13,6 @@
 class ProductsCustomFieldsGroupsToProducts extends Doctrine_Record {
 
 	public function setUp(){
-		$Products = Doctrine::getTable('Products')->getRecordInstance();
-		
-		$Products->hasMany('ProductsCustomFieldsGroupsToProducts', array(
-			'local'   => 'products_id',
-			'foreign' => 'product_id',
-			'cascade' => array('delete')
-		));
-		
 		$this->hasOne('ProductsCustomFieldsGroups', array(
 			'local' => 'group_id',
 			'foreign' => 'group_id'

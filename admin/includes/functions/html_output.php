@@ -459,7 +459,7 @@
 			if (!is_array($checked)){
 				$checked = array();
 			}
-			$catList = '<ul class="catListingUL">';
+			$catList = '<ul class="catListingUL" style="list-style:none;margin:0;padding:0;">';
 
 			if ($parent_id == '0'){
 				$category = Doctrine_Manager::getInstance()

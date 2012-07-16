@@ -9,12 +9,26 @@
 
 	This script and it's source is not redistributable
 */
-	Doctrine_Query::create()
-	->delete('Stores')
-	->where('stores_id = ?', (int)$_POST['store_id'])
-	->execute();
-	
-	EventManager::attachActionResponse(array(
-		'success' => true
-	), 'json');
-?>
+
+$response = array(
+	'success' => true
+);
+
+$Stores = Doctrine_Core::getTable('Stores');
+$toDelete = explode(',', $_GET['store_id']);
+foreach($toDelete as $storeId){
+	$Store = $Stores->find($storeId);
+	if ($Store){
+		if ($Store->delete() === false){
+			$response['success'] = false;
+			$response['errorMessage'] = 'There was an error removing the store: ' . $Store->stores_name;
+			break;
+		}
+	}else{
+		$response['success'] = false;
+		$response['errorMessage'] = 'Unable to remove store: Store Not Found!';
+		break;
+	}
+}
+
+EventManager::attachActionResponse($response, 'json');

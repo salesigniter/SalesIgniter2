@@ -82,8 +82,8 @@ class htmlElement_selectbox implements htmlElementPlugin
 			if ($this->hasAttr('id') === true){
 				$this->labelElement->attr('for', $this->attr('id'));
 			}
-			if ($this->labelElementPosition == 'before' || $this->labelElementPosition == 'left' || $this->labelElementPosition == 'top'){
-				if ($this->labelElementPosition == 'top'){
+			if (in_array($this->labelElementPosition, array('before', 'left', 'top', 'above'))){
+				if (in_array($this->labelElementPosition, array('top', 'above'))){
 					$this->labelElement->css('display', 'block');
 				}
 
@@ -133,10 +133,11 @@ class htmlElement_selectbox implements htmlElementPlugin
 		$html .= $this->selectElement->draw();
 
 		if ($this->labelElement !== false){
-			if ($this->labelElementPosition == 'after' || $this->labelElementPosition == 'right' || $this->labelElementPosition == 'bottom' || $this->labelElementPosition === false){
-				if ($this->labelElementPosition == 'bottom'){
+			if (in_array($this->labelElementPosition, array('after', 'right', 'bottom', 'below')) || $this->labelElementPosition === false){
+				if (in_array($this->labelElementPosition, array('bottom', 'below'))){
 					$this->labelElement->css('display', 'block');
-				}else{
+				}
+				else {
 					if (is_object($this->labelElementSeparator)){
 						$html .= $this->labelElementSeparator->draw();
 					}

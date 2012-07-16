@@ -46,15 +46,11 @@ $ProductWeight = htmlBase::newElement('input')
 	->setName('products_weight');
 
 if ($Product->getId() > 0){
-	if ($Product->isActive()){
-		$ProductStatusEnabled->setChecked(true);
-	}
-	else {
-		$ProductStatusDisabled->setChecked(true);
-	}
+	$ProductStatusEnabled->setChecked($Product->isActive() === true);
+	$ProductStatusDisabled->setChecked($Product->isActive() === false);
 
-	$ProductFeaturedStatusEnabled->setChecked($Product->isFeatured());
-	$ProductFeaturedStatusDisabled->setChecked(!$Product->isFeatured());
+	$ProductFeaturedStatusEnabled->setChecked($Product->isFeatured() === true);
+	$ProductFeaturedStatusDisabled->setChecked($Product->isFeatured() === false);
 
 	$ProductOnOrder->setChecked($Product->isOnOrder());
 	$ProductDateAvailable->setValue($Product->getDateAvailable()->format('Y-m-d'));

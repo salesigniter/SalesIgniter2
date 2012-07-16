@@ -354,6 +354,7 @@
 	<define key="TEXT_BUTTON_PRINT"><![CDATA[Print]]></define>
 	<define javascript="true" php="false" key="TEXT_BUTTON_PRINT_NO"><![CDATA[Don't Print]]></define>
 	<define javascript="true" php="false" key="TEXT_BUTTON_PRINT_YES"><![CDATA[Print]]></define>
+	<define key="TEXT_BUTTON_REMOVE"><![CDATA[Remove]]></define>
 	<define key="TEXT_BUTTON_RESET"><![CDATA[Reset]]></define>
 	<define key="TEXT_BUTTON_RESET_FILTER"><![CDATA[Reset Filters]]></define>
 	<define key="TEXT_BUTTON_SAVE"><![CDATA[Save]]></define>

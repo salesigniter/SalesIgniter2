@@ -118,6 +118,14 @@ class htmlWidget_button implements htmlWidgetPlugin
 
 	public function usePreset($preset) {
 		switch($preset){
+			case 'add':
+				$this->setIcon('plusThick')
+					->setText(sysLanguage::get('TEXT_BUTTON_ADD'));
+				break;
+			case 'remove':
+				$this->setIcon('closeThick')
+					->setText(sysLanguage::get('TEXT_BUTTON_REMOVE'));
+				break;
 			case 'back':
 				$this->setIcon('circleTriangleWest')
 					->setText(sysLanguage::get('TEXT_BUTTON_BACK'));

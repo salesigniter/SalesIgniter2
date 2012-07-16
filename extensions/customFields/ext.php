@@ -45,6 +45,14 @@ class Extension_customFields extends ExtensionBase
 		if ($appExtension->isCatalog()){
 			EventManager::attachEvent('ProductListingQueryBeforeExecute', null, $this);
 		}
+
+		$Products = Doctrine::getTable('Products')->getRecordInstance();
+
+		$Products->hasOne('ProductsCustomFieldsGroupsToProducts as Fields', array(
+			'local'   => 'products_id',
+			'foreign' => 'product_id',
+			'cascade' => array('delete')
+		));
 	}
 
 	public function ProductInfoTabHeader(&$product)

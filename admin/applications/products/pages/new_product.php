@@ -23,15 +23,6 @@ foreach($QtaxClass as $tax_class){
 	);
 }
 
-if ($Product->isActive() === true){
-	$in_status = true;
-	$out_status = false;
-}
-else {
-	$in_status = false;
-	$out_status = true;
-}
-
 if ($Product->isFeatured() === true){
 	$non_featured = false;
 	$featured = true;

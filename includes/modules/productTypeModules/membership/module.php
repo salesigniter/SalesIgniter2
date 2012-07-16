@@ -13,11 +13,4 @@ class ProductTypeMembership extends ProductTypeBase
 
 		$this->init($this->_moduleCode);
 	}
-
-	public function init($code, $forceEnable = false, $moduleDir = false) {
-		$this->import(new Installable);
-
-		$this->setModuleType('productType');
-		parent::init($code, $forceEnable, $moduleDir);
-	}
 }

@@ -323,6 +323,103 @@ $(document).ready(function () {
 		});
 	}
 
+	$('.serialsGrid').each(function (){
+		var Grid = $(this);
+		Grid.newGrid('option', 'buttons', [
+			{
+				selector          : '.addSerialButton',
+				disableIfNone     : false,
+				disableIfMultiple : false,
+				click             : function (e, GridClass) {
+					GridClass.showConfirmDialog({
+						title             : 'Enter Serial Number',
+						content           : '<input type="text" name="serial_number">',
+						confirmButtonText : 'Save',
+						onConfirm         : function () {
+							var self = this;
+							$.post(js_app_link('app=products&appPage=new_product&action=checkSerial'), {
+								serial : $(self).find('input[name=serial_number]').val()
+							}, function (data) {
+								if (data.success === false){
+									alert('Serial Number Exists Already, Please Try Another.');
+								}else{
+									GridClass.addBodyRow({
+										columns: [
+											{ text: data.serial_number },
+											{ text: data.status_name }
+										]
+									});
+									$(self).dialog('close').remove();
+								}
+							}, 'json');
+						},
+						onCancel          : function () {
+							$(this).dialog('close').remove();
+						}
+					});
+				}
+			},
+			{
+				selector          : '.genSerialButton',
+				disableIfNone     : false,
+				disableIfMultiple : false,
+				click             : function (e, GridClass) {
+					GridClass.showConfirmDialog({
+						title             : 'Enter Serial Number',
+						content           : 'How Many: <input type="text" name="gen_total"><br><input type="checkbox" name="addToTotal">Add To Total Available',
+						confirmButtonText : 'Generate',
+						onConfirm         : function () {
+							var self = this;
+							$.post(js_app_link('app=products&appPage=new_product&action=genSerial'), {
+								default_status : $(GridClass.element).data('default_status'),
+								gen_total      : $(self).find('input[name=gen_total]').val()
+							}, function (data) {
+								var addToTotal = $(self).find('input[name=addToTotal]').get(0).checked;
+								var inputName = 'inventory_serial';
+								if ($(GridClass.element).data('purchase_type')){
+									inputName += '[' + $(GridClass.element).data('purchase_type') + ']';
+								}
+
+								var AvailInput = $(GridClass.element)
+									.parentsUntil('.ui-tabs-panel')
+									.last()
+									.find('.availableQuantity');
+
+								var totalAvail = parseInt(AvailInput.val());
+
+								$.each(data.serials, function (){
+									totalAvail++;
+									GridClass.addBodyRow({
+										columns: [
+											{ text: '<input type="hidden" name="' + inputName + '[number][]" value="' + this.serial_number + '">' + this.serial_number },
+											{ text: this.status_name }
+										]
+									});
+								});
+
+								if (addToTotal){
+									AvailInput.val(totalAvail);
+								}
+								$(self).dialog('close').remove();
+							}, 'json');
+						},
+						onCancel          : function () {
+							$(this).dialog('close').remove();
+						}
+					});
+				}
+			},
+			{
+				selector          : '.deleteSerialButton',
+				disableIfNone     : true,
+				disableIfMultiple : false,
+				click             : function (e, GridClass) {
+					GridClass.getSelectedRows().remove();
+				}
+			}
+		]);
+	});
+
 	$('.addBarcode').live('click', function () {
 		var $thisRow = $(this).parent().parent();
 		if ($('.barcodeNumber', $thisRow).val() == '' && $('.autogen:checked', $thisRow).size() == 0){
@@ -332,28 +429,6 @@ $(document).ready(function () {
 			alert('Must enter an amount of barcode to auto generate.');
 			return false;
 		}
-		/*
-		 var barcode = $('.barcodeNumber', $thisRow).val();
-		 var barcodeType = $('.barcodeTypeSelect', $thisRow).val();
-		 var valid = true;
-
-		 var Code39Pattern = /[^A-Z0-9\-\. \$\/\+\%\*]+/;
-		 if (barcodeType == 'Code39' && Code39Pattern.test(barcode)){
-		 valid = false;
-		 message = 'Code 39 Barcodes Can Only Contain Uppercase Letters, 0-9, -, ., $, /, +, %, and *';
-		 }
-
-		 var CodabarPattern = /[^A-ENT0-9\-\:\. \$\/\+\*]+/;
-		 if (barcodeType == 'CODABAR' && CodabarPattern.test(barcode)){
-		 valid = false;
-		 message = 'Codabar Barcodes Can Only Contain Uppercase Letters A-E, N, T, 0-9, -, ., :, $, /, +, and *';
-		 }
-
-		 if (valid === false){
-		 alert(message);
-		 return;
-		 }
-		 */
 		var $tabDiv = $thisRow.parentsUntil('.ui-tabs-panel').last();
 
 		var linkParams = [];

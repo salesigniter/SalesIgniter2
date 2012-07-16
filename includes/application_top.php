@@ -17,6 +17,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 /**
  * Core classes that do not depend on and sales igniter classes
  */
+require('includes/classes/SesJson.php');
 require('includes/classes/SesBrowserDetect.php');
 require('includes/classes/SesRequestInfo.php');
 require('includes/classes/SesDateTime.php');

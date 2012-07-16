@@ -178,14 +178,6 @@ class ModuleBase extends MI_Base
 		if ($this->configExists($key)){
 			return $this->Config->getConfig($key)->getValue();
 		}
-		$backtrace = debug_backtrace();
-		$debugInfo = array(
-			'calledMethod' => $method,
-			'calledFromFile' => $backtrace[0]['file'],
-			'calledFromLine' => $backtrace[0]['line'],
-			'callArgs' => $backtrace[0]['args'][1]
-		);
-		echo '<pre>';print_r($debugInfo);
 		debug_print_backtrace();
 		echo '<br><br>';
 		die('You should be verifying a configuration key exists: Configuration Group (' . $this->code . ') -> Configuration Key (' . $key . ')');

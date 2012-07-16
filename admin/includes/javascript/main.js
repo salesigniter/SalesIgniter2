@@ -1381,6 +1381,39 @@ $(document).ready(function () {
 		$(this).trigger('validateForm', [e]);
 	});
 
+	$(document).on('change', 'select[data-zone_input_name]', function (){
+		var Self = $(this);
+		var ZoneInput = $('[name="' + $(this).data('zone_input_name') + '"]');
+		showAjaxLoader(ZoneInput, 'small');
+		showAjaxLoader(Self, 'small');
+
+		$.ajax({
+			url      : js_app_link('app=index&appPage=default&action=getCountryZones'),
+			cache    : false,
+			dataType : 'json',
+			data     : 'country_id=' + $(this).val(),
+			success  : function (data) {
+				var newZoneField;
+				if (data.zones.length > 0){
+					newZoneField = $('<select />');
+					$.each(data.zones, function (){
+						newZoneField.append('<option value="' + this.id + '">' + this.text + '</option>');
+					});
+				}else{
+					newZoneField = $('<input />');
+				}
+				newZoneField
+					.attr('name', ZoneInput.attr('name'))
+					.val(ZoneInput.val());
+
+				removeAjaxLoader(ZoneInput);
+				ZoneInput.replaceWith(newZoneField);
+				removeAjaxLoader(Self);
+			}
+		});
+
+	});
+
 	$('.multipleTextInput').on('click', '.addInput, .removeInput, .undoRemove', function () {
 		var Row = $(this).parentsUntil('tbody').last();
 		if ($(this).hasClass('addInput')){

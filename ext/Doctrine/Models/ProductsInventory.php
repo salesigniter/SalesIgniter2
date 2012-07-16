@@ -13,90 +13,43 @@
 class ProductsInventory extends Doctrine_Record
 {
 
-	public function setUp() {
+	public function setUp()
+	{
 		parent::setUp();
-		$this->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'inventory_id');
 
 		$this->hasOne('Products', array(
-				'local' => 'products_id',
-				'foreign' => 'products_id',
-				'cascade' => array('delete')
-			));
+			'local'   => 'products_id',
+			'foreign' => 'products_id',
+			'cascade' => array('delete')
+		));
 
-		$this->hasMany('ProductsInventoryQuantity', array(
-				'local' => 'inventory_id',
-				'foreign' => 'inventory_id',
-				'cascade' => array('delete')
-			));
-
-		$this->hasMany('ProductsInventoryBarcodes', array(
-				'local'   => 'inventory_id',
-				'foreign' => 'inventory_id',
-				'cascade' => array('delete')
-			));
-
-		$this->setUpParent();
+		$this->hasMany('ProductsInventoryItems as Items', array(
+			'local'   => 'inventory_id',
+			'foreign' => 'inventory_id',
+			'cascade' => array('delete')
+		));
 	}
 
-	public function setUpParent() {
-		$Products = Doctrine::getTable('Products')->getRecordInstance();
-
-		$Products->hasMany('ProductsInventory', array(
-				'local' => 'products_id',
-				'foreign' => 'products_id',
-				'cascade' => array('delete')
-			));
-	}
-
-	public function setTableDefinition() {
+	public function setTableDefinition()
+	{
 		$this->setTableName('products_inventory');
 
 		$this->hasColumn('inventory_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => true,
-				'autoincrement' => true
-			));
+			'type'          => 'integer',
+			'length'        => 4,
+			'unsigned'      => 0,
+			'primary'       => true,
+			'autoincrement' => true
+		));
 
 		$this->hasColumn('products_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('track_method', 'string', 20, array(
-				'type' => 'string',
-				'length' => 20,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'quantity',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('type', 'string', 20, array(
-				'type' => 'string',
-				'length' => 20,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'new',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('controller', 'string', 32, array(
-				'type' => 'string',
-				'length' => 32,
-				'fixed' => false,
-				'primary' => false,
-				'default' => 'normal',
-				'notnull' => true,
-				'autoincrement' => false
-			));
+			'type'          => 'integer',
+			'length'        => 4,
+			'unsigned'      => 0,
+			'primary'       => false,
+			'default'       => '0',
+			'notnull'       => true,
+			'autoincrement' => false
+		));
 	}
 }

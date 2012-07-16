@@ -21,6 +21,9 @@ class ModuleConfigReader extends ConfigurationReader
 		$this->module = $module;
 		$this->moduleType = $moduleType;
 
+		if (is_object($moduleDir)){
+			echo '<pre>';debug_print_backtrace();
+		}
 		if ($moduleDir === false){
 			$moduleDir = sysConfig::getDirFsCatalog() . 'includes/modules/' . $this->moduleType . 'Modules/' . $this->module . '/';
 		}

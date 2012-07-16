@@ -53,6 +53,14 @@ class Extension_rentalProducts extends ExtensionBase
 			$RentalQueue =& Session::getReference('RentalQueue');
 			$RentalQueue->initContents();
 		}
+
+		$ProductsPurchaseTypes = Doctrine::getTable('ProductsPurchaseTypes')->getRecordInstance();
+
+		$ProductsPurchaseTypes->hasOne('ProductsPurchaseTypesRentalSettings as RentalSettings', array(
+			'local' => 'purchase_type_id',
+			'foreign' => 'purchase_type_id',
+			'cascade' => array('delete')
+		));
 	}
 
 	public function AdminNavMenuAddBox(&$boxFiles){

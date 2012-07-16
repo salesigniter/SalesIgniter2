@@ -30,14 +30,19 @@ class PurchaseTypeBase extends ModuleBase
 	 * @var array
 	 */
 	private $data = array(
-		'status'                 => 0,
-		'type_name'              => null,
-		'price'                  => 0,
-		'products_id'            => 0,
-		'tax_class_id'           => 0,
-		'inventory_controller'   => 'normal',
-		'inventory_track_method' => 'barcode'
+		'status'         => 0,
+		'type_name'      => null,
+		'price'          => 0,
+		'products_id'    => 0,
+		'tax_class_id'   => 0,
+		'use_serials'    => false,
+		'use_attributes' => false
 	);
+
+	/**
+	 * @var array
+	 */
+	private $_invItems = array();
 
 	/**
 	 * @var bool
@@ -58,6 +63,42 @@ class PurchaseTypeBase extends ModuleBase
 	}
 
 	/**
+	 * @param $key
+	 * @return bool
+	 */
+	public function hasData($key)
+	{
+		return isset($this->data[$key]);
+	}
+
+	/**
+	 * @param $key
+	 * @return null
+	 */
+	public function getData($key)
+	{
+		if (isset($this->data[$key])){
+			return $this->data[$key];
+		}
+		return null;
+	}
+
+	/**
+	 * @param int $productId
+	 *
+	 * Used to load everything related to a purchase type ( mainly only used on the catalog side of the cart )
+	 */
+	public function loadProduct($productId)
+	{
+		if ($this->isEnabled() === true){
+			$this->loadData($productId);
+			$this->loadInventoryData($productId);
+
+			EventManager::notify('PurchaseTypeLoadProduct', $productId, $this);
+		}
+	}
+
+	/**
 	 * @param int $productId
 	 *
 	 * Used to load only the purchase type data stored for the product/purchase type
@@ -75,19 +116,47 @@ class PurchaseTypeBase extends ModuleBase
 			$Result = $Qdata->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			if ($Result && sizeof($Result) > 0){
 				$data = array(
-					'purchaseTypeId'         => $Result[0]['purchase_type_id'],
-					'status'                 => $Result[0]['status'],
-					'type_name'              => $Result[0]['type_name'],
-					'price'                  => $Result[0]['price'],
-					'products_id'            => $productId,
-					'tax_class_id'           => $Result[0]['tax_class_id'],
-					'inventory_controller'   => $Result[0]['inventory_controller'],
-					'inventory_track_method' => $Result[0]['inventory_track_method']
+					'status'         => $Result[0]['status'],
+					'type_name'      => $Result[0]['type_name'],
+					'price'          => $Result[0]['price'],
+					'products_id'    => $productId,
+					'tax_class_id'   => $Result[0]['tax_class_id'],
+					'use_serials'    => $Result[0]['use_serials'],
+					'use_attributes' => false
 				);
 
 				EventManager::notify('PurchaseTypeLoadData', $Result[0], &$data);
 
-				$this->data = $data;
+				$this->data = array_merge($this->data, $data);
+			}
+		}
+	}
+
+	/**
+	 * Used to load only the inventory data stored for the product/purchase type
+	 */
+	public function loadInventoryData()
+	{
+		$Query = Doctrine_Query::create()
+			->from('ProductsInventoryItemsToProductsPurchaseTypes i2pt')
+			->leftJoin('i2pt.InventoryItem i')
+			->leftJoin('i.Serials s')
+			->leftJoin('i2pt.PurchaseTypeInfo as pt')
+			->where('pt.products_id = ?', $this->getProductId())
+			->andWhere('pt.type_name = ?', $this->getCode());
+
+		EventManager::notify('PurchaseTypeLoadInventoryData', $Query);
+
+		$Inventory = $Query->execute();
+		foreach($Inventory as $iInfo){
+			$InventoryItem = $iInfo->InventoryItem;
+			$this->_invItems[$InventoryItem->item_status] = array(
+				'total' => $InventoryItem->item_total
+			);
+			if ($InventoryItem->Serials && $InventoryItem->Serials->count() > 0){
+				foreach($InventoryItem->Serials as $Serial){
+					$this->_invItems[$InventoryItem->item_status]['serials'][] = $Serial->serial_number;
+				}
 			}
 		}
 	}
@@ -117,34 +186,6 @@ class PurchaseTypeBase extends ModuleBase
 		return true;
 	}
 
-	/**
-	 * @param int  $productId
-	 * @param bool $invController
-	 *
-	 * Used to load only the inventory data stored for the product/purchase type
-	 */
-	public function loadInventoryData($productId, $invController = false)
-	{
-		$this->inventoryCls = new ProductInventory($productId, $this->data);
-
-		EventManager::notify('PurchaseTypeLoadInventoryData', $productId, $invController, $this);
-	}
-
-	/**
-	 * @param int $productId
-	 *
-	 * Used to load everything related to a purchase type ( mainly only used on the catalog side of the cart )
-	 */
-	public function loadProduct($productId)
-	{
-		if ($this->isEnabled() === true){
-			$this->loadData($productId);
-			$this->loadInventoryData();
-
-			EventManager::notify('PurchaseTypeLoadProduct', $productId, $this);
-		}
-	}
-
 	public function onReturn()
 	{
 	}
@@ -160,27 +201,6 @@ class PurchaseTypeBase extends ModuleBase
 	public function setProductInfo($key, $val)
 	{
 		$this->productInfo[$key] = $val;
-	}
-
-	/**
-	 * @param $key
-	 * @return bool
-	 */
-	public function hasData($key)
-	{
-		return isset($this->data[$key]);
-	}
-
-	/**
-	 * @param $key
-	 * @return null
-	 */
-	public function getData($key)
-	{
-		if (isset($this->data[$key])){
-			return $this->data[$key];
-		}
-		return null;
 	}
 
 	/**
@@ -407,12 +427,7 @@ class PurchaseTypeBase extends ModuleBase
 	 */
 	public function getInventoryItems($includeUnavailable = false)
 	{
-		if ($this->canUseInventory() === false){
-			return array();
-		}
-		return $this
-			->getInventoryClass()
-			->getInventoryItems($includeUnavailable);
+		return $this->_invItems;
 	}
 
 	/**

@@ -463,8 +463,8 @@ class sysLanguage
 			$text = constant($key);
 		}
 		else {
-			trigger_error('Language key not defined (' . $key . ')', E_USER_NOTICE);
-			debug_print_backtrace();
+			//trigger_error('Language key not defined (' . $key . ')', E_USER_NOTICE);
+			//debug_print_backtrace();
 			/*$messageStack->addSession('footerStack', array(
 								'Server Message' => 'Language key not defined',
 								'Key Requested' => $key

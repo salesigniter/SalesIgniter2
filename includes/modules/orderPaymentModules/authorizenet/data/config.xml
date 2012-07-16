@@ -105,29 +105,6 @@
 				</MODULE_PAYMENT_AUTHORIZENET_TRANSKEY>
 			</configurations>
 		</gateway>
-		<system>
-			<title>System Settings</title>
-			<description>Settings special to the server</description>
-			<configurations>
-				<MODULE_PAYMENT_AUTHORIZENET_CURL>
-					<title><![CDATA[cURL Setup]]></title>
-					<value><![CDATA[Not Compiled]]></value>
-					<description><![CDATA[Whether cURL is compiled into PHP or not. Windows users, select not compiled.]]></description>
-					<set_function>
-						<type>radio</type>
-						<values>
-							<value>Not Compiled</value>
-							<value>Compiled</value>
-						</values>
-					</set_function>
-				</MODULE_PAYMENT_AUTHORIZENET_CURL>
-				<MODULE_PAYMENT_AUTHORIZENET_CURL_PATH>
-					<title><![CDATA[cURL Path]]></title>
-					<value><![CDATA[The Path To cURL]]></value>
-					<description><![CDATA[For Not Compiled mode only, input path to the cURL binary (i.e. c:/curl/curl)]]></description>
-				</MODULE_PAYMENT_AUTHORIZENET_CURL_PATH>
-			</configurations>
-		</system>
 		<transaction>
 			<title>Transaction Settings</title>
 			<description>Settings for Auth.net Transactions</description>

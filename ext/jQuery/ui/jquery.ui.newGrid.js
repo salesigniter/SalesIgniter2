@@ -8,6 +8,7 @@
 		allowMultiple           : false,
 		options                 : {
 			buttons       : [],
+			onShowWindow  : null,
 			onRowClick    : null,
 			onRowDblClick : null
 		},
@@ -124,12 +125,15 @@
 							return false;
 						}
 
+						$(self.GridElement).find('.focusedRow').removeClass('focusedRow');
+
 						if (self.allowMultiple === true && (e.ctrlKey && e.type == 'click')){
 							if ($(this).hasClass('state-active')){
 								$(this).removeClass('state-active');
 							}
 							else {
 								$(this).removeClass('state-hover').addClass('state-active');
+								$(this).addClass('focusedRow');
 							}
 						}
 						else {
@@ -139,6 +143,7 @@
 
 							$(this).parent().find('.state-active').removeClass('state-active');
 							$(this).removeClass('state-hover').addClass('state-active');
+							$(this).addClass('focusedRow');
 						}
 
 						self.enableButton('button');
@@ -168,13 +173,52 @@
 			});
 
 			$(document).on('keydown', function (e) {
-				switch(e.which){
-					case 65:
-						if (e.ctrlKey && self.getSelectedRows().size() > 0){
-							$(self.GridElement).trigger('selectAll');
-							return false;
-						}
-						break;
+				var ignoreEvent = $.inArray(e.target.localName, ['select', 'input']);
+				if (ignoreEvent == -1 && self.GridElement.is(':visible')){
+					switch(e.which){
+						case 38:
+							e.preventDefault();
+
+							var newE = $.Event('click');
+							newE.ctrlKey = e.ctrlKey;
+
+							var FocusedRow = self.GridElement.find('.focusedRow');
+							if (FocusedRow.prev().hasClass('state-active')){
+								if (newE.ctrlKey === false){
+									FocusedRow.prev().trigger(newE);
+								}else{
+									FocusedRow.trigger(newE);
+									FocusedRow.prev().addClass('focusedRow');
+								}
+							}else{
+								FocusedRow.prev().trigger(newE);
+							}
+							break;
+						case 40:
+							e.preventDefault();
+
+							var newE = $.Event('click');
+							newE.ctrlKey = e.ctrlKey;
+
+							var FocusedRow = self.GridElement.find('.focusedRow');
+							if (FocusedRow.next().hasClass('state-active')){
+								if (newE.ctrlKey === false){
+									FocusedRow.next().trigger(newE);
+								}else{
+									FocusedRow.trigger(newE);
+									FocusedRow.next().addClass('focusedRow');
+								}
+							}else{
+								FocusedRow.next().trigger(newE);
+							}
+							break;
+						case 65:
+							if (e.ctrlKey){
+								e.preventDefault();
+								$(self.GridElement).trigger('selectAll');
+							}
+							break;
+					}
 				}
 			});
 
@@ -648,6 +692,14 @@
 
 						if (o.onAfterShow){
 							o.onAfterShow.apply(self.newWindow, [
+								{
+									triggerEl : self
+								}
+							]);
+						}
+
+						if (self.options.onShowWindow){
+							self.options.onShowWindow.apply(self.newWindow, [
 								{
 									triggerEl : self
 								}

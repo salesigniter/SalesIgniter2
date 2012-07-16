@@ -18,6 +18,20 @@ class ProductTypeBase extends ModuleBase
 {
 
 	/**
+	 * @param string $code
+	 * @param bool   $forceEnable
+	 * @param bool   $moduleDir
+	 */
+	public function init($code, $forceEnable = false, $moduleDir = false)
+	{
+		$this->import(new Installable);
+
+		$this->setModuleType('productType');
+
+		parent::init($code, $forceEnable, $moduleDir);
+	}
+
+	/**
 	 * @param AccountsReceivableSalesProducts $SaleProduct
 	 * @param bool                            $AssignInventory
 	 */

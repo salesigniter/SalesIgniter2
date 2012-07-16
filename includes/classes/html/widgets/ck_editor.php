@@ -7,7 +7,7 @@ class htmlWidget_ck_editor implements htmlWidgetPlugin {
 	protected $element;
 	
 	public function __construct(){
-		$this->element = new htmlElement('textarea');
+		$this->element = htmlBase::newTextarea();
 		
 		$this->element
 		->addClass('makeFCK')

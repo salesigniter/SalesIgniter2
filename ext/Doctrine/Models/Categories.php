@@ -15,7 +15,7 @@ class Categories extends Doctrine_Record {
 	private $categoriesArr = array();
 
 	public function setUp(){
-		$this->hasMany('CategoriesDescription', array(
+		$this->hasMany('CategoriesDescription as Description', array(
 			'local'   => 'categories_id',
 			'foreign' => 'categories_id',
 			'cascade' => array('delete')

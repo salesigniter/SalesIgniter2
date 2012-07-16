@@ -27,7 +27,8 @@ class PurchaseTypeTabRental_tab_general
 	}
 
 	public function addTab(&$TabsObj, Product $Product, $PurchaseType) {
-		$PurchaseType->loadData($Product->getId());
+		//echo '<pre>';print_r($PurchaseType);
+		//$PurchaseType->loadData($Product->getId());
 
 		$pricingTypeName = $PurchaseType->getCode();
 		$pricingTypeText = $PurchaseType->getTitle();
