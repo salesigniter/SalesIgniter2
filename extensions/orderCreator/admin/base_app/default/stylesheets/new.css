@@ -1,9 +1,4 @@
 @media screen and (min-width: 1px) {
-	#bodyWrapper {
-		padding-top: 0;
-		margin: 0 10px 10px 10px;
-	}
-
 	.addressTable {
 		width:100%;
 	}

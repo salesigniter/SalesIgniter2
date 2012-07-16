@@ -70,13 +70,25 @@
 					<title><![CDATA[Enable Inventory Management]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Do you want to enable inventory management for this purchase type?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</INVENTORY_ENABLED>
 				<INVENTORY_SHOPPING_CART_VERIFY>
 					<title><![CDATA[Verify Inventory When Adding To And Updating Cart]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Verify inventory before allowing a product into the shopping cart?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</INVENTORY_SHOPPING_CART_VERIFY>
 				<INVENTORY_TRACK_METHODS>
 					<title><![CDATA[Select Inventory Track Methods]]></title>
@@ -93,37 +105,69 @@
 				</INVENTORY_TRACK_METHODS>
 				<INVENTORY_QUANTITY_STATUSES>
 					<title><![CDATA[Select Quantity Statuses]]></title>
-					<value><![CDATA[A,P]]></value>
+					<value><![CDATA[]]></value>
 					<value_glue><![CDATA[,]]></value_glue>
 					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
 					<set_function>
 						<type>checkbox</type>
-						<values>
-							<value id="A"><![CDATA[Available]]></value>
-							<value id="P"><![CDATA[Purchased]]></value>
-							<value id="O"><![CDATA[Out]]></value>
-							<value id="B"><![CDATA[Broken]]></value>
-							<value id="R"><![CDATA[Reserved]]></value>
-						</values>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
 					</set_function>
 				</INVENTORY_QUANTITY_STATUSES>
 				<INVENTORY_BARCODE_STATUSES>
 					<title><![CDATA[Select Barcode Statuses]]></title>
-					<value><![CDATA[A,P]]></value>
+					<value><![CDATA[]]></value>
 					<value_glue><![CDATA[,]]></value_glue>
 					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
 					<set_function>
 						<type>checkbox</type>
-						<values>
-							<value id="A"><![CDATA[Available]]></value>
-							<value id="P"><![CDATA[Purchased]]></value>
-							<value id="O"><![CDATA[Out]]></value>
-							<value id="B"><![CDATA[Broken]]></value>
-							<value id="R"><![CDATA[Reserved]]></value>
-						</values>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
 					</set_function>
 				</INVENTORY_BARCODE_STATUSES>
 			</configurations>
 		</inventory>
+		<statuses>
+			<title>Statuses</title>
+			<description>Purchase Type Status Settings</description>
+			<configurations>
+				<INVENTORY_STATUS_AVAILABLE>
+					<title><![CDATA[Available Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Status indicating that the product has been returned to inventory and is available]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_AVAILABLE>
+				<INVENTORY_STATUS_PURCHASED>
+					<title><![CDATA[Purchased Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Status indicating that the product has been purchased and is no longer available]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_PURCHASED>
+			</configurations>
+		</statuses>
 	</tabs>
 </ConfigurationGroup>

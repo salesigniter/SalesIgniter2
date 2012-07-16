@@ -78,6 +78,13 @@ if (
 		);
 	}
 
+	if (sysPermissions::adminAccessAllowed('system_statuses', 'default') === true){
+		$subChildren[] = array(
+			'link' => itw_app_link(null, 'system_statuses', 'default', 'SSL'),
+			'text' => 'System Statuses'
+		);
+	}
+
 	$contents['children'][] = array(
 		'link'	 => false,
 		'text'	 => sysLanguage::get('BOX_HEADING_LOCALIZATION'),

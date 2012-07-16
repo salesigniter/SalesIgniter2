@@ -20,7 +20,7 @@ class TemplateManagerWidgetCurrencies extends TemplateManagerWidget
 		$this->init('currencies');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $currencies;
 		if (isset($currencies) && is_object($currencies)){

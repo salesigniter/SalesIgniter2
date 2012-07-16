@@ -17,7 +17,7 @@ $Template->template_settings = json_encode(array(
 	'global' => array(
 		'send_to' => $_POST['send_to'],
 		'send_duplicate_to' => $_POST['send_to_extra'],
-		'attachment' => (isset($_POST['email_file']) && !empty($_POST['email_file']) ? $_POST['email_file'] : false)
+		'attachment' => ($_POST['attachment_pdf'] != '' ? $_POST['attachment_pdf'] : false)
 	),
 	'module' => $Module->prepareEventSettingsJson($_POST)
 ));

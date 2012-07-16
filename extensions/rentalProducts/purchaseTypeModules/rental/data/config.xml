@@ -16,31 +16,61 @@
 					<title><![CDATA[Enable Purchase Type]]></title>
 					<value><![CDATA[False]]></value>
 					<description><![CDATA[Do you want to enable this purchase type?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</ENABLED>
 				<SHOW_ON_ADMIN_PRODUCT_LIST>
 					<title><![CDATA[Show On Admin Product List]]></title>
 					<value><![CDATA[False]]></value>
 					<description><![CDATA[Do you want to show this purchase types inventory for the products listed on the admin product listing?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</SHOW_ON_ADMIN_PRODUCT_LIST>
 				<LOGIN_REQUIRED>
 					<title><![CDATA[Require Login]]></title>
 					<value><![CDATA[False]]></value>
 					<description><![CDATA[Do you want to require customers be logged in to add this type of product to their cart?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</LOGIN_REQUIRED>
 				<ALLOW_MULTIPLE_IN_CART>
 					<title><![CDATA[Allow Multiple In Cart]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Allow more than one of the same item of this purchase type in the shopping cart?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</ALLOW_MULTIPLE_IN_CART>
 				<PRICING_ENABLED>
 					<title><![CDATA[Enable Pricing]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Do you want to enable pricing for this purchase type?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</PRICING_ENABLED>
 			</configurations>
 		</general>
@@ -52,13 +82,26 @@
 					<title><![CDATA[Enable Quantity Field]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Show the quantity field on product info to allow more than one to be added at a time?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</ALLOWED_PRODUCT_INFO_QUANTITY_FIELD>
 				<OUT_OF_STOCK_PRODUCT_INFO_DISPLAY>
 					<title><![CDATA[Out Of Stock Display]]></title>
 					<value><![CDATA[Disable Button]]></value>
 					<description><![CDATA[Choose which method to use on the product info page when a purchase type is out of stock?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('Disable Button', 'Out Of Stock Text', 'Hide Box'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value><![CDATA[Disable Button]]></value>
+							<value><![CDATA[Out Of Stock Text]]></value>
+							<value><![CDATA[Hide Box]]></value>
+						</values>
+					</set_function>
 				</OUT_OF_STOCK_PRODUCT_INFO_DISPLAY>
 			</configurations>
 		</product_info>
@@ -70,85 +113,146 @@
 					<title><![CDATA[Enable Inventory Management]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Do you want to enable inventory management for this purchase type?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</INVENTORY_ENABLED>
 				<INVENTORY_SHOPPING_CART_VERIFY>
 					<title><![CDATA[Verify Inventory When Adding To And Updating Cart]]></title>
 					<value><![CDATA[True]]></value>
 					<description><![CDATA[Verify inventory before allowing a product into the shopping cart?]]></description>
-					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value id="True"><![CDATA[Yes]]></value>
+							<value id="False"><![CDATA[No]]></value>
+						</values>
+					</set_function>
 				</INVENTORY_SHOPPING_CART_VERIFY>
 				<INVENTORY_TRACK_METHODS>
 					<title><![CDATA[Select Inventory Track Methods]]></title>
 					<value><![CDATA[quantity,barcode]]></value>
 					<value_glue><![CDATA[,]]></value_glue>
 					<description><![CDATA[Select the inventory track methods you wish to use for this purchase type]]></description>
-					<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'quantity', 'text' => 'Quantity'), array('id' => 'barcode', 'text' => 'Barcode')),]]></set_function>
+					<set_function>
+						<type>checkbox</type>
+						<values>
+							<value id="quantity"><![CDATA[Quantity]]></value>
+							<value id="barcode"><![CDATA[Barcode]]></value>
+						</values>
+					</set_function>
 				</INVENTORY_TRACK_METHODS>
 				<INVENTORY_QUANTITY_STATUSES>
 					<title><![CDATA[Select Quantity Statuses]]></title>
-					<value><![CDATA[A,P]]></value>
+					<value><![CDATA[]]></value>
 					<value_glue><![CDATA[,]]></value_glue>
 					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
-					<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
+					<set_function>
+						<type>checkbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
 				</INVENTORY_QUANTITY_STATUSES>
 				<INVENTORY_BARCODE_STATUSES>
 					<title><![CDATA[Select Barcode Statuses]]></title>
-					<value><![CDATA[A,P]]></value>
+					<value><![CDATA[]]></value>
 					<value_glue><![CDATA[,]]></value_glue>
 					<description><![CDATA[Select the inventory statuses you wish to show on the product inventory page for this purchase type]]></description>
-					<set_function><![CDATA[tep_cfg_select_multioption(array(array('id' => 'A', 'text' => 'Available'), array('id' => 'P', 'text' => 'Purchased'), array('id' => 'O', 'text' => 'Out'), array('id' => 'B', 'text' => 'Broken'), array('id' => 'R', 'text' => 'Reserved')),]]></set_function>
+					<set_function>
+						<type>checkbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
 				</INVENTORY_BARCODE_STATUSES>
 			</configurations>
 		</inventory>
-		<rental>
-			<title>Rental</title>
-			<description>Rental Settings</description>
+		<statuses>
+			<title>Statuses</title>
+			<description>Purchase Type Status Settings</description>
 			<configurations>
-				<RENTAL_PERIOD>
-					<title><![CDATA[Rental Period ( Days )]]></title>
-					<value><![CDATA[2]]></value>
-					<description><![CDATA[Rental period used to figure when a rental is due back to determine if it is late]]></description>
-				</RENTAL_PERIOD>
-				<MAXIMUM_ALLOWED_OUT>
-					<title><![CDATA[Maximum Rentals Allowed]]></title>
-					<value><![CDATA[2]]></value>
-					<description><![CDATA[Global setting for maximum rentals allowed for any customer]]></description>
-				</MAXIMUM_ALLOWED_OUT>
-				<RENTAL_PRODUCT_RESERVATION_EXPIRATION>
-					<title><![CDATA[Rental Product Expiration]]></title>
-					<value><![CDATA[180]]></value>
-					<description><![CDATA[Number of minutes until a rental product reservation will expire, if the customer hasn't picked it up]]></description>
-				</RENTAL_PRODUCT_RESERVATION_EXPIRATION>
-				<RENTAL_STATUS_RESERVED>
-					<title><![CDATA[Rental Reserved Status]]></title>
+				<INVENTORY_STATUS_AVAILABLE>
+					<title><![CDATA[Available Status]]></title>
 					<value><![CDATA[0]]></value>
-					<description><![CDATA[Rental status indicating that the product has been reserved]]></description>
-					<use_function><![CDATA[tep_translate_order_statuses]]></use_function>
-					<set_function><![CDATA[tep_cfg_pull_down_order_status_list(]]></set_function>
-				</RENTAL_STATUS_RESERVED>
-				<RENTAL_STATUS_OUT>
-					<title><![CDATA[Rental Out Status]]></title>
+					<description><![CDATA[Status indicating that the product has been returned to inventory and is available]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_AVAILABLE>
+				<INVENTORY_STATUS_PURCHASED>
+					<title><![CDATA[Purchased Status]]></title>
 					<value><![CDATA[0]]></value>
-					<description><![CDATA[Rental status indicating that the product has been sent our or picked up]]></description>
-					<use_function><![CDATA[tep_translate_order_statuses]]></use_function>
-					<set_function><![CDATA[tep_cfg_pull_down_order_status_list(]]></set_function>
-				</RENTAL_STATUS_OUT>
-				<RENTAL_STATUS_RETURNED>
-					<title><![CDATA[Rental Returned Status]]></title>
+					<description><![CDATA[Status indicating that the product has been purchased and is no longer available]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_PURCHASED>
+				<INVENTORY_STATUS_RESERVED>
+					<title><![CDATA[Reserved Status]]></title>
 					<value><![CDATA[0]]></value>
-					<description><![CDATA[Rental status indicating that the product has been returned to inventory]]></description>
-					<use_function><![CDATA[tep_translate_order_statuses]]></use_function>
-					<set_function><![CDATA[tep_cfg_pull_down_order_status_list(]]></set_function>
-				</RENTAL_STATUS_RETURNED>
-				<RENTAL_STATUS_EXPIRED>
-					<title><![CDATA[Rental Expired Status]]></title>
+					<description><![CDATA[Status indicating that the product has been reserved]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_RESERVED>
+				<INVENTORY_STATUS_OUT>
+					<title><![CDATA[Out Status]]></title>
 					<value><![CDATA[0]]></value>
-					<description><![CDATA[Rental status indicating that the product has been expired and returned to inventory]]></description>
-					<use_function><![CDATA[tep_translate_order_statuses]]></use_function>
-					<set_function><![CDATA[tep_cfg_pull_down_order_status_list(]]></set_function>
-				</RENTAL_STATUS_EXPIRED>
+					<description><![CDATA[Status indicating that the product has been sent out or picked up]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_OUT>
+				<INVENTORY_STATUS_BROKEN>
+					<title><![CDATA[Broken Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Status indicating that the product has been broken and is no longer available]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>inventory</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</INVENTORY_STATUS_BROKEN>
 			</configurations>
-		</rental>
+		</statuses>
 	</tabs>
 </ConfigurationGroup>

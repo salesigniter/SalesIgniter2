@@ -19,7 +19,7 @@ class TemplateManagerWidgetTalkToUs extends TemplateManagerWidget
 		$this->init('talkToUs');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$htmlForm = htmlBase::newElement('form')
 			->attr('name', 'talkToUs')

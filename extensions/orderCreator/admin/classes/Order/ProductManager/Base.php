@@ -29,7 +29,7 @@ class OrderCreatorProductManager extends OrderProductManager
 	 * @param $id
 	 * @return bool|OrderCreatorProduct|OrderProduct
 	 */
-	public function get($id)
+	public function &get($id)
 	{
 		$OrderedProduct = parent::get((int)$id);
 		return $OrderedProduct;

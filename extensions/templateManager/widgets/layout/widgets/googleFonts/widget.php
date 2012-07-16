@@ -21,7 +21,7 @@ class TemplateManagerWidgetGoogleFonts extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = true;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();

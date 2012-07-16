@@ -15,7 +15,7 @@ class TemplateManagerWidgetBanner extends TemplateManagerWidget {
 		$this->init('banner', true, __DIR__);
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 			global $appExtension;
 			$boxWidgetProperties = $this->getWidgetProperties();
 			$banner_group_id = (isset($boxWidgetProperties->selected_banner_group) ? $boxWidgetProperties->selected_banner_group : 0);

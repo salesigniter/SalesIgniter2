@@ -160,14 +160,30 @@ class Session
 		if (sizeof($ResultSet) > 0){
 			$value = stripslashes($ResultSet[0]['value']);
 			if (!empty($value)){
-				if (
-					basename($_SERVER['PHP_SELF']) == 'stylesheet.php' ||
-					basename($_SERVER['PHP_SELF']) == 'javascript.php'
-				){
-					$value = preg_replace('/CheckoutSale\|(.*)(}}|N)/', '', $value);
-
-					EventManager::notify('SessionBeforeReadValue', &$value);
+				$removeCheckout = false;
+				$removeOrderCreator = false;
+				if (in_array(basename($_SERVER['PHP_SELF']), array('stylesheet.php', 'javascript.php'))){
+					$removeCheckout = true;
+					$removeOrderCreator = true;
 				}
+
+				if (isset($_GET['app']) && $_GET['app'] != 'checkout'){
+					$removeCheckout = true;
+				}
+
+				if (isset($_GET['appExt']) === false || $_GET['appExt'] != 'orderCreator'){
+					$removeOrderCreator = true;
+				}
+
+				if ($removeCheckout === true){
+					$value = preg_replace('/CheckoutSale\|(.*)(}}|N)/', '', $value);
+				}
+
+				if ($removeOrderCreator === true){
+					$value = preg_replace('/OrderCreator\|(.*)(}}|N)/', '', $value);
+				}
+
+				EventManager::notify('SessionBeforeReadValue', &$value);
 				return $value;
 			}
 		}

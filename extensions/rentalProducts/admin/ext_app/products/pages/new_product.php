@@ -18,7 +18,7 @@ class rentalProducts_admin_products_new_product extends Extension_rentalProducts
 			$RentalInfo = $purchaseType->getRentalSettings();
 			$rentalPeriod = $RentalInfo['rental_period'];
 			if ($rentalPeriod == '' || $rentalPeriod <= 0){
-				$rentalPeriod = $purchaseType->getConfigData('RENTAL_PERIOD');
+				$rentalPeriod = sysConfig::get('EXTENSION_RENTAL_PRODUCTS_RENTAL_PERIOD');
 			}
 
 			$inputTable->addBodyRow(array(

@@ -20,7 +20,7 @@ class TemplateManagerWidgetCategoryProductListing extends TemplateManagerWidget
 		$this->init('categoryProductListing');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $ShoppingCart, $currencies;
 		$WidgetProperties = $this->getWidgetProperties();

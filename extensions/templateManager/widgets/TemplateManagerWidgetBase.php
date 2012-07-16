@@ -116,7 +116,7 @@ class TemplateManagerWidgetBase extends ModuleBase
 		return false;
 	}
 
-	public function show() {
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder) {
 		return $this->draw();
 	}
 

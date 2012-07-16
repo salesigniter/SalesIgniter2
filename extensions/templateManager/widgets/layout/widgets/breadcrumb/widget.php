@@ -20,7 +20,7 @@ class TemplateManagerWidgetBreadcrumb extends TemplateManagerWidget
 		$this->init('breadcrumb');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $breadcrumb;
 

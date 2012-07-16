@@ -17,7 +17,7 @@ class TemplateManagerWidgetReservationCalendar extends TemplateManagerWidget
 		$this->init('reservationCalendar');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		ob_start();

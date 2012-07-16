@@ -26,8 +26,7 @@ class Extension_customersCustomFields extends ExtensionBase
 		}
 
 		EventManager::attachEvents(array(
-			'CustomerQueryBeforeExecute',
-			'CustomerInfoAddTableContainer'
+			'CustomerSearchQueryBeforeExecute'
 		), null, $this);
 
 		if ($appExtension->isAdmin()){
@@ -39,7 +38,7 @@ class Extension_customersCustomFields extends ExtensionBase
 	{
 		$Qfields = Doctrine_Query::create()
 			->from('CustomersCustomFieldsGroups g')
-			->orderBy('g.group_name')
+			->orderBy('g.display_order')
 			->execute();
 		return $Qfields;
 	}
@@ -113,7 +112,8 @@ class Extension_customersCustomFields extends ExtensionBase
 		$input
 			->setLabelPosition('bottom')
 			->addClass('customerCustomField')
-			->setName('customers_custom_field[' . $Field->field_id . ']');
+			->setName('customers_custom_field[' . $Field->field_id . ']')
+			->setRequired((bool) $Field->field_data->required);
 
 		return $input;
 	}
@@ -138,17 +138,27 @@ class Extension_customersCustomFields extends ExtensionBase
 
 	public function BoxCustomersAddLink(&$contents)
 	{
-		$contents['children'][] = array(
+		$contents['children']['customersBox']['children'][] = array(
 			'link'       => itw_app_link('appExt=customersCustomFields', 'manage', 'default', 'SSL'),
-			'text'       => 'Custom Fields'
+			'text'       => 'Manage Custom Fields'
 		);
 	}
 
-	public function CustomerQueryBeforeExecute(&$productQuery)
+	public function CustomerSearchQueryBeforeExecute(&$Qsearch, $searchTerm)
 	{
-		$productQuery
-			->addSelect('f2c.field_id')
-			->leftJoin('c.CustomersCustomFieldsToCustomers f2c');
+		$Qsearch->leftJoin('c.Fields f2c')
+			->leftJoin('f2c.Field');
+
+		$Fields = Doctrine_Core::getTable('CustomersCustomFields')
+			->findAll();
+		foreach($Fields as $Field){
+			if ($Field->field_data->use_in_search == 1){
+				$Qsearch->orWhere('(f2c.field_id = ? AND f2c.value LIKE ?)', array(
+					$Field->field_id,
+					$searchTerm . '%'
+				));
+			}
+		}
 	}
 
 	protected function _getFieldsQuery($settings = array())
@@ -162,7 +172,7 @@ class Extension_customersCustomFields extends ExtensionBase
 			->leftJoin('f.ProductsCustomFieldsDescription fd')
 			->leftJoin('f.ProductsCustomFieldsToProducts f2p')
 			->where('fd.field_name is not null')
-			->orderBy('f2g.sort_order');
+			->orderBy('g.display_order, f2g.sort_order');
 
 		if (!empty($settings['product_id'])){
 			$Query
@@ -210,7 +220,7 @@ class Extension_customersCustomFields extends ExtensionBase
 	{
 		$Groups = Doctrine_Query::create()
 			->from('CustomersCustomFieldsGroups')
-			->orderBy('group_name')
+			->orderBy('display_order')
 			->execute();
 		if ($Groups){
 			$GroupBlock = htmlBase::newFieldsetFormBlock()

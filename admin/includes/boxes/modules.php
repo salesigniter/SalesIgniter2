@@ -26,18 +26,12 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 	ksort($sorted);
 
 	$k = 0;
-	foreach($sorted as $classObj){
+	foreach($sorted as $extName => $classObj){
+		if ($extName == 'templateManager' || $extName == 'infoPages' || $extName == 'orderCreator' || $extName == 'customFields' || $extName == 'customersCustomFields'){
+			continue;
+		}
 		$k++;
 		$pages  = array();
-		if (sysPermissions::adminAccessAllowed('configure', 'configure', $classObj->getExtensionKey()) === true){
-			$pages = array(
-				array(
-					'link' => itw_app_link('action=edit&ext=' . $classObj->getExtensionKey(), 'extensions', 'default', 'SSL'),
-					'text' => 'Configure'
-				)
-			);
-		}
-
 		if (is_dir($classObj->getExtensionDir() . 'admin/base_app/')){
 			$extDir = new DirectoryIterator($classObj->getExtensionDir() . 'admin/base_app/');
 			foreach($extDir as $extFileObj){
@@ -81,28 +75,12 @@ if (sysPermissions::adminAccessAllowed('extensions', 'default') === true){
 		}
 
 		if(count($pages) > 0){
-			$extensionPages[] = array(
+			$contents['children'][] = array(
 				'link' => itw_app_link('ext=' . $classObj->getExtensionKey(), 'extensions', 'default', 'SSL'),
 				'text' => $classObj->getExtensionName(),
 				'children' => $pages
 			);
 		}
-		if ($k % 5 == 0 && count($extensionPages) > 0){
-			$contents['children'][] = array(
-				'link' => itw_app_link(null, 'extensions', 'default', 'SSL'),
-				'text' => 'Extensions' . ($k / 5 == 1 ? '' : ' Cont.'),
-				'children' => $extensionPages
-			);
-			unset($pages);
-			unset($extensionPages);
-		}
-	}
-	if (isset($extensionPages)){
-		$contents['children'][] = array(
-			'link' => itw_app_link(null, 'extensions', 'default', 'SSL'),
-			'text' => 'Extensions Cont.',
-			'children' => $extensionPages
-		);
 	}
 }
 

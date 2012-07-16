@@ -20,7 +20,7 @@ class TemplateManagerWidgetOrderHistory extends TemplateManagerWidget
 		$this->init('orderHistory');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $userAccount;
 		if ($userAccount->isLoggedIn() === true){

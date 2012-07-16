@@ -11,6 +11,7 @@ $TableGrid = htmlBase::newGrid()
 	->setQuery($Qtemplates);
 
 $TableGrid->addButtons(array(
+	htmlBase::newButton()->addClass('testEmailButton')->usePreset('email')->setText('Send Test Email')->disable(),
 	htmlBase::newButton()->addClass('newButton')->usePreset('new'),
 	htmlBase::newButton()->addClass('editButton')->usePreset('edit')->disable(),
 	htmlBase::newButton()->addClass('deleteButton')->usePreset('delete')->disable()

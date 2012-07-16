@@ -162,7 +162,7 @@ class TemplateManagerWidgetDrawAttributes extends TemplateManagerWidget {
 		return $table->draw();
 	}
 	
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $appExtension;
 		//$AttributesExt = $appExtension->getExtension('attributes');
 		$product = new product($_GET['products_id']);

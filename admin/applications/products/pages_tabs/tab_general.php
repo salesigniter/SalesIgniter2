@@ -2,21 +2,25 @@
 $ProductStatusEnabled = htmlBase::newElement('radio')
 	->setName('products_status')
 	->setLabel(sysLanguage::get('TEXT_PRODUCT_AVAILABLE'))
+	->setLabelPosition('right')
 	->setValue('1');
 
 $ProductStatusDisabled = htmlBase::newElement('radio')
 	->setName('products_status')
 	->setLabel(sysLanguage::get('TEXT_PRODUCT_NOT_AVAILABLE'))
+	->setLabelPosition('right')
 	->setValue('0');
 
 $ProductFeaturedStatusEnabled = htmlBase::newElement('radio')
 	->setName('products_featured')
 	->setLabel(sysLanguage::get('TEXT_PRODUCT_FEATURED'))
+	->setLabelPosition('right')
 	->setValue('1');
 
 $ProductFeaturedStatusDisabled = htmlBase::newElement('radio')
 	->setName('products_featured')
 	->setLabel(sysLanguage::get('TEXT_PRODUCT_NON_FEATURED'))
+	->setLabelPosition('right')
 	->setValue('0');
 
 $ProductDateAvailable = htmlBase::newElement('input')
@@ -63,42 +67,32 @@ else {
 	$ProductStatusEnabled->setChecked(true);
 	$ProductFeaturedStatusDisabled->setChecked(true);
 }
-?>
-<table cellpadding="3" cellspacing="0" border="0">
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_STATUS'); ?></td>
-		<td class="main"><?php echo $ProductStatusEnabled->draw() . $ProductStatusDisabled->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_FEATURED'); ?></td>
-		<td class="main"><?php echo $ProductFeaturedStatusEnabled->draw() . $ProductFeaturedStatusDisabled->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_DATE_AVAILABLE'); ?><br>
-			<small>(YYYY-MM-DD)</small>
-		</td>
-		<td class="main"><?php echo $ProductDateAvailable->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCT_ON_ORDER'); ?></td>
-		<td class="main"><?php echo $ProductOnOrder->draw(); ?></td>
-	</tr>
-	<tr id="productOnOrderCal" style="display:<?php echo ($ProductOnOrder->attr('checked') == 'true' ? 'block' : 'none');?>;">
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCT_DATE_ORDERED'); ?><br>
-			<small>(YYYY-MM-DD)</small>
-		</td>
-		<td class="main"><?php echo $ProductDateOrdered->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_MODEL'); ?></td>
-		<td class="main"><?php echo $ProductModel->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_WEIGHT'); ?></td>
-		<td class="main"><?php echo $ProductWeight->draw(); ?></td>
-	</tr>
-	<tr>
-		<td class="main"><?php echo sysLanguage::get('TEXT_PRODUCTS_DISPLAY_ORDER'); ?></td>
-		<td class="main"><?php echo $ProductDisplayOrder->draw(); ?></td>
-	</tr>
-</table>
+
+$Fieldset = htmlBase::newFieldsetFormBlock();
+$Fieldset->setLegend('General Product Information');
+$Fieldset->addBlock('status', sysLanguage::get('TEXT_PRODUCTS_STATUS'), array(
+	array($ProductStatusEnabled, $ProductStatusDisabled)
+));
+$Fieldset->addBlock('featured', sysLanguage::get('TEXT_PRODUCTS_FEATURED'), array(
+	array($ProductFeaturedStatusEnabled, $ProductFeaturedStatusDisabled)
+));
+$Fieldset->addBlock('date_avail', sysLanguage::get('TEXT_PRODUCTS_DATE_AVAILABLE'), array(
+	array($ProductDateAvailable)
+));
+$Fieldset->addBlock('on_order', sysLanguage::get('TEXT_PRODUCT_ON_ORDER'), array(
+	array($ProductOnOrder)
+));
+$Fieldset->addBlock('date_ordered', sysLanguage::get('TEXT_PRODUCT_DATE_ORDERED'), array(
+	array($ProductDateOrdered)
+));
+$Fieldset->addBlock('model', sysLanguage::get('TEXT_PRODUCTS_MODEL'), array(
+	array($ProductModel)
+));
+$Fieldset->addBlock('weight', sysLanguage::get('TEXT_PRODUCTS_WEIGHT'), array(
+	array($ProductWeight)
+));
+$Fieldset->addBlock('display_order', sysLanguage::get('TEXT_PRODUCTS_DISPLAY_ORDER'), array(
+	array($ProductDisplayOrder)
+));
+
+echo $Fieldset->draw();

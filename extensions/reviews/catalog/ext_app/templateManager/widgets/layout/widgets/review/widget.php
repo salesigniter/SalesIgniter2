@@ -20,7 +20,7 @@ class TemplateManagerWidgetReview extends TemplateManagerWidget {
 		}
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 			global $appExtension;
 			$lID = (int)Session::get('languages_id');
 			$Qreviews = Doctrine_Query::create()

@@ -34,7 +34,7 @@ class TemplateManagerWidgetAddToAnyButtons extends TemplateManagerWidget {
 	 * @return void
 	 */
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		if ($this->enabled === false) return;
 
 		$this->setBoxContent(

@@ -8,6 +8,7 @@ else {
 }
 
 $Group->group_name = $_POST['group_name'];
+$Group->display_order = $_POST['display_order'];
 
 if (isset($_POST['field'])){
 	$Group->Fields->clear();

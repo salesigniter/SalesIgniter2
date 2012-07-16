@@ -20,7 +20,7 @@ class TemplateManagerWidgetCustomPhp extends TemplateManagerWidget
 		$this->init('customPhp');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension, $shoppingCart;
 		$boxWidgetProperties = $this->getWidgetProperties();

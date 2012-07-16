@@ -22,7 +22,7 @@ class TemplateManagerWidgetQuickSearch extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = false;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$buttonGo = htmlBase::newElement('button')
 			->addClass('quickSearchGoButton')

@@ -14,12 +14,17 @@ class ProductsInventoryBarcodes extends Doctrine_Record {
 
 	public function setUp(){
 		parent::setUp();
-		
+
 		$this->hasOne('ProductsInventory as Inventory', array(
 			'local'   => 'inventory_id',
 			'foreign' => 'inventory_id'
 		));
-		
+
+		$this->hasOne('SystemStatuses as Status', array(
+			'local'   => 'status_id',
+			'foreign' => 'status_id'
+		));
+
 		$this->hasMany('ProductsInventoryBarcodesComments', array(
 			'local'   => 'barcode_id',
 			'foreign' => 'barcode_id',
@@ -57,12 +62,12 @@ class ProductsInventoryBarcodes extends Doctrine_Record {
 			'autoincrement' => false,
 		));
 
-		$this->hasColumn('status', 'string', 3, array(
-			'type'          => 'string',
-			'length'        => 3,
+		$this->hasColumn('status_id', 'integer', 4, array(
+			'type'          => 'integer',
+			'length'        => 4,
 			'fixed'         => false,
 			'primary'       => false,
-			'default'       => 'A',
+			'default'       => '0',
 			'notnull'       => true,
 			'autoincrement' => false,
 		));

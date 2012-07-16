@@ -153,8 +153,7 @@ class OrderCreator extends Order implements Serializable
 			'AddressManager' => $this->AddressManager->prepareJsonSave(),
 			'TotalManager'   => $this->TotalManager->prepareSave(),
 			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
-			'errorMessages'  => $this->errorMessages,
-			'data'           => $this->data
+			'errorMessages'  => $this->errorMessages
 		);
 
 		if (is_object($this->SaleModule)){
@@ -174,7 +173,7 @@ class OrderCreator extends Order implements Serializable
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
 			if (in_array($key, array(
-				'InfoManager', 'ProductManager', 'AddressManager', 'TotalManager', 'PaymentManager'
+				'InfoManager', 'ProductManager', 'AddressManager', 'PaymentManager'
 			))
 			){
 				$this->$key = json_encode($dInfo);

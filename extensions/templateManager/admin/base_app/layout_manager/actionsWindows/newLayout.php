@@ -22,6 +22,9 @@ $PageTypeSelect = htmlBase::newElement('selectbox')
 
 TemplateManagerLayoutTypeModules::loadModules();
 foreach(TemplateManagerLayoutTypeModules::getModules() as $Module){
+	if ($Module->getCode() == 'email'){
+		continue;
+	}
 	$PageTypeSelect->addOption($Module->getCode(), $Module->getTitle());
 }
 

@@ -20,7 +20,7 @@ class TemplateManagerWidgetZipSearch extends TemplateManagerWidget
 		$this->init('zipSearch');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$stores = Doctrine_Query::create()
 			->select()

@@ -14,6 +14,16 @@ class EmailModuleOrder extends EmailModuleBase
 			'description' => 'This email is sent to the specified people when an order has been updated to the specified status'
 		),
 		array(
+			'key'         => 'ORDER_DELIVERED_EMAIL',
+			'text'        => 'An Order Has Been Delivered',
+			'description' => 'This email is sent to the specified people when an order has been delivered'
+		),
+		array(
+			'key'         => 'ORDER_PICKEDUP_EMAIL',
+			'text'        => 'An Order Has Been Picked Up',
+			'description' => 'This email is sent to the specified people when an order has been picked up'
+		),
+		array(
 			'key'         => 'ORDER_TIME_SPECIFIC_EMAIL',
 			'text'        => 'Specifc Time Afer Order Is Placed',
 			'description' => 'This email will be sent to the specified people the specified period after an order has been placed ( Must have cron job "Order Time Emails" enabled )'
@@ -39,24 +49,24 @@ class EmailModuleOrder extends EmailModuleBase
 	public function getEventVariables()
 	{
 		return array(
-			array('varName' => 'fullName', 'conditional' => false),
-			array('varName' => 'firstName', 'conditional' => false),
-			array('varName' => 'lastName', 'conditional' => false),
-			array('varName' => 'emailAddress', 'conditional' => false),
-			array('varName' => 'trackingLinks', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'adminComments', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'historyLink', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'orderID', 'conditional' => false),
-			array('varName' => 'status', 'conditional' => false),
-			array('varName' => 'datePurchased', 'conditional' => false),
-			array('varName' => 'orderedProducts', 'conditional' => false),
-			array('varName' => 'orderTotals', 'conditional' => false),
-			array('varName' => 'billing_address', 'conditional' => false),
-			array('varName' => 'shipping_address', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'pickup_address', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'po_number', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'payment_footer', 'conditional' => true, 'conditionCheck' => null),
-			array('varName' => 'paymentTitle', 'conditional' => false)
+			array('varName' => 'fullName', 'description' => 'Customers Full Name'),
+			array('varName' => 'firstName', 'description' => 'Customers First Name'),
+			array('varName' => 'lastName', 'description' => 'Customers Last Name'),
+			array('varName' => 'emailAddress', 'description' => 'Customers Email Address'),
+			array('varName' => 'trackingLinks', 'description' => 'Order Tracking Numbers'),
+			array('varName' => 'adminComments', 'description' => 'Administrator Comments'),
+			array('varName' => 'historyLink', 'description' => 'Account History Sale Link'),
+			array('varName' => 'orderID', 'description' => 'Sale Id (Order, Estimate, etc..)'),
+			array('varName' => 'status', 'description' => 'Sales Status Name (ex. Pending)'),
+			array('varName' => 'datePurchased', 'description' => 'Date Sale Was Done'),
+			array('varName' => 'orderedProducts', 'description' => 'List Of Purchased Products'),
+			array('varName' => 'orderTotals', 'description' => 'List Of Sale Totals'),
+			array('varName' => 'billing_address', 'description' => 'Customers Billing Address'),
+			array('varName' => 'shipping_address', 'description' => 'Customers Shipping Address'),
+			array('varName' => 'pickup_address', 'description' => 'Customers Pickup Address'),
+			array('varName' => 'po_number', 'description' => 'Purchase Order Number'),
+			array('varName' => 'payment_footer', 'description' => 'Footer Text Added By Payment Module'),
+			array('varName' => 'paymentTitle', 'description' => 'Payment Method Name')
 		);
 	}
 
@@ -67,9 +77,6 @@ class EmailModuleOrder extends EmailModuleBase
 		);
 
 		switch($eventKey){
-			case 'ORDER_PLACED_EMAIL':
-				$settings = false;
-				break;
 			case 'ORDER_STATUS_EMAIL':
 				$SelectField = htmlBase::newSelectbox()
 					->setName('send_on_status');
@@ -118,6 +125,9 @@ class EmailModuleOrder extends EmailModuleBase
 					'label' => 'Send On Period',
 					'input' => $PeriodInput
 				);
+				break;
+			default:
+				$settings = false;
 				break;
 		}
 		return $settings;
@@ -179,46 +189,76 @@ class EmailModuleOrder extends EmailModuleBase
 					$Sale = AccountsReceivable::getSale($o['saleModule'], $o['saleId']);
 				}
 
+				if (isset($o['testMode']) && $o['testMode'] === true){
+					$Sale = true;
+				}
+
 				if ($Sale){
-					if ($Sale->InfoManager->getInfo('trackingLinks') != ''){
-						$this->setVar('trackingLinks', $Sale->InfoManager->getInfo('trackingLinks'));
+					if (isset($o['testMode']) && $o['testMode'] === true){
+						$GlobalTemplateSettings['send_to'] = $o['sendTo'];
+
+						$this->setVar('trackingLinks', '890234578439758902378');
+						$this->setVar('adminComments', 'This is a test email send with prepopulated information');
+						$this->setVar('historyLink', 'http://viewMySale.com');
+						$this->setVar('fullName', 'John Doe');
+						$this->setVar('firstName', 'John');
+						$this->setVar('lastName', 'Doe');
+						$this->setVar('emailAddress', 'johndoe@domain.com');
+						$this->setVar('orderID', 'XXXX');
+						$this->setVar('status', 'Pending/Processing/etc..');
+						$this->setVar('datePurchased', date(sysLanguage::getDateFormat('long')));
+						$this->setVar('orderedProducts', 'List Of Products<br>Product 1<br>Product 2<br>Product 3');
+						$this->setVar('orderTotals', 'List Of Totals<br>Subtotal: $10.00<br>Tax: $0.00<br>Total: $10.00');
+						$this->setVar('billing_address', 'CustomersBillingAddressFormatted');
+						$this->setVar('shipping_address', 'CustomersShippingAddressFormatted');
+						$this->setVar('pickup_address', 'CustomersPickupAddressFormatted');
+						$this->setVar('po_number', '89230489230');
+						$this->setVar('payment_footer', 'Payment Module Footer Information');
+						$this->setVar('paymentTitle', 'Some Payment Method');
+					}else{
+						if ($Sale->InfoManager->getInfo('trackingLinks') != ''){
+							$this->setVar('trackingLinks', $Sale->InfoManager->getInfo('trackingLinks'));
+						}
+						if ($Sale->InfoManager->getInfo($adminComments) != ''){
+							$this->setVar('adminComments', $Sale->InfoManager->getInfo('comments'));
+						}
+						//$this->setVar('historyLink', itw_catalog_app_link('sale_id=' . $Sale->getSaleId(), 'account', 'history'));
+						$this->setVar('fullName', $Sale->AddressManager->getAddress('customer')->getName());
+						$this->setVar('firstName', $Sale->AddressManager->getAddress('customer')->getFirstName());
+						$this->setVar('lastName', $Sale->AddressManager->getAddress('customer')->getLastName());
+						$this->setVar('emailAddress', $Sale->getEmailAddress());
+						$this->setVar('orderID', $Sale->getSaleId());
+						$this->setVar('status', $Sale->getStatusName());
+						$this->setVar('datePurchased', $Sale->getDateAdded()->format(sysLanguage::getDateFormat('long')));
+						$this->setVar('orderedProducts', $Sale->ProductManager->getEmailList());
+						$this->setVar('orderTotals', $Sale->TotalManager->getEmailList());
+						$this->setVar('billing_address', $Sale->AddressManager->getFormattedAddress('billing'));
+						$this->setVar('shipping_address', $Sale->AddressManager->getFormattedAddress('delivery'));
+						$this->setVar('pickup_address', $Sale->AddressManager->getFormattedAddress('pickup'));
+						$this->setVar('po_number', $Sale->InfoManager->getInfo('po_number'));
+						$this->setVar('payment_footer', $Sale->InfoManager->getInfo('payment_module_footer'));
+						$this->setVar('paymentTitle', $Sale->PaymentManager->getPaymentModule()->getTitle());
 					}
-					if ($Sale->InfoManager->getInfo($adminComments) != ''){
-						$this->setVar('adminComments', $Sale->InfoManager->getInfo('comments'));
-					}
-					//$this->setVar('historyLink', itw_catalog_app_link('sale_id=' . $Sale->getSaleId(), 'account', 'history'));
-					$this->setVar('fullName', $Sale->AddressManager->getAddress('customer')->getName());
-					$this->setVar('firstName', $Sale->AddressManager->getAddress('customer')->getFirstName());
-					$this->setVar('lastName', $Sale->AddressManager->getAddress('customer')->getLastName());
-					$this->setVar('emailAddress', $Sale->getEmailAddress());
-					$this->setVar('orderID', $Sale->getSaleId());
-					$this->setVar('status', $Sale->getStatusName());
-					$this->setVar('datePurchased', $Sale->getDateAdded()->format(sysLanguage::getDateFormat('long')));
-					$this->setVar('orderedProducts', $Sale->ProductManager->getEmailList());
-					$this->setVar('orderTotals', $Sale->TotalManager->getEmailList());
-					$this->setVar('billing_address', $Sale->AddressManager->getFormattedAddress('billing'));
-					$this->setVar('shipping_address', $Sale->AddressManager->getFormattedAddress('delivery'));
-					$this->setVar('pickup_address', $Sale->AddressManager->getFormattedAddress('pickup'));
-					$this->setVar('po_number', $Sale->InfoManager->getInfo('po_number'));
-					$this->setVar('payment_footer', $Sale->InfoManager->getInfo('payment_module_footer'));
-					$this->setVar('paymentTitle', $Sale->PaymentManager->getPaymentModule()->getTitle());
 
 					if ($GlobalTemplateSettings['send_to'] == 'customer'){
 						$this->sendEmail(array(
 							'name'  => $this->getVar('fullName'),
-							'email' => $this->getVar('emailAddress')
+							'email' => $this->getVar('emailAddress'),
+							'attach' => (isset($o['attach']) ? $o['attach'] : false)
 						));
 					}
 					elseif ($GlobalTemplateSettings['send_to'] == 'admin') {
 						$this->sendEmail(array(
 							'name'  => sysConfig::get('STORE_OWNER'),
-							'email' => sysConfig::get('STORE_OWNER_EMAIL_ADDRESS')
+							'email' => sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'),
+							'attach' => (isset($o['attach']) ? $o['attach'] : false)
 						));
 					}
 					else {
 						$this->sendEmail(array(
 							'name'  => $GlobalTemplateSettings['send_to'],
-							'email' => $GlobalTemplateSettings['send_to']
+							'email' => $GlobalTemplateSettings['send_to'],
+							'attach' => (isset($o['attach']) ? $o['attach'] : false)
 						));
 					}
 				}

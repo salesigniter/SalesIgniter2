@@ -20,7 +20,7 @@ class TemplateManagerWidgetPageStack extends TemplateManagerWidget
 		$this->init('pageStack');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $messageStack;
 		$pageStackOutput = ($messageStack->size('pageStack') > 0 ? $messageStack->output('pageStack', true) : '');

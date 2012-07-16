@@ -21,5 +21,46 @@
 				</EXTENSION_RENTAL_PRODUCTS_ENABLED>
 			</configurations>
 		</general>
+		<sale>
+			<title>Sale</title>
+			<description>Sale Settings</description>
+			<configurations>
+				<EXTENSION_RENTAL_PRODUCTS_SALE_EXPIRATION>
+					<title><![CDATA[Sale Expiration]]></title>
+					<value><![CDATA[180]]></value>
+					<description><![CDATA[Number of minutes until a rental product reservation will expire, if the customer hasn't picked it up]]></description>
+				</EXTENSION_RENTAL_PRODUCTS_SALE_EXPIRATION>
+				<EXTENSION_RENTAL_PRODUCTS_SALE_STATUS_EXPIRED>
+					<title><![CDATA[Sale Expired Status]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Sale status indicating that the sale has expired and had its products returned to inventory]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_statuses</name>
+							<args>
+								<arg>sales</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</EXTENSION_RENTAL_PRODUCTS_SALE_STATUS_EXPIRED>
+			</configurations>
+		</sale>
+		<limits>
+			<title>Min/Max</title>
+			<description>Minimum/Maximum Settings</description>
+			<configurations>
+				<EXTENSION_RENTAL_PRODUCTS_RENTAL_PERIOD>
+					<title><![CDATA[Rental Period ( Days )]]></title>
+					<value><![CDATA[2]]></value>
+					<description><![CDATA[Rental period used to figure when a rental is due back to determine if it is late]]></description>
+				</EXTENSION_RENTAL_PRODUCTS_RENTAL_PERIOD>
+				<EXTENSION_RENTAL_PRODUCTS_MAXIMUM_ALLOWED_OUT>
+					<title><![CDATA[Maximum Rentals Allowed]]></title>
+					<value><![CDATA[2]]></value>
+					<description><![CDATA[Global setting for maximum rentals allowed for any customer]]></description>
+				</EXTENSION_RENTAL_PRODUCTS_MAXIMUM_ALLOWED_OUT>
+			</configurations>
+		</limits>
 	</tabs>
 </ConfigurationGroup>

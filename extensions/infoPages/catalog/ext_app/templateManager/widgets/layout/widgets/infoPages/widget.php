@@ -65,7 +65,7 @@ class TemplateManagerWidgetInfoPages extends TemplateManagerWidget {
 		return $page_list.'</ul>';
 	}
 	
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		if ($this->enabled === false) return;
 		
 		$this->setBoxContent($this->getPageList());

@@ -20,7 +20,7 @@ class TemplateManagerWidgetBestSellers extends TemplateManagerWidget
 		$this->init('bestSellers');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $current_category_id;
 		$QbestSellers = Doctrine_Query::create()

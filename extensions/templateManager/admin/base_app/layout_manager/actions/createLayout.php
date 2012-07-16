@@ -105,7 +105,7 @@ $Module = TemplateManagerLayoutTypeModules::getModule($Layout->page_type);
 if (isset($_POST['layout_template'])){
 	$TemplateLayoutSource = file_get_contents($Module->getStartingLayoutPath() . $_POST['layout_template'] . '/layout_content_source.php');
 	if ($Module->hasSetWidth()){
-		$TemplateLayoutSource = str_replace('{$LAYOUT_WIDTH}', $Module->getMaxWidth(), $TemplateLayoutSource);
+		$TemplateLayoutSource = str_replace('{$LAYOUT_WIDTH}', $Module->getSetWidth(), $TemplateLayoutSource);
 	}
 
 	$TemplateLayout = phpQuery::newDocumentHTML($TemplateLayoutSource);
@@ -120,6 +120,10 @@ $Module->onSave($Layout);
 
 //echo '<pre>';print_r($Layout->toArray(true));itwExit();
 $Layout->save();
+
+if (method_exists($Module, 'afterSave')){
+	$Module->afterSave($Layout);
+}
 
 EventManager::attachActionResponse(array(
 	'success'    => true,

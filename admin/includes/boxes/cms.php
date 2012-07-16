@@ -18,6 +18,7 @@ $contents = array(
 );
 
 $EmailChildren = array();
+
 EmailModules::loadModules();
 foreach(EmailModules::getModules() as $Module){
 	$EmailChildren[] = array(
@@ -30,14 +31,6 @@ $contents['children'][] = array(
 	'text' => 'Email Management',
 	'children' => $EmailChildren
 );
-if (sysPermissions::adminAccessAllowed('template_manager') === true){
-	if (sysPermissions::adminAccessAllowed('template_manager', 'email') === true){
-		$contents['children'][] = array(
-			'link' => itw_app_link(null, 'template_manager', 'email', 'SSL'),
-			'text' => 'Manage Emails'
-		);
-	}
-}
 
 EventManager::notify('BoxCmsAddLink', &$contents);
 if (count($contents['children']) == 0){

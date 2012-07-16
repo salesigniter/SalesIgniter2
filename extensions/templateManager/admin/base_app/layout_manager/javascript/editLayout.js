@@ -623,6 +623,12 @@ function updateBreadcrumb() {
 				$icons
 					.append('<span class="ui-icon ui-icon-arrowthick-1-s moveContainerDown" tooltip="Move Container And Wrappers Down"></span>');
 			}
+			if ($(this).hasClass('column')){
+				$icons
+					.append('<span class="ui-icon ui-icon-arrowthick-1-e moveColumnLeft" tooltip="Move Column And Widgets Left"></span>');
+				$icons
+					.append('<span class="ui-icon ui-icon-arrowthick-1-w moveColumnRight" tooltip="Move Column And Widgets Right"></span>');
+			}
 		}
 		if (isLinkElement === false){
 			$icons.append('<span class="ui-icon ui-icon-pencil editElement" tooltip="Edit Styles"></span>');
@@ -990,6 +996,22 @@ $(document).ready(function() {
 		}
 	});
 
+	$('.moveColumnLeft').live('click', function (e) {
+		e.preventDefault();
+		if ($(this).data('element').prev()){
+			$(this).data('element').insertBefore($(this).data('element').prev());
+			showSaveLayout();
+		}
+	});
+
+	$('.moveColumnRight').live('click', function (e) {
+		e.preventDefault();
+		if ($(this).data('element').next()){
+			$(this).data('element').insertAfter($(this).data('element').next());
+			showSaveLayout();
+		}
+	});
+
 	$('.wrapElement').live('click', function () {
 		var $wrapper = $(wrapperEl);
 		$wrapper.data('styles', {});
@@ -1127,9 +1149,9 @@ $(document).ready(function() {
 		return false;
 	});
 
-	$('#construct-container').css({
+	/*$('#construct-container').css({
 		width: $('#construct-container').width() + 'px'
-	});
+	});*/
 
 	$.widget("ui.tmZoom", $.ui.mouse, {
 		pageX: 0,

@@ -90,7 +90,7 @@ class TemplateManagerWidgetProductImages extends TemplateManagerWidget
 		return $js;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$productsImage = '';

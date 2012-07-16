@@ -18,7 +18,7 @@ $contents = array(
 );
 
 if (sysPermissions::adminAccessAllowed('categories', 'default') === true){
-	$contents['children'][] = array(
+	$contents['children']['categoriesBox'] = array(
 		'link'     => false,
 		'text'     => 'Categories',
 		'children' => array(
@@ -45,7 +45,7 @@ if (sysPermissions::adminAccessAllowed('products') === true){
 			'text' => sysLanguage::get('BOX_CATALOG_PRODUCTS_EXPECTED')
 		);
 	}
-	$contents['children'][] = array(
+	$contents['children']['productsBox'] = array(
 		'link'     => false,
 		'text'     => 'Products',
 		'children' => $productsMenu
@@ -56,4 +56,3 @@ EventManager::notify('BoxCatalogAddLink', &$contents);
 if (count($contents['children']) == 0){
 	$contents = array();
 }
-?>

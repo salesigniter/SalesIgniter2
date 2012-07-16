@@ -21,7 +21,7 @@ class TemplateManagerWidgetRentalIssues extends TemplateManagerWidget
 		}
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $userAccount;
 		if (sysConfig::get('ALLOW_RENTALS') == 'true'){

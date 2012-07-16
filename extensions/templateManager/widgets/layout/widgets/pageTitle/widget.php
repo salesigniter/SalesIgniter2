@@ -25,7 +25,7 @@ class TemplateManagerWidgetPageTitle extends TemplateManagerWidget
 		return 'Demo Page Title';
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $Template, $pageContent;
 		$this->setBoxContent('<h1 class="headingTitle">' . $pageContent->getVar('pageTitle') . '</h1>');

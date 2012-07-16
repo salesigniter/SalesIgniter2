@@ -26,7 +26,7 @@ class TemplateManagerWidgetSearch extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = false;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 
 		$boxContent = tep_draw_form('quick_find', itw_app_link(null, 'products', 'search_result'), 'get') .

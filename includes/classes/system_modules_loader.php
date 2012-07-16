@@ -186,10 +186,6 @@ class SystemModulesLoader
 				require($dir . 'module.php');
 			}
 
-			if (is_dir($dir . 'Doctrine')){
-				Doctrine_Core::loadModels($dir . 'Doctrine', Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
-			}
-
 			$register = false;
 			if (self::isLoaded($moduleCode) === true){
 				if ($reloadModule === true || (isset(static::$alwaysLoadFresh) && static::$alwaysLoadFresh === true)){
@@ -205,6 +201,11 @@ class SystemModulesLoader
 				}
 				$classObj = new $className;
 				$register = true;
+				if ($classObj->isInstalled() === true && $classObj->isEnabled() === true){
+					if (is_dir($dir . 'Doctrine')){
+						Doctrine_Core::loadModels($dir . 'Doctrine', Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
+					}
+				}
 			}
 
 			if (isset($classObj) && is_object($classObj) && method_exists($classObj, 'updateStatus')){

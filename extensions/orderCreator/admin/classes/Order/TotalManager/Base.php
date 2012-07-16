@@ -40,6 +40,19 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	}
 
 	/**
+	 * @return array
+	 */
+	public function prepareSave()
+	{
+		$TotalsJsonArray = array();
+		foreach($this->getAll() as $Total){
+			$TotalsJsonArray[] = $Total->prepareSave();
+		}
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
+		return $TotalsJsonArray;
+	}
+
+	/**
 	 * @param AccountsReceivableSalesTotals $SaleTotals
 	 */
 	public function onSaveProgress(AccountsReceivableSalesTotals &$SaleTotals)

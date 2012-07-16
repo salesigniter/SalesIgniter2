@@ -65,6 +65,11 @@ class EmailModuleBase extends ModuleBase
 		$this->_emailVars['perEmail'][$k] = $v;
 	}
 
+	public function getGlobalVars()
+	{
+		return $this->_emailVars['global'];
+	}
+
 	public function getGlobalVar($k)
 	{
 		return $this->_emailVars['global'][$k];
@@ -82,13 +87,13 @@ class EmailModuleBase extends ModuleBase
 
 	public function setEmailBody($val)
 	{
-		$this->templateBodyUnparsed = explode("\n", $val);
+		$this->templateBodyUnparsed = $val;
 	}
 
 	public function parseTemplateSubject()
 	{
 		$subject = '';
-		if (stristr($this->templateSubjectUnparsed, '{$')){
+		if (stristr($this->templateSubjectUnparsed, '$')){
 			$subject = $this->replaceVar($this->templateSubjectUnparsed);
 		}
 		else {
@@ -99,103 +104,53 @@ class EmailModuleBase extends ModuleBase
 
 	public function parseTemplateBody($allowHTML = true)
 	{
-		$ifStarted = false;
-		$curIfText = '';
-		$templateText = '';
-		foreach($this->templateBodyUnparsed as $line){
-			if (substr($line, 0, 4) == '<!--'){
-				$checkVarText = trim(str_replace(array('<!-- if', '(', ')', '$'), '', $line));
-				$checkVar = (isset($this->_emailVars['perEmail'][$checkVarText]) ? $this->allowedVars['perEmail'][$checkVarText] : false);
+		$conditional = array();
+		$Parsed = $this->templateBodyUnparsed;
+		preg_match_all('/\[if \$([a-z0-9_]+)\](?|<br[ \/]*>|)[\s]*(.*)\[endif\](?|<br[ \/]*>|)[\s]*/imsU', $Parsed, &$conditional);
+		if (sizeof($conditional) > 0){
+			foreach($conditional[1] as $k => $condition){
+				$checkVar = (isset($this->_emailVars['perEmail'][$condition]) ? $this->_emailVars['perEmail'][$condition] : false);
 				if ($checkVar === false){
-					$checkVar = (isset($this->_emailVars['global'][$checkVarText]) ? $this->allowedVars['global'][$checkVarText] : false);
+					$checkVar = (isset($this->_emailVars['global'][$condition]) ? $this->_emailVars['global'][$condition] : false);
 				}
+
 				if ($checkVar){
-					$ifSatisfied = true;
-				}
-				else {
-					$ifSatisfied = false;
-				}
-				$ifStarted = true;
-			}
-			elseif ($ifStarted === true) {
-				if (substr($line, 0, 3) == '-->'){
-					$ifStarted = false;
-					if ($ifSatisfied === true){
-						$templateText .= $curIfText;
-					}
-					$curIfText = '';
-				}
-				else {
-					if ($allowHTML == 0){
-						$line = strip_tags($line);
-					}
-					if (stristr($line, '{$')){
-						$curIfText .= $this->replaceVar($line);
-					}
-					else {
-						$curIfText .= $line;
-					}
-				}
-			}
-			else {
-				if ($allowHTML === false){
-					$line = strip_tags($line);
-				}
-				if (stristr($line, '{$')){
-					$templateText .= $this->replaceVar($line);
-				}
-				else {
-					$templateText .= $line;
+					$Parsed = str_replace($conditional[0][$k], $conditional[2][$k], $Parsed);
+				}else{
+					$Parsed = str_replace($conditional[0][$k], '', $Parsed);
 				}
 			}
 		}
-		$templateText = str_replace('<--APPEND-->', '', $templateText);
-		return $templateText;
+
+		$Parsed = $this->replaceVar($Parsed);
+		return $Parsed;
+	}
+
+	public function prepareValForRegex($val){
+		return str_replace(
+			array('$'),
+			array('\$'),
+			$val
+		);
 	}
 
 	public function replaceVar($string)
 	{
 		foreach($this->_emailVars['global'] as $varName => $val){
-			$string = str_replace('{$' . $varName . '}', $val, $string);
+			$string = preg_replace('/\$' . $varName . '/', $this->prepareValForRegex($val), $string, 1);
 		}
 		foreach($this->_emailVars['perEmail'] as $varName => $val){
-			$string = str_replace('{$' . $varName . '}', $val, $string);
+			$string = preg_replace('/\$' . $varName . '/', $this->prepareValForRegex($val), $string, 1);
 		}
-		if (stristr($string, '{$')){
-			$newString = '';
-			$erasing = false;
-			for($i = 0, $n = strlen($string); $i < $n; $i++){
-				if ($string[$i] == '{'){
-					$erasing = true;
-				}
-				elseif ($erasing === true) {
-					if ($string[$i] == '}'){
-						$erasing = false;
-					}
-				}
-				elseif ($erasing === false) {
-					$newString .= $string[$i];
-				}
-			}
-			$string = $newString;
+		if (stristr($string, '$')){
+			//$string = preg_replace('/\$[a-z0-9_]/i', '', $string);
 		}
+		$string = str_replace(array('\n', '\r'), '', $string);
 		return $string;
 	}
 
 	public function sendEmail($sendTo)
 	{
-		/*if (!empty($this->_emailVars)){
-			if (isset($this->templateData[0]['EmailTemplatesDescription'][$this->languageId])){
-				$emailInfo = $this->templateData[0]['EmailTemplatesDescription'][$this->languageId];
-
-				if (is_null($this->templateFileParsed) === true){
-					$this->templateFileUnparsed = $this->templateData[0]['email_templates_attach'];
-					EventManager::notify('EmailEventPreParseTemplateFile_' . $this->eventName, &$this->templateFileUnparsed);
-					$this->templateFileParsed = $this->parseTemplateFile();
-				}
-			}
-		}*/
-
 		$sendFrom = $this->getGlobalVar('store_owner');
 		$sendFromEmail = $this->getGlobalVar('store_owner_email');
 
@@ -206,19 +161,20 @@ class EmailModuleBase extends ModuleBase
 			$sendFrom = $sendTo['from_name'];
 		}
 
-		if (isset($sendTo['attach'])){
-			$this->templateFileParsed = $sendTo['attach'];
+		if (class_exists('PHPMailer') === false){
+			require(sysConfig::getDirFsCatalog() . 'includes/classes/PhpMailer/class.phpmailer.php');
 		}
+		$Email = new PHPMailer();
+		$Email->AddReplyTo($sendFromEmail,$sendFrom);
+		$Email->SetFrom($sendFromEmail, $sendFrom);
+		$Email->AddAddress($sendTo['email'], $sendTo['name']);
 
-		//echo 'tep_mail(' . $sendTo['name'] . ', ' . $sendTo['email'] . ', ' . $this->parseTemplateSubject() . ', ' . $this->parseTemplateBody() . ', ' . $sendFrom . ', ' . $sendFromEmail . ')';
-		tep_mail(
-			$sendTo['name'],
-			$sendTo['email'],
-			$this->parseTemplateSubject(),
-			$this->parseTemplateBody(),
-			$sendFrom,
-			$sendFromEmail,
-			$this->templateFileParsed
-		);
+		$Email->Subject    = $this->parseTemplateSubject();
+		$Email->AltBody    = "To view the message, please use an HTML compatible email viewer!";
+		$Email->MsgHTML($this->parseTemplateBody());
+		if (isset($sendTo['attach'])){
+			$Email->AddAttachment($sendTo['attach']);
+		}
+		$Email->send();
 	}
 }

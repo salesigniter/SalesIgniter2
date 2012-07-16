@@ -508,7 +508,7 @@
 			'<tbody>' +
 			'<tr>' +
 			'<td colspan="4" class="afterOnly makeColorPicker_RGBA" align="center">Click Here For Color Picker</td>' +
-			'<td><input type="text" name="image_source" class="BrowseServerField" currentFolder=""></td>' +
+			'<td><input type="text" name="image_source" class="fileManager" data-files_source="' + jsConfig.get('DIR_FS_CATALOG') + 'templates/"></td>' +
 			'<td><select name="image_attachment">' +
 			'<option value="">Inherit</option>' +
 			'<option value="scroll">Scroll</option>' +

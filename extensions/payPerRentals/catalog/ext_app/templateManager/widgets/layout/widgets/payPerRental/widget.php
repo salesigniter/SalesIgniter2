@@ -652,7 +652,7 @@ class TemplateManagerWidgetPayPerRental extends TemplateManagerWidget {
 	}
 	
 	
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		$WidgetProperties = $this->getWidgetProperties();
 		if ($this->enabled === false) return;
 		

@@ -20,7 +20,7 @@ class TemplateManagerWidgetMailChimp extends TemplateManagerWidget
 		$this->init('mailChimp');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();

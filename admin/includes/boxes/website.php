@@ -18,6 +18,7 @@ $contents = array(
 );
 
 $EmailChildren = array();
+
 EmailModules::loadModules();
 foreach(EmailModules::getModules() as $Module){
 	$EmailChildren[] = array(

@@ -1,6 +1,6 @@
 <?php
 $LinkedContainer = Doctrine_Core::getTable('TemplateManagerContainerLinks')
-	->find((int) $_POST['lID']);
+	->find((int) $_POST['layout_id']);
 $return = 'false';
 if ($LinkedContainer){
 	$MainContainer = $LinkedContainer->Container;

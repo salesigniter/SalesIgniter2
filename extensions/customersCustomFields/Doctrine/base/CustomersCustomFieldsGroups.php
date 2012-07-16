@@ -31,7 +31,7 @@ class CustomersCustomFieldsGroups extends Doctrine_Record {
 			'primary' => true,
 			'autoincrement' => true,
 		));
-		
+
 		$this->hasColumn('group_name', 'string', 64, array(
 			'type' => 'string',
 			'length' => 64,
@@ -40,5 +40,7 @@ class CustomersCustomFieldsGroups extends Doctrine_Record {
 			'notnull' => true,
 			'autoincrement' => false,
 		));
+
+		$this->hasColumn('display_order', 'integer', 2);
 	}
 }
