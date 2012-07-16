@@ -1,7 +1,6 @@
 <?php
 $pID = (int)$_GET['product_id'];
 $barcode = (isset($_POST['barcodeNumber']) ? $_POST['barcodeNumber'] : false);
-$type = $_GET['purchase_type'];
 $status = 'A';
 if (array_key_exists('aID_string', $_GET)){
 	$aID_string = $_GET['aID_string'];
@@ -9,16 +8,18 @@ if (array_key_exists('aID_string', $_GET)){
 $controller = (isset($aID_string) ? 'attribute' : 'normal');
 $newBarcodes = array();
 
+$PurchaseType = PurchaseTypeModules::getModule($_GET['purchase_type']);
+
 $Qinventory = Doctrine_Query::create()
 	->from('ProductsInventory i')
 	->where('products_id = ?', $pID)
-	->andWhere('type = ?', $type)
+	->andWhere('type = ?', $PurchaseType->getCode())
 	->andWhere('controller = ?', $controller);
 $ProductsInventory = $Qinventory->fetchOne();
 if (!$ProductsInventory){
 	$ProductsInventory = new ProductsInventory();
 	$ProductsInventory->products_id = $pID;
-	$ProductsInventory->type = $type;
+	$ProductsInventory->type = $PurchaseType->getCode();
 	$ProductsInventory->track_method = 'barcode';
 	$ProductsInventory->controller = $controller;
 }
@@ -37,7 +38,7 @@ if (isset($_POST['autogen'])){
 	$Qcheck = Doctrine_Query::create()
 		->select('barcode')
 		->from('ProductsInventoryBarcodes')
-		->where('barcode like ?', $nameFix . '_' . $type . '_%')
+		->where('barcode like ?', $nameFix . '_' . $PurchaseType->getCode() . '_%')
 		->orderBy('barcode desc')
 		->limit('1')
 		->execute(array(), Doctrine::HYDRATE_ARRAY);
@@ -62,7 +63,7 @@ if (isset($_POST['autogen'])){
 				$numberString = '00' . $numberString;
 			}
 		}
-		$genBarcode = $nameFix . '_' . $type . '_' . $numberString;
+		$genBarcode = $nameFix . '_' . $PurchaseType->getCode() . '_' . $numberString;
 		if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 39'){
 			$genBarcode = strtoupper($genBarcode);
 			$genBarcode = str_replace('_', '-', $genBarcode);
@@ -76,7 +77,7 @@ if (isset($_POST['autogen'])){
 		$endNumber++;
 
 		$Barcodes[$nextIndex]->barcode = $genBarcode;
-		$Barcodes[$nextIndex]->status = $status;
+		$Barcodes[$nextIndex]->status = $PurchaseType->getConfigData('INVENTORY_STATUS_AVAILABLE');
 
 		/* ????Put in extension???? */
 		if (isset($aID_string)){
@@ -133,7 +134,7 @@ else {
 		}
 		if (!isset($json['errorMsg'])){
 			$Barcodes[$nextIndex]->barcode = $barcode;
-			$Barcodes[$nextIndex]->status = $status;
+			$Barcodes[$nextIndex]->status = $PurchaseType->getConfigData('INVENTORY_STATUS_AVAILABLE');
 
 			/* ????Put in extension???? */
 			if (isset($aID_string)){
@@ -170,7 +171,7 @@ if (sizeof($newBarcodes) > 0){
 		$tableRow = array();
 		$tableRow[] = array(
 			'addCls' => 'centerAlign gridBodyRowColumn',
-			'text'   => '<input type="checkbox" name="barcodes[]" class="barcode_' . $type . '" value="' . $barcode->barcode_id . '">'
+			'text'   => '<input type="checkbox" name="barcodes[]" class="barcode_' . $PurchaseType->getCode() . '" value="' . $barcode->barcode_id . '">'
 		);
 		$tableRow[] = array(
 			'addCls' => 'gridBodyRowColumn',
@@ -178,7 +179,7 @@ if (sizeof($newBarcodes) > 0){
 		);
 		$tableRow[] = array(
 			'addCls' => 'gridBodyRowColumn',
-			'text'   => $type
+			'text'   => $PurchaseType->getCode()
 		);
 		$tableRow[] = array(
 			'addCls' => 'gridBodyRowColumn',
@@ -189,7 +190,7 @@ if (sizeof($newBarcodes) > 0){
 
 		$buttonData = array(
 			'data-barcode_id'    => $barcode->barcode_id,
-			'data-purchase_type' => $type
+			'data-purchase_type' => $PurchaseType->getCode()
 		);
 
 		if (isset($aID_string)){

@@ -20,7 +20,7 @@ class TemplateManagerWidgetSocialNetworks extends TemplateManagerWidget
 		$this->init('socialNetworks');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 
 		$boxWidgetProperties = $this->getWidgetProperties();

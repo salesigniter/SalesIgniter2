@@ -193,6 +193,15 @@ class OrderAddressManager
 			$this->addresses[$Type]->jsonDecode($aInfo);
 		}
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
+	{
+		foreach($this->getAddresses() as $Address){
+			if ($addColumns['v_' . $Address->getAddressType() . '_address'] === true){
+				$Address->onExport($addColumns, $CurrentRow, $HeaderRow);
+			}
+		}
+	}
 }
 
 require(__DIR__ . '/Address.php');

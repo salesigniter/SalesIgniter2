@@ -17,6 +17,10 @@
 	border : 1px dashed blue;
 }
 
+#construct div {
+	font: inherit;
+}
+
 #construct.desktop {
 }
 

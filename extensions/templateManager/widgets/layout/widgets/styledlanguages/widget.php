@@ -20,7 +20,7 @@ class TemplateManagerWidgetStyledLanguages extends TemplateManagerWidget
 		$this->init('styledlanguages');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $request_type;
 

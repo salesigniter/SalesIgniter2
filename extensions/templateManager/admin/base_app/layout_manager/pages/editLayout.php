@@ -195,6 +195,7 @@ foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
  *
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
+$isPrint = ($Layout->page_type == 'emailPdf');
 ?>
 <style>
 	.widgetInfo { display:none; }
@@ -204,6 +205,7 @@ foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
 	var layoutId = '<?php echo (int)$Layout->layout_id;?>';
 	var layoutType = '<?php echo $Layout->layout_type;?>';
 	var pageType = '<?php echo $Layout->page_type;?>';
+	var isPrintLayout = <?php echo $isPrint ? 'true' : 'false';?>
 </script>
 <div style="text-align:center;padding: 5px 0;">
 	<a href="#" id="construct-save" tooltip="Save Layout" class="ui-state-disabled ui-icon ui-action-icon ui-action-icon-save"></a>
@@ -232,16 +234,6 @@ foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
 	?></div>
 <div class="unselectable" id='construct-header'>
 	<div class="inside">
-		<!--<ul id='construct-actionMenu'>
-			<li><a href='#' id='construct-addContainer' title='Add container'>Add Container</a></li>
-			<li><a href='#' id='construct-addColumn' title='Add column'>Add Column</a></li>
-			<li><a href='#' id='construct-addSubColumn' title='Add a column inside selected column'>Add Sub-Column</a></li>
-			<li><a href='#' id='construct-widgets' title='Add widgets to template'>Add widgets</a></li>
-			<li><a href='#' id='construct-link' title='Create a linked container to use on other templates' class="ui-state-disabled">Create Link</a></li>
-			<li><a href='#' id='construct-importlink' title='Import a linked container'>Import Link</a></li>
-			<li><a href='#' id='construct-borders' title='Show Outline Around Columns And Containers'>Show Outline</a></li>
-			<li><a href='#' id='construct-zoomMode' title='Turn Zoom Mode On/Off' data-zoommode="false">Zoom Mode Off</a></li>
-		</ul>-->
 		<div class="containerBreadcrumb"></div>
 		<div id="scrollInfo"></div>
 	</div>
@@ -330,7 +322,16 @@ if ($Layout->Containers && $Layout->Containers->count() > 0){
 	}
 }
 $Profile->end();
-echo '<div id="construct-container">';
+
+if ($isPrint === true){
+	$inchWidth = 8.27;
+	$pixelsPerInch = 96;
+
+	echo '<div id="construct-container" data-ppi="' . $pixelsPerInch . '" data-width_in="' . $inchWidth . '" style="width:' . ceil($inchWidth*72) . 'pt;margin-left:auto;margin-right:auto;">';
+}
+else{
+	echo '<div id="construct-container">';
+}
 echo $Construct->draw();
 echo '</div>';
 echo '<div id="zoomOverlay"></div>'
@@ -373,7 +374,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Width:</td>
 			<td><input type="text" name="width" size="5"> <select name="width_unit">
 				<option value="auto">Auto</option>
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<!--<option value="em">Em</option>-->
 				<option value="%">Percent</option>
 			</td>
@@ -385,7 +390,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Height:</td>
 			<td><input type="text" name="height" size="5"> <select name="height_unit">
 				<option value="auto">Auto</option>
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<!--<option value="em">Em</option>-->
 				<option value="%">Percent</option>
 			</td>
@@ -409,6 +418,7 @@ echo '<div id="zoomOverlay"></div>'
 			</td>
 			<td>Family:</td>
 			<td colspan="2"><select name="font_family"><?php
+				echo '<option value="inherit" selected>Inherit</option>';
 				echo '<option value="Arial">Arial</option>';
 				echo '<option value="New Times Roman">New Times Roman</option>';
 				echo '<option value="Tahoma">Tahoma</option>';
@@ -435,10 +445,14 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Size:</td>
 			<td><input type="text" size="3" name="font_size" value="12"></td>
 			<td><select name="font_size_unit">
-				<option value="px" selected>Pixels</option>
+				<?php if ($isPrint === true){ ?>
+				<option value="pt">Points</option>
+				<?php }else{ ?>
+				<option value="px">Pixels</option>
+				<?php } ?>
 				<option value="em">Em</option>
 				<option value="%">Percent</option>
-				<option value="inherit">Inherit</option>
+				<option value="inherit" selected>Inherit</option>
 			</select></td>
 		</tr>
 		<tr>
@@ -525,10 +539,14 @@ echo '<div id="zoomOverlay"></div>'
 					<td>Indent:</td>
 					<td><input type="text" size="3" name="text_indent" value="0"></td>
 					<td><select name="text_indent_unit">
-						<option value="px" selected>Pixels</option>
+						<?php if ($isPrint === true){ ?>
+						<option value="pt">Points</option>
+						<?php }else{ ?>
+						<option value="px">Pixels</option>
+						<?php } ?>
 						<option value="em">Em</option>
 						<option value="%">Percent</option>
-						<option value="inherit">Inherit</option>
+						<option value="inherit" selected>Inherit</option>
 					</select></td>
 				</tr>
 				<tr>
@@ -558,7 +576,11 @@ echo '<div id="zoomOverlay"></div>'
 					<td>Letter Spacing:</td>
 					<td><input type="text" size="3" name="letter_spacing" value="0"></td>
 					<td><select name="letter_spacing_unit">
+						<?php if ($isPrint === true){ ?>
+						<option value="pt">Points</option>
+						<?php }else{ ?>
 						<option value="px">Pixels</option>
+						<?php } ?>
 						<option value="normal" selected>Normal</option>
 						<option value="inherit">Inherit</option>
 					</select></td>
@@ -570,7 +592,11 @@ echo '<div id="zoomOverlay"></div>'
 					<td>Line Height:</td>
 					<td><input type="text" size="3" name="line_height" value="1"></td>
 					<td><select name="line_height_unit">
+						<?php if ($isPrint === true){ ?>
+						<option value="pt">Points</option>
+						<?php }else{ ?>
 						<option value="px">Pixels</option>
+						<?php } ?>
 						<option value="em" selected>Em</option>
 						<option value="%">Percent</option>
 						<option value="inherit">Inherit</option>
@@ -614,7 +640,11 @@ echo '<div id="zoomOverlay"></div>'
 					<td>Word Spacing:</td>
 					<td><input type="text" size="3" name="word_spacing" value="1"></td>
 					<td><select name="word_spacing_unit">
+						<?php if ($isPrint === true){ ?>
+						<option value="pt">Points</option>
+						<?php }else{ ?>
 						<option value="px">Pixels</option>
+						<?php } ?>
 						<option value="em">Em</option>
 						<option value="%">Percent</option>
 						<option value="normal" selected>Normal</option>
@@ -845,7 +875,11 @@ echo '<div id="zoomOverlay"></div>'
 							<div id="margin_topSlider"></div>
 						</td>
 						<td><select name="margin_top_unit">
+							<?php if ($isPrint === true){ ?>
+							<option value="pt" selected>Points</option>
+							<?php }else{ ?>
 							<option value="px" selected>Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -859,7 +893,11 @@ echo '<div id="zoomOverlay"></div>'
 						</td>
 						<td><select name="margin_right_unit">
 							<option value="auto" selected>Auto</option>
+							<?php if ($isPrint === true){ ?>
+							<option value="pt">Points</option>
+							<?php }else{ ?>
 							<option value="px">Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -872,7 +910,11 @@ echo '<div id="zoomOverlay"></div>'
 							<div id="margin_bottomSlider"></div>
 						</td>
 						<td><select name="margin_bottom_unit">
+							<?php if ($isPrint === true){ ?>
+							<option value="pt" selected>Points</option>
+							<?php }else{ ?>
 							<option value="px" selected>Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -886,7 +928,11 @@ echo '<div id="zoomOverlay"></div>'
 						</td>
 						<td><select name="margin_left_unit">
 							<option value="auto" selected>Auto</option>
+							<?php if ($isPrint === true){ ?>
+							<option value="pt">Points</option>
+							<?php }else{ ?>
 							<option value="px">Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -909,7 +955,11 @@ echo '<div id="zoomOverlay"></div>'
 							<div id="padding_topSlider"></div>
 						</td>
 						<td><select name="padding_top_unit">
+							<?php if ($isPrint === true){ ?>
+							<option value="pt" selected>Points</option>
+							<?php }else{ ?>
 							<option value="px" selected>Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -923,7 +973,11 @@ echo '<div id="zoomOverlay"></div>'
 						</td>
 						<td><select name="padding_right_unit">
 							<option value="auto" selected>Auto</option>
+							<?php if ($isPrint === true){ ?>
+							<option value="pt">Points</option>
+							<?php }else{ ?>
 							<option value="px">Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -936,7 +990,11 @@ echo '<div id="zoomOverlay"></div>'
 							<div id="padding_bottomSlider"></div>
 						</td>
 						<td><select name="padding_bottom_unit">
+							<?php if ($isPrint === true){ ?>
+							<option value="pt" selected>Points</option>
+							<?php }else{ ?>
 							<option value="px" selected>Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -950,7 +1008,11 @@ echo '<div id="zoomOverlay"></div>'
 						</td>
 						<td><select name="padding_left_unit">
 							<option value="auto" selected>Auto</option>
+							<?php if ($isPrint === true){ ?>
+							<option value="pt">Points</option>
+							<?php }else{ ?>
 							<option value="px">Pixels</option>
+							<?php } ?>
 							<option value="em">Em</option>
 							<option value="%">Percent</option>
 						</select></td>
@@ -979,7 +1041,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Top:</td>
 			<td><input type="text" name="border_top_width" size="5" value="0"></td>
 			<td><select name="border_top_width_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 			<td><input type="text" name="border_top_color" class="makeColorPicker" size="7"></td>
@@ -1001,7 +1067,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Right:</td>
 			<td><input type="text" name="border_right_width" size="5" value="0"></td>
 			<td><select name="border_right_width_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 			<td><input type="text" name="border_right_color" class="makeColorPicker" size="7"></td>
@@ -1023,7 +1093,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Bottom:</td>
 			<td><input type="text" name="border_bottom_width" size="5" value="0"></td>
 			<td><select name="border_bottom_width_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 			<td><input type="text" name="border_bottom_color" class="makeColorPicker" size="7"></td>
@@ -1045,7 +1119,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Left:</td>
 			<td><input type="text" name="border_left_width" size="5" value="0"></td>
 			<td><select name="border_left_width_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 			<td><input type="text" name="border_left_color" class="makeColorPicker" size="7"></td>
@@ -1078,7 +1156,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Top Left:</td>
 			<td><input type="text" name="border_top_left_radius" size="5" value="0"></td>
 			<td><select name="border_top_left_radius_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 		</tr>
@@ -1086,7 +1168,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Top Right:</td>
 			<td><input type="text" name="border_top_right_radius" size="5" value="0"></td>
 			<td><select name="border_top_right_radius_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 		</tr>
@@ -1094,7 +1180,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Bottom Left:</td>
 			<td><input type="text" name="border_bottom_left_radius" size="5" value="0"></td>
 			<td><select name="border_bottom_left_radius_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 		</tr>
@@ -1102,7 +1192,11 @@ echo '<div id="zoomOverlay"></div>'
 			<td>Bottom Right:</td>
 			<td><input type="text" name="border_bottom_right_radius" size="5" value="0"></td>
 			<td><select name="border_bottom_right_radius_unit">
+				<?php if ($isPrint === true){ ?>
+				<option value="pt" selected>Points</option>
+				<?php }else{ ?>
 				<option value="px" selected>Pixels</option>
+				<?php } ?>
 				<option value="%">Percent</option>
 			</select></td>
 		</tr>

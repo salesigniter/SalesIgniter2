@@ -11,7 +11,7 @@ class TemplateManagerWidgetBlogPostTitle extends TemplateManagerWidget {
 
 
 	
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		
 		if ($this->enabled === false) return;
 		$htmlTitle = '';

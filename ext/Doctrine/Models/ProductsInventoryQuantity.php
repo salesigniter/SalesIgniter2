@@ -15,87 +15,30 @@ class ProductsInventoryQuantity extends Doctrine_Record
 
 	public function setUp() {
 		parent::setUp();
+		$this->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'quantity_status_id');
 
 		$this->hasOne('ProductsInventory', array(
 				'local' => 'inventory_id',
 				'foreign' => 'inventory_id'
 			));
 
-		$this->hasMany('ProductsInventoryQuantityComments', array(
-				'local' => 'quantity_id',
-				'foreign' => 'quantity_id',
-				'cascade' => array('delete')
-			));
+		$this->hasMany('ProductsInventoryQuantityComments as Comments', array(
+			'local' => 'quantity_id',
+			'foreign' => 'quantity_id',
+			'cascade' => array('delete')
+		));
+
+		$this->hasOne('SystemStatuses as Status', array(
+			'local' => 'quantity_status_id',
+			'foreign' => 'status_id'
+		));
 	}
 
 	public function setTableDefinition() {
 		$this->setTableName('products_inventory_quantity');
 
-		$this->hasColumn('quantity_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => true,
-				'autoincrement' => true
-			));
-
-		$this->hasColumn('inventory_id', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('available', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('qty_out', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('broken', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('purchased', 'integer', 4, array(
-				'type' => 'integer',
-				'length' => 4,
-				'unsigned' => 0,
-				'primary' => false,
-				'default' => '0',
-				'notnull' => true,
-				'autoincrement' => false
-			));
-
-		$this->hasColumn('attributes', 'string', 999, array(
-				'type' => 'string',
-				'length' => 999,
-				'primary' => false,
-				'default' => null,
-				'notnull' => false,
-				'autoincrement' => false,
-			));
+		$this->hasColumn('inventory_id', 'integer', 4);
+		$this->hasColumn('quantity_number', 'integer', 4);
+		$this->hasColumn('quantity_status_id', 'integer', 4);
 	}
 }

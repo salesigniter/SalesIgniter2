@@ -296,6 +296,10 @@ class PurchaseType_Rental extends PurchaseTypeBase
 		}
 		return $return;
 	}
+
+	public function onSaveProduct(ProductsPurchaseTypes $PurchaseType){
+
+	}
 }
 
 ?>

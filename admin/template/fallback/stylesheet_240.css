@@ -1,7 +1,15 @@
 @media screen and (min-width: 240px) {
+	#bodyWrapper.hasAppMenu {
+		padding-top : 100px;
+	}
+
+	.ApplicationPageMenu.fixed {
+		left : 0;
+	}
+
 	.ApplicationPageMenu .rootItem {
-		width: 50px;
-		line-height: 3em;
-		padding-top: 10px;
+		width       : 50px;
+		line-height : 3em;
+		padding-top : 10px;
 	}
 }

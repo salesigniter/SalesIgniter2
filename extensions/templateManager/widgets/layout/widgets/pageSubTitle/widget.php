@@ -22,7 +22,7 @@ class TemplateManagerWidgetPageSubTitle extends TemplateManagerWidget
 		return 'This is a DEMO Page Subtitle';
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $Template, $pageContent;
 		$this->setBoxContent('<h3 class="headingSubTitle">' . $pageContent->getVar('pageSubTitle') . '</h3>');

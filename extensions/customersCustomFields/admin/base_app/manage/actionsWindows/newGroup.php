@@ -24,7 +24,12 @@ $groupInput = htmlBase::newInput()
 	->setValidation(true, '[a-zA-Z0-9 ]+')
 	->val($Group->group_name);
 
+$displayOrderInput = htmlBase::newInput()
+	->setName('display_order')
+	->val((int)$Group->display_order);
+
 $infoBox->addContentRow(sysLanguage::get('ENTRY_GROUP_NAME') . '<br>' . $groupInput->draw());
+$infoBox->addContentRow('Display Order' . '<br>' . $displayOrderInput->draw());
 
 $sortableList = htmlBase::newElement('sortable_list')
 	->css('margin', '5px');

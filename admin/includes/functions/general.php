@@ -25,6 +25,45 @@ function itwExit(){
 	exit;
 }
 
+function itw_get_status_name($id){
+	$Qstatus = Doctrine_Query::create()
+		->select('s.status_id, sd.status_name')
+		->from('SystemStatuses s')
+		->leftJoin('s.Description sd')
+		->where('sd.language_id = ?', (int) Session::get('languages_id'))
+		->andWhere('s.status_id = ?', $id)
+		->orderBy('s.status_id')
+		->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	return $Qstatus[0]['Description'][0]['status_name'];
+}
+function itw_get_statuses(){
+	$types = func_get_args();
+	$Qstatus = Doctrine_Query::create()
+		->select('s.status_id, sd.status_name')
+		->from('SystemStatuses s')
+		->leftJoin('s.Description sd')
+		->where('sd.language_id = ?', (int) Session::get('languages_id'))
+		->orderBy('s.status_id');
+
+	if (!empty($types)){
+		$searchCommands = array();
+		foreach($types as $type){
+			$searchCommands[] = 'FIND_IN_SET("' . $type . '", s.status_types)';
+		}
+		$Qstatus->andWhere('(' . implode(' ) OR (', $searchCommands) . ')');
+	}
+	$Result = $Qstatus->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+
+	$return = array();
+	foreach($Result as $sInfo){
+		$return[] = array(
+			'id' => $sInfo['status_id'],
+			'text' => $sInfo['Description'][0]['status_name']
+		);
+	}
+	return $return;
+}
+
 //Admin begin
 ////
 //Check login
@@ -1382,6 +1421,25 @@ function tep_cfg_pull_down_order_status_list($status_id, $key = '') {
 		$htmlSelect->addOption($id, $name);
 	}
 	return '<br>' . $htmlSelect->draw();
+}
+
+function itw_get_layouts_array($type = null){
+	$Qlayouts = Doctrine_Query::create()
+		->from('TemplateManagerLayouts')
+		->orderBy('layout_name');
+	if ($type !== null){
+		$Qlayouts->where('page_type = ?', $type);
+	}
+
+	$return = array();
+	$Results = $Qlayouts->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+	foreach($Results as $lInfo){
+		$return[] = array(
+			'id' => $lInfo['layout_id'],
+			'text' => $lInfo['layout_name']
+		);
+	}
+	return $return;
 }
 
 function itw_get_templates_array(){

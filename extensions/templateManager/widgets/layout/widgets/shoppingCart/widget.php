@@ -30,7 +30,7 @@ class TemplateManagerWidgetShoppingCart extends TemplateManagerWidget
 		return $return;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $ShoppingCart, $currencies;
 		$WidgetProperties = $this->getWidgetProperties();

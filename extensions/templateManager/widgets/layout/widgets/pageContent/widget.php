@@ -7,7 +7,7 @@ class TemplateManagerWidgetPageContent extends TemplateManagerWidget
 		$this->init('pageContent', __DIR__);
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $App, $Template;
 		/* @TODO: Make This Work

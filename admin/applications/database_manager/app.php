@@ -169,9 +169,9 @@ function checkModel($modelName, $charset, $collation) {
 Doctrine_Core::loadAllModels();
 sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));
 
-ProductTypeModules::loadModules(true);
-PurchaseTypeModules::loadModules(true);
-OrderPaymentModules::loadModules(true);
-OrderShippingModules::loadModules(true);
-OrderTotalModules::loadModules(true);
-AccountsReceivableModules::loadModules(true);
+ProductTypeModules::loadModules();
+PurchaseTypeModules::loadModules();
+OrderPaymentModules::loadModules();
+OrderShippingModules::loadModules();
+OrderTotalModules::loadModules();
+AccountsReceivableModules::loadModules();

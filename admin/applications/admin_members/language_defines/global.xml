@@ -21,6 +21,7 @@
 	<define key="TEXT_INFO_FIRSTNAME"><![CDATA[Firstname: ]]></define>
 	<define key="TEXT_INFO_LASTNAME"><![CDATA[Lastname: ]]></define>
 	<define key="TEXT_INFO_EMAIL"><![CDATA[Email Address: ]]></define>
+	<define key="TEXT_INFO_PASSWORD"><![CDATA[Password: ]]></define>
 	<define key="TEXT_INFO_OVERRIDE_PASSWORD"><![CDATA[Override Password ( Used for password protected actions )]]></define>
 	<define key="TEXT_INFO_GROUP"><![CDATA[Group Level: ]]></define>
 	<define key="TEXT_INFO_FAVORITES"><![CDATA[Load Favorites Set]]></define>

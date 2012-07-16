@@ -12,6 +12,16 @@ class FileWriterCsvRow
 		}
 	}
 
+	public function hasColumn($key){
+		return ($this->getColumn($key) !== false);
+	}
+
+	public function removeColumn($key){
+		if (isset($this->columns[$key]) === true){
+			unset($this->columns[$key]);
+		}
+	}
+
 	public function addColumn($colValue, $colKey = null){
 		$NewColumn = new FileWriterCsvCol($colValue);
 
@@ -29,7 +39,7 @@ class FileWriterCsvRow
 			return $this->columns[$key];
 		}elseif (is_string($key)){
 			foreach($this->columns as $k => $Col){
-				if ($k == $key){
+				if ($Col->getValue() === $key || $k === $key){
 					return $Col;
 				}
 			}

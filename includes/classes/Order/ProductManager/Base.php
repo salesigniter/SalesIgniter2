@@ -125,6 +125,14 @@ class OrderProductManager
 			$this->Contents[$ContentProduct->getId()] = $ContentProduct;
 		}
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
+	{
+		$i = 1;
+		foreach($this->getContents() as $Product){
+			$Product->onExport($addColumns, &$CurrentRow, &$HeaderRow, $i++);
+		}
+	}
 }
 
 require(__DIR__ . '/Product.php');

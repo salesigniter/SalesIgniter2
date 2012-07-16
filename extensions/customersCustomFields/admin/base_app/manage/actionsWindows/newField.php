@@ -13,38 +13,38 @@ $infoBox->setHeader('<b>' . ($Field->field_id > 0 ? sysLanguage::get('TEXT_ACTIO
 $infoBox->setButtonBarLocation('top');
 
 $saveButton = htmlBase::newElement('button')
-->attr('data-action', 'saveField')
-->addClass('saveButton')
-->usePreset('save');
+	->attr('data-action', 'saveField')
+	->addClass('saveButton')
+	->usePreset('save');
 $cancelButton = htmlBase::newElement('button')
-->addClass('cancelButton')
-->usePreset('cancel');
+	->addClass('cancelButton')
+	->usePreset('cancel');
 
 $infoBox
-->addButton($saveButton)
-->addButton($cancelButton);
+	->addButton($saveButton)
+	->addButton($cancelButton);
 
 $fieldKey = htmlBase::newElement('input')
-->setName('field_key')
-->val($Field->field_key)
-->setRequired(true)
-->attr('data-validate', 'true')
-->attr('pattern', '[a-zA-Z0-9_]+');
+	->setName('field_key')
+	->val($Field->field_key)
+	->setRequired(true)
+	->attr('data-validate', 'true')
+	->attr('pattern', '[a-zA-Z0-9_]+');
 
 $fieldDefaultValue = htmlBase::newElement('input')
-->setName('field_default_value')
-->val($Field->field_data->default_value);
+	->setName('field_default_value')
+	->val($Field->field_data->default_value);
 
 $fieldNames = htmlBase::newElement('table')
-->setCellPadding('3')
-->setCellSpacing('0');
+	->setCellPadding('3')
+	->setCellSpacing('0');
 foreach(sysLanguage::getLanguages() as $lInfo){
 	$langId = $lInfo['id'];
 
 	$fieldNameInput = htmlBase::newElement('input')
-	->setName('field_name[' . $langId . ']')
-	->setRequired(true)
-	->setValidation(true, '[a-zA-Z ]+');
+		->setName('field_name[' . $langId . ']')
+		->setRequired(true)
+		->setValidation(true, '[a-zA-Z ]+');
 
 	if ($Field->Description && isset($Field->Description[$langId])){
 		$fieldNameInput->setValue($Field->Description[$langId]->field_name);
@@ -59,24 +59,30 @@ foreach(sysLanguage::getLanguages() as $lInfo){
 }
 
 $requiredCheckbox = htmlBase::newElement('checkbox')
-->setLabel(sysLanguage::get('ENTRY_INPUT_REQUIRED'))
-->setLabelPosition('right')
-->setName('input_required')
-->setChecked(($Field->field_data->required == 1));
+	->setLabel(sysLanguage::get('ENTRY_INPUT_REQUIRED'))
+	->setLabelPosition('right')
+	->setName('input_required')
+	->setChecked(($Field->field_data->required == 1));
 
 $isMultipleCheckbox = htmlBase::newElement('checkbox')
-->setLabel(sysLanguage::get('ENTRY_INPUT_MULTIPLE'))
-->setLabelPosition('right')
-->setName('is_multiple')
-->setChecked(($Field->field_data->multiple == 1));
+	->setLabel(sysLanguage::get('ENTRY_INPUT_MULTIPLE'))
+	->setLabelPosition('right')
+	->setName('is_multiple')
+	->setChecked(($Field->field_data->multiple == 1));
+
+$useInSearchCheckbox = htmlBase::newElement('checkbox')
+	->setLabel('Use In Searches')
+	->setLabelPosition('right')
+	->setName('use_in_search')
+	->setChecked(($Field->field_data->use_in_search == 1));
 
 $sizeOfOptions = $Field->Options->count();
 
 $InputOptions = htmlBase::newElement('table')
-->setCellPadding('3')
-->setCellSpacing('0')
-->css('width', '100%')
-->addHeaderRow(array(
+	->setCellPadding('3')
+	->setCellSpacing('0')
+	->css('width', '100%')
+	->addHeaderRow(array(
 	'columns' => array(
 		array(
 			'addCls' => 'main',
@@ -92,16 +98,16 @@ $InputOptions = htmlBase::newElement('table')
 $lId = Session::get('languages_id');
 foreach($Field->Options as $i => $Option){
 	$nameInput = htmlBase::newElement('input')
-	->addClass('text')
-	->setType('text')
-	->setName('option_name[' . $i . ']')
-	->setValue($Option->Description[$lId]->option_name);
+		->addClass('text')
+		->setType('text')
+		->setName('option_name[' . $i . ']')
+		->setValue($Option->Description[$lId]->option_name);
 
 	$sortInput = htmlBase::newElement('input')
-	->addClass('sort')
-	->setType('hidden')
-	->setName('option_sort[' . $i . ']')
-	->setValue($Option->display_order);
+		->addClass('sort')
+		->setType('hidden')
+		->setName('option_sort[' . $i . ']')
+		->setValue($Option->display_order);
 
 	$InputOptions->addBodyRow(array(
 		'rowAttr' => array(
@@ -114,9 +120,9 @@ foreach($Field->Options as $i => $Option){
 			array(
 				'text'   => /*'<span class="ui-icon ui-icon-wrench editData" tooltip="Edit Data"></span>' .*/
 				'<span class="ui-icon ui-icon-arrowthick-1-n moveOptionUp" tooltip="Move Up"></span>' .
-				'<span class="ui-icon ui-icon-arrowthick-1-s moveOptionDown" tooltip="Move Down"></span>' .
-				'<span class="ui-icon ui-icon-circle-minus removeOption" tooltip="Remove Option"></span>' .
-				$sortInput->draw()
+					'<span class="ui-icon ui-icon-arrowthick-1-s moveOptionDown" tooltip="Move Down"></span>' .
+					'<span class="ui-icon ui-icon-circle-minus removeOption" tooltip="Remove Option"></span>' .
+					$sortInput->draw()
 			)
 		)
 	));
@@ -127,18 +133,18 @@ $optionsWrapper->attr('id', 'inputOptions');
 $optionsWrapper->append($InputOptions);
 
 $inputTypeMenu = htmlBase::newElement('selectbox')
-->setName('input_type')
-->change('showOptionEntry(this)')
-->selectOptionByValue($Field->field_data->type);
+	->setName('input_type')
+	->change('showOptionEntry(this)')
+	->selectOptionByValue($Field->field_data->type);
 
 $inputTypeMenu
-->addOption('text', 'Text')
-->addOption('date', 'Date Picker')
-->addOption('radio', 'Radio Set')
-->addOption('checkbox', 'Checkbox Set')
-->addOption('textarea', 'Textarea')
-->addOption('select', 'Select Box')
-->addOption('upload', 'Image Upload');
+	->addOption('text', 'Text')
+	->addOption('date', 'Date Picker')
+	->addOption('radio', 'Radio Set')
+	->addOption('checkbox', 'Checkbox Set')
+	->addOption('textarea', 'Textarea')
+	->addOption('select', 'Select Box')
+	->addOption('upload', 'Image Upload');
 
 if ($Field->field_data->type != 'select' && $Field->field_data->type != 'radio' && $Field->field_data->type != 'checkbox'){
 	$optionsWrapper->css('display', 'none');
@@ -171,7 +177,7 @@ if ($appExtension->isInstalled('orderCreator') && $appExtension->isEnabled('orde
 }
 
 $showOnGroup = htmlBase::newElement('checkbox')
-->addGroup(array(
+	->addGroup(array(
 	'name'          => 'show_on[]',
 	'labelPosition' => 'after',
 	'separator'     => '<br>',
@@ -179,9 +185,9 @@ $showOnGroup = htmlBase::newElement('checkbox')
 ));
 
 $finalTable = htmlBase::newElement('table')
-->setCellPadding('3')
-->setCellSpacing('0')
-->attr('field_id', $Field->field_id);
+	->setCellPadding('3')
+	->setCellSpacing('0')
+	->attr('field_id', $Field->field_id);
 
 $finalTable->addBodyRow(array(
 	'columns' => array(
@@ -216,6 +222,12 @@ $finalTable->addBodyRow(array(
 $finalTable->addBodyRow(array(
 	'columns' => array(
 		array('addCls' => 'main', 'text' => $isMultipleCheckbox)
+	)
+));
+
+$finalTable->addBodyRow(array(
+	'columns' => array(
+		array('addCls' => 'main', 'text' => $useInSearchCheckbox)
 	)
 ));
 

@@ -17,7 +17,7 @@ class TemplateManagerWidgetProductTypes extends TemplateManagerWidget
 		$this->init('productTypes');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$htmlText = '';

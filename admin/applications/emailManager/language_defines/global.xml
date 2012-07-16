@@ -5,6 +5,10 @@
 	<define key="HEADING_AVAIL_VARS"><![CDATA[Available Variables]]></define>
 	<define key="HEADING_COND_VARS"><![CDATA[Conditional Variables]]></define>
 
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Template Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this email template?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete these email templates?]]></define>
+
 	<define key="TEXT_INFO_HEADING_NEW"><![CDATA[New Template]]></define>
 	<define key="TEXT_INFO_HEADING_EDIT"><![CDATA[Edit Template]]></define>
 

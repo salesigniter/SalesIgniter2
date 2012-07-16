@@ -183,6 +183,7 @@ class OrderPaymentFdggc2 extends CreditCardModule
 		$Sale->sendNewSaleSuccessEmail();
 
 		$this->logPayment(array(
+			'module'      => $this->getCode(),
 			'saleId'      => $info['saleId'],
 			'amount'      => $_POST['chargetotal'],
 			'message'     => $info['message'],
@@ -212,6 +213,7 @@ class OrderPaymentFdggc2 extends CreditCardModule
 		}
 		else {
 			$this->logPayment(array(
+				'module'      => $this->getCode(),
 				'saleId'      => $info['saleId'],
 				'amount'      => $info['amount'],
 				'message'     => $info['message'],

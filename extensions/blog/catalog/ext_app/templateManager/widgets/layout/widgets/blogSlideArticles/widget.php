@@ -94,7 +94,7 @@ class TemplateManagerWidgetBlogSlideArticles extends TemplateManagerWidget {
 		return $javascript;
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();
 		$blog = $appExtension->getExtension('blog');

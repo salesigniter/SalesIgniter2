@@ -202,7 +202,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function shippingIsNone() { return ($this->getShipping() == 'false'); }
 
-	public function hasDiscounts() { return isset($this->Discounts); }
+	public function hasDiscounts() { return (empty($this->Discounts) === false); }
 
 	public function checkAvailableBarcodes($Product)
 	{
@@ -1144,7 +1144,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 			$ReservationInfo = $cartProduct;
 		}
-		elseif ($cartProduct instanceof OrderProduct) {
+		elseif ($cartProduct instanceof OrderProduct){
 			$hasBarcode = $cartProduct->hasInfo('barcode_id');
 			if ($hasBarcode === true){
 				$barcodeID = $cartProduct->getInfo('barcode_id');
@@ -2948,6 +2948,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 		}
 
+		usort($Prices, function ($a, $b){
+			return ($a['price'] < $b['price'] ? 1 : -1);
+		});
 		$Lowest = PurchaseType_reservation_utilities::getLowestPrice(
 			$Prices,
 			$dateArray['start_date'],
@@ -2958,7 +2961,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		$return['price'] = round($Price, 2);
 		$return['totalPrice'] = round($Price, 2);
 		if (sysconfig::get('EXTENSION_PAY_PER_RENTALS_SHORT_PRICE') == 'False'){
-			$NumberOfMinutes = (($dateArray['end_date']->diff($dateArray['start_date'])->days * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
+			$NumberOfMinutes = ((($dateArray['end_date']->diff($dateArray['start_date'])->days+1) * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 			$return['message'] = sysLanguage::get('PPR_PRICE_BASED_ON') .
 				($NumberOfMinutes / $Lowest['Type']['minutes']) .
 				'X' .

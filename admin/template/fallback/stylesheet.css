@@ -63,10 +63,10 @@ td span { vertical-align: middle; }
 .ui-icon-arrowthick-1-s { background-position: -226px -2px; }
 .ui-icon-folder-collapsed { background-position: -254px -2px; }
 
-.ui-icon-circle-triangle-e { background-position: -2px -30px; }
+.ui-icon-circle-triangle-e, .ui-icon-arrowthick-1-w { background-position: -2px -30px; }
 .ui-icon-window-close, .ui-dialog-titlebar-close .ui-icon-closethick { background-position: -114px -30px; }
 .ui-icon-home { background-position: -142px -30px; }
-.ui-icon-back, .ui-icon-circle-triangle-w { background-position: -198px -30px; }
+.ui-icon-back, .ui-icon-circle-triangle-w, .ui-icon-arrowthick-1-e { background-position: -198px -30px; }
 .ui-icon-arrowthick-1-n { background-position: -226px -30px; }
 .ui-icon-seek-end { background-position: -254px -30px; }
 

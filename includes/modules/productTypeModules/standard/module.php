@@ -590,9 +590,13 @@ class ProductTypeStandard extends ProductTypeBase
 
 				if ($PurchaseType->configExists('PRICING_ENABLED') && $PurchaseType->getConfigData('PRICING_ENABLED') == 'True'){
 					if (isset($_POST['pricing'][$pType])){
-						$Product->ProductsPurchaseTypes[$pType]->price = $_POST['pricing'][$pType]['global']['price'];
-						$Product->ProductsPurchaseTypes[$pType]->tax_class_id = $_POST['pricing'][$pType]['global']['tax_class_id'];
+						$Product->ProductsPurchaseTypes[$pType]->price = $_POST['pricing'][$pType]['price'];
+						$Product->ProductsPurchaseTypes[$pType]->tax_class_id = $_POST['pricing'][$pType]['tax_class_id'];
 					}
+				}
+
+				if (method_exists($PurchaseType, 'onSaveProduct')){
+					$PurchaseType->onSaveProduct($Product->ProductsPurchaseTypes[$pType]);
 				}
 
 				EventManager::notify('AdminProductPurchaseTypeOnSave', $PurchaseType, $Product->ProductsPurchaseTypes[$pType]);

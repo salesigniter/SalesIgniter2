@@ -23,7 +23,7 @@ class TemplateManagerWidgetCategories extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = false;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $cPath, $cPath_array, $tree, $categoriesString, $current_category_id;
 

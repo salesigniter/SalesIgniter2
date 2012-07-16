@@ -27,4 +27,7 @@
 		width       : 200px;
 		line-height : 60px;
 	}
+	.ApplicationPageMenu.fixed {
+		left:200px;
+	}
 }

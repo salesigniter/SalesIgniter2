@@ -85,7 +85,7 @@
 			$Qgroups = Doctrine_Query::create()
 				->select('group_id, group_name')
 				->from('CustomersCustomFieldsGroups')
-				->orderBy('group_name')
+				->orderBy('display_order')
 				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			if ($Qgroups){
 				foreach($Qgroups as $gInfo){

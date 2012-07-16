@@ -23,6 +23,9 @@
 		width   : 100px;
 	}
 
+	.ApplicationPageMenu.fixed {
+		left:100px;
+	}
 	.ApplicationPageMenu .rootItem {
 		width: 200px;
 	}

@@ -390,6 +390,35 @@ class OrderAddress
 			'Type'        => $this->Type
 		);
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
+	{
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_name') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_name');
+		}
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_address') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_address');
+		}
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_city') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_city');
+		}
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_state') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_state');
+		}
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_country') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_country');
+		}
+		if ($HeaderRow->hasColumn('v_' . $this->Type . '_postcode') === false){
+			$HeaderRow->addColumn('v_' . $this->Type . '_postcode');
+		}
+
+		$CurrentRow->addColumn($this->getName(), 'v_' . $this->Type . '_name');
+		$CurrentRow->addColumn($this->getStreetAddress(), 'v_' . $this->Type . '_address');
+		$CurrentRow->addColumn($this->getCity(), 'v_' . $this->Type . '_city');
+		$CurrentRow->addColumn($this->getState(), 'v_' . $this->Type . '_state');
+		$CurrentRow->addColumn($this->getCountry(), 'v_' . $this->Type . '_country');
+		$CurrentRow->addColumn($this->getPostcode(), 'v_' . $this->Type . '_postcode');
+	}
 }
 
 ?>

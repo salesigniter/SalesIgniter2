@@ -16,6 +16,8 @@ class Extension_templateManager extends ExtensionBase
 		require(__DIR__ . '/widgets/TemplateManagerWidget.php');
 		require(__DIR__ . '/widgets/TemplateManagerPrintWidget.php');
 		require(__DIR__ . '/widgets/TemplateManagerLabelWidget.php');
+		require(__DIR__ . '/widgets/TemplateManagerEmailWidget.php');
+		require(__DIR__ . '/widgets/TemplateManagerEmailPdfWidget.php');
 	}
 
 	public function init() {

@@ -30,6 +30,15 @@ class AccountsReceivable
 	 * @return Order
 	 */
 	public static function getSale($SaleType, $SaleId, $Revision = null){
+		if ($SaleType === null){
+			$QSaleType = Doctrine_Query::create()
+				->select('sale_module')
+				->from('AccountsReceivableSales')
+				->where('sale_id = ?', $SaleId)
+				->orderBy('revision desc')
+				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+			$SaleType = $QSaleType[0]['sale_module'];
+		}
 		$Module = AccountsReceivableModules::getModule($SaleType);
 		return $Module->getSale($SaleId, $Revision);
 	}
@@ -44,9 +53,14 @@ class AccountsReceivable
 			$Module = AccountsReceivableModules::getModule($SaleType);
 			$Sales = $Module->getSales();
 		}else{
+			AccountsReceivableModules::loadModules();
 			$Sales = array();
 			foreach(AccountsReceivableModules::getModules() as $Module){
-				$Module->getSales(&$Sales);
+				$QSales = $Module->getSalesQuery()
+					->execute();
+				foreach($QSales as $sInfo){
+					$Sales[] = self::getSale($sInfo['sale_module'], $sInfo['sale_id'], $sInfo['sale_revision']);
+				}
 			}
 		}
 		return $Sales;

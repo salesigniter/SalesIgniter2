@@ -20,7 +20,7 @@ class TemplateManagerWidgetLoginBox extends TemplateManagerWidget
 		$this->init('loginBox');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $App, $userAccount;
 		$dontShow = array(

@@ -122,14 +122,6 @@ if ($Products){
 		$productId = $ProductClass->getID();
 		$productModel = $ProductClass->getModel();
 		$productName = $ProductClass->getName();
-		if (sysConfig::exists('EXTENSION_REVIEWS_ENABLED') && sysConfig::get('EXTENSION_REVIEWS_ENABLED') == 'True'){
-			$Qreviews = Doctrine_Query::create()
-				->select('(avg(reviews_rating) / 5 * 100) as average_rating')
-				->from('Reviews r')
-				->where('r.products_id = ?', $productId)
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-			$reviews = $Qreviews[0];
-		}
 
 		$statusIcon = htmlBase::newElement('icon');
 		if ($ProductClass->isActive() === true){

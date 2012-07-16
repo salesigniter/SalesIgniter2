@@ -24,7 +24,7 @@ class TemplateManagerWidgetRentalQueue extends TemplateManagerWidget
 		}
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $rentalQueue;
 		if (ALLOW_RENTALS == 'true'){

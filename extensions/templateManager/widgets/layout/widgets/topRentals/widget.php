@@ -20,7 +20,7 @@ class TemplateManagerWidgetTopRentals extends TemplateManagerWidget
 		$this->init('topRentals');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 
 		$datePast = date('Y-m-d H:i:s', mktime(0,

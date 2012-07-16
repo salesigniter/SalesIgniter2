@@ -169,7 +169,10 @@ if (Session::exists('login_id') === true){
 				<span class="ui-icon ui-icon-disk"></span><a href="<?php echo itw_app_link('action=landing&box=modules', 'index', 'default');?>">Modules</a>
 			</li>
 			<li>
-				<span class="ui-icon ui-icon-myaccount"></span><a href="<?php echo itw_app_link(null, 'customers', 'default', 'SSL');?>">Customers</a>
+				<span class="ui-icon ui-icon-plugin"></span><a href="<?php echo itw_app_link(null, 'extensions', 'default');?>">Extensions</a>
+			</li>
+			<li data-load_ajax="true">
+				<span class="ui-icon ui-icon-myaccount"></span><a href="<?php echo itw_app_link('action=landing&box=customers', 'index', 'default', 'SSL');?>">Customers</a>
 			</li>
 			<li data-load_ajax="true">
 				<span class="ui-icon ui-icon-wrench"></span><a href="<?php echo itw_app_link('action=landing&box=tools', 'index', 'default');?>">Tools</a>
@@ -184,7 +187,7 @@ if (Session::exists('login_id') === true){
 	</div>
 	<div id="rightColumn" class="ui-corner-all">
 		<div class="pageHeading"><?php echo sysLanguage::get('PAGE_TITLE');?></div>
-		<?php
+		<div id="bodyWrapper"<?php echo (isset($AppPage) && $AppPage->hasMenu() ? ' class="hasAppMenu"' : '')?>><?php
 		if (isset($AppPage) && $AppPage->hasPageForm()){
 			echo '<form name="' . $AppPage->getPageFormName() . '" action="' . $AppPage->getPageFormAction() . '" method="' . $AppPage->getPageFormMethod() . '">';
 		}
@@ -195,12 +198,12 @@ if (Session::exists('login_id') === true){
 			echo $messageStack->output('pageStack');
 		}
 		?>
-		<div id="bodyWrapper"><?php echo $BodyContent; ?></div>
+		<?php echo $BodyContent; ?>
 		<?php
 		if (isset($AppPage) && $AppPage->hasPageForm()){
 			echo '</form>';
 		}
-		?>
+		?></div>
 		<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
 	</div>
 </div>
@@ -214,7 +217,6 @@ else {
 }
 ?>
 </body>
-<div class="sysMsgBlock" style="position:fixed;top:0px;left:0px;text-align:center;width:60%;margin-left:20%;margin-right:20%;display:none;"></div>
 <div id="expiredSessionWindow" title="Session Has Expired" style="display:none;">
 	<p>Your session has expired, please click ok to log back in.</p>
 </div>

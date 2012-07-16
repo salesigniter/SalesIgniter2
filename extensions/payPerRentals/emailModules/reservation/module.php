@@ -144,7 +144,10 @@ class EmailModuleReservation extends EmailModuleBase
 				$this->setEmailSubject($Template['Description'][0]['email_templates_subject']);
 				$this->setEmailBody($Template['Description'][0]['email_templates_content']);
 
-				if (isset($o['ReservationObj']) === false){
+				if (isset($o['testMode']) && $o['testMode'] === true){
+					$Result = true;
+				}
+				elseif (isset($o['ReservationObj']) === false) {
 					if (isset($ModuleTemplateSettings['send_on_time'])){
 						$PeriodTime = ($ModuleTemplateSettings['send_on_time'] * $ModuleTemplateSettings['send_on_period']);
 						$PeriodLookAhead = (23 * 3600); //Look ahead 23 hours to pick up items that wouldn't show up otherwise
@@ -160,7 +163,7 @@ class EmailModuleReservation extends EmailModuleBase
 							break;
 						case 'RESERVATION_BEFORE_SEND_TIME_SPECIFIC_EMAIL':
 							$Qreservations
-								->where('(UNIXTIMESTAMP(start_date) - UNIXTIMESTAMP(now())) BETWEEN ? AND ?', array(
+								->where('(UNIX_TIMESTAMP(start_date) - UNIX_TIMESTAMP(now())) BETWEEN ? AND ?', array(
 								$PeriodTime,
 								$PeriodTime + $PeriodLookAhead
 							))
@@ -168,7 +171,7 @@ class EmailModuleReservation extends EmailModuleBase
 							break;
 						case 'RESERVATION_AFTER_SEND_TIME_SPECIFIC_EMAIL':
 							$Qreservations
-								->where('(UNIXTIMESTAMP(start_date) - UNIXTIMESTAMP(now())) BETWEEN ? AND ?', array(
+								->where('(UNIX_TIMESTAMP(start_date) - UNIX_TIMESTAMP(now())) BETWEEN ? AND ?', array(
 								$PeriodTime,
 								$PeriodTime + $PeriodLookAhead
 							))
@@ -176,7 +179,7 @@ class EmailModuleReservation extends EmailModuleBase
 							break;
 						case 'RESERVATION_BEFORE_RETURN_TIME_SPECIFIC_EMAIL':
 							$Qreservations
-								->where('(UNIXTIMESTAMP(end_date) - UNIXTIMESTAMP(now())) BETWEEN ? AND ?', array(
+								->where('(UNIX_TIMESTAMP(end_date) - UNIX_TIMESTAMP(now())) BETWEEN ? AND ?', array(
 								$PeriodTime,
 								$PeriodTime + $PeriodLookAhead
 							))
@@ -184,7 +187,7 @@ class EmailModuleReservation extends EmailModuleBase
 							break;
 						case 'RESERVATION_AFTER_RETURN_TIME_SPECIFIC_EMAIL':
 							$Qreservations
-								->where('(UNIXTIMESTAMP(now()) - UNIXTIMESTAMP(end_date)) BETWEEN ? AND ?', array(
+								->where('(UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(end_date)) BETWEEN ? AND ?', array(
 								$PeriodTime,
 								$PeriodTime + $PeriodLookAhead
 							))
@@ -192,41 +195,65 @@ class EmailModuleReservation extends EmailModuleBase
 							break;
 					}
 					$Result = $Qreservations->execute();
-				}else{
+				}
+				else {
 					$Result = array($o['ReservationObj']);
 				}
 
 				if ($Result){
-					foreach($Result as $Reservation){
-						$DaysLateDate = new SesDateTime('now');
+					if (isset($o['testMode']) && $o['testMode'] === true){
+						$GlobalTemplateSettings['send_to'] = $o['sendTo'];
 
-						$this->setVar('firstname', $Reservation->SaleProduct->Sale->customers_firstname);
-						$this->setVar('full_name', $Reservation->SaleProduct->Sale->customers_firstname . ' ' . $Reservation->SaleProduct->Sale->customers_lastname);
-						$this->setVar('email_address', $Reservation->SaleProduct->Sale->customers_email_address);
-						$this->setVar('days_late', $DaysLateDate->diff($Reservation->end_date)->format('%a days'));
-						$this->setVar('rented_product', $Reservation->Product->ProductsDescription[Session::get('languages_id')]->products_name);
-						$this->setVar('due_date', $Reservation->end_date->format(sysLanguage::getDateFormat('long')));
-						$this->setVar('rented_list', $Reservation->Product->ProductsDescription[Session::get('languages_id')]->products_name);
+						$this->setVar('firstname', 'John');
+						$this->setVar('full_name', 'John Doe');
+						$this->setVar('email_address', 'johndoe@domain.com');
+						$this->setVar('days_late', '5 Days');
+						$this->setVar('rented_product', 'Rented Products Name');
+						$this->setVar('due_date', date(sysLanguage::getDateFormat('long')));
+						$this->setVar('rented_list', 'Rented Products Name');
 
-						if ($GlobalTemplateSettings['send_to'] == 'customer'){
-							$this->sendEmail(array(
-								'name' => $this->getVar('full_name'),
-								'email' => $this->getVar('email_address')
-							));
+						$this->sendEmail(array(
+							'name'  => $GlobalTemplateSettings['send_to'],
+							'email' => $GlobalTemplateSettings['send_to']
+						));
+					}
+					else {
+						foreach($Result as $Reservation){
+							$DaysLateDate = new SesDateTime('now');
+
+							$this->setVar('firstname', $Reservation->SaleProduct->Sale->customers_firstname);
+							$this->setVar('full_name', $Reservation->SaleProduct->Sale->customers_firstname . ' ' . $Reservation->SaleProduct->Sale->customers_lastname);
+							$this->setVar('email_address', $Reservation->SaleProduct->Sale->customers_email_address);
+							$this->setVar('days_late', $DaysLateDate
+								->diff($Reservation->end_date)
+								->format('%a days'));
+							$this->setVar('rented_product', $Reservation->Product->ProductsDescription[Session::get('languages_id')]->products_name);
+							$this->setVar('due_date', $Reservation->end_date->format(sysLanguage::getDateFormat('long')));
+							$this->setVar('rented_list', $Reservation->Product->ProductsDescription[Session::get('languages_id')]->products_name);
+
+							if ($GlobalTemplateSettings['send_to'] == 'customer'){
+								$this->sendEmail(array(
+									'name'  => $this->getVar('full_name'),
+									'email' => $this->getVar('email_address'),
+									'attach' => (isset($o['attach']) ? $o['attach'] : false)
+								));
+							}
+							elseif ($GlobalTemplateSettings['send_to'] == 'admin') {
+								$this->sendEmail(array(
+									'name'  => sysConfig::get('STORE_OWNER'),
+									'email' => sysConfig::get('STORE_OWNER_EMAIL_ADDRESS'),
+									'attach' => (isset($o['attach']) ? $o['attach'] : false)
+								));
+							}
+							else {
+								$this->sendEmail(array(
+									'name'  => $GlobalTemplateSettings['send_to'],
+									'email' => $GlobalTemplateSettings['send_to'],
+									'attach' => (isset($o['attach']) ? $o['attach'] : false)
+								));
+							}
+							$this->clearVars();
 						}
-						elseif ($GlobalTemplateSettings['send_to'] == 'admin'){
-							$this->sendEmail(array(
-								'name' => sysConfig::get('STORE_OWNER'),
-								'email' => sysConfig::get('STORE_OWNER_EMAIL_ADDRESS')
-							));
-						}
-						else{
-							$this->sendEmail(array(
-								'name' => $GlobalTemplateSettings['send_to'],
-								'email' => $GlobalTemplateSettings['send_to']
-							));
-						}
-						$this->clearVars();
 					}
 				}
 				unset($Result);

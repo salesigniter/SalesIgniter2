@@ -19,7 +19,7 @@ class TemplateManagerWidgetPageButtons extends TemplateManagerWidget
 		$this->init('pageButtons', __DIR__);
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $Template;
 		/* Page Content is the only widget that parses directly into its tpl file */

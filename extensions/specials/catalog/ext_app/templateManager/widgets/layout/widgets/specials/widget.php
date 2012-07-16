@@ -9,7 +9,7 @@ class TemplateManagerWidgetSpecials extends TemplateManagerWidget {
 		$this->setBoxHeading(sysLanguage::get('TEMPLATE_MANAGER_WIDGET_SPECIALS_TEXT_TITLE'));
 	}
 	
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $appExtension, $currencies;
 		if ($this->enabled === false) return;
 		

@@ -300,7 +300,7 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 		return $WidgetProperties;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$WidgetProperties = $this->loadLinkedSettings($this->getWidgetProperties());
 

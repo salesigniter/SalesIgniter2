@@ -20,7 +20,7 @@ class TemplateManagerWidgetLanguages extends TemplateManagerWidget
 		$this->init('languages');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$boxContent = '';
 		foreach(sysLanguage::getLanguages() as $lInfo){

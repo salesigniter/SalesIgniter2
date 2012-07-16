@@ -58,15 +58,19 @@ class FileWriterCsv
 		$cInfo = $this->fileObj->getCsvControl();
 
 		$headerColumns = $this->headerRow->getColumns();
+		$totalColumns = sizeof($headerColumns);
+		$colCount = 0;
 		foreach($headerColumns as $k => $Col){
 			echo '' . $cInfo[1] . '' . $Col->getValue() . '' . $cInfo[1] . '';
-			if (isset($headerColumns[$k+1])){
+			if ($colCount < $totalColumns){
 				echo $cInfo[0];
+				$colCount++;
 			}
 		}
 		echo "\n";
 
 		foreach($this->rows as $row){
+			$colCount = 0;
 			foreach($headerColumns as $k => $Col){
 				$RowCol = $row->getColumn($Col->getValue());
 				if ($RowCol === false){
@@ -75,8 +79,9 @@ class FileWriterCsv
 				}else{
 					echo '' . $cInfo[1] . '' . str_replace('"', '""', $RowCol->getValue()) . '' . $cInfo[1] . '';
 				}
-				if (isset($headerColumns[$k+1])){
+				if ($colCount < $totalColumns){
 					echo $cInfo[0];
+					$colCount++;
 				}
 			}
 			echo "\n";

@@ -4,6 +4,10 @@
 	<define key="HEADING_TITLE_EDIT_PRODUCT"><![CDATA[Edit Product]]></define>
 	<define key="HEADING_TITLE_EXPECTED"><![CDATA[Products Expected]]></define>
 
+	<define key="TEXT_DIALOG_TITLE_CONFIRM_DELETE" php="false" javascript="true"><![CDATA[Confirm Product Delete]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete this product?]]></define>
+	<define key="TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE" php="false" javascript="true"><![CDATA[Are you sure you want to delete these products?]]></define>
+
 	<define key="INFO_MESSAGE_NEW_PRODUCT"><![CDATA[You are entering a new product. Some places are disabled, use the "Save Ajax" button to save this product and enable them]]></define>
 
 	<define key="HEADING_TITLE_SEARCH"><![CDATA[Search:]]></define>

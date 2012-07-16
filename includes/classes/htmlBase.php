@@ -168,4 +168,28 @@ class htmlBase {
 	public static function newDatePicker(){
 		return self::newElement('datePicker');
 	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_actionWindow
+	 */
+	public static function newActionWindow(){
+		return self::newElement('actionWindow');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_pageMenu
+	 */
+	public static function newPageMenu(){
+		return self::newElement('pageMenu');
+	}
+	
+	/**
+	 * @static
+	 * @return htmlWidget_ckEditor
+	 */
+	public static function newHtmlEditor(){
+		return self::newElement('ck_editor');
+	}
 }

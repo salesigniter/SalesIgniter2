@@ -33,7 +33,7 @@ class TemplateManagerWidgetBlogArchives extends TemplateManagerWidget {
 		return $menuContainer->draw();
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		if ($this->enabled === false) return;
 
 		$this->setBoxContent($this->getArch());

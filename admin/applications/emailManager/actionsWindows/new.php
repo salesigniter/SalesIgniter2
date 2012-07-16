@@ -94,52 +94,31 @@ foreach($Module->getEvents() as $eInfo){
 $infoBox->addContentRow('<b>Choose When To Send</b><br>' . $ModuleEvent->draw() . '<div id="when_to_send_desc" style="font-style:italic;font-size:.9em;font-weight:bold;">' . $eventDescription . '</div>');
 $infoBox->addContentRow($ModulesSettingsContainers);
 
-$standardVars = array();
-$conditionVars = array();
-$ModuleVariables = $Module->getEventVariables($Template->email_module_event_key);
-foreach($ModuleVariables as $vInfo){
-	if ($vInfo['conditional'] === true){
-		if (!empty($vInfo['conditionCheck'])){
-			$key = $vInfo['conditionCheck'];
-		}
-		else {
-			$key = $vInfo['varName'];
-		}
-		$condition = '&lt;!-- if ($' . $key . ')<br />';
-		$condition .= '&nbsp;&nbsp;&nbsp;{$' . $vInfo['varName'] . '}<br />';
-		$condition .= '--&gt;';
-
-		$conditionVars[] = $condition;
+/*
+$Qpdfs = Doctrine_Query::create()
+	->from('TemplateManagerLayouts')
+	->where('page_type = ?', 'emailPdf')
+	->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+if ($Qpdfs && sizeof($Qpdfs) > 0){
+	$emailPdfs = htmlBase::newSelectbox()
+		->setName('attachment_pdf')
+		->selectOptionByValue((isset($TemplateSettings['global']['attachment']) ? $TemplateSettings['global']['attachment'] : ''));
+	$emailPdfs->addOption('', 'Please Select');
+	foreach($Qpdfs as $pdf){
+		$emailPdfs->addOption($pdf['layout_id'], $pdf['layout_name']);
 	}
-	else {
-		$standardVars[] = '{$' . $vInfo['varName'] . '}';
-	}
+	$infoBox->addContentRow('<b>Attach A Generated PDF File</b> ( This requires the code to support it, not all pdfs can be attached to all emails )<br>' . $emailPdfs->draw());
+}
+*/
+$Vars = array();
+foreach($Module->getGlobalVars() as $k => $v){
+	$Vars[] = '$' . $k;
 }
 
-$infoBox->addContentRow('<table cellpadding="0" cellspacing="0" border="0" width="100%" id="varsTable">
-	<tr>
-		<td valign="top" width="33%">
-			<div class="ui-widget-header" style="padding:.3em;">' . sysLanguage::get('HEADING_GLOBAL_VARS') . '</div>
-			<div class="main globalVars" style="margin:.5em;">{$store_name}<br>{$store_owner}<br>{$store_owner_email}<br>{$today_short}<br>{$today_long}<br>{$store_url}<br></div>
-		</td>
-		<td valign="top" width="33%" style="padding: 0em 1em;">
-			<div class="ui-widget-header" style="padding:.3em;">
-				' . sysLanguage::get('HEADING_AVAIL_VARS') . '
-			</div>
-			<div class="main standardVars" style="margin:.5em;">
-				' . implode('<br>', $standardVars) . '
-			</div>
-		</td>
-		<td valign="top" width="33%">
-			<div class="ui-widget-header" style="padding:.3em;">
-				' . sysLanguage::get('HEADING_COND_VARS') . '
-			</div>
-			<div class="main conditionVars" style="margin:.5em;">
-				' . implode('<br>', $conditionVars) . '
-			</div>
-		</td>
-	</tr>
-</table>');
+$ModuleVariables = $Module->getEventVariables($Template->email_module_event_key);
+foreach($ModuleVariables as $vInfo){
+	$Vars[] = '<span class="ui-icon ui-icon-info" tooltip="' . $vInfo['description'] . '"></span><span>$' . $vInfo['varName'] . '</span>';
+}
 
 $emailContentRow = '<div class="makeTabPanel" style="margin:.5em;">
 	<ul>';
@@ -153,12 +132,31 @@ $emailContentRow .= '</ul>';
 foreach(sysLanguage::getLanguages() as $lInfo){
 	$emailContentRow .= '<div id="tab_' . $lInfo['id'] . '" lang_name="' . $lInfo['name'] . '">
 		<b>Subject:</b>
-		<input type="text" class="emailSubject" name="email_subject[' . $lInfo['id'] . ']" value="' . $Template->Description[$lInfo['id']]->email_templates_subject . '" style="width:80%"><br /><br />
-		<textarea rows="20" cols="100" style="width:100%" name="email_text[' . $lInfo['id'] . ']" class="makeFCK">' . $Template->Description[$lInfo['id']]->email_templates_content . '</textarea><br /><br />
+		<input type="text" class="emailSubject" name="email_subject[' . $lInfo['id'] . ']" value="' . $Template->Description[$lInfo['id']]->email_templates_subject . '" style="width:80%"><br /><br />' .
+		htmlBase::newHtmlEditor()->attr('data-height', '400px')->setName('email_text[' . $lInfo['id'] . ']')->html($Template->Description[$lInfo['id']]->email_templates_content)->draw() .
+		'<br /><br />
 	</div>';
 }
 
 $emailContentRow .= '</div>';
-$infoBox->addContentRow($emailContentRow);
+$infoBox->addContentRow('<table cellpadding="0" cellspacing="0" border="0" width="100%" id="varsTable">
+	<tr>
+		<td class="varsContainer">
+			<div class="ui-widget-header" style="padding:.3em;">
+				Available Methods
+			</div>
+			<div class="main conditionVars" style="margin:.5em;">
+				Display Content Based On Conditions<br><br>[if $varName]<br>&nbsp;&nbsp;Do Something<br>[endif]<br><br>
+			</div>
+			<div class="ui-widget-header" style="padding:.3em;">
+				' . sysLanguage::get('HEADING_AVAIL_VARS') . '
+			</div>
+			<div class="main standardVars"><ul>
+				<li>' . implode('</li><li>', $Vars) . '</li>
+			</div>
+		</td>
+		<td class="editorContainer">' . $emailContentRow . '</td>
+	</tr>
+</table>');
 
 EventManager::attachActionResponse($infoBox->draw(), 'html');

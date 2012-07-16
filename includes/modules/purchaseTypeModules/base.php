@@ -30,15 +30,13 @@ class PurchaseTypeBase extends ModuleBase
 	 * @var array
 	 */
 	private $data = array(
-		'global' => array(
-			'status'                 => 0,
-			'type_name'              => null,
-			'price'                  => 0,
-			'products_id'            => 0,
-			'tax_class_id'           => 0,
-			'inventory_controller'   => 'normal',
-			'inventory_track_method' => 'barcode'
-		)
+		'status'                 => 0,
+		'type_name'              => null,
+		'price'                  => 0,
+		'products_id'            => 0,
+		'tax_class_id'           => 0,
+		'inventory_controller'   => 'normal',
+		'inventory_track_method' => 'barcode'
 	);
 
 	/**
@@ -77,20 +75,19 @@ class PurchaseTypeBase extends ModuleBase
 			$Result = $Qdata->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 			if ($Result && sizeof($Result) > 0){
 				$data = array(
-					'global' => array(
-						'status'                 => $Result[0]['status'],
-						'type_name'              => $Result[0]['type_name'],
-						'price'                  => $Result[0]['price'],
-						'products_id'            => $productId,
-						'tax_class_id'           => $Result[0]['tax_class_id'],
-						'inventory_controller'   => $Result[0]['inventory_controller'],
-						'inventory_track_method' => $Result[0]['inventory_track_method']
-					)
+					'purchaseTypeId'         => $Result[0]['purchase_type_id'],
+					'status'                 => $Result[0]['status'],
+					'type_name'              => $Result[0]['type_name'],
+					'price'                  => $Result[0]['price'],
+					'products_id'            => $productId,
+					'tax_class_id'           => $Result[0]['tax_class_id'],
+					'inventory_controller'   => $Result[0]['inventory_controller'],
+					'inventory_track_method' => $Result[0]['inventory_track_method']
 				);
 
 				EventManager::notify('PurchaseTypeLoadData', $Result[0], &$data);
 
-				$this->data = array_merge($this->data, $data);
+				$this->data = $data;
 			}
 		}
 	}
@@ -98,14 +95,16 @@ class PurchaseTypeBase extends ModuleBase
 	/**
 	 * @param $val
 	 */
-	public function addError($val){
+	public function addError($val)
+	{
 		$this->_errors[] = $val;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getErrors(){
+	public function getErrors()
+	{
 		return implode('<br>', $this->_errors);
 	}
 
@@ -113,7 +112,8 @@ class PurchaseTypeBase extends ModuleBase
 	 * @param array $CartProductData
 	 * @return bool
 	 */
-	public function allowAddToCart(array $CartProductData){
+	public function allowAddToCart(array $CartProductData)
+	{
 		return true;
 	}
 
@@ -125,7 +125,7 @@ class PurchaseTypeBase extends ModuleBase
 	 */
 	public function loadInventoryData($productId, $invController = false)
 	{
-		$this->inventoryCls = new ProductInventory($productId, $this->data['global']);
+		$this->inventoryCls = new ProductInventory($productId, $this->data);
 
 		EventManager::notify('PurchaseTypeLoadInventoryData', $productId, $invController, $this);
 	}
@@ -139,7 +139,7 @@ class PurchaseTypeBase extends ModuleBase
 	{
 		if ($this->isEnabled() === true){
 			$this->loadData($productId);
-			$this->loadInventoryData($productId);
+			$this->loadInventoryData();
 
 			EventManager::notify('PurchaseTypeLoadProduct', $productId, $this);
 		}
@@ -163,29 +163,22 @@ class PurchaseTypeBase extends ModuleBase
 	}
 
 	/**
-	 * @param string $key
-	 * @param string $part
+	 * @param $key
 	 * @return bool
 	 */
-	public function hasData($key, $part = 'global')
+	public function hasData($key)
 	{
-		return isset($this->data[$part][$key]);
+		return isset($this->data[$key]);
 	}
 
 	/**
-	 * @param string $key
-	 * @param string $part
-	 * @param bool   $defaultToGlobal
-	 * @return array|null
+	 * @param $key
+	 * @return null
 	 */
-	public function getData($key, $part = 'global', $defaultToGlobal = true)
+	public function getData($key)
 	{
-		if (!isset($this->data[$part]) && $part != 'global' && $defaultToGlobal === true){
-			$part = 'global';
-		}
-
-		if (isset($this->data[$part][$key])){
-			return $this->data[$part][$key];
+		if (isset($this->data[$key])){
+			return $this->data[$key];
 		}
 		return null;
 	}
@@ -360,7 +353,9 @@ class PurchaseTypeBase extends ModuleBase
 		if ($this->canUseInventory() === false){
 			return true;
 		}
-		return $this->getInventoryClass()->updateStock($orderId, $orderProductId, &$cartProduct);
+		return $this
+			->getInventoryClass()
+			->updateStock($orderId, $orderProductId, &$cartProduct);
 	}
 
 	/**
@@ -371,7 +366,9 @@ class PurchaseTypeBase extends ModuleBase
 		if ($this->canUseInventory() === false){
 			return null;
 		}
-		return $this->getInventoryClass()->getTrackMethod();
+		return $this
+			->getInventoryClass()
+			->getTrackMethod();
 	}
 
 	/**
@@ -382,7 +379,9 @@ class PurchaseTypeBase extends ModuleBase
 		if ($this->canUseInventory() === false){
 			return null;
 		}
-		return $this->getInventoryClass()->getCurrentStock();
+		return $this
+			->getInventoryClass()
+			->getCurrentStock();
 	}
 
 	/**
@@ -396,7 +395,9 @@ class PurchaseTypeBase extends ModuleBase
 		if ($this->cachedHasInventory !== null){
 			return $this->cachedHasInventory;
 		}
-		$this->cachedHasInventory = $this->getInventoryClass()->hasInventory();
+		$this->cachedHasInventory = $this
+			->getInventoryClass()
+			->hasInventory();
 		return $this->cachedHasInventory;
 	}
 
@@ -409,7 +410,9 @@ class PurchaseTypeBase extends ModuleBase
 		if ($this->canUseInventory() === false){
 			return array();
 		}
-		return $this->getInventoryClass()->getInventoryItems($includeUnavailable);
+		return $this
+			->getInventoryClass()
+			->getInventoryItems($includeUnavailable);
 	}
 
 	/**
@@ -417,7 +420,9 @@ class PurchaseTypeBase extends ModuleBase
 	 */
 	public function getInvUnavailableStatus()
 	{
-		return $this->getInventoryClass()->getInvUnavailableStatus();
+		return $this
+			->getInventoryClass()
+			->getInvUnavailableStatus();
 	}
 
 	/**
@@ -426,7 +431,9 @@ class PurchaseTypeBase extends ModuleBase
 	 */
 	public function setInvUnavailableStatus($val)
 	{
-		return $this->getInventoryClass()->setInvUnavailableStatus($val);
+		return $this
+			->getInventoryClass()
+			->setInvUnavailableStatus($val);
 	}
 
 	/**

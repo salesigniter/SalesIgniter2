@@ -9,14 +9,9 @@
 		margin-bottom : 20px;
 	}
 
-	#bodyWrapper {
-		width    : auto;
-		position : relative;
-	}
-
 	#logoBar {
-		text-align    : center;
-		height        : 80px;
+		text-align : center;
+		height     : 80px;
 	}
 
 	#languageBar {
@@ -107,7 +102,8 @@
 	.gridButtonBar button {
 		width : 50px;
 	}
+
 	.ApplicationPageMenu .rootItem {
-		width: 110px;
+		width : 110px;
 	}
 }

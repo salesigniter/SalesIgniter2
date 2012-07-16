@@ -1367,12 +1367,12 @@ $(document).ready(function () {
 		var scrollTop = $(this).scrollTop();
 		var buttonContainer = $('.ApplicationPageMenu');
 		if (scrollTop > buttonContainer.offset().top){
-			buttonContainer.width(buttonContainer.width());
-			buttonContainer.data('originalOffset', buttonContainer.offset().top);
+			buttonContainer.width(buttonContainer.outerWidth());
+			buttonContainer.data('originalOffsetTop', buttonContainer.offset().top);
 			buttonContainer.addClass('fixed');
 		}
-		else if (scrollTop < buttonContainer.data('originalOffset')){
-			buttonContainer.width('auto');
+		else if (scrollTop < buttonContainer.data('originalOffsetTop')){
+			//buttonContainer.width('auto');
 			buttonContainer.removeClass('fixed');
 		}
 	});

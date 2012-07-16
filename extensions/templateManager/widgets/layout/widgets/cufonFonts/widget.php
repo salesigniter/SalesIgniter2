@@ -20,7 +20,7 @@ class TemplateManagerWidgetCufonFonts extends TemplateManagerWidget
 		$this->init('cufonFonts');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();

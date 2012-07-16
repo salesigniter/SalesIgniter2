@@ -39,7 +39,7 @@ class TemplateManagerWidgetBlogPostArticle extends TemplateManagerWidget {
 		return $string;
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $appExtension, $pageContent;
 		$boxWidgetProperties = $this->getWidgetProperties();
 

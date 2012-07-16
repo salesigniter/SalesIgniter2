@@ -172,4 +172,8 @@ class OrderTotal
 		}
 		//echo '</div>';
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow){
+		$CurrentRow->addColumn($this->Module->getValue(), 'v_total_' . $this->getModule()->getCode());
+	}
 }

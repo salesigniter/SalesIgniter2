@@ -10,7 +10,7 @@
 
 				var values = {
 					font: {
-						family: 'Arial',
+						family: 'Inherit',
 						size: '1',
 						size_unit: 'em',
 						style: 'normal',

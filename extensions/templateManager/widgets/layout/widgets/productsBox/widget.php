@@ -23,7 +23,7 @@ class TemplateManagerWidgetProductsBox extends TemplateManagerWidget
 		$this->buildJavascriptMultiple = false;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$boxWidgetProperties = $this->getWidgetProperties();
 

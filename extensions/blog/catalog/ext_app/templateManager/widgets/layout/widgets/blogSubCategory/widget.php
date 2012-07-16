@@ -16,7 +16,7 @@ class TemplateManagerWidgetBlogSubCategory extends TemplateManagerWidget {
 
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $appExtension, $pageContent;
 		$boxWidgetProperties = $this->getWidgetProperties();
 

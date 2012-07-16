@@ -136,6 +136,20 @@ Casa Grande, AZ  85122]]></value>
 						<data_function>itw_get_templates_array</data_function>
 					</set_function>
 				</DIR_WS_TEMPLATES_DEFAULT>
+				<DEFAULT_EMAIL_TEMPLATE>
+					<title><![CDATA[Default Email Template]]></title>
+					<value><![CDATA[0]]></value>
+					<description><![CDATA[Email template to use when sending all emails from the system]]></description>
+					<set_function>
+						<type>selectbox</type>
+						<data_function>
+							<name>itw_get_layouts_array</name>
+							<args>
+								<arg>email</arg>
+							</args>
+						</data_function>
+					</set_function>
+				</DEFAULT_EMAIL_TEMPLATE>
 			</configurations>
 		</template>
 		<terms>

@@ -32,9 +32,12 @@ if (isset($_GET['admin_id'])){
 }
 else {
 	$adminAccount = $Admin->create();
-	$adminAccount->admin_password = tep_encrypt_password($makePassword);
+	//$adminAccount->admin_password = tep_encrypt_password($makePassword);
 }
 
+if (!empty($_POST['admin_password'])){
+	$adminAccount->admin_password = tep_encrypt_password($_POST['admin_password']);
+}
 $adminAccount->admin_override_password = (!empty($_POST['admin_override_password']) ? $_POST['admin_override_password'] : '');
 $adminAccount->admin_groups_id = $_POST['admin_groups_id'];
 $adminAccount->admin_firstname = $_POST['admin_firstname'];

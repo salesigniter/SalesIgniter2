@@ -24,7 +24,7 @@ class TemplateManagerWidgetWhatsNew extends TemplateManagerWidget
 		}
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		$Qproduct = Doctrine_Query::create()
 			->select('p.products_id')

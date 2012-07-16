@@ -48,8 +48,10 @@ class CustomersCustomFields extends Doctrine_Record
 	public function preHydrate($event)
 	{
 		$data = $event->data;
-		$data['field_data'] = json_decode($data['field_data']);
-		$event->data = $data;
+		if (isset($data['field_data'])){
+			$data['field_data'] = json_decode($data['field_data']);
+			$event->data = $data;
+		}
 	}
 
 	public function setTableDefinition()

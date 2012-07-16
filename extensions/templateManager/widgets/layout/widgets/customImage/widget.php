@@ -43,7 +43,7 @@ class TemplateManagerWidgetCustomImage extends TemplateManagerWidget
 		return $return;
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $appExtension;
 		$boxWidgetProperties = $this->getWidgetProperties();

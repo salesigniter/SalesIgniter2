@@ -20,7 +20,7 @@ class TemplateManagerWidgetArticles extends TemplateManagerWidget {
 		}
 	}
 
-	public function show(){
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder){
 		global $App, $tPath, $tPath_array;
 		
 		$this->topics_string = '';

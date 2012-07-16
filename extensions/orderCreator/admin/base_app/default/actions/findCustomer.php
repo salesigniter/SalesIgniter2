@@ -3,19 +3,11 @@
 
 $QcustomerName = Doctrine_Query::create()
 	->from('Customers c')
-	->where('(' .
-		'c.customers_firstname LIKE "' . $_GET['term'] . '%"' .
-		' OR ' .
-		'c.customers_lastname LIKE "' . $_GET['term'] . '%"' .
-		' OR ' .
-		'c.customers_email_address LIKE "' . $_GET['term'] . '%"' .
-		' OR ' .
-		'c.customers_number LIKE "' . $_GET['term'] . '%"' .
-		' OR ' .
-		'c.customers_telephone LIKE "' . $_GET['term'] . '%"' .
-		') AND TRUE');
+	->where('c.customers_firstname LIKE ?', $_GET['term'] . '%')
+	->orWhere('c.customers_lastname LIKE ?', $_GET['term'] . '%')
+	->orWhere('c.customers_email_address LIKE ?', $_GET['term'] . '%');
 
-EventManager::notify('OrderCreatorFindCustomerQueryBeforeExecute', $QcustomerName);
+EventManager::notify('CustomerSearchQueryBeforeExecute', &$QcustomerName, $_GET['term']);
 
 $Result = $QcustomerName->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 if ($Result){

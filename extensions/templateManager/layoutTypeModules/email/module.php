@@ -25,43 +25,34 @@ class TemplateManagerLayoutTypeModuleEmail extends TemplateManagerLayoutTypeModu
 			));
 		}
 
-		$EmailTemplates = Doctrine_Core::getTable('EmailTemplates')
-			->findAll();
+		$checkbox = htmlBase::newCheckbox()
+			->setName('is_default')
+			->setChecked(sysConfig::get('DEFAULT_EMAIL_TEMPLATE') == $Layout->layout_id);
 
-		$boxes = array();
-		foreach($EmailTemplates as $EmailTemplate){
-			$boxes[] = array(
-				'labelPosition' => 'after',
-				'label' => $EmailTemplate->email_templates_name,
-				'value' => $EmailTemplate->email_templates_event
-			);
-		}
-		$EventsCheckboxes = htmlBase::newElement('checkbox')
-			->addGroup(array(
-			'name' => 'email_template[]',
-			'checked' => (isset($LayoutSettings->emailTemplates) ? (array) $LayoutSettings->emailTemplates: ''),
-			'separator' => array(
-				'type' => 'table',
-				'cols' => 3
-			),
-			'data' => $boxes
-		));
 		$SettingsTable->addBodyRow(array(
 			'attr' => array(
 				'data-for_page_type' => 'email'
 			),
 			'columns' => array(
-				array('valign' => 'top', 'text' => 'Email Events: '),
-				array('text' => '<input type="checkbox" class="checkAll"/> <span class="checkAllText">Check All</span><br><br>' . $EventsCheckboxes->draw())
+				array('valign' => 'top', 'text' => 'Use For Emails: '),
+				array('text' => $checkbox->draw() . '<br><b><u>IMPORTANT</u></b><br>Only one email template can be used at a time<br>So selecting this one will unselect any other')
 			)
 		));
 
 		return $SettingsTable->draw();
 	}
 
-	public function onSave($Layout){
-		$Layout->layout_settings = json_encode(array(
-			'emailTemplates' => $_POST['email_template']
-		));
+	public function afterSave($Layout){
+		if (isset($_POST['is_default'])){
+			$Configurations = Doctrine_Core::getTable('Configuration');
+			$Config = $Configurations->findOneByConfigurationKey('DEFAULT_EMAIL_TEMPLATE');
+			if (!$Config){
+				$Config = $Configurations->create();
+				$Config->configuration_key = 'DEFAULT_EMAIL_TEMPLATE';
+				$Config->configuration_group_key = 'coreMyStore';
+			}
+			$Config->configuration_value = $Layout->layout_id;
+			$Config->save();
+		}
 	}
 }

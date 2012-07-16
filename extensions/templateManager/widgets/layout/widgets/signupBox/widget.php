@@ -20,7 +20,7 @@ class TemplateManagerWidgetSignupBox extends TemplateManagerWidget
 		$this->init('signupBox');
 	}
 
-	public function show()
+	public function show(TemplateManagerLayoutBuilder $LayoutBuilder)
 	{
 		global $App, $userAccount;
 		$boxWidgetProperties = $this->getWidgetProperties();

@@ -225,6 +225,17 @@ class OrderTotalManager
 		}
 		return $orderTotals;
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
+	{
+		foreach($this->getAll() as $OrderTotal){
+			$Code = $OrderTotal->getModule()->getCode();
+			if ($HeaderRow->hasColumn('v_total_' . $Code) === false){
+				$HeaderRow->addColumn('v_total_' . $Code);
+			}
+			$OrderTotal->onExport($addColumns, &$CurrentRow, &$HeaderRow);
+		}
+	}
 }
 
 require(__DIR__ . '/Total.php');

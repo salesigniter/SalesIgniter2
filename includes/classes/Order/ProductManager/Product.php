@@ -437,4 +437,38 @@ class OrderProduct
 			$this->ProductTypeClass->onGetEmailList(&$orderedProducts);
 		}
 	}
+
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow, $i)
+	{
+		if ($addColumns['v_products'] === true){
+			if ($HeaderRow->hasColumn('v_products_name_' . $i) === false){
+				$HeaderRow->addColumn('v_products_name_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_model_' . $i) === false){
+				$HeaderRow->addColumn('v_products_model_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_price_' . $i) === false){
+				$HeaderRow->addColumn('v_products_price_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_tax_' . $i) === false){
+				$HeaderRow->addColumn('v_products_tax_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_finalprice_' . $i) === false){
+				$HeaderRow->addColumn('v_products_finalprice_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_qty_' . $i) === false){
+				$HeaderRow->addColumn('v_products_qty_' . $i);
+			}
+			if ($HeaderRow->hasColumn('v_products_barcode_' . $i) === false){
+				$HeaderRow->addColumn('v_products_barcode_' . $i);
+			}
+			$CurrentRow->addColumn($this->getName(), 'v_products_name_' . $i);
+			$CurrentRow->addColumn($this->getModel(), 'v_products_model_' . $i);
+			$CurrentRow->addColumn($this->getPrice(), 'v_products_price_' . $i);
+			$CurrentRow->addColumn($this->getTaxRate(), 'v_products_tax_' . $i);
+			$CurrentRow->addColumn($this->getFinalPrice(), 'v_products_finalprice_' . $i);
+			$CurrentRow->addColumn($this->getQuantity(), 'v_products_qty_' . $i);
+			$CurrentRow->addColumn($this->displayBarcodes(), 'v_products_barcode_' . $i);
+		}
+	}
 }

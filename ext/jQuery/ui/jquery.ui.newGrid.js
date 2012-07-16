@@ -77,11 +77,11 @@
 
 			$('.gridInfoRow').hide();
 
-			$(this.GridElement).on('selectAll', function (){
+			$(this.GridElement).on('selectAll', function () {
 				if (self.allowMultiple === true){
 					self.enableButton('button');
 					var selectedCount = 0;
-					$(self.GridElement).find('.gridBodyRow').each(function (){
+					$(self.GridElement).find('.gridBodyRow').each(function () {
 						if ($(this).hasClass('noSelect')){
 							return;
 						}
@@ -146,7 +146,8 @@
 						$.each(self.options.buttons, function () {
 							if (this.disableIfMultiple === true && self.getSelectedRows().size() > 1){
 								self.disableButton(this.selector);
-							} else if (this.disableIfNone === true && self.getSelectedRows().size() == 0){
+							}
+							else if (this.disableIfNone === true && self.getSelectedRows().size() == 0){
 								self.disableButton(this.selector);
 							}
 						});
@@ -218,7 +219,7 @@
 				});
 
 				$(this).find('.makeDatepicker').datepicker({
-					dateFormat: jsLanguage.getDateFormat('short')
+					dateFormat : jsLanguage.getDateFormat('short')
 				});
 			});
 
@@ -229,7 +230,8 @@
 				var sortDir = 'asc';
 				if ($(this).attr('data-current_sort_direction') == 'desc'){
 					sortDir = 'asc';
-				} else if ($(this).attr('data-current_sort_direction') == 'asc'){
+				}
+				else if ($(this).attr('data-current_sort_direction') == 'asc'){
 					sortDir = 'desc';
 				}
 
@@ -344,7 +346,8 @@
 
 			if (data.prepend){
 				this.GridElement.find('tbody').prepend($Row);
-			}else{
+			}
+			else {
 				this.GridElement.find('tbody').append($Row);
 			}
 			this.GridElement.find('tbody').trigger('rowAdded');
@@ -410,7 +413,7 @@
 			};
 
 			if (o.onSuccess && $.isFunction(o.onSuccess)){
-				SuccessFunc = function (data){
+				SuccessFunc = function (data) {
 					o.onSuccess.apply(o.windowEl, [self, data, o]);
 				};
 			}
@@ -513,6 +516,15 @@
 						$(self.element).effect('fade', {
 							mode : 'show'
 						}, function () {
+							if (typeof CKEDITOR != 'undefined'){
+								mainContainer.find('.makeFCK').each(function () {
+									CKEDITOR.remove(this);
+								});
+
+								mainContainer.find('.makeModFCK').each(function () {
+									CKEDITOR.remove(this);
+								});
+							}
 							mainContainer.remove();
 						});
 					});
@@ -521,8 +533,13 @@
 						o.onAfterHide.apply(self.element)
 					}
 				};
-			} else if (type == 'save'){
+			}
+			else if (type == 'save'){
 				return function () {
+					if (o.onBeforeSave){
+						o.onBeforeSave.apply($(this).parentsUntil('.newWindowContainer').last().parent());
+					}
+
 					o.actionName = o.actionName || $(this).data('action') || 'save';
 					var options = $.extend({
 						dataKey     : self.getDataKey(),
@@ -570,7 +587,13 @@
 						}, function () {
 							self.newWindow.find('button').button();
 
-							self.newWindow.find('.saveButton').click(function (e){
+							self.newWindow.find('.saveButton').click(function (e) {
+								if (typeof CKEDITOR != 'undefined'){
+									for(instance in CKEDITOR.instances){
+										CKEDITOR.instances[instance].updateElement();
+									}
+								}
+
 								$(document).trigger('validateForm', [e]);
 							});
 
@@ -578,14 +601,16 @@
 								if ($.isPlainObject(this)){
 									if (this.type == 'cancel'){
 										self.newWindow.find('.cancelButton').click(this.click);
-									} else if (this.type == 'save'){
+									}
+									else if (this.type == 'save'){
 										self.newWindow.find('.saveButton').click(this.click);
 									}
 								}
 								else {
 									if (this == 'cancel'){
 										self.newWindow.find('.cancelButton').click(self.windowButtonEvent('cancel'));
-									} else if (this == 'save'){
+									}
+									else if (this == 'save'){
 										self.newWindow.find('.saveButton').click(self.windowButtonEvent('save'));
 									}
 								}
@@ -594,11 +619,27 @@
 							removeAjaxLoader($(buttonEl));
 						});
 
-						self.newWindow.find('.makeModFCK').each(function () {
-							CKEDITOR.replace(this, {
-								toolbar : 'Simple'
+						if (typeof CKEDITOR != 'undefined'){
+							self.newWindow.find('.makeFCK').each(function () {
+								var configOptions = {};
+
+								if ($(this).data('height')){
+									configOptions.height = $(this).data('height');
+								}
+								CKEDITOR.replace(this, configOptions);
 							});
-						});
+
+							self.newWindow.find('.makeModFCK').each(function () {
+								var configOptions = {
+									toolbar : 'Simple'
+								};
+
+								if ($(this).data('height')){
+									configOptions.height = $(this).data('height');
+								}
+								CKEDITOR.replace(this, configOptions);
+							});
+						}
 
 						self.newWindow.find('.makeTabPanel').tabs();
 						self.newWindow.find('.makeTabsVertical').each(function () {
@@ -619,12 +660,14 @@
 		showConfirmDialog       : function (o) {
 			var self = this;
 			var o = $.extend({
-				title     : 'Please Confirm',
-				content   : 'Press Confirm Or Cancel',
-				onConfirm : function () {
+				title             : 'Please Confirm',
+				content           : 'Press Confirm Or Cancel',
+				confirmButtonText : jsLanguage.get('TEXT_BUTTON_CONFIRM'),
+				cancelButtonText  : jsLanguage.get('TEXT_BUTTON_CANCEL'),
+				onConfirm         : function () {
 					$(this).dialog('close').remove();
 				},
-				onCancel  : function () {
+				onCancel          : function () {
 					$(this).dialog('close').remove();
 				}
 			}, o);
@@ -635,16 +678,16 @@
 				modal      : true,
 				buttons    : [
 					{
-						text  : jsLanguage.get('TEXT_BUTTON_CONFIRM'),
+						text  : o.confirmButtonText,
 						icon  : 'ui-icon-check',
-						click : function (e){
+						click : function (e) {
 							o.onConfirm.apply(this, [e, self]);
 						}
 					},
 					{
-						text  : jsLanguage.get('TEXT_BUTTON_CANCEL'),
+						text  : o.cancelButtonText,
 						icon  : 'ui-icon-closethick',
-						click : function (e){
+						click : function (e) {
 							o.onCancel.apply(this, [e, self]);
 						}
 					}
@@ -658,7 +701,7 @@
 				messageSingle   : jsLanguage.get('TEXT_DIALOG_CONTENT_CONFIRM_DELETE_SINGLE'),
 				messageMultiple : jsLanguage.get('TEXT_DIALOG_CONTENT_CONFIRM_DELETE_MULTIPLE'),
 				confirmUrl      : this.buildActionLink('deleteConfirm'),
-				onSuccess       : function (){
+				onSuccess       : function () {
 					js_redirect(self.buildCurrentAppRedirect('default'));
 				},
 				dataType        : 'json',
@@ -690,7 +733,10 @@
 								}
 							}
 							else {
-								if (data.errorMessage){
+								if (!data.errorMessage && !o.errorMessage){
+									alert('No error message provided, please add an error message to the json response using the key "errorMessage"');
+								}
+								else if (data.errorMessage){
 									alert(data.errorMessage);
 								}
 								else {
@@ -821,7 +867,8 @@
 								origValues[inputName].push($(this).val());
 							}
 							clickFnc = true;
-						} else if ($(this).attr('type') == 'radio'){
+						}
+						else if ($(this).attr('type') == 'radio'){
 							if (this.checked){
 								origValues[inputName] = $(this).val();
 							}
@@ -836,10 +883,12 @@
 							if (typeof origValues[inputName] == 'object'){
 								if (this.checked && $.inArray($(this).val(), origValues[inputName]) == -1){
 									edited = true;
-								} else if (this.checked === false && $.inArray($(this).val(), origValues[inputName]) > -1){
+								}
+								else if (this.checked === false && $.inArray($(this).val(), origValues[inputName]) > -1){
 									edited = true;
 								}
-							} else if (origValues[inputName] != $(this).val()){
+							}
+							else if (origValues[inputName] != $(this).val()){
 								edited = true;
 							}
 
@@ -905,7 +954,8 @@
 										if ($.inArray($(this).attr('name'), emptyCheckboxes) == -1){
 											emptyCheckboxes.push($(this).attr('name'));
 										}
-									} else if ($.inArray($(this).attr('name'), emptyCheckboxes) > -1){
+									}
+									else if ($.inArray($(this).attr('name'), emptyCheckboxes) > -1){
 										emptyCheckboxes[$.inArray($(this).attr('name'), emptyCheckboxes)] = null;
 										delete emptyCheckboxes[$.inArray($(this).attr('name'), emptyCheckboxes)];
 									}

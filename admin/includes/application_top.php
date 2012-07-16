@@ -20,8 +20,8 @@ require((isset($basePath) ? $basePath : '') . '../includes/classes/SesDateTime.p
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesBrowserDetect.php');
 require((isset($basePath) ? $basePath : '') . '../includes/classes/SesRequestInfo.php');
 
-
-function onShutdown() {
+function onShutdown()
+{
 	global $ExceptionManager;
 	// This is our shutdown function, in
 	// here we can do any last operations
@@ -180,7 +180,7 @@ sysLanguage::init();
 $appExtension->loadExtensions();
 
 $App->loadApplication((isset($_GET['app']) ? $_GET['app'] : ''), (isset($_GET['appPage']) ? $_GET['appPage'] : ''));
-if ($App->isValid() === false) {
+if ($App->isValid() === false){
 	header('HTTP/1.0 404 Not Found');
 
 	itwExit();

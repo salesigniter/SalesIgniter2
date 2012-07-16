@@ -43,6 +43,10 @@ class TemplateManagerLayoutBuilder
 			$this->widgetDirectory = 'email';
 			$this->widgetClassPrefix = 'TemplateManagerEmailWidget';
 		}
+		elseif ($this->LayoutInfo['page_type'] == 'emailPdf'){
+			$this->widgetDirectory = 'emailPdf';
+			$this->widgetClassPrefix = 'TemplateManagerEmailPdfWidget';
+		}
 		elseif ($this->LayoutInfo['page_type'] == 'label'){
 			$this->widgetDirectory = 'label';
 			$this->widgetClassPrefix = 'TemplateManagerLabelWidget';
