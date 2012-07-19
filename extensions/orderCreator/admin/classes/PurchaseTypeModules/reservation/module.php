@@ -113,7 +113,7 @@ class OrderCreatorPurchaseTypeReservation extends OrderPurchaseTypeReservation
 		}
 
 		$OrderProduct->setPrice($newPrice);
-		if ($this->hasEnoughInventory($ReservationInfo, $OrderProduct->getQuantity()) === false){
+		if ($this->hasEnoughInventory($OrderProduct->getQuantity()) === false){
 			$OrderProduct->needsConfirmation(true);
 			$OrderProduct->setConfirmationMessage('This Product Does Not have Enough Inventory For The Selected Dates.');
 		}
@@ -271,5 +271,21 @@ class OrderCreatorPurchaseTypeReservation extends OrderPurchaseTypeReservation
 
 		EventManager::notify('ParseReservationInfoEdit', $return, $resInfo);
 		return $return;
+	}
+
+	public function loadSessionData(array $PurchaseTypeJson)
+	{
+		$this->setInfo($PurchaseTypeJson);
+
+		if (isset($PurchaseTypeJson['start_date'])){
+			if (is_array($PurchaseTypeJson['start_date']) === true){
+				$this->setInfo('start_date', SesDateTime::createFromArray($PurchaseTypeJson['start_date']));
+			}
+		}
+		if (isset($PurchaseTypeJson['end_date'])){
+			if (is_array($PurchaseTypeJson['end_date']) === true){
+				$this->setInfo('end_date', SesDateTime::createFromArray($PurchaseTypeJson['end_date']));
+			}
+		}
 	}
 }

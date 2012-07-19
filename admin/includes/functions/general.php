@@ -477,7 +477,7 @@ function tep_address_format($address_format_id, $address, $html, $boln, $eoln, $
 	$city_birth = $address['entry_city_birth'];
 	$state = $address['entry_state'];
 	$abbrstate = '';
-	$country = '';
+	$country = (isset($address['country']) ? $address['country'] : '');
 	if (isset($address['entry_country_id']) && tep_not_null($address['entry_country_id'])) {
 		$country = tep_get_country_name($address['entry_country_id']);
 

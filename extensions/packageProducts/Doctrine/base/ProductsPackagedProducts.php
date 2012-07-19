@@ -14,18 +14,6 @@ class ProductsPackagedProducts extends Doctrine_Record {
 	public function setUp(){
 		parent::setUp();
 
-		$Products = Doctrine_Core::getTable('Products')->getRecordInstance();
-		$Products->hasMany('ProductsPackagedProducts as PackageProducts', array(
-			'local' => 'products_id',
-			'foreign' => 'package_id',
-			'cascade' => array('delete')
-		));
-		$Products->hasMany('ProductsPackagedProducts as Packages', array(
-			'local' => 'products_id',
-			'foreign' => 'product_id',
-			'cascade' => array('delete')
-		));
-
 		$this->setAttribute(Doctrine::ATTR_COLL_KEY, 'product_id');
 
 		$this->hasOne('Products as ProductInfo', array(
@@ -33,6 +21,22 @@ class ProductsPackagedProducts extends Doctrine_Record {
 			'foreign' => 'products_id'
 		));
 	}
+	public function preSave($event)
+	{
+		if (is_array($this->package_data)){
+			$this->package_data = json_encode($this->package_data);
+		}
+	}
+
+	public function preHydrate($event)
+	{
+		$data = $event->data;
+		if (isset($data['package_data'])){
+			$data['package_data'] = json_decode($data['package_data'], true);
+			$event->data = $data;
+		}
+	}
+
 
 	public function setTableDefinition(){
 		$this->setTableName('products_packaged_products');

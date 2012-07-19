@@ -134,32 +134,15 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = $this->getInfo();
 
 		$PurchaseType = $this->getPurchaseTypeClass();
-		if (method_exists($PurchaseType, 'prepareJsonSave')){
-			$toEncode['PurchaseTypeJson'] = $PurchaseType->prepareJsonSave();
+		if (method_exists($PurchaseType, 'prepareSave')){
+			$toEncode['PurchaseTypeJson'] = $PurchaseType->prepareSave();
 		}
 		return $toEncode;
-	}
-
-	/**
-	 * @param array $ProductTypeJson
-	 */
-	public function jsonDecode(array $ProductTypeJson)
-	{
-		$this->setInfo($ProductTypeJson);
-//echo __FILE__ . '::' . __LINE__ . '<Br><pre>';print_r($ProductTypeJson);
-		$this->loadPurchaseType();
-
-		if (isset($ProductTypeJson['PurchaseTypeJson'])){
-			$PurchaseType = $this->getPurchaseTypeClass();
-			if (method_exists($PurchaseType, 'jsonDecode')){
-				$PurchaseType->jsonDecode($ProductTypeJson['PurchaseTypeJson']);
-			}
-		}
 	}
 
 	/**
@@ -169,16 +152,17 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
 	 * @param array                                                                   $ProductTypeJson
 	 */
-	public function jsonDecodeProduct($Product, array $ProductTypeJson)
+	public function loadDatabaseData($Product, array $ProductTypeJson = null)
 	{
 		$this->setInfo($ProductTypeJson);
-//echo __FILE__ . '::' . __LINE__ . '<Br><pre>';print_r($ProductTypeJson);
-		$this->loadPurchaseType();
+		if (isset($ProductTypeJson['PurchaseType'])){
+			$this->loadPurchaseType();
 
-		if (isset($ProductTypeJson['PurchaseTypeJson'])){
-			$PurchaseType = $this->getPurchaseTypeClass();
-			if (method_exists($PurchaseType, 'jsonDecodeProduct')){
-				$PurchaseType->jsonDecodeProduct($Product, $ProductTypeJson['PurchaseTypeJson']);
+			if (isset($ProductTypeJson['PurchaseTypeJson'])){
+				$PurchaseType = $this->getPurchaseTypeClass();
+				if (method_exists($PurchaseType, 'loadDatabaseData')){
+					$PurchaseType->loadDatabaseData($Product, $ProductTypeJson['PurchaseTypeJson']);
+				}
 			}
 		}
 	}

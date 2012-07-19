@@ -1,5 +1,8 @@
 <?php
 
+// mPDF 5.5
+$this->margBuffer = 0;		// Allow an (empty) end of block to extend beyond the bottom margin by this amount (mm)
+
 // mPDF 5.4
 // Using disk to cache table data can reduce memory usage dramatically, but at a cost of increased 
 // executon time and disk access (read and write)

@@ -46,10 +46,13 @@ class OrderCreatorProductManager extends OrderProductManager
 	/**
 	 *
 	 */
-	public function init()
+	public function loadSessionData($data)
 	{
-		foreach($this->getContents() as $OrderedProduct){
-			$OrderedProduct->init();
+		foreach($data as $Id => $pInfo){
+			$OrderProduct = $this->getContentProductClass();
+			$OrderProduct->loadSessionData($pInfo);
+
+			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
 		}
 	}
 
@@ -167,30 +170,14 @@ class OrderCreatorProductManager extends OrderProductManager
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$ProductsJsonArray = array();
 		foreach($this->getContents() as $Id => $OrderProduct){
-			$ProductsJsonArray[$Id] = $OrderProduct->prepareJsonSave();
+			$ProductsJsonArray[$Id] = $OrderProduct->prepareSave();
 		}
 		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
 		return $ProductsJsonArray;
-	}
-
-	/**
-	 * Used from init method in OrderCreator class
-	 *
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$Contents = json_decode($data, true);
-		foreach($Contents as $Id => $pInfo){
-			$OrderProduct = new OrderCreatorProduct();
-			$OrderProduct->jsonDecode($pInfo);
-
-			$this->Contents[$OrderProduct->getId()] = $OrderProduct;
-		}
 	}
 
 	public function onSaveProgress(&$SaleProducts)

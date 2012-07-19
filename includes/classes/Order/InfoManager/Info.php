@@ -73,7 +73,7 @@ class OrderInfo
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		return array(
 			'key'   => $this->getKey(),

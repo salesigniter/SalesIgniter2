@@ -201,8 +201,8 @@ class SystemModulesLoader
 				}
 				$classObj = new $className;
 				$register = true;
-				if ($classObj->isInstalled() === true && $classObj->isEnabled() === true){
-					if (is_dir($dir . 'Doctrine')){
+				if (is_dir($dir . 'Doctrine')){
+					if ($classObj->isInstalled() === true && $classObj->isEnabled() === true){
 						Doctrine_Core::loadModels($dir . 'Doctrine', Doctrine_Core::MODEL_LOADING_AGGRESSIVE);
 					}
 				}

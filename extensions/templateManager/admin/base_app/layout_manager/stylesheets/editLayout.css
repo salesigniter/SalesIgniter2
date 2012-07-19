@@ -42,9 +42,12 @@
 	outline : 1px dashed blue;
 }
 
-.container {
+.needsMin {
 	min-height  : 32px;
 	min-width   : 32px;
+}
+
+.container {
 	line-height : 1em;
 }
 
@@ -67,8 +70,6 @@
 
 .column {
 	display        : inline-block;
-	min-height     : 32px;
-	min-width      : 32px;
 	line-height    : 1em;
 	vertical-align : top;
 }
@@ -94,7 +95,6 @@
 	list-style : none;
 	margin     : 0;
 	padding    : 0;
-	min-height : 32px;
 }
 
 .ui-sortable li.widget {
@@ -120,7 +120,6 @@
 }
 
 .ui-sortable li.widget .widget_name, .ui-sortable li.widget .widgetName {
-	min-height     : 32px;
 	display        : block;
 	vertical-align : middle;
 }

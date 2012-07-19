@@ -55,7 +55,7 @@ $PageBlockPath = 'extensions/orderCreator/admin/base_app/default/pageBlocks/';
 			<?php
 			$statusDrop = htmlBase::newElement('selectbox')
 				->setName('status')
-				->selectOptionByValue($Editor->getCurrentStatus(true));
+				->selectOptionByValue($Editor->InfoManager->getInfo('sale_status'));
 			foreach($orders_statuses as $sInfo){
 				$statusDrop->addOption($sInfo['id'], $sInfo['text']);
 			}

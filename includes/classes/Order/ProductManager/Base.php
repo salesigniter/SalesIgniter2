@@ -116,11 +116,11 @@ class OrderProductManager
 	 *
 	 * @param $Products
 	 */
-	public function jsonDecodeProduct($Products)
+	public function loadDatabaseData($Products)
 	{
 		foreach($Products as $Product){
 			$ContentProduct = $this->getContentProductClass();
-			$ContentProduct->jsonDecodeProduct($Product);
+			$ContentProduct->loadDatabaseData($Product);
 
 			$this->Contents[$ContentProduct->getId()] = $ContentProduct;
 		}

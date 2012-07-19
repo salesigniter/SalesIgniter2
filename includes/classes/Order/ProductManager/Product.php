@@ -344,14 +344,15 @@ class OrderProduct
 	}
 
 	/**
-	 * @param null $Qty
+	 * @param int $Qty
 	 * @return bool
 	 */
-	public function hasEnoughInventory($Qty = null)
+	public function hasEnoughInventory($Qty = 1)
 	{
+		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
 		$return = true;
 		if (method_exists($this->ProductTypeClass, 'hasEnoughInventory')){
-			$return = $this->ProductTypeClass->hasEnoughInventory($this, $Qty);
+			$return = $this->ProductTypeClass->hasEnoughInventory($Qty);
 		}
 		return $return;
 	}
@@ -372,13 +373,13 @@ class OrderProduct
 			$this->ProductTypeClass->onSaveSale($SaleProduct, $AssignInventory);
 		}
 
-		$SaleProduct->product_json = $this->prepareJsonSave();
+		$SaleProduct->product_json = $this->prepareSave();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = array(
 			'id'    => $this->id,
@@ -386,8 +387,8 @@ class OrderProduct
 		);
 
 		$ProductTypeClass = $this->getProductTypeClass();
-		if (method_exists($ProductTypeClass, 'prepareJsonSave')){
-			$toEncode['ProductTypeJson'] = $ProductTypeClass->prepareJsonSave();
+		if (method_exists($ProductTypeClass, 'prepareSave')){
+			$toEncode['ProductTypeJson'] = $ProductTypeClass->prepareSave();
 		}
 		return $toEncode;
 	}
@@ -400,12 +401,19 @@ class OrderProduct
 	 *
 	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
 	 */
-	public function jsonDecodeProduct($Product)
+	public function loadDatabaseData($Product)
 	{
-		$ProductInfo = json_decode($Product->product_json, true);
-		if ($ProductInfo){
-			$this->id = $ProductInfo['id'];
-			$this->pInfo = $ProductInfo['pInfo'];
+		if (is_array($Product->product_json) && empty($Product->product_json) === false){
+			$this->id = $Product->product_json['id'];
+			$this->pInfo = $Product->product_json['pInfo'];
+
+			/**
+			 * @TODO: Temporary until i can make things come from the right places
+			 */
+			if (isset($this->pInfo['ReservationInfo'])){
+				$this->pInfo['ReservationInfo']['start_date'] = SesDateTime::createFromArray($this->pInfo['ReservationInfo']['start_date']);
+				$this->pInfo['ReservationInfo']['end_date'] = SesDateTime::createFromArray($this->pInfo['ReservationInfo']['end_date']);
+			}
 
 			$this->inventory = array();
 			if ($Product->hasRelation('SaleInventory') && $Product->SaleInventory->count() > 0){
@@ -425,8 +433,8 @@ class OrderProduct
 
 			$this->loadProductBaseInfo($this->pInfo['products_id']);
 			$this->loadProductType();
-			if (method_exists($this->ProductTypeClass, 'jsonDecodeProduct')){
-				$this->ProductTypeClass->jsonDecodeProduct($Product, $ProductInfo['ProductTypeJson']);
+			if (method_exists($this->ProductTypeClass, 'loadDatabaseData')){
+				$this->ProductTypeClass->loadDatabaseData($Product, $Product->product_json['ProductTypeJson']);
 			}
 		}
 	}

@@ -19,6 +19,17 @@ class OrderCreatorInfoManager extends OrderInfoManager
 	{
 		return new OrderCreatorInfo();
 	}
+
+	public function loadSessionData($data)
+	{
+		foreach($data as $k => $info){
+			$InfoClass = $this->getInfoObjectClass();
+			$InfoClass->setKey($info['key']);
+			$InfoClass->setValue($info['value']);
+
+			$this->info[$k] = $InfoClass;
+		}
+	}
 }
 
 require(__DIR__ . '/Info.php');

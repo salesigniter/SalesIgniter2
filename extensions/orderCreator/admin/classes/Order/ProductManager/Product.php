@@ -57,6 +57,22 @@ class OrderCreatorProduct extends OrderProduct
 	}
 
 	/**
+	 * @param array $ProductInfo
+	 */
+	public function loadSessionData(array $ProductInfo)
+	{
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
+		$this->id = $ProductInfo['id'];
+		$this->pInfo = $ProductInfo['pInfo'];
+
+		$this->loadProductBaseInfo($this->pInfo['products_id']);
+		$this->loadProductType();
+		if (method_exists($this->ProductTypeClass, 'loadSessionData')){
+			$this->ProductTypeClass->loadSessionData($ProductInfo['ProductTypeJson']);
+		}
+	}
+
+	/**
 	 * @return ProductTypeBase|OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
 	 */
 	public function &getProductTypeClass()
@@ -310,22 +326,6 @@ class OrderCreatorProduct extends OrderProduct
 	}
 
 	/**
-	 * @param array $ProductInfo
-	 */
-	public function jsonDecode(array $ProductInfo)
-	{
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
-		$this->id = $ProductInfo['id'];
-		$this->pInfo = $ProductInfo['pInfo'];
-
-		$this->loadProductBaseInfo($this->pInfo['products_id']);
-		$this->loadProductType();
-		if (method_exists($this->ProductTypeClass, 'jsonDecode')){
-			$this->ProductTypeClass->jsonDecode($ProductInfo['ProductTypeJson']);
-		}
-	}
-
-	/**
 	 * Cannot typehint due to the possibility of packages extension being installed
 	 * and its' products are from another table with the same columns
 	 *
@@ -338,7 +338,7 @@ class OrderCreatorProduct extends OrderProduct
 			$ProductType->onSaveProgress($SaleProduct);
 		}
 
-		$SaleProduct->product_json = $this->prepareJsonSave();
+		$SaleProduct->product_json = $this->prepareSave();
 	}
 }
 

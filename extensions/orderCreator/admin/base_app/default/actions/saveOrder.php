@@ -9,6 +9,7 @@ $Editor->InfoManager->setInfo('tracking', array(
 $Editor->InfoManager->setInfo('ip_address', $_SERVER['REMOTE_ADDR']);
 $Editor->InfoManager->setInfo('admin_id', Session::get('login_id'));
 $Editor->InfoManager->setInfo('admin_comments', $_POST['comments']);
+$Editor->InfoManager->setInfo('sale_status', $_POST['status']);
 
 if (isset($_POST['convertTo'])){
 	AccountsReceivable::convertSale($Editor, $_POST['convertTo']);

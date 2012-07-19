@@ -48,8 +48,14 @@ class Extension_customFields extends ExtensionBase
 
 		$Products = Doctrine::getTable('Products')->getRecordInstance();
 
-		$Products->hasOne('ProductsCustomFieldsGroupsToProducts as Fields', array(
+		$Products->hasOne('ProductsCustomFieldsGroupsToProducts as FieldsGroup', array(
 			'local'   => 'products_id',
+			'foreign' => 'product_id',
+			'cascade' => array('delete')
+		));
+
+		$Products->hasMany('ProductsCustomFieldsToProducts as Fields', array(
+			'local' => 'products_id',
 			'foreign' => 'product_id',
 			'cascade' => array('delete')
 		));

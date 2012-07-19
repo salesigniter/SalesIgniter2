@@ -14,71 +14,50 @@ class TemplateManagerLayoutBuilder
 
 	protected $variables = array();
 
-	public function __construct($layoutId = null) {
+	public function __construct($layoutId = null)
+	{
 		if ($layoutId !== null){
 			$this->setLayoutId($layoutId);
 		}
 	}
 
-	public function addVar($varName, $varVal){
+	public function addVar($varName, $varVal)
+	{
 		$this->variables[$varName] = $varVal;
 	}
 
-	public function getVar($varName){
+	public function getVar($varName)
+	{
 		return $this->variables[$varName];
 	}
 
-	public function setLayoutId($layoutId){
+	public function setLayoutId($layoutId)
+	{
 		$this->layoutId = $layoutId;
 		$LayoutInfo = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
 			->fetchAssoc('select * from template_manager_layouts where layout_id = "' . $layoutId . '"');
 		$this->LayoutInfo = $LayoutInfo[0];
 
-		if ($this->LayoutInfo['page_type'] == 'print'){
-			$this->widgetDirectory = 'print';
-			$this->widgetClassPrefix = 'TemplateManagerPrintWidget';
-		}
-		elseif ($this->LayoutInfo['page_type'] == 'email'){
-			$this->widgetDirectory = 'email';
-			$this->widgetClassPrefix = 'TemplateManagerEmailWidget';
-		}
-		elseif ($this->LayoutInfo['page_type'] == 'emailPdf'){
-			$this->widgetDirectory = 'emailPdf';
-			$this->widgetClassPrefix = 'TemplateManagerEmailPdfWidget';
-		}
-		elseif ($this->LayoutInfo['page_type'] == 'label'){
-			$this->widgetDirectory = 'label';
-			$this->widgetClassPrefix = 'TemplateManagerLabelWidget';
-		}
-		else {
-			$this->widgetDirectory = 'layout';
-			$this->widgetClassPrefix = 'TemplateManagerWidget';
-		}
+		$LayoutModule = TemplateManagerLayoutTypeModules::getModule($this->LayoutInfo['page_type']);
 
-		$this->loadWidgets();
+		$this->loadWidgets($LayoutModule);
 	}
 
-	public function loadWidgets(){
+	public function loadWidgets(TemplateManagerLayoutTypeModuleBase $LayoutModule)
+	{
 		global $appExtension;
 		$this->widgetPaths = array();
 		$this->widgetTemplatePaths = array();
 
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
-		foreach($dir as $dInfo){
-			if ($dInfo->isDot() || $dInfo->isFile()){
-				continue;
-			}
-			$this->widgetPaths[$dInfo->getBasename()] = $dInfo->getPathname();
-		}
-
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
-		foreach($dir as $dInfo){
-			if ($dInfo->isDot() || $dInfo->isDir()){
-				continue;
-			}
-			$this->widgetTemplatePaths[$dInfo->getBasename('.tpl')] = $dInfo->getPathname();
-		}
+		$loadWidgetPaths = array(
+			sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets/',
+			$LayoutModule->getPath() . 'widgets/'
+		);
+		$loadWidgetTemplatePaths = array(
+			sysConfig::getDirFsCatalog() . 'extensions/templateManager/widgets_templates/',
+			$LayoutModule->getPath() . 'templates/'
+		);
 
 		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions/');
 		foreach($dir as $dInfo){
@@ -90,57 +69,51 @@ class TemplateManagerLayoutBuilder
 				continue;
 			}
 
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/widgets/')){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
-				foreach($subDir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isFile()){
-						continue;
-					}
-					$this->widgetPaths[$sdInfo->getBasename()] = $sdInfo->getPathname();
-				}
-			}
+			$loadWidgetPaths[] = $dInfo->getPathName() . '/catalog/ext_app/templateManager/templateManagerLayoutTypeModules/' . $LayoutModule->getCode() . '/widgets/';
+			$loadWidgetTemplatePaths[] = $dInfo->getPathName() . '/catalog/ext_app/templateManager/templateManagerLayoutTypeModules/' . $LayoutModule->getCode() . '/templates/';
+		}
 
-			if (is_dir($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/templates/')){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/catalog/ext_app/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
-				foreach($subDir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isDir()){
-						continue;
+		$loadWidgetPaths[] = sysConfig::getDirFsCatalog() . 'clientData/extensions/templateManager/widgets/';
+		$loadWidgetPaths[] = sysConfig::getDirFsCatalog() . 'clientData/extensions/templateManager/templateManagerLayoutTypeModules/' . $LayoutModule->getCode() . '/widgets/';
+		$loadWidgetTemplatePaths[] = sysConfig::getDirFsCatalog() . 'clientData/extensions/templateManager/widgets_templates/';
+		$loadWidgetTemplatePaths[] = sysConfig::getDirFsCatalog() . 'clientData/extensions/templateManager/templateManagerLayoutTypeModules/' . $LayoutModule->getCode() . '/templates/';
+
+		if (empty($loadWidgetPaths) === false){
+			foreach($loadWidgetPaths as $Path){
+				if (is_dir($Path)){
+					$Dir = new DirectoryIterator($Path);
+					foreach($Dir as $dInfo){
+						if ($dInfo->isDot() || $dInfo->isFile()){
+							continue;
+						}
+						if (file_exists($dInfo->getPathname() . '/widget.php')){
+							$this->widgetPaths[$dInfo->getBasename()] = $dInfo->getPathname();
+						}
 					}
-					$this->widgetTemplatePaths[$sdInfo->getBasename('.tpl')] = $sdInfo->getPathname();
 				}
 			}
 		}
 
-		$dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/');
-		foreach($dir as $dInfo){
-			if ($dInfo->isDot() || $dInfo->isFile()){
-				continue;
-			}
-			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/')){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/widgets/');
-				foreach($subDir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isFile()){
-						continue;
+		if (empty($loadWidgetTemplatePaths) === false){
+			foreach($loadWidgetTemplatePaths as $Path){
+				if (is_dir($Path)){
+					$Dir = new DirectoryIterator($Path);
+					foreach($Dir as $dInfo){
+						if ($dInfo->isDot() || $dInfo->isDir()){
+							continue;
+						}
+						$this->widgetTemplatePaths[$dInfo->getBasename('.tpl')] = $dInfo->getPathname();
 					}
-					$this->widgetPaths[$sdInfo->getBasename()] = $sdInfo->getPathname();
-				}
-			}
-
-			if (is_dir($dInfo->getPathname() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/')){
-				$subDir = new DirectoryIterator($dInfo->getPathName() . '/extensions/templateManager/widgets/' . $this->widgetDirectory . '/templates/');
-				foreach($subDir as $sdInfo){
-					if ($sdInfo->isDot() || $sdInfo->isDir()){
-						continue;
-					}
-					$this->widgetTemplatePaths[$sdInfo->getBasename('.tpl')] = $sdInfo->getPathname();
 				}
 			}
 		}
+
 		ksort($this->widgetPaths);
 		ksort($this->widgetTemplatePaths);
 	}
 
-	public function getWidgets(){
+	public function getWidgets()
+	{
 		$widgets = array();
 		foreach($this->getWidgetPaths() as $Code => $Path){
 			$widgets[] = $this->getWidget($Code);
@@ -148,17 +121,20 @@ class TemplateManagerLayoutBuilder
 		return $widgets;
 	}
 
-	public function getWidgetPaths(){
+	public function getWidgetPaths()
+	{
 		return $this->widgetPaths;
 	}
 
-	public function getWidgetTemplatePaths(){
+	public function getWidgetTemplatePaths()
+	{
 		return $this->widgetTemplatePaths;
 	}
 
-	private function loadWidget($code){
+	private function loadWidget($code)
+	{
 		if (isset($this->widgetPaths[$code])){
-			if (class_exists($this->widgetClassPrefix . ucfirst($code)) === false){
+			if (class_exists('TemplateManagerWidget' . ucfirst($code)) === false){
 				require($this->widgetPaths[$code] . '/widget.php');
 			}
 			return true;
@@ -166,27 +142,30 @@ class TemplateManagerLayoutBuilder
 		return false;
 	}
 
-	public function getWidget($code){
+	public function getWidget($code)
+	{
 		if ($this->loadWidget($code) !== false){
-			$className = $this->widgetClassPrefix . ucfirst($code);
+			$className = 'TemplateManagerWidget' . ucfirst($code);
 			return new $className;
 		}
 		return false;
 	}
 
-	public function getContainers($parentId = 0) {
+	public function getContainers($parentId = 0)
+	{
 		$Containers = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
 			->fetchAssoc('select * from template_manager_layouts_containers where layout_id = "' . $this->layoutId . '" and parent_id = 0 order by sort_order');
 		return $Containers;
 	}
 
-	public function getConfigInfo($type, $id) {
+	public function getConfigInfo($type, $id)
+	{
 		if ($type == 'layout'){
 			$idCol = 'layout_id';
 			$table = 'template_manager_layouts_configuration';
 		}
-		elseif ($type == 'container'){
+		elseif ($type == 'container') {
 			$idCol = 'container_id';
 			$table = 'template_manager_layouts_containers_configuration';
 		}
@@ -212,12 +191,13 @@ class TemplateManagerLayoutBuilder
 		return $cfgInfo;
 	}
 
-	public function getStyleInfo($type, $id) {
+	public function getStyleInfo($type, $id)
+	{
 		if ($type == 'layout'){
 			$idCol = 'layout_id';
 			$table = 'template_manager_layouts_styles';
 		}
-		elseif ($type == 'container'){
+		elseif ($type == 'container') {
 			$idCol = 'container_id';
 			$table = 'template_manager_layouts_containers_styles';
 		}
@@ -243,7 +223,8 @@ class TemplateManagerLayoutBuilder
 		return $cssInfo;
 	}
 
-	public function getContainerColumns($id) {
+	public function getContainerColumns($id)
+	{
 		$Columns = false;
 		$ResultSet = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
@@ -257,7 +238,8 @@ class TemplateManagerLayoutBuilder
 		return $Columns;
 	}
 
-	public  function getColumnChildren($id){
+	public function getColumnChildren($id)
+	{
 		$Columns = false;
 		$ResultSet = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
@@ -271,7 +253,8 @@ class TemplateManagerLayoutBuilder
 		return $Columns;
 	}
 
-	public function getContainerChildren($id) {
+	public function getContainerChildren($id)
+	{
 		$Children = false;
 		$ResultSet = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
@@ -285,7 +268,8 @@ class TemplateManagerLayoutBuilder
 		return $Children;
 	}
 
-	public function getColumnWidgets($id) {
+	public function getColumnWidgets($id)
+	{
 		$Widgets = false;
 		$ResultSet = Doctrine_Manager::getInstance()
 			->getCurrentConnection()
@@ -299,7 +283,8 @@ class TemplateManagerLayoutBuilder
 		return $Widgets;
 	}
 
-	private function addStyles($El, $Styles) {
+	private function addStyles($El, $Styles)
+	{
 		if ($El->hasAttr('id') && $El->attr('id') != ''){
 			//echo $El->attr('id') . '::<pre>';print_r($Styles);echo '</pre>';
 			//return;
@@ -312,11 +297,14 @@ class TemplateManagerLayoutBuilder
 			else {
 				$css[$sInfo['definition_key']] = $sInfo['definition_value'];
 			}
-			$El->css($sInfo['definition_key'], $css[$sInfo['definition_key']]);
+			if (!empty($css[$sInfo['definition_key']])){
+				$El->css($sInfo['definition_key'], $css[$sInfo['definition_key']]);
+			}
 		}
 	}
 
-	private function addInputs($El, $Config) {
+	private function addInputs($El, $Config)
+	{
 		foreach($Config as $cInfo){
 			if ($cInfo['configuration_key'] != 'id'){
 				continue;
@@ -326,7 +314,8 @@ class TemplateManagerLayoutBuilder
 		}
 	}
 
-	private function processContainerChildren(&$El, $ChildArr) {
+	private function processContainerChildren(&$El, $ChildArr)
+	{
 		foreach($ChildArr as $cInfo){
 			$NewEl = htmlBase::newElement('div')
 				->addClass('container');
@@ -351,7 +340,8 @@ class TemplateManagerLayoutBuilder
 		}
 	}
 
-	private function processContainerColumns(&$Container, $ColArr) {
+	private function processContainerColumns(&$Container, $ColArr)
+	{
 		foreach($ColArr as $cInfo){
 			$ColEl = htmlBase::newElement('div')
 				->addClass('column');
@@ -381,7 +371,8 @@ class TemplateManagerLayoutBuilder
 						foreach($cfgInfo as $cfInfo){
 							if ($cfInfo['configuration_key'] == 'widget_settings'){
 								$WidgetSettings = json_decode(utf8_encode($cfInfo['configuration_value']));
-							}else{
+							}
+							else {
 								$WidgetInputs[] = $cfInfo;
 							}
 						}
@@ -425,7 +416,8 @@ class TemplateManagerLayoutBuilder
 		}
 	}
 
-	public function build(&$Construct) {
+	public function build(&$Construct)
+	{
 		$Profile = SES_Profiler::newProfile('templateLoad', true);
 		foreach($this->getContainers() as $cInfo){
 			$MainEl = htmlBase::newElement('div')

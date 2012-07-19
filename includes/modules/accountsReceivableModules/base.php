@@ -167,7 +167,8 @@ class AccountsReceivableModule extends ModuleBase
 	/**
 	 * @return null
 	 */
-	public function getSaleId(){
+	public function getSaleId()
+	{
 		return $this->id;
 	}
 
@@ -441,53 +442,6 @@ class AccountsReceivableModule extends ModuleBase
 	}
 
 	/**
-	 * @param Order $Order
-	 * @param bool  $loadManagers
-	 * @param int   $saleId
-	 * @param int   $revisionId
-	 */
-	public function load(Order &$Order, $loadManagers = true, $saleId = 0, $revisionId = null)
-	{
-		$Order->setSaleModule($this);
-		if ($saleId > 0){
-			$QSale = Doctrine_Query::create()
-				->from('AccountsReceivableSales')
-				->where('sale_id = ?', $saleId)
-				->andWhere('sale_module = ?', $this->getCode());
-
-			if ($revisionId !== null){
-				$QSale->andWhere('sale_revision = ?', $revisionId);
-			}
-			else {
-				$QSale->orderBy('sale_revision desc');
-			}
-
-			$Sale = $QSale->fetchOne();
-
-			$this->id = $Sale->sale_id;
-			$this->revision = $Sale->sale_revision;
-
-			$Order->setSaleId($this->id);
-
-			if ($loadManagers === true){
-				$Order->statusId = $Sale->sale_status_id;
-				$Order->InfoManager->jsonDecode($Sale->info_json);
-				$Order->AddressManager->jsonDecode($Sale->address_json);
-				$Order->InfoManager->setInfo('customers_firstname', $Sale->customers_firstname);
-				$Order->InfoManager->setInfo('customers_lastname', $Sale->customers_lastname);
-				$Order->InfoManager->setInfo('date_added', $Sale->date_added);
-				$Order->InfoManager->setInfo('last_modified', $Sale->date_modified);
-				$Order->InfoManager->setInfo('sale_id', $this->id);
-				$Order->InfoManager->setInfo('revision', $Sale->sale_revision);
-				$Order->PaymentManager->setPaymentModule('fdggc2');
-
-				$Order->TotalManager->load($Sale->Totals);
-				$Order->ProductManager->jsonDecodeProduct($Sale->Products);
-			}
-		}
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getCurrentRevision()
@@ -503,7 +457,8 @@ class AccountsReceivableModule extends ModuleBase
 		return $this->revision > 1;
 	}
 
-	public function getRevisions(){
+	public function getRevisions()
+	{
 		$return = array();
 		$Revisions = Doctrine_Query::create()
 			->select('sale_revision, date_added')
@@ -514,9 +469,9 @@ class AccountsReceivableModule extends ModuleBase
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		foreach($Revisions as $rInfo){
 			$return[] = array(
-				'id' => $rInfo['sale_revision'],
+				'id'         => $rInfo['sale_revision'],
 				'date_added' => $rInfo['date_added'],
-				'text' => '#' . $rInfo['sale_revision'] . ' - ' . $rInfo['date_added']->format('M j, Y g:ia')
+				'text'       => '#' . $rInfo['sale_revision'] . ' - ' . $rInfo['date_added']->format('M j, Y g:ia')
 			);
 		}
 		return $return;
@@ -561,13 +516,59 @@ class AccountsReceivableModule extends ModuleBase
 
 	/**
 	 * @param Order $Order
+	 * @param bool  $loadManagers
+	 * @param int   $saleId
+	 * @param int   $revisionId
+	 */
+	public function load(Order &$Order, $loadManagers = true, $saleId = 0, $revisionId = null)
+	{
+		$Order->setSaleModule($this);
+		if ($saleId > 0){
+			$QSale = Doctrine_Query::create()
+				->from('AccountsReceivableSales')
+				->where('sale_id = ?', $saleId)
+				->andWhere('sale_module = ?', $this->getCode());
+
+			if ($revisionId !== null){
+				$QSale->andWhere('sale_revision = ?', $revisionId);
+			}
+			else {
+				$QSale->orderBy('sale_revision desc');
+			}
+
+			$Sale = $QSale->fetchOne();
+
+			$this->id = $Sale->sale_id;
+			$this->revision = $Sale->sale_revision;
+
+			$Order->setSaleId($this->id);
+
+			if ($loadManagers === true){
+				$Order->statusId = $Sale->sale_status_id;
+
+				$Order->AddressManager->loadDatabaseData($Sale->address_json);
+				$Order->TotalManager->loadDatabaseData($Sale->Totals);
+				$Order->ProductManager->loadDatabaseData($Sale->Products);
+				$Order->InfoManager->loadDatabaseData($Sale->info_json);
+
+				$Order->InfoManager->setInfo('customers_firstname', $Sale->customers_firstname);
+				$Order->InfoManager->setInfo('customers_lastname', $Sale->customers_lastname);
+				$Order->InfoManager->setInfo('date_added', $Sale->date_added);
+				$Order->InfoManager->setInfo('last_modified', $Sale->date_modified);
+				$Order->InfoManager->setInfo('sale_id', $this->id);
+				$Order->InfoManager->setInfo('revision', $Sale->sale_revision);
+				$Order->PaymentManager->setPaymentModule('fdggc2');
+			}
+		}
+	}
+
+	/**
+	 * @param Order $Order
 	 * @return int
 	 */
 	public function duplicateSale(Order $Order)
 	{
-		if ($this->id === null){
-			$this->id = AccountsReceivable::getNextId($this->getCode());
-		}
+		$this->id = AccountsReceivable::getNextId($this->getCode());
 
 		$this->revision = 1;
 
@@ -576,15 +577,19 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->sale_module = $this->getCode();
 		$Sale->date_added = date(DATE_TIMESTAMP);
 		$Sale->customers_id = $SaleClass->InfoManager->getInfo('customers_id');
-		$Sale->customers_firstname = $SaleClass->AddressManager->getAddress('customer')->getFirstName();
-		$Sale->customers_lastname = $SaleClass->AddressManager->getAddress('customer')->getLastName();
+		$Sale->customers_firstname = $SaleClass->AddressManager
+			->getAddress('customer')
+			->getFirstName();
+		$Sale->customers_lastname = $SaleClass->AddressManager
+			->getAddress('customer')
+			->getLastName();
 		$Sale->customers_email_address = $SaleClass->InfoManager->getInfo('customers_email_address');
 		$Sale->sale_total = $SaleClass->TotalManager->getTotalValue('total');
 		$Sale->sale_status_id = 1;
 		$Sale->sale_revision = 1;
 		$Sale->sale_most_current = 1;
-		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
-		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
+		$Sale->info_json = $SaleClass->InfoManager->prepareSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareSave();
 
 		$SaleClass->TotalManager->onSaveSale($Sale->Totals);
 		$SaleClass->ProductManager->onSaveSale($Sale->Products, false);
@@ -627,8 +632,8 @@ class AccountsReceivableModule extends ModuleBase
 		$Sale->customers_email_address = $SaleClass->InfoManager->getInfo('customers_email_address');
 		$Sale->sale_total = $SaleClass->TotalManager->getTotalValue('total');
 		$Sale->date_added = date(DATE_TIMESTAMP);
-		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
-		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
+		$Sale->info_json = $SaleClass->InfoManager->prepareSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareSave();
 
 		$SaleClass->TotalManager->onSaveProgress($Sale->Totals);
 		$SaleClass->ProductManager->onSaveProgress($Sale->Products);
@@ -650,7 +655,8 @@ class AccountsReceivableModule extends ModuleBase
 				$this->id,
 				$this->revision
 			);
-		}else{
+		}
+		else {
 			if ($this->id === null){
 				$this->id = AccountsReceivable::getNextId($this->getCode());
 			}
@@ -664,15 +670,19 @@ class AccountsReceivableModule extends ModuleBase
 
 		$Sale->date_added = date(DATE_TIMESTAMP);
 		$Sale->customers_id = $SaleClass->InfoManager->getInfo('customers_id');
-		$Sale->customers_firstname = $SaleClass->AddressManager->getAddress('customer')->getFirstName();
-		$Sale->customers_lastname = $SaleClass->AddressManager->getAddress('customer')->getLastName();
+		$Sale->customers_firstname = $SaleClass->AddressManager
+			->getAddress('customer')
+			->getFirstName();
+		$Sale->customers_lastname = $SaleClass->AddressManager
+			->getAddress('customer')
+			->getLastName();
 		$Sale->customers_email_address = $SaleClass->InfoManager->getInfo('customers_email_address');
 		$Sale->sale_total = $SaleClass->TotalManager->getTotalValue('total');
-		$Sale->sale_status_id = 1;
+		$Sale->sale_status_id = $SaleClass->InfoManager->getInfo('sale_status');
 		$Sale->sale_revision = $this->revision;
 		$Sale->sale_most_current = 1;
-		$Sale->info_json = $SaleClass->InfoManager->prepareJsonSave();
-		$Sale->address_json = $SaleClass->AddressManager->prepareJsonSave();
+		$Sale->info_json = $SaleClass->InfoManager->prepareSave();
+		$Sale->address_json = $SaleClass->AddressManager->prepareSave();
 
 		$SaleClass->TotalManager->onSaveSale($Sale->Totals);
 		$SaleClass->ProductManager->onSaveSale($Sale->Products, $this->assignInventory());
@@ -696,34 +706,35 @@ class AccountsReceivableModule extends ModuleBase
 			echo 'This Cannot Be Printed';
 			itwExit();
 		}
-		$PrintTemplate = array();
-		$Code = $this->getCode();
 
-		$requireFile = null;
-		$ClassName = 'AccountsReceivableModules' . ucfirst($Code) . 'Print' . ucfirst($PrintType);
-		if (file_exists($this->getPath() . 'print/' . $PrintType . '.php')){
-			$requireFile = $this->getPath() . 'print/' . $PrintType . '.php';
-		}
-		else {
-			$TemplateDir = new DirectoryIterator(sysConfig::get('DIR_FS_CATALOG_TEMPLATES'));
-			foreach($TemplateDir as $tInfo){
-				if ($tInfo->isDot() || $tInfo->isFile()){
-					continue;
-				}
-
-				if (file_exists($tInfo->getPathname() . '/modules/accountsReceivableModules/' . $Code . '/print/' . $PrintType . '.php')){
-					$requireFile = $tInfo->getPathname() . '/modules/accountsReceivableModules/' . $Code . '/print/' . $PrintType . '.php';
-					break;
+		$PrintTemplates = array();
+		$Qtemplates = Doctrine_Query::create()
+			->from('TemplateManagerLayouts')
+			->where('page_type = ?', 'salesPdf')
+			->execute();
+		if ($Qtemplates->count() > 0){
+			foreach($Qtemplates as $Template){
+				//echo '<pre>';print_r($Template->layout_settings);
+				if (
+					is_array($Template->layout_settings) &&
+					is_array($Template->layout_settings['saleModules']) &&
+					isset($Template->layout_settings['saleModules'][$this->getCode()]) &&
+					in_array($PrintType, $Template->layout_settings['saleModules'][$this->getCode()])
+				){
+					$PrintTemplates[] = $Template;
 				}
 			}
 		}
 
-		if (!empty($requireFile)){
-			if (class_exists($ClassName) === false){
-				require($requireFile);
-			}
-			$PrintTemplate = $ClassName::getPrintTemplate();
+		if (sizeof($PrintTemplates) > 1){
+			echo 'There are multiple templates attached, please select one';
+			itwExit();
 		}
-		return $PrintTemplate;
+		elseif (sizeof($PrintTemplates) == 0) {
+			echo 'There are no templates assigned for sales pdf printing!.';
+			itwExit();
+		}
+
+		return $PrintTemplates[0];
 	}
 }

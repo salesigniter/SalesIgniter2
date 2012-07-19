@@ -59,6 +59,14 @@ class OrderProductTypePackage extends ProductTypePackage
 	}
 
 	/**
+	 * @return OrderProduct
+	 */
+	public function getContentPackagedProductClass()
+	{
+		return new OrderProduct();
+	}
+
+	/**
 	 * @return array OrderProduct[]
 	 */
 	public function hasPackagedProducts()
@@ -126,18 +134,18 @@ class OrderProductTypePackage extends ProductTypePackage
 			$Quantity = $PackagedProduct->getQuantity();
 
 			$ProductType = $PackagedProduct->getProductTypeClass();
-			if (isset($PackageData->purchase_type) && $PackageData->purchase_type == 'reservation'){
+			if (isset($PackageData['purchase_type']) && $PackageData['purchase_type'] == 'reservation'){
 				$pprId = $ProductType
 					->getPurchaseTypeClass()
 					->getPayPerRentalId();
 				foreach(PurchaseType_reservation_utilities::getRentalPricing($pprId) as $priceInfo){
 					if (
-						isset($PackageData->price) &&
-						isset($PackageData->price->$pprId) &&
-						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}) &&
-						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']})
+						isset($PackageData['price']) &&
+						isset($PackageData['price'][$pprId]) &&
+						isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']]) &&
+						isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
 					){
-						$price = $PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']};
+						$price = $PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
 					}
 					else {
 						$price = $priceInfo['price'];
@@ -175,10 +183,10 @@ class OrderProductTypePackage extends ProductTypePackage
 	public function hasEnoughInventory($Qty = 1)
 	{
 		$return = true;
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($OrderProduct->getInfo('PackagedProducts'));
 		if ($this->hasPackagedProducts() === true){
 			foreach($this->getPackagedProducts() as $PackageProduct){
 				$PackageData = $PackageProduct->getInfo('PackageData');
+				//echo __FILE__ . '::' . __LINE__ . '<pre>' . $Qty . ' * ' . $PackageData['quantity'] . '::';print_r($PackageData);
 				$return = $PackageProduct->hasEnoughInventory($Qty * $PackageData['quantity']);
 
 				if ($return === false){
@@ -207,12 +215,12 @@ class OrderProductTypePackage extends ProductTypePackage
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = $this->getInfo();
 		if ($this->hasPackagedProducts()){
 			foreach($this->getPackagedProducts() as $k => $PackagedProduct){
-				$toEncode['PackagedProducts'][$k] = $PackagedProduct->prepareJsonSave();
+				$toEncode['PackagedProducts'][$k] = $PackagedProduct->prepareSave();
 			}
 		}
 		return $toEncode;
@@ -225,7 +233,7 @@ class OrderProductTypePackage extends ProductTypePackage
 	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
 	 * @param array                                                                   $ProductTypeJson
 	 */
-	public function jsonDecodeProduct($Product, $ProductTypeJson)
+	public function loadDatabaseData($Product, $ProductTypeJson)
 	{
 		$this->setInfo($ProductTypeJson);
 
@@ -244,8 +252,9 @@ class OrderProductTypePackage extends ProductTypePackage
 		//echo __FILE__ . '::' . __LINE__ . '<pre>' . "\n";print_r($ProductTypeJson);
 		if ($Product->Packaged && $Product->Packaged->count() > 0){
 			foreach($Product->Packaged as $PackagedProduct){
-				$PackageProduct = new OrderProduct();
-				$PackageProduct->jsonDecodeProduct($PackagedProduct);
+				$PackageProduct = $this->getContentPackagedProductClass();
+				//echo '<pre>';print_r($PackagedProduct->toArray());
+				$PackageProduct->loadDatabaseData($PackagedProduct);
 
 				$this->addPackagedProduct($PackageProduct);
 			}

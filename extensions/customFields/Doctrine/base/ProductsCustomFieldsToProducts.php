@@ -14,7 +14,6 @@ class ProductsCustomFieldsToProducts extends Doctrine_Record {
 	
 	public function setUp(){
 		parent::setUp();
-		$this->setUpParent();
 
 		$this->hasOne('ProductsCustomFields', array(
 			'local' => 'field_id',
@@ -22,18 +21,6 @@ class ProductsCustomFieldsToProducts extends Doctrine_Record {
 		));
 	}
 
-	public function setUpParent(){
-		$Products = Doctrine::getTable('Products')->getRecordInstance();
-		
-		$Products->hasMany('ProductsCustomFieldsToProducts', array(
-			'local' => 'products_id',
-			'foreign' => 'product_id',
-			'cascade' => array('delete')
-		));
-		Doctrine_Core::initializeModels(array('Products'));
-		
-	}
-	
 	public function setTableDefinition(){
 		$this->setTableName('products_custom_fields_to_products');
 		

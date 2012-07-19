@@ -56,8 +56,12 @@ class SesDateTime extends DateTime
 	 */
 	public static function createFromArray($array)
 	{
-		$Date = SesDateTime::createFromFormat(DATE_TIMESTAMP, $array['date']);
-		$Date->setTimezone(new DateTimeZone($array['timezone']));
+		if ($array instanceof SesDateTime){
+			$Date = $array;
+		}else{
+			$Date = SesDateTime::createFromFormat(DATE_TIMESTAMP, $array['date']);
+			$Date->setTimezone(new DateTimeZone($array['timezone']));
+		}
 		return $Date;
 	}
 

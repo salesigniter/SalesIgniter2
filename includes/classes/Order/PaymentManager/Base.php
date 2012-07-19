@@ -60,6 +60,16 @@ class OrderPaymentManager
 		}
 	}
 
+	/**
+	 * @param string $data
+	 */
+	public function loadDatabaseData($data)
+	{
+		foreach($data as $key => $dInfo){
+			$this->$key = $dInfo;
+		}
+	}
+
 	public function setPaymentModule($module)
 	{
 		$this->setInfo('payment_module', $module);

@@ -143,11 +143,11 @@ class CheckoutSale extends Order implements Serializable
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
 			'Order'          => $this->Order,
-			'InfoManager'    => $this->InfoManager->prepareJsonSave(),
-			'ProductManager' => $this->ProductManager->prepareJsonSave(),
-			'AddressManager' => $this->AddressManager->prepareJsonSave(),
-			'TotalManager'   => $this->TotalManager->prepareJsonSave(),
-			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
+			'InfoManager'    => $this->InfoManager->prepareSave(),
+			'ProductManager' => $this->ProductManager->prepareSave(),
+			'AddressManager' => $this->AddressManager->prepareSave(),
+			'TotalManager'   => $this->TotalManager->prepareSave(),
+			'PaymentManager' => $this->PaymentManager->prepareSave(),
 			'errorMessages'  => $this->errorMessages
 		);
 

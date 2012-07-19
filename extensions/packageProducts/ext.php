@@ -38,6 +38,18 @@ class Extension_packageProducts extends ExtensionBase
 			'foreign' => 'package_id',
 			'cascade' => array('delete')
 		));
+
+		$Products = Doctrine_Core::getTable('Products')->getRecordInstance();
+		$Products->hasMany('ProductsPackagedProducts as PackageProducts', array(
+			'local' => 'products_id',
+			'foreign' => 'package_id',
+			'cascade' => array('delete')
+		));
+		$Products->hasMany('ProductsPackagedProducts as Packages', array(
+			'local' => 'products_id',
+			'foreign' => 'product_id',
+			'cascade' => array('delete')
+		));
 	}
 
 	public function OrderQueryBeforeExecute(&$Qorder)

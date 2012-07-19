@@ -22,7 +22,7 @@ class CheckoutSalePaymentManager extends OrderPaymentManager
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$data = array(
 			'orderId'       => $this->orderId,

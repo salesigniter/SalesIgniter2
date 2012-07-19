@@ -23,9 +23,9 @@ class OrderAddressManager
 	protected $addressHeadings = array();
 
 	/**
-	 * @param array|null $addressArray
+	 *
 	 */
-	public function __construct(array $addressArray = null)
+	public function __construct()
 	{
 		$this->addressHeadings = array(
 			'customer' => 'Customer Address',
@@ -36,19 +36,17 @@ class OrderAddressManager
 		if (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_CHOOSE_PICKUP') && sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHOOSE_PICKUP') == 'True'){
 			$this->addressHeadings['pickup'] = 'Pickup Address';
 		}
+	}
 
-		if (is_null($addressArray) === false){
-			foreach($addressArray as $type => $aInfo){
-				$this->addresses[$type] = new OrderAddress($aInfo);
-			}
-		}
-		else {
-			foreach($this->addressHeadings as $type => $heading){
-				$this->addresses[$type] = new OrderAddress(array(
-					'address_type' => $type
-				));
-			}
-		}
+	/**
+	 * This function is overridden in all other address managers that need to use
+	 * their own custom address class
+	 *
+	 * @return OrderAddress
+	 */
+	public function getAddressClass()
+	{
+		return new OrderAddress();
 	}
 
 	/**
@@ -173,24 +171,22 @@ class OrderAddressManager
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = array();
 		foreach($this->getAddresses() as $Type => $Address){
-			$toEncode['addresses'][$Type] = $Address->prepareJsonSave();
+			$toEncode['addresses'][$Type] = $Address->prepareSave();
 		}
 		return $toEncode;
 	}
 
-	/**
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
+	public function loadDatabaseData($data)
 	{
-		$Decoded = json_decode($data, true);
-		foreach($Decoded['addresses'] as $Type => $aInfo){
-			$this->addresses[$Type] = new OrderAddress();
-			$this->addresses[$Type]->jsonDecode($aInfo);
+		if (isset($data['addresses'])){
+			foreach($data['addresses'] as $Type => $aInfo){
+				$this->addresses[$Type] = $this->getAddressClass();
+				$this->addresses[$Type]->loadDatabaseData($aInfo);
+			}
 		}
 	}
 

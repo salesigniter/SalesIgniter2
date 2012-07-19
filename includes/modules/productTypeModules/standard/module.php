@@ -100,11 +100,11 @@ class ProductTypeStandard extends ProductTypeBase
 		if ($PurchaseType !== false && !empty($PurchaseType)){
 			$return = $PurchaseType;
 		}
-		elseif (!empty($this->cartPurchaseType)) {
-			$return = $this->cartPurchaseType;
-		}
 		elseif (!empty($this->pInfo['PurchaseType'])) {
 			$return = $this->pInfo['PurchaseType'];
+		}
+		elseif (!empty($this->cartPurchaseType)) {
+			$return = $this->cartPurchaseType;
 		}
 		return $return;
 	}
@@ -1093,16 +1093,15 @@ class ProductTypeStandard extends ProductTypeBase
 	}
 
 	/**
-	 * @param OrderProduct $OrderProduct
-	 * @param null         $Qty
+	 * @param null $Qty
 	 * @return bool
 	 */
-	public function hasEnoughInventory(OrderProduct $OrderProduct, $Qty = null)
+	public function hasEnoughInventory($Qty = null)
 	{
 		$return = true;
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'hasEnoughInventory')){
-			$return = $PurchaseType->hasEnoughInventory($OrderProduct, $Qty);
+			$return = $PurchaseType->hasEnoughInventory($Qty);
 		}
 		return $return;
 	}
@@ -1122,12 +1121,12 @@ class ProductTypeStandard extends ProductTypeBase
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = array();
 		$PurchaseType = $this->getPurchaseType();
-		if (method_exists($PurchaseType, 'prepareJsonSave')){
-			$toEncode = $PurchaseType->prepareJsonSave();
+		if (method_exists($PurchaseType, 'prepareSave')){
+			$toEncode = $PurchaseType->prepareSave();
 		}
 		return $toEncode;
 	}

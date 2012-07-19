@@ -1,0 +1,4 @@
+<definitions>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_SALEDATE_TEXT_TITLE"><![CDATA[Sale Date]]></define>
+	<define key="TEMPLATE_MANAGER_PRINT_WIDGET_SALEDATE_TEXT_DESCRIPTION"><![CDATA[Shows the date the sale was added, for revisioned sales it will show the latest revision date.]]></define>
+</definitions>

@@ -50,6 +50,21 @@ class OrderCreatorProductTypeStandard extends OrderProductTypeStandard
 	}
 
 	/**
+	 * @param null $Qty
+	 * @return bool
+	 */
+	public function hasEnoughInventory($Qty = null)
+	{
+		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
+		$return = true;
+		$PurchaseType = $this->getPurchaseTypeClass();
+		if (method_exists($PurchaseType, 'hasEnoughInventory')){
+			$return = $PurchaseType->hasEnoughInventory($Qty);
+		}
+		return $return;
+	}
+
+	/**
 	 * @return PurchaseTypeBase
 	 */
 	public function &getPurchaseTypeClass()
@@ -261,6 +276,24 @@ class OrderCreatorProductTypeStandard extends OrderProductTypeStandard
 		$PurchaseType = $this->getPurchaseType();
 		if (method_exists($PurchaseType, 'onSaveProgress')){
 			$PurchaseType->onSaveProgress($SaleProduct);
+		}
+	}
+
+	/**
+	 * @param array $ProductTypeJson
+	 */
+	public function loadSessionData(array $ProductTypeJson)
+	{
+		$this->setInfo($ProductTypeJson);
+		if (isset($ProductTypeJson['PurchaseType'])){
+			$this->loadPurchaseType();
+
+			if (isset($ProductTypeJson['PurchaseTypeJson'])){
+				$PurchaseType = $this->getPurchaseTypeClass();
+				if (method_exists($PurchaseType, 'loadSessionData')){
+					$PurchaseType->loadSessionData($ProductTypeJson['PurchaseTypeJson']);
+				}
+			}
 		}
 	}
 }

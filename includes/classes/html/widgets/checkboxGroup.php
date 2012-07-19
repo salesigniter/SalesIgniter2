@@ -105,7 +105,10 @@ class htmlWidget_checkboxGroup implements htmlWidgetPlugin
 						->addClass('required')
 						->attr('required', 'required');
 					}
-					if ($button->val() == $this->_checkedVal){
+					if (is_array($this->_checkedVal) && in_array($button->val(), $this->_checkedVal)){
+						$button->setChecked(true);
+					}
+					elseif ($button->val() == $this->_checkedVal){
 						$button->setChecked(true);
 					}
 					$columns[] = array('text' => $button->draw());
@@ -139,7 +142,10 @@ class htmlWidget_checkboxGroup implements htmlWidgetPlugin
 					->addClass('required')
 					->attr('required', 'required');
 				}
-				if ($button->val() == $this->_checkedVal){
+				if (is_array($this->_checkedVal) && in_array($button->val(), $this->_checkedVal)){
+					$button->setChecked(true);
+				}
+				elseif ($button->val() == $this->_checkedVal){
 					$button->setChecked(true);
 				}
 				$htmlOutput[] = $button->draw();

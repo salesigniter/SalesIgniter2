@@ -195,7 +195,7 @@ foreach($TemplateManager->getWidgetPaths() as $widgetCode => $widgetPath){
  *
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
-$isPrint = ($Layout->page_type == 'emailPdf');
+$isPrint = ($Layout->page_type == 'emailPdf' || $Layout->page_type == 'salesPdf');
 ?>
 <style>
 	.widgetInfo { display:none; }

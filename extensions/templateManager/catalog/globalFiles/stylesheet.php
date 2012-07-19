@@ -106,7 +106,6 @@ else {
 		$TemplateManager = $appExtension->getExtension('templateManager');
 		$LayoutBuilder = $TemplateManager->getLayoutBuilder();
 		$LayoutBuilder->setLayoutId($layoutId);
-		$LayoutBuilder->loadWidgets();
 
 		$boxStylesEntered = array();
 		$infoBoxSources = array();

@@ -13,7 +13,6 @@ if (isset($_GET['layout_id'])){
 }else{
 	$Layout = $TemplateManagerLayouts->getRecord();
 }
-$LayoutSettings = json_decode($Layout->layout_settings);
 
 $PageTypeSelect = htmlBase::newElement('selectbox')
 	->setName('pageType')
@@ -56,16 +55,17 @@ $SettingsTable->addBodyRow(array(
 
 }*/
 
-$infoBox = htmlBase::newElement('infobox');
-$infoBox->setHeader('<b>' . sysLanguage::get('TEXT_INFO_HEADING_NEW') . '</b>');
-$infoBox->setButtonBarLocation('top');
+$SaveButton = htmlBase::newElement('button')
+	->addClass('saveButton')
+	->usePreset('save');
 
-$saveButton = htmlBase::newElement('button')->addClass('saveButton')->usePreset('save');
-$cancelButton = htmlBase::newElement('button')->addClass('cancelButton')->usePreset('cancel');
+$CancelButton = htmlBase::newElement('button')
+	->addClass('cancelButton')
+	->usePreset('cancel');
 
-$infoBox->addButton($saveButton)->addButton($cancelButton);
-$infoBox->addContentRow($SettingsTable->draw());
-$infoBox->addContentRow('<div id="layoutSettings"></div>');
+$Infobox = htmlBase::newActionWindow()
+	->addButton($SaveButton)
+	->addButton($CancelButton)
+	->setContent($SettingsTable->draw() . '<div id="layoutSettings"></div>');
 
-EventManager::attachActionResponse($infoBox->draw(), 'html');
-?>
+EventManager::attachActionResponse($Infobox->draw(), 'html');

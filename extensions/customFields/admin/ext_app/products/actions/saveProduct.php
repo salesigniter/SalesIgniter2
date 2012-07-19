@@ -1,6 +1,6 @@
 <?php
-	$GroupsToProducts =& $Product->ProductsCustomFieldsGroupsToProducts;
-	$FieldsToProducts =& $Product->ProductsCustomFieldsToProducts;
+	$GroupsToProducts =& $Product->FieldsGroup;
+	$FieldsToProducts =& $Product->Fields;
 		
 	$GroupsToProducts->delete();
 	$FieldsToProducts->delete();

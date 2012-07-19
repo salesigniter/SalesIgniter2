@@ -41,10 +41,10 @@ $QLayouts = Doctrine_Query::create()
 ->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 if ($QLayouts){
 	foreach($QLayouts as $lInfo){
-		$LayoutSettings = json_decode($lInfo['layout_settings']);
+		$LayoutSettings = $lInfo['layout_settings'];
 		$displayType = $lInfo['layout_type'];
 		if ($lInfo['page_type'] == 'print'){
-			$displayType = $LayoutSettings->layoutOrientation;
+			$displayType = $LayoutSettings['layoutOrientation'];
 		}
 		$tableGrid->addBodyRow(array(
 			'rowAttr' => array(

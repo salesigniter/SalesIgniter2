@@ -42,7 +42,7 @@ class PurchaseTypeBase extends ModuleBase
 	/**
 	 * @var array
 	 */
-	private $_invItems = array();
+	protected $_invItems = array();
 
 	/**
 	 * @var bool
@@ -422,10 +422,9 @@ class PurchaseTypeBase extends ModuleBase
 	}
 
 	/**
-	 * @param bool $includeUnavailable
-	 * @return array|bool
+	 * @return array
 	 */
-	public function getInventoryItems($includeUnavailable = false)
+	public function getInventoryItems()
 	{
 		return $this->_invItems;
 	}

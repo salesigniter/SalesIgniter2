@@ -13,35 +13,19 @@ class OrderCreatorAddressManager extends OrderAddressManager
 {
 
 	/**
-	 * @param array|null $addressArray
+	 * @return OrderCreatorAddress
 	 */
-	public function __construct(array $addressArray = null)
+	public function getAddressClass()
 	{
-		$this->addressHeadings['customer'] = sysLanguage::get('TEXT_ADDRESS_CUSTOMER');
+		return new OrderCreatorAddress();
+	}
 
-		if (sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_BILLING_ADDRESS') == 'True'){
-			$this->addressHeadings['billing'] = sysLanguage::get('TEXT_ADDRESS_BILLING');
-		}
-		if (sysConfig::get('EXTENSION_ORDER_CREATOR_SHOW_DELIVERY_ADDRESS') == 'True'){
-			$this->addressHeadings['delivery'] = sysLanguage::get('TEXT_ADDRESS_DELIVERY');
-		}
-
-		if (sysConfig::exists('EXTENSION_PAY_PER_RENTALS_CHOOSE_PICKUP') && sysConfig::get('EXTENSION_PAY_PER_RENTALS_CHOOSE_PICKUP') == 'True'){
-			$this->addressHeadings['pickup'] = sysLanguage::get('TEXT_ADDRESS_PICKUP');
-		}
-
-		if (is_null($addressArray) === false){
-			foreach($addressArray as $type => $aInfo){
-				if (isset($this->addressHeadings[$type])){
-					$this->addresses[$type] = new OrderCreatorAddress($aInfo);
-				}
-			}
-		}
-		else {
-			foreach($this->addressHeadings as $type => $heading){
-				$this->addresses[$type] = new OrderCreatorAddress(array(
-					'address_type' => $type
-				));
+	public function loadSessionData($data)
+	{
+		if (isset($data['addresses'])){
+			foreach($data['addresses'] as $Type => $aInfo){
+				$this->addresses[$Type] = $this->getAddressClass();
+				$this->addresses[$Type]->loadSessionData($aInfo);
 			}
 		}
 	}
@@ -89,42 +73,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 					$this->addresses[$type]->setVATNumber($aInfo['entry_vat']);
 				}
 			}
-		}
-	}
-
-	/**
-	 * @param Doctrine_Collection $CollectionObj
-	 */
-	public function addAllToCollection(Doctrine_Collection &$CollectionObj)
-	{
-		$CollectionObj->clear();
-		foreach($this->addresses as $type => $addressObj){
-			$Address = new OrdersAddresses();
-			$Address->address_type = $type;
-			$Address->entry_format_id = $addressObj->getFormatId();
-			$Address->entry_name = $addressObj->getName();
-			if (sysConfig::get('ACCOUNT_COMPANY') == 'true'){
-				$Address->entry_company = $addressObj->getCompany();
-			}
-			$Address->entry_street_address = $addressObj->getStreetAddress();
-			$Address->entry_suburb = $addressObj->getSuburb();
-			$Address->entry_city = $addressObj->getCity();
-			$Address->entry_postcode = $addressObj->getPostcode();
-			$Address->entry_state = $addressObj->getState();
-			$Address->entry_country = $addressObj->getCountry();
-			if (sysConfig::get('ACCOUNT_CITY_BIRTH') == 'true'){
-				$Address->entry_city_birth = $addressObj->getCityBirth();
-			}
-			if (sysConfig::get('ACCOUNT_FISCAL_CODE') == 'true'){
-				$Address->entry_cif = $addressObj->getCIF();
-			}
-			if (sysConfig::get('ACCOUNT_VAT_NUMBER') == 'true'){
-				$Address->entry_vat = $addressObj->getVAT();
-			}
-			if (sysConfig::get('ACCOUNT_DATE_OF_BIRTH') == 'true'){
-				$Address->entry_dob = $addressObj->getDateOfBirth();
-			}
-			$CollectionObj->add($Address);
 		}
 	}
 
@@ -421,16 +369,6 @@ class OrderCreatorAddressManager extends OrderAddressManager
 		}
 
 		return sysLanguage::get('TEXT_COPY_TO') . $buttons;
-	}
-
-	public function jsonDecode($data)
-	{
-		$Decoded = json_decode($data, true);
-		foreach($Decoded['addresses'] as $Type => $aInfo){
-			$this->addresses[$Type] = new OrderCreatorAddress(array_merge($aInfo['addressInfo'], array(
-				'address_type' => $Type
-			)));
-		}
 	}
 }
 

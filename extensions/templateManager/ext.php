@@ -12,12 +12,10 @@ class Extension_templateManager extends ExtensionBase
 
 	public function __construct() {
 		parent::__construct('templateManager');
-		require(__DIR__ . '/widgets/TemplateManagerWidgetBase.php');
-		require(__DIR__ . '/widgets/TemplateManagerWidget.php');
-		require(__DIR__ . '/widgets/TemplateManagerPrintWidget.php');
-		require(__DIR__ . '/widgets/TemplateManagerLabelWidget.php');
-		require(__DIR__ . '/widgets/TemplateManagerEmailWidget.php');
-		require(__DIR__ . '/widgets/TemplateManagerEmailPdfWidget.php');
+
+		require(__DIR__ . '/templateManagerLayoutTypeModules/moduleBase.php');
+		require(__DIR__ . '/templateManagerLayoutTypeModules/TemplateManagerWidget.php');
+		require(__DIR__ . '/templateManagerLayoutTypeModules/modules.php');
 	}
 
 	public function init() {

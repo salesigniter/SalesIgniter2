@@ -1,0 +1,42 @@
+<ConfigurationGroup>
+	<title>Email Template Layout</title>
+	<key>templateManagerLayoutTypeEmail</key>
+	<description>Configuration Settings</description>
+	<tabs>
+		<general>
+			<title>General</title>
+			<description>General Layout Settings</description>
+			<configurations>
+				<INSTALLED editable="false">
+					<title><![CDATA[Installed Status]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Tells if the layout is installed or not]]></description>
+				</INSTALLED>
+				<STATUS editable="false">
+					<title><![CDATA[Enable Layout]]></title>
+					<value><![CDATA[True]]></value>
+					<description><![CDATA[Enable layout]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</STATUS>
+				<IS_PRINT editable="false">
+					<title><![CDATA[Print Based]]></title>
+					<value><![CDATA[False]]></value>
+					<description><![CDATA[Is this layout meant to be printed?<br>Meaning it will use only printable features in the template manager]]></description>
+					<set_function>
+						<type>radio</type>
+						<values>
+							<value>True</value>
+							<value>False</value>
+						</values>
+					</set_function>
+				</IS_PRINT>
+			</configurations>
+		</general>
+	</tabs>
+</ConfigurationGroup>

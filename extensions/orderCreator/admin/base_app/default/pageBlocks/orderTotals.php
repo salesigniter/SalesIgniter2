@@ -2,7 +2,7 @@
 $orderTotalTable = htmlBase::newElement('newGrid')
 	->addClass('orderTotalTable');
 
-$orderTotalTable->addButtons(array(
+/*$orderTotalTable->addButtons(array(
 	htmlBase::newElement('button')
 		->addClass('addDiscount')
 		->usePreset('new')
@@ -11,7 +11,7 @@ $orderTotalTable->addButtons(array(
 		->addClass('addShipping')
 		->usePreset('new')
 		->setText('Add Shipping')
-));
+));*/
 
 $orderTotalTable->addHeaderRow(array(
 	'columns' => array(
@@ -76,7 +76,7 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 	}
 
 	$orderTotalTable->addBodyRow(array(
-		'attr'    => array(
+		'rowAttr'    => array(
 			'data-count'         => $count,
 			'data-code'          => $totalCode,
 			'data-editable'      => $editable,
@@ -84,8 +84,8 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 			'data-display_order' => $count
 		),
 		'columns' => array(
-			array('attr' => array('data-which' => 'title'), 'align' => 'center', 'text' => $totalTitle),
-			array('attr' => array('data-which' => 'value'), 'align' => 'center', 'text' => $totalValue)
+			array('attr' => array('data-which' => 'title'), 'text' => $totalTitle),
+			array('attr' => array('data-which' => 'value'), 'align' => 'right', 'text' => sysCurrency::format($totalValue))
 		)
 	));
 	$count++;

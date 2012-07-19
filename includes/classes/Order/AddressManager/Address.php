@@ -374,7 +374,7 @@ class OrderAddress
 	/**
 	 * @param array $data
 	 */
-	public function jsonDecode(array $data)
+	public function loadDatabaseData(array $data)
 	{
 		$this->Type = $data['Type'];
 		$this->updateFromArray($data['addressInfo']);
@@ -383,7 +383,7 @@ class OrderAddress
 	/**
 	 * @return string
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		return array(
 			'addressInfo' => $this->addressInfo,

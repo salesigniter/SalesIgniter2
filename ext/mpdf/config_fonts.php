@@ -189,12 +189,14 @@ $this->fontdata = array(
 		'B' => "XB RiyazBd.ttf",
 		'I' => "XB RiyazIt.ttf",
 		'BI' => "XB RiyazBdIt.ttf",
+		'unAGlyphs' => true,
 		),
 	"xbzar" => array(
 		'R' => "XB Zar.ttf",
 		'B' => "XB Zar Bd.ttf",
 		'I' => "XB Zar It.ttf",
 		'BI' => "XB Zar BdIt.ttf",
+		'unAGlyphs' => true,
 		),
 
 
@@ -263,6 +265,21 @@ $this->fontdata = array(
 */
 
 );
+
+if (is_dir(sysConfig::getDirFsCatalog() . 'templates/chater/fonts')){
+	$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'templates/chater/fonts');
+	foreach($Dir as $fInfo){
+		if ($fInfo->isDot() || $fInfo->isDir()){
+			continue;
+		}
+		$FontInfo = new ttfInfo;
+		$FontInfo->setFontFile($fInfo->getPathname());
+
+		$this->fontdata[strtolower(str_replace(' ', '', $FontInfo->getFontFamily()))] = array(
+			'R' => $fInfo->getPathname()
+		);
+	}
+}
 
 
 // Add fonts to this array if they contain characters in the SIP or SMP Unicode planes

@@ -196,7 +196,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function setEnabledShipping($val) { $this->enabledShipping = $val; }
 
-	public function setMaintenance($val){ $this->pprInfo['maintenance'] = $val; }
+	public function setMaintenance($val) { $this->pprInfo['maintenance'] = $val; }
 
 	public function shippingIsStore() { return ($this->getShipping() == 'store'); }
 
@@ -208,7 +208,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	{
 		$barcodes = array();
 		for($i = 0; $i < $Product->getQuantity(); $i++){
-			$barcodeId = $this->getAvailableBarcode($Product, $barcodes);
+			$barcodeId = $this->getAvailableSerial($Product, $barcodes);
 			if ($barcodeId > -1){
 				$barcodes[] = $barcodeId;
 			}
@@ -427,7 +427,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		if ($this->canUseInventory() === false){
 			return ($this->isEnabled());
 		}
-		$invItems = $this->getInventoryItems();
 		$hasInv = false;
 		if ($this->overBookingAllowed()){
 			return true;
@@ -482,7 +481,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 		}
 
-		if (isset($invItems) && ($invItems != false)){
+		if (!empty($this->_invItems)){
 			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DATE_SELECTION') != 'Using calendar after browsing products and clicking Reserve'){
 				$timesArr = array();
 				$i1 = 0;
@@ -541,10 +540,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				$noInvDates = array();
 				foreach($timesArr as $iTime){
 					$invElem = 0;
-					foreach($invItems as $invInfo){
+					foreach($this->_invItems[$this->getConfigData('INVENTORY_STATUS_AVAILABLE')] as $SerialNumber){
 						$bookingInfo = array(
-							'item_type' => 'barcode',
-							'item_id'   => $invInfo['id']
+							'serial'   => $SerialNumber
 						);
 						$bookingInfo['start_date'] = new SesDateTime($iTime['start_date']);
 						$bookingInfo['end_date'] = new SesDateTime($iTime['end_date']);
@@ -922,9 +920,14 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$ShippingIsStore = $this->shippingIsStore();
 
 			foreach($ShoppingCart->getProducts() as $CartProduct){
-				$ProductType = $CartProduct->getProductClass()->getProductTypeClass();
+				$ProductType = $CartProduct
+					->getProductClass()
+					->getProductTypeClass();
 				if (method_exists($ProductType, 'getPurchaseType')){
-					if ($ProductType->getPurchaseType()->getCode() == $this->getCode()){
+					if ($ProductType
+						->getPurchaseType()
+						->getCode() == $this->getCode()
+					){
 						$ReservationInfo = $CartProduct->getData('ReservationInfo');
 						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_DIFFERENT_SHIPPING_METHODS') == 'False'){
 							if ($ReservationInfo['shipping']['id'] != $CartProductData['ReservationInfo']['shipping']['id']){
@@ -947,7 +950,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 					}
 				}
 			}
-		}else{
+		}
+		else {
 			$this->addError('The Product Does Not Have Enough Inventory To Fill The Request.');
 		}
 
@@ -1083,7 +1087,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 
 			if ($trackMethod == 'barcode'){
-				$Reservations[$rCount]->barcode_id = $this->getAvailableBarcode($cartProduct, $excludedBarcode);
+				$Reservations[$rCount]->barcode_id = $this->getAvailableSerial($cartProduct, $excludedBarcode);
 				$excludedBarcode[] = $Reservations[$rCount]->barcode_id;
 				$Reservations[$rCount]->ProductsInventoryBarcodes->status = 'R';
 			}
@@ -1133,28 +1137,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	 * Get Available Barcode Function
 	 */
 
-	public function getAvailableBarcode($cartProduct, $excluded = array(), $usableBarcodes = array())
+	public function getAvailableSerial($excluded = array(), $usableSerials = array())
 	{
 		$barcodeID = -1;
-		if (is_array($cartProduct)){
-			$hasBarcode = (isset($cartProduct['barcode_id']));
-			if ($hasBarcode === true){
-				$barcodeID = $cartProduct['barcode_id'];
-			}
-
-			$ReservationInfo = $cartProduct;
-		}
-		elseif ($cartProduct instanceof OrderProduct){
-			$hasBarcode = $cartProduct->hasInfo('barcode_id');
-			if ($hasBarcode === true){
-				$barcodeID = $cartProduct->getInfo('barcode_id');
-			}
-
-			$ReservationInfo = $cartProduct
-				->getProductTypeClass()
-				->getPurchaseTypeClass()
-				->getInfo();
-		}
+		$ReservationInfo = $this->pInfo;
+		//print_r($this);
 
 		if ($barcodeID == -1){
 			/**
@@ -1192,19 +1179,32 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$startDate = $ReservationInfo['start_date']->modify('-' . $shippingDaysBefore . ' Day');
 			$endDate = $ReservationInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
 
-			$invItems = $this->getInventoryItems(true);
-			if (is_array($invItems)){
-				foreach($invItems as $barcodeInfo){
-					if (count($usableBarcodes) == 0 || in_array($barcodeInfo['id'], $usableBarcodes)){
-						if (is_array($excluded) && in_array($barcodeInfo['id'], $excluded)){
+			if (is_array($this->_invItems)){
+				$checkSerials = array();
+				if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials'])){
+					$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials']);
+				}
+				if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials'])){
+					$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials']);
+				}
+
+				/**
+				 * If there's no serials then we cannot check anything
+				 */
+				if (sizeof($checkSerials) == 0){
+					return -1;
+				}
+
+				foreach($checkSerials as $SerialNumber){
+					if (count($usableSerials) == 0 || in_array($SerialNumber, $usableBarcodes)){
+						if (is_array($excluded) && in_array($SerialNumber, $excluded)){
 							continue;
 						}
 
 						$bookingInfo = array(
-							'item_type'  => 'barcode',
-							'item_id'    => $barcodeInfo['id'],
-							'start_date' => $startDate,
-							'end_date'   => $endDate
+							'serial_number'    => $SerialNumber,
+							'start_date'       => $startDate,
+							'end_date'         => $endDate
 						);
 						if (Session::exists('isppr_inventory_pickup')){
 							$pickupCheck = Session::get('isppr_inventory_pickup');
@@ -1216,7 +1216,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 						//if allow overbooking is enabled what barcode should be chosen.. I think any is good.
 						$bookingCount = ReservationUtilities::CheckBooking($bookingInfo);
 						if ($bookingCount <= 0 || sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_STOCK') == 'True'){
-							$barcodeID = $barcodeInfo['id'];
+							$barcodeID = $SerialNumber;
 							break;
 						}
 					}
@@ -1232,7 +1232,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function getAvailableQuantity($cartProduct, $excluded)
 	{
-		$invItems = $this->getInventoryItems();
 		if ($cartProduct->hasInfo('quantity_id') === false){
 			$resInfo = $cartProduct->getInfo('ReservationInfo');
 			if (isset($resInfo['shipping']['days_before'])){
@@ -1255,7 +1254,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$endDate = $resInfo['end_date'];
 			$endDate->modify('+' . $shippingDaysAfter . ' Day');
 			$qtyID = -1;
-			foreach($invItems as $qInfo){
+			foreach($this->_invItems as $qInfo){
 				if (in_array($qInfo, $excluded)){
 					continue;
 				}
@@ -1567,7 +1566,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 							else {
 								//here i should check for use_ship
 								if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_SHIP') == 'True'){
-									$payPerRentalButton->disable()
+									$payPerRentalButton
+										->disable()
 										->addClass('no_shipping');
 								}
 							}
@@ -1650,7 +1650,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 							else {
 								$htmlRentalQty->attr('size', '3');
 							}
-							$htmlRentalQty->setName('rental_qty')
+							$htmlRentalQty
+								->setName('rental_qty')
 								->setValue($qtyVal);
 							if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_INSURE_ALL_PRODUCTS_AUTO') == 'True'){
 								$htmlHasInsurance = htmlBase::newElement('input')
@@ -1693,7 +1694,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 							$pageForm->append($htmlProductsId);
 
 							if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-								$pageForm->append($htmlEventDate)
+								$pageForm
+									->append($htmlEventDate)
 									->append($htmlEventName);
 								if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 									$pageForm->append($htmlEventGate);
@@ -2350,7 +2352,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 			else {
 				global $Editor;
-				$shippingAddress = $Editor->AddressManager->getAddress('delivery')->toArray();
+				$shippingAddress = $Editor->AddressManager
+					->getAddress('delivery')
+					->toArray();
 			}
 
 			$checkAddressBox->html('<table border="0" cellspacing="2" cellpadding="2" id="fullAddress">' .
@@ -2388,7 +2392,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				->setId('pid')
 				->setValue($_GET['products_id']);
 
-			$getQuotes->append($checkAddressBox)
+			$getQuotes
+				->append($checkAddressBox)
 				->append($checkAddressBoxZip)
 				->append($hiddenField)
 				->append($checkAddressButton);
@@ -2643,7 +2648,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				$script = ob_get_contents();
 				ob_end_clean();
 
-				$changeAddress->append($checkAddressBox)
+				$changeAddress
+					->append($checkAddressBox)
 					->append($checkAddressButton)
 					->append($changeAddressButton);
 
@@ -2690,7 +2696,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 
 	public function getProductsBarcodes()
 	{
-		return $this->getInventoryItems(true);
+		return $this->_invItems;
 	}
 
 	public function getBookedDaysArray(DateTime $StartDate, $qty, &$reservationsArr, &$bookedDates, $usableBarcodes = array())
@@ -2752,9 +2758,9 @@ class PurchaseType_reservation extends PurchaseTypeBase
 				if ($this->getTrackMethod() == 'barcode'){
 					//$myqty = 0;
 					//foreach($iBook['barcode'] as $barcode){
-						//if (in_array($barcode, $prodBarcodes)){
-							//$myqty++;
-						//}
+					//if (in_array($barcode, $prodBarcodes)){
+					//$myqty++;
+					//}
 					//}
 					if (($TotalBarcodes - sizeof($iBook['barcode'])) < $qty){
 						$bookingsArr[] = $dateFormated;
@@ -2948,7 +2954,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 		}
 
-		usort($Prices, function ($a, $b){
+		usort($Prices, function ($a, $b)
+		{
 			return ($a['price'] < $b['price'] ? 1 : -1);
 		});
 		$Lowest = PurchaseType_reservation_utilities::getLowestPrice(
@@ -2961,7 +2968,7 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		$return['price'] = round($Price, 2);
 		$return['totalPrice'] = round($Price, 2);
 		if (sysconfig::get('EXTENSION_PAY_PER_RENTALS_SHORT_PRICE') == 'False'){
-			$NumberOfMinutes = ((($dateArray['end_date']->diff($dateArray['start_date'])->days+1) * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
+			$NumberOfMinutes = ((($dateArray['end_date']->diff($dateArray['start_date'])->days + 1) * SesDateTime::TIME_DAY) / SesDateTime::TIME_MINUTE);
 			$return['message'] = sysLanguage::get('PPR_PRICE_BASED_ON') .
 				($NumberOfMinutes / $Lowest['Type']['minutes']) .
 				'X' .
@@ -3121,11 +3128,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			}
 			elseif ($includeInsurance) {
 				$payPerRentals = Doctrine_Query::create()
-					->select('insurance')
+					->select('insurance_cost')
 					->from('ProductsPayPerRental')
 					->where('products_id = ?', $this->getProductId())
 					->fetchOne();
-				$rInfo['insurance'] = $payPerRentals->insurance;
+				$rInfo['insurance'] = $payPerRentals->insurance_cost;
 				$returnPrice['price'] += (float)$rInfo['insurance'];
 				$returnPrice['totalPrice'] += (float)$rInfo['insurance'];
 				$returnPrice['message'] .= ' + ' . $currencies->format($rInfo['insurance']) . ' ' . sysLanguage::get('EXTENSION_PAY_PER_RENTALS_CALENDAR_INSURANCE');
@@ -3398,7 +3405,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 						else {
 							$htmlRentalQty->attr('size', '3');
 						}
-						$htmlRentalQty->setName('rental_qty')
+						$htmlRentalQty
+							->setName('rental_qty')
 							->setValue($qtyVal);
 
 						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_INSURE_ALL_PRODUCTS_AUTO') == 'True'){
@@ -3443,7 +3451,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 						$pageForm->append($payPerRentalButton);
 
 						if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-							$pageForm->append($htmlEventDate)
+							$pageForm
+								->append($htmlEventDate)
 								->append($htmlEventName);
 							if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
 								$pageForm->append($htmlEventGates);
@@ -3788,7 +3797,8 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		parent::addExportQueryConditions($ProductType, $QfileLayout);
 
 		$colNameAdd = $ProductType . '_' . $this->getCode();
-		$QfileLayout->leftJoin('p.ProductsPayPerRental ppr')
+		$QfileLayout
+			->leftJoin('p.ProductsPayPerRental ppr')
 			->addSelect('ppr.shipping as v_' . $colNameAdd . '_shipping')
 			->addSelect('ppr.max_days as v_' . $colNameAdd . '_max_days')
 			->addSelect('ppr.max_months as v_' . $colNameAdd . '_max_months')
@@ -3936,32 +3946,52 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		));
 	}
 
-	public function hasEnoughInventory($ReservationInfo, $Qty){
+	public function hasEnoughInventory($Qty)
+	{
+		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
 		$return = true;
-		$excludedBarcodes = array();
-		for($count = 0; $count < $Qty; $count++){
-			$AvailableBarcode = $this->getAvailableBarcode($ReservationInfo, $excludedBarcodes);
-			if ($AvailableBarcode > -1){
-				$excludedBarcodes[] = $AvailableBarcode;
-			}else{
-				$return = false;
-				break;
+		/**
+		 * If overbooking is allowed then there's no reason to check the inventory
+		 */
+		if ($this->getData('allow_overbooking') == 0){
+			/**
+			 * If there's enough available then no need to check the reserved/out statuses
+			 */
+			if ($this->_invItems[$this->getConfigData('INVENTORY_STATUS_AVAILABLE')]['total'] < $Qty){
+				/**
+				 * If it's not using serials then there's no need in checking
+				 */
+				if ($this->getData('use_serials') == 1){
+					$excluded = array();
+					for($i = 0; $i < $Qty; $i++){
+						$AvailableBarcode = $this->getAvailableSerial($ReservationInfo, $excluded);
+						if ($AvailableBarcode > -1){
+							$excluded[] = $AvailableBarcode;
+						}
+						else {
+							$return = false;
+							break;
+						}
+					}
+				}
 			}
 		}
+
 		return $return;
 	}
 
 	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct)
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
-		$trackMethod = $this->getTrackMethod();
 		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		$infoPages = $appExtension->getExtension('infoPages');
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
 			$termInfoPage = $infoPages->getInfoPage('conditions');
 		}
-		for($count = 0; $count < $OrderProduct->getQuantity(); $count++){
-			$Reservation = $SaleProduct->Reservations->getTable()->getRecord();
+		for($i = 0; $i < $OrderProduct->getQuantity(); $i++){
+			$Reservation = $SaleProduct->Reservations
+				->getTable()
+				->getRecord();
 			$Reservation->start_date = $resInfo['start_date'];
 			$Reservation->end_date = $resInfo['end_date'];
 			$Reservation->insurance = (isset($resInfo['insurance']) ? $resInfo['insurance'] : 0);
@@ -3997,15 +4027,16 @@ class PurchaseType_reservation extends PurchaseTypeBase
 	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
 		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
-		echo __FILE__ . '::' . __LINE__ . '<br>';
-		$trackMethod = $this->getTrackMethod();
+
 		$resInfo = $OrderProduct->getInfo('ReservationInfo');
 		$infoPages = $appExtension->getExtension('infoPages');
 		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
 			$termInfoPage = $infoPages->getInfoPage('conditions');
 		}
-		for($count = 0; $count < $OrderProduct->getQuantity(); $count++){
-			$Reservation = $SaleProduct->Reservations->getTable()->getRecord();
+		for($i = 0; $i < $OrderProduct->getQuantity(); $i++){
+			$Reservation = $SaleProduct->Reservations
+				->getTable()
+				->getRecord();
 			$Reservation->start_date = $resInfo['start_date'];
 			$Reservation->end_date = $resInfo['end_date'];
 			$Reservation->insurance = (isset($resInfo['insurance']) ? $resInfo['insurance'] : 0);
@@ -4037,9 +4068,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$SaleProduct->Reservations->add($Reservation);
 
 			if ($AssignInventory === true){
-				$Inventory = $SaleProduct->Inventory->getTable()->getRecord();
-				if ($trackMethod == 'barcode'){
-					$Inventory->barcode_id = $this->getAvailableBarcode($OrderProduct, $_excludedBarcodes);
+				$Inventory = $SaleProduct->Inventory
+					->getTable()
+					->getRecord();
+				if ($this->getData('use_serials') == 1){
+					$Inventory->barcode_id = $this->getAvailableSerial($OrderProduct, $_excludedBarcodes);
 					$Inventory->Barcode->status = 'R';
 					$_excludedBarcodes[] = $Inventory->barcode_id;
 				}

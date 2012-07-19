@@ -12,6 +12,16 @@
 class OrderCreatorPaymentManager extends OrderPaymentManager
 {
 
+	/**
+	 * @param string $data
+	 */
+	public function loadSessionData($data)
+	{
+		foreach($data as $key => $dInfo){
+			$this->$key = $dInfo;
+		}
+	}
+
 	public function getHistory()
 	{
 		return $this->History;
@@ -122,24 +132,13 @@ class OrderCreatorPaymentManager extends OrderPaymentManager
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$data = array(
 			'History'       => $this->History,
 			'PaymentsTotal' => $this->PaymentsTotal
 		);
 		return $data;
-	}
-
-	/**
-	 * @param string $data
-	 */
-	public function jsonDecode($data)
-	{
-		$data = json_decode($data, true);
-		foreach($data as $key => $dInfo){
-			$this->$key = $dInfo;
-		}
 	}
 }
 

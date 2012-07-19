@@ -504,8 +504,8 @@ class Application
 					->where('page_type = ?', 'page')
 					->execute();
 				foreach($StandAlone as $PageInfo){
-					$layoutSettings = json_decode($PageInfo->layout_settings);
-					$AppArray[$layoutSettings->appName][$layoutSettings->appPageName] = (isset($selApps[$layoutSettings->appName][$layoutSettings->appPageName]) ? $selApps[$layoutSettings->appName][$layoutSettings->appPageName] : false);
+					$layoutSettings = $PageInfo->layout_settings;
+					$AppArray[$layoutSettings['appName']][$layoutSettings['appPageName']] = (isset($selApps[$layoutSettings['appName']][$layoutSettings['appPageName']]) ? $selApps[$layoutSettings['appName']][$layoutSettings['appPageName']] : false);
 				}
 			}
 

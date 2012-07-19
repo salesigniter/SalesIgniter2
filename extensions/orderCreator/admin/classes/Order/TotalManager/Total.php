@@ -15,13 +15,15 @@ class OrderCreatorTotal extends OrderTotal
 	/**
 	 * @param array $TotalInfo
 	 */
-	public function init(array $TotalInfo)
+	public function loadSessionData(array $TotalInfo)
 	{
 		$this->data = array_merge($this->data, $TotalInfo['data']);
 
 		$this->Module = $this->getTotalModule($this->data['module_code']);
 		if (isset($TotalInfo['module_json'])){
-			$this->Module->load($TotalInfo['module_json']);
+			if (method_exists($this->Module, 'loadSessionData')){
+				$this->Module->loadSessionData($TotalInfo['module_json']);
+			}
 		}
 	}
 

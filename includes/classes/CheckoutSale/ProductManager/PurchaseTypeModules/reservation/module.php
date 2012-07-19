@@ -49,7 +49,7 @@ class CheckoutSalePurchaseTypeReservation extends PurchaseType_reservation
 		);
 	}
 
-	public function prepareJsonSave(CheckoutSaleProductTypeStandard $ProductType)
+	public function prepareSave(CheckoutSaleProductTypeStandard $ProductType)
 	{
 		$toEncode = array();
 		$toEncode['ReservationInfo'] = $this->ReservationInfo;

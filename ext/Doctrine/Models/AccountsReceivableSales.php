@@ -1,8 +1,10 @@
 <?php
 
-class AccountsReceivableSales extends Doctrine_Record {
+class AccountsReceivableSales extends Doctrine_Record
+{
 
-	public function setUp(){
+	public function setUp()
+	{
 		/*$this->hasMany('SystemStatuses', array(
 			'local' => 'sale_status_id',
 			'foreign' => 'status_id',
@@ -10,43 +12,57 @@ class AccountsReceivableSales extends Doctrine_Record {
 		));*/
 
 		$this->hasOne('Customers as Customer', array(
-			'local' => 'customers_id',
+			'local'   => 'customers_id',
 			'foreign' => 'customers_id'
 		));
 
 		$this->hasMany('AccountsReceivableSalesProducts as Products', array(
-			'local' => 'id',
+			'local'   => 'id',
 			'foreign' => 'sale_id',
 			'orderBy' => 'id',
 			'cascade' => array('delete')
 		));
 
 		$this->hasMany('AccountsReceivableSalesTotals as Totals', array(
-			'local' => 'id',
+			'local'   => 'id',
 			'foreign' => 'sale_id',
 			'orderBy' => 'display_order',
 			'cascade' => array('delete')
 		));
 
 		$this->hasMany('AccountsReceivableSalesTransactions as Transactions', array(
-			'local' => 'id',
+			'local'   => 'id',
 			'foreign' => 'sale_id',
 			'orderBy' => 'date_added',
 			'cascade' => array('delete')
 		));
 	}
 
-	public function preSave($event){
+	public function preSave($event)
+	{
 		if (is_array($this->info_json)){
 			$this->info_json = json_encode($this->info_json);
 		}
-		
+
 		if (is_array($this->address_json)){
 			$this->address_json = json_encode($this->address_json);
 		}
 	}
 
-	public function setTableDefinition(){
+	public function preHydrate($event)
+	{
+		$data = $event->data;
+		if (isset($data['info_json'])){
+			$data['info_json'] = json_decode($data['info_json'], true);
+		}
+		if (isset($data['address_json'])){
+			$data['address_json'] = json_decode($data['address_json'], true);
+		}
+		$event->data = $data;
+	}
+
+	public function setTableDefinition()
+	{
 		$this->setTableName('accounts_receivable_sales');
 
 		$this->hasColumn('sale_module', 'string', 64);

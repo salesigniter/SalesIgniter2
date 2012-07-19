@@ -75,20 +75,6 @@ class ProductTypePackage extends ProductTypeBase
 	}
 
 	/**
-	 * @param string $code
-	 * @param bool   $forceEnable
-	 * @param bool   $moduleDir
-	 */
-	public function init($code, $forceEnable = false, $moduleDir = false)
-	{
-		$this->import(new Installable);
-
-		$this->setModuleType('productType');
-
-		parent::init($code, $forceEnable, $moduleDir);
-	}
-
-	/**
 	 * @param $val
 	 */
 	public function setProductId($val)
@@ -190,15 +176,15 @@ class ProductTypePackage extends ProductTypeBase
 		foreach($this->info['products'] as $pInfo){
 			$Product = $pInfo['productClass'];
 			$PackageData = $pInfo['packageData'];
-			$Quantity = $PackageData->quantity;
+			$Quantity = $PackageData['quantity'];
 
 			$ProductType = $Product->getProductTypeClass();
-			if (isset($PackageData->price)){
-				$Price += $PackageData->price * $Quantity;
+			if (isset($PackageData['price'])){
+				$Price += $PackageData['price'] * $Quantity;
 			}
-			elseif (isset($PackageData->purchase_type)) {
-				$ProductType->loadPurchaseType($PackageData->purchase_type);
-				$Price += $ProductType->getProductPrice($PackageData->purchase_type) * $Quantity;
+			elseif (isset($PackageData['purchase_type'])) {
+				$ProductType->loadPurchaseType($PackageData['purchase_type']);
+				$Price += $ProductType->getProductPrice($PackageData['purchase_type']) * $Quantity;
 			}
 			else {
 				$Price += $ProductType->getProductPrice() * $Quantity;
@@ -222,19 +208,19 @@ class ProductTypePackage extends ProductTypeBase
 			$Product = $pInfo['productClass'];
 
 			$ProductType = $Product->getProductTypeClass();
-			if (isset($pInfo['packageData']->purchase_type)){
-				$PurchaseType = $ProductType->getPurchaseType($pInfo['packageData']->purchase_type);
+			if (isset($pInfo['packageData']['purchase_type'])){
+				$PurchaseType = $ProductType->getPurchaseType($pInfo['packageData']['purchase_type']);
 				$hasInventory = $PurchaseType->hasInventory();
-				if ($hasInventory === true && $pInfo['packageData']->quantity > 1){
+				if ($hasInventory === true && $pInfo['packageData']['quantity'] > 1){
 					$TotalInvItems = $PurchaseType->getCurrentStock();
-					$hasInventory = (($TotalInvItems - $pInfo['packageData']->quantity) >= 0);
+					$hasInventory = (($TotalInvItems - $pInfo['packageData']['quantity']) >= 0);
 				}
 			}
 			else {
 				$hasInventory = $ProductType->hasInventory();
-				if ($hasInventory === true && $pInfo['packageData']->quantity > 1){
+				if ($hasInventory === true && $pInfo['packageData']['quantity'] > 1){
 					$TotalInvItems = $ProductType->getCurrentStock();
-					$hasInventory = (($TotalInvItems - $pInfo['packageData']->quantity) >= 0);
+					$hasInventory = (($TotalInvItems - $pInfo['packageData']['quantity']) >= 0);
 				}
 			}
 
@@ -286,11 +272,11 @@ class ProductTypePackage extends ProductTypeBase
 				'product_id'   => $ProductId,
 				'id_string'    => $ProductId,
 				'tax_class_id' => 0,
-				'quantity'     => $PackageData->quantity
+				'quantity'     => $PackageData['quantity']
 			));
-			if (isset($PackageData->purchase_type)){
-				$PackageCartProduct->setData('purchase_type', $PackageData->purchase_type);
-				$PackageCartProduct->setData('tax_class_id', $ProductType->getTaxClassId($PackageData->purchase_type));
+			if (isset($PackageData['purchase_type'])){
+				$PackageCartProduct->setData('purchase_type', $PackageData['purchase_type']);
+				$PackageCartProduct->setData('tax_class_id', $ProductType->getTaxClassId($PackageData['purchase_type']));
 			}
 			$PackageCartProduct->loadProductClass($Product);
 
@@ -300,9 +286,9 @@ class ProductTypePackage extends ProductTypeBase
 				$PackageCartProduct->updateInfo($ProductData);
 			}
 
-			if (isset($PackageData->price) && !is_object($PackageData->price)){
-				$PackageCartProduct->setPrice($PackageData->price);
-				$PackageCartProduct->setFinalPrice($PackageData->price);
+			if (isset($PackageData['price']) && !is_object($PackageData['price'])){
+				$PackageCartProduct->setPrice($PackageData['price']);
+				$PackageCartProduct->setFinalPrice($PackageData['price']);
 			}
 
 			$MainPrice += $PackageCartProduct->getPrice() * $PackageCartProduct->getQuantity();
@@ -453,11 +439,10 @@ class ProductTypePackage extends ProductTypeBase
 		$this->info['products'] = array();
 		foreach($Query as $pInfo){
 			$PackageProduct = new Product($pInfo['product_id']);
-			$PackageData = json_decode($pInfo['package_data']);
 
 			$packageInfo = array(
 				'productClass' => $PackageProduct,
-				'packageData'  => $PackageData,
+				'packageData'  => $pInfo['package_data'],
 			);
 
 			$this->info['products'][] = $packageInfo;
@@ -471,7 +456,7 @@ class ProductTypePackage extends ProductTypeBase
 	{
 		$hasReservation = false;
 		foreach($this->getProductsRaw() as $PackageInfo){
-			if (isset($PackageInfo['packageData']->purchase_type) && $PackageInfo['packageData']->purchase_type == 'reservation'){
+			if (isset($PackageInfo['packageData']['purchase_type']) && $PackageInfo['packageData']['purchase_type'] == 'reservation'){
 				$hasReservation = true;
 				break;
 			}
@@ -557,22 +542,22 @@ class ProductTypePackage extends ProductTypeBase
 		foreach($this->info['products'] as $pInfo){
 			$Product = $pInfo['productClass'];
 			$PackageData = $pInfo['packageData'];
-			$Quantity = $PackageData->quantity;
+			$Quantity = $PackageData['quantity'];
 
 			$ProductType = $Product->getProductTypeClass();
-			if (isset($PackageData->purchase_type) && $PackageData->purchase_type == 'reservation'){
+			if (isset($PackageData['purchase_type']) && $PackageData['purchase_type'] == 'reservation'){
 				$ProductType->loadPurchaseType('reservation');
 				$pprId = $ProductType
 					->getPurchaseType('reservation')
 					->getPayPerRentalId();
 				foreach(PurchaseType_reservation_utilities::getRentalPricing($pprId) as $priceInfo){
 					if (
-						isset($PackageData->price) &&
-						isset($PackageData->price->$pprId) &&
-						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}) &&
-						isset($PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']})
+						isset($PackageData['price']) &&
+						isset($PackageData['price'][$pprId]) &&
+						isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']]) &&
+						isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
 					){
-						$price = $PackageData->price->$pprId->{$priceInfo['pay_per_rental_types_id']}->{$priceInfo['number_of']};
+						$price = $PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
 					}
 					else {
 						$price = $priceInfo['price'];
@@ -606,21 +591,21 @@ class ProductTypePackage extends ProductTypeBase
 				foreach($this->info['products'] as $pInfo){
 					$Product = $pInfo['productClass'];
 					$PackageData = $pInfo['packageData'];
-					$Quantity = $PackageData->quantity;
+					$Quantity = $PackageData['quantity'];
 
 					$ProductType = $Product->getProductTypeClass();
-					if (isset($PackageData->purchase_type) && $PackageData->purchase_type == 'reservation'){
+					if (isset($PackageData['purchase_type']) && $PackageData['purchase_type'] == 'reservation'){
 						$pprId = $ProductType
 							->getPurchaseType('reservation')
 							->getPayPerRentalId();
 						foreach(PurchaseType_reservation_utilities::getRentalPricing($pprId) as $priceInfo){
 							if (
-								isset($PackageData->price) &&
-								isset($PackageData->price[$pprId]) &&
-								isset($PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']]) &&
-								isset($PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
+								isset($PackageData['price']) &&
+								isset($PackageData['price'][$pprId]) &&
+								isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']]) &&
+								isset($PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']])
 							){
-								$price = $PackageData->price[$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
+								$price = $PackageData['price'][$pprId][$priceInfo['pay_per_rental_types_id']][$priceInfo['number_of']];
 							}
 							else {
 								$price = $priceInfo['price'];
@@ -684,12 +669,12 @@ class ProductTypePackage extends ProductTypeBase
 						->html($Product->getName());
 
 					$RowCols = array();
-					$RowCols[] = array('css' => $RowCss, 'text' => '- ' . $PackageData->quantity . 'x');
+					$RowCols[] = array('css' => $RowCss, 'text' => '- ' . $PackageData['quantity'] . 'x');
 					$RowCols[] = array('css' => $RowCss, 'text' => $NameLink->draw());
-					if (isset($PackageData->purchase_type)){
+					if (isset($PackageData['purchase_type'])){
 						$PurchaseType = $Product
 							->getProductTypeClass()
-							->getPurchaseType($PackageData->purchase_type);
+							->getPurchaseType($PackageData['purchase_type']);
 						$RowCols[] = array('css' => $RowCss, 'text' => ' ( ' . $PurchaseType->getTitle() . ' ) ');
 					}
 
@@ -780,19 +765,19 @@ class ProductTypePackage extends ProductTypeBase
 		$PackagedProducts = $Product->PackageProducts;
 		if ($PackagedProducts && $PackagedProducts->count() > 0){
 			foreach($PackagedProducts as $PackagedProduct){
-				$PackageData = json_decode($PackagedProduct->package_data);
+				$PackageData = $PackagedProduct->package_data;
 
 				$LineData = array();
 				$LineData[] = $PackagedProduct->ProductInfo->products_model;
-				$LineData[] = $PackageData->quantity;
-				if (isset($PackageData->price)){
-					$LineData[] = $PackageData->price;
+				$LineData[] = $PackageData['quantity'];
+				if (isset($PackageData['price'])){
+					$LineData[] = $PackageData['price'];
 				}
 				else {
 					$LineData[] = '';
 				}
-				if (isset($PackageData->purchase_type)){
-					$LineData[] = $PackageData->purchase_type;
+				if (isset($PackageData['purchase_type'])){
+					$LineData[] = $PackageData['purchase_type'];
 				}
 				else {
 					$LineData[] = '';
@@ -811,16 +796,16 @@ class ProductTypePackage extends ProductTypeBase
 	{
 		foreach($PackageProducts as $PackagedProduct){
 			$PackageData = $PackagedProduct->getInfo('PackageData');
-			if ($PackageData->purchase_type == 'reservation'){
+			if ($PackageData['purchase_type'] == 'reservation'){
 				if (in_array($PackagedProduct->getProductsId(), $_POST['reservation_products_id'])){
 					$PurchaseType = $PackagedProduct
 						->getProductTypeClass()
 						->getPurchaseType();
-					if (isset($PackageData->price) && is_object($PackageData->price)){
+					if (isset($PackageData['price']) && is_object($PackageData['price'])){
 						PurchaseType_reservation_utilities::getRentalPricing($PurchaseType->getPayPerRentalId());
 						$CachedPrice =& PurchaseType_reservation_utilities::$RentalPricingCache[$PurchaseType->getPayPerRentalId()];
 						foreach($CachedPrice as $k => $pInfo){
-							$Price = (array)$PackageData->price;
+							$Price = (array)$PackageData['price'];
 							if (isset($Price[$pInfo['pay_per_rental_id']])){
 								$Type = (array)$Price[$pInfo['pay_per_rental_id']];
 								if (isset($Type[$pInfo['pay_per_rental_types_id']])){

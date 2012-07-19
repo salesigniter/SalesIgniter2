@@ -28,34 +28,21 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	 *
 	 * @param array $Totals
 	 */
-	public function init(array $Totals)
+	public function loadSessionData(array $Totals)
 	{
 		$this->totals = array();
 		foreach($Totals as $tInfo){
 			$OrderTotal = $this->getTotalClass();
-			$OrderTotal->init($tInfo);
-
+			$OrderTotal->loadSessionData($tInfo);
+			//echo __FILE__ . '::' . __LINE__;print_r($OrderTotal);
 			$this->add($OrderTotal);
 		}
 	}
 
 	/**
-	 * @return array
-	 */
-	public function prepareSave()
-	{
-		$TotalsJsonArray = array();
-		foreach($this->getAll() as $Total){
-			$TotalsJsonArray[] = $Total->prepareSave();
-		}
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductsJsonArray);
-		return $TotalsJsonArray;
-	}
-
-	/**
 	 * @param AccountsReceivableSalesTotals $SaleTotals
 	 */
-	public function onSaveProgress(AccountsReceivableSalesTotals &$SaleTotals)
+	public function onSaveProgress(&$SaleTotals)
 	{
 		$SaleTotals->clear();
 		foreach($this->getAll() as $Total){

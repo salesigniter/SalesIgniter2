@@ -35,6 +35,14 @@ class OrderTotalManager
 		return new OrderTotal();
 	}
 
+	public function prepareSave(){
+		$toEncode = array();
+		foreach($this->getAll() as $Total){
+			$toEncode[] = $Total->prepareSave();
+		}
+		return $toEncode;
+	}
+
 	/**
 	 * load()
 	 *
@@ -44,11 +52,11 @@ class OrderTotalManager
 	 * @internal The total_json value is already decoded to an associative array in the model
 	 * @param AccountsReceivableSalesTotals $Totals
 	 */
-	public function load(AccountsReceivableSalesTotals $Totals)
+	public function loadDatabaseData($Totals)
 	{
 		foreach($Totals as $Total){
 			$OrderTotal = $this->getTotalClass();
-			$OrderTotal->load($Total->total_json);
+			$OrderTotal->loadDatabaseData($Total->total_json);
 
 			$this->add($OrderTotal);
 		}

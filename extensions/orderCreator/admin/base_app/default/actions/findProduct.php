@@ -5,13 +5,8 @@ $SearchTerm = $_GET['term'];
 $QSearch = Doctrine_Query::create()
 	->from('Products p')
 	->leftJoin('p.ProductsDescription pd')
-	->leftJoin('p.ProductsInventory pi')
-	->leftJoin('pi.ProductsInventoryBarcodes pib')
 	->where('pd.language_id = ?', Session::get('languages_id'))
-	->andWhere('(pib.barcode LIKE ? OR pd.products_name LIKE ?)', array(
-		$SearchTerm . '%',
-		$SearchTerm . '%'
-	));
+	->andWhere('pd.products_name LIKE ?', $SearchTerm . '%');
 
 $Results = $QSearch->execute();
 

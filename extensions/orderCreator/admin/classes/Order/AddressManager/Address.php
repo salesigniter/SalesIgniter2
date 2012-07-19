@@ -12,6 +12,11 @@
 class OrderCreatorAddress extends OrderAddress
 {
 
+	public function loadSessionData($data){
+		$this->Type = $data['Type'];
+		$this->updateFromArray($data['addressInfo']);
+	}
+
 	/**
 	 * @param string $val
 	 */

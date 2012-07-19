@@ -20,7 +20,9 @@ class OrderTotal
 	/**
 	 * @var array
 	 */
-	public $data = array();
+	public $data = array(
+		'module_code' => ''
+	);
 
 	/**
 	 *
@@ -30,14 +32,15 @@ class OrderTotal
 	}
 
 	/**
-	 * @param array $Decoded
+	 * @param array $data
 	 */
-	public function load(array $Decoded)
+	public function loadDatabaseData(array $data)
 	{
-		if ($Decoded){
-			$this->data = $Decoded['data'];
-			$this->setModule($this->data['module_code'], $this->data);
-		}
+		$this->data = $data['data'];
+		$this->setModule(
+			$this->data['module_code'],
+			(isset($data['module_json']) ? $data['module_json'] : null)
+		);
 	}
 
 	/**
@@ -60,6 +63,7 @@ class OrderTotal
 	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
 	{
 		$Module = $this->getModule();
+		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($Module);
 
 		$Total->module_code = $Module->getCode();
 		$Total->total_value = $Module->getValue();
@@ -102,7 +106,8 @@ class OrderTotal
 	 * @param string     $ModuleCode
 	 * @param array|null $mInfo
 	 */
-	public function setModule($ModuleCode, array $mInfo = null){
+	public function setModule($ModuleCode, array $mInfo = null)
+	{
 		$this->data['module_code'] = $ModuleCode;
 		$this->Module = $this->getTotalModule($ModuleCode);
 		$this->Module->setData($mInfo);
@@ -122,8 +127,8 @@ class OrderTotal
 	public function setData($options = array())
 	{
 		$options = array_merge(array(
-			'sort_order'  => 0,
-			'value'       => 0.0000
+			'display_order'  => 0,
+			'value'          => 0.0000
 		), $options);
 
 		$this->Module->setData($options);
@@ -173,7 +178,10 @@ class OrderTotal
 		//echo '</div>';
 	}
 
-	public function onExport($addColumns, &$CurrentRow, &$HeaderRow){
-		$CurrentRow->addColumn($this->Module->getValue(), 'v_total_' . $this->getModule()->getCode());
+	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
+	{
+		$CurrentRow->addColumn($this->Module->getValue(), 'v_total_' . $this
+			->getModule()
+			->getCode());
 	}
 }

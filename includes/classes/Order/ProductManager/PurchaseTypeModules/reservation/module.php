@@ -81,18 +81,10 @@ class OrderPurchaseTypeReservation extends PurchaseType_reservation
 		}
 	}
 
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = $this->getInfo();
 		return $toEncode;
-	}
-
-	public function jsonDecode(array $PurchaseTypeJson)
-	{
-		$this->setInfo($PurchaseTypeJson);
-
-		$this->setInfo('start_date', SesDateTime::createFromArray($PurchaseTypeJson['start_date']));
-		$this->setInfo('end_date', SesDateTime::createFromArray($PurchaseTypeJson['end_date']));
 	}
 
 	/**
@@ -102,11 +94,15 @@ class OrderPurchaseTypeReservation extends PurchaseType_reservation
 	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
 	 * @param array                                                                   $PurchaseTypeJson
 	 */
-	public function jsonDecodeProduct($Product, array $PurchaseTypeJson)
+	public function loadDatabaseData($Product, array $PurchaseTypeJson)
 	{
 		$this->setInfo($PurchaseTypeJson);
 
-		$this->setInfo('start_date', SesDateTime::createFromArray($PurchaseTypeJson['start_date']));
-		$this->setInfo('end_date', SesDateTime::createFromArray($PurchaseTypeJson['end_date']));
+		if (isset($PurchaseTypeJson['start_date'])){
+			$this->setInfo('start_date', SesDateTime::createFromArray($PurchaseTypeJson['start_date']));
+		}
+		if (isset($PurchaseTypeJson['end_date'])){
+			$this->setInfo('end_date', SesDateTime::createFromArray($PurchaseTypeJson['end_date']));
+		}
 	}
 }

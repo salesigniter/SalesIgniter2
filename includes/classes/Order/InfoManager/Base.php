@@ -69,11 +69,11 @@ class OrderInfoManager
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		$toEncode = array();
 		foreach($this->getInfo() as $k => $Info){
-			$toEncode[$k] = $Info->prepareJsonSave();
+			$toEncode[$k] = $Info->prepareSave();
 		}
 		return $toEncode;
 	}
@@ -81,17 +81,14 @@ class OrderInfoManager
 	/**
 	 * @param $data
 	 */
-	public function jsonDecode($data)
+	public function loadDatabaseData($data)
 	{
-		$infoArray = json_decode($data, true);
-		if ($infoArray){
-			foreach($infoArray as $k => $info){
-				$InfoClass = $this->getInfoObjectClass();
-				$InfoClass->setKey($info['key']);
-				$InfoClass->setValue($info['value']);
+		foreach($data as $k => $info){
+			$InfoClass = $this->getInfoObjectClass();
+			$InfoClass->setKey($info['key']);
+			$InfoClass->setValue($info['value']);
 
-				$this->info[$k] = $InfoClass;
-			}
+			$this->info[$k] = $InfoClass;
 		}
 	}
 }

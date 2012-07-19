@@ -42,7 +42,7 @@ class ProductTypeBase extends ModuleBase
 	/**
 	 * @return array
 	 */
-	public function prepareJsonSave()
+	public function prepareSave()
 	{
 		return array();
 	}
@@ -54,7 +54,7 @@ class ProductTypeBase extends ModuleBase
 	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
 	 * @param array                                                                   $ProductJson
 	 */
-	public function jsonDecodeProduct($Product, array $ProductJson)
+	public function load($Product, array $ProductJson)
 	{
 	}
 }

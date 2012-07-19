@@ -73,8 +73,8 @@ class OrderCreator extends Order implements Serializable
 			if ($this->TotalManager->has('subtotal') === false){
 				$SubTotal = $this->TotalManager->getTotalClass();
 				$SubTotal->setModule('subtotal', array(
-					'sort_order' => 1,
-					'value'      => 0
+					'display_order' => 1,
+					'value'         => 0
 				));
 				$this->TotalManager->add($SubTotal);
 			}
@@ -82,8 +82,8 @@ class OrderCreator extends Order implements Serializable
 			if ($this->TotalManager->has('tax') === false){
 				$Tax = $this->TotalManager->getTotalClass();
 				$Tax->setModule('tax', array(
-					'sort_order' => 2,
-					'value'      => 0
+					'display_order' => 2,
+					'value'         => 0
 				));
 				$this->TotalManager->add($Tax);
 			}
@@ -91,8 +91,8 @@ class OrderCreator extends Order implements Serializable
 			if ($this->TotalManager->has('total') === false){
 				$Total = $this->TotalManager->getTotalClass();
 				$Total->setModule('total', array(
-					'sort_order' => 3,
-					'value'      => 0
+					'display_order' => 3,
+					'value'         => 0
 				));
 				$this->TotalManager->add($Total);
 			}
@@ -110,23 +110,23 @@ class OrderCreator extends Order implements Serializable
 	{
 		$InfoManagerJson = $this->InfoManager;
 		$this->InfoManager = new OrderCreatorInfoManager();
-		$this->InfoManager->jsonDecode($InfoManagerJson);
+		$this->InfoManager->loadSessionData($InfoManagerJson);
 
 		$AddressManagerJson = $this->AddressManager;
 		$this->AddressManager = new OrderCreatorAddressManager();
-		$this->AddressManager->jsonDecode($AddressManagerJson);
+		$this->AddressManager->loadSessionData($AddressManagerJson);
 
 		$ProductManagerJson = $this->ProductManager;
 		$this->ProductManager = new OrderCreatorProductManager();
-		$this->ProductManager->jsonDecode($ProductManagerJson);
+		$this->ProductManager->loadSessionData($ProductManagerJson);
 
 		$TotalManagerJson = $this->TotalManager;
 		$this->TotalManager = new OrderCreatorTotalManager();
-		$this->TotalManager->init($TotalManagerJson);
+		$this->TotalManager->loadSessionData($TotalManagerJson);
 
 		$PaymentManagerJson = $this->PaymentManager;
 		$this->PaymentManager = new OrderCreatorPaymentManager();
-		$this->PaymentManager->jsonDecode($PaymentManagerJson);
+		$this->PaymentManager->loadSessionData($PaymentManagerJson);
 
 		if (isset($this->SaleModule)){
 			$this->SaleModule = AccountsReceivableModules::getModule($this->SaleModule);
@@ -148,11 +148,11 @@ class OrderCreator extends Order implements Serializable
 			'saleId'         => $this->getSaleId(),
 			'customerId'     => $this->getCustomerId(),
 			'mode'           => $this->mode,
-			'InfoManager'    => $this->InfoManager->prepareJsonSave(),
-			'ProductManager' => $this->ProductManager->prepareJsonSave(),
-			'AddressManager' => $this->AddressManager->prepareJsonSave(),
+			'InfoManager'    => $this->InfoManager->prepareSave(),
+			'ProductManager' => $this->ProductManager->prepareSave(),
+			'AddressManager' => $this->AddressManager->prepareSave(),
 			'TotalManager'   => $this->TotalManager->prepareSave(),
-			'PaymentManager' => $this->PaymentManager->prepareJsonSave(),
+			'PaymentManager' => $this->PaymentManager->prepareSave(),
 			'errorMessages'  => $this->errorMessages
 		);
 
@@ -172,15 +172,7 @@ class OrderCreator extends Order implements Serializable
 	{
 		$data = unserialize($data);
 		foreach($data as $key => $dInfo){
-			if (in_array($key, array(
-				'InfoManager', 'ProductManager', 'AddressManager', 'PaymentManager'
-			))
-			){
-				$this->$key = json_encode($dInfo);
-			}
-			else {
-				$this->$key = $dInfo;
-			}
+			$this->$key = $dInfo;
 		}
 		return $data;
 	}

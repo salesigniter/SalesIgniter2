@@ -1,10 +1,10 @@
 /* construct.js */
 
 /* Standard elements that are created on actions */
-var wrapperEl = '<div class="container wrapper"></div>';
-var containerEl = '<div class="container"></div>';
-var columnEl = '<div class="column"></div>';
-var listEl = '<ul class="sortableList"></ul>';
+var wrapperEl = '<div class="container wrapper needsMin"></div>';
+var containerEl = '<div class="container needsMin"></div>';
+var columnEl = '<div class="column needsMin"></div>';
+var listEl = '<ul class="sortableList needsMin"></ul>';
 var widgetEl = '<li class="widget"><span class="widgetName"></span></li>';
 var selectedClass = 'state-active';
 var hoverClass = 'state-hover';
@@ -74,6 +74,10 @@ function addWidget(draggable, ul) {
 	$listItem.data('inputs', {});
 	$listItem.find('.widgetName').html(widgetCode);
 	$listItem.appendTo(ul);
+
+	$listItem.parentsUntil('#construct').each(function (){
+		$(this).removeClass('needsMin');
+	});
 
 	showSaveLayout();
 }
@@ -354,8 +358,12 @@ function deleteElement(el, withChildren) {
 		showSaveLayout();
 	}
 	else if ($el.hasClass('column')){
-		// remove the selected column from the DOM and select the next one
-		$el.next('.column').trigger('click');
+		if ($el.next('.column').size() == 0){
+			$el.parent().addClass('needsMin');
+		}else{
+			// remove the selected column from the DOM and select the next one
+			$el.next('.column').trigger('click');
+		}
 		$el.remove();
 
 		if ($('.container.' + selectedClass + ' .column.' + selectedClass).size() < 1){
@@ -365,6 +373,7 @@ function deleteElement(el, withChildren) {
 		showSaveLayout();
 	}
 	else if ($el.hasClass('widget')){
+		$el.parent().addClass('needsMin');
 		$el.remove();
 		updateBreadcrumb();
 		showSaveLayout();
@@ -411,6 +420,11 @@ function setupContainer($container, isWrapper) {
 		$container.fadeTo(0, unselectedOpacity);
 	}
 
+	if ($container.html() == ''){
+		$container.addClass('needsMin');
+	}else{
+		$container.removeClass('needsMin');
+	}
 	$container.each(function (){
 		//$(this).removeAttr('data-container_id');
 		//$(this).removeAttr('data-styles');
@@ -485,6 +499,20 @@ function setupColumn($column) {
 		$column.fadeTo(0, unselectedOpacity);
 	}
 
+	if ($column.html() == ''){
+		$column.addClass('needsMin');
+	}else{
+		$column.removeClass('needsMin');
+	}
+
+	$column.find('.ui-sortable').each(function (){
+		if ($(this).html() == ''){
+			$(this).addClass('needsMin');
+		}else{
+			$(this).removeClass('needsMin');
+		}
+	});
+
 	$column.find('.widget').each(function (){
 		if ($(this).attr('data-widget_settings')){
 			$(this).data('widget_settings', $.parseJSON(htmlspecialchars_decode($(this).attr('data-widget_settings'))));
@@ -505,6 +533,12 @@ function setupColumn($column) {
 			$(this).removeAttr('data-inputs');
 		}else if (!$(this).data('inputs')){
 			$(this).data('inputs', { });
+		}
+
+		if ($(this).html() == ''){
+			$(this).addClass('needsMin');
+		}else{
+			$(this).removeClass('needsMin');
 		}
 	});
 

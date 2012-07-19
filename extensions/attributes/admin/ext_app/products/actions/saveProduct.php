@@ -63,7 +63,7 @@
 		}
 		$Product->save();
 	}
-	
+	/*
 	$extAttributes = $appExtension->getExtension('attributes');
 	$postedQty = (isset($_POST['inventory_quantity']['attribute']) ? $_POST['inventory_quantity']['attribute'] : false);
 	foreach($inventoryTypes as $typeShort => $typeName){
@@ -143,4 +143,5 @@
 			}
 		}
 	}
+	*/
 ?>

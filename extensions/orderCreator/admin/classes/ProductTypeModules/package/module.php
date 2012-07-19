@@ -17,6 +17,14 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 {
 
 	/**
+	 * @return OrderCreatorProduct|OrderProduct
+	 */
+	public function getContentPackagedProductClass()
+	{
+		return new OrderCreatorProduct();
+	}
+
+	/**
 	 * @param OrderCreatorProduct $OrderedProduct
 	 */
 	public function onUpdateOrderProduct(OrderCreatorProduct &$OrderedProduct)
@@ -130,14 +138,14 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 		foreach($this->getProductsRaw() as $PackageInfo){
 			$ProductId = $PackageInfo['product_id'];
 			$PackageData = $PackageInfo['packageData'];
-			if (isset($PackageData->purchase_type)){
-				$_GET['purchase_type'] = $PackageData->purchase_type;
+			if (isset($PackageData['purchase_type'])){
+				$_GET['purchase_type'] = $PackageData['purchase_type'];
 			}
 
 			$PackageOrderProduct = new OrderCreatorProduct();
 			$PackageOrderProduct->regenerateId();
 			$PackageOrderProduct->setProductId($ProductId);
-			$PackageOrderProduct->setQuantity($PackageData->quantity);
+			$PackageOrderProduct->setQuantity($PackageData['quantity']);
 			$PackageOrderProduct->setInfo('PackageData', $PackageData);
 
 			$ProductType = $PackageOrderProduct->getProductTypeClass();
@@ -167,11 +175,9 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		$products = array();
 		foreach($Query as $pInfo){
-			$PackageData = json_decode($pInfo['package_data']);
-
 			$packageInfo = array(
 				'product_id'   => $pInfo['product_id'],
-				'packageData'  => $PackageData,
+				'packageData'  => $pInfo['package_data'],
 			);
 
 			$products[] = $packageInfo;
@@ -211,66 +217,6 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 				$ReservationInfo['insurance_value'] += $PurchaseType->getInsuranceValue();
 				$ReservationInfo['insurance_cost'] += $PurchaseType->getInsuranceCost();
 				$ReservationInfo['deposit_amount'] += $PurchaseType->getDepositAmount();
-			}
-
-			if (isset($PackageData->price)){
-				if ($PurchaseType->getCode() == 'reservation'){
-					$pprId = $PurchaseType->getPayPerRentalId();
-
-					$PricingInfo = PurchaseType_reservation_utilities::getPricingPeriodInfo(
-						$pprId,
-						$ReservationInfo['start_date'],
-						$ReservationInfo['end_date']
-					);
-
-					$Prices = array();
-					foreach($PricingInfo as $PriceInfo){
-						$TypeId = $PriceInfo['Type']['pay_per_rental_types_id'];
-
-						$Prices[] = $PriceInfo;
-
-						$NumberOf = $PriceInfo['number_of'];
-						if (
-							isset($PackageData->price) &&
-							isset($PackageData->price->$pprId) &&
-							isset($PackageData->price->$pprId->$TypeId) &&
-							isset($PackageData->price->$pprId->$TypeId->$NumberOf)
-						){
-							$Prices[] = array_merge($PriceInfo, array(
-								'price' => $PackageData->price->$pprId->$TypeId->$NumberOf
-							));
-						}
-
-						if ($PurchaseType->hasDiscounts()){
-							$Discounted = array();
-							foreach($Prices as $Price){
-								$Discounted[] = PurchaseType_reservation_utilities::discountPrice(
-									$Price['price'],
-									$PricingInfo,
-									$PurchaseType->getDiscounts(),
-									$ReservationInfo
-								);
-							}
-
-							foreach($Discounted as $Price){
-								$Prices[] = array_merge($PriceInfo, array(
-									'price' => $Price
-								));
-							}
-						}
-					}
-
-					$Lowest = PurchaseType_reservation_utilities::getLowestPrice(
-						$Prices,
-						$ReservationInfo['start_date'],
-						$ReservationInfo['end_date']
-					);
-					$Price = $Lowest['price'];
-				}
-				else {
-					$Price = $PackageData->price;
-				}
-				$PackageProduct->setPrice($Price);
 			}
 
 			$MainPrice += $PackageProduct->getPrice();
@@ -358,7 +304,7 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 	/**
 	 * @param array $ProductTypeJson
 	 */
-	public function jsonDecode(array $ProductTypeJson)
+	public function loadSessionData(array $ProductTypeJson)
 	{
 		$this->setInfo($ProductTypeJson);
 
@@ -377,7 +323,7 @@ class OrderCreatorProductTypePackage extends OrderProductTypePackage
 		if (isset($ProductTypeJson['PackagedProducts'])){
 			foreach($ProductTypeJson['PackagedProducts'] as $k => $PackagedJson){
 				$PackageProduct = new OrderCreatorProduct();
-				$PackageProduct->jsonDecode($PackagedJson);
+				$PackageProduct->loadSessionData($PackagedJson);
 
 				$this->addPackagedProduct($PackageProduct);
 			}

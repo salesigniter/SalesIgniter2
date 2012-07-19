@@ -116,20 +116,16 @@ class CheckoutSaleProductTypeStandard extends ProductTypeStandard
 	 * @param OrderProduct $OrderProduct
 	 * @return array|void
 	 */
-	public function prepareJsonSave(OrderProduct &$OrderProduct)
+	public function prepareSave(OrderProduct &$OrderProduct)
 	{
 		$toEncode = array(
 			'purchase_type' => $this->PurchaseTypeClass->getCode()
 		);
-		if (method_exists($this->PurchaseTypeClass, 'prepareJsonSave')){
-			$toEncode['PurchaseTypeJson'] = $this->PurchaseTypeClass->prepareJsonSave($this);
+		if (method_exists($this->PurchaseTypeClass, 'prepareSave')){
+			$toEncode['PurchaseTypeJson'] = $this->PurchaseTypeClass->prepareSave($this);
 		}
 		return $toEncode;
 	}
-
-	/*public function jsonDecodeProduct(OrderProduct $OrderProduct, array $ProductTypeJson){
-
-	}*/
 
 	/**
 	 * @param OrderProduct $OrderProduct
