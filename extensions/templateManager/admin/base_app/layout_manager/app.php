@@ -37,14 +37,16 @@ if (!class_exists('TemplateManagerLayoutTypeModules')){
 }
 
 $TemplateManager = $appExtension->getExtension('templateManager');
-
-if ($App->getPageName() == 'editLayout'){
-	$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')->find($_GET['layout_id']);
+if (isset($_POST['layout_id']) === true || isset($_GET['layout_id']) === true){
+	$Layout = Doctrine_Core::getTable('TemplateManagerLayouts')
+		->find((isset($_POST['layout_id']) ? $_POST['layout_id'] : $_GET['layout_id']));
 	$templateName = $Layout->Template->Configuration['DIRECTORY']->configuration_value;
 
 	$LayoutBuilder = $TemplateManager->getLayoutBuilder();
 	$LayoutBuilder->setLayoutId($Layout->layout_id);
+}
 
+if ($App->getPageName() == 'editLayout'){
 	$App->addJavascriptFile('admin/rental_wysiwyg/ckeditor.js');
 	$App->addJavascriptFile('admin/rental_wysiwyg/adapters/jquery.js');
 	$App->addJavascriptFile('extensions/templateManager/admin/base_app/layout_manager/javascript/backgroundBuilder.js');
