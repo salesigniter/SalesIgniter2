@@ -16,8 +16,8 @@ class OrderTotalRefund extends OrderTotalModuleBase
 		global $order;
 
 		$outputData['title'] = $this->getTitle() . ':';
-		$outputData['text'] = $this->formatAmount($order->info['refund']);
-		$outputData['value'] = $order->info['refund'];
+		$outputData['text'] = $this->getText();
+		$outputData['value'] = $this->getValue();
 	}
 }
 

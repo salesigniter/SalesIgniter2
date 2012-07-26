@@ -14,7 +14,7 @@ class PayPerRentalReservations extends Doctrine_Record {
 	}
 
 	public function setTableDefinition(){
-		$this->setTableName('pay_per_rental_reservation');
+		$this->setTableName('pay_per_rental_reservations');
 
 		$this->hasColumn('products_id', 'integer', 4);
 		$this->hasColumn('sale_product_id', 'integer', 4);
@@ -45,7 +45,10 @@ class PayPerRentalReservations extends Doctrine_Record {
 		$this->hasColumn('tracking_number', 'string', 255);
 		$this->hasColumn('tracking_type', 'string', 30);
 
-		$this->hasColumn('insurance', 'decimal', 15, array(
+		$this->hasColumn('insurance_cost', 'decimal', 15, array(
+			'scale' => 4,
+		));
+		$this->hasColumn('insurance_value', 'decimal', 15, array(
 			'scale' => 4,
 		));
 		$this->hasColumn('amount_payed', 'decimal', 15, array(

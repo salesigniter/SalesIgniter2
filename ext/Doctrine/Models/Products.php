@@ -49,7 +49,7 @@ class Products extends Doctrine_Record {
 			'foreign' => 'tax_class_id'
 		));
 
-		$this->hasMany('ProductsInventory as Inventory', array(
+		$this->hasMany('ProductsInventoryItems as InventoryItems', array(
 			'local' => 'products_id',
 			'foreign' => 'products_id',
 			'cascade' => array('delete')

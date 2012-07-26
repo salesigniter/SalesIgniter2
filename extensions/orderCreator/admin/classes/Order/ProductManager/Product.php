@@ -23,61 +23,39 @@ class OrderCreatorProduct extends OrderProduct
 	private $confirmationMessage = '';
 
 	/**
-	 * @var ProductTypeBase
+	 * @return ProductTypeBase|OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
 	 */
-	protected $ProductTypeClass;
+	public function &getProductTypeClass()
+	{
+		return $this->ProductTypeClass;
+	}
 
 	/**
 	 *
 	 */
 	public function loadProductType()
 	{
-		$ProductType = $this->pInfo['products_type'];
 		ProductTypeModules::$classPrefix = 'OrderCreatorProductType';
 		$isLoaded = ProductTypeModules::loadModule(
-			$ProductType,
-			sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/ProductTypeModules/' . $ProductType . '/'
+			$this->products_type,
+			sysConfig::getDirFsCatalog() . 'extensions/orderCreator/admin/classes/Order/ProductManager/ProductTypeModules/' . $this->products_type . '/'
 		);
 		if ($isLoaded === true){
-			$this->ProductTypeClass = ProductTypeModules::getModule($ProductType);
+			$this->ProductTypeClass = ProductTypeModules::getModule($this->products_type);
 			if (is_object($this->ProductTypeClass) === false){
 				echo '<pre>';
 				debug_print_backtrace();
 				echo '</pre>';
-				die('Error loading product type: ' . $ProductType);
+				die('Error loading product type: ' . $this->products_type);
 			}
-			$this->ProductTypeClass->setProductId($this->pInfo['products_id']);
+			$this->ProductTypeClass->setProductId($this->products_id);
 		}
 		else {
 			echo '<pre>';
 			debug_print_backtrace();
 			echo '</pre>';
-			die('Error loading product type: ' . $ProductType);
+			die('Error loading product type: ' . $this->products_type);
 		}
-	}
-
-	/**
-	 * @param array $ProductInfo
-	 */
-	public function loadSessionData(array $ProductInfo)
-	{
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($ProductInfo);
-		$this->id = $ProductInfo['id'];
-		$this->pInfo = $ProductInfo['pInfo'];
-
-		$this->loadProductBaseInfo($this->pInfo['products_id']);
-		$this->loadProductType();
-		if (method_exists($this->ProductTypeClass, 'loadSessionData')){
-			$this->ProductTypeClass->loadSessionData($ProductInfo['ProductTypeJson']);
-		}
-	}
-
-	/**
-	 * @return ProductTypeBase|OrderCreatorProductTypeStandard|OrderCreatorProductTypePackage
-	 */
-	public function &getProductTypeClass()
-	{
-		return $this->ProductTypeClass;
 	}
 
 	/**
@@ -122,19 +100,9 @@ class OrderCreatorProduct extends OrderProduct
 		$this->loadProductBaseInfo($pID);
 		$this->loadProductType();
 
-		$taxAddress = null;
-		if (is_object($Editor->AddressManager)){
-			$taxAddress = $Editor->AddressManager->getAddress('billing');
-		}
-		$this->setTaxRate(tep_get_tax_rate(
-			$this->getTaxClassId(),
-			(is_object($taxAddress) ? $taxAddress->getCountryId() : -1),
-			(is_object($taxAddress) ? $taxAddress->getZoneId() : -1)
-		));
-
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'setProductId')){
-			$ProductType->setProductId($this->pInfo['products_id']);
+			$ProductType->setProductId($this->products_id);
 		}
 	}
 
@@ -150,9 +118,9 @@ class OrderCreatorProduct extends OrderProduct
 		}
 
 		if ($updateAllowed === true && method_exists($ProductType, 'OrderCreatorUpdateProductInfo')){
-			$pInfo = $this->pInfo;
-			$ProductType->OrderCreatorUpdateProductInfo(&$pInfo);
-			$this->pInfo = $pInfo;
+			$extraInfo = $this->extraInfo;
+			$ProductType->OrderCreatorUpdateProductInfo(&$extraInfo);
+			$this->extraInfo = $extraInfo;
 		}
 	}
 
@@ -185,7 +153,15 @@ class OrderCreatorProduct extends OrderProduct
 	 */
 	public function setTaxRate($val)
 	{
-		$this->pInfo['products_tax'] = (float)$val;
+		$this->products_tax = (float)$val;
+	}
+
+	/**
+	 * @param float $val
+	 */
+	public function setTaxClassId($val)
+	{
+		$this->products_tax_class_id = (float)$val;
 	}
 
 	/**
@@ -193,7 +169,7 @@ class OrderCreatorProduct extends OrderProduct
 	 */
 	public function setQuantity($val)
 	{
-		$this->pInfo['products_quantity'] = (int)$val;
+		$this->products_quantity = (int)$val;
 
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'onSetQuantity')){
@@ -206,8 +182,7 @@ class OrderCreatorProduct extends OrderProduct
 	 */
 	public function setPrice($val)
 	{
-		$this->pInfo['products_price'] = (float)$val;
-		$this->pInfo['final_price'] = (float)$val;
+		$this->products_price = (float)$val;
 	}
 
 	/**
@@ -215,7 +190,7 @@ class OrderCreatorProduct extends OrderProduct
 	 */
 	public function setBarcodes(array $val)
 	{
-		$this->pInfo['Barcodes'] = $val;
+		$this->extraInfo['Barcodes'] = $val;
 	}
 
 	/**
@@ -297,10 +272,10 @@ class OrderCreatorProduct extends OrderProduct
 	public function setInfo($k, $v = '')
 	{
 		if (is_array($k)){
-			$this->pInfo = $k;
+			$this->extraInfo = $k;
 		}
 		else {
-			$this->pInfo[$k] = $v;
+			$this->extraInfo[$k] = $v;
 		}
 	}
 
@@ -309,12 +284,12 @@ class OrderCreatorProduct extends OrderProduct
 	 */
 	public function updateInfo(array $newInfo)
 	{
-		$newProductInfo = $this->pInfo;
+		$newProductInfo = $this->extraInfo;
 		foreach($newInfo as $k => $v){
 			$newProductInfo[$k] = $v;
 		}
-		$this->pInfo = $newProductInfo;
-		//$this->purchaseTypeClass->processUpdateCart(&$this->pInfo);
+		$this->extraInfo = $newProductInfo;
+		//$this->purchaseTypeClass->processUpdateCart(&$this->extraInfo);
 	}
 
 	public function onUpdateOrderProduct()
@@ -334,11 +309,51 @@ class OrderCreatorProduct extends OrderProduct
 	public function onSaveProgress(&$SaleProduct)
 	{
 		$ProductType = $this->getProductTypeClass();
+
+		/**
+		 * This is only for core fields, all possible module/extension fields should
+		 * either be in their own table or in the provided product_json array
+		 */
+		$SaleProduct->product_id = $this->getProductsId();
+		$SaleProduct->products_model = $this->getModel();
+		$SaleProduct->products_name = $this->getName();
+		$SaleProduct->products_price = $this->getPrice();
+		$SaleProduct->products_tax = $this->getTaxRate();
+		$SaleProduct->products_tax_class_id = $this->getTaxClassId();
+		$SaleProduct->products_quantity = $this->getQuantity();
+		$SaleProduct->products_weight = $this->getWeight();
+		$SaleProduct->products_type = $ProductType->getCode();
+
 		if (method_exists($ProductType, 'onSaveProgress')){
 			$ProductType->onSaveProgress($SaleProduct);
 		}
 
 		$SaleProduct->product_json = $this->prepareSave();
+	}
+
+	/**
+	 * @param array $ProductInfo
+	 */
+	public function loadSessionData(array $ProductInfo)
+	{
+		$this->id = $ProductInfo['id'];
+		$this->product_id = $ProductInfo['product_id'];
+		$this->products_model = $ProductInfo['products_model'];
+		$this->products_name = $ProductInfo['products_name'];
+		$this->products_price = $ProductInfo['products_price'];
+		$this->products_tax = $ProductInfo['products_tax'];
+		$this->products_tax_class_id = $ProductInfo['products_tax_class_id'];
+		$this->products_quantity = $ProductInfo['products_quantity'];
+		$this->products_weight = $ProductInfo['products_weight'];
+		$this->products_type = $ProductInfo['products_type'];
+		$this->extraInfo = $ProductInfo['extra_info'];
+
+		$this->loadProductType();
+		if (isset($ProductInfo['ProductTypeJson']) && is_array($ProductInfo['ProductTypeJson'])){
+			if (method_exists($this->ProductTypeClass, 'loadSessionData')){
+				$this->ProductTypeClass->loadSessionData($ProductInfo['ProductTypeJson']);
+			}
+		}
 	}
 }
 

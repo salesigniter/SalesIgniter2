@@ -2,10 +2,9 @@
 	$Qperiods = Doctrine_Query::create()
 	->from('PayPerRentalPeriods');
 
-	$tableGrid = htmlBase::newElement('grid')
+	$tableGrid = htmlBase::newElement('newGrid')
 	->usePagination(true)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit']: 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1))
+
 	->setQuery($Qperiods);
 
 	$tableGrid->addHeaderRow(array(
@@ -57,8 +56,8 @@
 			if (isset($cInfo) && is_object($cInfo)) {
 				$infoBox->setHeader('<b>' . $cInfo->period_name . '</b>');
 
-				$deleteButton = htmlBase::newElement('button')->usePreset('delete')->setHref(itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'action=deleteConfirm&pID=' . $cInfo->period_id));
-				$editButton = htmlBase::newElement('button')->usePreset('edit')
+				$deleteButton = htmlBase::newElement('button')->setType('submit')->usePreset('delete')->setHref(itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'action=deleteConfirm&pID=' . $cInfo->period_id));
+				$editButton = htmlBase::newElement('button')->setType('submit')->usePreset('edit')
 				->setHref(itw_app_link(tep_get_all_get_params(array('action', 'pID')) . 'pID=' . $cInfo->period_id,null,'new'));
 
 				$infoBox->addButton($editButton)->addButton($deleteButton);

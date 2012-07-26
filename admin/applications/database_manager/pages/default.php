@@ -224,11 +224,7 @@ foreach($tablesInDb as $tableName){
 		)
 	));
 }
-?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php
-		echo $dbTable->draw();
-		echo '<br>';
-		echo $tableGrid->draw();
-		?></div>
-</div>
+
+echo $dbTable->draw();
+echo '<br>';
+echo $tableGrid->draw();

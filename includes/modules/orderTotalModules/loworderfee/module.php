@@ -21,41 +21,9 @@ class OrderTotalLoworderfee extends OrderTotalModuleBase
 	}
 
 	public function process(array &$outputData) {
-		global $order;
-
-		if ($this->allowFees == 'True'){
-			switch($this->feesDestination){
-				case 'National':
-					if ($order->delivery['country_id'] == sysConfig::get('STORE_COUNTRY')) {
-						$pass = true;
-					}
-					break;
-				case 'International':
-					if ($order->delivery['country_id'] != sysConfig::get('STORE_COUNTRY')) {
-						$pass = true;
-					}
-					break;
-				case 'Both':
-					$pass = true;
-					break;
-				default:
-					$pass = false;
-					break;
-			}
-
-			if (($pass == true) && (($order->info['total'] - $order->info['shipping_cost']) < $this->lowOrderAmount)){
-				$tax = tep_get_tax_rate($this->taxClass, $order->delivery['country']['id'], $order->delivery['zone_id']);
-				$tax_description = tep_get_tax_description($this->taxClass, $order->delivery['country']['id'], $order->delivery['zone_id']);
-
-				$order->info['tax'] += tep_calculate_tax($this->lowOrderFee, $tax);
-				$order->info['tax_groups']["$tax_description"] += tep_calculate_tax($this->lowOrderFee, $tax);
-				$order->info['total'] += $this->lowOrderFee + tep_calculate_tax($this->lowOrderFee, $tax);
-
-				$outputData['title'] = $this->getTitle() . ':';
-				$outputData['text'] = $this->formatAmount(tep_add_tax($this->lowOrderFee, $tax));
-				$outputData['value'] = tep_add_tax($this->lowOrderFee, $tax);
-			}
-		}
+		$outputData['title'] = $this->getTitle() . ':';
+		$outputData['text'] = sysCurrency::format($this->getValue());
+		$outputData['value'] = $this->getValue();
 	}
 }
 

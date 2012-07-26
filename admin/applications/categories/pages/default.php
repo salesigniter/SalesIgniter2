@@ -66,12 +66,9 @@ if ($Categories){
 		));
 	}
 }
+
+echo $CategoriesGrid->draw();
 ?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;">
-		<?php echo $CategoriesGrid->draw();?>
-	</div>
-</div>
 <div id="appTips" title="Did You Know?">
 	<ul>
 		<li>You can hold the ctrl button down to select multiple categories</li>

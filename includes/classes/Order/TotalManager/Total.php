@@ -60,24 +60,6 @@ class OrderTotal
 	/**
 	 * @param AccountsReceivableSalesTotals $Total
 	 */
-	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
-	{
-		$Module = $this->getModule();
-		//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($Module);
-
-		$Total->module_code = $Module->getCode();
-		$Total->total_value = $Module->getValue();
-		$Total->display_order = $Module->getDisplayOrder();
-		$Total->total_json = $this->prepareSave();
-
-		if (method_exists($Module, 'onSaveProgress')){
-			$Module->onSaveProgress($Total);
-		}
-	}
-
-	/**
-	 * @param AccountsReceivableSalesTotals $Total
-	 */
 	public function onSaveSale(AccountsReceivableSalesTotals &$Total)
 	{
 		$Module = $this->getModule();
@@ -103,14 +85,13 @@ class OrderTotal
 	}
 
 	/**
-	 * @param string     $ModuleCode
-	 * @param array|null $mInfo
+	 * @param OrderTotalModuleBase $TotalModule
 	 */
-	public function setModule($ModuleCode, array $mInfo = null)
+	public function setModule(OrderTotalModuleBase &$TotalModule)
 	{
-		$this->data['module_code'] = $ModuleCode;
-		$this->Module = $this->getTotalModule($ModuleCode);
-		$this->Module->setData($mInfo);
+		$this->data['module_code'] = $TotalModule->getCode();
+
+		$this->Module = $TotalModule;
 	}
 
 	/**
@@ -150,32 +131,44 @@ class OrderTotal
 		}
 	}
 
-	/**
-	 * @param OrderProductManager $ProductManager
-	 */
-	public function onProductAdded(OrderProductManager &$ProductManager)
-	{
-		//echo __FILE__ . '::' . __LINE__  . '<br>';
-		//echo '<div style="margin-left:15px">';
-		$Module = $this->getModule();
-		if (method_exists($Module, 'onProductAdded')){
-			$Module->onProductAdded($ProductManager);
-		}
-		//echo '</div>';
+	public function getValue(){
+		return $this->Module->getValue();
 	}
 
-	/**
-	 * @param OrderProductManager $ProductManager
-	 */
-	public function onProductUpdated(OrderProductManager &$ProductManager)
-	{
-		$Module = $this->getModule();
-		//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getTitle() . '<br>';
-		//echo '<div style="margin-left:15px">';
-		if (method_exists($Module, 'onProductUpdated')){
-			$Module->onProductUpdated($ProductManager);
-		}
-		//echo '</div>';
+	public function setValue($val){
+		$this->Module->setValue($val);
+	}
+
+	public function addToValue($val){
+		$this->Module->addToValue($val);
+	}
+
+	public function subtractFromValue($val){
+		$this->Module->subtractFromValue($val);
+	}
+
+	public function isEnabled(){
+		return $this->Module->isEnabled();
+	}
+
+	public function getTitle(){
+		return $this->Module->getTitle();
+	}
+
+	public function getText(){
+		return $this->Module->getText();
+	}
+
+	public function getCode(){
+		return $this->Module->getCode();
+	}
+
+	public function getDisplayOrder(){
+		return $this->Module->getDisplayOrder();
+	}
+
+	public function updateSale(Order &$Sale){
+		$this->Module->updateSale($Sale);
 	}
 
 	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)

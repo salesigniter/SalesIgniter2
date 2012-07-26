@@ -24,18 +24,61 @@ class OrderCreatorTotalManager extends OrderTotalManager
 	}
 
 	/**
+	 *
+	 */
+	public function loadModules()
+	{
+		$Paths = array();
+
+		if (is_dir(sysConfig::getDirFsCatalog() . 'clientData/extensions/orderCreator/admin/classes/Order/TotalManager/modules')){
+			$Paths[] = sysConfig::getDirFsCatalog() . 'clientData/extensions/orderCreator/admin/classes/Order/TotalManager/modules/';
+		}
+
+		$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions');
+		foreach($Dir as $dInfo){
+			if ($dInfo->isDot() || $dInfo->isFile()){
+				continue;
+			}
+
+			if (is_dir($dInfo->getPathname() . '/extensions/orderCreator/admin/classes/Order/TotalManager/modules')){
+				$Paths[] = $dInfo->getPathname() . '/extensions/orderCreator/admin/classes/Order/TotalManager/modules/';
+			}
+		}
+
+		$Paths[] = realpath(__DIR__) . '/modules/';
+
+		foreach($Paths as $Path){
+			$Dir = new DirectoryIterator($Path);
+			foreach($Dir as $dInfo){
+				if ($dInfo->isDot() || $dInfo->isFile() || in_array($dInfo->getBasename(), $this->loadedModules)){
+					continue;
+				}
+
+				if (file_exists($dInfo->getPathname() . '/module.php')){
+					require($dInfo->getPathname() . '/module.php');
+					$ClassName = 'OrderCreatorTotalModule' . ucfirst($dInfo->getBasename());
+
+					$TotalModule = new $ClassName();
+					$SaleTotal = $this->getTotalClass();
+					$SaleTotal->setModule($TotalModule);
+					if ($SaleTotal->isEnabled() === true){
+						$this->add($SaleTotal);
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Used from init method in OrderCreator class
 	 *
 	 * @param array $Totals
 	 */
 	public function loadSessionData(array $Totals)
 	{
-		$this->totals = array();
-		foreach($Totals as $tInfo){
-			$OrderTotal = $this->getTotalClass();
-			$OrderTotal->loadSessionData($tInfo);
-			//echo __FILE__ . '::' . __LINE__;print_r($OrderTotal);
-			$this->add($OrderTotal);
+		foreach($Totals as $TotalInfo){
+			$OrderTotal =& $this->get($TotalInfo['data']['module_code']);
+			$OrderTotal->loadSessionData($TotalInfo);
 		}
 	}
 
@@ -53,68 +96,6 @@ class OrderCreatorTotalManager extends OrderTotalManager
 			$Total->onSaveProgress($SaleTotal);
 
 			$SaleTotals->add($SaleTotal);
-		}
-	}
-
-	/**
-	 *
-	 */
-	public function updateFromPost()
-	{
-		global $currencies, $Editor;
-		foreach($_POST['order_total'] as $id => $tInfo){
-			$OrderTotal = $this->get($tInfo['type']);
-
-			$addTotal = false;
-			if (is_null($OrderTotal) === true){
-				$OrderTotal = new OrderCreatorTotal();
-				$OrderTotal->setModule($tInfo['type']);
-				$addTotal = true;
-			}
-
-			$value = $tInfo['value'];
-			if (substr($value, -3, 1) == ',' || substr($value, -5, 1) == ','){
-				$value = str_replace(',', '.', $value);
-				$value[strpos($value, '.')] = '';
-			}
-			else {
-				$value = str_replace(',', '', $value);
-			}
-
-			$OrderTotal->setSortOrder($tInfo['sort_order']);
-			$OrderTotal->setTitle($tInfo['title']);
-			$OrderTotal->setValue($value);
-			$OrderTotal->setText($currencies->format($value, true, $Editor->getCurrency(), $Editor->getCurrencyValue()));
-			$OrderTotal->setModule($tInfo['type']);
-			$OrderTotal->setMethod(null);
-
-			if ($addTotal === true){
-				$this->totals[$OrderTotal->getModule()] = $OrderTotal;
-			}
-
-			if ($tInfo['type'] == 'shipping'){
-				$shipModule = explode('_', $tInfo['title']);
-				$OrderTotal->setModule($shipModule[0]);
-				$OrderTotal->setMethod($shipModule[1]);
-
-				$Module = OrderShippingModules::getModule($shipModule[0]);
-				$Quote = $Module->quote($shipModule[1]);
-				$OrderTotal->setTitle($Quote['module'] . ' ( ' . $Quote['methods'][0]['title'] . ' ) ');
-				$Editor->setShippingModule($tInfo['title']);
-			}
-		}
-	}
-
-	/**
-	 * @param string $key
-	 * @param float  $amount
-	 */
-	public function addToTotal($key, $amount)
-	{
-		foreach($this->totals as $OrderTotal){
-			if ($OrderTotal->getModule() == $key){
-				$OrderTotal->setValue($OrderTotal->getValue() + $amount);
-			}
 		}
 	}
 }

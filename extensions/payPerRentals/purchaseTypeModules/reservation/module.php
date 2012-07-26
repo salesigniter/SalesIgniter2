@@ -1021,127 +1021,19 @@ class PurchaseType_reservation extends PurchaseTypeBase
 		}
 	}
 
-	public function onInsertOrderedProduct(ShoppingCartProduct $cartProduct, $orderId, OrdersProducts &$orderedProduct, &$products_ordered)
-	{
-		global $currencies, $onePageCheckout, $appExtension;
-		$resInfo = $cartProduct->getInfo('ReservationInfo');
-		$pID = (int)$cartProduct->getIdString();
-
-		if (!isset($resInfo['insurance'])){
-			$resInfo['insurance'] = 0;
-		}
-
-		$insurance = $resInfo['insurance'];
-		$eventName = '';
-		$eventDate = '';
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-			$eventName = $resInfo['event_name'];
-			$eventDate = $resInfo['event_date'];
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$eventGate = $resInfo['event_gate'];
-			}
-		}
-		else {
-			$eventName = '';
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$eventGate = '';
-			}
-			$eventDate = '0000-00-00 00:00:00';
-		}
-		$semesterName = $resInfo['semester_name'];
-		$terms = '<p>Terms and conditions:</p><br/>';
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
-			$infoPages = $appExtension->getExtension('infoPages');
-			$termInfoPage = $infoPages->getInfoPage('conditions');
-			$terms .= str_replace("\r", '', str_replace("\n", '', str_replace("\r\n", '', $termInfoPage['PagesDescription'][Session::get('languages_id')]['pages_html_text'])));
-			if (sysConfig::get('TERMS_INITIALS') == 'true' && Session::exists('agreed_terms')){
-				$terms .= '<br/>Initials: ' . Session::get('agreed_terms');
-			}
-		}
-
-		$trackMethod = $this->getTrackMethod();
-
-		$Reservations =& $orderedProduct->OrdersProductsReservation;
-		$rCount = 0;
-		$excludedBarcode = array();
-		$excludedQuantity = array();
-
-		for($count = 0; $count < $resInfo['quantity']; $count++){
-			$Reservations[$rCount]->start_date = $resInfo['start_date']->format(DATE_TIMESTAMP);
-			$Reservations[$rCount]->end_date = $resInfo['end_date']->format(DATE_TIMESTAMP);
-			$Reservations[$rCount]->insurance = $insurance;
-			$Reservations[$rCount]->event_name = $eventName;
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$Reservations[$rCount]->event_gate = $eventGate;
-			}
-			$Reservations[$rCount]->semester_name = $semesterName;
-			$Reservations[$rCount]->event_date = $eventDate;
-			$Reservations[$rCount]->track_method = $trackMethod;
-			$Reservations[$rCount]->rental_state = 'reserved';
-			if (isset($resInfo['shipping']['id']) && !empty($resInfo['shipping']['id'])){
-				$Reservations[$rCount]->shipping_method_title = $resInfo['shipping']['title'];
-				$Reservations[$rCount]->shipping_method = $resInfo['shipping']['id'];
-				$Reservations[$rCount]->shipping_days_before = $resInfo['shipping']['days_before'];
-				$Reservations[$rCount]->shipping_days_after = $resInfo['shipping']['days_after'];
-				$Reservations[$rCount]->shipping_cost = $resInfo['shipping']['cost'];
-			}
-
-			if ($trackMethod == 'barcode'){
-				$Reservations[$rCount]->barcode_id = $this->getAvailableSerial($cartProduct, $excludedBarcode);
-				$excludedBarcode[] = $Reservations[$rCount]->barcode_id;
-				$Reservations[$rCount]->ProductsInventoryBarcodes->status = 'R';
-			}
-			elseif ($trackMethod == 'quantity') {
-				$Reservations[$rCount]->quantity_id = $this->getAvailableQuantity($cartProduct, $excludedQuantity);
-				$excludedQuantity[] = $Reservations[$rCount]->quantity_id;
-				$Reservations[$rCount]->ProductsInventoryQuantity->available -= 1;
-				$Reservations[$rCount]->ProductsInventoryQuantity->reserved += 1;
-			}
-			EventManager::notify('ReservationOnInsertOrderedProduct', $Reservations[$rCount], &$cartProduct);
-			$rCount++;
-		}
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
-			if ($resInfo['semester_name'] == ''){
-				$products_ordered .= 'Reservation Info' .
-					"\n\t" . 'Start Date: ' . $resInfo['start_date']->format(sysLanguage::getDateFormat('long')) .
-					"\n\t" . 'End Date: ' . $resInfo['end_date']->format(sysLanguage::getDateFormat('long'));
-			}
-			else {
-				$products_ordered .= 'Reservation Info' .
-					"\n\t" . 'Semester Name: ' . $resInfo['semester_name'];
-				;
-			}
-		}
-		else {
-			$products_ordered .= 'Reservation Info' .
-				"\n\t" . 'Event Date: ' . $resInfo['event_date']->format(sysLanguage::getDateFormat('long')) .
-				"\n\t" . 'Event Name: ' . $resInfo['event_name'];
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$products_ordered .= "\n\t" . 'Event Gate: ' . $resInfo['event_gate'];
-			}
-		}
-
-		if (isset($resInfo['shipping']) && !empty($resInfo['shipping']['title'])){
-			$products_ordered .= "\n\t" . 'Shipping Method: ' . $resInfo['shipping']['title'] . ' (' . $currencies->format($resInfo['shipping']['cost']) . ')';
-		}
-		$products_ordered .= "\n\t" . 'Insurance: ' . $currencies->format($resInfo['insurance']);
-		$products_ordered .= "\n";
-		EventManager::notify('ReservationAppendOrderedProductsString', &$products_ordered, &$cartProduct);
-
-		$orderedProduct->Orders->terms = $terms;
-		$orderedProduct->purchase_type = $this->getCode();
-		$orderedProduct->save();
-	}
-
 	/*
 	 * Get Available Barcode Function
 	 */
 
-	public function getAvailableSerial($excluded = array(), $usableSerials = array())
+	public function getAvailableSerial(&$excluded, $usableSerials = array())
 	{
 		$barcodeID = -1;
 		$ReservationInfo = $this->pInfo;
-		//print_r($this);
+		//echo __FILE__ . '::' . __LINE__ . '::<pre>';print_r($this);
+
+		if (is_array($excluded) === false){
+			$excluded = array();
+		}
 
 		if ($barcodeID == -1){
 			/**
@@ -1180,107 +1072,66 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$endDate = $ReservationInfo['end_date']->modify('+' . $shippingDaysAfter . ' Day');
 
 			if (is_array($this->_invItems)){
-				$checkSerials = array();
-				if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials'])){
-					$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials']);
-				}
-				if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials'])){
-					$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials']);
-				}
-
-				/**
-				 * If there's no serials then we cannot check anything
-				 */
-				if (sizeof($checkSerials) == 0){
-					return -1;
-				}
-
-				foreach($checkSerials as $SerialNumber){
-					if (count($usableSerials) == 0 || in_array($SerialNumber, $usableBarcodes)){
-						if (is_array($excluded) && in_array($SerialNumber, $excluded)){
-							continue;
-						}
-
-						$bookingInfo = array(
-							'serial_number'    => $SerialNumber,
-							'start_date'       => $startDate,
-							'end_date'         => $endDate
-						);
-						if (Session::exists('isppr_inventory_pickup')){
-							$pickupCheck = Session::get('isppr_inventory_pickup');
-							if (!empty($pickupCheck)){
-								$bookingInfo['inventory_center_pickup'] = $pickupCheck;
-							}
-						}
-						$bookingInfo['quantity'] = 1;
-						//if allow overbooking is enabled what barcode should be chosen.. I think any is good.
-						$bookingCount = ReservationUtilities::CheckBooking($bookingInfo);
-						if ($bookingCount <= 0 || sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_STOCK') == 'True'){
+				$AvailableItems = $this->_invItems[$this->getConfigData('INVENTORY_STATUS_AVAILABLE')]['serials'];
+				if (sizeof($AvailableItems) > 0){
+					foreach($AvailableItems as $SerialNumber){
+						if (in_array($SerialNumber, $excluded) === false){
 							$barcodeID = $SerialNumber;
 							break;
 						}
 					}
 				}
-			}
-		}
-		return $barcodeID;
-	}
 
-	/*
-	 * Get Available Quantity Function
-	 */
+				if ($barcodeID == -1){
+					$checkSerials = array();
+					if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials'])){
+						$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_RESERVED')]['serials']);
+					}
+					if (isset($this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials'])){
+						$checkSerials = array_merge($checkSerials, $this->_invItems[$this->getConfigData('INVENTORY_STATUS_OUT')]['serials']);
+					}
 
-	public function getAvailableQuantity($cartProduct, $excluded)
-	{
-		if ($cartProduct->hasInfo('quantity_id') === false){
-			$resInfo = $cartProduct->getInfo('ReservationInfo');
-			if (isset($resInfo['shipping']['days_before'])){
-				$shippingDaysBefore = (int)$resInfo['shipping']['days_before'];
-			}
-			else {
-				$shippingDaysBefore = 0;
-			}
+					/**
+					 * If there's no serials then we cannot check anything
+					 */
+					if (sizeof($checkSerials) == 0){
+						return -1;
+					}
 
-			if (isset($resInfo['shipping']['days_after'])){
-				$shippingDaysAfter = (int)$resInfo['shipping']['days_after'];
-			}
-			else {
-				$shippingDaysAfter = 0;
-			}
+					foreach($checkSerials as $SerialNumber){
+						if (count($usableSerials) == 0 || in_array($SerialNumber, $usableBarcodes)){
+							if (is_array($excluded) && in_array($SerialNumber, $excluded)){
+								continue;
+							}
 
-			$startDate = $resInfo['start_date'];
-			$startDate->modify('-' . $shippingDaysBefore . ' Day');
-
-			$endDate = $resInfo['end_date'];
-			$endDate->modify('+' . $shippingDaysAfter . ' Day');
-			$qtyID = -1;
-			foreach($this->_invItems as $qInfo){
-				if (in_array($qInfo, $excluded)){
-					continue;
-				}
-				$bookingCount = ReservationUtilities::CheckBooking(array(
-					'item_type'   => 'quantity',
-					'item_id'     => $qInfo['id'],
-					'start_date'  => $startDate,
-					'end_date'    => $endDate,
-					'cartProduct' => $cartProduct
-				));
-				if ($bookingCount <= 0 || sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_STOCK') == 'True'){
-					$qtyID = $qInfo['id'];
-					break;
-				}
-				else {
-					if ($qInfo['available'] > $bookingCount){
-						$qtyID = $qInfo['id'];
-						break;
+							$bookingInfo = array(
+								'serial_number'    => $SerialNumber,
+								'start_date'       => $startDate,
+								'end_date'         => $endDate
+							);
+							if (Session::exists('isppr_inventory_pickup')){
+								$pickupCheck = Session::get('isppr_inventory_pickup');
+								if (!empty($pickupCheck)){
+									$bookingInfo['inventory_center_pickup'] = $pickupCheck;
+								}
+							}
+							$bookingInfo['quantity'] = 1;
+							//if allow overbooking is enabled what barcode should be chosen.. I think any is good.
+							$bookingCount = ReservationUtilities::CheckBooking($bookingInfo);
+							if ($bookingCount <= 0 || sysConfig::get('EXTENSION_PAY_PER_RENTALS_SHOW_STOCK') == 'True'){
+								$barcodeID = $SerialNumber;
+								break;
+							}
+						}
 					}
 				}
 			}
 		}
-		else {
-			$qtyID = $cartProduct->getInfo('quantity_id');
+
+		if ($barcodeID != -1){
+			$excluded[] = $barcodeID;
 		}
-		return $qtyID;
+		return $barcodeID;
 	}
 
 	public function getPurchaseHtml($key)
@@ -3902,11 +3753,11 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			$j = 0;
 			foreach($Prices as $Price){
 				$CurrentRow->addColumn($Price->number_of, 'v_' . $colNameAdd . '_time_period_number_of_' . $j);
-				$CurrentRow->addColumn($Price->PayPerRentalTypes->pay_per_rental_types_name, 'v_' . $colNameAdd . '_time_period_type_name_' . $j);
+				$CurrentRow->addColumn($Price->Type->pay_per_rental_types_name, 'v_' . $colNameAdd . '_time_period_type_name_' . $j);
 				$CurrentRow->addColumn($Price->price, 'v_' . $colNameAdd . '_time_period_price_' . $j);
 
 				foreach(sysLanguage::getLanguages() as $lInfo){
-					foreach($Price->PricePayPerRentalPerProductsDescription as $PriceDescription){
+					foreach($Price->Description as $PriceDescription){
 						if ($lInfo['id'] == $PriceDescription->language_id){
 							$CurrentRow->addColumn(
 								$PriceDescription->price_per_rental_per_products_name,
@@ -3944,176 +3795,6 @@ class PurchaseType_reservation extends PurchaseTypeBase
 			'Pay Per Rental Max Months:'          => $Product->ProductsPayPerRental->max_months,
 			'Pay Per Rental Overbooking Allowed:' => $Product->ProductsPayPerRental->overbooking,
 		));
-	}
-
-	public function hasEnoughInventory($Qty)
-	{
-		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
-		$return = true;
-		/**
-		 * If overbooking is allowed then there's no reason to check the inventory
-		 */
-		if ($this->getData('allow_overbooking') == 0){
-			/**
-			 * If there's enough available then no need to check the reserved/out statuses
-			 */
-			if ($this->_invItems[$this->getConfigData('INVENTORY_STATUS_AVAILABLE')]['total'] < $Qty){
-				/**
-				 * If it's not using serials then there's no need in checking
-				 */
-				if ($this->getData('use_serials') == 1){
-					$excluded = array();
-					for($i = 0; $i < $Qty; $i++){
-						$AvailableBarcode = $this->getAvailableSerial($ReservationInfo, $excluded);
-						if ($AvailableBarcode > -1){
-							$excluded[] = $AvailableBarcode;
-						}
-						else {
-							$return = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		return $return;
-	}
-
-	public function onSaveProgress(OrderProduct $OrderProduct, &$SaleProduct)
-	{
-		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
-		$resInfo = $OrderProduct->getInfo('ReservationInfo');
-		$infoPages = $appExtension->getExtension('infoPages');
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
-			$termInfoPage = $infoPages->getInfoPage('conditions');
-		}
-		for($i = 0; $i < $OrderProduct->getQuantity(); $i++){
-			$Reservation = $SaleProduct->Reservations
-				->getTable()
-				->getRecord();
-			$Reservation->start_date = $resInfo['start_date'];
-			$Reservation->end_date = $resInfo['end_date'];
-			$Reservation->insurance = (isset($resInfo['insurance']) ? $resInfo['insurance'] : 0);
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-				$Reservation->event_name = $resInfo['event_name'];
-				$Reservation->event_date = $resInfo['event_date'];
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-					$Reservation->event_gate = $resInfo['event_gate'];
-				}
-			}
-			$Reservation->semester_name = $resInfo['semester_name'];
-			$Reservation->rental_state = 'reserved';
-			if (isset($resInfo['shipping']['id']) && !empty($resInfo['shipping']['id'])){
-				$Reservation->shipping_method_title = $resInfo['shipping']['title'];
-				$Reservation->shipping_method = $resInfo['shipping']['id'];
-				$Reservation->shipping_days_before = $resInfo['shipping']['days_before'];
-				$Reservation->shipping_days_after = $resInfo['shipping']['days_after'];
-				$Reservation->shipping_cost = $resInfo['shipping']['cost'];
-			}
-
-			if (isset($termInfoPage)){
-				$Reservation->rental_terms = str_replace("\r", '', str_replace("\n", '', str_replace("\r\n", '', $termInfoPage['PagesDescription'][Session::get('languages_id')]['pages_html_text'])));
-				if (sysConfig::get('TERMS_INITIALS') == 'true' && Session::exists('agreed_terms')){
-					$Reservation->rental_terms .= '<br/>Initials: ' . Session::get('agreed_terms');
-				}
-			}
-
-			EventManager::notify('ReservationOnInsertOrderedProduct', $Reservation, $OrderProduct);
-			$SaleProduct->Reservations->add($Reservation);
-		}
-	}
-
-	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
-	{
-		global $appExtension, $_excludedBarcodes, $_excludedQuantities;
-
-		$resInfo = $OrderProduct->getInfo('ReservationInfo');
-		$infoPages = $appExtension->getExtension('infoPages');
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_SAVE_TERMS') == 'True'){
-			$termInfoPage = $infoPages->getInfoPage('conditions');
-		}
-		for($i = 0; $i < $OrderProduct->getQuantity(); $i++){
-			$Reservation = $SaleProduct->Reservations
-				->getTable()
-				->getRecord();
-			$Reservation->start_date = $resInfo['start_date'];
-			$Reservation->end_date = $resInfo['end_date'];
-			$Reservation->insurance = (isset($resInfo['insurance']) ? $resInfo['insurance'] : 0);
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-				$Reservation->event_name = $resInfo['event_name'];
-				$Reservation->event_date = $resInfo['event_date'];
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-					$Reservation->event_gate = $resInfo['event_gate'];
-				}
-			}
-			$Reservation->semester_name = $resInfo['semester_name'];
-			$Reservation->rental_state = 'reserved';
-			if (isset($resInfo['shipping']['id']) && !empty($resInfo['shipping']['id'])){
-				$Reservation->shipping_method_title = $resInfo['shipping']['title'];
-				$Reservation->shipping_method = $resInfo['shipping']['id'];
-				$Reservation->shipping_days_before = $resInfo['shipping']['days_before'];
-				$Reservation->shipping_days_after = $resInfo['shipping']['days_after'];
-				$Reservation->shipping_cost = $resInfo['shipping']['cost'];
-			}
-
-			if (isset($termInfoPage)){
-				$Reservation->rental_terms = str_replace("\r", '', str_replace("\n", '', str_replace("\r\n", '', $termInfoPage['PagesDescription'][Session::get('languages_id')]['pages_html_text'])));
-				if (sysConfig::get('TERMS_INITIALS') == 'true' && Session::exists('agreed_terms')){
-					$Reservation->rental_terms .= '<br/>Initials: ' . Session::get('agreed_terms');
-				}
-			}
-
-			EventManager::notify('ReservationOnInsertOrderedProduct', $Reservation, $OrderProduct);
-			$SaleProduct->Reservations->add($Reservation);
-
-			if ($AssignInventory === true){
-				$Inventory = $SaleProduct->Inventory
-					->getTable()
-					->getRecord();
-				if ($this->getData('use_serials') == 1){
-					$Inventory->barcode_id = $this->getAvailableSerial($OrderProduct, $_excludedBarcodes);
-					$Inventory->Barcode->status = 'R';
-					$_excludedBarcodes[] = $Inventory->barcode_id;
-				}
-				elseif ($trackMethod == 'quantity') {
-					$Inventory->quantity_id = $this->getAvailableQuantity($OrderProduct, $_excludedQuantities);
-					$Inventory->Quantity->available -= 1;
-					$Inventory->Quantity->reserved += 1;
-					$_excludedQuantities[] = $Inventory->quantity_id;
-				}
-				$SaleProduct->Inventory->add($Inventory);
-			}
-		}
-		/*
-		if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'False'){
-			if ($resInfo['semester_name'] == ''){
-				$products_ordered .= 'Reservation Info' .
-					"\n\t" . 'Start Date: ' . $resInfo['start_date']->format(sysLanguage::getDateFormat('long')) .
-					"\n\t" . 'End Date: ' . $resInfo['end_date']->format(sysLanguage::getDateFormat('long'));
-			}
-			else {
-				$products_ordered .= 'Reservation Info' .
-					"\n\t" . 'Semester Name: ' . $resInfo['semester_name'];
-				;
-			}
-		}
-		else {
-			$products_ordered .= 'Reservation Info' .
-				"\n\t" . 'Event Date: ' . $resInfo['event_date']->format(sysLanguage::getDateFormat('long')) .
-				"\n\t" . 'Event Name: ' . $resInfo['event_name'];
-			if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-				$products_ordered .= "\n\t" . 'Event Gate: ' . $resInfo['event_gate'];
-			}
-		}
-
-		if (isset($resInfo['shipping']) && !empty($resInfo['shipping']['title'])){
-			$products_ordered .= "\n\t" . 'Shipping Method: ' . $resInfo['shipping']['title'] . ' (' . $currencies->format($resInfo['shipping']['cost']) . ')';
-		}
-		$products_ordered .= "\n\t" . 'Insurance: ' . $currencies->format($resInfo['insurance']);
-		$products_ordered .= "\n";
-		EventManager::notify('ReservationAppendOrderedProductsString', &$products_ordered, &$cartProduct);
-		*/
 	}
 }
 

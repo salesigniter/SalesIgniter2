@@ -29,13 +29,13 @@ foreach(OrderTotalModules::getModules() as $Module){
 }
 $totalTypes['custom'] = 'Custom';
 
+$Editor->TotalManager->updateSale($Editor);
 foreach($Editor->TotalManager->getAll() as $orderTotal){
-	$TotalModule = $orderTotal->getModule();
-
 	$editable = $orderTotal->isEditable();
-	$totalTitle = $TotalModule->getTitle();
-	$totalCode = $TotalModule->getCode();
-	$totalValue = $TotalModule->getValue();
+	$totalTitle = $orderTotal->getTitle();
+	$totalCode = $orderTotal->getCode();
+	$totalValue = $orderTotal->getValue();
+	$totalText = $orderTotal->getText();
 
 	if ($editable === true){
 		$totalCode = htmlBase::newSelectbox()
@@ -85,7 +85,7 @@ foreach($Editor->TotalManager->getAll() as $orderTotal){
 		),
 		'columns' => array(
 			array('attr' => array('data-which' => 'title'), 'text' => $totalTitle),
-			array('attr' => array('data-which' => 'value'), 'align' => 'right', 'text' => sysCurrency::format($totalValue))
+			array('attr' => array('data-which' => 'value'), 'align' => 'right', 'text' => $totalText)
 		)
 	));
 	$count++;

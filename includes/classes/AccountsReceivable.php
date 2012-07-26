@@ -24,9 +24,21 @@ class AccountsReceivable
 
 	/**
 	 * @static
-	 * @param $SaleId
-	 * @param $SaleType
-	 * @param int $Revision
+	 * @param      $SaleType
+	 * @param      $SaleId
+	 * @param null $Revision
+	 * @return mixed
+	 */
+	public static function getSalesQuery($SaleType, $SaleId, $Revision = null){
+		$Module = AccountsReceivableModules::getModule($SaleType);
+		return $Module->getSalesQuery($SaleId, $Revision);
+	}
+
+	/**
+	 * @static
+	 * @param      $SaleType
+	 * @param      $SaleId
+	 * @param null $Revision
 	 * @return Order
 	 */
 	public static function getSale($SaleType, $SaleId, $Revision = null){

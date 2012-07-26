@@ -13,18 +13,54 @@ class OrderProduct
 {
 
 	/**
-	 * @var array|null
+	 * @var int
 	 */
-	protected $pInfo = array(
-		'products_id'           => 0,
-		'products_tax'          => 0,
-		'products_tax_class_id' => 0,
-		'products_quantity'     => 0,
-		'products_model'        => '',
-		'products_name'         => '',
-		'products_weight'       => 0,
-		'products_type'         => ''
-	);
+	protected $id = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $products_id = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $products_tax = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $products_tax_class_id = 0;
+
+	/**
+	 * @var float
+	 */
+	protected $products_price = 0.0000;
+
+	/**
+	 * @var int
+	 */
+	protected $products_quantity = 0;
+
+	/**
+	 * @var string
+	 */
+	protected $products_model = '';
+
+	/**
+	 * @var string
+	 */
+	protected $products_name = '';
+
+	/**
+	 * @var int
+	 */
+	protected $products_weight = 0;
+
+	/**
+	 * @var string
+	 */
+	protected $products_type = '';
 
 	/**
 	 * @var array
@@ -32,19 +68,19 @@ class OrderProduct
 	protected $inventory = array();
 
 	/**
-	 * @var int
-	 */
-	protected $id = 0;
-
-	/**
 	 * @var ProductTypeBase
 	 */
 	protected $ProductTypeClass;
 
 	/**
-	 * @param array|null $pInfo
+	 * @var array|null
 	 */
-	public function __construct(array $pInfo = null)
+	protected $extraInfo = array();
+
+	/**
+	 *
+	 */
+	public function __construct()
 	{
 		$this->regenerateId();
 	}
@@ -54,49 +90,32 @@ class OrderProduct
 		$Product = Doctrine_Core::getTable('Products')
 			->find((int)$productId);
 
-		if ($this->pInfo['products_id'] == 0){
-			$this->pInfo['products_id'] = (int)$Product->products_id;
-		}
-		if ($this->pInfo['products_tax'] == 0){
-			$this->pInfo['products_tax'] = 0;
-		}
-		if ($this->pInfo['products_tax_class_id'] == 0){
-			$this->pInfo['products_tax_class_id'] = (int)$Product->products_tax_class_id;
-		}
-		if ($this->pInfo['products_quantity'] == 0){
-			$this->pInfo['products_quantity'] = (int)0;
-		}
-		if ($this->pInfo['products_model'] == ''){
-			$this->pInfo['products_model'] = $Product->products_model;
-		}
-		if ($this->pInfo['products_name'] == ''){
-			$this->pInfo['products_name'] = $Product->ProductsDescription[Session::get('languages_id')]->products_name;
-		}
-		if ($this->pInfo['products_weight'] == ''){
-			$this->pInfo['products_weight'] = (int)$Product->products_weight;
-		}
-		if ($this->pInfo['products_type'] == ''){
-			$this->pInfo['products_type'] = $Product->products_type;
-		}
+		$this->products_id = (int)$Product->products_id;
+		$this->products_tax = 0;
+		$this->products_tax_class_id = (int)$Product->products_tax_class_id;
+		$this->products_quantity = 0;
+		$this->products_model = $Product->products_model;
+		$this->products_name = $Product->ProductsDescription[sysLanguage::getId()]->products_name;
+		$this->products_weight = (int)$Product->products_weight;
+		$this->products_type = $Product->products_type;
 	}
 
 	public function loadProductType()
 	{
-		$ProductType = $this->pInfo['products_type'];
 		ProductTypeModules::$classPrefix = 'OrderProductType';
 		$isLoaded = ProductTypeModules::loadModule(
-			$ProductType,
-			sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/ProductTypeModules/' . $ProductType . '/'
+			$this->products_type,
+			sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/ProductTypeModules/' . $this->products_type . '/'
 		);
 		if ($isLoaded === true){
-			$this->ProductTypeClass = ProductTypeModules::getModule($ProductType);
+			$this->ProductTypeClass = ProductTypeModules::getModule($this->products_type);
 			if ($this->ProductTypeClass === false){
 				echo '<pre>';
 				debug_print_backtrace();
 				echo '</pre>';
-				die('Error loading product type: ' . $ProductType);
+				die('Error loading product type: ' . $this->products_type);
 			}
-			$this->ProductTypeClass->setProductId($this->pInfo['products_id']);
+			$this->ProductTypeClass->setProductId($this->products_id);
 		}
 	}
 
@@ -129,7 +148,7 @@ class OrderProduct
 	 */
 	public function getProductsId()
 	{
-		return (int)$this->pInfo['products_id'];
+		return (int)$this->products_id;
 	}
 
 	/**
@@ -137,7 +156,7 @@ class OrderProduct
 	 */
 	public function getTaxRate()
 	{
-		return (float)$this->pInfo['products_tax'];
+		return $this->products_tax;
 	}
 
 	/**
@@ -145,14 +164,7 @@ class OrderProduct
 	 */
 	public function getTaxClassId()
 	{
-		$ProductType = $this->getProductTypeClass();
-		if (method_exists($ProductType, 'getTaxClassId')){
-			$return = $ProductType->getTaxClassId();
-		}
-		else {
-			$return = $this->pInfo['products_tax_class_id'];
-		}
-		return (int)$return;
+		return (int)$this->products_tax_class_id;
 	}
 
 	/**
@@ -160,7 +172,7 @@ class OrderProduct
 	 */
 	public function getQuantity()
 	{
-		return (int)$this->pInfo['products_quantity'];
+		return (int)$this->products_quantity;
 	}
 
 	/**
@@ -168,7 +180,7 @@ class OrderProduct
 	 */
 	public function getModel()
 	{
-		return (string)$this->pInfo['products_model'];
+		return (string)$this->products_model;
 	}
 
 	/**
@@ -176,7 +188,7 @@ class OrderProduct
 	 */
 	public function getName()
 	{
-		return (string)$this->pInfo['products_name'];
+		return (string)$this->products_name;
 	}
 
 	/**
@@ -192,7 +204,7 @@ class OrderProduct
 	 */
 	public function hasBarcodes()
 	{
-		return (isset($this->pInfo['Barcodes']));
+		return (isset($this->extraInfo['Barcodes']));
 	}
 
 	/**
@@ -223,7 +235,7 @@ class OrderProduct
 
 		$ProductType = $this->getProductTypeClass();
 		if (method_exists($ProductType, 'getOrderedProductBarcodes')){
-			$barcode = $ProductType->getOrderedProductBarcodes($this->pInfo);
+			$barcode = $ProductType->getOrderedProductBarcodes($this->extraInfo);
 		}
 		return (string)$barcode;
 	}
@@ -233,29 +245,16 @@ class OrderProduct
 	 * @param bool $wTax
 	 * @return float
 	 */
-	public function getFinalPrice($wQty = false, $wTax = false)
+	public function getPrice($wQty = false, $wTax = false)
 	{
-		$price = $this->pInfo['final_price'];
+		$price = $this->products_price;
 		if ($wQty === true){
 			$price *= $this->getQuantity();
 		}
 
 		if ($wTax === true){
-			$price = tep_add_tax($price, $this->getTaxRate());
-		}
-		return (float)$price;
-	}
-
-	/**
-	 * @param bool $wTax
-	 * @return float
-	 */
-	public function getPrice($wTax = false)
-	{
-		$price = $this->pInfo['products_price'];
-
-		if ($wTax === true){
-			$price = tep_add_tax($price, $this->getTaxRate());
+			$Tax = $price * $this->getTaxRate() / 100;
+			$price += $Tax;
 		}
 		return (float)$price;
 	}
@@ -265,26 +264,7 @@ class OrderProduct
 	 */
 	public function getWeight()
 	{
-		return (float)($this->pInfo['products_weight'] * $this->getQuantity());
-	}
-
-	/**
-	 * @return array
-	 */
-	private function getTaxAddressInfo()
-	{
-		global $order, $userAccount;
-		$zoneId = null;
-		$countryId = null;
-		if (is_object($order)){
-			$taxAddress = $userAccount->plugins['addressBook']->getAddress($order->taxAddress);
-			$zoneId = $taxAddress['entry_zone_id'];
-			$countryId = $taxAddress['entry_country_id'];
-		}
-		return array(
-			'zoneId'    => $zoneId,
-			'countryId' => $countryId
-		);
+		return (float)($this->products_weight * $this->getQuantity());
 	}
 
 	/**
@@ -321,7 +301,7 @@ class OrderProduct
 	 */
 	public function hasInfo($key)
 	{
-		return (isset($this->pInfo[$key]));
+		return (isset($this->extraInfo[$key]));
 	}
 
 	/**
@@ -331,11 +311,11 @@ class OrderProduct
 	public function getInfo($key = null)
 	{
 		if (is_null($key)){
-			return $this->pInfo;
+			return $this->extraInfo;
 		}
 		else {
-			if (isset($this->pInfo[$key])){
-				return $this->pInfo[$key];
+			if (isset($this->extraInfo[$key])){
+				return $this->extraInfo[$key];
 			}
 			else {
 				return null;
@@ -351,8 +331,9 @@ class OrderProduct
 	{
 		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
 		$return = true;
-		if (method_exists($this->ProductTypeClass, 'hasEnoughInventory')){
-			$return = $this->ProductTypeClass->hasEnoughInventory($Qty);
+		$ProductType = $this->getProductTypeClass();
+		if (method_exists($ProductType, 'hasEnoughInventory')){
+			$return = $ProductType->hasEnoughInventory($Qty);
 		}
 		return $return;
 	}
@@ -368,9 +349,24 @@ class OrderProduct
 	 */
 	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
 	{
-		if (method_exists($this->ProductTypeClass, 'onSaveSale')){
-			//echo __FILE__ . '::' . __LINE__ . '<br>';
-			$this->ProductTypeClass->onSaveSale($SaleProduct, $AssignInventory);
+		$ProductType = $this->getProductTypeClass();
+
+		/**
+		 * This is only for core fields, all possible module/extension fields should
+		 * either be in their own table or in the provided product_json array
+		 */
+		$SaleProduct->product_id = $this->getProductsId();
+		$SaleProduct->products_model = $this->getModel();
+		$SaleProduct->products_name = $this->getName();
+		$SaleProduct->products_price = $this->getFinalPrice();
+		$SaleProduct->products_tax = $this->getTaxRate();
+		$SaleProduct->products_tax_class_id = $this->getTaxClassId();
+		$SaleProduct->products_quantity = $this->getQuantity();
+		$SaleProduct->products_weight = $this->getWeight();
+		$SaleProduct->products_type = $ProductType->getCode();
+
+		if (method_exists($ProductType, 'onSaveSale')){
+			$ProductType->onSaveSale($this, $SaleProduct, $AssignInventory);
 		}
 
 		$SaleProduct->product_json = $this->prepareSave();
@@ -382,8 +378,19 @@ class OrderProduct
 	public function prepareSave()
 	{
 		$toEncode = array(
-			'id'    => $this->id,
-			'pInfo' => $this->pInfo
+			'id'                    => $this->id,
+			'product_id'            => $this->getProductsId(),
+			'products_model'        => $this->getModel(),
+			'products_name'         => $this->getName(),
+			'products_price'        => $this->getPrice(),
+			'products_tax'          => $this->getTaxRate(),
+			'products_tax_class_id' => $this->getTaxClassId(),
+			'products_quantity'     => $this->getQuantity(),
+			'products_weight'       => $this->getWeight(),
+			'products_type'         => $this
+				->getProductTypeClass()
+				->getCode(),
+			'extra_info'            => $this->extraInfo
 		);
 
 		$ProductTypeClass = $this->getProductTypeClass();
@@ -403,38 +410,46 @@ class OrderProduct
 	 */
 	public function loadDatabaseData($Product)
 	{
+		$this->id = $Product->id;
+		$this->product_id = $Product->product_id;
+		$this->products_model = $Product->products_model;
+		$this->products_name = $Product->products_name;
+		$this->products_price = $Product->products_price;
+		$this->products_tax = $Product->products_tax;
+		$this->products_tax_class_id = $Product->products_tax_class_id;
+		$this->products_quantity = $Product->products_quantity;
+		$this->products_weight = $Product->products_weight;
+		$this->products_type = $Product->products_type;
+
 		if (is_array($Product->product_json) && empty($Product->product_json) === false){
-			$this->id = $Product->product_json['id'];
-			$this->pInfo = $Product->product_json['pInfo'];
+			$this->extraInfo = $Product->product_json;
 
 			/**
 			 * @TODO: Temporary until i can make things come from the right places
 			 */
-			if (isset($this->pInfo['ReservationInfo'])){
-				$this->pInfo['ReservationInfo']['start_date'] = SesDateTime::createFromArray($this->pInfo['ReservationInfo']['start_date']);
-				$this->pInfo['ReservationInfo']['end_date'] = SesDateTime::createFromArray($this->pInfo['ReservationInfo']['end_date']);
+			if (isset($this->extraInfo['ReservationInfo'])){
+				$this->extraInfo['ReservationInfo']['start_date'] = SesDateTime::createFromArray($this->extraInfo['ReservationInfo']['start_date']);
+				$this->extraInfo['ReservationInfo']['end_date'] = SesDateTime::createFromArray($this->extraInfo['ReservationInfo']['end_date']);
 			}
 
-			$this->inventory = array();
+			/*$this->inventory = array();
 			if ($Product->hasRelation('SaleInventory') && $Product->SaleInventory->count() > 0){
 				foreach($Product->SaleInventory as $Inventory){
-					if ($Inventory->barcode_id > 0){
-						$BarcodeInfo = $Inventory->Barcode;
+					if ($Inventory->serial_number != ''){
+						$BarcodeInfo = $Inventory->Serial;
 						$this->inventory[] = array(
-							'barcode_id' => $BarcodeInfo->barcode_id,
-							'barcode'    => $BarcodeInfo->barcode,
-							'status'     => $BarcodeInfo->status
+							'serial_number' => $BarcodeInfo->serial_number
 						);
 					}
 				}
-			}
+			}*/
 
 			//echo __FILE__ . '::' . __LINE__ . '<pre>';print_r($this->inventory);
 
-			$this->loadProductBaseInfo($this->pInfo['products_id']);
+			//$this->loadProductBaseInfo($this->products_id);
 			$this->loadProductType();
 			if (method_exists($this->ProductTypeClass, 'loadDatabaseData')){
-				$this->ProductTypeClass->loadDatabaseData($Product, $Product->product_json['ProductTypeJson']);
+				$this->ProductTypeClass->loadDatabaseData($Product, $this->extraInfo['ProductTypeJson']);
 			}
 		}
 	}

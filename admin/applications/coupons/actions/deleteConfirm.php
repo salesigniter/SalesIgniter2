@@ -1,5 +1,5 @@
 <?php
-$Coupon = Doctrine_Core::getTable('Coupons')->find((int)$_GET['cID']);
+$Coupon = Doctrine_Core::getTable('Coupons')->find((int)$_GET['coupon_id']);
 $success = false;
 if ($Coupon){
 	$Coupon->delete();
@@ -9,4 +9,3 @@ if ($Coupon){
 EventManager::attachActionResponse(array(
 	'success' => $success
 ), 'json');
-?>

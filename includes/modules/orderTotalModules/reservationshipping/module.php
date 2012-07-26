@@ -17,7 +17,7 @@ class OrderTotalReservationshipping extends OrderTotalModuleBase {
 
 	}
 
-	public function process(array &$outputData) {
+	/*public function process(array &$outputData) {
 		global $order, $appExtension, $userAccount, $onePageCheckout;
 
 		if ($this->allowReservationShipping == 'True' && isset($onePageCheckout->onePage['info']['reservationshipping']['id'])) {
@@ -29,6 +29,6 @@ class OrderTotalReservationshipping extends OrderTotalModuleBase {
 				$outputData['value'] = $onePageCheckout->onePage['info']['reservationshipping']['cost'];
 			}
 		}
-	}
+	}*/
 }
 ?>

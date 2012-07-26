@@ -942,11 +942,11 @@ function tep_mail($to_name, $to_email_address, $email_subject, $email_text, $fro
 
 	// Build the text version
 	$text = strip_tags($email_text);
-	if (sysConfig::get('EMAIL_USE_HTML') == 'true') {
+	//if (sysConfig::get('EMAIL_USE_HTML') == 'true') {
 		$message->add_html($email_text, $text);
-	} else {
-		$message->add_text($text);
-	}
+	//} else {
+	//	$message->add_text($text);
+	//}
 	if(!empty($attachments)){
 		if(!is_array($attachments)){
 			$attachment = fread(fopen(sysConfig::getDirFsCatalog().$attachments, "r"), filesize(sysConfig::getDirFsCatalog() . $attachments));

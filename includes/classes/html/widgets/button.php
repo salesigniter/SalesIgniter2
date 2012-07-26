@@ -238,6 +238,10 @@ class htmlWidget_button implements htmlWidgetPlugin
 				$this->setIcon('transferthick-e-w')
 					->setText('Convert');
 				break;
+			case 'report':
+				$this->setIcon('report')
+					->setText('Report');
+				break;
 		}
 		return $this;
 	}

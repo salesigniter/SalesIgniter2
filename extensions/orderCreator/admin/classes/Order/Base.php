@@ -69,34 +69,9 @@ class OrderCreator extends Order implements Serializable
 			$this->InfoManager->setInfo('status', 1);
 			$this->InfoManager->setInfo('currency', Session::get('currency'));
 			$this->InfoManager->setInfo('currency_value', Session::get('currency_value'));
-
-			if ($this->TotalManager->has('subtotal') === false){
-				$SubTotal = $this->TotalManager->getTotalClass();
-				$SubTotal->setModule('subtotal', array(
-					'display_order' => 1,
-					'value'         => 0
-				));
-				$this->TotalManager->add($SubTotal);
-			}
-
-			if ($this->TotalManager->has('tax') === false){
-				$Tax = $this->TotalManager->getTotalClass();
-				$Tax->setModule('tax', array(
-					'display_order' => 2,
-					'value'         => 0
-				));
-				$this->TotalManager->add($Tax);
-			}
-
-			if ($this->TotalManager->has('total') === false){
-				$Total = $this->TotalManager->getTotalClass();
-				$Total->setModule('total', array(
-					'display_order' => 3,
-					'value'         => 0
-				));
-				$this->TotalManager->add($Total);
-			}
 		}
+
+		$this->TotalManager->updateSale($this);
 
 		$this->errorMessages = array();
 
@@ -214,12 +189,27 @@ class OrderCreator extends Order implements Serializable
 		$OrderProduct->setProductId($ProductId);
 		$OrderProduct->setQuantity($Quantity);
 
+		$TaxAddress = $this->AddressManager->getAddress('billing');
+		if ($TaxAddress === null){
+			$TaxAddress = $this->AddressManager->getAddress('delivery');
+			if ($TaxAddress === null){
+				$TaxAddress = $this->AddressManager->getAddress('customer');
+			}
+		}
+
 		$Success = $this->ProductManager->add($OrderProduct);
 		if ($Success === false){
 			$this->addErrorMessage('Unable to add product to order!');
 		}
 		else {
-			$this->TotalManager->onProductAdded($this->ProductManager);
+			$OrderProduct->setTaxRate(tep_get_tax_rate(
+				$OrderProduct->getTaxClassId(),
+				($TaxAddress !== null ? $TaxAddress->getCountryId() : sysConfig::get('STORE_COUNTRY')),
+				($TaxAddress !== null ? $TaxAddress->getZoneId() : sysConfig::get('STORE_ZONE'))
+			));
+			//echo '<pre>';print_r($OrderProduct);itwExit();
+
+			$this->TotalManager->updateSale($this);
 		}
 		return $OrderProduct;
 	}

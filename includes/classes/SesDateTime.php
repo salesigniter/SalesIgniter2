@@ -21,7 +21,7 @@ class SesDateTime extends DateTime
 	public function format($format)
 	{
 		if ($this->getTimestamp() <= 0){
-			$return = 'Not Set';
+			$return = '';
 		}
 		else {
 			$return = parent::format($format);

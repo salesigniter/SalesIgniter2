@@ -527,6 +527,9 @@ class Extension
 		return $this->resources[$name];
 	}
 
+	/**
+	 * @return ExtensionBase[]
+	 */
 	public function getExtensions() {
 		return $this->extensions;
 	}

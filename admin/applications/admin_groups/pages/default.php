@@ -36,10 +36,9 @@ if ($Groups){
 		));
 	}
 }
+
+echo $TableGrid->draw();
 ?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $TableGrid->draw();?></div>
-</div>
 <div id="appTips" title="Did You Know?">
 	<ul>
 		<li>You can hold the ctrl button down to select multiple groups</li>

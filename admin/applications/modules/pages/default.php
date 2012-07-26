@@ -43,7 +43,23 @@ foreach($moduleDirs as $dirName){
 	}
 }
 
-ksort($modules);
+usort($modules, function ($a, $b){
+	if (method_exists($a, 'getDisplayOrder')){
+		if ($a->getDisplayOrder() == 0 && $b->getDisplayOrder() > 0){
+			if ($a->isEnabled() === false){
+				return 1;
+			}
+		}
+		elseif ($a->getDisplayOrder() > 0 && $b->getDisplayOrder() == 0){
+			if ($b->isEnabled() === false){
+				return -1;
+			}
+		}
+		return ($a->getDisplayOrder() > $b->getDisplayOrder() ? 1 : -1);
+	}else{
+		return ($a->getCode() > $b->getCode() ? 1 : -1);
+	}
+});
 
 $gridRows = array();
 $infoBoxes = array();
@@ -77,7 +93,7 @@ foreach($modules as $moduleCode => $moduleCls){
 			array('text' => $moduleCls->getTitle()),
 			array(
 				'align' => 'center',
-				'text'  => ($moduleCls->imported('SortedDisplay') ? $moduleCls->getDisplayOrder() : '')
+				'text'  => (method_exists($moduleCls, 'getDisplayOrder') ? $moduleCls->getDisplayOrder() : '')
 			),
 			array(
 				'align' => 'center',
@@ -108,7 +124,5 @@ foreach($modules as $moduleCode => $moduleCls){
 		)
 	));
 }
-?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin:5px;">
-	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-</div>
+
+echo $tableGrid->draw();

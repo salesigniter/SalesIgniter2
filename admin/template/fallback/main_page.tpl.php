@@ -157,7 +157,7 @@ if (Session::exists('login_id') === true){
 				<span class="ui-icon ui-icon-required"></span><a href="<?php echo itw_app_link('action=landing&box=configuration', 'index', 'default');?>">Configuration</a>
 			</li>
 			<li data-load_ajax="true">
-				<span class="ui-icon ui-icon-required"></span><a href="<?php echo itw_app_link('action=landing&box=accounting', 'index', 'default');?>">Accounting</a>
+				<span class="ui-icon ui-icon-accounting"></span><a href="<?php echo itw_app_link('action=landing&box=accounting', 'index', 'default');?>">Accounting</a>
 			</li>
 			<li data-load_ajax="true">
 				<span class="ui-icon ui-icon-calendar"></span><a href="<?php echo itw_app_link('action=landing&box=catalog', 'index', 'default');?>">Catalog</a>
@@ -178,7 +178,7 @@ if (Session::exists('login_id') === true){
 				<span class="ui-icon ui-icon-wrench"></span><a href="<?php echo itw_app_link('action=landing&box=tools', 'index', 'default');?>">Tools</a>
 			</li>
 			<li data-load_ajax="true">
-				<span class="ui-icon ui-icon-print"></span><a href="<?php echo itw_app_link('action=landing&box=marketing', 'index', 'default');?>">Reports</a>
+				<span class="ui-icon ui-icon-report"></span><a href="<?php echo itw_app_link('action=landing&box=marketing', 'index', 'default');?>">Reports</a>
 			</li>
 			<li>
 				<span class="ui-icon ui-icon-transferthick-e-w"></span><a href="<?php echo itw_app_link(null, 'data_manager', 'default');?>">Data Import/Export</a>

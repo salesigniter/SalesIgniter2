@@ -364,6 +364,7 @@ $(document).ready(function () {
 				disableIfNone     : false,
 				disableIfMultiple : false,
 				click             : function (e, GridClass) {
+					var StatusesJson = $.parseJSON(urldecode(Grid.data('available_statuses')));
 					GridClass.showConfirmDialog({
 						title             : 'Enter Serial Number',
 						content           : 'How Many: <input type="text" name="gen_total"><br><input type="checkbox" name="addToTotal">Add To Total Available',
@@ -380,25 +381,41 @@ $(document).ready(function () {
 									inputName += '[' + $(GridClass.element).data('purchase_type') + ']';
 								}
 
-								var AvailInput = $(GridClass.element)
+								var StatusTotalInput = $(GridClass.element)
 									.parentsUntil('.ui-tabs-panel')
 									.last()
-									.find('.availableQuantity');
+									.find('.inventoryQuantity_' + $(GridClass.element).data('default_status'));
 
-								var totalAvail = parseInt(AvailInput.val());
+								var totalAvail = parseInt(StatusTotalInput.val());
 
 								$.each(data.serials, function (){
 									totalAvail++;
+									var serial = this;
+
+									var SelectBox = $('<select></select>')
+										.addClass('serialNumberStatus')
+										.attr('name', inputName + '[status][]')
+										.data('previous_status', $(GridClass.element).data('default_status'));
+									$.each(StatusesJson, function (){
+										var NewOption = $('<option></option>')
+											.attr('value', this.id)
+											.append(this.text);
+										if (serial.status_name == this.text){
+											NewOption.attr('selected', 'selected');
+										}
+										SelectBox.append(NewOption);
+									});
+
 									GridClass.addBodyRow({
 										columns: [
-											{ text: '<input type="hidden" name="' + inputName + '[number][]" value="' + this.serial_number + '">' + this.serial_number },
-											{ text: this.status_name }
+											{ align: 'center', text: '<input type="hidden" name="' + inputName + '[number][]" value="' + serial.serial_number + '">' + serial.serial_number },
+											{ align: 'center', text: SelectBox }
 										]
 									});
 								});
 
 								if (addToTotal){
-									AvailInput.val(totalAvail);
+									StatusTotalInput.val(totalAvail);
 								}
 								$(self).dialog('close').remove();
 							}, 'json');
@@ -418,6 +435,23 @@ $(document).ready(function () {
 				}
 			}
 		]);
+
+		$(this).on('change', '.serialNumberStatus', function (){
+			var QuantityGrid = $(this).parentsUntil('.ui-tabs-panel').last().find('.quantityGrid');
+
+			var NewStatusId = $(this).val();
+			var OldStatusId = $(this).data('previous_status');
+
+			var OldStatusInput = QuantityGrid.find('.inventoryQuantity_' + OldStatusId);
+			var NewStatusInput = QuantityGrid.find('.inventoryQuantity_' + NewStatusId);
+
+			var OldStatusVal = parseInt(OldStatusInput.val());
+			var NewStatusVal = parseInt(NewStatusInput.val());
+
+			OldStatusInput.val(OldStatusVal - 1);
+			NewStatusInput.val(NewStatusVal + 1);
+			$(this).data('previous_status', NewStatusId);
+		});
 	});
 
 	$('.addBarcode').live('click', function () {

@@ -68,7 +68,9 @@ class OrderTotalModuleBase extends ModuleBase
 	 */
 	public function process(array &$outputData)
 	{
-		die('Process function not overwritten.');
+		$outputData['title'] = $this->getTitle() . ':';
+		$outputData['text'] = $this->getText();
+		$outputData['value'] = $this->getValue();
 	}
 
 	/**
@@ -87,11 +89,33 @@ class OrderTotalModuleBase extends ModuleBase
 		$this->data['value'] = $val;
 	}
 
+	/**
+	 * @param $val
+	 */
+	public function addToValue($val)
+	{
+		$this->data['value'] += $val;
+	}
+
+	/**
+	 * @param $val
+	 */
+	public function subtractFromValue($val)
+	{
+		$this->data['value'] -= $val;
+	}
+
+	/**
+	 * @param $val
+	 */
 	public function setDisplayOrder($val)
 	{
 		$this->data['display_order'] = $val;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function getDisplayOrder()
 	{
 		return $this->data['display_order'];
@@ -100,11 +124,22 @@ class OrderTotalModuleBase extends ModuleBase
 	/**
 	 *
 	 */
-	public function getText()
+	public function setText($val)
 	{
-		die(__FUNCTION__ . ' not overwritten.');
+		$this->data['text'] = $val;
 	}
 
+	/**
+	 *
+	 */
+	public function getText()
+	{
+		return $this->data['text'];
+	}
+
+	/**
+	 * @return array|null
+	 */
 	public function prepareSave()
 	{
 		return $this->data;

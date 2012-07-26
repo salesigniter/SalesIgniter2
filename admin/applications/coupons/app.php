@@ -11,3 +11,4 @@
  * This script and its source are not distributable without the written consent of I.T. Web Experts
  */
 
+sysLanguage::set('PAGE_TITLE', sysLanguage::get('HEADING_TITLE'));

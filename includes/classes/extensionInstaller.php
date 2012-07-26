@@ -234,59 +234,15 @@ class extensionInstaller {
 	}
 
 	/**
-	 * Parses the xml data to add configuration entries
-	 * @param SimpleXMLElement $data Xml data containing the configuration data
-	 * @return ConfigurationGroup DoctrineCollection
-	 */
-	public function addConfigurationGroupFromXml($data){
-		$Group = new ConfigurationGroup();
-		$Group->configuration_group_title = (string) $data->title;
-		$Group->configuration_group_key = (string) $data->key;
-		$Group->configuration_group_description = (string) $data->description;
-		$Group->visible = '0';
-		$Group->save();
-		return $Group;
-	}
-
-	/**
 	 * Removes a configuration group and all its configuration entries
 	 * @param string $groupKey Configuration group name to remove
 	 * @return void
 	 */
-	public function removeConfigurationGroupFromXml($groupKey){
+	public function removeConfigurationFromXml($groupKey){
 		Doctrine_Query::create()
-		->delete('ConfigurationGroup')
+		->delete('Configuration')
 		->where('configuration_group_key = ?', (string) $groupKey)
 		->execute();
-	}
-
-	/**
-	 * Adds configuration entries from xml data
-	 * @param SimpleXMLElement $data Xml data containing the configuration data
-	 * @param int $groupId group id to add the configuration entries to
-	 * @return void
-	 */
-	public function addConfigFromXml($data, $groupId){
-		foreach((array) $data as $configKey => $configSettings){
-			$entry = new Configuration();
-			$entry->configuration_title = (string) $configSettings->title;
-			$entry->configuration_value = (string) $configSettings->value;
-			$entry->configuration_key = (string) $configKey;
-			$entry->configuration_description = (string) $configSettings->description;
-			$entry->configuration_group_id = $groupId;
-			$entry->sort_order = (string) $configSettings->sort_order;
-
-			if (isset($configSettings->use_function)){
-				$entry->use_function = (string) $configSettings->use_function;
-			}
-
-			if (isset($configSettings->set_function)){
-				$entry->set_function = (string) $configSettings->set_function;
-			}
-			$entry->save();
-
-			sysConfig::set($entry->configuration_key, $entry->configuration_value);
-		}
 	}
 
 	/**
@@ -524,19 +480,19 @@ class extensionInstaller {
 	public function addBaseExtensionConfigration(){
 		$configData = $this->loadXmlFile($this->extensionDir . 'data/base/configuration.xml');
 		if (sizeof($configData) > 0){
-			$Group = $this->addConfigurationGroupFromXml($configData);
+			$Configuration = new Configuration();
 
 			$key = (string)$this->extensionInfo->installed_key;
 
-			$Group->Configuration[$key]->configuration_key = $key;
-			$Group->Configuration[$key]->configuration_value = 'True';
-			$Group->save();
+			$Configuration[$key]->configuration_key = $key;
+			$Configuration[$key]->configuration_value = 'True';
+			$Configuration->save();
 		}
 	}
 
 	public function removeBaseExtensionConfigration(){
 		$configData = $this->loadXmlFile($this->extensionDir . 'data/base/configuration.xml');
-		$this->removeConfigurationGroupFromXml($configData->key);
+		$this->removeConfigurationFromXml($configData->key);
 	}
 
 	public function checkUpgrades(){

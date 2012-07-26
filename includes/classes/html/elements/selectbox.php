@@ -4,19 +4,25 @@
  *
  * @package Html
  */
-class htmlElement_selectbox implements htmlElementPlugin
+class htmlElement_selectbox extends htmlElement
 {
 
-	protected $selectElement;
 	protected $selectOptions;
+
 	protected $selectedOptionValue = null;
+
 	protected $selectedOptionIndex = null;
+
 	protected $labelElement;
+
 	protected $labelElementPosition;
+
 	protected $labelElementSeparator;
 
-	public function __construct() {
-		$this->selectElement = new htmlElement('select');
+	public function __construct()
+	{
+		parent::__construct('select');
+
 		$this->selectOptions = array();
 		$this->optionsAppended = false;
 		$this->labelElement = false;
@@ -24,39 +30,35 @@ class htmlElement_selectbox implements htmlElementPlugin
 		$this->labelElementSeparator = '';
 	}
 
-	public function __call($function, $args) {
-		$return = call_user_func_array(array($this->selectElement, $function), $args);
-		if (!is_object($return)){
-			return $return;
-		}
-		return $this;
-	}
-
 	/* Required Functions From Interface: htmlElementPlugin --BEGIN-- */
-	public function startChain() {
+	public function startChain()
+	{
 		return $this;
 	}
 
-	public function setId($val) {
-		$this->selectElement->attr('id', $val);
+	public function setId($val)
+	{
+		$this->attr('id', $val);
 		return $this;
 	}
 
-	public function setName($val) {
-		$this->selectElement->attr('name', $val);
+	public function setName($val)
+	{
+		$this->attr('name', $val);
 		return $this;
 	}
 
-	public function draw($skipOptionAdd = false) {
+	public function draw($skipOptionAdd = false)
+	{
 		if ($this->optionsAppended === false){
 			$options = $this->selectOptions;
 		}
 		else {
-			$options = &$this->selectElement->getAppendedElements();
+			$options = &$this->getAppendedElements();
 		}
 
 		foreach($options as $index => $optionObj){
-			if ($this->selectElement->hasAttr('multiple') === false){
+			if ($this->hasAttr('multiple') === false){
 				if ((string)$optionObj->val() === (string)$this->selectedOptionValue){
 					$optionObj->attr('selected', 'selected');
 				}
@@ -69,7 +71,7 @@ class htmlElement_selectbox implements htmlElementPlugin
 			}
 
 			if ($this->optionsAppended === false){
-				$this->selectElement->append($optionObj);
+				$this->append($optionObj);
 			}
 		}
 
@@ -130,10 +132,13 @@ class htmlElement_selectbox implements htmlElementPlugin
 			'</div>' .
 		'</span>';
 		*/
-		$html .= $this->selectElement->draw();
+		$html .= parent::draw();
 
 		if ($this->labelElement !== false){
-			if (in_array($this->labelElementPosition, array('after', 'right', 'bottom', 'below')) || $this->labelElementPosition === false){
+			if (in_array($this->labelElementPosition, array(
+				'after', 'right', 'bottom', 'below'
+			)) || $this->labelElementPosition === false
+			){
 				if (in_array($this->labelElementPosition, array('bottom', 'below'))){
 					$this->labelElement->css('display', 'block');
 				}
@@ -154,7 +159,8 @@ class htmlElement_selectbox implements htmlElementPlugin
 
 	/* Required Functions From Interface: htmlElementPlugin --END-- */
 
-	public function val($val = null) {
+	public function val($val = null)
+	{
 		if ($val === null){
 			return $this->selectedOptionValue;
 		}
@@ -162,7 +168,8 @@ class htmlElement_selectbox implements htmlElementPlugin
 		return $this;
 	}
 
-	public function addOption($val, $html = '', $selected = false, $attributes = null) {
+	public function addOption($val, $html = '', $selected = false, $attributes = null)
+	{
 		$optionEl = new htmlElement('option');
 		$optionEl->attr('value', $val);
 		if (strlen($html) > 0){
@@ -182,7 +189,8 @@ class htmlElement_selectbox implements htmlElementPlugin
 		return $this;
 	}
 
-	public function addOptionWithAttributes($val, $html = '', $attributes, $selected = false) {
+	public function addOptionWithAttributes($val, $html = '', $attributes, $selected = false)
+	{
 		$optionEl = new htmlElement('option');
 		$optionEl->attr('value', $val);
 		foreach($attributes as $attr){
@@ -198,7 +206,8 @@ class htmlElement_selectbox implements htmlElementPlugin
 		return $this;
 	}
 
-	public function removeOption($optionValue) {
+	public function removeOption($optionValue)
+	{
 		if (!empty($this->selectOptions)){
 			foreach($this->selectOptions as $idx => $optionObj){
 				if ($optionObj->val() == $optionValue){
@@ -211,31 +220,41 @@ class htmlElement_selectbox implements htmlElementPlugin
 		return $this;
 	}
 
-	public function addOptionObj($optionObj) {
+	public function addOptionObj($optionObj)
+	{
 		$this->selectOptions[] = $optionObj;
 		return $this;
 	}
 
-	public function selectOptionByIndex() {
+	public function getOptions(){
+		return $this->selectOptions;
+	}
+
+	public function selectOptionByIndex()
+	{
 		die('never used, guess it is time.');
 	}
 
-	public function selectOptionByValue($val) {
+	public function selectOptionByValue($val)
+	{
 		$this->selectedOptionValue = $val;
 		return $this;
 	}
 
-	public function change($event) {
-		$this->selectElement->attr('onchange', $event);
+	public function change($event)
+	{
+		$this->attr('onchange', $event);
 		return $this;
 	}
 
-	public function setSize($val) {
-		$this->selectElement->attr('size', $val);
+	public function setSize($val)
+	{
+		$this->attr('size', $val);
 		return $this;
 	}
 
-	public function setLabel($val) {
+	public function setLabel($val)
+	{
 		if ($this->labelElement === false){
 			$this->labelElement = new htmlElement('label');
 		}
@@ -243,12 +262,14 @@ class htmlElement_selectbox implements htmlElementPlugin
 		return $this;
 	}
 
-	public function setLabelPosition($val) {
+	public function setLabelPosition($val)
+	{
 		$this->labelElementPosition = $val;
 		return $this;
 	}
 
-	public function setLabelSeparator($val) {
+	public function setLabelSeparator($val)
+	{
 		$this->labelElementSeparator = $val;
 		return $this;
 	}

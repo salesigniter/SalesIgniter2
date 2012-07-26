@@ -8,7 +8,7 @@ for($i = 0; $i < $genTotal; $i++){
 		$NewSerial = rand(str_repeat(1, $serialLength), str_repeat(9, $serialLength));
 		$Qcheck = Doctrine_Query::create()
 			->select('count(*) as total')
-			->from('ProductsInventoryItemsSerials')
+			->from('ProductsSerialNumbers')
 			->where('serial_number = ?', $NewSerial)
 			->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 		if ($Qcheck[0]['total'] == 0){

@@ -4,7 +4,7 @@ $tableGrid = htmlBase::newElement('newGrid')
 	->useSorting(true)
 	->usePagination(true);
 
-$Type = (isset($_GET['type']) ? $_GET['type'] : 'rental');
+$Type = (isset($_GET['type']) ? $_GET['type'] : 'reservation');
 if ($Type == 'rental'){
 	$Qorders = Doctrine_Query::create()
 	->from('RentedProducts rp')
@@ -55,8 +55,7 @@ if ($Type == 'rental'){
 	);
 }else{
 	$Qorders = Doctrine_Query::create()
-		->from('OrdersProductsReservation opr')
-		->leftJoin('opr.ProductsInventoryBarcodes ib')
+		->from('PayPerRentalReservations')
 		->whereIn('rental_state', array('reserved'));
 
 	$gridHeaderColumns = array(
@@ -67,14 +66,12 @@ if ($Type == 'rental'){
 			'text' => sysLanguage::get('TABLE_HEADING_PRODUCT')
 		),
 		array(
-			'text' => sysLanguage::get('TABLE_HEADING_BARCODE'),
-			'useSort' => true,
-			'sortKey' => 'ib.barcode'
+			'text' => sysLanguage::get('TABLE_HEADING_BARCODE')
 		),
 		array(
 			'text' => sysLanguage::get('HEADING_TITLE_START_DATE'),
 			'useSort' => true,
-			'sortKey' => 'opr.start_date',
+			'sortKey' => 'start_date',
 			'useSearch' => true,
 			'searchObj' => GridSearchObj::Between()
 				->useFieldObj(htmlBase::newElement('input')->addClass('makeDatepicker')->setName('start_date')->attr('size', 10))
@@ -83,7 +80,7 @@ if ($Type == 'rental'){
 		array(
 			'text' => sysLanguage::get('HEADING_TITLE_END_DATE'),
 			'useSort' => true,
-			'sortKey' => 'opr.end_date',
+			'sortKey' => 'end_date',
 			'useSearch' => true,
 			'searchObj' => GridSearchObj::Between()
 				->useFieldObj(htmlBase::newElement('input')->addClass('makeDatepicker')->setName('end_date')->attr('size', 10))
@@ -92,7 +89,7 @@ if ($Type == 'rental'){
 		array(
 			'text' => sysLanguage::get('TABLE_HEADING_DATE_SENT'),
 			'useSort' => true,
-			'sortKey' => 'opr.date_shipped',
+			'sortKey' => 'date_shipped',
 			'useSearch' => true,
 			'searchObj' => GridSearchObj::Between()
 				->useFieldObj(htmlBase::newElement('input')->addClass('makeDatepicker')->setName('date_shipped')->attr('size', 10))
@@ -101,7 +98,7 @@ if ($Type == 'rental'){
 		array(
 			'text' => sysLanguage::get('TABLE_HEADING_DATE_RETURNED'),
 			'useSort' => true,
-			'sortKey' => 'opr.date_returned',
+			'sortKey' => 'date_returned',
 			'useSearch' => true,
 			'searchObj' => GridSearchObj::Between()
 				->useFieldObj(htmlBase::newElement('input')->addClass('makeDatepicker')->setName('date_returned')->attr('size', 10))
@@ -175,14 +172,14 @@ if ($orders){
 			//}
 		}else{
 			$Reservation = $oInfo;
-			$OrderProduct = $Reservation->OrdersProducts;
-			$Order = $OrderProduct->getOrder();
-			$Customer = $Order->Customers;
+			$OrderProduct = $Reservation->SaleProduct;
+			$Order = $OrderProduct->Sale;
+			$Customer = $Order->Customer;
 
 			$gridBodyColumns = array(
 				array('text' => $Customer->customers_firstname .' '.$Customer->customers_lastname),
-				array('text' => $OrderProduct->products_name),
-				array('text' => $Reservation->ProductsInventoryBarcodes->barcode),
+				array('text' => $OrderProduct->Product->ProductsDescription[sysLanguage::getId()]->products_name),
+				array('text' => $OrderProduct->SaleInventory[0]->Serial->serial_number),
 				array('text' => $Reservation->start_date->format(sysLanguage::getDateFormat('short'))),
 				array('text' => $Reservation->end_date->format(sysLanguage::getDateFormat('short'))),
 				array('text' => $Reservation->date_shipped->format(sysLanguage::getDateFormat('short'))),
@@ -192,7 +189,7 @@ if ($orders){
 
 			$tableGrid->addBodyRow(array(
 				'rowAttr' => array(
-					'data-order_id' => $Order->orders_id
+					'data-sale_id' => $Order->sale_id
 				),
 				'columns' => $gridBodyColumns
 			));
@@ -201,11 +198,4 @@ if ($orders){
 	}
 }
 
-?>
-<div style="width:100%"><?php
-	echo $searchForm->draw();
-	?></div>
-<br />
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-</div>
+echo $tableGrid->draw();

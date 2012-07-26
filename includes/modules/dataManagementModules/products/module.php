@@ -2,7 +2,8 @@
 class DataManagementModuleProducts extends DataManagementModuleBase
 {
 
-	public function __construct() {
+	public function __construct()
+	{
 		/*
 		 * Default title and description for modules that are not yet installed
 		 */
@@ -16,11 +17,13 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		);
 	}
 
-	public function beforeActionProcess(){
+	public function beforeActionProcess()
+	{
 		ProductTypeModules::loadModules();
 	}
 
-	public function runImport(){
+	public function runImport()
+	{
 		global $messageStack;
 		$ImportFile = $this->getImportFileReader();
 		$ImportFile->rewind();
@@ -146,9 +149,9 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 
 				foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
 					$code = $PurchaseTypeModule->getCode();
-					$AutogenerateTotal = $CurrentRow->getColumnValue('v_autogenerate_barcodes_' . $code, 0);
+					$AutogenerateTotal = $CurrentRow->getColumnValue('v_autogenerate_serials_' . $code, 0);
 					if ($AutogenerateTotal > 0){
-						$this->generateBarcodes($Product, $code, $AutogenerateTotal);
+						$this->generateSerials($Product, $code, $AutogenerateTotal);
 					}
 				}
 				$Product->save();
@@ -213,7 +216,8 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		}
 	}
 
-	public function runExport(){
+	public function runExport()
+	{
 		global $messageStack, $ExceptionManager;
 		$ExportFile = $this->getExportFileWriter();
 
@@ -222,13 +226,6 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		$HeaderRow->addColumn('v_products_model');
 		$HeaderRow->addColumn('v_products_image');
 		$HeaderRow->addColumn('v_products_type');
-
-		foreach(ProductTypeModules::getModules() as $ProductTypeModule){
-			if (method_exists($ProductTypeModule, 'addExportHeaderColumns')){
-				$ProductTypeModule->addExportHeaderColumns(&$HeaderRow);
-			}
-		}
-
 		$HeaderRow->addColumn('v_products_in_box');
 		$HeaderRow->addColumn('v_products_featured');
 		$HeaderRow->addColumn('v_products_weight');
@@ -250,27 +247,33 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		$HeaderRow->addColumn('v_tax_class_title');
 		$HeaderRow->addColumn('v_status');
 
-		EventManager::notify('DataExportFullQueryFileLayoutHeader', &$HeaderRow);
-
-		foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
-			$HeaderRow->addColumn('v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
+		foreach(ProductTypeModules::getModules() as $ProductTypeModule){
+			if (method_exists($ProductTypeModule, 'addExportHeaderColumns')){
+				$ProductTypeModule->addExportHeaderColumns(&$HeaderRow);
+			}
 		}
 
-		$Products = Doctrine_Core::getTable('Products')
-			->findAll();
-		$p = -1;
+		$QProducts = Doctrine_Query::create()
+			->from('Products');
+
+		if ($_POST['start_record'] != ''){
+			$start = (int) $_POST['start_record'];
+			if ($_POST['end_record'] != ''){
+				$end = (int) $_POST['end_record'];
+				$QProducts->limit($end - $start);
+			}
+			$QProducts->offset($start);
+		}
+		elseif (isset($_POST['end_record'])){
+			$end = (int) $_POST['end_record'];
+			$QProducts->limit($end);
+		}
+
+		$Products = $QProducts->execute();
 		$x = 0;
 		foreach($Products as $Product){
 			if (empty($Product->products_model)){
 				continue;
-			}
-
-			$p++;
-			if (isset($_POST['start_num']) && (!empty($_POST['start_num']) || $_POST['start_num'] == 0)){
-				if ($p < $_POST['start_num']) continue;
-			}
-			if (isset($_POST['num_items']) && !empty($_POST['num_items'])){
-				if ($p >= ((int)$_POST['start_num'] + $_POST['num_items'])) break;
 			}
 
 			$CurrentRow = $ExportFile->newRow();
@@ -305,7 +308,8 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 				$catPath = array();
 				if ($CurrentCategory->parent_id == 0){
 					$catPath[] = trim($CurrentCategory->CategoriesDescription[Session::get('languages_id')]->categories_name);
-				}else{
+				}
+				else {
 					while($CurrentCategory->parent_id > 0){
 						$catPath[] = trim($CurrentCategory->CategoriesDescription[Session::get('languages_id')]->categories_name);
 						$CurrentCategory = $CurrentCategory->Parent;
@@ -317,7 +321,7 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 
 			$nmembershipsString = array();
 			if ($Product->membership_enabled != ''){
-				$notEnabledMemberships = explode(';',$Product->membership_enabled);
+				$notEnabledMemberships = explode(';', $Product->membership_enabled);
 				$Qmembership = Doctrine_Query::create()
 					->from('Membership m')
 					->leftJoin('m.MembershipPlanDescription md')
@@ -339,9 +343,6 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 
 			EventManager::notify('DataExportBeforeFileLineCommit', $CurrentRow, $Product);
 
-			foreach(PurchaseTypeModules::getModules() as $PurchaseTypeModule){
-				$CurrentRow->addColumn(0, 'v_autogenerate_barcodes_' . $PurchaseTypeModule->getCode());
-			}
 			$x++;
 			$Product->free(true);
 			$this->checkMemoryThreshold($x);
@@ -350,94 +351,38 @@ class DataManagementModuleProducts extends DataManagementModuleBase
 		$ExportFile->output();
 	}
 
-	private function generateBarcodes(&$Product, $type, $numOfBarcodes){
-		$Qinventory = Doctrine_Query::create()
-			->select('i.inventory_id')
-			->from('ProductsInventory i')
-			->where('products_id = ?', $Product->products_id)
-			->andWhere('type = ?', $type)
-			->andWhere('track_method = ?', 'barcode')
-			->andWhere('controller = ?', 'normal')
-			->fetchOne();
-		if (!$Qinventory){
-			$Qmax = Doctrine_Query::create()
-				->select('MAX(inventory_id) as next_id')
-				->from('ProductsInventory')
-				->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
-			$ProductsInventory = new ProductsInventory();
-			$ProductsInventory->inventory_id = $Qmax[0]['next_id'] + 1;
-			$ProductsInventory->type = $type;
-			$ProductsInventory->track_method = 'barcode';
-			$ProductsInventory->controller = 'normal';
+	private function generateSerials(&$Product, $type, $numOfBarcodes)
+	{
+		$PurchaseType = $Product->ProductsPurchaseTypes[$type];
+		if ($PurchaseType->use_serials == 1){
+			$PurchaseTypeModule = PurchaseTypeModules::getModule($type);
+			$AvailableItems = $PurchaseType->InventoryItems[$PurchaseTypeModule->getConfigData('INVENTORY_AVAILABLE_STATUS')];
 
-			$Product->ProductsInventory->add($ProductsInventory);
-		}else{
-			$ProductsInventory = $Product->ProductsInventory[$Qinventory->inventory_id];
-		}
-		$Barcodes = $ProductsInventory->ProductsInventoryBarcodes;
-		$nextIndex = $Barcodes->key() + 1;
-
-		$productName = $Product->ProductsDescription[Session::get('languages_id')]->products_name;
-		$nameFix = strtolower(substr(str_replace(' ', '_', strip_tags($productName)), 0, 4));
-		if (substr($nameFix, -1) == '_'){
-			while(substr($nameFix, -1) == '_'){
-				$nameFix = substr($nameFix, 0, -1);
-			}
-		}
-		$nameFix .= '_' . $Product->products_id;
-		$Qcheck = Doctrine_Query::create()
-			->select('barcode')
-			->from('ProductsInventoryBarcodes')
-			->where('barcode like ?', $nameFix . '_' . $type . '_%')
-			->orderBy('barcode desc')
-			->limit('1')
-			->execute(array(), Doctrine::HYDRATE_ARRAY);
-		if ($Qcheck){
-			$bCode = $Qcheck[0]['barcode'];
-			$start = (int)substr($bCode, strrpos($bCode, '_') + 1) + 1;
-		}
-		else {
-			$start = 1;
-		}
-
-		$total = (int)$numOfBarcodes;
-		$endNumber = $start;
-
-		for($i = 0; $i < $total; $i++){
-			$numberString = $endNumber;
-			if ($numberString < 100){
-				if (strlen($numberString) == 2){
-					$numberString = '0' . $numberString;
+			$total = (int)$numOfBarcodes;
+			for($i = 0; $i < $total; $i++){
+				$exists = true;
+				$newSerialNumber = tep_rand(111111, 999999);
+				while($exists === true){
+					$QCheck = Doctrine_Query::create()
+						->select('count(*) as total')
+						->from('ProductsInventoryItemsSerials')
+						->where('serial_number = ?', $newSerialNumber)
+						->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
+					if ($QCheck[0]['total'] > 0){
+						$newSerialNumber = tep_rand(111111, 999999);
+					}
+					else {
+						$exists = false;
+					}
 				}
-				elseif (strlen($numberString) == 1) {
-					$numberString = '00' . $numberString;
-				}
-			}
-			$genBarcode = $nameFix . '_' . $type . '_' . $numberString;
-			if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 39'){
-				$genBarcode = strtoupper($genBarcode);
-				$genBarcode = str_replace('_', '-', $genBarcode);
-			}
-			if (sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25' || sysConfig::get('SYSTEM_BARCODE_FORMAT') == 'Code 25 Interleaved'){
-				$genBarcode = strtotime(date('Y-m-d H:i:s')) . $endNumber;
-				if (strlen($genBarcode) % 2 == 1){
-					$genBarcode = '0' . $genBarcode;
-				}
-			}
-			$endNumber++;
 
-			$Barcodes[$nextIndex]->barcode = $genBarcode;
-			$Barcodes[$nextIndex]->status = $status;
+				$NewSerial = $AvailableItems->Serials
+					->getTable()
+					->create();
+				$NewSerial->serial_number = $newSerialNumber;
 
-			/* ????Put in extension???? */
-			if (isset($aID_string)){
-				$Barcodes[$nextIndex]->attributes = $aID_string;
+				$AvailableItems->Serials->add($NewSerial);
 			}
-
-			EventManager::notify('ProductBarcodeNewBeforeExecute', &$Barcodes[$nextIndex]);
-
-			$newBarcodes[] = $nextIndex;
-			$nextIndex++;
 		}
 	}
 }

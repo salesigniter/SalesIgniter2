@@ -57,7 +57,4 @@ foreach(getCronSettings() as $CronJob){
 	));
 }
 
-?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin:5px;">
-	<div style="margin:5px;"><?php echo $Grid->draw();?></div>
-</div>
+echo $Grid->draw();

@@ -36,6 +36,21 @@ class AccountsReceivableSalesProductsPackaged extends Doctrine_Record {
 
 		$this->hasColumn('package_id', 'integer', 4);
 		$this->hasColumn('sale_product_id', 'integer', 4);
+		$this->hasColumn('product_id', 'integer', 4);
+		$this->hasColumn('products_model', 'string', 255);
+		$this->hasColumn('products_name', 'string', 255);
+		$this->hasColumn('products_price', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_tax', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_tax_class_id', 'integer', 4);
+		$this->hasColumn('products_quantity', 'integer', 2);
+		$this->hasColumn('products_weight', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_type', 'string', 32);
 
 		$this->hasColumn('product_json', 'string', 999);
 	}

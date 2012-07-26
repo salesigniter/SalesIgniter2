@@ -1438,6 +1438,41 @@ $(document).ready(function () {
 		}
 	});
 
+	$('#bodyWrapper').on('click', '.selectToList .addButton, .selectToList .removeButton', function (){
+		var mainElement = $(this).parentsUntil('.selectToList').last().parent();
+		var toElement = mainElement.find('.toElement');
+		var fromElement = mainElement.find('.fromElement');
+		if ($(this).hasClass('removeButton')){
+			var ListItem = $(this).parentsUntil('ul').last();
+			var optionValue = ListItem.find('input').val();
+			var optionHtml = ListItem.find('.itemText').html();
+			fromElement.append('<option value="' + optionValue + '">' + optionHtml + '</option>');
+			ListItem.remove();
+		}
+		else{
+			fromElement.find('option:selected').each(function (){
+				var deleteIcon = $('<span></span>')
+					.addClass('ui-icon ui-icon-closethick removeButton');
+
+				var hiddenInput = $('<input type="hidden" />')
+					.attr('name', mainElement.data('field_name') + '[]')
+					.attr('value', $(this).attr('value'));
+
+				var itemText = $('<span class="itemText"></span>')
+					.html($(this).html());
+
+				var newItem = $('<li class="ui-widget-content ui-corner-all"></li>')
+					.append(deleteIcon)
+					.append(itemText)
+					.append(hiddenInput);
+
+				toElement.append(newItem);
+
+				$(this).remove();
+			});
+		}
+	});
+
 	$('.ui-selectbox-searchable').on('mouseover mouseout mouseup mousedown keyup', '.ui-selectbox-searchable-value-box, .ui-selectbox-searchable-option, .ui-selectbox-searchable-search-input', function (e){
 		var $this = $(this);
 		var $SelectBox = $(e.delegateTarget);

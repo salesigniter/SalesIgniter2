@@ -16,26 +16,20 @@ class ProductsInventoryItems extends Doctrine_Record {
 		parent::setUp();
 		$this->setAttribute(Doctrine::ATTR_COLL_KEY, 'item_status');
 
-		$this->hasOne('ProductsInventory as Inventory', array(
-			'local'   => 'inventory_id',
-			'foreign' => 'inventory_id'
+		$this->hasOne('Products as Product', array(
+			'local'   => 'products_id',
+			'foreign' => 'products_id'
 		));
 
-		$this->hasMany('ProductsInventoryItemsComments as Comments', array(
-			'local'   => 'id',
-			'foreign' => 'item_id',
-			'cascade' => array('delete')
+		$this->hasOne('ProductsPurchaseTypes as PurchaseType', array(
+			'local'   => 'purchase_type_id',
+			'foreign' => 'purchase_type_id'
 		));
 
-		$this->hasMany('ProductsInventoryItemsSerials as Serials', array(
-			'local'   => 'id',
-			'foreign' => 'item_id',
-			'cascade' => array('delete')
-		));
-
-		$this->hasOne('ProductsInventoryItemsToProductsPurchaseTypes as PurchaseType', array(
-			'local'   => 'id',
-			'foreign' => 'item_id',
+		$this->hasMany('ProductsSerialNumbers as Serials', array(
+			'refClass' => 'ProductsSerialNumbersToProductsInventoryItems',
+			'local' => 'inventory_item_id',
+			'foreign'   => 'serial_number_id',
 			'cascade' => array('delete')
 		));
 	}
@@ -43,7 +37,8 @@ class ProductsInventoryItems extends Doctrine_Record {
 	public function setTableDefinition(){
 		$this->setTableName('products_inventory_items');
 
-		$this->hasColumn('inventory_id', 'integer', 4);
+		$this->hasColumn('products_id', 'integer', 4);
+		$this->hasColumn('purchase_type_id', 'integer', 4);
 		$this->hasColumn('item_total', 'integer', 4);
 		$this->hasColumn('item_status', 'integer', 4, array(
 			'default' => '0'

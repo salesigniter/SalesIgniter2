@@ -207,6 +207,10 @@ class sysCurrency
 		return $currency['value'];
 	}
 
+	public function getCode(){
+		return self::$currency['code'];
+	}
+
 	/**
 	 * @static
 	 * @param string $key

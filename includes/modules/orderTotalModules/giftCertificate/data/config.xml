@@ -14,7 +14,7 @@
 				</INSTALLED>
 				<STATUS>
 					<title><![CDATA[Display Gift Certificate Balance]]></title>
-					<value><![CDATA[True]]></value>
+					<value><![CDATA[False]]></value>
 					<description><![CDATA[Do you want to display the gift certificates balance?]]></description>
 					<set_function><![CDATA[tep_cfg_select_option(array('True', 'False'),]]></set_function>
 				</STATUS>

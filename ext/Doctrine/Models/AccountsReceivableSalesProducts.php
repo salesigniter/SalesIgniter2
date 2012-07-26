@@ -5,9 +5,19 @@ class AccountsReceivableSalesProducts extends Doctrine_Record
 
 	public function setUp()
 	{
+		$this->hasOne('Products as Product', array(
+			'local'   => 'product_id',
+			'foreign' => 'products_id'
+		));
+
 		$this->hasOne('AccountsReceivableSales as Sale', array(
 			'local'   => 'sale_id',
 			'foreign' => 'id'
+		));
+
+		$this->hasMany('AccountsReceivableSalesProductsInventory as SaleInventory', array(
+			'local'   => 'id',
+			'foreign' => 'sale_product_id'
 		));
 	}
 
@@ -32,6 +42,21 @@ class AccountsReceivableSalesProducts extends Doctrine_Record
 		$this->setTableName('accounts_receivable_sales_products');
 
 		$this->hasColumn('sale_id', 'integer', 4);
+		$this->hasColumn('product_id', 'integer', 4);
+		$this->hasColumn('products_model', 'string', 255);
+		$this->hasColumn('products_name', 'string', 255);
+		$this->hasColumn('products_price', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_tax', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_tax_class_id', 'integer', 4);
+		$this->hasColumn('products_quantity', 'integer', 2);
+		$this->hasColumn('products_weight', 'decimal', 15, array(
+			'scale' => 4
+		));
+		$this->hasColumn('products_type', 'string', 32);
 
 		$this->hasColumn('product_json', 'string', 999);
 	}

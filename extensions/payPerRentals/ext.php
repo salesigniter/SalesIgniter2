@@ -250,13 +250,6 @@ class Extension_payPerRentals extends ExtensionBase {
 		}
 	}
 
-	public function OrderQueryBeforeExecute(&$Qorder){
-		$Qorder->leftJoin('op.OrdersProductsReservation opr')
-			->leftJoin('opr.ProductsInventoryBarcodes pib')
-			->leftJoin('opr.ProductsInventoryQuantity piq');
-	}
-
-
 	public function ApplicationTopAction_reserve_now(){
 		global $messageStack, $appExtension;
 
@@ -300,56 +293,6 @@ class Extension_payPerRentals extends ExtensionBase {
 		ReservationUtilities::addReservationProductToCart($productID, $qty);
 		tep_redirect(itw_app_link(null, 'shoppingCart', 'default'));
 	}
-
-	public function OrderClassQueryFillProductArray(&$pInfo, &$product){
-		$Reservations = $pInfo['OrdersProductsReservation'];
-		if (sizeof($Reservations) > 0){
-			$mainReservation = false;
-			foreach($Reservations as $rInfo){
-				if (is_null($rInfo['parent_id'])){
-					$mainReservation = $rInfo;
-					break;
-				}
-			}
-
-			if ($mainReservation !== false){
-				if ($mainReservation['track_method'] == 'barcode'){
-					$product['barcode_number'] = $mainReservation['ProductsInventoryBarcodes']['barcode'];
-				}
-
-				$product['ReservationInfo'] = array(
-					'start_date' => $mainReservation['start_date'],
-					'end_date' => $mainReservation['end_date'],
-					'insurance' => $mainReservation['insurance'],
-					'quantity' =>  (isset($mainReservation['rental_qty'])?$mainReservation['rental_qty']:1)
-				);
-
-				if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_EVENTS') == 'True'){
-					$product['ReservationInfo']['event_date'] = $mainReservation['event_date'];
-				    $product['ReservationInfo']['event_name'] = $mainReservation['event_name'];
-				    if (sysConfig::get('EXTENSION_PAY_PER_RENTALS_USE_GATES') == 'True'){
-					    $product['ReservationInfo']['event_gate'] = $mainReservation['event_gate'];
-				    }
-			    }
-				$product['ReservationInfo']['semester_name'] = $mainReservation['semester_name'];
-
-				if (isset($mainReservation['shipping_method']) && !empty($mainReservation['shipping_method'])){
-					$product['ReservationInfo']['shipping'] = array(
-						'title' => $mainReservation['shipping_method_title'],
-						'cost' => $mainReservation['shipping_cost'],
-						'id' => $mainReservation['shipping_method'],
-						'days_before' => $mainReservation['shipping_days_before'],
-						'days_after' => $mainReservation['shipping_days_after']
-					);
-				}
-
-				EventManager::notify('Extension_payPerRentalsOrderClassQueryFillProductArray', &$mainReservation, &$product);
-			}else{
-				$product['name'] .= '<br />NO VALID ROOT RESERVATION!';
-			}
-		}
-	}
-
 
 	public function BoxModulesAddLink(&$contents){
 		$subChildren = array();

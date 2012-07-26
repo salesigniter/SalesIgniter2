@@ -35,6 +35,11 @@ class TemplateManagerWidgetNavigationMenu extends TemplateManagerWidget
 
 			foreach($MenuSettings as $k => $mInfo){
 				$Text = $mInfo->link->text->{Session::get('languages_id')};
+				if (isset($mInfo->link->icon) && $mInfo->link->icon == 'custom'){
+					$Icon = htmlBase::newElement('img')
+						->attr('src', $mInfo->link->icon_src);
+					$Text = $Icon->draw() . '&nbsp;' . $Text;
+				}
 				$css = 'display:inline-block;';
 				if (isset($WidgetSettings->forceFit) && $WidgetSettings->forceFit == 'true'){
 					$css .= 'width: ' . (100 / sizeof($MenuSettings)) . '%;';

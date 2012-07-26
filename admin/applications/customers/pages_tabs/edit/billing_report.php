@@ -75,6 +75,4 @@ if ($billingReports){
 	echo sysLanguage::get('HEADING_TITLE_REPORTS');
 	?></div>
 <br />
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $reportGrid->draw();?></div>
-</div>
+<?php echo $reportGrid->draw();?>

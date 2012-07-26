@@ -1,7 +1,7 @@
 <?php
 $TaxClasses = Doctrine_Core::getTable('TaxClass');
-if (isset($_GET['cID'])){
-	$TaxClass = $TaxClasses->find((int)$_GET['cID']);
+if (isset($_GET['class_id'])){
+	$TaxClass = $TaxClasses->find((int)$_GET['class_id']);
 	$boxHeading = sysLanguage::get('TEXT_INFO_HEADING_EDIT_TAX_CLASS');
 	$boxIntro = sysLanguage::get('TEXT_INFO_EDIT_CLASS_INTRO');
 }

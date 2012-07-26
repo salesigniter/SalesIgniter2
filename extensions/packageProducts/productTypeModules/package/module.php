@@ -771,7 +771,7 @@ class ProductTypePackage extends ProductTypeBase
 				$LineData[] = $PackagedProduct->ProductInfo->products_model;
 				$LineData[] = $PackageData['quantity'];
 				if (isset($PackageData['price'])){
-					$LineData[] = $PackageData['price'];
+					$LineData[] = json_encode($PackageData['price']);
 				}
 				else {
 					$LineData[] = '';

@@ -511,9 +511,6 @@ function buildBorderRadius($tl = 0, $tr = 0, $br = 0, $bl = 0, &$styleObj = fals
 	$cssData = array();
 	$prefix = '';
 	switch(true){
-		case (isIE() === false && isMoz() === true):
-			$prefix = '-moz-';
-			break;
 		case (isWebkit() === true):
 			$prefix = '-webkit-';
 			break;
@@ -550,9 +547,6 @@ function buildBoxShadow($shadows, &$styleObj = false) {
 
 	$prefix = '';
 	switch(true){
-		case (isMoz() === true):
-			$prefix = '-moz-';
-			break;
 		case (isWebkit() === true):
 			$prefix = '-webkit-';
 			break;

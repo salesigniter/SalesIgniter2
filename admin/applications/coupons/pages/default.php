@@ -10,18 +10,17 @@ if (isset($_GET['status']) && $_GET['status'] != '*'){
 	$Qcoupons->andWhere('c.coupon_active = ?', $_GET['status']);
 }
 
-$tableGrid = htmlBase::newElement('newGrid')
+$tableGrid = htmlBase::newGrid()
+	->setMainDataKey('coupon_id')
 	->usePagination(true)
-	->setPageLimit((isset($_GET['limit']) ? (int)$_GET['limit'] : 25))
-	->setCurrentPage((isset($_GET['page']) ? (int)$_GET['page'] : 1))
 	->setQuery($Qcoupons);
 
 $tableGrid->addButtons(array(
-	htmlBase::newElement('button')->setText('New')->addClass('insertButton'),
-	htmlBase::newElement('button')->setText('Email')->addClass('emailButton')->disable(),
-	htmlBase::newElement('button')->setText('Edit')->addClass('editButton')->disable(),
-	htmlBase::newElement('button')->setText('Delete')->addClass('deleteButton')->disable(),
-	htmlBase::newElement('button')->setText('Report')->addClass('reportButton')->disable()
+	htmlBase::newElement('button')->usePreset('new')->addClass('newButton'),
+	htmlBase::newElement('button')->usePreset('email')->addClass('emailButton')->disable(),
+	htmlBase::newElement('button')->usePreset('edit')->addClass('editButton')->disable(),
+	htmlBase::newElement('button')->usePreset('delete')->addClass('deleteButton')->disable(),
+	htmlBase::newElement('button')->usePreset('report')->addClass('reportButton')->disable()
 ));
 
 $tableGrid->addHeaderRow(array(
@@ -49,11 +48,10 @@ if ($Coupons){
 		$usesPerCoupon = $cInfo['uses_per_coupon'];
 		//$restrictToProducts = $cInfo['restrict_to_products'];
 		//$restrictToCategories = $cInfo['restrict_to_categories'];
-		$restrictToPurchaseType = $cInfo['restrict_to_purchase_type'];
 		$dateCreated = $cInfo['date_created'];
 		$dateModified = $cInfo['date_modified'];
 
-		$couponName = $cInfo['CouponsDescription'][0]['coupon_name'];
+		$couponName = $cInfo['CouponsDescription'][sysLanguage::getId()]['coupon_name'];
 
 		if ($couponType == 'P'){
 			if ($couponAmount == round($couponAmount)){
@@ -108,29 +106,6 @@ if ($Coupons){
 			)
 		));
 
-		/*
-		   $prodDetails = sysLanguage::get('NONE');
-		   if ($restrictToProducts != ''){
-			   $prod_details = '<A HREF="listproducts.php?cid=' . $cInfo->coupon_id . '" TARGET="_blank" ONCLICK="window.open(\'listproducts.php?cid=' . $cInfo->coupon_id . '\', \'Valid_Categories\', \'scrollbars=yes,resizable=yes,menubar=yes,width=600,height=600\'); return false">View</A>';
-		   }
-		   */
-
-		/*
-		   $catDetails = sysLanguage::get('NONE');
-		   if ($restrictToCategories != ''){
-			   $cat_details = '<A HREF="listcategories.php?cid=' . $cInfo->coupon_id . '" TARGET="_blank" ONCLICK="window.open(\'listcategories.php?cid=' . $cInfo->coupon_id . '\', \'Valid_Categories\', \'scrollbars=yes,resizable=yes,menubar=yes,width=600,height=600\'); return false">View</A>';
-		   }
-		   */
-
-		$purchaseTypeDetails = sysLanguage::get('NONE');
-		if ($restrictToPurchaseType != ''){
-			$purchaseTypeDetails = array();
-			foreach(explode(',', $restrictToPurchaseType) as $typeName){
-				$purchaseTypeDetails[] = $typeNames[$typeName];
-			}
-			$purchaseTypeDetails = implode(', ', $purchaseTypeDetails);
-		}
-
 		$tableGrid->addBodyRow(array(
 			'addCls'  => 'gridInfoRow',
 			'columns' => array(
@@ -138,72 +113,34 @@ if ($Coupons){
 					'colspan' => 6,
 					'text'    => '<table cellpadding="1" cellspacing="0" border="0" width="75%">' .
 						'<tr>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_MIN_ORDER') . '</b></td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_COUPON_MIN_ORDER') . '</b></td>' .
 						'<td> ' . $currencies->format($couponMinOrder) . '</td>' .
 						'</tr>' .
 						'<tr>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_STARTDATE') . '</b></td>' .
-						'<td>' . tep_date_short($couponStartDate) . '</td>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_USES_COUPON') . '</b></td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_COUPON_STARTDATE') . '</b></td>' .
+						'<td>' . $couponStartDate->format(sysLanguage::getDateFormat('long')) . '</td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_COUPON_USES_COUPON') . '</b></td>' .
 						'<td>' . $usesPerCoupon . '</td>' .
 						'</tr>' .
 						'<tr>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_FINISHDATE') . '</b></td>' .
-						'<td>' . tep_date_short($couponExpireDate) . '</td>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_USES_USER') . '</b></td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_COUPON_FINISHDATE') . '</b></td>' .
+						'<td>' . $couponExpireDate->format(sysLanguage::getDateFormat('long')) . '</td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_COUPON_USES_USER') . '</b></td>' .
 						'<td>' . $usesPerUser . '</td>' .
 						'</tr>' .
 						'<tr>' .
-						'<td><b>' . sysLanguage::get('TEXT_DATE_CREATED') . '</b></td>' .
-						'<td>' . tep_date_short($dateCreated) . '</td>' .
-						'<td><b>' . sysLanguage::get('TEXT_COUPON_PURCHASE_TYPE') . '</b></td>' .
-						'<td>' . $purchaseTypeDetails . '</td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_DATE_CREATED') . '</b></td>' .
+						'<td>' . $dateCreated->format(sysLanguage::getDateFormat('long')) . '</td>' .
 						'</tr>' .
 						'<tr>' .
-						//'<td><b>' . sysLanguage::get('TEXT_COUPON_PRODUCTS') . '</b></td>' .
-						//'<td>' . $prodDetails . '</td>' .
-						'<td><b>' . sysLanguage::get('TEXT_DATE_MODIFIED') . '</b></td>' .
-						'<td>' . tep_date_short($dateModified) . '</td>' .
+						'<td><b>' . sysLanguage::get('TEXT_INFO_DATE_MODIFIED') . '</b></td>' .
+						'<td>' . $dateModified->format(sysLanguage::getDateFormat('long')) . '</td>' .
 						'</tr>' .
-						//'<tr>' .
-						//	'<td><b>' . sysLanguage::get('TEXT_COUPON_CATEGORIES') . '</b></td>' .
-						//	'<td>' . $catDetails . '</td>' .
-						//'</tr>' .
 						'</table>'
 				)
 			)
 		));
 	}
 }
-?>
-<div class="pageHeading"><?php
-	echo sysLanguage::get('HEADING_TITLE_DEFAULT');
-	?></div>
-<br />
-<div style="text-align:right;">
-	<form name="status" action="<?php echo itw_app_link(null, 'coupons', 'default');?>" method="get"><?php
-		$status_array[] = array(
-			'id'   => 'Y',
-			'text' => sysLanguage::get('TEXT_COUPON_ACTIVE')
-		);
-		$status_array[] = array(
-			'id'   => 'N',
-			'text' => sysLanguage::get('TEXT_COUPON_INACTIVE')
-		);
-		$status_array[] = array(
-			'id'   => '*',
-			'text' => sysLanguage::get('TEXT_COUPON_ALL')
-		);
 
-		if (isset($_GET['status']) && !empty($_GET['status'])){
-			$status = $_GET['status'];
-		}
-		else {
-			$status = 'Y';
-		}
-		echo sysLanguage::get('HEADING_TITLE_STATUS') . ' ' . tep_draw_pull_down_menu('status', $status_array, $status, 'onChange="this.form.submit();"');
-		?></form>
-</div>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-</div>
+echo $tableGrid->draw();

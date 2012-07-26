@@ -88,11 +88,7 @@ $infoTable->addBodyRow(array(
 ?>
 <form name="account" action="<?php echo itw_app_link('action=saveAccount');?>" method="post">
 	<div>
-		<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-			<div style="margin:5px;">
-				<?php echo $infoTable->draw();?>
-			</div>
-		</div>
+		<?php echo $infoTable->draw();?>
 		<table border="0" width="100%" cellspacing="0" cellpadding="2">
 			<tr>
 				<td align="right"><?php

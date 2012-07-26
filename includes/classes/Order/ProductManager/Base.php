@@ -98,7 +98,7 @@ class OrderProductManager
 	 * @param AccountsReceivableSalesProducts $SaleProducts
 	 * @param bool                            $assignInventory
 	 */
-	public function onSaveSale(AccountsReceivableSalesProducts &$SaleProducts, $assignInventory = false)
+	public function onSaveSale(&$SaleProducts, $assignInventory = false)
 	{
 		foreach($this->getContents() as $OrderProduct){
 			$SaleProduct = $SaleProducts

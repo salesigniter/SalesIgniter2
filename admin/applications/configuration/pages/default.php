@@ -62,7 +62,5 @@ foreach($tabs as $pInfo){
 	<h3><?php echo $Configuration->getDescription(); ?></h3>
 	<br />
 
-	<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-		<div style="margin:5px;"><?php echo $tabPanel->draw();?></div>
-	</div>
+	<?php echo $tabPanel->draw();?>
 </div>

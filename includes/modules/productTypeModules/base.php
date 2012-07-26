@@ -30,31 +30,4 @@ class ProductTypeBase extends ModuleBase
 
 		parent::init($code, $forceEnable, $moduleDir);
 	}
-
-	/**
-	 * @param AccountsReceivableSalesProducts $SaleProduct
-	 * @param bool                            $AssignInventory
-	 */
-	public function onSaveSale(&$SaleProduct, $AssignInventory = false)
-	{
-	}
-
-	/**
-	 * @return array
-	 */
-	public function prepareSave()
-	{
-		return array();
-	}
-
-	/**
-	 * Cannot typehint due to the possibility of packages extension being installed
-	 * and its' products are from another table with the same columns
-	 *
-	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $Product
-	 * @param array                                                                   $ProductJson
-	 */
-	public function load($Product, array $ProductJson)
-	{
-	}
 }

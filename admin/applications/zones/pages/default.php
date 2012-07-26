@@ -34,6 +34,4 @@ if ($zones){
 }
 ?>
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=<?php echo urlencode(sysConfig::get('GOOGLE_API_BROWSER_KEY'));?>&sensor=false"></script>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-</div>
+<?php echo $tableGrid->draw();?>

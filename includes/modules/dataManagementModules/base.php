@@ -34,6 +34,7 @@ class DataManagementModuleBase extends ModuleBase
 	public function getSupportedFormats() {
 		return array(
 			'csv' => 'Comma Delimited File ( .csv )'/*,
+			'xls' => 'Excel Spreadsheet ( .xls )',
 			'tsv' => 'Tab Delimited File ( .tsv )',
 			'xml' => 'XML File ( .xml )'*/
 		);

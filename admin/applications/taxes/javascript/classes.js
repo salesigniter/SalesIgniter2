@@ -8,16 +8,15 @@ $(document).ready(function () {
 
 		GridClass.showWindow({
 			buttonEl   : this,
-			contentUrl : GridClass.linkBuilder.actionWindow('newTaxClass'),
+			contentUrl : GridClass.buildActionWindowLink('newTaxClass', $(this).hasClass('editButton')),
 			buttons    : [
 				{
 					type  : 'cancel',
-					click : GridClass.windowButtonEvents.cancelClick()
+					click : GridClass.windowButtonEvent('cancel')
 				},
 				{
 					type  : 'save',
-					click : GridClass.windowButtonEvents.saveClick({
-						dataKey    : 'class_id',
+					click : GridClass.windowButtonEvent('save', {
 						actionName : 'saveTaxClass'
 					})
 				}

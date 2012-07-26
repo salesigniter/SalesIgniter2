@@ -228,8 +228,8 @@ class Application
 		/*
 		 * Application definitions overwrite file path
 		 */
-		if (file_exists(sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppPage() . '/global.xml')){
-			$languageFiles[] = sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppPage() . '/global.xml';
+		if (file_exists(sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppName() . '/global.xml')){
+			$languageFiles[] = sysConfig::getDirFsCatalog() . 'includes/languages/' . Session::get('language') . '/' . $this->env . '/applications/' . $this->getAppName() . '/global.xml';
 		}
 
 		/*
@@ -239,6 +239,13 @@ class Application
 			'env'     => $this->env,
 			'appName' => $this->getAppName()
 		), $languageFiles);
+
+		/*
+		 * ClientData Application definitions overwrite file path
+		 */
+		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/' . $this->env . '/applications/' . $this->getAppName() . '/language_defines/global.xml')){
+			$languageFiles[] = sysConfig::getDirFsCatalog() . 'clientData/' . $this->env . '/applications/' . $this->getAppName() . '/language_defines/global.xml';
+		}
 
 		/*
 		 * Load all definition files and overwrite definitions

@@ -213,16 +213,28 @@ class AccountsReceivableModule extends ModuleBase
 	}
 
 	/**
+	 * @param null $SaleId
+	 * @param null $SaleRevision
 	 * @return Doctrine_Query
 	 */
-	public function getSalesQuery()
+	public function getSalesQuery($SaleId = null, $SaleRevision = null)
 	{
-		return Doctrine_Query::create()
+		$Query = Doctrine_Query::create()
 			->select('MAX(sale_revision) as sale_revision, *')
 			->from('AccountsReceivableSales')
 			->where('sale_module = ?', $this->getCode())
 			->groupBy('sale_id')
 			->orderBy('date_added desc');
+
+		if ($SaleId !== null){
+			$Query->andWhere('sale_id = ?', $SaleId);
+		}
+
+		if ($SaleRevision !== null){
+			$Query->andWhere('sale_revision = ?', $SaleRevision);
+		}
+
+		return $Query;
 	}
 
 	/**
@@ -650,11 +662,12 @@ class AccountsReceivableModule extends ModuleBase
 	public function saveSale(Order &$SaleClass)
 	{
 		if ($this->revision === 0 && $this->id !== null){
-			$Sale = AccountsReceivable::getSale(
+			$QSale = AccountsReceivable::getSalesQuery(
 				$this->getCode(),
 				$this->id,
 				$this->revision
-			);
+			)->execute();
+			$Sale = $QSale[0];
 		}
 		else {
 			if ($this->id === null){

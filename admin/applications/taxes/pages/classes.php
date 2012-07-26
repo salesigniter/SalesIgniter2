@@ -4,7 +4,8 @@ $QtaxClasses = Doctrine_Query::create()
 	->from('TaxClass')
 	->orderBy('tax_class_title');
 
-$tableGrid = htmlBase::newElement('newGrid')
+$tableGrid = htmlBase::newGrid()
+	->setMainDataKey('class_id')
 	->usePagination(true)
 	->setQuery($QtaxClasses);
 

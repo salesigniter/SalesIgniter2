@@ -5,9 +5,9 @@ class AccountsReceivableSalesProductsInventory extends Doctrine_Record
 
 	public function setUp()
 	{
-		$this->hasOne('ProductsInventoryItems as InventoryItem', array(
-			'local'   => 'item_id',
-			'foreign' => 'item_id'
+		$this->hasOne('ProductsSerialNumbers as Serial', array(
+			'local'   => 'serial_number',
+			'foreign' => 'serial_number'
 		));
 	}
 
@@ -16,6 +16,6 @@ class AccountsReceivableSalesProductsInventory extends Doctrine_Record
 		$this->setTableName('accounts_receivable_sales_products_inventory');
 
 		$this->hasColumn('sale_product_id', 'integer', 4);
-		$this->hasColumn('serial_id', 'integer', 4);
+		$this->hasColumn('serial_number', 'string', 255);
 	}
 }

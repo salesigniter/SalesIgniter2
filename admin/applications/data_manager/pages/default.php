@@ -22,24 +22,48 @@ $ActionButton = htmlBase::newElement('button')
 	->setText('Perform Action');
 ?>
 <form enctype="multipart/form-data" name="dataManager" action="<?php echo itw_app_link('action=perform', 'data_manager', 'default');?>" method="post">
-	<div style="margin:1em;">
-		<div>Select Which Data To Manage</div>
-		<div><?php echo $ModuleSelect->draw();?></div>
-		<br>
+	<?php
+	$Fieldset = htmlBase::newFieldsetFormBlock();
+	$Fieldset->setLegend('Import/Export Settings');
 
-		<div>Select What Format To Use</div>
-		<div><?php echo $DataFormat->draw();?></div>
-		<br>
+	$Fieldset->addBlock('module', 'Select A Module', array(
+		array($ModuleSelect)
+	));
 
-		<div>Select Which Action To Perform</div>
-		<div><?php echo $ActionSelect->draw();?></div>
-		<br>
+	$Fieldset->addBlock('format', 'Select A Format', array(
+		array($DataFormat)
+	));
 
-		<div>Select Which File To Work With ( Import Only )</div>
-		<div><input type="file" name="file_to_use"></div>
-		<!--<div><?php echo htmlBase::newFileManager()->setName('import_file')->setDirectory(sysConfig::getDirFsCatalog() . 'clientData/import/')->draw();?></div>-->
-		<br>
+	$Fieldset->addBlock('action', 'Select An Action', array(
+		array($ActionSelect)
+	));
 
-		<div><?php echo $ActionButton->draw();?></div>
-	</div>
+	$Fieldset->addBlock('file', 'Select A File ( Import Only )', array(
+		array(htmlBase::newElement('label')->html('Select Which File To Work With')),
+		array(htmlBase::newElement('input')->setType('file')->setName('file_to_use'))
+	));
+
+	$StartRecord = htmlBase::newInput()
+		->setSize(5)
+		->setLabel('Start Record')
+		->setLabelPosition('below')
+		->setName('start_record');
+
+	$EndRecord = htmlBase::newInput()
+		->setSize(5)
+		->setLabel('End Record')
+		->setLabelPosition('below')
+		->setName('end_record');
+
+	$Fieldset->addBlock('limit', 'Limit Results ( Export Only )', array(
+		array(htmlBase::newElement('label')->html('Select Start/End Records To Limit Results ( Leave Empty In Either To Ignore It )')),
+		array($StartRecord, $EndRecord)
+	));
+
+	$Fieldset->addBlock('button', '', array(
+		array($ActionButton)
+	));
+
+	echo $Fieldset->draw();
+	?>
 </form>

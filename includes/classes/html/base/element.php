@@ -520,11 +520,25 @@ class htmlElement
 
 	public function setValidation($val = false, $pattern = ''){
 		if ($val === true){
-			$this->attr('data-validate', 'true');
+			$this->data('validate', 'true');
 			$this->attr('pattern', $pattern);
 		}else{
-			$this->removeAttr('data-validate');
+			$this->removeData('validate');
 			$this->removeAttr('pattern');
+		}
+		return $this;
+	}
+
+	public function removeData($k){
+		$this->removeAttr('data-' . $k);
+		return $this;
+	}
+
+	public function data($k, $v = null){
+		if ($v === null){
+			return $this->attr('data-' . $k);
+		}else{
+			$this->attr('data-' . $k, $v);
 		}
 		return $this;
 	}

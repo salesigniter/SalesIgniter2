@@ -132,13 +132,19 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	protected $_insertAfterGrid = '';
 
 	/**
+	 * @var bool
+	 */
+	protected $_filterButtonsInBar = false;
+
+	/**
 	 * @var Doctrine_Query
 	 */
 	protected $dataQuery;
 
 	public function __construct() {
 		$this->mainElement = new htmlElement('div');
-		$this->mainElement->addClass('gridContainer');
+		$this->mainElement->addClass('ui-widget ui-widget-content ui-corner-all gridContainer');
+		$this->mainElement->css('padding', '.5em');
 		$this->gridElement = new htmlElement('table');
 
 		$this->gridElement->attr('cellpadding', '2')
@@ -474,12 +480,13 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 		foreach($settings['columns'] as $cInfo){
 			$first = false;
 			$last = false;
-			if ($col == 0){
-				$first = true;
-			}
-			elseif ($col == $lastCol) {
+			if ($col == $lastCol) {
 				$last = true;
 			}
+			elseif ($col == 0){
+				$first = true;
+			}
+
 
 			$th = $this->parseColumn('th', $cInfo);
 
@@ -502,18 +509,28 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 						$cInfo['useSort'] = false;
 					}
 					$searchTh = $this->parseColumn('th', $cInfo);
-					if ($last === true){
-						$goButton = htmlBase::newElement('button')
-							->addClass('applyFilterButton')
-							->setText(sysLanguage::get('TEXT_BUTTON_APPLY_FILTER'))
-							->setTooltip(sysLanguage::get('TEXT_TOOLTIP_APPLY_FILTER_BUTTON'));
-						$resetButton = htmlBase::newElement('button')
-							->addClass('resetFilterButton')
-							->setText(sysLanguage::get('TEXT_BUTTON_RESET_FILTER'))
-							->setTooltip(sysLanguage::get('TEXT_TOOLTIP_CLEAR_FILTER_BUTTON'));
-						$searchTh->css('white-space', 'nowrap')->html($goButton->draw() . '&nbsp;' . $resetButton->draw());
-					}else{
+					if ($last === false){
 						$searchTh->html('&nbsp;');
+					}
+				}
+
+				if ($last === true){
+					$goButton = htmlBase::newButton()
+						->usePreset('search')
+						->addClass('applyFilterButton')
+						->setText(sysLanguage::get('TEXT_BUTTON_APPLY_FILTER'))
+						->setTooltip(sysLanguage::get('TEXT_TOOLTIP_APPLY_FILTER_BUTTON'));
+					$resetButton = htmlBase::newButton()
+						->usePreset('cancel')
+						->addClass('resetFilterButton')
+						->setText(sysLanguage::get('TEXT_BUTTON_RESET_FILTER'))
+						->setTooltip(sysLanguage::get('TEXT_TOOLTIP_CLEAR_FILTER_BUTTON'));
+					if ($this->_filterButtonsInBar === true){
+						$this->addButton($goButton);
+						$this->addButton($resetButton);
+					}
+					else{
+						$searchTh->css('white-space', 'nowrap')->html($goButton->draw() . '&nbsp;' . $resetButton->draw());
 					}
 				}
 
@@ -554,12 +571,13 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 		foreach($settings['columns'] as $cInfo){
 			$first = false;
 			$last = false;
-			if ($col == 0){
-				$first = true;
-			}
-			elseif ($col == $lastCol) {
+			if ($col == $lastCol) {
 				$last = true;
 			}
+			elseif ($col == 0){
+				$first = true;
+			}
+
 			$td = $this->parseColumn('td', $cInfo, $first, $last);
 
 			if ($last === true){
@@ -686,6 +704,11 @@ class htmlWidget_newGrid implements htmlWidgetPlugin
 	 */
 	public function useSearching($val){
 		$this->useSearch = $val;
+		return $this;
+	}
+
+	public function putFilterButtonsInButtonBar($val){
+		$this->_filterButtonsInBar = $val;
 		return $this;
 	}
 

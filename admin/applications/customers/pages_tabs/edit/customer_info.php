@@ -117,6 +117,7 @@ $faxInput = htmlBase::newInput()
 */
 
 $countryInput = htmlBase::newSelectbox()
+->attr('data-zone_input_name', 'entry_state')
 ->setLabel(sysLanguage::get('ENTRY_COUNTRY'))
 ->setLabelPosition('bottom')
 ->setName('country')

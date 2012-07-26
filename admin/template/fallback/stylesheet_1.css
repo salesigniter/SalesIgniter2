@@ -148,7 +148,7 @@ input.error, select.error, textarea.error {
 	background-position : -254px -2px;
 }
 
-.ui-icon-circle-triangle-e {
+.ui-icon-circle-triangle-w, .ui-icon-arrowthick-1-w  {
 	background-position : -2px -30px;
 }
 
@@ -164,7 +164,7 @@ input.error, select.error, textarea.error {
 	background-position : -170px -30px;
 }
 
-.ui-icon-back, .ui-icon-circle-triangle-w {
+.ui-icon-back, .ui-icon-circle-triangle-e {
 	background-position : -198px -30px;
 }
 
@@ -356,6 +356,14 @@ input.error, select.error, textarea.error {
 
 .ui-icon-plugin {
 	background-position : -226px -198px;
+}
+
+.ui-icon-report {
+	background-position : -254px -198px;
+}
+
+.ui-icon-accounting {
+	background-position : -2px -226px;
 }
 
 .ui-ajax-loader {
@@ -882,6 +890,7 @@ input.error, select.error, textarea.error {
 	margin-left    : .5em;
 }
 
+/* Application Menu, be careful changing values for this */
 .ApplicationPageMenu.fixed {
 	position : fixed;
 	z-index  : 1;
@@ -951,7 +960,9 @@ input.error, select.error, textarea.error {
 	border-top : 0;
 	left       : -1px;
 }
+/* Application Menu, be careful changing values for this */
 
+/* Fieldset Form, be careful changing values for this */
 .fieldsetForm {
 	border-color  : #cccccc;
 	background    : #f9f9f9;
@@ -984,7 +995,9 @@ label {
 	font-size      : 11px;
 	font-weight    : bold;
 }
+/* Fieldset Form, be careful changing values for this */
 
+/* Searchable Select, be careful changing values for this */
 .ui-selectbox-searchable {
 	display  : inline-block;
 	width    : 100%;
@@ -1050,3 +1063,50 @@ label {
 	border-bottom : 1px solid #D8D8D8;
 	padding       : .5em;
 }
+/* Searchable Select, be careful changing values for this */
+
+/* Select To List, be careful changing values for this */
+.selectToList {
+}
+
+.selectToList .fromElementColumn {
+	vertical-align : middle;
+	width          : 40%;
+}
+
+.selectToList .buttonColumn {
+	vertical-align : middle;
+	margin         : 0 1em;
+}
+
+.selectToList .toElementColumn {
+	vertical-align : top;
+	width          : 40%;
+}
+
+.selectToList button {
+	margin  : 1em 0;
+	display : block;
+	width   : 100%;
+}
+
+.selectToList select {
+	width : 100%;
+}
+
+.selectToList ul {
+	list-style : none;
+	padding    : 0;
+	margin     : 0;
+}
+
+.selectToList ul li {
+	padding : .3em;
+	margin  : .5em 0;
+}
+
+.selectToList ul li .ui-icon {
+	margin : 0 .5em;
+}
+
+/* Select To List, be careful changing values for this */

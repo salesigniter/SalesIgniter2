@@ -41,6 +41,7 @@ $layoutPath = sysConfig::getDirFsCatalog() . 'extensions/templateManager/mainFil
 if (file_exists(sysConfig::get('DIR_FS_TEMPLATE') . $tplFile)){
 	$layoutPath = sysConfig::get('DIR_FS_TEMPLATE');
 }
+
 Session::set('layoutType', $layoutType);
 
 $Template = new Template($tplFile, $layoutPath);

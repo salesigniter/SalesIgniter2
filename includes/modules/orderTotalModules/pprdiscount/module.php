@@ -20,7 +20,7 @@ class OrderTotalPprdiscount extends OrderTotalModuleBase
 		}
 	}
 
-	public function process(array &$outputData) {
+	/*public function process(array &$outputData) {
 		global $order, $appExtension, $userAccount, $ShoppingCart;
 		$pprExt = $appExtension->getExtension('payPerRentals');
 
@@ -76,7 +76,7 @@ class OrderTotalPprdiscount extends OrderTotalModuleBase
 				$outputData['value'] = -$discount;
 			}
 		}
-	}
+	}*/
 }
 
 ?>

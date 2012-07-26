@@ -19,35 +19,10 @@ class OrderTotalPointsRewards extends OrderTotalModuleBase {
 	}
 
 	public function process(array &$outputData){
-		global $order;
-		$ShoppingCart = &Session::getReference('ShoppingCart');
-		$userAccount = &Session::getReference('userAccount');
-
-		if(!Session::exists('pointsRewards_points') || Session::get('pointsRewards_points') <= 0)
-			return false;
-		
-		$order->info['total'] = $order->info['total'];
-		$purchaseTypes = false;
-		$discountAmount = 0;
-		foreach ($ShoppingCart->getProducts() as $cartProduct) {
-			$purchaseType = $cartProduct->getPurchaseType();
-			if ((is_array($purchaseTypes) && !in_array($purchaseType, $purchaseTypes)) || $purchaseTypes == false)
-				$purchaseTypes[] = $purchaseType;
-		}
-		if ($purchaseTypes) {
-
-			foreach ($purchaseTypes as $purchaseType) {
-				$discountAmount = 0;
-				$discountAmount += $this->getCustomerPRAmount($userAccount->getCustomerId(), $purchaseType);
-			}
-		}
-
-		if ( $discountAmount > 0 && $discountAmount <= $order->info['total']) {
-			$order->info['total'] = $order->info['total']- $discountAmount;
-
+		if ($this->getValue() > 0) {
 			$outputData['title'] = $this->getTitle() . ':';
-			$outputData['text'] = '<b>-' . $this->formatAmount($discountAmount) . '</b>';
-			$outputData['value'] = $order->info['total'];
+			$outputData['text'] = $this->getText();
+			$outputData['value'] = $this->getValue();
 		}
 	}
 

@@ -22,7 +22,7 @@ class ProductsPurchaseTypes extends Doctrine_Record
 			'foreign' => 'products_id'
 		));
 
-		$this->hasMany('ProductsInventoryItemsToProductsPurchaseTypes as InventoryItems', array(
+		$this->hasMany('ProductsInventoryItems as InventoryItems', array(
 			'local'   => 'purchase_type_id',
 			'foreign' => 'purchase_type_id',
 			'cascade' => array('delete')

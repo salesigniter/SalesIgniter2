@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html <?php echo sysLanguage::getHtmlParams();?>>
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<?php
 	$title	= sysConfig::get('STORE_NAME');
 	$desc	= sysConfig::get('STORE_NAME_ADDRESS');

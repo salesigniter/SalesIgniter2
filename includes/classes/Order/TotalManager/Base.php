@@ -15,13 +15,14 @@ class OrderTotalManager
 	/**
 	 * @var OrderTotal[]
 	 */
-	protected $totals = array();
+	public $totals = array();
 
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		$this->loadModules();
 	}
 
 	/**
@@ -35,6 +36,56 @@ class OrderTotalManager
 		return new OrderTotal();
 	}
 
+	/**
+	 *
+	 */
+	public function loadModules()
+	{
+		$Paths = array();
+
+		if (is_dir(sysConfig::getDirFsCatalog() . 'clientData/includes/classes/Order/TotalManager/modules')){
+			$Paths[] = sysConfig::getDirFsCatalog() . 'clientData/includes/classes/Order/TotalManager/modules/';
+		}
+
+		$Dir = new DirectoryIterator(sysConfig::getDirFsCatalog() . 'extensions');
+		foreach($Dir as $dInfo){
+			if ($dInfo->isDot() || $dInfo->isFile()){
+				continue;
+			}
+
+			if (is_dir($dInfo->getPathname() . '/classes/Order/TotalManager/modules')){
+				$Paths[] = $dInfo->getPathname() . '/classes/Order/TotalManager/modules/';
+			}
+		}
+
+		$Paths[] = realpath(__DIR__) . '/modules/';
+
+		foreach($Paths as $Path){
+			$Dir = new DirectoryIterator($Path);
+			foreach($Dir as $dInfo){
+				if ($dInfo->isDot() || $dInfo->isFile() || in_array($dInfo->getBasename(), $this->loadedModules)){
+					continue;
+				}
+
+				if (file_exists($dInfo->getPathname() . '/module.php')){
+					require($dInfo->getPathname() . '/module.php');
+					$ClassName = 'OrderTotalModule' . ucfirst($dInfo->getBasename());
+
+					$TotalModule = new $ClassName();
+
+					$SaleTotal = $this->getTotalClass();
+					$SaleTotal->setModule($TotalModule);
+					if ($SaleTotal->isEnabled() === true){
+						$this->add($SaleTotal);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return array
+	 */
 	public function prepareSave(){
 		$toEncode = array();
 		foreach($this->getAll() as $Total){
@@ -69,7 +120,7 @@ class OrderTotalManager
 	 *
 	 * @param AccountsReceivableSalesTotals $SaleTotals
 	 */
-	public function onSaveSale(AccountsReceivableSalesTotals &$SaleTotals)
+	public function onSaveSale(&$SaleTotals)
 	{
 		foreach($this->getAll() as $Total){
 			$SaleTotal = $SaleTotals
@@ -87,9 +138,7 @@ class OrderTotalManager
 	 */
 	public function add(OrderTotal $orderTotal)
 	{
-		$this->totals[$orderTotal
-			->getModule()
-			->getCode()] = $orderTotal;
+		$this->totals[$orderTotal->getCode()] = $orderTotal;
 	}
 
 	/**
@@ -110,9 +159,7 @@ class OrderTotalManager
 	{
 		$OrderTotal = $this->get($type);
 		if ($OrderTotal !== false){
-			return (float)$OrderTotal
-				->getModule()
-				->getValue();
+			return (float)$OrderTotal->getValue();
 		}
 		return null;
 	}
@@ -133,8 +180,7 @@ class OrderTotalManager
 	public function &get($moduleType)
 	{
 		if (!isset($this->totals[$moduleType])){
-			$this->totals[$moduleType] = $this->getTotalClass();
-			$this->totals[$moduleType]->setModule($moduleType);
+			die('Module Is Not Loaded: ' . $moduleType);
 		}
 		return $this->totals[$moduleType];
 	}
@@ -148,69 +194,17 @@ class OrderTotalManager
 		//echo '<pre>';print_r($TotalsSorted);
 		usort($TotalsSorted, function ($a, $b)
 		{
-			return ($a
-				->getModule()
-				->getDisplayOrder() < $b
-				->getModule()
-				->getDisplayOrder() ? -1 : 1);
+			return ($a->getDisplayOrder() < $b->getDisplayOrder() ? -1 : 1);
 		});
 		return $TotalsSorted;
 	}
 
 	/**
-	 * @return htmlElement_table
+	 * @param Order $Sale
 	 */
-	public function show()
-	{
-		$orderTotalTable = htmlBase::newElement('table')
-			->setCellPadding(2)
-			->setCellSpacing(0);
-
-		foreach($this->totals as $OrderTotal){
-			$orderTotalTable->addBodyRow(array(
-				'columns' => array(
-					array(
-						'align' => 'right',
-						'text'  => $OrderTotal
-							->getModule()
-							->getTitle()
-					),
-					array(
-						'align' => 'right',
-						'text'  => $OrderTotal
-							->getModule()
-							->getText()
-					)
-				)
-			));
-		}
-
-		return $orderTotalTable;
-	}
-
-	/**
-	 * @param OrderProductManager $ProductManager
-	 */
-	public function onProductAdded(OrderProductManager $ProductManager)
-	{
+	public function updateSale(Order &$Sale){
 		foreach($this->getAll() as $Module){
-			//echo __FILE__ . '::' . __LINE__ . '<br>';
-			//echo '<div style="margin-left:15px;">';
-			$Module->onProductAdded($ProductManager);
-			//echo '</div>';
-		}
-	}
-
-	/**
-	 * @param OrderProductManager $ProductManager
-	 */
-	public function onProductUpdated(OrderProductManager $ProductManager)
-	{
-		foreach($this->getAll() as $Module){
-			//echo __FILE__ . '::' . __LINE__ . '::' . $Module->getModule()->getTitle() . '<br>';
-			//echo '<div style="margin-left:15px;">';
-			$Module->onProductUpdated($ProductManager);
-			//echo '</div>';
+			$Module->updateSale($Sale);
 		}
 	}
 
@@ -225,19 +219,20 @@ class OrderTotalManager
 	{
 		$orderTotals = '';
 		foreach($this->getAll() as $OrderTotal){
-			$orderTotals .= strip_tags($OrderTotal
-				->getModule()
-				->getTitle()) . ' ' . strip_tags($OrderTotal
-				->getModule()
-				->getText()) . "\n";
+			$orderTotals .= strip_tags($OrderTotal->getTitle()) . ' ' . strip_tags($OrderTotal->getText()) . "\n";
 		}
 		return $orderTotals;
 	}
 
+	/**
+	 * @param $addColumns
+	 * @param $CurrentRow
+	 * @param $HeaderRow
+	 */
 	public function onExport($addColumns, &$CurrentRow, &$HeaderRow)
 	{
 		foreach($this->getAll() as $OrderTotal){
-			$Code = $OrderTotal->getModule()->getCode();
+			$Code = $OrderTotal->getCode();
 			if ($HeaderRow->hasColumn('v_total_' . $Code) === false){
 				$HeaderRow->addColumn('v_total_' . $Code);
 			}

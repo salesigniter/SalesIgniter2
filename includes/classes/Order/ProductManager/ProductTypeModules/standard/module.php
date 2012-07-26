@@ -65,6 +65,7 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	 */
 	public function loadPurchaseType($PurchaseType = false, $ignoreStatus = false)
 	{
+		global $appExtension;
 		$PurchaseType = $this->getPurchaseTypeCode($PurchaseType);
 		if ($PurchaseType === false || $this->purchaseTypeEnabled($PurchaseType) === false){
 			if ($ignoreStatus === false){
@@ -74,10 +75,14 @@ class OrderProductTypeStandard extends ProductTypeStandard
 
 		if (is_object($this->PurchaseTypeClass) === false){
 			PurchaseTypeModules::$classPrefix = 'OrderPurchaseType';
-			$isLoaded = PurchaseTypeModules::loadModule(
-				$PurchaseType,
-				sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/PurchaseTypeModules/' . $PurchaseType . '/'
-			);
+			$ModuleDir = sysConfig::getDirFsCatalog() . 'includes/classes/Order/ProductManager/PurchaseTypeModules/' . $PurchaseType . '/';
+
+			foreach($appExtension->getExtensions() as $ext){
+				if (is_dir($ext->getExtensionDir() . 'catalog/includes/classes/Order/ProductManager/PurchaseTypeModules/' . $PurchaseType . '/')){
+					$ModuleDir = $ext->getExtensionDir() . 'catalog/includes/classes/Order/ProductManager/PurchaseTypeModules/' . $PurchaseType . '/';
+				}
+			}
+			$isLoaded = PurchaseTypeModules::loadModule($PurchaseType, $ModuleDir);
 
 			if ($isLoaded === true){
 				$this->PurchaseTypeClass = PurchaseTypeModules::getModule($PurchaseType);
@@ -91,14 +96,6 @@ class OrderProductTypeStandard extends ProductTypeStandard
 				$this->PurchaseTypeClass->loadInventoryData($this->getProductId());
 			}
 		}
-	}
-
-	/**
-	 * @return PurchaseTypeBase
-	 */
-	public function &getPurchaseTypeClass()
-	{
-		return $this->PurchaseTypeClass;
 	}
 
 	/**
@@ -132,6 +129,21 @@ class OrderProductTypeStandard extends ProductTypeStandard
 	}
 
 	/**
+	 * @param null $Qty
+	 * @return bool
+	 */
+	public function hasEnoughInventory($Qty = null)
+	{
+		//echo __FILE__ . '::' . __LINE__ . '::CHECKING QTY::' . $Qty . "\n";
+		$return = true;
+		$PurchaseType = $this->getPurchaseTypeClass();
+		if (method_exists($PurchaseType, 'hasEnoughInventory')){
+			$return = $PurchaseType->hasEnoughInventory($Qty);
+		}
+		return $return;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function prepareSave()
@@ -143,6 +155,22 @@ class OrderProductTypeStandard extends ProductTypeStandard
 			$toEncode['PurchaseTypeJson'] = $PurchaseType->prepareSave();
 		}
 		return $toEncode;
+	}
+
+	/**
+	 * Cannot typehint $SaleProduct due to the possibility of packages extension being installed
+	 * and its' products are from another table with the same columns
+	 *
+	 * @param OrderProduct                                                            $OrderProduct
+	 * @param AccountsReceivableSalesProducts|AccountsReceivableSalesProductsPackaged $SaleProduct
+	 * @param bool                                                                    $AssignInventory
+	 */
+	public function onSaveSale(OrderProduct $OrderProduct, &$SaleProduct, $AssignInventory = false)
+	{
+		$PurchaseType = $this->getPurchaseTypeClass();
+		if (method_exists($PurchaseType, 'onSaveSale')){
+			$PurchaseType->onSaveSale($OrderProduct, $SaleProduct, $AssignInventory);
+		}
 	}
 
 	/**
@@ -167,6 +195,9 @@ class OrderProductTypeStandard extends ProductTypeStandard
 		}
 	}
 
+	/**
+	 * @param $orderedProductsString
+	 */
 	public function onGetEmailList(&$orderedProductsString)
 	{
 		$PurchaseType = $this->getPurchaseTypeClass();

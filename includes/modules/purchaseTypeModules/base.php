@@ -1,8 +1,4 @@
 <?php
-if (!class_exists('productInventory')){
-	require(sysConfig::getDirFsCatalog() . 'includes/classes/product/Inventory.php');
-}
-
 class PurchaseTypeBase extends ModuleBase
 {
 
@@ -138,18 +134,17 @@ class PurchaseTypeBase extends ModuleBase
 	public function loadInventoryData()
 	{
 		$Query = Doctrine_Query::create()
-			->from('ProductsInventoryItemsToProductsPurchaseTypes i2pt')
-			->leftJoin('i2pt.InventoryItem i')
+			->from('ProductsPurchaseTypes pt')
+			->leftJoin('pt.InventoryItems i')
 			->leftJoin('i.Serials s')
-			->leftJoin('i2pt.PurchaseTypeInfo as pt')
 			->where('pt.products_id = ?', $this->getProductId())
 			->andWhere('pt.type_name = ?', $this->getCode());
 
 		EventManager::notify('PurchaseTypeLoadInventoryData', $Query);
 
-		$Inventory = $Query->execute();
-		foreach($Inventory as $iInfo){
-			$InventoryItem = $iInfo->InventoryItem;
+		$PurchaseType = $Query->execute();
+		$InventoryItems = $PurchaseType->{$this->getCode()}->InventoryItems;
+		foreach($InventoryItems as $InventoryItem){
 			$this->_invItems[$InventoryItem->item_status] = array(
 				'total' => $InventoryItem->item_total
 			);
@@ -525,12 +520,12 @@ class PurchaseTypeBase extends ModuleBase
 	 * @param OrderProduct $OrderedProduct
 	 * @return string
 	 */
-	public function displayOrderedProductBarcodes(OrderProduct $OrderedProduct)
+	public function displaySaleProductSerials(OrderProduct $OrderedProduct)
 	{
 		$return = '';
-		if ($OrderedProduct->hasInfo('Barcodes')){
-			foreach($OrderedProduct->getInfo('Barcodes') as $bInfo){
-				$return .= ' - ' . $bInfo['ProductsInventoryBarcodes']['barcode'] . '<br>';
+		if ($OrderedProduct->hasInfo('Serials')){
+			foreach($OrderedProduct->getInfo('Serials') as $SerialNumber){
+				$return .= ' - ' . $SerialNumber . '<br>';
 			}
 		}
 		return $return;
@@ -543,8 +538,7 @@ class PurchaseTypeBase extends ModuleBase
 		if ($CurrentRow->getColumnValue($ColBasename . '_status', 0) == 1){
 			$Product->ProductsPurchaseTypes[$Code]->status = $CurrentRow->getColumnValue($ColBasename . '_status');
 			$Product->ProductsPurchaseTypes[$Code]->price = $CurrentRow->getColumnValue($ColBasename . '_price');
-			$Product->ProductsPurchaseTypes[$Code]->inventory_controller = $CurrentRow->getColumnValue($ColBasename . '_inventory_controller');
-			$Product->ProductsPurchaseTypes[$Code]->inventory_track_method = $CurrentRow->getColumnValue($ColBasename . '_inventory_track_method');
+			$Product->ProductsPurchaseTypes[$Code]->inventory_controller = $CurrentRow->getColumnValue($ColBasename . '_use_serials');
 			$Product->ProductsPurchaseTypes[$Code]->tax_class_id = $CurrentRow->getColumnValue($ColBasename . '_tax_class_id');
 		}
 		elseif (isset($Product->ProductsPurchaseTypes[$Code])) {
@@ -557,8 +551,7 @@ class PurchaseTypeBase extends ModuleBase
 		return array(
 			'status',
 			'price',
-			'inventory_controller',
-			'inventory_track_method',
+			'use_serials',
 			'tax_class_id'
 		);
 	}
@@ -568,8 +561,7 @@ class PurchaseTypeBase extends ModuleBase
 		$colBasename = 'v_' . $ProductType . '_' . $this->getCode();
 		$HeaderRow->addColumn($colBasename . '_status');
 		$HeaderRow->addColumn($colBasename . '_price');
-		$HeaderRow->addColumn($colBasename . '_inventory_controller');
-		$HeaderRow->addColumn($colBasename . '_inventory_track_method');
+		$HeaderRow->addColumn($colBasename . '_use_serials');
 		$HeaderRow->addColumn($colBasename . '_tax_class_id');
 	}
 
@@ -580,8 +572,7 @@ class PurchaseTypeBase extends ModuleBase
 		$colBasename = 'v_' . $ProductType . '_' . $this->getCode();
 		$CurrentRow->addColumn($PurchaseType->status, $colBasename . '_status');
 		$CurrentRow->addColumn($PurchaseType->price, $colBasename . '_price');
-		$CurrentRow->addColumn($PurchaseType->inventory_controller, $colBasename . '_inventory_controller');
-		$CurrentRow->addColumn($PurchaseType->inventory_track_method, $colBasename . '_inventory_track_method');
+		$CurrentRow->addColumn($PurchaseType->use_serials, $colBasename . '_use_serials');
 		$CurrentRow->addColumn($PurchaseType->tax_class_id, $colBasename . '_tax_class_id');
 	}
 

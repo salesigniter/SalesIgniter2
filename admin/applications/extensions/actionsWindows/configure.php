@@ -1,13 +1,4 @@
 <?php
-$infoBox = htmlBase::newElement('infobox');
-$infoBox->setHeader('<b>' . sysLanguage::get('TEXT_INFO_HEADING_EDIT') . '</b>');
-$infoBox->setButtonBarLocation('top');
-
-$saveButton = htmlBase::newElement('button')->addClass('saveButton')->usePreset('save');
-$cancelButton = htmlBase::newElement('button')->addClass('cancelButton')->usePreset('cancel');
-
-$infoBox->addButton($saveButton)->addButton($cancelButton);
-
 $Configuration = new ExtensionConfigReader($_GET['extension']);
 
 $tabs = array();
@@ -65,7 +56,8 @@ $tabPanel = htmlBase::newElement('tabs')
 	->addClass('makeTabPanel makeTabsVertical')
 	->setId('module_tabs');
 foreach($tabs as $pInfo){
-	$tabPanel->addTabHeader($pInfo['panelId'], array('text' => $pInfo['panelHeader']))
+	$tabPanel
+		->addTabHeader($pInfo['panelId'], array('text' => $pInfo['panelHeader']))
 		->addTabPage($pInfo['panelId'], array('text' => $pInfo['panelTable']));
 }
 
@@ -75,7 +67,17 @@ EventManager::notify(
 	$_GET['extension']
 );
 
-$infoBox->addContentRow($tabPanel->draw());
+$SaveButton = htmlBase::newElement('button')
+	->addClass('saveButton')
+	->usePreset('save');
+$CancelButton = htmlBase::newElement('button')
+	->addClass('cancelButton')
+	->usePreset('cancel');
 
-EventManager::attachActionResponse($infoBox->draw(), 'html');
-?>
+$Infobox = htmlBase::newActionWindow()
+	->setHeader(sysLanguage::get('TEXT_INFO_HEADING_EDIT'))
+	->addButton($SaveButton)
+	->addButton($CancelButton)
+	->setContent($tabPanel);
+
+EventManager::attachActionResponse($Infobox->draw(), 'html');

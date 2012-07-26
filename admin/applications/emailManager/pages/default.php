@@ -40,7 +40,5 @@ if ($Results->count() > 0){
 		));
 	}
 }
-?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin:5px;">
-	<div style="margin:5px;"><?php echo $TableGrid->draw();?></div>
-</div>
+
+echo $TableGrid->draw();

@@ -204,6 +204,9 @@ class htmlElement_input extends htmlElement
 		if (is_array($val)){
 			$val = implode(';', $val);
 		}
+		elseif ($val instanceof SesDateTime || $val instanceof DateTime){
+			$val = $val->format(sysLanguage::getDateFormat('short'));
+		}
 		$this->attr('value', stripslashes($val));
 		return $this;
 	}

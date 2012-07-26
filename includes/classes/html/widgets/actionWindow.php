@@ -75,4 +75,9 @@ class htmlWidget_actionWindow implements htmlWidgetPlugin
 		}
 		return $this;
 	}
+
+	public function setHeader($header){
+		$this->windowElement->data('header', $header);
+		return $this;
+	}
 }

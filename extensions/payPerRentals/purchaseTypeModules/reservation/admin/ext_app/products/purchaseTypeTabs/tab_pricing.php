@@ -192,6 +192,23 @@ class PurchaseTypeTabReservation_tab_pricing
 			->setCellPadding(3)
 			->setCellSpacing(0);
 
+		$TaxClass = htmlBase::newSelectbox()
+			->setName('pricing[reservation][tax_class_id]')
+			->selectOptionByValue($PurchaseType->getData('tax_class_id'))
+			->addOption('', 'Not A Taxable Product');
+		$QtaxClass = Doctrine_Manager::getInstance()
+			->getCurrentConnection()
+			->fetchAssoc("select tax_class_id, tax_class_title from tax_class order by tax_class_title");
+		foreach($QtaxClass as $tax_class){
+			$TaxClass->addOption($tax_class['tax_class_id'], $tax_class['tax_class_title']);
+		}
+
+		$pricingTable->addBodyRow(array(
+			'columns' => array(
+				array('text' => sysLanguage::get('TEXT_PRODUCTS_TAX_CLASS') . $TaxClass->draw())
+			)
+		));
+
 		$pricingTable->addBodyRow(array(
 			'columns' => array(
 				array(

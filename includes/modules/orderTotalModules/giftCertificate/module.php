@@ -16,7 +16,7 @@ class OrderTotalGiftCertificate extends OrderTotalModuleBase
 		}
 	}
 
-	public function process(array &$outputData) {
+	/*public function process(array &$outputData) {
 		global $order, $onePageCheckout;
 		$ShoppingCart = &Session::getReference('ShoppingCart');
 		$userAccount = &Session::getReference('userAccount');
@@ -58,7 +58,7 @@ class OrderTotalGiftCertificate extends OrderTotalModuleBase
 			$outputData['text'] = '<b>-' . $this->formatAmount($discountAmount) . '</b>';
 			$outputData['value'] = $order->info['total'];
 		}
-	}
+	}*/
 
 	public function getCustomersBalance($customers_id, $purchase_type) {
 		$GiftCertificatesCustomersBalance = Doctrine::getTable('GiftCertificatesCustomersBalance')

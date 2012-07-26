@@ -278,11 +278,10 @@ if (!isset($WidgetSettings->linked_to)){
 			$iconInput = $iconSrcMenu->draw();
 		}
 		elseif ($data->icon == 'custom') {
-			$iconInput = htmlBase::newElement('input')
+			$iconInput = htmlBase::newFileManager()
 				->setName($baseInputName . '[icon_src]')
 				->addClass('menuItemIconSrc')
-				->addClass('BrowseServerField')
-				->val($data->icon_src)
+				->val((isset($data->icon_src) ? $data->icon_src : ''))
 				->draw();
 		}
 		$textInputs = '<table cellpadding="2" cellspacing="0" border="0">';

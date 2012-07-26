@@ -36,7 +36,7 @@ else {
 	$sourceInfo = '';
 	function getSourceFile($fileName, $filePath){
 		global $sourceInfo;
-		if (isset($_GET['noMin']) || $fileName == 'ckeditor.js'){
+		if (isset($_GET['noMin']) || $fileName == 'ckeditor.js' || $fileName == 'fullcalendar.js'){
 			return $filePath . $fileName;
 		}
 		if (file_exists($filePath . $fileName)){

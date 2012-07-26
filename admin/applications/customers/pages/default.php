@@ -243,8 +243,6 @@ $array_filter = array(
 		</td>
 	</tr>
 </table>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;"><?php echo $tableGrid->draw();?></div>
-</div>
+<?php echo $tableGrid->draw();?>
 <?php
 EventManager::notify('AdminCustomersAfterTableDraw');

@@ -184,12 +184,28 @@ class htmlBase {
 	public static function newPageMenu(){
 		return self::newElement('pageMenu');
 	}
-	
+
 	/**
 	 * @static
 	 * @return htmlWidget_ckEditor
 	 */
 	public static function newHtmlEditor(){
 		return self::newElement('ck_editor');
+	}
+
+	/**
+	 * @static
+	 * @return htmlElement_label
+	 */
+	public static function newLabel(){
+		return self::newElement('label');
+	}
+
+	/**
+	 * @static
+	 * @return htmlWidget_selectToList
+	 */
+	public static function newSelectToList(){
+		return self::newElement('selectToList');
 	}
 }

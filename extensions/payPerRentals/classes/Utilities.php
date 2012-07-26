@@ -1493,7 +1493,7 @@ class ReservationUtilities {
         <td valign="top">
 			<div class="datePicker"></div>
 			<?php if ($options['showInfoKey'] === true){ ?>
-			<div class="shippingInfoDiv">
+			<div class="shippingInfoDiv" style="clear:both;">
 				<div colspan="2">
 					<table cellpadding="0" cellspacing="3" border="0" width="100%">
 						<tr>

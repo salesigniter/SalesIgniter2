@@ -55,9 +55,5 @@ if ($Result){
 		));
 	}
 }
-?>
-<div class="ui-widget ui-widget-content ui-corner-all" style="margin-right:5px;margin-left:5px;">
-	<div style="margin:5px;">
-		<?php echo $tableGrid->draw();?>
-	</div>
-</div>
+
+echo $tableGrid->draw();

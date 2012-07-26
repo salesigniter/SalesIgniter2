@@ -13,44 +13,33 @@ class OrderCreatorTotal extends OrderTotal
 {
 
 	/**
+	 * @param AccountsReceivableSalesTotals $Total
+	 */
+	public function onSaveProgress(AccountsReceivableSalesTotals &$Total)
+	{
+		$Total->module_code = $this->getCode();
+		$Total->total_value = $this->getValue();
+		$Total->display_order = $this->getDisplayOrder();
+		$Total->total_json = $this->prepareSave();
+
+		$Module = $this->getModule();
+		if (method_exists($Module, 'onSaveProgress')){
+			$Module->onSaveProgress($Total);
+		}
+	}
+
+	/**
 	 * @param array $TotalInfo
 	 */
 	public function loadSessionData(array $TotalInfo)
 	{
 		$this->data = array_merge($this->data, $TotalInfo['data']);
 
-		$this->Module = $this->getTotalModule($this->data['module_code']);
 		if (isset($TotalInfo['module_json'])){
 			if (method_exists($this->Module, 'loadSessionData')){
 				$this->Module->loadSessionData($TotalInfo['module_json']);
 			}
 		}
-	}
-
-	/**
-	 * @param $ModuleCode
-	 * @return OrderTotalModuleBase
-	 */
-	public function getTotalModule($ModuleCode)
-	{
-		if (file_exists(sysConfig::getDirFsCatalog() . 'clientData/extensions/orderCreator/admin/classes/Order/TotalManager/TotalModules/' . $ModuleCode . '/module.php')){
-			$className = 'OrderCreatorTotal' . ucfirst($ModuleCode);
-			if (!class_exists($className)){
-				require(sysConfig::getDirFsCatalog() . 'clientData/extensions/orderCreator/admin/classes/Order/TotalManager/TotalModules/' . $ModuleCode . '/module.php');
-			}
-			$Module = new $className();
-		}
-		elseif (file_exists(__DIR__ . '/TotalModules/' . $ModuleCode . '/module.php')){
-			$className = 'OrderCreatorTotal' . ucfirst($ModuleCode);
-			if (!class_exists($className)){
-				require(__DIR__ . '/TotalModules/' . $ModuleCode . '/module.php');
-			}
-			$Module = new $className();
-		}
-		else {
-			$Module = parent::getTotalModule($ModuleCode);
-		}
-		return $Module;
 	}
 
 	/**

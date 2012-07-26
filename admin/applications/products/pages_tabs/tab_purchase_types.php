@@ -39,6 +39,15 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 
 	$availableStatuses = array();
 	$inventoryColumns = $PurchaseType->getConfigData('INVENTORY_QUANTITY_STATUSES');
+	$StatusSelect = htmlBase::newSelectbox()
+		->addClass('serialNumberStatus');
+	foreach($inventoryColumns as $id){
+		$StatusSelect->addOption($id, itw_get_status_name($id));
+	}
+
+	$SerialNumber = htmlBase::newInput()
+		->setType('hidden');
+
 	$inventoryItems = $PurchaseType->getInventoryItems();
 	foreach($inventoryColumns as $id){
 		$StatusName = itw_get_status_name($id);
@@ -61,11 +70,11 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 						'columns' => array(
 							array(
 								'align' => 'center',
-								'text'  => '<input type="hidden" name="inventory_serial[' . $purchaseTypeCode . '][number][]" value="' . $Serial . '">' . $Serial
+								'text'  => $SerialNumber->setName('inventory_serial[' . $purchaseTypeCode . '][number][]')->setValue($Serial)->draw() . $Serial
 							),
 							array(
 								'align' => 'center',
-								'text'  => itw_get_status_name($id)
+								'text'  => $StatusSelect->data('previous_status', $id)->setName('inventory_serial[' . $purchaseTypeCode . '][status][]')->selectOptionByValue($id)->draw()
 							)
 						)
 					));
@@ -73,16 +82,11 @@ function buildNormalInventoryTabs(Product $Product, PurchaseTypeBase $PurchaseTy
 			}
 		}
 
-		if ($id == $PurchaseType->getConfigData('INVENTORY_STATUS_AVAILABLE')){
-			$QtyInput = htmlBase::newInput()
-				->addClass('availableQuantity')
-				->setSize(8)
-				->setName('inventory[' . $PurchaseType->getCode() . '][' . $id . ']')
-				->setValue($total);
-		}
-		else {
-			$QtyInput = $total;
-		}
+		$QtyInput = htmlBase::newInput()
+			->addClass('inventoryQuantity_' . $id)
+			->setSize(8)
+			->setName('inventory[' . $PurchaseType->getCode() . '][' . $id . ']')
+			->setValue($total);
 
 		$QuantityGridBody['columns'][] = array(
 			'align' => 'center',
