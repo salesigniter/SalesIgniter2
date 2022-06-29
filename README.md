@@ -6,6 +6,8 @@ Made public so as not to count against our private repo limit
 
 DEPRECATED CODE
 
+##Magento 2 Booking Extension & WooCommerce Bookings Plugin Links
+
 Current version is at our official website: <a href="https://rentalbookingsoftware.com">Sales Igniter Rental Software</a>
 
 <a href="https://sites.google.com/view/rental-software-info/">Rental Software Info Online</a>
