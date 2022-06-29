@@ -17,3 +17,11 @@ Current version is at our official website: <a href="https://rentalbookingsoftwa
 <a href="https://www.facebook.com/salesigniter">Magento 2 Bookings Extension on Facebook</a>
 
 <a href="https://t.me/s/salesigniter">Sales Igniter Magento & WooCommerce Rental Bookings on Telegram</a>
+
+<a href="https://rentalbookingsoftware.com/docs/adding-products/">Adding Rental Calendar Products to a Shopping Cart</a>
+
+<a href="https://linktr.ee/salesigniter">Sales Igniter on Linktree</a>
+
+<a href="https://www.instapaper.com/p/salesigniter">Sales Igniter on Instapaper</a>
+
+<a href="https://www.reddit.com/r/magentobooking/">Sales Igniter on Reddit</a>
